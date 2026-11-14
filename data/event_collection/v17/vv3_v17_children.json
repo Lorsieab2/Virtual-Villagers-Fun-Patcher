@@ -63,7 +63,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "A child judges a children's contest under the Chief's watch, and the village decides how it is run."
  },
  "requirement": {
   "min_eligible": 1

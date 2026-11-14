@@ -48,7 +48,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "Two rival inventors come to blows over their devices: judge them by one test, or demand apologies first."
  },
  "requirement": {
   "min_eligible": 2

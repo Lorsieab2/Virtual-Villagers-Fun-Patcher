@@ -210,6 +210,9 @@ typedef struct {
     unsigned int header_bytes, role_bytes;
     int n_pool, n_item, flags;
     unsigned int o_pool, o_item;
+    /* Version 6 (cie-v6-binary.md 18): the title as the file holds it, and its title variants (header +92 the
+       first in the variants table, +94 the count; 0 none).  `title` is the one cg_choose_title picked. */
+    int base_title, tv_first, tv_count;
 } cg_graph;
 
 static unsigned int cg_u16(const unsigned char *p) {
@@ -804,9 +807,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         g->n_item = (int)cg_u16(h + 86);
         g->flags = (int)cg_u16(h + 88);
         if (g->n_pool > CG_MAX_POOLS || g->n_item > CG_MAX_ITEMS || !cg_section(g, g->o_pool, g->n_pool, 12)
-            || !cg_section(g, g->o_item, g->n_item, 8) || cg_u32(h + 92) != 0u) {
+            || !cg_section(g, g->o_item, g->n_item, 8)) {
             return cg_bad("its pools do not fit in the file");
         }
+        g->tv_first = (int)cg_u16(h + 92);
+        g->tv_count = (int)cg_u16(h + 94);
     }
     if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
         || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
@@ -830,6 +835,17 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     if (!cg_title_ok(g, cg_s(g, (unsigned int)g->title))) {
         return cg_bad("its title is not one the game can show");
+    }
+    g->base_title = g->title;
+    if ((g->tv_count == 0 && g->tv_first != 0) || g->tv_first + g->tv_count > g->n_variant) {
+        return cg_bad("its title variants do not fit in the file");
+    }
+    for (i = 0; i < g->tv_count; ++i) {
+        const unsigned char *v = g->d + g->o_variant + 4u * (unsigned int)(g->tv_first + i);
+        unsigned int c = cg_u16(v), t = cg_u16(v + 2);
+        if ((c != CG_NONE && c >= (unsigned int)g->n_cond) || !cg_str_ok(g, t, 0) || !cg_title_ok(g, cg_s(g, t))) {
+            return cg_bad("a title variant is not one the game can show");
+        }
     }
     for (i = 0; i < g->n_patch; ++i) {
         if (!cg_str_ok(g, cg_u16(data + g->o_patch + 2u * (unsigned int)i), 0)) {
@@ -3454,80 +3470,33 @@ static void cg_title_text(unsigned short t, char *out, int cap) {
     cg_title_expand(t, CG_EXPAND_REAL, out, cap);
 }
 
-/* 17: a title's readable form (the log, Pick Island Event, the library): each name "someone", each pronoun "he or
-   she" ..., in the case written; cut to CE_TITLE_BYTES - 1. */
-static void cg_readable_title(const char *raw, char *out, int cap) {
-    static char pair[48];
-    static char cased[CG_LABEL_V6 * 4];
-    int o = 0;
-    lstrcpynA(cased, raw, sizeof cased);
-    cg_title_case(cased);                               /* 20: a title in capitals in title case */
-    raw = cased;
-    if (cap > CE_TITLE_BYTES) {
-        cap = CE_TITLE_BYTES;
-    }
-    while (*raw != '\0' && o < cap - 1) {
-        const char *e = raw + 1, *w, *end;
-        const char *put = "someone";
-        int k, letters = 0, lower = 0, first = 1;
-        if (*raw != '(') {
-            out[o++] = *raw++;
-            continue;
-        }
-        while (*e != '\0' && *e != ')') {
-            ++e;
-        }
-        if (*e != ')') {
-            out[o++] = *raw++;
-            continue;
-        }
-        for (end = raw + 1; end < e && *end != '|'; ++end) {
-        }
-        for (w = end; w > raw + 1 && w[-1] != '.'; --w) {
-        }
-        {
-            /* A pronoun or role-sex word (the loader let only those hold "/"): its pair as written, with "or". */
-            int slash = 0, p = 0;
-            for (k = 0; w + k < end; ++k) {
-                slash |= w[k] == '/';
-            }
-            if (slash && (int)(end - w) < 30) {
-                for (k = 0; w + k < end; ++k) {
-                    char c = w[k];
-                    if (c == '/') {
-                        memcpy(pair + p, " or ", 4);
-                        p += 4;
-                        continue;
-                    }
-                    pair[p++] = (char)(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
-                }
-                pair[p] = '\0';
-                put = pair;
-            }
-        }
-        for (w = raw + 1; w < end; ++w) {
-            letters += (*w >= 'A' && *w <= 'Z') || (*w >= 'a' && *w <= 'z');
-            lower += *w >= 'a' && *w <= 'z';
-        }
-        for (w = end; w > raw + 1 && w[-1] != '.'; --w) {
-        }
-        for (; *put != '\0' && o < cap - 1; ++put, first = 0) {
-            char c = *put;
-            if ((letters >= 2 && lower == 0) || (first && *w >= 'A' && *w <= 'Z')) {
-                c = (char)(c >= 'a' && c <= 'z' ? c - 'a' + 'A' : c);
-            }
-            out[o++] = c;
-        }
-        raw = e + 1;
-    }
-    out[o] = '\0';
-}
-
-/* Graph `g`'s title in its readable form (17), in a buffer of its own. */
+/* 17: graph `g`'s title as written (its placeholders kept, as "(Name1)'s No Good, Very Bad Day"): what the lists
+   made before anyone is cast show (Pick Island Event, the library, the refusals, "is on its way"); cut to
+   CE_TITLE_BYTES - 1. A title written in capitals is in title case (20), as everywhere
+   it is shown. */
 static const char *cg_readable(const cg_graph *g) {
     static char buf[CE_TITLE_BYTES];
-    cg_readable_title(cg_s(g, (unsigned int)g->title), buf, sizeof buf);
+    static char cased[CG_LABEL_V6 * 4];
+    lstrcpynA(cased, cg_s(g, (unsigned int)g->title), sizeof cased);
+    cg_title_case(cased);                               /* 20: a title in capitals in title case */
+    lstrcpynA(buf, cased, sizeof buf);
     return buf;
+}
+
+/* 17: the running event's title with the cast villagers' real names (never pronouns: the log has no title box),
+   for the Island Events log's "Event:" line and "Disappeared in ...". */
+static void cg_title_logged(char *out, int cap) {
+    static char buf[CG_LABEL_V6 * 4];
+    static char cased[CG_LABEL_V6 * 4];
+    const ce_adapter *a = ce_adapter_for(cg.game);
+    if (cg_g.version < 6) {
+        lstrcpynA(out, cg.title, cap);
+        return;
+    }
+    lstrcpynA(cased, cg_s(&cg_g, (unsigned int)cg_g.title), sizeof cased);
+    cg_title_case(cased);                               /* 20: a title in capitals in title case */
+    cg_expand(cased, buf, sizeof buf, CG_EXPAND_REAL, a != NULL ? a->name_room : 0, -1, 0);
+    lstrcpynA(out, buf, cap);
 }
 
 /* The title of display `k`'s popup, into `out`. */
@@ -3579,8 +3548,9 @@ static void cg_tell_killed(int game, int index, const char *cause) {
 }
 
 static void cg_tell_vanished(int game, int index) {
-    char words[CE_TITLE_BYTES + 24];
-    wsprintfA(words, "Disappeared in %s", cg.title);
+    char words[CE_TITLE_BYTES + 24], title[CE_TITLE_BYTES];
+    cg_title_logged(title, sizeof title);
+    wsprintfA(words, "Disappeared in %s", title);
 #ifdef VVFP_TEST
     cg_test_tell(2, index, words);
 #endif
@@ -4305,10 +4275,11 @@ static void cg_entry_put(const char *text) {
 
 /* The entry's header: the title, and the button clicked (`label`, or NULL with no question). */
 static void cg_entry_start(const char *label) {
-    char line[CE_TITLE_BYTES + CE_BUTTON_BYTES + 32];
+    char line[CG_LABEL_V6 * 4 + CE_BUTTON_BYTES + 32], title[CG_LABEL_V6 * 4];
     cg.entry_len = 0;
     cg.entry[0] = '\0';
-    wsprintfA(line, "  Event: %s\n", cg.title);
+    cg_title_logged(title, sizeof title);
+    wsprintfA(line, "  Event: %s\n", title);
     cg_entry_put(line);
     if (label != NULL) {
         wsprintfA(line, "  Choice: %s\n", label);
@@ -5012,17 +4983,24 @@ static int cg_featured(int game) {
 
 /* ---- Queueing ----------------------------------------------------------------------------------------------- */
 
+static int cg_guardians_on(void);
+
 /* What role `r` needs, in words. */
 static void cg_role_words(int game, int r, char *out, int size) {
     const unsigned char *spec = cg_role_at(&cg_g, r);
     char part[96];
-    wsprintfA(out, "a %svillager of %d or more", spec[2] == 1 ? "male " : spec[2] == 2 ? "female " : "", (int)spec[3]);
+    wsprintfA(out, "a %svillager", spec[2] == 1 ? "male " : spec[2] == 2 ? "female " : "");
+    if (spec[3] != 0) {
+        wsprintfA(part, " of %d or more", (int)spec[3]);
+        lstrcatA(out, part);
+    }
     if (spec[1] & CG_ROLE_NURSING) {
         lstrcatA(out, ", not carrying or nursing a baby");
     }
     if (spec[1] & CG_ROLE_SPECIAL) {
         const char *who = game == 1 ? "the Golden Child" : game == 3 ? "the Tribal Chief"
-                        : game == 5 ? "a chief, the Retired Chief or a puzzle's Heathen" : NULL;
+                        : game == 5 ? (cg_guardians_on() ? "a chief, the Retired Chief or a puzzle's Isolan"
+                                                         : "a chief, the Retired Chief or a puzzle's Heathen") : NULL;
         if (who != NULL) {
             wsprintfA(part, ", not %s", who);
             lstrcatA(out, part);
@@ -5141,12 +5119,57 @@ static unsigned int cg_patches_on(int game) {
     return on;
 }
 
+/* New Believers with Guardians of Isola's rewrite on (the installed patches' list, or the game's own text as the
+   Faith popup sees it): the engine's own words then say "Isolan" for "Heathen" (the owner, 2026-11-14). */
+static int cg_guardians_on(void) {
+    cg_installed_load();
+    return (cg_installed_state == 1 && cg_installed_has(5, "guardians_of_isola")) || faith_notice_left_the_tribe();
+}
+
+/* The loaded event's title in `game` (cie-v6-binary.md 18): the first title variant whose condition (game and patch
+   conditions only) holds with the patches on now, else the file's own title.  Into cg_g.title, so every later use
+   -- the popups, the log, the refusals -- shows it. */
+static void cg_choose_title(int game) {
+    unsigned int keep = cg.patches;
+    int k;
+    cg_g.title = cg_g.base_title;
+    if (cg_g.tv_count == 0) {
+        return;
+    }
+    cg.patches = cg_patches_on(game);
+    for (k = 0; k < cg_g.tv_count; ++k) {
+        const unsigned char *v = cg_variant_at(&cg_g, cg_g.tv_first + k);
+        if (cg_holds_cond((int)cg_u16(v), game, 0)) {
+            cg_g.title = (int)cg_u16(v + 2);
+            break;
+        }
+    }
+    cg.patches = keep;
+}
+
 /* The roles a refusal planned with their requirements dropped (CG_CAST_PREFER), for the run cg_queue makes. */
 static unsigned int cg_plan_relaxed;
 
 /* VERSION 6, STRICT (the rare roll, Pick Island Event): the event's own requirement -- its condition beyond the
    puzzles (the header's `all`, docs/event-collection/cie-v6-binary.md 1) with the roles it will bind, and at least
-   `min_eligible` villagers who could take one of its villager roles. */
+   `min_eligible` villagers who could take one of its villager roles (an event with no villager role: at least
+   `min_eligible` villagers, as cg_population counts them). */
+static int cg_eligible_count(const ce_adapter *a, int game, unsigned int needed) {
+    int i, n = 0, r;
+    if (needed == 0u) {
+        return cg_population(game, 0);
+    }
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        for (r = 0; r < cg_g.n_role; ++r) {
+            if ((needed & (1u << r)) && cg_eligible(a, game, r, i)) {
+                ++n;
+                break;
+            }
+        }
+    }
+    return n;
+}
+
 static int cg_requirement_holds(int game, unsigned int needed) {
     const ce_adapter *a = ce_adapter_for(game);
     unsigned int keep_bound = cg.bound, keep_patches = cg.patches;
@@ -5171,18 +5194,184 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         cg.aliases_drawn = keep_drawn;
     }
     if (holds && cg_g.min_eligible > 0) {
-        int i, n = 0, r;
-        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
-            for (r = 0; r < cg_g.n_role; ++r) {
-                if ((needed & (1u << r)) && cg_eligible(a, game, r, i)) {
-                    ++n;
-                    break;
+        holds = cg_eligible_count(a, game, needed) >= cg_g.min_eligible;
+    }
+    return holds;
+}
+
+static void cg_role_words(int game, int r, char *out, int size);
+
+/* What requirement condition `i` asks for, in plain words, into `out` (after "it needs "): the first part that does
+   not hold now.  0 when it holds.  (A requirement never holds a villager fact: src/vv_cie_graph.py refuses it; never a
+   role's id, a code label the player does not see.) */
+static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
+    const unsigned char *c;
+    unsigned int a;
+    char part[200];
+    int k;
+    if (i == (int)CG_NONE || i < 0 || i >= cg_g.n_cond || depth > 8 || cg_holds_cond(i, game, 0)) {
+        return 0;
+    }
+    c = cg_cond_at(&cg_g, i);
+    a = cg_u16(c + 2);
+    part[0] = '\0';
+    switch (c[0]) {
+    case CGC_MIN_POPULATION:
+        wsprintfA(part, "at least %d %s", (int)a, game == 5 ? "believers" : "villagers");
+        break;
+    case CGC_MIN_CHILDREN:
+        wsprintfA(part, "at least %d %s under 14", (int)a, a == 1u ? "child" : "children");
+        break;
+    case CGC_SPECIAL_PRESENT:
+        lstrcpynA(part, a == 1u ? "the Golden Child in the village" : "the Tribal Chief in the village", sizeof part);
+        break;
+    case CGC_GAME:
+        lstrcpynA(part, "another game: it is not made for this one", sizeof part);
+        break;
+    case CGC_PATCH:
+        lstrcpynA(part, "a patch that is not installed in this game", sizeof part);
+        break;
+    case CGC_PUZZLE:
+        wsprintfA(part, "%s solved", cg_s(&cg_g, a));
+        break;
+    case CGC_ALL:
+        for (k = 0; k < c[1]; ++k) {
+            if (cg_cond_words((int)a + k, game, depth + 1, out, cap)) {
+                return 1;
+            }
+        }
+        break;
+    case CGC_ANY:
+        for (k = 0; k < c[1]; ++k) {
+            char one[200];
+            if (cg_cond_words((int)a + k, game, depth + 1, one, sizeof one)) {
+                if (part[0] != '\0' && lstrlenA(part) + lstrlenA(one) + 5 < (int)sizeof part) {
+                    lstrcatA(part, " or ");
+                    lstrcatA(part, one);
+                } else if (part[0] == '\0') {
+                    lstrcpynA(part, one, sizeof part);
                 }
             }
         }
-        holds = n >= cg_g.min_eligible;
+        break;
+    case CGC_NOT: {
+        const unsigned char *n = cg_cond_at(&cg_g, (int)a);
+        unsigned int na = cg_u16(n + 2);
+        if (n[0] == CGC_MIN_POPULATION) {
+            wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? "believers" : "villagers");
+        } else if (n[0] == CGC_MIN_CHILDREN) {
+            wsprintfA(part, "fewer than %d children under 14", (int)na);
+        } else if (n[0] == CGC_SPECIAL_PRESENT) {
+            lstrcpynA(part, na == 1u ? "no Golden Child in the village" : "no Tribal Chief in the village",
+                      sizeof part);
+        } else if (n[0] == CGC_PATCH) {
+            lstrcpynA(part, "a patch installed in this game to be taken off", sizeof part);
+        } else if (n[0] == CGC_PUZZLE) {
+            wsprintfA(part, "%s not solved yet", cg_s(&cg_g, na));
+        }
+        break;
     }
-    return holds;
+    default:
+        break;
+    }
+    if (part[0] == '\0') {
+        lstrcpynA(part, "the village to change first (a condition of the event does not hold now)", sizeof part);
+    }
+    lstrcpynA(out, part, cap);
+    return 1;
+}
+
+/* Why the event's own requirement (cg_requirement_holds) fails now, in plain words, into `out` (360 bytes): its
+   condition's first part that does not hold, else a needed role nobody can be, else too few villagers who could
+   take part. */
+static void cg_requirement_words(int game, unsigned int needed, char *out) {
+    const ce_adapter *a = ce_adapter_for(game);
+    unsigned int keep_bound = cg.bound, keep_patches = cg.patches;
+    int keep_drawn = cg.aliases_drawn, said = 0, k, r, i;
+    char words[CE_TITLE_BYTES + 24];
+    lstrcpynA(words, cg_readable(&cg_g), sizeof words);
+    if (a == NULL) {
+        wsprintfA(out, "\"%s\" can not happen in this game.", words);
+        return;
+    }
+    if (cg_g.req_cond != (int)CG_NONE) {
+        const unsigned char *all = cg_cond_at(&cg_g, cg_g.req_cond);
+        char part[220];
+        cg.bound = needed;
+        cg.patches = cg_patches_on(game);
+        cg.aliases_drawn = 0;
+        memset(cg_visited, 0, sizeof cg_visited);
+        for (k = 0; k < all[1] && !said; ++k) {
+            int c = (int)cg_u16(all + 2) + k;
+            if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE && cg_cond_words(c, game, 0, part, sizeof part)) {
+                wsprintfA(out, "\"%s\" can not happen in this village right now: it needs %s.", words, part);
+                said = 1;
+            }
+        }
+        cg.bound = keep_bound;
+        cg.patches = keep_patches;
+        cg.aliases_drawn = keep_drawn;
+        if (said) {
+            return;
+        }
+    }
+    if (needed == 0u) {
+        wsprintfA(out, "\"%s\" can not happen in this village right now: it needs at least %d %s.", words,
+                  (int)cg_g.min_eligible, game == 5 ? "believers" : (cg_g.min_eligible == 1 ? "villager" : "villagers"));
+        return;
+    }
+    for (r = 0; r < cg_g.n_role; ++r) {
+        if (!(needed & (1u << r))) {
+            continue;
+        }
+        for (i = 0; i < a->record_count && !cg_eligible(a, game, r, i); ++i) {
+        }
+        if (i >= a->record_count) {
+            char one[200];
+            cg_role_words(game, r, one, sizeof one);
+            wsprintfA(out, "Nobody in the village can take part now: it needs %s.", one);
+            return;
+        }
+    }
+    {
+        /* Each different kind of villager the roles take, once. */
+        char kinds[200], one[200];
+        int n = cg_eligible_count(a, game, needed);
+        kinds[0] = '\0';
+        for (r = 0; r < cg_g.n_role; ++r) {
+            if (!(needed & (1u << r))) {
+                continue;
+            }
+            cg_role_words(game, r, one, sizeof one);
+            if (kinds[0] == '\0') {
+                lstrcpynA(kinds, one, sizeof kinds);
+            } else {
+                const char *at = kinds;
+                int found = 0, len = lstrlenA(one);
+                for (; lstrlenA(at) >= len && !found; ++at) {
+                    found = memcmp(at, one, (size_t)len) == 0 && (at[len] == '\0' || at[len] == ';');
+                }
+                if (!found && lstrlenA(kinds) + len + 6 < (int)sizeof kinds) {
+                    lstrcatA(kinds, "; or ");
+                    lstrcatA(kinds, one);
+                }
+            }
+        }
+        wsprintfA(out, "Too few villagers can take part in \"%s\" now: it needs %d, each %s; %d can.", words,
+                  (int)cg_g.min_eligible, kinds, n);
+    }
+}
+
+/* The roles in `needed` can not all be filled at once: one different villager each. */
+static const char *cg_too_few_roles(unsigned int needed) {
+    static char reason[200];
+    int n = 0;
+    for (; needed != 0u; needed &= needed - 1u) {
+        ++n;
+    }
+    wsprintfA(reason, "The village does not have enough different villagers for the event's roles now: it needs %d, "
+              "one for each role. Nothing has been queued.", n);
+    return reason;
 }
 
 /* Why the loaded event cannot be queued in `game` now, or NULL; `planned` the roles it will bind. */
@@ -5195,6 +5384,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     if (a == NULL) {
         return "Custom Island Event is not available in this game.";
     }
+    cg_choose_title(game);
     if (!(cg_g.games & (1u << (game - 1)))) {
         wsprintfA(reason, "\"%s\" is not made for %s.", cg_readable(&cg_g), a->game_name);
         return reason;
@@ -5229,15 +5419,15 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     needed = cg_needed();
     cg_relax_mask = 0;
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_STRICT && !cg_requirement_holds(game, needed)) {
-        wsprintfA(reason, "\"%s\" can not happen in this village right now. Nothing has been queued.",
-                  cg_readable(&cg_g));
+        static char why[360];
+        cg_requirement_words(game, needed, why);
+        wsprintfA(reason, "%s Nothing has been queued.", why);
         return reason;
     }
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_PREFER) {
         /* Bought: a requirement nobody meets is dropped, never the purchase (only "no villager at all"). */
         if (!cg_plan_cast(a, game, needed, used)) {
-            return "The village does not have enough different villagers for the event's roles now. "
-                   "Nothing has been queued.";
+            return cg_too_few_roles(needed);
         }
     }
     for (r = 0; r < cg_g.n_role; ++r) {
@@ -5249,8 +5439,8 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         if (i >= a->record_count) {
             char words[200];
             cg_role_words(game, r, words, sizeof words);
-            wsprintfA(reason, "Nobody in the village can be the event's %s now: it needs %s. Nothing has been queued.",
-                      cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, r) + 4)), words);
+            wsprintfA(reason, "Nobody in the village can take part now: it needs %s. Nothing has been queued.",
+                      words);
             return reason;
         }
     }
@@ -5261,16 +5451,13 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             for (q = 0; q < cg_g.n_role; ++q) {
                 const unsigned char *qs = cg_role_at(&cg_g, q);
                 if (qs[6] != 0 && (needed & (1u << q)) && (needed & (1u << (qs[6] - 1)))) {
-                    wsprintfA(reason, "No two villagers in the village can be the event's %s and %s now: they must be "
-                              "at most %d years apart. Nothing has been queued.",
-                              cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, qs[6] - 1) + 4)), cg_s(&cg_g, cg_u16(qs + 4)),
-                              (int)qs[7]);
+                    wsprintfA(reason, "No two villagers in the village can take part together now: they must be "
+                              "at most %d years apart. Nothing has been queued.", (int)qs[7]);
                     return reason;
                 }
             }
         }
-        return "The village does not have enough different villagers for the event's roles now. "
-               "Nothing has been queued.";
+        return cg_too_few_roles(needed);
     }
     *planned = needed;
     for (r = 0; r < cg_g.n_role; ++r) {
@@ -5292,6 +5479,8 @@ static const char *cg_risk(int game) {
         if (spec[0] == 0 && !(spec[1] & CG_ROLE_SPECIAL) && (game == 1 || game == 3 || game == 5)) {
             return game == 1 ? "This event may choose the Golden Child, whom the game's puzzles need."
                  : game == 3 ? "This event may choose the Tribal Chief."
+                 : cg_guardians_on() ? "This event may choose a chief, the Retired Chief or a puzzle's Isolan, whom "
+                                       "the game's story needs."
                              : "This event may choose a chief, the Retired Chief or a puzzle's Heathen, whom the "
                                "game's story needs.";
         }
@@ -5325,6 +5514,7 @@ static int cg_queue(int game, unsigned int planned, int due) {
             cg.alias[r] = -1;
         }
     }
+    cg_choose_title(game);
     lstrcpynA(cg.title, cg_readable(&cg_g), sizeof cg.title);
     if (cg.question) {
         static cg_pages pages;
@@ -5547,6 +5737,7 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
     cg_g.d = cg_bytes;
     cg = cg_read_state;
+    cg_choose_title(game);             /* 18: the title variant in force, as when it was queued */
     cg_village = story_village_now(game);
     cg_display_armed = 0;
     {

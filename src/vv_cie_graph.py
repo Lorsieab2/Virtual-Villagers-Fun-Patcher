@@ -392,6 +392,7 @@ def fact_of(op: str, arg: Any) -> str:
 def fact_role(op: str, arg: Any) -> str | None:
     return arg if op == "has_living_child" else arg["role"] if op in ("age", "skill_at_least") else None
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
+TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if": known before anyone is cast
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
 PRESENT_CODES = {"golden_child": 1, "tribal_chief": 2}
@@ -930,6 +931,29 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
     if len(patches) > 8:
         problems.append("at most 8 patches may be named")
     g["patches"] = list(dict.fromkeys(patches))
+    tvs = data.get("title_variants")
+    if tvs is not None:
+        # Version 6 (cie-v6-binary.md 18): the event's title in a game or with a patch; the first whose condition
+        # holds replaces "title" everywhere the title shows (the popups, the log, Pick Island Event, the library).
+        if not v6:
+            problems.append(f"title_variants needs format version {VERSION_V6}")
+        elif not isinstance(tvs, list) or not tvs:
+            problems.append("title_variants is a list of {\"if\": condition, \"title\": \"...\"}")
+        else:
+            fixed_tv = []
+            for i, tv in enumerate(tvs):
+                where = f"title variant {i + 1}"
+                if not isinstance(tv, dict) or set(tv) != {"if", "title"} or not isinstance(tv["title"], str) \
+                        or not tv["title"].strip():
+                    problems.append(f"{where} is {{\"if\": condition, \"title\": \"...\"}}")
+                    continue
+                c = _norm_cond(tv["if"], where, problems, version)
+                if c is None or _cond_ops(c) - set(TITLE_CONDS):
+                    problems.append(f"{where}: its if may use only " + ", ".join(TITLE_CONDS))
+                    continue
+                fixed_tv.append({"if": c, "title": tv["title"]})
+            if fixed_tv:
+                g["title_variants"] = fixed_tv
     req = data.get("requirement", {})
     min_el = req.get("min_eligible", 0) if isinstance(req, dict) else None
     version = g["version"]
@@ -2280,6 +2304,16 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     return any(cond_holds(x, ctx, visited) for x in arg)
 
 
+def event_title(g: dict, game: int, patches: Iterable[str] = ()) -> str:
+    """The event's title in `game` with `patches` on (cie-v6-binary.md 18): the first title variant whose condition
+    holds, else "title".  A title variant's condition uses only game and patch conditions."""
+    ctx = Context(game, frozenset(patches), frozenset())
+    for tv in g.get("title_variants", []) or []:
+        if cond_holds(tv["if"], ctx, ()):
+            return tv["title"]
+    return g["title"]
+
+
 def with_aliases(g: dict, bound: Iterable[str]) -> frozenset[str]:
     """`bound` (villager and stranger roles) with each alias bound when one of its members is, and each other role
     (G2) when both of its alias's members are."""
@@ -2860,6 +2894,10 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
     refs = []
     _cond_refs(g["requirement"].get("if"), refs)
     _check_refs(g, "requirement", refs, problems)
+    for i, tv in enumerate(g.get("title_variants", [])):
+        refs = []
+        _cond_refs(tv["if"], refs)
+        _check_refs(g, f"title variant {i + 1}", refs, problems)
     lg = lower(g)
     if len(lg["pools"]) > MAX_POOLS or sum(len(p["items"]) for p in lg["pools"].values()) > MAX_ITEMS:
         problems.append(f"at most {MAX_POOLS} pools and {MAX_ITEMS} items (game words and inline picks included)")
@@ -3083,8 +3121,9 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
     """Of the titles in force on a popup ("" = the event's own), the one whose worst case wraps into the most
     lines at the layout's width (the first on a tie): the popup is paged with it (cie-v6-binary.md 14)."""
     best, most = g["title"], -1
-    for t in titles or [""]:
-        t = title_worst(g, t or g["title"], game)     # 17: at its widest as shown
+    own = [g["title"]] + [tv["title"] for tv in g.get("title_variants", []) or []]   # 18: any of them may show
+    for t in [x for t in titles or [""] for x in ([t] if t else own)]:
+        t = title_worst(g, t, game)     # 17: at its widest as shown
         n = len(wrap(t, layout.width))
         if n > most:
             best, most = t, n
@@ -3146,6 +3185,8 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
     # The title and the labels, in every game.
     lg_labels = lower(g) if v6 else None
     problems.extend(title_problems(g, g["title"], "the title"))
+    for i, tv in enumerate(g.get("title_variants", [])):
+        problems.extend(title_problems(g, tv["title"], f"title variant {i + 1}"))
     for nid, n in nodes.items():
         if n.get("title"):
             problems.extend(title_problems(g, n["title"], f"node {nid}: its popup title"))
@@ -3218,7 +3259,7 @@ assert _HEADER.size == 80 and _ROLE.size == 8 and _NODE.size == 28 and _CHILD.si
 assert _EFFECT.size == 16 and _COND.size == 8 and _VARIANT.size == 4
 
 
-_HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH I")
+_HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
 _ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
 _POOL = struct.Struct("<HHHBBHH")       # G3: + the distinct_from string, + 0
 _ITEM = struct.Struct("<HHHH")
@@ -3377,6 +3418,14 @@ def _compile_v6(g: dict) -> bytes:
             items += _ITEM.pack(s(it["text"]), it["weight"], cond(it["if"]), 0)
             n_item += 1
     title = s(lg["title"])
+    tv_first, tv_count = 0, 0
+    if lg.get("title_variants"):
+        # 18: after every node's variants, in the variants table; the header's last two H (0, 0 = none)
+        tv_first = n_variant
+        for tv in lg["title_variants"]:
+            variants += _VARIANT.pack(cond(tv["if"]), s(tv["title"]))
+            n_variant += 1
+        tv_count = len(lg["title_variants"])
     req_puzzles = [(int(gn), name) for gn, names in lg["requirement"].get("puzzles", {}).items() for name in names]
     req_if = lg["requirement"].get("if")
     requirement = NONE
@@ -3413,7 +3462,7 @@ def _compile_v6(g: dict) -> bytes:
                          lg["requirement"]["min_eligible"], len(role_ids), len(node_ids), n_child, n_effect,
                          len(conds), n_variant, len(strings), len(lg["patches"]), requirement,
                          offs[0], offs[1], offs[2], offs[3], offs[4], offs[5], offs[6], offs[9],
-                         offs[7], offs[8], len(lg["pools"]), n_item, 1, col, 0)
+                         offs[7], offs[8], len(lg["pools"]), n_item, 1, col, tv_first, tv_count)
     data = bytearray(head + b"".join(sections))
     struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
     return bytes(data)
@@ -3423,7 +3472,7 @@ def _decompile_v6(data: bytes) -> dict:
     h = _HEADER6.unpack_from(data, 0)
     (_magic, version, _hsize, _fsize, _crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect,
      _n_cond, n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch,
-     o_string, o_pool, o_item, n_pool, _n_item, _flags, col, _z) = h
+     o_string, o_pool, o_item, n_pool, _n_item, _flags, col, tv_first, tv_count) = h
     offs = [struct.unpack_from("<I", data, o_string + 4 * i)[0] for i in range(n_string)]
     base = o_string + 4 * n_string
 
@@ -3583,6 +3632,12 @@ def _decompile_v6(data: bytes) -> dict:
     lg = {"format": FORMAT, "version": version, "title": s(title),
           "games": [x for x in range(1, 6) if games_mask & (1 << (x - 1))], "patches": patches,
           "requirement": requirement, "roles": roles, "start": node_ids[start], "nodes": nodes, "pools": pools}
+    if tv_count:
+        tvs = []
+        for k in range(tv_count):
+            vc, vt = _VARIANT.unpack_from(data, o_variant + (tv_first + k) * _VARIANT.size)
+            tvs.append({"if": cond(vc), "title": s(vt)})
+        lg["title_variants"] = tvs
     if col != NONE:
         lg["collection"] = json.loads(s(col))
     return lift(lg)
@@ -4043,7 +4098,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             k += 1
     texts: list[str] = []
     titles: list[str] = []             # 14: the title each popup's first page shows
-    title = lg["title"]
+    title = event_title(lg, game, patches)   # 18
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
     for at, nid in enumerate(path):

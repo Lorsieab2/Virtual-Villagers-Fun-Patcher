@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Boy Who Understood Grief",
+ "title": "The Griever",
  "games": [
   1
  ],
@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child sits quietly with a grieving villager near the graves."
  },
  "requirement": {
   "min_eligible": 1
@@ -44,7 +45,7 @@
  "start": "scene",
  "nodes": {
   "scene": {
-   "name": "The Boy Who Understood Grief",
+   "name": "The Griever",
    "src": "L7810-7812",
    "text": "The Golden Child finds a mourner alone near the graves. He offers a flower and sits quietly. After a while, the villager begins sharing memories of someone lost. The boy listens until sunset.",
    "text_only": [

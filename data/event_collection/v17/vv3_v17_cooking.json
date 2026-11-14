@@ -27,7 +27,8 @@
     "text": "; tech reward",
     "why": "the tech effect on C1"
    }
-  ]
+  ],
+  "description": "Two cooks prepare a ceremonial meal for a harsh critic, and the Chief decides how it is judged."
  },
  "requirement": {
   "min_eligible": 1

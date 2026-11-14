@@ -21,7 +21,8 @@
   "draw_weight": 1,
   "series": "v20_crises",
   "title_src": "L9016",
-  "ledger": []
+  "ledger": [],
+  "description": "Two patients need the same scarce medicine, and the village decides what to do with the only dose."
  },
  "roles": {
   "patient": {

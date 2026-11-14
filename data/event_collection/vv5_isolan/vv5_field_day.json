@@ -75,7 +75,8 @@
     "kind": "note",
     "why": "reward rule: only the cast villager gains; Isolans are never cast"
    }
-  ]
+  ],
+  "description": "The Isolan neighbors invite the village to an afternoon of games, and the village decides how to play."
  },
  "requirement": {
   "min_eligible": 1

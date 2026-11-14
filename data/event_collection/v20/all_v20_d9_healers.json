@@ -34,7 +34,8 @@
     "text": "or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "A respected healer privately confesses a serious mistake: disclose it, or keep it hidden."
  },
  "roles": {},
  "start": "intro",

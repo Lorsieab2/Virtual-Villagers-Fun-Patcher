@@ -34,7 +34,8 @@
     "text": "Small food loss.",
     "why": "the small food loss on s2"
    }
-  ]
+  ],
+  "description": "A villager feels a sneeze coming at exactly the wrong moment."
  },
  "requirement": {
   "min_eligible": 1

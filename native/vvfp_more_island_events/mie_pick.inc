@@ -40,6 +40,8 @@ typedef struct {
     int cr;                                    /* 1 The Remembrance Ceremony, 2 The Rumblings (ceremony_games.inc):
                                                   single-result events -- A New Home's and The Lost Children's
                                                   island events, not their two-choice ones */
+    const char *needs_isolans;                 /* New Believers with Guardians of Isola's rewrite: `needs` in its
+                                                  words ("Isolan" for "Heathen", no "converted"); NULL = `needs` */
 } mie_pick;
 
 static int mp_adventurer(void) { return adv_possible(g_adv_game); }
@@ -88,7 +90,8 @@ static const mie_pick MIE_PICKS[] = {
     { MIE_IN(5), "remembrance_ceremony_nb", mp_rc_title, mp_remembrance,
       "at least one grave and The Last Heathen achieved (every Heathen converted)",
       "The whole village honors the dead, and the feast uses food.",
-      NULL, &g_cr_objects[CR_REMEMBRANCE], 1 },
+      NULL, &g_cr_objects[CR_REMEMBRANCE], 1,
+      "at least one grave and A Family Reunited achieved (every Isolan came to live with our tribe)" },
     { MIE_ALL_GAMES, "the_rumblings", mp_rb_title, mp_rumblings,
       "every puzzle solved and a finished hut",
       "The ground shakes and damages some of the village's huts.",
@@ -206,8 +209,13 @@ int __stdcall VvfpMoreIslandEventsPickInfo(int k, char *title, char *description
     }
     mp_stem(stem, sizeof stem, p->key, ".description");
     lstrcpynA(description, vvfp_tr(stem, p->description, (unsigned int)cap), cap);
-    mp_stem(stem, sizeof stem, p->key, ".needs");
-    lstrcpynA(needs, vvfp_tr(stem, p->needs, (unsigned int)cap), cap);
+    if (p->needs_isolans != NULL && g_adv_game->game == 5 && vv5_joins_key() == ADV_L2_ISOLANS) {
+        mp_stem(stem, sizeof stem, p->key, ".needs_isolans");
+        lstrcpynA(needs, vvfp_tr(stem, p->needs_isolans, (unsigned int)cap), cap);
+    } else {
+        mp_stem(stem, sizeof stem, p->key, ".needs");
+        lstrcpynA(needs, vvfp_tr(stem, p->needs, (unsigned int)cap), cap);
+    }
     if (!mp_past_first_events(g_adv_game->game)) {
         lstrcpynA(needs,
                   vvfp_tr("vvfp.more_island_events/mie_pick.first_events",

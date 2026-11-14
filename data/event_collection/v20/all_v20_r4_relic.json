@@ -84,7 +84,8 @@
   "shared_lines": [
    "L9333-9341",
    "L9344-9352"
-  ]
+  ],
+  "description": "A villager rediscovers a strange object found long ago by someone else, and its story comes to light."
  },
  "requirement": {
   "min_eligible": 1

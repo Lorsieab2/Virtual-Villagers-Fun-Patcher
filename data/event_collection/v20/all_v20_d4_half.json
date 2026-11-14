@@ -28,7 +28,8 @@
     "text": "VV5 variation:",
     "why": "VV5-only label"
    }
-  ]
+  ],
+  "description": "A healer finds a remedy with its last words worn away: try to reconstruct it, or ask scholars and elders."
  },
  "roles": {
   "patient": {

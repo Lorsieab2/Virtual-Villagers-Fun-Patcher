@@ -23,6 +23,34 @@ MANIFEST = COLLECTION_DIR / "manifest.json"
 SHARED_POOLS = COLLECTION_DIR / "shared_pools.json"
 GRAMMAR_FIXES_DOC = ROOT / "docs" / "event-collection" / "grammar-fixes.md"
 SOURCE_LINES = 10571
+OWNER_TITLES_DOC = ROOT / "docs" / "event-collection" / "owner-title-changes.md"
+
+
+@lru_cache(maxsize=None)
+def owner_titles() -> dict[str, dict[str, str]]:
+    """The owner's title changes (docs/event-collection/owner-title-changes.md): {id: {"old", "new", "date", "by"}}.
+    Each row is "| `id` | old | new | date | by |"; the titles are kept exactly as written there."""
+    out: dict[str, dict[str, str]] = {}
+    for row in OWNER_TITLES_DOC.read_text(encoding="utf-8").splitlines():
+        m = re.fullmatch(r"\| `([a-z0-9_]+)` \| (.+?) \| (.+?) \| (\d{4}-\d{2}-\d{2}) \| (\w+) \|", row.strip())
+        if m:
+            out[m.group(1)] = {"old": m.group(2), "new": m.group(3), "date": m.group(4), "by": m.group(5)}
+    return out
+
+
+GUARDIANS_DOC = ROOT / "docs" / "event-collection" / "guardians-wording.md"
+
+
+@lru_cache(maxsize=None)
+def guardians_pairs() -> dict[str, list[tuple[str, str, str]]]:
+    """The Guardians of Isola Rewrite wording (docs/event-collection/guardians-wording.md): {id: [(where, before,
+    after), ...]}, from each row "| `id` | where | before | after |" of its collection table."""
+    out: dict[str, list[tuple[str, str, str]]] = {}
+    for row in GUARDIANS_DOC.read_text(encoding="utf-8").splitlines():
+        m = re.fullmatch(r"\| `([a-z0-9_]+)` \| (.+?) \| (.+?) \| (.+?) \|", row.strip())
+        if m:
+            out.setdefault(m.group(1), []).append((m.group(2), m.group(3), m.group(4)))
+    return out
 
 
 def source_sha256() -> str:

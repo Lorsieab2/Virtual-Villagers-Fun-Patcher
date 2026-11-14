@@ -35,7 +35,8 @@
     "text": "Lose a small amount of food;",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A child in a grass crown demands to rule for a day: let the child govern, or have the Chief explain leadership."
  },
  "requirement": {
   "min_eligible": 1

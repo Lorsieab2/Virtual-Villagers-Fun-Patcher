@@ -26,7 +26,8 @@
     "kind": "note",
     "why": "designer rule: the Chief has no unilateral authority over the prize"
    }
-  ]
+  ],
+  "description": "Two sculptors make statues of the Chief, one far from flattering, and the village decides how they are judged."
  },
  "requirement": {
   "min_eligible": 1

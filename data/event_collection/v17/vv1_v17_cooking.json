@@ -45,7 +45,8 @@
     "text": "; no food reward, no illness",
     "why": "C2's text-only reason"
    }
-  ]
+  ],
+  "description": "Two cooks compete before a demanding elder judge, and the village decides how the dishes are tasted."
  },
  "requirement": {
   "min_eligible": 1

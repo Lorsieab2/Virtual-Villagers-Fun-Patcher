@@ -24,7 +24,8 @@
     "text": "Gain food or a small tech reward.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "Two farmers argue over how to water a dry patch near the Tree: test both methods, or ask the builders."
  },
  "requirement": {
   "min_eligible": 1

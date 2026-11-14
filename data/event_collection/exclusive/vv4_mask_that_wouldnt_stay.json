@@ -24,7 +24,8 @@
     "text": "Gain a small tech reward from the discovery.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "An old mask keeps turning up in strange places: watch it overnight, or hold a ceremony to put it away."
  },
  "requirement": {
   "min_eligible": 1

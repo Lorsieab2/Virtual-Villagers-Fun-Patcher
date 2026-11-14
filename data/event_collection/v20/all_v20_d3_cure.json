@@ -21,7 +21,8 @@
   "draw_weight": 1,
   "series": "v20_crises",
   "title_src": "L8984",
-  "ledger": []
+  "ledger": [],
+  "description": "Villagers fall ill with an unknown illness, and the village decides whether to try a healer's new remedy."
  },
  "roles": {
   "patient": {

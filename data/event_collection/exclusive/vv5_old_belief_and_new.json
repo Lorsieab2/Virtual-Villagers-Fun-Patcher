@@ -24,7 +24,8 @@
     "text": "Gain tech.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A young Isolan asks an elder about remembering the past: hear the old stories, or write a reflection."
  },
  "requirement": {
   "min_eligible": 1

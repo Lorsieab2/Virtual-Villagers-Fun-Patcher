@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Warriors' Tournament",
+ "title": "The Warriors' Duel",
  "games": [
   1,
   2,
@@ -47,7 +47,8 @@
     "kind": "instruction",
     "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A1, A2, A4, B1, B2); reputation is told only (rule 7)"
    }
-  ]
+  ],
+  "description": "Two villagers demand a tournament of arms: allow a supervised contest, or test defense and restraint instead."
  },
  "roles": {
   "boaster": {

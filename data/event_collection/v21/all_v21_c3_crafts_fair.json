@@ -141,7 +141,8 @@
   "shared_lines": [
    "L9538-9547",
    "L9518-9536"
-  ]
+  ],
+  "description": "Makers gather for a great crafts fair, and the village decides what kind of fair it will be."
  },
  "roles": {
   "judge": {

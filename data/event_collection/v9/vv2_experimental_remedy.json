@@ -74,7 +74,8 @@
     "text": "No actual game-role change unless supported by the patch.",
     "why": "designer note: the removal is story only"
    }
-  ]
+  ],
+  "description": "A researcher's miracle remedy alarms the healers, and the village decides how to deal with it."
  },
  "requirement": {
   "min_eligible": 2

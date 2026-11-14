@@ -386,7 +386,8 @@ def pick_entries() -> list[dict]:
         games = (["vv1", "vv2", "vv3", "vv4", "vv5"] if block.startswith("MIE_ALL_GAMES")
                  else [PICK_GAMES[g] for g in re.findall(r"MIE_IN\((\d)\)", block.split(",")[0])])
         key, needs, description = literals[0], literals[1], literals[2]
-        out.append({"key": key, "games": games, "needs": needs, "description": description})
+        out.append({"key": key, "games": games, "needs": needs, "description": description,
+                    "needs_isolans": literals[3] if len(literals) > 3 else None})
     return out
 
 
@@ -402,6 +403,12 @@ def pick_template_rows() -> list[dict]:
                     "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and "
                              "as \"<event> needs <this>.\" (lower case, no full stop)",
                     "route": "key"})
+        if e["needs_isolans"]:
+            out.append({"stem": f"{PICK_STEM}.{e['key']}.needs_isolans", "english": e["needs_isolans"],
+                        "games": e["games"], "mechanism": "b", "context": PICK_CONTEXT,
+                        "notes": "a patcher window: what the event needs, as .needs, with Guardians of Isola "
+                                 "Rewrite installed (its words: Isolans, A Family Reunited) (lower case, no full stop)",
+                        "route": "key"})
     out.append({"stem": f"{PICK_STEM}.first_events",
                 "english": "the village's first island events to have happened", "games": ["vv1", "vv2"],
                 "mechanism": "b", "context": PICK_CONTEXT,

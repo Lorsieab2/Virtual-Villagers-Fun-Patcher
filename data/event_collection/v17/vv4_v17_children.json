@@ -52,7 +52,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Two children make ceremonial masks for a parade contest, and the village decides how they are judged."
  },
  "requirement": {
   "min_eligible": 1

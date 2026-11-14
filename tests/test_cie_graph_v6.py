@@ -249,6 +249,21 @@ LABELS = {
 }
 
 
+TITLE_VARIANTS = {
+    # A title variant (cie-v6-binary.md 18): New Believers with Guardians of Isola Rewrite shows its own title, and
+    # the page its own words (a page variant); without the patch, and in another game, the file's own.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Homesick Convert",
+    "title_variants": [{"if": {"patch": "guardians_of_isola"}, "title": "The Homesick Newcomer"}],
+    "games": [3, 5], "patches": ["guardians_of_isola"],
+    "roles": {"subject": {"kind": "villager"}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) is a recent convert who misses home.",
+              "variants": [{"if": {"patch": "guardians_of_isola"},
+                            "text": "(Name) recently came to live with our tribe and misses home."}]},
+    },
+}
+
 ECHO = {
     # No "!." or "?." (cie-v6-binary.md 6, step 5): an inserted item ending in "!" or "?" drops the "." right after
     # its token -- a pool's, an inline pick's and a nested one's (SIGN's item ends in SHOUT.2) -- and only that one.
@@ -368,6 +383,14 @@ def vector_cases() -> list[dict]:
          "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
         {"name": "item_end_marks_vv5", "graph": ECHO, "game": 5, "unicode": False, "rolls": [1, 2, 1, 0],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "title_variant_vv5_guardians", "graph": TITLE_VARIANTS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None,
+         "patches": ["guardians_of_isola"]},
+        {"name": "title_variant_vv5_plain", "graph": TITLE_VARIANTS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "title_variant_vv3_guardians", "graph": TITLE_VARIANTS, "game": 3, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None,
+         "patches": ["guardians_of_isola"]},
     ]
 
 
@@ -375,7 +398,8 @@ def run_case(case: dict) -> dict:
     g = cg.load(case["graph"], True)
     facts = None if case["facts"] is None else frozenset(case["facts"])
     r = cg.simulate(g, case["game"], case["rolls"], binding(case["bindings"]), case["answers"],
-                    facts=facts, unicode=case["unicode"], tribe=case.get("tribe"))
+                    patches=tuple(case.get("patches", ())), facts=facts, unicode=case["unicode"],
+                    tribe=case.get("tribe"))
     r["cieg_sha256"] = sha(cg.compile_graph(g))
     return r
 
@@ -1046,7 +1070,7 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertFalse(cg.parse_placeholder_v6("Name1", roles).upper)
         g = cg.lower(cg.load(CAPS, True))
         b = {"subject": cg.Binding("Ana", "f"), "friend": cg.Binding("Bo", "m")}
-        # A run in capitals is shown in sentence case (cie-v6-binary.md 19): its placeholders give the words in
+        # A run in capitals is shown in sentence case (cie-v6-binary.md 20): its placeholders give the words in
         # their own case; an all-caps placeholder in ordinary text still gives capitals.
         self.assertEqual(cg.expand_v6("TELL (NAME1) TO STOP; (FRIEND.HE/SHE) AND (HIM/HER).", g, b),
                          "Tell Ana to stop; he and her.")
@@ -1098,7 +1122,7 @@ class Fit(unittest.TestCase):
         d = v6(games=[1, 3])
         d["nodes"]["k"]["text"] = "&" * 700
         # Without scrolling (pages): VV1's fallback words make it longer than a popup's 1990 bytes.  (With scrolling
-        # A New Home's one popup holds 8000: cie-v6-binary.md 18.)
+        # A New Home's one popup holds 8000: cie-v6-binary.md 19.)
         problems = t.problems_of(d, False)
         self.assertTrue(any(p.startswith("A New Home") and "longer than 1990" in p for p in problems), problems)
         self.assertFalse(any(p.startswith("The Secret City") and "longer than" in p for p in problems))
@@ -1372,7 +1396,7 @@ class LabelPronouns(unittest.TestCase):
         g = cg.load(copy.deepcopy(LABELS))
         lg = cg.lower(g)
         b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
-        # The owner's label in capitals is shown in sentence case (cie-v6-binary.md 19) and then fits with the
+        # The owner's label in capitals is shown in sentence case (cie-v6-binary.md 20) and then fits with the
         # names; a longer one shows pronouns where the names do not fit (15).
         wide = lg["nodes"]["q"]["choices"][0]["label"]
         self.assertEqual(cg.label_shown(wide, lg, b, 3), "Tell Rosalind and Bartholomew to sail out to the far reef at dawn")

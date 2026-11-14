@@ -29,7 +29,8 @@ Versions 1 to 5 are unchanged byte for byte (pinned by `tests/test_cie_graph_v6.
 | 86 | `H` | item count (at most 8000) |
 | 88 | `H` | flags: bit 0 = the protected guard is on (always 1 in v6) |
 | 90 | `H` | the `collection` block as one string (its canonical JSON, ASCII, `\uXXXX` escapes), or `NONE` **(differs from A4: was 0)**. Never shown in game; the engine may ignore it. |
-| 92 | `I` | 0 |
+| 92 | `H` | the first title variant in the variants table (section 18); 0 when there is none |
+| 94 | `H` | the title variants' count (0 = none; a file made before section 18 holds 0 here) |
 
 Section order in the file: header, roles, nodes, children, effects, conds, variants, patches, **pools, items**,
 strings. The engine must use the offsets, not the order.
@@ -67,7 +68,8 @@ strings. The engine must use the offsets, not the order.
   villager, at least one villager role must exist. An unprefixed placeholder or effect names `subject` when
   there is one, else the first role.
 - **No roles at all:** `"roles": {}` is allowed when no text, label, condition or effect names a role (e.g. V20
-  crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` is 0. A
+  crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` counts the
+  village's villagers (as `min_population` does; v1.35.97 counted nobody, so such an event never happened). A
   name or pronoun placeholder, a role condition or a villager effect in such a graph is an error.
 
 ## 2a. Node record (28 bytes, unchanged size)
@@ -395,13 +397,35 @@ Bad Day`.
   stranger's longest list name; the longer pronoun); when that does not fit, the worst case with every name as the
   longer pronoun of its form must. The pages of VV1/VV2 (which lead the text with the title) are laid out with the
   worst case of the form that fits (names when they fit, else pronouns).
-- **The readable form** (the Island Events log's "Event:" line, "Disappeared in ...", Pick Island Event, the library,
-  the queue's messages; `readable_title` / `cg_readable_title`): every name placeholder becomes "someone" in the
-  case written (`(Name1)` -> `Someone`, `(NAME1)` -> `SOMEONE`, `(name1)` -> `someone`), every pronoun or role-sex
-  word its pair as written, joined by "or": "he or she", "his or her", "woman or man", "mother or father", ...
-  (the case written: `(He/She)` -> `He or she`, `(HE/SHE)` -> `HE OR SHE`). The result is cut to 47 bytes. E.g.
-  "Someone's No Good, Very Bad Day". The library's file name is made from this form.
-- `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
+- **Before anyone is cast** (Pick Island Event, the library, Game Mechanics, the manifest, the refusals, "is on its
+  way"; `cg_readable`): the title **as written**, placeholders kept, cut to 47 bytes -- e.g. "(Name1)'s No Good,
+  Very Bad Day" (the owner, 2026-11-14: the "(Name1)" is intentional).
+- **The Island Events log** ("Event:" line, "Disappeared in ..."; `cg_title_logged`): the title with the cast
+  villagers' real names, never pronouns (the log has no title box) -- e.g. "Ana's No Good, Very Bad Day".
+- **The library's file name** (`library_stem`) is made from `readable_title`: every name placeholder "someone" in
+  the case written, every pronoun or role-sex word its pair joined by "or" ("he or she", "mother or father"), cut
+  to 47 bytes, then letters, digits, space, - and _ only.
+- `VvfpStoryGraphLogged` accepts the title as written, or the title armed (expanded).
+
+## 18. Title variants
+
+JSON (v6): `"title_variants": [{"if": COND, "title": "..."}]` beside `"title"`. The event's title in a game is the
+first variant whose condition holds, else `"title"`. A variant's condition uses only `game`, `patch`, `not`, `all` and
+`any` (it is decided before anyone is cast), and each variant title is checked exactly as the event's title
+(sections 5 and 17). The first use: New Believers with Guardians of Isola Rewrite (`{"patch": "guardians_of_isola"}`)
+shows "The Homesick Newcomer" for "The Homesick Convert" (docs/event-collection/guardians-wording.md).
+
+- **Binary:** variant records (`H cond, H text`, as a node's) placed after every node's variants; header +92 the
+  first, +94 the count. A file without title variants keeps 0, 0 there, so it is byte for byte as before.
+- **Engine** (`story_graph.inc cg_choose_title`): `cg_refusal`, `cg_queue` and the resume of a saved run pick the
+  title with the patches on now (`cg_patches_on`) into `cg_g.title`, so the popups, the log's "Event:" line, the
+  refusals and `VvfpStoryGraphLogged` use it. The loader refuses a variant whose condition or title is not valid.
+- **Lists made before casting** (Pick Island Event, the library's collection group) read the title from the
+  collection's manifest.txt, whose New Believers lines carry the title with Guardians of Isola Rewrite on
+  (`story_collection.inc sc_scan`, `cg_guardians_on`).
+- **Python:** `normalize` keeps it, `compile_graph` / `decompile_graph` round-trip it, `event_title(g, game,
+  patches)` gives the title, and `simulate` returns it as the first popup's title. Pinned by the shared vectors
+  `title_variant_vv5_guardians`, `title_variant_vv5_plain` and `title_variant_vv3_guardians`.
 
 ## 19. One popup per island event (with Scrolling Popups)
 
@@ -482,4 +506,4 @@ anything is filled in:
   stays as written;
 - a TITLE written in capitals (no lower-case letter, a word of two or more letters) is shown in title case: each
   word's first letter a capital, the rest lower case, a placeholder's name as written (`"(NAME)'S BIG DAY"` ->
-  `"(Name)'s Big Day"`); any other title as written. The readable title (17) is made from it.
+  `"(Name)'s Big Day"`); any other title as written. The titles of section 17 (as written, logged, the library's file name) are made from it.

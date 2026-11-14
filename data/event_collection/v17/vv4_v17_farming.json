@@ -58,7 +58,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Two growers compete to water the garden without draining the Tree, and the village decides how to judge them."
  },
  "requirement": {
   "min_eligible": 1

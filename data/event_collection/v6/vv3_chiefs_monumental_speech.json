@@ -48,7 +48,8 @@
     "kind": "note",
     "why": "protection note: the Chief is cast as the special tribal_chief role, which no effect harms; the event has no effect"
    }
-  ]
+  ],
+  "description": "The Chief gives a grand speech about the village's progress, and not everything goes to plan."
  },
  "grammar_fixes": [
   {

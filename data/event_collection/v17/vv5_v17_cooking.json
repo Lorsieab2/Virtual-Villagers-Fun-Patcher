@@ -16,7 +16,8 @@
   "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
   "draw_weight": 1,
   "series": "v17_contests",
-  "title_src": "L8384"
+  "title_src": "L8384",
+  "description": "A villager and a visitor cook signature dishes before an Isolan judge, and the village decides how they are tasted."
  },
  "requirement": {
   "min_eligible": 1

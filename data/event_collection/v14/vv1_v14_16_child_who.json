@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Child Who Settled an Argument",
+ "title": "The Mediator",
  "games": [
   1
  ],
@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child settles a quarrel between two builders with a model made of sticks."
  },
  "requirement": {
   "min_eligible": 1
@@ -44,7 +45,7 @@
  "start": "scene",
  "nodes": {
   "scene": {
-   "name": "The Child Who Settled an Argument",
+   "name": "The Mediator",
    "src": "L7759-7762",
    "text": "Two builders quarrel over a roof support. The Golden Child arranges sticks to show a third way to distribute the weight. Both builders test the model and discover that it holds. He asks whether they can stop arguing now because it is making his head hurt.",
    "effects": [

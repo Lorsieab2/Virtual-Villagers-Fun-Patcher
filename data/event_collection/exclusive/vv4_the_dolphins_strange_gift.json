@@ -24,7 +24,8 @@
     "text": "Gain tech.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A villager finds an odd object washed ashore after dolphins were seen: study it, or return it to the sea."
  },
  "requirement": {
   "min_eligible": 1

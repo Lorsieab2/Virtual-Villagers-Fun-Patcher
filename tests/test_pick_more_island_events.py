@@ -25,6 +25,7 @@ stood in for; the Story TEST build with More Island Events' three stood in for):
 from __future__ import annotations
 
 import os
+import re
 import struct
 import sys
 import unittest
@@ -104,6 +105,24 @@ class TheList(unittest.TestCase):
                 entry = v.entries()[0]
                 self.assertEqual(entry[2], 0)
                 self.assertIn("first island events", entry[3])
+
+    def test_new_believers_words_with_guardians_of_isola(self) -> None:
+        """The owner (2026-11-14): with Guardians of Isola Rewrite, New Believers' list never says Heathen or convert
+        (docs/event-collection/guardians-wording.md); without it, the words are unchanged."""
+        v = PickedVillage(5)
+        plain = {e[1]: e for e in v.entries()}
+        self.assertIn("The Last Heathen achieved (every Heathen converted)", plain["The Remembrance Ceremony"][3])
+        entry, text = v.p.alloc(32), v.p.alloc(64)
+        v.p.write(text, b"A villager has left the tribe!\0")         # the rewrite's eSayStoppedBelieving
+        v.p.write(entry, struct.pack("<IIII", 0x48, 0, text, 0))
+        v.p.put32(0x5240A8 + 4 * 0x48, entry)
+        bufs = [v.p.alloc(400) for _ in range(3)]
+        for k, title, _state, needs in v.entries():
+            v.p.export("VvfpMoreIslandEventsPickInfo", k, *bufs, 400)
+            for words in (title, v.p.cstring(bufs[1], 400), needs):
+                self.assertIsNone(re.search(r"(?i)heathen|convert", words), words)
+        self.assertEqual({e[1]: e for e in v.entries()}["The Remembrance Ceremony"][3],
+                         "at least one grave and A Family Reunited achieved (every Isolan came to live with our tribe)")
 
     def test_the_climb_and_the_cave_say_what_they_need(self) -> None:
         v = PickedVillage(1)

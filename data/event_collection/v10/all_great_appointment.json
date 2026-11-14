@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Great Appointment Scandal",
+ "title": "The Appointment Scandal",
  "games": [
   1,
   2,
@@ -109,7 +109,8 @@
     "kind": "note",
     "why": "titles are story only (rule 7); nursing parents are never harmed"
    }
-  ]
+  ],
+  "description": "Two villagers are nominated to coordinate village work, and the village decides how to choose between them."
  },
  "requirement": {
   "min_eligible": 3

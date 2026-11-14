@@ -59,7 +59,8 @@
     "kind": "note",
     "why": "safety note: the parent is never cast (text only); Isolans are never cast; the event has no harmful effect"
    }
-  ]
+  ],
+  "description": "An elder shows a child an ordinary keepsake and tells the story behind it."
  },
  "requirement": {
   "min_eligible": 2

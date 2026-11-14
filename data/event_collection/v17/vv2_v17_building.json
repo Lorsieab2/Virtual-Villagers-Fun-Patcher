@@ -27,7 +27,8 @@
     "text": "; do not let children test an unverified bridge",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "A thin reed bridge sways in a building contest: reward the safe bridge, or allow a second test."
  },
  "requirement": {
   "min_eligible": 1

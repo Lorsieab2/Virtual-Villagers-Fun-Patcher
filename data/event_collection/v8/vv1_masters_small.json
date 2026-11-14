@@ -58,7 +58,8 @@
     "kind": "instruction",
     "why": "the Building effect on the ending page; the child's learning is text only"
    }
-  ]
+  ],
+  "description": "A child insists on helping a master builder fix a bench: let the child try, or finish and then explain."
  },
  "requirement": {
   "min_eligible": 3

@@ -696,7 +696,15 @@ def build() -> dict:
     for r in ROWS:
         row = json.loads(json.dumps(r, default=list))
         row["pools"] = dict(r["pools"])
-        checks, dis = verify(row)
+        checks, dis = verify(row)       # against the source's own heading
+        owner = lib.owner_titles().get(row["id"])
+        if owner is not None:
+            # the owner's rename (docs/event-collection/owner-title-changes.md): the title every game shows; the
+            # source's own heading stays as source_title
+            if owner["old"] != row["title"]:
+                dis.append(f"owner-title-changes.md: old title {owner['old']!r} is not the source's {row['title']!r}")
+            rest = {k: v for k, v in row.items() if k not in ("id", "title")}
+            row = {"id": row["id"], "title": owner["new"], "source_title": row["title"], **rest}
         row.pop("choice_re", None)
         row.pop("extra_labels", None)
         row["credit"] = credit_text(r["credit"])

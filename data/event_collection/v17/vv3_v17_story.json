@@ -52,7 +52,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Two poets recount the Secret City's past in a contest, and the village decides how it is judged."
  },
  "requirement": {
   "min_eligible": 1

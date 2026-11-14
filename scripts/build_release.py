@@ -152,6 +152,8 @@ FILES = [
     "assets/scrolling_popups/vvfp_scroll_knob.png",
     # The Aspiring Adventurer (all five games): the owner's new island event.
     "assets/more_island_events/VVFP More Island Events.dll",
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): the companion.
+    "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",

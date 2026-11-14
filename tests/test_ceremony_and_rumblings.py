@@ -571,6 +571,30 @@ class TheRemembranceCeremony(unittest.TestCase):
         self.assertEqual(v.p.u32(v.rec(1) + 0x1D10), 29)
         self.assertEqual(v.cr_state()[2], 2)
 
+    def test_the_hovel_line_says_isolan_with_guardians_of_isola(self) -> None:
+        """The owner (2026-11-14): with Guardians of Isola Rewrite the log's hovel line says "Isolan", not "Heathen"
+        (docs/event-collection/guardians-wording.md); without it, unchanged."""
+        import build_vv5_hovel_memorial_actions as hovel
+        for guardians in (False, True):
+            with self.subTest(guardians=guardians):
+                v = remembrance_village(5)
+                for patch in hovel.feature()["patches"]:
+                    v.p.mu.mem_write(0x400000 + int(patch["offset"], 16), bytes.fromhex(patch["after"]))
+                v.p.mu.ctl_flush_tb()
+                v.villager(2, "Cid")
+                if guardians:
+                    entry, text = v.p.alloc(32), v.p.alloc(64)
+                    v.p.write(text, b"A villager has left the tribe!\0")     # the rewrite's eSayStoppedBelieving
+                    v.p.write(entry, struct.pack("<IIII", 0x48, 0, text, 0))
+                    v.p.put32(0x5240A8 + 4 * 0x48, entry)
+                calls = fake_log(v)
+                v.happen(REMEMBRANCE, [0, 0, 0, 99, 99])
+                logged_entry = [c for c in calls if c[0] == "write"][0][2]
+                self.assertIn("  Of them at the old Isolan hovel: 2\n" if guardians
+                              else "  Of them at the old Heathen hovel: 2\n", logged_entry)
+                if guardians:
+                    self.assertNotRegex(logged_entry, r"(?i)heathen|convert")
+
     def test_one_log_entry(self) -> None:
         for game in (1, 2, 3, 4, 5):
             with self.subTest(game=game):

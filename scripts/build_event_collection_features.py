@@ -9,8 +9,11 @@ src/vv_cie_graph.py (validate, then compile_graph) and writes:
 
   * assets/event_collection/<id>.cieg -- each event's compiled file;
   * assets/event_collection/vvN/manifest.txt -- the events of game N, one line each:
-    id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit (Story / Cheat Upgrades' story_collection.inc reads
-    it from "<game folder>\\Virtual Villagers Fun Patcher Files\\Island Event Collection\\manifest.txt");
+    id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit<TAB>description<TAB>Guardians title<TAB>Guardians
+    description (Story / Cheat Upgrades' story_collection.inc reads it from "<game folder>\\Virtual Villagers Fun
+    Patcher Files\\Island Event Collection\\manifest.txt"): the title the game shows (its title variant's, cie-v6-
+    binary.md 18), Pick Island Event's sentence (collection.description), and -- New Believers only, empty when the
+    same -- both with Guardians of Isola Rewrite on (the title variant and collection.description_variants);
   * assets/event_collection/Credits.txt ("Island Event Collection\\Credits.txt" in the game), and the same text as
     docs/more-island-events/Isola Grand Event Collection - Credits.md: the source's credit ledger (lines 1-91) and
     every section's credit block, verbatim, then each event's own credit;
@@ -128,19 +131,44 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "weight": int(meta.get("draw_weight", 1) or 1),
             "series": one_line(meta.get("series") or ""),
             "credit": one_line(meta.get("credit", "")),
+            "graph": g,
+            "description": one_line(meta.get("description", "")),
+            "description_variants": meta.get("description_variants") or [],
             "lines": meta.get("lines"),
             "cieg": cie.compile_graph(g),
         })
     return sorted(out, key=lambda e: e["id"])
 
 
+GUARDIANS = "guardians_of_isola"            # Guardians of Isola Rewrite (New Believers): the engine's patch name
+
+
+def description_with(e: dict, patches: tuple[str, ...]) -> str:
+    """The event's Pick Island Event sentence with `patches` on: the first description variant whose patch is on."""
+    for v in e["description_variants"]:
+        if v["if"].get("patch") in patches:
+            return one_line(v["description"])
+    return e["description"]
+
+
+def manifest_line(game: int, e: dict) -> str:
+    title = one_line(cie.event_title(e["graph"], game))
+    description = e["description"]
+    extra = ["", ""]
+    if game == 5:
+        alt_title = one_line(cie.event_title(e["graph"], game, (GUARDIANS,)))
+        alt_description = description_with(e, (GUARDIANS,))
+        extra = [alt_title if alt_title != title else "", alt_description if alt_description != description else ""]
+    return "\t".join([e["id"], title, ",".join(str(n) for n in e["games"]), str(e["weight"]), e["series"],
+                      e["credit"], description] + extra)
+
+
 def manifest_text(game: int, events: list[dict]) -> str:
     rows = ["# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.",
-            "# id\ttitle\tgames\tdraw weight\tseries\tcredit"]
+            "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
     for e in events:
         if game in e["games"]:
-            rows.append("\t".join((e["id"], e["title"], ",".join(str(n) for n in e["games"]), str(e["weight"]),
-                                   e["series"], e["credit"])))
+            rows.append(manifest_line(game, e))
     return "\n".join(rows) + "\n"
 
 

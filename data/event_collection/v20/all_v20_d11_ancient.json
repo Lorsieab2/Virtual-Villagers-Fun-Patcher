@@ -40,7 +40,8 @@
     "text": "VV5 variation:",
     "why": "VV5-only label"
    }
-  ]
+  ],
+  "description": "An old healing oath seems to forbid a treatment that might save a life: honor it, or permit the treatment."
  },
  "roles": {
   "patient": {

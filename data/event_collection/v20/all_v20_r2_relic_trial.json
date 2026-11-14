@@ -79,7 +79,8 @@
   "shared_lines": [
    "L9333-9341",
    "L9344-9352"
-  ]
+  ],
+  "description": "A villager is accused of spying after a strange relic is found, and the village decides what to do."
  },
  "roles": {
   "accused": {

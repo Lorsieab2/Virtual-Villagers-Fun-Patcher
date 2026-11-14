@@ -81,7 +81,8 @@
     "text": "If the Golden Child is present,",
     "why": "designer condition: the item's if (special_present) enforces it"
    }
-  ]
+  ],
+  "description": "A child asks a question nobody expected during a lesson, and the teacher decides how to answer it."
  },
  "requirement": {
   "min_eligible": 2

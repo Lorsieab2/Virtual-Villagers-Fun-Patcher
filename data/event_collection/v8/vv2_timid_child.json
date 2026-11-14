@@ -63,7 +63,8 @@
     "kind": "note",
     "why": "designer note on tone"
    }
-  ]
+  ],
+  "description": "A frightened child confides in a caregiver: tell a story about being afraid, or ask what the child needs."
  },
  "requirement": {
   "min_eligible": 2
