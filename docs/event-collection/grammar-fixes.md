@@ -77,6 +77,12 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L561 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (5) | The full stop belongs after the list, not inside one option |
 | L623 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (8) | As above |
 
+### Part 1 (lines 1-3519): found while authoring
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L2835 | `replies, (A).` | `replies, (A)` | The Elder's Favorite Stone | Every (A) reply is a full quotation ending in its own full stop; a second full stop follows the closing quote |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

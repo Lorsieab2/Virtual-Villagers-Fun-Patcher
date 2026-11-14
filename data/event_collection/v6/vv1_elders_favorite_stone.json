@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Favorite Stone",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_elders_favorite_stone",
+  "source": "v26",
+  "lines": [
+   2824,
+   2863
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2826",
+  "ledger": [
+   {
+    "src": "L2825",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2827",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L2837",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2845",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2861",
+    "kind": "structural",
+    "text": "ENDING:",
+    "why": "section label"
+   },
+   {
+    "src": "L2863",
+    "kind": "note",
+    "text": "No skill or item reward is required.",
+    "why": "designer note: no effect"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2835",
+   "before": "replies, (A).",
+   "after": "replies, (A)"
+  }
+ ],
+ "words": {
+  "chief": {
+   "*": "the village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 50
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "leader": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "\"I found it the day we first made this place our home.\"",
+     "src": "L2838"
+    },
+    {
+     "text": "\"It is exactly the right shape for keeping papers from blowing away.\"",
+     "src": "L2839"
+    },
+    {
+     "text": "\"My oldest friend gave it to me.\"",
+     "src": "L2840"
+    },
+    {
+     "text": "\"It looks like {@chief} when (leader.he/she) is annoyed.\"",
+     "src": "L2841"
+    },
+    {
+     "text": "\"I was going to throw it away years ago, but then I got attached.\"",
+     "src": "L2842"
+    },
+    {
+     "text": "\"It reminds me that small things can survive enormous storms.\"",
+     "src": "L2843"
+    }
+   ]
+  },
+  "OUTCOME": {
+   "items": [
+    {
+     "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
+     "src": "L2846-2847"
+    },
+    {
+     "text": "The adult finds three similar stones. The elder rejects them all with the solemn expertise of a jeweler inspecting diamonds.",
+     "src": "L2848-2849"
+    },
+    {
+     "text": "The stone turns out to have been in the elder's pocket all along. The elder says, \"Excellent. The search was a success.\"",
+     "src": "L2850-2851"
+    },
+    {
+     "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
+     "src": "L2852-2854"
+    },
+    {
+     "text": "A father holding his infant recognizes the stone as the paperweight that has been sitting on the schoolhouse table. He returns it after the lesson ends.",
+     "src": "L2855-2857"
+    },
+    {
+     "text": "The elder quietly explains that the stone belonged to someone who is no longer alive. The child sits beside (elder.him/her) for a while.",
+     "src": "L2858-2859"
+    }
+   ]
+  }
+ },
+ "start": "stone",
+ "nodes": {
+  "stone": {
+   "name": "The favorite stone",
+   "src": "L2830-2835,L2861-2863",
+   "text": "An elderly villager, (elder), has spent the morning searching for (elder.his/her) favorite stone. It is not a precious stone. It is not even particularly attractive. But (elder.he/she) has carried it for years.\n(Adult) offers to help, while (child) asks what makes this particular stone so important. The elder replies, {A}\n{OUTCOME}\nBy sunset, the village has moved on to other concerns. The elder {keeps the stone safe|places the replacement on a shelf|thanks the helpers}.",
+   "text_only": [
+    {
+     "src": "L2863",
+     "what": "no skill or item reward",
+     "reason": "the source asks for no reward; the vignette has no effect"
+    }
+   ]
+  }
+ }
+}
