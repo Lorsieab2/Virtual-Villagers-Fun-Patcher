@@ -5990,7 +5990,7 @@
    }
   },
   {
-   "id": "all_v18_01_the_warriors_tournament",
+   "id": "all_v18_01_warriors_tournament",
    "title": "The Warriors' Tournament",
    "games": [
     1,
@@ -6029,7 +6029,7 @@
    }
   },
   {
-   "id": "all_v18_02_the_martial_arts_tournament",
+   "id": "all_v18_02_martial_arts",
    "title": "The Martial Arts Tournament",
    "games": [
     1,
@@ -6068,7 +6068,7 @@
    }
   },
   {
-   "id": "all_v18_03_the_great_question",
+   "id": "all_v18_03_great_question",
    "title": "The Great Question",
    "games": [
     1,
@@ -6107,7 +6107,7 @@
    }
   },
   {
-   "id": "all_v18_04_the_philosophers_duel",
+   "id": "all_v18_04_philosophers_duel",
    "title": "The Philosophers' Duel",
    "games": [
     1,
@@ -6146,7 +6146,7 @@
    }
   },
   {
-   "id": "all_v18_05_the_alchemists_trial",
+   "id": "all_v18_05_alchemists_trial",
    "title": "The Alchemists' Trial",
    "games": [
     1,
@@ -6185,7 +6185,7 @@
    }
   },
   {
-   "id": "all_v18_06_the_paradox_challenge",
+   "id": "all_v18_06_paradox_challenge",
    "title": "The Paradox Challenge",
    "games": [
     1,
@@ -6224,7 +6224,7 @@
    }
   },
   {
-   "id": "all_v18_07_the_sixteenth_aria",
+   "id": "all_v18_07_sixteenth_aria",
    "title": "The Sixteenth Aria",
    "games": [
     1,
@@ -6263,7 +6263,7 @@
    }
   },
   {
-   "id": "all_v18_08_the_poets_tournament",
+   "id": "all_v18_08_poets_tournament",
    "title": "The Poets' Tournament",
    "games": [
     1,
@@ -6302,7 +6302,7 @@
    }
   },
   {
-   "id": "all_v18_09_the_great_trivia_trial",
+   "id": "all_v18_09_great_trivia_trial",
    "title": "The Great Trivia Trial",
    "games": [
     1,
@@ -6341,7 +6341,7 @@
    }
   },
   {
-   "id": "all_v18_10_the_ball_tournament",
+   "id": "all_v18_10_ball_tournament",
    "title": "The Ball Tournament",
    "games": [
     1,
@@ -6380,7 +6380,7 @@
    }
   },
   {
-   "id": "all_v18_11_the_stick_game",
+   "id": "all_v18_11_stick_game",
    "title": "The Stick Game",
    "games": [
     1,
@@ -6419,7 +6419,7 @@
    }
   },
   {
-   "id": "all_v18_12_the_hoop_tournament",
+   "id": "all_v18_12_hoop_tournament",
    "title": "The Hoop Tournament",
    "games": [
     1,
@@ -6551,7 +6551,7 @@
    }
   },
   {
-   "id": "all_v20_d1_two_lives_one_decision",
+   "id": "all_v20_d1_two_lives",
    "title": "Two Lives, One Decision",
    "games": [
     1,
@@ -6589,7 +6589,7 @@
    }
   },
   {
-   "id": "all_v20_d2_the_treatment_that_does_not_exist",
+   "id": "all_v20_d2_no_such_treatment",
    "title": "The Treatment That Does Not Exist",
    "games": [
     1,
@@ -6627,7 +6627,7 @@
    }
   },
   {
-   "id": "all_v20_d3_the_experimental_cure",
+   "id": "all_v20_d3_experimental_cure",
    "title": "The Experimental Cure",
    "games": [
     1,
@@ -6665,7 +6665,7 @@
    }
   },
   {
-   "id": "all_v20_d4_the_half_translated_remedy",
+   "id": "all_v20_d4_half_translated",
    "title": "The Half-Translated Remedy",
    "games": [
     1,
@@ -6702,7 +6702,7 @@
    }
   },
   {
-   "id": "all_v20_d5_the_last_dose",
+   "id": "all_v20_d5_last_dose",
    "title": "The Last Dose",
    "games": [
     1,
@@ -6740,7 +6740,7 @@
    }
   },
   {
-   "id": "all_v20_d6_the_physician_who_refused",
+   "id": "all_v20_d6_physician_refused",
    "title": "The Physician Who Refused",
    "games": [
     1,
@@ -6778,7 +6778,7 @@
    }
   },
   {
-   "id": "all_v20_d7_the_patient_who_knew_too_much",
+   "id": "all_v20_d7_patient_knew_much",
    "title": "The Patient Who Knew Too Much",
    "games": [
     1,
@@ -6815,7 +6815,7 @@
    }
   },
   {
-   "id": "all_v20_d8_the_medicine_that_works_too_well",
+   "id": "all_v20_d8_works_too_well",
    "title": "The Medicine That Works Too Well",
    "games": [
     1,
@@ -6852,7 +6852,7 @@
    }
   },
   {
-   "id": "all_v20_d9_the_healers_secret",
+   "id": "all_v20_d9_healers_secret",
    "title": "The Healer's Secret",
    "games": [
     1,
@@ -6889,7 +6889,7 @@
    }
   },
   {
-   "id": "all_v20_d10_the_child_who_corrected_the_masters",
+   "id": "all_v20_d10_child_corrected",
    "title": "The Child Who Corrected the Masters",
    "games": [
     1,
@@ -6926,7 +6926,7 @@
    }
   },
   {
-   "id": "all_v20_d11_the_ancient_oath",
+   "id": "all_v20_d11_ancient_oath",
    "title": "The Ancient Oath",
    "games": [
     1,
@@ -6964,7 +6964,7 @@
    }
   },
   {
-   "id": "all_v20_d12_the_doctor_who_could_not_save_everyone",
+   "id": "all_v20_d12_cannot_save_all",
    "title": "The Doctor Who Could Not Save Everyone",
    "games": [
     1,
@@ -7089,7 +7089,7 @@
    }
   },
   {
-   "id": "all_v20_r1_thing_that_should_not_exist",
+   "id": "all_v20_r1_should_not_exist",
    "title": "The Thing That Should Not Exist",
    "games": [
     1,
@@ -7126,7 +7126,7 @@
    }
   },
   {
-   "id": "all_v20_r2_trial_of_the_impossible_relic",
+   "id": "all_v20_r2_relic_trial",
    "title": "The Trial of the Impossible Relic",
    "games": [
     1,
@@ -7161,7 +7161,7 @@
    }
   },
   {
-   "id": "all_v20_r3_has_isola_been_discovered",
+   "id": "all_v20_r3_isola_discovered",
    "title": "Has Isola Been Discovered?",
    "games": [
     1,
@@ -7198,7 +7198,7 @@
    }
   },
   {
-   "id": "all_v20_r4_relic_that_outlived_its_discoverer",
+   "id": "all_v20_r4_relic_outlived",
    "title": "The Relic That Outlived Its Discoverer",
    "games": [
     1,
@@ -7291,7 +7291,7 @@
    }
   },
   {
-   "id": "all_v21_c1_great_potters_trial",
+   "id": "all_v21_c1_potters_trial",
    "title": "The Great Potters' Trial",
    "games": [
     1,
@@ -7328,7 +7328,7 @@
    }
   },
   {
-   "id": "all_v21_c2_statue_that_divided_the_village",
+   "id": "all_v21_c2_divided_statue",
    "title": "The Statue That Divided the Village",
    "games": [
     1,
@@ -7365,7 +7365,7 @@
    }
   },
   {
-   "id": "all_v21_c3_great_isolan_crafts_fair",
+   "id": "all_v21_c3_crafts_fair",
    "title": "The Great Isolan Crafts Fair",
    "games": [
     1,
@@ -7460,7 +7460,7 @@
    }
   },
   {
-   "id": "all_v22_1_great_isolan_drawing_competition",
+   "id": "all_v22_1_drawing_contest",
    "title": "The Great Isolan Drawing Competition",
    "games": [
     1,
@@ -7497,7 +7497,7 @@
    }
   },
   {
-   "id": "all_v22_2_great_isolan_strength_trials",
+   "id": "all_v22_2_strength_trials",
    "title": "The Great Isolan Strength Trials",
    "games": [
     1,
@@ -7534,7 +7534,7 @@
    }
   },
   {
-   "id": "all_v22_3_great_isolan_potion_making_trials",
+   "id": "all_v22_3_potion_making",
    "title": "The Great Isolan Potion-Making Trials",
    "games": [
     1,
