@@ -29,7 +29,7 @@ The checks (each problem names its check):
 
 ENGINE SEAM.  Track A owns src/vv_cie_graph.py and its v6 format.  graph_for_engine() takes the authoring-only keys
 out of a collection file ("src", node "text_only" and "set", child / item "rarity", collection "ledger",
-"grammar_fixes", "title_src", "inline_sets") and hands the rest to vv_cie_graph.  Until vv_cie_graph reads version 6,
+"title_src", "inline_sets") and hands the rest to vv_cie_graph.  Until vv_cie_graph reads version 6,
 checks a and g are reported SKIPPED (never passed silently).
 """
 from __future__ import annotations
@@ -63,7 +63,7 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref")
-AUTHORING_TOP = ("ledger", "grammar_fixes", "title_src", "inline_sets")
+AUTHORING_TOP = ("ledger", "title_src", "inline_sets")
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -374,7 +374,7 @@ def ledger_maps(doc: dict, rep: Report):
             pass
     fixes: dict[int, list[tuple[str, str]]] = {}
     doc_fixes = grammar_doc_fixes()
-    for i, f in enumerate(col.get("grammar_fixes", []) or []):
+    for i, f in enumerate(doc.get("grammar_fixes", []) or []):
         where = f"grammar fix {i + 1}"
         try:
             (n,) = lib.src_lines(f["src"])
@@ -703,16 +703,23 @@ def harmful(e: dict) -> bool:
     return False
 
 
-def check_safety(doc: dict, rep: Report) -> None:
+def harm_roles(doc: dict) -> set[str]:
+    """The roles a harmful effect can reach, derived here independently of the compiler."""
     roles = doc.get("roles", {}) or {}
     harm: set[str] = set()
     for n in doc.get("nodes", {}).values():
         for e in n.get("effects", []) or []:
             if harmful(e) and e.get("role"):
-                r = e["role"]
-                harm.add(r)
-                for m in roles.get(r, {}).get("of", []) or []:
-                    harm.add(m)
+                harm.add(e["role"])
+                harm.update(roles.get(e["role"], {}).get("of", []) or [])
+    return harm
+
+
+def check_safety(doc: dict, rep: Report) -> None:
+    roles = doc.get("roles", {}) or {}
+    harm = harm_roles(doc)
+    for n in doc.get("nodes", {}).values():
+        for e in n.get("effects", []) or []:
             if e.get("do") == "celebrate" and e.get("who") not in (None, "all") and e["who"] not in roles:
                 rep.add("f SAFETY", f"celebrate names an unknown role {e['who']!r}")
     for rid, r in roles.items():
@@ -784,38 +791,38 @@ def check_engine(doc: dict, rep: Report) -> None:
         rep.skipped.append("a SCHEMA / g ROUND: vv_cie_graph does not read version 6 yet (Track A)")
         return
     g = graph_for_engine(doc)
-    try:
-        norm, problems = cg.validate(g)
-    except Exception as ex:  # a crash is a problem, never a pass
-        rep.add("a SCHEMA", f"validate raised {type(ex).__name__}: {ex}")
+    shared = {"pools": shared_pools()}
+    norm = None
+    for scrolling in (False, True):   # the text fits with and without Scrolling Popups
+        try:
+            n2, problems = cg.validate(g, scrolling=scrolling, shared_pools=shared)
+        except Exception as ex:  # a crash is a problem, never a pass
+            rep.add("a SCHEMA", f"validate raised {type(ex).__name__}: {ex}")
+            return
+        for p in problems:
+            rep.add("a SCHEMA", f"{'(scrolling) ' if scrolling else ''}{p}")
+        norm = norm or (None if problems else n2)
+    if norm is None:
         return
-    for p in problems:
-        rep.add("a SCHEMA", p)
-    if problems:
-        return
-    for scrolling in (True,):
-        _, p2 = cg.validate(g, scrolling=scrolling)
-        for p in p2:
-            rep.add("a SCHEMA", f"(scrolling) {p}")
+    # f SAFETY cross-check: the compiler's harm-capable roles are the ones derived here
+    if hasattr(cg, "harm_capable"):
+        theirs = set(cg.harm_capable(norm))
+        ours = harm_roles(doc)
+        if theirs != ours:
+            rep.add("f SAFETY", f"harm-capable roles differ: compiler {sorted(theirs)}, checker {sorted(ours)}")
     try:
         blob = cg.compile_graph(norm)
-        again = cg.compile_graph(cg.normalize(g)[0])
-        if blob != again:
+        if blob != cg.compile_graph(cg.validate(g, scrolling=True, shared_pools=shared)[0]):
             rep.add("g ROUND", "compile is not deterministic")
         back = cg.decompile_graph(blob)
-        if cg.normalize(back)[0] != cg.normalize(graph_without_editor_only(norm))[0]:
+        if back != cg.without_names(norm):
             rep.add("g ROUND", "compile -> decompile does not give the graph back")
+        if cg.compile_graph(back) != blob:
+            rep.add("g ROUND", "decompile -> compile does not give the same bytes")
+        if cg.normalize(json.loads(canonical(g)), shared)[0] != cg.normalize(g, shared)[0]:
+            rep.add("g ROUND", "normalize is not stable through the canonical JSON")
     except Exception as ex:
         rep.add("g ROUND", f"compile / decompile raised {type(ex).__name__}: {ex}")
-
-
-def graph_without_editor_only(g: dict) -> dict:
-    """The parts a .cieg carries: a node's editor name and the collection block are not compiled."""
-    g = copy.deepcopy(g)
-    g.pop("collection", None)
-    for n in g.get("nodes", {}).values():
-        n.pop("name", None)
-    return g
 
 
 def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
@@ -897,7 +904,7 @@ def collection_files() -> list[Path]:
 def ledger_summary(doc: dict) -> list[str]:
     col = doc.get("collection", {})
     out = [f"{doc.get('title')} ({col.get('id')}, lines {col.get('lines')})"]
-    for f in col.get("grammar_fixes", []) or []:
+    for f in doc.get("grammar_fixes", []) or []:
         out.append(f"  grammar {f['src']}: {f['before']!r} -> {f['after']!r}")
     for nid, n in doc.get("nodes", {}).items():
         for t in n.get("text_only", []) or []:

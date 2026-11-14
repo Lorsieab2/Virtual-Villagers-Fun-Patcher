@@ -129,7 +129,7 @@ class CollectionFiles(unittest.TestCase):
         listed = cc.grammar_doc_fixes()
         for p in cc.collection_files():
             doc = json.loads(p.read_text(encoding="utf-8"))
-            for f in doc["collection"].get("grammar_fixes", []):
+            for f in doc.get("grammar_fixes", []):
                 (n,) = lib.src_lines(f["src"])
                 self.assertIn((n, f["before"], f["after"]), listed, p.name)
 
@@ -137,7 +137,7 @@ class CollectionFiles(unittest.TestCase):
         for p in cc.collection_files():
             g = cc.graph_for_engine(json.loads(p.read_text(encoding="utf-8")))
             blob = json.dumps(g)
-            for key in ('"src"', '"text_only"', '"rarity"', '"ledger"', '"grammar_fixes"', '"title_src"',
+            for key in ('"src"', '"text_only"', '"rarity"', '"ledger"', '"title_src"',
                         '"inline_sets"'):
                 self.assertNotIn(key, blob, p.name)
             for part in list(g["nodes"].values()) + list(g.get("pools", {}).values()):
@@ -187,7 +187,7 @@ class ChecksRefuse(unittest.TestCase):
 
     def test_unlisted_grammar_fix(self):
         d = self.doc()
-        d["collection"]["grammar_fixes"] = [{"src": "L3072", "before": "path's", "after": "paths'"}]
+        d["grammar_fixes"] = [{"src": "L3072", "before": "path's", "after": "paths'"}]
         d["nodes"]["s2"]["text"] = d["nodes"]["s2"]["text"].replace("path's", "paths'")
         self.assertTrue(any("grammar-fixes.md" in p for p in problems(check_doc(d), "b FIDELITY")))
 
