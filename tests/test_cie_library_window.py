@@ -420,6 +420,18 @@ size_box.event_generate("<<ComboboxSelected>>")
 window.update()
 out["damage_size"] = [e for e in lib.g["nodes"][ends[0]]["effects"] if e["do"] == "damage"][0]
 out["v6_problems"] = lib.problems
+# A part's popup title (cie-v6-binary.md 14): typed in, kept, compiled; emptied, taken away.
+lib.select_node(ends[0], "Text")
+lib.node_title_var.set("A Title From Here")
+window.update()
+out["node_title"] = lib.g["nodes"][ends[0]].get("title")
+lib.refresh_now()
+out["node_title_problems"] = [p for p in lib.problems if "popup title" in p]
+lib.node_title_var.set("")
+window.update()
+out["node_title_gone"] = "title" not in lib.g["nodes"][ends[0]]
+lib.node_title_var.set("A Title From Here")
+window.update()
 saved = lib.save_as("Seven Ways")
 back = cg.decompile_graph(saved.cieg.read_bytes())
 out["seven_round_trip"] = back == cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
@@ -581,6 +593,12 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["pool_problems"], [])
         self.assertEqual(self.out["pool_rows"], 2)
         self.assertEqual(self.out["distinct_from"], ["DISH"])
+
+    def test_a_parts_popup_title(self):
+        self.assertEqual(self.out["node_title"], "A Title From Here")
+        self.assertEqual(self.out["node_title_problems"], [])
+        self.assertTrue(self.out["node_title_gone"])
+        self.assertTrue(self.out["seven_round_trip"], "the title is compiled and read back")
 
     def test_the_other_role_and_damage_sizes(self):
         self.assertIn("The other one of the either", self.out["other_row"][1])
