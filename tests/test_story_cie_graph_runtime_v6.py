@@ -80,7 +80,7 @@ class Names:
         self.roles = [s(struct.unpack_from("<H", blob, o_role + 16 * i + 4)[0]) for i in range(n_role)]
         self.role_flags = [blob[o_role + 16 * i + 1] for i in range(n_role)]
         self.nodes = [s(struct.unpack_from("<H", blob, o_node + 28 * i + 4)[0]) for i in range(n_node)]
-        self.pools = [s(struct.unpack_from("<H", blob, o_pool + 8 * i)[0]) for i in range(n_pool)]
+        self.pools = [s(struct.unpack_from("<H", blob, o_pool + 12 * i)[0]) for i in range(n_pool)]
 
 
 if HAVE_EMULATOR:
@@ -555,6 +555,200 @@ class Loader(unittest.TestCase):
         struct.pack_into("<I", b, 12, 0)
         struct.pack_into("<I", b, 12, zlib.crc32(bytes(b)) & 0xFFFFFFFF)
         self.assertIsNotNone(r.check(bytes(b)), "eight answers")
+
+
+# ---- The format gaps G1-G7 (docs/event-collection/cie-v6-binary.md, the lead's collection_gaps_spec) -------------
+
+TRIBE_MANAGER = {"vv1": 0x48AEDC, "vv2": 0x4997BC, "vv3": 0x4B309C, "vv4": 0x4CB51C, "vv5": 0x4DACE0}
+TRIBE_AT = {"vv1": 0x10, "vv2": 0x10, "vv3": 0x12ED4, "vv4": 0x170C0, "vv5": 0x17D1C}
+TWO = [(0, "f", 30, "Ana", 0, False), (1, "m", 31, "Bo", 0, False)]
+
+
+def gap_graph(game: str, **extra) -> dict:
+    g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Gaps", "games": [int(game[2])],
+         "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p",
+         "nodes": {"p": {"text": "(Name) waits."}}}
+    g.update(extra)
+    return g
+
+
+def put_tribe(r, game: str, name: str | None) -> None:
+    """The tribe's name where the game's save manager keeps it (None: no manager, so no name)."""
+    va = TRIBE_MANAGER[game]
+    if name is None:
+        r.p.put32(va, 0)
+        return
+    manager = r.p.u32(va)
+    if manager == 0:
+        manager = r.p.alloc(0x18000)
+        r.p.put32(va, manager)
+    r.p.write(manager + TRIBE_AT[game], name.encode() + b"\0")
+
+
+@emulated
+class FormatGaps(unittest.TestCase):
+    """G1-G7 in every game."""
+
+    def games(self):
+        for game in GAME_IDS:
+            if have_stock(game):
+                yield game
+
+    def words(self, r) -> str:
+        return norm(" ".join(r.displays()))
+
+    def test_g1_five_buttons_the_answers_page_is_a_popup_of_its_own(self):
+        for game in self.games():
+            for n in (4, 5):
+                with self.subTest(game=game, buttons=n):
+                    choices = [{"label": f"Door {k + 1}", "next": f"d{k}"} for k in range(n)]
+                    nodes = {"q": {"type": "question", "text": "(Name) sees doors.", "choices": choices}}
+                    for k in range(n):
+                        nodes[f"d{k}"] = {"text": f"Behind door {k + 1}.",
+                                          "effects": [{"do": "tech", "amount": 10 * (k + 1)}]}
+                    r = V6(game, TWO)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(gap_graph(game, start="q", nodes=nodes))))
+                    if not r.state()["armed"]:
+                        r.p.export("VvfpStoryProbeGraphArmNext", r.n)
+                    r.p.write(TEXT_BUF, b"\0")
+                    assert r.p.export("VvfpStoryProbeChoiceBegin", r.n, TEXT_BUF, 4096) == 1
+                    tech0 = stores(r)[1]
+                    r.p.write(TEXT_BUF, b"\0")
+                    assert r.p.export("VvfpStoryProbeChoiceResolve", r.n, 1, TEXT_BUF, 4096) == 1
+                    result = r.p.cstring(TEXT_BUF)
+                    if n == 4:
+                        self.assertIn("Behind door 2", result, "two to four: in the question's popup")
+                        self.assertEqual(stores(r)[1] - tech0, 20)
+                        continue
+                    self.assertEqual(result, "", "five or more: nothing in the question's popup")
+                    self.assertEqual(stores(r)[1], tech0, "its effect waits for its own page")
+                    shown = r.walk_through()
+                    self.assertEqual(len(shown), 1)
+                    self.assertIn("Behind door 2", shown[0][1], "its own popup")
+                    self.assertEqual(stores(r)[1] - tech0, 20, "made once, with its page")
+
+    def test_g2_the_other_member(self):
+        for game in self.games():
+            for roll in (0, 1):
+                with self.subTest(game=game, roll=roll):
+                    g = gap_graph(game, roles={
+                        "a": {"kind": "villager", "min_age": 14}, "b": {"kind": "villager", "min_age": 14},
+                        "pick": {"kind": "alias", "of": ["a", "b"]}, "rest": {"kind": "other", "of": "pick"}})
+                    g["nodes"]["p"] = {"text": "(Pick) leads; (rest) follows (rest.him/her).",
+                                       "effects": [{"do": "skill", "role": "rest", "skills": ["Farming"],
+                                                    "set": 100}]}
+                    r = V6(game, TWO)
+                    # The binding: a among Ana / Bo (roll), then b; then the alias's own roll.
+                    r.rolls([0, roll] + [0] * 40)
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    r.walk_through()
+                    picked = "Ana" if roll == 0 else "Bo"
+                    rest, pron, idx = ("Bo", "him", 1) if roll == 0 else ("Ana", "her", 0)
+                    self.assertEqual(self.words(r), f"{picked} leads; {rest} follows {pron}.")
+                    self.assertEqual(r.v.skill(idx, FARMING[game]), 100, "the effect on the other member")
+                    self.assertEqual(r.v.skill(1 - idx, FARMING[game]), 0)
+
+    def test_g3_distinct_from(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                g = gap_graph(game, pools={"A": {"items": ["red", "blue"]},
+                                           "B": {"items": ["red", "blue"], "distinct_from": ["A"]}})
+                g["nodes"]["p"]["text"] = "(Name) likes {A} not {B}."
+                r = V6(game, TWO)
+                r.rolls([0, 0, 0] + [0] * 40)          # the cast, A (red), B would be red too
+                self.assertIsNone(r.queue6(compiled(g)))
+                r.walk_through()
+                self.assertIn("likes red not blue.", self.words(r))
+
+    def test_g5_the_tribes_name_at_run_time(self):
+        for game in self.games():
+            for name in ("Kalahuna", None):
+                with self.subTest(game=game, name=name):
+                    g = gap_graph(game)
+                    g["nodes"]["p"]["text"] = "{@Tribe} gathers; (Name) speaks for {@tribe}."
+                    r = V6(game, TWO)
+                    r.rolls([0] * 40)
+                    put_tribe(r, game, name)
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    r.walk_through()
+                    want = (f"{name} gathers; Ana speaks for {name}." if name
+                            else "The village gathers; Ana speaks for the village.")
+                    self.assertEqual(self.words(r), want)
+
+    def test_g6_quotes_in_the_title(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(gap_graph(game, title='The "Best" Garden'))))
+                shown = r.walk_through()
+                self.assertEqual(len(shown), 1)
+                self.assertEqual(r.state()["phase"] in (IDLE, DONE), True)
+
+    def test_g7_a_stranger_first(self):
+        for game in self.games():
+            for question in (False, True):
+                with self.subTest(game=game, question=question):
+                    g = gap_graph(game, roles={"visitor": {"kind": "stranger", "sex": "female"},
+                                               "host": {"kind": "villager", "min_age": 14}})
+                    if question:
+                        g["start"] = "q"
+                        g["nodes"] = {"q": {"type": "question", "text": "A visitor greets (host).",
+                                            "choices": [{"label": "Welcome her", "next": "p"},
+                                                        {"label": "Wave", "next": "p"}]},
+                                      "p": {"text": "(Host) and the visitor talk; (visitor.he/she) smiles."}}
+                    else:
+                        g["nodes"]["p"]["text"] = "(Host) and the visitor talk; (visitor.he/she) smiles."
+                    r = V6(game, TWO)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    shown = r.walk_through([0] if question else ())
+                    self.assertIn("Ana and the visitor talk; she smiles.", norm(" ".join(t for _k, t, _l in shown)))
+
+
+PIPELINE_EVENTS = ("v20/all_v20_between_life_and_death.json", "v22/all_v22_4_parents_lesson.json")
+
+
+@emulated
+class PipelinePilots(unittest.TestCase):
+    """Between Life and Death and The Parent's Lesson (Track D's pilots, seven buttons) compile and run in every
+    game they list without Scrolling Popups: every button, each answer's popup of its own."""
+
+    def test_the_seven_button_pilots_run_without_scrolling(self):
+        root = ROOT / "data" / "event_collection"
+        ran = 0
+        for rel in PIPELINE_EVENTS:
+            path = root / rel
+            if not path.is_file():
+                self.skipTest(f"{rel} is not on this branch")
+            graph = json.loads(path.read_text(encoding="utf-8"))
+            g = cg.load(copy.deepcopy(graph), scrolling=False)
+            data = cg.compile_graph(g)
+            start = g["nodes"][g["start"]]
+            for game in (f"vv{n}" for n in g["games"]):
+                if not have_stock(game):
+                    continue
+                for choice in range(len(start.get("choices", [])) or 1):
+                    with self.subTest(event=rel, game=game, choice=choice):
+                        people = [(0, "f", 30, "Ana", 20, False), (1, "m", 31, "Bo", 20, False),
+                                  (2, "f", 35, "Cia", 20, False), (3, "m", 40, "Dov", 20, False),
+                                  (4, "f", 8, "Eli", 0, False), (5, "m", 9, "Fin", 0, False)]
+                        r = V6(game, people)
+                        r.rolls([0] * 64)
+                        r.p.export("VvfpStoryProbeGraphScroll", 0)
+                        why = r.queue6(data)
+                        self.assertIsNone(why, why)
+                        try:
+                            shown = r.walk_through([choice] * 16)
+                        except (ValueError, IndexError):
+                            continue               # this choice is not shown in this game
+                        self.assertIn(r.state()["phase"], (IDLE, DONE))
+                        self.assertTrue(shown)
+                        for _kind, text, _labels in shown:
+                            self.assertLessEqual(len(text), 2000)
+                        ran += 1
+        self.assertGreater(ran, 0)
 
 
 if __name__ == "__main__":

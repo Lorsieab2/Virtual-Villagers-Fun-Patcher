@@ -782,11 +782,18 @@ class FiveToSevenInThePopup(unittest.TestCase):
                             else:
                                 v.click(2 + k)
                             self.assertEqual(v.r.state()["choice"], k)
-                            self.assertIn(f"Behind door {k + 1}", v.text())
-                            self.assertEqual(stores(v.r)[1] - tech0, 10 * (k + 1), "its effect with its page")
+                            # G1: five or more buttons: the question's popup closes at the click, and the
+                            # answer's page comes as a popup of its own, its effect with it.
+                            self.assertIn(("close",), v.ui, "closed at the click")
+                            self.assertNotIn("Behind door", v.text())
+                            self.assertEqual(stores(v.r)[1], tech0, "nothing made before its page")
                             extra = [v.buttons[i] for i in range(4, n + 2)]
-                            v.click(1)
-                            self.assertTrue(set(extra) <= set(v.deleted), "ours deleted at the OK")
+                            self.assertTrue(set(extra) <= set(v.deleted), "ours deleted as it closed")
+                            self.assertEqual(v.room(), 0)
+                            pages = v.pages()
+                            self.assertEqual(len(pages), 1)
+                            self.assertIn(f"Behind door {k + 1}", pages[0])
+                            self.assertEqual(stores(v.r)[1] - tech0, 10 * (k + 1), "its effect with its page")
 
 
 @emulated
@@ -820,7 +827,12 @@ class FiveToSevenEveryGame(unittest.TestCase):
                         tech0 = stores(r)[1]
                         result = EveryGame.resolve(self, r, b)
                         choice = choices[b]
-                        self.assertIn(f"Behind door {choice + 1}", result)
+                        self.assertEqual(result, "", "G1: the answer's page is a popup of its own")
+                        self.assertEqual(stores(r)[1], tech0)
+                        self.assertEqual(r.p.export("VvfpStoryProbeGraphArmNext", r.n), 1)
+                        r.p.write(TEXT_BUF, b"\0")
+                        self.assertEqual(r.p.export("VvfpStoryProbeDeliver", r.n, TEXT_BUF, 9000), 1)
+                        self.assertIn(f"Behind door {choice + 1}", r.p.cstring(TEXT_BUF))
                         self.assertEqual(stores(r)[1] - tech0, 10 * (choice + 1))
                         n_filed, _now, filed = r.log()
                         self.assertEqual(n_filed, 1)
@@ -858,7 +870,15 @@ class FiveToSevenEncounter(unittest.TestCase):
                         else:
                             self.assertEqual(v.click(ids[k]), 1)
                         self.assertEqual(v.r.state()["choice"], k)
-                        self.assertIn(f"Behind door {k + 1}", v.result())
+                        # G1: closed at the click; the answer's page comes as a popup of its own.
+                        self.assertIn(("close",), v.ui, "closed at the click")
+                        self.assertNotIn("Behind door", v.result())
+                        self.assertEqual(stores(v.r)[1], tech0)
+                        r = v.r
+                        self.assertEqual(r.p.export("VvfpStoryProbeGraphArmNext", r.n), 1)
+                        r.p.write(TEXT_BUF, b"\0")
+                        self.assertEqual(r.p.export("VvfpStoryProbeDeliver", r.n, TEXT_BUF, 9000), 1)
+                        self.assertIn(f"Behind door {k + 1}", r.p.cstring(TEXT_BUF))
                         self.assertEqual(stores(v.r)[1] - tech0, 10 * (k + 1))
 
 
