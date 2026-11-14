@@ -1096,11 +1096,19 @@ static int cg_buttons(int node, int qi, unsigned char *map) {
     return cg_shown_choices(node, cg.game, map);
 }
 
-/* The text lines a question's popup keeps for its buttons past two (and its answer's first page, shown in it). */
-static int cg_answer_room(int node) {
+/* The text lines a question's popup keeps for its buttons past two (and its answer's first page, shown in it), in a
+   popup laid out as `l`: from five buttons never so many that a page keeps fewer than three lines of text below
+   the title the popup leads with (src/vv_cie_graph.py answer_room; the popup then grows past a two-button popup's
+   height by the rest: tests/test_multi_answer_popup.py's 800 x 600 render check). */
+static int cg_answer_room(int node, const ce_layout *l) {
     unsigned char map[CG_MAX_ANSWERS];
     int n = cg_buttons(node, -1, map);
-    return CG_ANSWER_LINES[n < 2 ? 2 : n];
+    int room = CG_ANSWER_LINES[n < 2 ? 2 : n];
+    int most = l->lines - (l->with_title ? 5 : 0) - 3;
+    if (n > CG_V4_ANSWERS && room > most) {
+        room = most > 0 ? most : 0;
+    }
+    return room;
 }
 
 /* The buttons of the question on screen (CG_ASKED), else two. */
@@ -3063,9 +3071,9 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         w.title = cg.title;
         w.reserve = cg_pops[p].effects ? 2 : 0;
         if (question) {
-            w.reserve += cg_answer_room(cg_pops[p].question);
+            w.reserve += cg_answer_room(cg_pops[p].question, &q);
         } else if (p == 0 && after_question && from > 0) {
-            w.reserve += cg_answer_room(h->node[from - 1]);   /* shown in the answered question's popup */
+            w.reserve += cg_answer_room(h->node[from - 1], &first);   /* shown in the answered question's popup */
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
@@ -3340,7 +3348,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.first = &q;
     w.rest = &q;
     w.title = cg.title;
-    w.reserve = cg_answer_room(cg_g.start);
+    w.reserve = cg_answer_room(cg_g.start, &q);
     w.pages = pages;
     w.scroll = cg_scrolls();
     cg_paginate(&w, raw);
