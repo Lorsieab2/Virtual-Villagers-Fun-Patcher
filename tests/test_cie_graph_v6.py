@@ -1070,8 +1070,11 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertFalse(cg.parse_placeholder_v6("Name1", roles).upper)
         g = cg.lower(cg.load(CAPS, True))
         b = {"subject": cg.Binding("Ana", "f"), "friend": cg.Binding("Bo", "m")}
+        # A run in capitals is shown in sentence case (cie-v6-binary.md 20): its placeholders give the words in
+        # their own case; an all-caps placeholder in ordinary text still gives capitals.
         self.assertEqual(cg.expand_v6("TELL (NAME1) TO STOP; (FRIEND.HE/SHE) AND (HIM/HER).", g, b),
-                         "TELL ANA TO STOP; HE AND HER.")
+                         "Tell Ana to stop; he and her.")
+        self.assertEqual(cg.expand_v6("Ask (NAME1) now.", g, b), "Ask ANA now.")
         # The fit measures them as written (names W x the room; pronouns in capitals).
         self.assertEqual(cg.worst_v6("(HIS/HER) (NAME)", g, cg.GAMES[3], None), "HIS " + "W" * 23)
         for scrolling in (False, True):
@@ -1081,7 +1084,8 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         d = copy.deepcopy(CAPS)
         d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."
         self.assertEqual(t.problems_of(d, True), [])
-        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT BY THE MACHINE IT BUILT."
+        # (In sentence case, 19, that label fits; one word in capitals inside ordinary text stays in capitals.)
+        d["nodes"]["q"]["choices"][0]["label"] = "Tell (NAME1) to stop WWWWWWWWWWWWWWWWWWWWWWWW"
         self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
 
     def test_no_roles(self):
@@ -1117,9 +1121,12 @@ class Fit(unittest.TestCase):
     def test_fallback_is_measured_in_vv1(self):
         d = v6(games=[1, 3])
         d["nodes"]["k"]["text"] = "&" * 700
-        problems = t.problems_of(d, True)
+        # Without scrolling (pages): VV1's fallback words make it longer than a popup's 1990 bytes.  (With scrolling
+        # A New Home's one popup holds 8000: cie-v6-binary.md 19.)
+        problems = t.problems_of(d, False)
         self.assertTrue(any(p.startswith("A New Home") and "longer than 1990" in p for p in problems), problems)
-        self.assertFalse(any(p.startswith("The Secret City") for p in problems))
+        self.assertFalse(any(p.startswith("The Secret City") and "longer than" in p for p in problems))
+        self.assertEqual(t.problems_of(d, True), [], "one popup: A New Home's holds 8000 bytes")
 
     def test_longest_pool_item_is_measured(self):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
@@ -1389,14 +1396,19 @@ class LabelPronouns(unittest.TestCase):
         g = cg.load(copy.deepcopy(LABELS))
         lg = cg.lower(g)
         b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
+        # The owner's label in capitals is shown in sentence case (cie-v6-binary.md 20) and then fits with the
+        # names; a longer one shows pronouns where the names do not fit (15).
         wide = lg["nodes"]["q"]["choices"][0]["label"]
-        self.assertEqual(cg.label_shown(wide, lg, b, 3), "TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN")
-        self.assertEqual(cg.label_shown(wide, lg, b, 5),
-                         "TELL ROSALIND AND BARTHOLOMEW TO SAIL OUT TO THE FAR REEF AT DAWN")
+        self.assertEqual(cg.label_shown(wide, lg, b, 3), "Tell Rosalind and Bartholomew to sail out to the far reef at dawn")
+        wider = "TELL (NAME1) AND (FRIEND|HE/SHE) WHY WE MUST WALK WAY WEST WITH MOMMA"
+        self.assertEqual(cg.label_shown(wider, lg, b, 3), "Tell her and he why we must walk way west with momma")
+        self.assertEqual(cg.label_shown(wider, lg, b, 5),
+                         "Tell Rosalind and Bartholomew why we must walk way west with momma")
         self.assertEqual(cg.label_shown("Ask (Name1) and (friend.Name)" + " now" * 40, lg, b, 3),
                          "Ask Her and Him" + " now" * 40, "capitalised: the object form, capitalised")
         r = cg.simulate(g, 3, [], b, [0])
-        self.assertEqual(r["labels"], [["TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN", "Keep Rosalind home"]])
+        self.assertEqual(r["labels"], [["Tell Rosalind and Bartholomew to sail out to the far reef at dawn",
+                                        "Keep Rosalind home"]])
         self.assertEqual(cg.decompile_graph(cg.compile_graph(g)), cg.without_names(g))
 
 

@@ -1364,6 +1364,184 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
     return _TOKEN_V6.sub(one, text) if isinstance(text, str) else text
 
 
+# ---- Sentence case (the owner, 2026-11-14: "the entire event text is shown in sentence case") ----------------------
+# docs/event-collection/cie-v6-binary.md 20; story_graph.inc cg_sentence_case is the same rule, byte for byte.
+# The source writes some lines and labels in ALL CAPS ("TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."); they are SHOWN
+# in sentence case ("Tell Ana to stop before anyone is hurt."); the data is never changed.  On version 6 text, before
+# anything in it is filled in:
+#   * a WORD is a run of letters (A-Z, a-z, and the Latin-1 letters 0xC0-0xFF but x 0xD7 and / 0xF7), with an
+#     apostrophe between two letters inside it; it is in CAPITALS when it has no lower-case letter;
+#   * a RUN is, within one line, a run of words in capitals with no word holding a lower-case letter between them
+#     (placeholders "(...)", picks "{...}" and escapes "\\x" sit between words and break nothing);
+#   * a run is shown in sentence case when it holds two or more words of two or more letters, or one such word and
+#     its line holds no word with a lower-case letter (a label "HONESTY", a line "STOP!"); a single word in capitals
+#     inside a line of ordinary text ("it was HUGE", "OK") stays as written;
+#   * in such a run every letter is made lower case, and a placeholder's letters too (so "(NAME1)" shows the name
+#     in its own case, "(HE)" "he"); then the first letter of a word or placeholder that starts a sentence (the text's
+#     or the line's start, or after . ! or ?, past spaces and quotes) is made a capital, and the word "I" (also in
+#     "I'm", "I'll", "I've", "I'd") stays a capital.  Names keep their own capitals: they are filled in afterwards.
+#   * A pool's item is cased on its own the same way, its start not a sentence's start.
+# A TITLE in capitals (no lower-case letter, one word of two or more letters) is shown in title case: each word's
+# first letter a capital, the rest lower case ("THE PARENT'S LESSON" -> "The Parent's Lesson").
+
+def _is_upper(c: str) -> bool:
+    o = ord(c)
+    return 0x41 <= o <= 0x5A or (0xC0 <= o <= 0xDE and o != 0xD7)
+
+
+def _is_lower(c: str) -> bool:
+    o = ord(c)
+    return 0x61 <= o <= 0x7A or (0xDF <= o <= 0xFF and o != 0xF7)
+
+
+def _is_letter(c: str) -> bool:
+    return _is_upper(c) or _is_lower(c)
+
+
+def _to_lower(c: str) -> str:
+    return chr(ord(c) + 0x20) if _is_upper(c) else c
+
+
+def _to_upper(c: str) -> str:
+    o = ord(c)
+    return chr(o - 0x20) if (0x61 <= o <= 0x7A or (0xE0 <= o <= 0xFE and o != 0xF7)) else c
+
+
+_SENTENCE_QUOTES = " \"'"
+
+
+def _units(text: str) -> list[tuple[str, str]]:
+    """`text` as units: ("c", one character) for plain text, ("ph" / "brace" / "esc", raw) for a token."""
+    out: list[tuple[str, str]] = []
+    for kind, raw in text_tokens(text):
+        if kind == "lit":
+            out.extend(("c", ch) for ch in raw)
+        else:
+            out.append((kind, raw))
+    return out
+
+
+def _ph_word_at(raw: str) -> int:
+    """Where a placeholder's word starts (its capital goes there): after its last "." before any "|"."""
+    inner = raw[1:-1].partition("|")[0]
+    return 1 + inner.rfind(".") + 1
+
+
+def _sentence_start(units: list[tuple[str, str]], at: int, item: bool) -> bool:
+    k = at - 1
+    while k >= 0 and units[k][0] == "c" and units[k][1] in _SENTENCE_QUOTES:
+        k -= 1
+    if k < 0:
+        return not item
+    kind, ch = units[k]
+    return kind == "c" and ch in ".!?\n"
+
+
+def sentence_case(text: str, item: bool = False) -> str:
+    """Version 6 text with its runs in capitals shown in sentence case (the rule above).  `item`: a pool's item (its
+    start is not a sentence's start)."""
+    if not isinstance(text, str) or not any(_is_upper(c) for c in text):
+        return text
+    units = _units(text)
+    n = len(units)
+    # The words: (first unit, last unit + 1, letters, has a lower-case letter).
+    words: list[list] = []
+    k = 0
+    while k < n:
+        kind, ch = units[k]
+        if kind == "c" and _is_letter(ch):
+            start = k
+            while k < n and units[k][0] == "c" and (_is_letter(units[k][1]) or (
+                    units[k][1] == "'" and k > start and k + 1 < n and units[k + 1][0] == "c"
+                    and _is_letter(units[k + 1][1]))):
+                k += 1
+            chars = [units[j][1] for j in range(start, k)]
+            words.append([start, k, sum(1 for c in chars if _is_letter(c)), any(_is_lower(c) for c in chars)])
+            continue
+        k += 1
+    # Lines: the words of each, by the line breaks between them, and each line's units [start, end).
+    lines: list[list[int]] = [[]]
+    bounds: list[list[int]] = [[0, n]]
+    w = 0
+    for k in range(n):
+        while w < len(words) and words[w][0] == k:
+            lines[-1].append(w)
+            w += 1
+        if units[k] == ("c", "\n"):
+            bounds[-1][1] = k
+            lines.append([])
+            bounds.append([k + 1, n])
+    out = list(units)
+    for line, (line_start, line_end) in zip(lines, bounds):
+        lower_in_line = any(words[w][3] for w in line)
+        i = 0
+        while i < len(line):
+            if words[line[i]][3]:
+                i += 1
+                continue
+            j = i
+            while j < len(line) and not words[line[j]][3]:
+                j += 1
+            run = line[i:j]
+            long_words = sum(1 for w in run if words[w][2] >= 2)
+            if long_words >= 2 or (long_words >= 1 and not lower_in_line):
+                # The run's span: out to the words around it (or the line's ends), so a placeholder beside it is
+                # in it ("(NAME) STOPS." -> "(name) stops.").
+                first = words[line[i - 1]][1] if i > 0 else line_start
+                last = words[line[j]][0] if j < len(line) else line_end
+                for u in range(first, last):
+                    kind, raw = out[u]
+                    if kind == "c":
+                        out[u] = ("c", _to_lower(raw))
+                    elif kind == "ph":
+                        out[u] = ("ph", "".join(_to_lower(c) for c in raw))
+                for u in range(first, last):
+                    kind, raw = out[u]
+                    if kind == "ph" and _sentence_start(out, u, item) and len(raw) > 2:
+                        at = _ph_word_at(raw)
+                        out[u] = ("ph", raw[:at] + _to_upper(raw[at]) + raw[at + 1:])
+                for w in run:
+                    s, e = words[w][0], words[w][1]
+                    if _sentence_start(out, s, item):
+                        out[s] = ("c", _to_upper(out[s][1]))
+                    if out[s][1] in "iI" and (e - s == 1 or out[s + 1][1] == "'"):
+                        out[s] = ("c", "I")
+            i = j
+    return "".join(raw for _kind, raw in out)
+
+
+def title_case(title: str) -> str:
+    """A title written in capitals in title case (the rule above); any other title as written."""
+    if not isinstance(title, str):
+        return title
+    units = _units(title)
+    if any(kind == "c" and _is_lower(ch) for kind, ch in units):
+        return title
+    plain = "".join(ch if kind == "c" else " " for kind, ch in units)
+    if not any(sum(1 for c in word if _is_letter(c)) >= 2 for word in re.split(r"[^A-Za-zÀ-ÿ']+", plain)):
+        return title
+    out = []
+    begin = True
+    for kind, raw in units:
+        if kind == "ph" and len(raw) > 2:
+            low = "".join(_to_lower(c) for c in raw)
+            at = _ph_word_at(low)
+            out.append(low[:at] + _to_upper(low[at]) + low[at + 1:])   # "(NAME)": "(Name)", the name as written
+            begin = False
+            continue
+        if kind != "c":
+            out.append(raw)
+            begin = True
+            continue
+        if _is_letter(raw):
+            out.append(_to_upper(raw) if begin else _to_lower(raw))
+            begin = False
+        else:
+            out.append(raw)
+            begin = raw != "'"
+    return "".join(out)
+
+
 def text_tokens(text: str) -> list[tuple[str, str]]:
     """Version 6 text as (kind, raw) pieces: "lit" (plain characters), "esc" (\\( or \\)), "ph" ((...)), "brace"
     ({...}).  Stray markup characters stay inside "lit" pieces (the checks refuse them)."""
@@ -1676,6 +1854,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
     aliases = aliases or {}
     out = []
     drop_dot = False
+    text = sentence_case(text, item=_depth > 0)           # section 20: runs in capitals shown in sentence case
     for kind, raw in text_tokens(text):
         if drop_dot and kind == "lit" and raw.startswith("."):
             raw = raw[1:]                       # section 6 step 5: no "!." / "?." after a pool's item
@@ -1726,6 +1905,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
     award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
     the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
     out = []
+    text = sentence_case(text, item=_depth > 0)           # section 20
     tokens = list(text_tokens(text))
     drop_dot = False
     for at, (kind, raw) in enumerate(tokens):
@@ -2742,21 +2922,53 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
                         "digits, space and . , ! ? : - ' only" + (', and "' if version >= 2 else '') + ")")
 
 
+ONE_POPUP_JOIN = "\n\n"        # what joins two parts of one popup's text that were once popups of their own
+ONE_POPUP_TEXT_MAX_12 = 8000  # one popup's bytes in A New Home and The Lost Children (their dialog holds 9,999;
+                              # story_graph.inc CG_TEXT_MAX_12); the later games' popups hold POPUP_TEXT_MAX
+
+
+def one_popup(popups: list[Popup]) -> list[Popup]:
+    """The popups of one history as ONE popup per island event shows them (the owner, 2026-11-14; scrolling only,
+    native/shared/one_popup.h, story_graph.inc cg_group): the text from the start (or from an answer) up to and
+    including the next question, or the ending, is one text -- what were popups of their own joined by a blank line
+    (ONE_POPUP_JOIN), the question's words last, its choices after them.  Each is shown in the event's one popup,
+    replacing the one before."""
+    out: list[Popup] = []
+    for pop in popups:
+        if out and out[-1].layout != "question":
+            last = out[-1]
+            last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
+            last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
+            last.effects = last.effects or pop.effects
+            last.nodes = last.nodes + pop.nodes
+            last.titles = last.titles + [t for t in pop.titles if t not in last.titles]
+            if pop.layout == "question":
+                last.layout = "question"
+                last.room = pop.room
+                last.answers = pop.answers
+            continue
+        out.append(Popup(pop.layout, pop.text, pop.worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
+                         list(pop.titles)))
+    return out
+
+
 def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
-    """The popups of `paths` (one context's) against the game's popups."""
+    """The popups of `paths` (one context's) against the game's popups.  With scrolling each island event is ONE
+    popup (one_popup): only the bytes the game's popup holds count, for each text it shows."""
     problems: list[str] = []
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
-        for pop in p.popups:
+        for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
                 continue
             done.add(key)
             layout = getattr(game, pop.layout)
             nodes = "+".join(pop.nodes)
-            if len(pop.worst.encode("ascii", "replace")) > POPUP_TEXT_MAX:
-                problems.append(f"{game.name}: the popup of {nodes} is longer than {POPUP_TEXT_MAX} bytes "
+            cap = ONE_POPUP_TEXT_MAX_12 if scrolling and game.number <= 2 else POPUP_TEXT_MAX
+            if len(pop.worst.encode("ascii", "replace")) > cap:
+                problems.append(f"{game.name}: the popup of {nodes} is longer than {cap} bytes "
                                 "with the longest names")
                 continue
             if scrolling:
@@ -2808,8 +3020,8 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
         return out
     for gn in g["games"]:
         game = GAMES[gn]
-        worst = worst_v6(title, g, game, None)
-        if title_fits(gn, worst) or title_fits(gn, worst_v6(title, g, game, None, pronoun_names=True)):
+        worst = worst_v6(title_case(title), g, game, None)                # section 20
+        if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
         if len(worst) > TITLE_BYTES:
             out.append(f"{what} is longer than {TITLE_BYTES} characters" + (" with the longest names"
@@ -2834,6 +3046,7 @@ def title_worst(g: dict, title: str, game: "Game") -> str:
     pronouns (section 17)."""
     if g["version"] < VERSION_V6:
         return title
+    title = title_case(title)                             # section 20: a title in capitals in title case
     worst = worst_v6(title, g, game, None)
     return worst if title_fits(game.number, worst) else worst_v6(title, g, game, None, pronoun_names=True)
 
@@ -2841,6 +3054,7 @@ def title_worst(g: dict, title: str, game: "Game") -> str:
 def title_shown(g: dict, title: str, game: int, bindings: dict, aliases: dict | None = None,
                 unicode: bool = False) -> str:
     """A title as the player reads it (section 17): the real names, else -- when that does not fit -- pronouns."""
+    title = title_case(title)                             # section 20
     real = expand_v6(title, g, bindings, None, None, game, unicode, aliases)
     if title_fits(game, real):
         return real
@@ -2861,7 +3075,7 @@ def readable_title(title: str) -> str:
         if upper:
             return out.upper()
         return out[0].upper() + out[1:] if word[:1].isupper() else out
-    return PLACEHOLDER_RE.sub(one, title)[:TITLE_BYTES]
+    return PLACEHOLDER_RE.sub(one, title_case(title))[:TITLE_BYTES]   # 20: a title in capitals in title case
 
 
 def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game") -> str:

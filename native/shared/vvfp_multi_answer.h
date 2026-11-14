@@ -354,4 +354,154 @@ static int ma_room(const void *popup) {
     return room > 0 && room < 2048 ? room : 0;
 }
 
+/* ---- ONE popup per island event (native/shared/one_popup.h) ---------------------------------------------------
+
+   With Scrolling Popups, a new island event runs whole in this dialog: its text in +0x58 (the game's 2000 bytes),
+   its choices drawn by Scrolling Popups after the text (VvfpOnePopupRows / VvfpOnePopupPick), the game's two answers
+   always hidden, OK shown only while no choice is asked.  A choice (a row, or the keys 1 to 7) gives the client's
+   pick, whose text replaces the shown one; OK gives the client's ok, which keeps the popup when it shows another
+   text, else the game's OK closes it.  The dialog is known before its constructor runs (the presenter's stack
+   slot, ma_op_expect) so its panel is sized for the text and the choices; its virtual table is ours after. */
+#include "one_popup.h"
+
+typedef struct {
+    int (*rows)(void *dialog, op_rows *out);    /* the choices shown now (0: OK), their words */
+    int (*pick)(void *dialog, int k);           /* choice k: its text in place (+0x58); 1 when taken */
+    int (*ok)(void *dialog);                    /* OK: 1 when another text replaced the shown one (the popup stays) */
+} ma_op_client;
+
+static const ma_op_client *g_ma_op;            /* non-NULL: g_ma_op_dialog is a one-popup event */
+static void *g_ma_op_dialog;
+static const ma_game *g_ma_op_game;
+static int g_ma_op_built;                       /* its constructor is done: its buttons exist */
+
+static int ma_op_count(void *dialog, op_rows *out) {
+    static op_rows scratch;
+    op_rows *r = out != NULL ? out : &scratch;
+    if (g_ma_op == NULL || dialog == NULL || dialog != g_ma_op_dialog) {
+        return 0;
+    }
+    r->rows = 0;
+    if (!g_ma_op->rows(dialog, r)) {
+        return 0;
+    }
+    return r->rows > 0 && r->rows <= OP_MAX_ROWS ? r->rows : 0;
+}
+
+/* The game's buttons as the client's state says: its two answers hidden, OK shown only while nothing is asked. */
+static void ma_op_sync(void *dialog) {
+    const ma_game *g = g_ma_op_game;
+    int asking = ma_op_count(dialog, NULL) > 0;
+    __try {
+        ma_dialog_call(g->hide, dialog, ma_control(dialog, 0x85Cu));
+        ma_dialog_call(g->hide, dialog, ma_control(dialog, 0x860u));
+        ma_dialog_call(asking ? g->hide : g->show, dialog, ma_control(dialog, 0x864u));
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+static int ma_op_pick(void *dialog, int k) {
+    if (k < 0 || k >= ma_op_count(dialog, NULL) || !g_ma_op->pick(dialog, k)) {
+        return 0;
+    }
+    ma_op_sync(dialog);
+    return 1;
+}
+
+static char __fastcall ma_op_message(void *dialog, void *unused, int message, int id) {
+    (void)unused;
+    __try {
+        if (message == 8 && dialog == g_ma_op_dialog && g_ma_op != NULL) {
+            if (id == 1) {
+                if (ma_op_count(dialog, NULL) > 0) {
+                    return 0;                          /* asking: no OK */
+                }
+                if (g_ma_op->ok(dialog)) {
+                    ma_op_sync(dialog);
+                    return 0;                          /* another text: the popup stays */
+                }
+                g_ma_op = NULL;                         /* the event is over: the game's OK closes it */
+            } else if (id == 2 || id == 3) {
+                return 0;                              /* the game's answers are never shown */
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return ((ma_message_fn)(uintptr_t)g_ma_op_game->click)(dialog, NULL, message, id);
+}
+
+static char __fastcall ma_op_key(void *dialog, void *unused, int type, int code, int raw) {
+    (void)unused; (void)raw;
+    __try {
+        int n;
+        if (dialog != g_ma_op_dialog || g_ma_op == NULL) {
+            return 0;
+        }
+        n = ma_op_count(dialog, NULL);
+        if (type == 6 && (code == 0x3EB || code == 0x3E8) && n == 0) {
+            ma_op_message(dialog, NULL, 8, 1);
+            return 1;
+        }
+        if (type == 5 && code >= '1' && code < '1' + n) {
+            return (char)ma_op_pick(dialog, code - '1');
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 0;
+}
+
+/* Before the presenter's constructor: the dialog it is about to build at `dialog` is a one-popup event (its panel
+   is sized with the choices, Scrolling Popups asking VvfpOnePopupRows at its size site). */
+static void ma_op_expect(int game, const ma_op_client *client, void *dialog) {
+    g_ma_op_game = ma_game_of(game);
+    g_ma_op = g_ma_op_game != NULL ? client : NULL;
+    g_ma_op_dialog = dialog;
+    g_ma_op_built = 0;
+}
+
+/* After the constructor: our virtual table, the game's buttons as the client says.  0 when not done. */
+static int ma_op_attach(void *dialog) {
+    const ma_game *g = g_ma_op_game;
+    unsigned char *d = (unsigned char *)dialog;
+    if (g == NULL || g_ma_op == NULL || dialog == NULL || dialog != g_ma_op_dialog
+        || *(unsigned int *)d != g->dialog_vtable) {
+        g_ma_op = NULL;
+        return 0;
+    }
+    ma_forget();
+    g_ma.g = g;
+    memcpy(g_ma.dvt, (const void *)(uintptr_t)(g->dialog_vtable - 4u), sizeof g_ma.dvt);
+    g_ma.dvt[1 + 2] = (unsigned int)(uintptr_t)ma_op_key;
+    g_ma.dvt[1 + 3] = (unsigned int)(uintptr_t)ma_op_message;
+    *(unsigned int **)d = &g_ma.dvt[1];
+    g_ma_op_built = 1;
+    ma_op_sync(dialog);
+    return 1;
+}
+
+static void ma_op_forget(void) {
+    g_ma_op = NULL;
+    g_ma_op_dialog = NULL;
+}
+
+/* For Scrolling Popups (VvfpOnePopupRows): 1 when `popup` is the one-popup event here, `out` filled -- the choices,
+   their words and the room OK keeps below the content (5/2 of its height, the game's own room with OK alone; before
+   the constructor has made OK, its picture's height). */
+static int ma_op_rows(const void *popup, op_rows *out) {
+    int r = 0;
+    __try {
+        if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL && out != NULL
+            && out->size == (int)sizeof(op_rows)) {
+            void *ok = g_ma_op_built ? ma_control(g_ma_op_dialog, 0x864u) : NULL;
+            int h = ok != NULL ? ma_vcall(ok, 0x10) : 0;
+            out->rows = ma_op_count(g_ma_op_dialog, out);
+            out->reserve = 5 * (h > 0 && h < 200 ? h : 32) / 2;
+            r = 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        r = 0;
+    }
+    return r;
+}
+
 #endif

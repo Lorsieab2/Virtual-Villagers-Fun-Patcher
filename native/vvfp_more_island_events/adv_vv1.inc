@@ -279,19 +279,88 @@ static void v1_mb_resolve(void *dialog) {
 
 static const mb_client V1_MB = { v1_mb_state, v1_mb_answers, v1_mb_label, v1_mb_resolve };
 
+/* ---- One popup per island event (mie_one_popup.inc) in A New Home's and The Lost Children's encounter dialogs ----
+
+   With Scrolling Popups the whole event runs in the dialog's question field (+0x74 / +0x7C, shown while +0x50 is 0:
+   vvfp_multi_answer_12.h mb_op_* keeps it so), each text laid out as the pages are (the title line, the picture's
+   lines, the text wrapped at the dialog's width), its answers drawn by Scrolling Popups after it. */
+static int v12_op;                     /* the event in the encounter dialog runs in one popup */
+
+static void v12_op_page(char *out, int cap, const char *text) {
+    static char wrapped[MOP_TEXT_BYTES];
+    int i;
+    adv_copy(out, cap, g_vv12_title);
+    for (i = 0; i < VV1_PICTURE_LINES + 1; ++i) {
+        adv_cat(out, cap, "\n");
+    }
+    adv_wrap(text, ADV_VV1.width, wrapped, sizeof wrapped);   /* both games: 46 characters, five picture lines */
+    adv_cat(out, cap, wrapped);
+}
+
+/* The text shown now (mop.text) in the dialog's question field. */
+static void v12_op_show(void *dialog) {
+    unsigned int field = g_mb.g != NULL && g_mb.g->game == 2 ? 0x7Cu : VV1_DLG_QUESTION;
+    v12_op_page((char *)dialog + field, VV1_DLG_TEXT, mop.text);
+}
+
+static int v12_op_rows(void *dialog, op_rows *out) {
+    (void)dialog;
+    mop_rows(out);
+    return 1;
+}
+
+static int v12_op_pick(void *dialog, int k) {
+    if (!mop_pick(k)) {
+        return 0;
+    }
+    v12_op_show(dialog);
+    return 1;
+}
+
+static int v12_op_ok(void *dialog) {
+    if (!mop_ok()) {
+        return 0;
+    }
+    v12_op_show(dialog);
+    return 1;
+}
+
+static const mb_op_client V12_OP = { v12_op_rows, v12_op_pick, v12_op_ok };
+
+/* The room the question field leaves for the text (the title line and the picture's lines before it). */
+#define V12_OP_ROOM (VV1_DLG_TEXT - 160)
+
+/* The event (composed) in the dialog being built, in one popup when Scrolling Popups is installed and the dialog
+   takes our virtual table: its first text in the question field.  0: the pages as before. */
+static int v12_op_start(int game, unsigned char *d, const adv_flow *flow) {
+    v12_op = 0;
+    if (!adv_scrolls()) {
+        return 0;
+    }
+    if (!mb_attach_op(game, &V12_OP, d)) {
+        return 0;
+    }
+    mop_begin(flow, V12_OP_ROOM);
+    v12_op_show(d);
+    v12_op = 1;
+    return 1;
+}
+
 /* The event's begin done: the setup's fields. */
 static void v1_fill(unsigned char *d) {
     const adv_pages *first = v1_flow->question(0);
     unsigned char *villagers = *(unsigned char **)(d + 0x50A8u);
     int subject = v1_flow->subject();
     v1_flow->title(g_vv12_title, sizeof g_vv12_title);
-    int room = v1_flow->answers != NULL ? mb_room_lines(1, d, adv_answers(v1_flow, 0)) : 0;
-    v1_page_text((char *)d + VV1_DLG_QUESTION, VV1_DLG_TEXT, first->text[first->count - 1],
-                 adv_lines(&ADV_VV1, v1_flow->tallest()) + room);
-    v1_set_labels(d, 0);
-    if (v1_flow->answers != NULL) {
-        mb_attach(1, &V1_MB, d);               /* three or four answers (vvfp_multi_answer_12.h) */
+    if (!v12_op_start(1, d, v1_flow)) {
+        int room = v1_flow->answers != NULL ? mb_room_lines(1, d, adv_answers(v1_flow, 0)) : 0;
+        v1_page_text((char *)d + VV1_DLG_QUESTION, VV1_DLG_TEXT, first->text[first->count - 1],
+                     adv_lines(&ADV_VV1, v1_flow->tallest()) + room);
+        if (v1_flow->answers != NULL) {
+            mb_attach(1, &V1_MB, d);           /* three or four answers (vvfp_multi_answer_12.h) */
+        }
     }
+    v1_set_labels(d, 0);
     *(int *)(d + VV1_DLG_KIND) = ADV_VV1_KIND;
     *(int *)(d + VV1_DLG_SUBJECT) = subject;
     *(int *)(d + 0x60) = 0x1C2;
@@ -307,6 +376,8 @@ static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
     const adv_flow *picked;
     adv_log_reset();                   /* an encounter is drawn: whatever was ours is over */
+    v12_op = 0;
+    mb_op_forget();
     __try {
         /* Pick Island Event chose one of ours (mie_pick.inc): that one, when it can happen; else the stock draw. */
         picked = mp_due_flow(1);
@@ -380,7 +451,7 @@ static void __fastcall v1_attach(void *dialog, void *unused, void *child) {
             }
             return;
         }
-        if (v1_flow->question(0)->count > 1) {
+        if (!v12_op && v1_flow->question(0)->count > 1) {
             v1_ok_on(d);
             d[0x50] = 1;
             v1_result(d, v1_flow->question(0)->text[0]);
@@ -395,7 +466,12 @@ static void __fastcall v1_ok(void *dialog, void *unused) {
     unsigned char *d = (unsigned char *)dialog;
     (void)unused;
     __try {
-        if (v1_ours(d)) {
+        if (v1_ours(d) && v12_op) {
+            mop_end();                           /* one popup: OK ends the event (its effects came with its text) */
+            v12_op = 0;
+            v1_dialog = NULL;
+            v1_stage = ADV_STAGE_NONE;
+        } else if (v1_ours(d)) {
             if (v1_stage == ADV_STAGE_INTRO) {
                 const adv_pages *pages = v1_flow->question(v1_node);
                 ++v1_page;
@@ -437,8 +513,8 @@ static void __cdecl v1_answer(unsigned char *d) {
     __try {
         int next, which;
         const adv_pages *pages;
-        if (!v1_ours(d) || v1_stage != ADV_STAGE_QUESTION) {
-            return;
+        if (!v1_ours(d) || v1_stage != ADV_STAGE_QUESTION || v12_op) {
+            return;                                    /* one popup: the game's answers are never shown */
         }
         which = *(int *)(d + VV1_DLG_CHOICE) - 1;          /* 1 / 2 the game's two, 3 / 4 ours */
         if (which < 0 || which >= adv_answers(v1_flow, v1_node)) {

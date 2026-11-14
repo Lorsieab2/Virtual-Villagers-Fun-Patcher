@@ -126,6 +126,8 @@ EXPORTS
     VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
     VvfpStoryButtonRoom=_VvfpStoryButtonRoom@4
     VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
+    VvfpOnePopupRows=_VvfpOnePopupRows@8
+    VvfpOnePopupPick=_VvfpOnePopupPick@8
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
@@ -134,6 +136,10 @@ EXPORTS
     VvfpStoryProbeMoreList=_VvfpStoryProbeMoreList@16
     VvfpStoryProbeInstalledPatches=_VvfpStoryProbeInstalledPatches@8
     VvfpStoryProbeGraphScroll=_VvfpStoryProbeGraphScroll@4
+    VvfpStoryProbeOnePopupRows=_VvfpStoryProbeOnePopupRows@4
+    VvfpStoryProbeOnePopupOk=_VvfpStoryProbeOnePopupOk@12
+    VvfpStoryProbeOnePopupBegun=_VvfpStoryProbeOnePopupBegun@4
+    VvfpStoryProbeSentenceCase=_VvfpStoryProbeSentenceCase@12
     VvfpStoryProbeGraphQueueOrigin=_VvfpStoryProbeGraphQueueOrigin@24
     VvfpStoryProbeGraphPicks=_VvfpStoryProbeGraphPicks@8
     VvfpStoryProbeGraphFacts=_VvfpStoryProbeGraphFacts@12

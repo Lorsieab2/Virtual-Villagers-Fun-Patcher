@@ -421,6 +421,53 @@ static void *g_dialog;
 static int g_stage, g_page;
 static int g_effects_page = -1;          /* the ending's page that makes its effects (its last), -1 made */
 
+/* ---- One popup per island event (mie_one_popup.inc): the dialog's own text +0x58, vvfp_multi_answer.h ma_op_* ----
+
+   With Scrolling Popups the presenter's dialog is known before its constructor (t_ctor_thunk: ma_op_expect, so
+   Scrolling Popups sizes its panel for the text and the answers), the event's text is the whole question (the
+   object's +0x0C, and +0x28 before the answer: nothing padded for buttons), our virtual table goes on after the
+   constructor (ma_op_attach: the game's two answers hidden, OK only while nothing is asked), an answer's text is
+   written into the dialog's +0x58 (its 2,000 bytes), and OK ends the event (t_ok lets the game close it). */
+static int g_t_op;                       /* the dialog being built / shown runs one of our events in one popup */
+
+/* The event's whole question (or its outcome) as the object's methods give it: one popup, its text now. */
+static int t_op_for(const adv_flow *flow) {
+    return g_t_op && mop.active && flow != NULL && mop.flow == flow;
+}
+
+static int t_op_rows(void *dialog, op_rows *out) {
+    (void)dialog;
+    mop_rows(out);
+    return 1;
+}
+
+static int t_op_pick(void *dialog, int k) {
+    if (!mop_pick(k)) {
+        return 0;
+    }
+    lstrcpynA((char *)dialog + 0x58, mop.text, 2000);
+    return 1;
+}
+
+static int t_op_ok(void *dialog) {
+    if (!mop_ok()) {
+        return 0;
+    }
+    lstrcpynA((char *)dialog + 0x58, mop.text, 2000);
+    return 1;
+}
+
+static const ma_op_client T_OP_CLIENT = { t_op_rows, t_op_pick, t_op_ok };
+
+/* The OK that ends a one-popup event (the object's +0x2C): nothing of it outlives its popup. */
+static void t_op_close(void) {
+    if (g_t_op) {
+        mop_end();
+        ma_op_forget();
+        g_t_op = 0;
+    }
+}
+
 static void t_register(adv_object *object, const adv_flow *flow, int (*listable)(void), int (*begin)(void)) {
     if (g_event_count < T_MAX_EVENTS) {
         t_event *ev = &g_events[g_event_count++];
@@ -541,6 +588,11 @@ static int __fastcall o_title(void *self, void *unused) {
         if (ev->ready) {
             adv_log_event(g_table_adv->game, g_title);
         }
+        if (ev->ready && adv_scrolls()) {
+            mop_begin(ev->flow, ADV_PAGE_TEXT_MAX);    /* one popup: the whole question, one text */
+        } else {
+            mop.active = 0;
+        }
     }
     t_strings_in();
     return g_tg->title_id;
@@ -550,6 +602,9 @@ static int __fastcall o_question(void *self, void *unused) {
     t_event *ev = t_event_of(self);
     const adv_pages *q = ev != NULL ? ev->flow->question(0) : NULL;
     (void)unused;
+    if (ev != NULL && t_op_for(ev->flow)) {
+        return t_text_id(mop.text);
+    }
     return t_text_id(q != NULL && q->count > 0 ? q->text[q->count - 1] : "");
 }
 
@@ -597,6 +652,9 @@ static int __fastcall o_result(void *self, void *unused, int choice) {
     (void)unused; (void)choice;
     if (ev == NULL) {
         return t_text_id("");
+    }
+    if (t_op_for(ev->flow)) {
+        return t_text_id(mop.text);              /* one popup: its panel is sized for the text shown first */
     }
     if (!ev->answered) {
         const char *text = ev->flow->tallest();
@@ -653,6 +711,7 @@ static void __fastcall o_apply(void *self, void *unused, int choice) {
     if (g_effects_page >= 0) {
         t_page_effects();                    /* never left unmade (a page count that changed: a fault) */
     }
+    t_op_close();
     g_stage = ADV_STAGE_NONE;
     g_dialog = NULL;
     t_strings_out();
@@ -804,7 +863,21 @@ static void __cdecl t_after_ctor(void *dialog) {
             return;
         }
         if (ev == NULL || ev != g_ev || !ev->ready) {
+            if (g_t_op) {
+                mop.active = 0;                /* not shown: nothing to run */
+                t_op_close();
+            }
             return;
+        }
+        if (g_t_op) {
+            if (t_op_for(ev->flow) && ma_op_attach(dialog)) {
+                g_dialog = dialog;              /* one popup: our virtual table, the game's answers hidden */
+                g_page = 0;
+                g_stage = ADV_STAGE_QUESTION;
+                return;
+            }
+            mop.active = 0;                    /* not taken: the pages as without Scrolling Popups' rows */
+            t_op_close();
         }
         q = ev->flow->question(0);
         g_dialog = dialog;
@@ -835,10 +908,32 @@ static void __cdecl t_after_ctor(void *dialog) {
     }
 }
 
+/* Before the constructor builds `dialog` for `object`: one of our events, with Scrolling Popups, runs in one popup
+   (the dialog known to vvfp_multi_answer.h before its panel is sized); any other popup is none of ours. */
+static void __cdecl t_before_ctor(void *dialog, void *object) {
+    __try {
+        if (object != NULL && (object == (void *)&g_ts_object || t_event_of(object) != NULL) && adv_scrolls()) {
+            g_t_op = 1;
+            ma_op_expect(g_tg->game, &T_OP_CLIENT, dialog);
+        } else {
+            g_t_op = 0;
+            ma_op_forget();
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_t_op = 0;
+    }
+}
+
 /* In place of the presenter's `call <constructor>` (ecx the dialog, one argument, ret 4). */
 __declspec(naked) static void t_ctor_thunk(void) {
     __asm {
         mov dword ptr [g_ctor_dialog], ecx
+        pushad
+        push dword ptr [esp + 0x24]
+        push ecx
+        call t_before_ctor
+        add esp, 8
+        popad
         push ecx
         push dword ptr [esp + 8]
         call dword ptr [g_ctor]
@@ -858,6 +953,9 @@ static int __cdecl t_ok(void *dialog) {
     __try {
         void *object = dialog != NULL ? *(void **)((unsigned char *)dialog + 0x50) : NULL;
         t_event *ev;
+        if (g_t_op && dialog != NULL && dialog == g_ma_op_dialog) {
+            return 0;                          /* one popup: its OK ends the event (ma_op_message asked us first) */
+        }
         if (object != NULL && object == &g_ts_object) {
             return ts_ok(dialog);
         }

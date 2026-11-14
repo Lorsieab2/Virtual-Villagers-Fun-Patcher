@@ -885,22 +885,30 @@ class LabelPronouns(unittest.TestCase):
     def test_names_or_pronouns_by_the_screen(self):
         from test_cie_graph_v6 import LABELS
         people = [(0, "f", 30, "Rosalind", 0, False), (1, "m", 30, "Bartholomew", 0, False)]
-        lg = cg.lower(cg.load(copy.deepcopy(LABELS)))
+        # The owner's label in capitals is shown in sentence case (cie-v6-binary.md 20), which fits every screen with
+        # the names; a longer one shows pronouns where the names do not fit.
+        longer = copy.deepcopy(LABELS)
+        longer["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) AND (FRIEND|HE/SHE) WHY WE MUST WALK WAY WEST WITH MOMMA"
         b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
-        for game in GAME_IDS:
-            if not have_stock(game):
-                continue
-            with self.subTest(game=game):
-                r = V6(game, people)
-                r.rolls([0, 0] + [0] * 40)
-                self.assertIsNone(r.queue6(compiled(LABELS)))
-                shown = r.walk_through([0])
-                want = [cg.label_shown(c["label"], lg, b, int(game[2])) for c in lg["nodes"]["q"]["choices"]]
-                self.assertEqual(shown[0][2], want)
-                if game == "vv5":
-                    self.assertIn("ROSALIND AND BARTHOLOMEW", want[0], "fits New Believers' wider screen")
-                else:
-                    self.assertTrue(want[0].startswith("TELL HER AND HE "), want[0])
+        pronouns = []
+        for graph in (LABELS, longer):
+            lg = cg.lower(cg.load(copy.deepcopy(graph)))
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game, longer=graph is longer):
+                    r = V6(game, people)
+                    r.rolls([0, 0] + [0] * 40)
+                    self.assertIsNone(r.queue6(compiled(graph)))
+                    shown = r.walk_through([0])
+                    want = [cg.label_shown(c["label"], lg, b, int(game[2])) for c in lg["nodes"]["q"]["choices"]]
+                    self.assertEqual(shown[0][2], want)
+                    if graph is LABELS:
+                        self.assertTrue(want[0].startswith("Tell Rosalind and Bartholomew "), want[0])
+                    elif want[0].startswith("Tell her and he "):
+                        pronouns.append(game)
+        if any(have_stock(g) for g in GAME_IDS):
+            self.assertTrue(pronouns, "the longer label shows pronouns somewhere")
 
 
 @emulated

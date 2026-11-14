@@ -45,7 +45,11 @@
    apart: the question is one popup with its buttons, each answer's result one popup (with OK), and the effects
    come with that page, the result's last, as before.  Every event of this companion lays its pages out here
    (adv_popup), so every one of them is one popup per question and per result.  Without the patch nothing
-   changes: the pages fit the screen. */
+   changes: the pages fit the screen.
+
+   ONE POPUP PER EVENT (the owner, 2026-11-14): with the patch every question event then runs whole in the one popup
+   the game builds for it -- its answers drawn by Scrolling Popups at the end of the text, each outcome in the same
+   popup, the game's OK ending it (mie_one_popup.inc, native/shared/one_popup.h). */
 
 #define ADV_MAX_PAGES 16                     /* The Mysterious Mask's longest ending: 11 pages of 5 lines (its popup
                                                 holds four answers, so its pages are 6 lines shorter) */
