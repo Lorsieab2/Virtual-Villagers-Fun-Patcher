@@ -67,7 +67,8 @@ strings. The engine must use the offsets, not the order.
   villager, at least one villager role must exist. An unprefixed placeholder or effect names `subject` when
   there is one, else the first role.
 - **No roles at all:** `"roles": {}` is allowed when no text, label, condition or effect names a role (e.g. V20
-  crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` is 0. A
+  crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` counts the
+  village's villagers (as `min_population` does; v1.35.97 counted nobody, so such an event never happened). A
   name or pronoun placeholder, a role condition or a villager effect in such a graph is an error.
 
 ## 2a. Node record (28 bytes, unchanged size)
@@ -393,10 +394,12 @@ Bad Day`.
   stranger's longest list name; the longer pronoun); when that does not fit, the worst case with every name as the
   longer pronoun of its form must. The pages of VV1/VV2 (which lead the text with the title) are laid out with the
   worst case of the form that fits (names when they fit, else pronouns).
-- **The readable form** (the Island Events log's "Event:" line, "Disappeared in ...", Pick Island Event, the library,
-  the queue's messages; `readable_title` / `cg_readable_title`): every name placeholder becomes "someone" in the
-  case written (`(Name1)` -> `Someone`, `(NAME1)` -> `SOMEONE`, `(name1)` -> `someone`), every pronoun or role-sex
-  word its pair as written, joined by "or": "he or she", "his or her", "woman or man", "mother or father", ...
-  (the case written: `(He/She)` -> `He or she`, `(HE/SHE)` -> `HE OR SHE`). The result is cut to 47 bytes. E.g.
-  "Someone's No Good, Very Bad Day". The library's file name is made from this form.
-- `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
+- **Before anyone is cast** (Pick Island Event, the library, Game Mechanics, the manifest, the refusals, "is on its
+  way"; `cg_readable`): the title **as written**, placeholders kept, cut to 47 bytes -- e.g. "(Name1)'s No Good,
+  Very Bad Day" (the owner, 2026-11-14: the "(Name1)" is intentional).
+- **The Island Events log** ("Event:" line, "Disappeared in ..."; `cg_title_logged`): the title with the cast
+  villagers' real names, never pronouns (the log has no title box) -- e.g. "Ana's No Good, Very Bad Day".
+- **The library's file name** (`library_stem`) is made from `readable_title`: every name placeholder "someone" in
+  the case written, every pronoun or role-sex word its pair joined by "or" ("he or she", "mother or father"), cut
+  to 47 bytes, then letters, digits, space, - and _ only.
+- `VvfpStoryGraphLogged` accepts the title as written, or the title armed (expanded).
