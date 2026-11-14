@@ -63,9 +63,21 @@
     "why": "mechanics and continuity notes, never displayed"
    },
    {
-    "src": "L10178-10185",
-    "kind": "note",
-    "why": "GAP: the Discovery opening needs its own title per run (format gap; lead to decide)"
+    "src": "L10179",
+    "kind": "structural",
+    "text": "[",
+    "why": "the bracket of the place list"
+   },
+   {
+    "src": "L10180",
+    "kind": "structural",
+    "text": "]",
+    "why": "the bracket of the place list"
+   },
+   {
+    "src": "L10178",
+    "kind": "structural",
+    "why": "opening heading (its title is the node's title)"
    },
    {
     "src": "L10228",
@@ -128,12 +140,6 @@
     "why": "the real-world dish, for the author only"
    },
    {
-    "src": "L10372",
-    "kind": "note",
-    "text": ", if",
-    "why": "designer note on R6"
-   },
-   {
     "src": "L10373",
     "kind": "note",
     "text": "appropriate to the game; this is an academic distinction, not",
@@ -160,22 +166,65 @@
    "sex": "random"
   }
  },
- "start": "inv",
+ "start": "open",
  "nodes": {
   "inv": {
    "name": "The invention",
+   "title": "The Revolutionary Invention",
    "text": "For days, (Inventor) has been experimenting with a peculiar idea. Now (inventor.he/she) has summoned the villagers to witness the result. A woven mat covers the work, and a nervous apprentice stands nearby holding a gourd of water in case something goes wrong.\n\"This,\" announces (Inventor), \"may change everything.\"\nAn elder asks whether it will at least be useful. (Inventor) hesitates. \"That remains to be seen.\"",
    "src": "L10168-10171,L10173,L10175-10176",
    "children": [
     {
-     "next": "question"
+     "next": "inv_group"
     }
    ]
   },
-  "question": {
+  "disc": {
+   "name": "The discovery",
+   "title": "The Revolutionary Discovery",
+   "text": "While working near the {beach|forest|garden|waterfall|fire pit|research area|night sky}, (Inventor) notices something nobody in the village has ever described before. After repeated observations, (inventor.he/she) concludes that it may change the way Isola understands the world.\nThe researchers demand proof. The elders demand an explanation. A child asks whether the discovery is edible.",
+   "src": "L10179-10182,L10184-10185",
+   "children": [
+    {
+     "next": "disc_group"
+    }
+   ]
+  },
+  "open": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "inv"
+    },
+    {
+     "next": "disc"
+    }
+   ]
+  },
+  "inv_group": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "q_inv_food"
+    },
+    {
+     "next": "q_inv_sci"
+    },
+    {
+     "next": "q_inv_eng"
+    },
+    {
+     "next": "q_inv_trade"
+    },
+    {
+     "next": "q_inv_art"
+    }
+   ]
+  },
+  "q_inv_food": {
    "type": "question",
    "name": "The subject",
-   "text": "{SUBJECT}",
+   "text": "{S_INV_FOOD}",
    "choices": [
     {
      "label": "PRESENT IT TO THE WHOLE VILLAGE",
@@ -204,33 +253,426 @@
     }
    ]
   },
-  "a1": {
+  "q_inv_sci": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_INV_SCI}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "q_inv_eng": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_INV_ENG}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "q_inv_trade": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_INV_TRADE}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "q_inv_art": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_INV_ART}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "disc_group": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "q_disc_sci"
+    },
+    {
+     "next": "q_disc_eng"
+    },
+    {
+     "next": "q_disc_trade"
+    }
+   ]
+  },
+  "q_disc_sci": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_DISC_SCI}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "q_disc_eng": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_DISC_ENG}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "q_disc_trade": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{S_DISC_TRADE}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "a1_food": {
    "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
    "src": "L10294-10296",
    "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_sci": {
+   "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
     {
      "do": "skill",
      "role": "inventor",
      "skills": [
       "Research",
-      "Building",
-      "Farming",
-      "Healing",
-      "Parenting"
+      "Healing"
      ],
      "min": 10,
      "max": 20,
      "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_eng": {
+   "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
     },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_trade": {
+   "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    },
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a1_art": {
+   "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
     {
      "do": "celebrate",
      "who": "all",
      "src": "L10295"
     }
    ],
+   "text_only": [
+    {
+     "src": "L10296",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
    "children": [
     {
      "next": "react"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_food",
+     "if": {
+      "visited": "q_inv_food"
+     }
+    },
+    {
+     "next": "a1_sci",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_sci"
+       },
+       {
+        "visited": "q_disc_sci"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a1_eng",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_eng"
+       },
+       {
+        "visited": "q_disc_eng"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a1_trade",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_trade"
+       },
+       {
+        "visited": "q_disc_trade"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a1_art",
+     "if": {
+      "visited": "q_inv_art"
+     }
     }
    ]
   },
@@ -252,7 +694,7 @@
     }
    ]
   },
-  "a4": {
+  "a4_food": {
    "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
    "src": "L10301-10302",
    "effects": [
@@ -260,11 +702,7 @@
      "do": "skill",
      "role": "inventor",
      "skills": [
-      "Research",
-      "Building",
-      "Farming",
-      "Healing",
-      "Parenting"
+      "Farming"
      ],
      "min": 20,
      "max": 40,
@@ -274,6 +712,143 @@
    "children": [
     {
      "next": "react"
+    }
+   ]
+  },
+  "a4_sci": {
+   "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_eng": {
+   "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_trade": {
+   "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4_art": {
+   "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "text_only": [
+    {
+     "src": "L10302",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a4_food",
+     "if": {
+      "visited": "q_inv_food"
+     }
+    },
+    {
+     "next": "a4_sci",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_sci"
+       },
+       {
+        "visited": "q_disc_sci"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a4_eng",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_eng"
+       },
+       {
+        "visited": "q_disc_eng"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a4_trade",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_trade"
+       },
+       {
+        "visited": "q_disc_trade"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a4_art",
+     "if": {
+      "visited": "q_inv_art"
+     }
     }
    ]
   },
@@ -526,7 +1101,23 @@
     }
    ]
   },
-  "d3": {
+  "d3_food": {
+   "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
+   "src": "L10344-10345",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10345"
+    }
+   ]
+  },
+  "d3_sci": {
    "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
    "src": "L10344-10345",
    "effects": [
@@ -535,14 +1126,111 @@
      "role": "inventor",
      "skills": [
       "Research",
-      "Building",
-      "Farming",
-      "Healing",
-      "Parenting"
+      "Healing"
      ],
      "min": 10,
      "max": 20,
      "src": "L10345"
+    }
+   ]
+  },
+  "d3_eng": {
+   "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
+   "src": "L10344-10345",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10345"
+    }
+   ]
+  },
+  "d3_trade": {
+   "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
+   "src": "L10344-10345",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10345"
+    }
+   ]
+  },
+  "d3_art": {
+   "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
+   "src": "L10344-10345",
+   "text_only": [
+    {
+     "src": "L10345",
+     "what": "relevant skill",
+     "reason": "art, fashion and fads match no game skill (L10421-10422, rule 8)"
+    }
+   ]
+  },
+  "d3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d3_food",
+     "if": {
+      "visited": "q_inv_food"
+     }
+    },
+    {
+     "next": "d3_sci",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_sci"
+       },
+       {
+        "visited": "q_disc_sci"
+       }
+      ]
+     }
+    },
+    {
+     "next": "d3_eng",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_eng"
+       },
+       {
+        "visited": "q_disc_eng"
+       }
+      ]
+     }
+    },
+    {
+     "next": "d3_trade",
+     "if": {
+      "any": [
+       {
+        "visited": "q_inv_trade"
+       },
+       {
+        "visited": "q_disc_trade"
+       }
+      ]
+     }
+    },
+    {
+     "next": "d3_art",
+     "if": {
+      "visited": "q_inv_art"
+     }
     }
    ]
   },
@@ -660,7 +1348,7 @@
   }
  },
  "pools": {
-  "SUBJECT": {
+  "S_INV_FOOD": {
    "set": "subject",
    "items": [
     {
@@ -694,22 +1382,19 @@
     {
      "text": "A NEW BREADFRUIT PREPARATION - The fruit is roasted, pounded, steamed, or shaped in an unprecedented way. Some call it genius; others say it is still just breadfruit.",
      "src": "L10213-10215"
-    },
+    }
+   ]
+  },
+  "S_DISC_SCI": {
+   "set": "subject",
+   "items": [
     {
      "text": "A COLOR-CHANGING LIQUID - A flower extract shifts color when mixed with different substances. Scholars investigate what the change signifies; a prankster wants to color everyone's soup.",
      "src": "L10218-10220"
     },
     {
-     "text": "A GAS THAT MAKES A STRANGE SOUND - A sealed vessel produces a peculiar hiss when opened. The inventor is more impressed than the villagers, who insist the vessel is simply rude.",
-     "src": "L10221-10223"
-    },
-    {
      "text": "AN UNUSUAL CRYSTAL - A transparent mineral bends light in an unexpected way, leading to optical experiments and wild rumors.",
      "src": "L10224-10225"
-    },
-    {
-     "text": "A NEW HEALING PREPARATION - A healer proposes an unfamiliar remedy. Responsible tests may show promise, no benefit, or harmful effects.",
-     "src": "L10226-10228"
     },
     {
      "text": "A NEW RULE OF NATURE - (Inventor) identifies a repeatable pattern in water, falling fruit, shadows, plants, or tides. It is a discovery even if nothing physical has been manufactured.",
@@ -718,7 +1403,25 @@
     {
      "text": "A FLOATING BALL OF LIGHT - A rare, explicitly impossible or magical phenomenon appears over a bowl of water or carved stone. Scholars cannot decide whether to study it or run away.",
      "src": "L10232-10234"
+    }
+   ]
+  },
+  "S_INV_SCI": {
+   "set": "subject",
+   "items": [
+    {
+     "text": "A GAS THAT MAKES A STRANGE SOUND - A sealed vessel produces a peculiar hiss when opened. The inventor is more impressed than the villagers, who insist the vessel is simply rude.",
+     "src": "L10221-10223"
     },
+    {
+     "text": "A NEW HEALING PREPARATION - A healer proposes an unfamiliar remedy. Responsible tests may show promise, no benefit, or harmful effects.",
+     "src": "L10226-10228"
+    }
+   ]
+  },
+  "S_INV_ENG": {
+   "set": "subject",
+   "items": [
     {
      "text": "THE STAR-TRACKING GEARS - Interlocking carved wheels and markers model the movement of stars or planets. The mechanism may help with calendars or navigation, or jam during its unveiling.",
      "src": "L10237-10239"
@@ -728,16 +1431,21 @@
      "src": "L10240-10242"
     },
     {
-     "text": "THE MEMORY STONE - A strangely responsive slab seems to hold symbols, sounds, or recollections. Some fear it contains a spirit; others call it the greatest archive imaginable.",
-     "src": "L10243-10246"
-    },
-    {
      "text": "THE WATER-LIFTING MACHINE - A wooden and woven-fiber mechanism raises water from a lower pool to a garden. It may work beautifully or soak its inventor and everyone watching.",
      "src": "L10247-10249"
     },
     {
      "text": "THE UNLIKELY BRIDGE - An unusual arrangement of timber, vines, and stone supports surprising weight, until an overlooked knot becomes the most important detail in the village.",
      "src": "L10250-10252"
+    }
+   ]
+  },
+  "S_DISC_ENG": {
+   "set": "subject",
+   "items": [
+    {
+     "text": "THE MEMORY STONE - A strangely responsive slab seems to hold symbols, sounds, or recollections. Some fear it contains a spirit; others call it the greatest archive imaginable.",
+     "src": "L10243-10246"
     },
     {
      "text": "THE NEW GEOMETRY - A researcher proves a surprising relationship among shapes using shells, cords, and marks in the sand.",
@@ -746,7 +1454,12 @@
     {
      "text": "THE BETTER CALENDAR - A villager finds a more reliable way to anticipate seasons, tides, or astronomical events.",
      "src": "L10255-10256"
-    },
+    }
+   ]
+  },
+  "S_INV_TRADE": {
+   "set": "subject",
+   "items": [
     {
      "text": "THE SHELL ACCOUNTING SYSTEM - A new method records exchanges, debts, food shares, and communal supplies with shells or knots. Merchants rejoice; others complain that every coconut now has paperwork, though no paper is involved.",
      "src": "L10259-10262"
@@ -756,13 +1469,23 @@
      "src": "L10263-10264"
     },
     {
-     "text": "THE IMPOSSIBLE PROOF - A philosopher offers a startling argument that overturns a familiar assumption. The village debates it for days; the fisherman keeps fishing.",
-     "src": "L10265-10267"
-    },
-    {
      "text": "THE SHARED WORK PLAN - A new arrangement of tasks makes building and harvesting more efficient, unless nobody agrees who starts.",
      "src": "L10268-10269"
-    },
+    }
+   ]
+  },
+  "S_DISC_TRADE": {
+   "set": "subject",
+   "items": [
+    {
+     "text": "THE IMPOSSIBLE PROOF - A philosopher offers a startling argument that overturns a familiar assumption. The village debates it for days; the fisherman keeps fishing.",
+     "src": "L10265-10267"
+    }
+   ]
+  },
+  "S_INV_ART": {
+   "set": "subject",
+   "items": [
     {
      "text": "THE NEW DANCE - (Inventor) invents a peculiar sequence of steps, turns, and claps. Within days, everyone may be doing it, including elders who insist they disapprove.",
      "src": "L10272-10274"
@@ -801,10 +1524,34 @@
      "if": {
       "any": [
        {
-        "visited": "a1"
+        "visited": "a1_food"
        },
        {
-        "visited": "a4"
+        "visited": "a1_sci"
+       },
+       {
+        "visited": "a1_eng"
+       },
+       {
+        "visited": "a1_trade"
+       },
+       {
+        "visited": "a1_art"
+       },
+       {
+        "visited": "a4_food"
+       },
+       {
+        "visited": "a4_sci"
+       },
+       {
+        "visited": "a4_eng"
+       },
+       {
+        "visited": "a4_trade"
+       },
+       {
+        "visited": "a4_art"
        },
        {
         "visited": "a6"
@@ -887,10 +1634,34 @@
      "if": {
       "any": [
        {
-        "visited": "a1"
+        "visited": "a1_food"
        },
        {
-        "visited": "a4"
+        "visited": "a1_sci"
+       },
+       {
+        "visited": "a1_eng"
+       },
+       {
+        "visited": "a1_trade"
+       },
+       {
+        "visited": "a1_art"
+       },
+       {
+        "visited": "a4_food"
+       },
+       {
+        "visited": "a4_sci"
+       },
+       {
+        "visited": "a4_eng"
+       },
+       {
+        "visited": "a4_trade"
+       },
+       {
+        "visited": "a4_art"
        },
        {
         "visited": "b1"
@@ -902,7 +1673,7 @@
      }
     },
     {
-     "text": "CHIEF SCHOLAR: (Inventor) gains a high scholarly reputation",
+     "text": "CHIEF SCHOLAR: (Inventor) gains a high scholarly reputation.",
      "src": "L10372-10374",
      "if": {
       "any": [
@@ -924,7 +1695,19 @@
      "if": {
       "any": [
        {
-        "visited": "a1"
+        "visited": "a1_food"
+       },
+       {
+        "visited": "a1_sci"
+       },
+       {
+        "visited": "a1_eng"
+       },
+       {
+        "visited": "a1_trade"
+       },
+       {
+        "visited": "a1_art"
        },
        {
         "visited": "a6"
@@ -961,7 +1744,19 @@
      "if": {
       "any": [
        {
-        "visited": "a1"
+        "visited": "a1_food"
+       },
+       {
+        "visited": "a1_sci"
+       },
+       {
+        "visited": "a1_eng"
+       },
+       {
+        "visited": "a1_trade"
+       },
+       {
+        "visited": "a1_art"
        },
        {
         "visited": "b3"
@@ -994,5 +1789,12 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10372",
+   "before": "reputation, if",
+   "after": "reputation."
+  }
+ ]
 }
