@@ -49,6 +49,12 @@
     "kind": "structural",
     "text": "(C1-C5)",
     "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7157",
+    "kind": "structural",
+    "text": " (VV3-VV5 ONLY)",
+    "why": "the game limit, stripped with its space so the heading keeps its colon"
    }
   ]
  },
@@ -150,7 +156,7 @@
   },
   "b3": {
    "src": "L7157-7161",
-   "text": "BLASPHEMY AGAINST MAGIC\nA Magician accuses (researcher) of imitating sacred acts without understanding their consequences. A rival Magician replies that fear is not proof of wrongdoing. The figure crumbles before either can complete the argument. The village calls for patient study."
+   "text": "BLASPHEMY AGAINST MAGIC:\nA Magician accuses (researcher) of imitating sacred acts without understanding their consequences. A rival Magician replies that fear is not proof of wrongdoing. The figure crumbles before either can complete the argument. The village calls for patient study."
   },
   "b4": {
    "src": "L7163-7167",

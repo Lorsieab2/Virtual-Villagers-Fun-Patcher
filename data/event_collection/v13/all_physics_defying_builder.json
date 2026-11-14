@@ -127,128 +127,128 @@
    ]
   },
   "a1": {
-   "src": "L7219",
-   "text": "THE COUNTERWEIGHT:",
+   "src": "L7219-7223",
+   "text": "THE COUNTERWEIGHT:\nThe builders uncover an ingenious system of buried stones and interlocking beams.",
    "children": [
     {
-     "next": "a1_story"
+     "next": "a1_more"
     }
    ]
   },
-  "a1_story": {
-   "src": "L7220-7223",
-   "text": "The builders uncover an ingenious system of buried stones and interlocking beams. The platform is safe within carefully measured limits. The critic congratulates (builder) for seeming to defy the world while actually understanding it better than anyone expected."
+  "a1_more": {
+   "src": "L7219-7223",
+   "text": "The platform is safe within carefully measured limits. The critic congratulates (builder) for seeming to defy the world while actually understanding it better than anyone expected."
   },
   "a2": {
-   "src": "L7225",
-   "text": "THE ROOTS:",
+   "src": "L7225-7229",
+   "text": "THE ROOTS:\nA living tree's roots anchor the structure.",
    "children": [
     {
-     "next": "a2_story"
+     "next": "a2_more"
     }
    ]
   },
-  "a2_story": {
-   "src": "L7226-7229",
-   "text": "A living tree's roots anchor the structure. It is beautiful and clever, but {@naturalist} warns that the tree's growth could change the balance. The design is modified to protect both the structure and the tree."
+  "a2_more": {
+   "src": "L7225-7229",
+   "text": "It is beautiful and clever, but {@naturalist} warns that the tree's growth could change the balance. The design is modified to protect both the structure and the tree."
   },
   "a3": {
-   "src": "L7231",
-   "text": "THE MIRAGE:",
+   "src": "L7231-7234",
+   "text": "THE MIRAGE:\nThe supposed unsupported edge is an illusion created by a hidden slope and clever stonework.",
    "children": [
     {
-     "next": "a3_story"
+     "next": "a3_more"
     }
    ]
   },
-  "a3_story": {
-   "src": "L7232-7234",
-   "text": "The supposed unsupported edge is an illusion created by a hidden slope and clever stonework. The villagers laugh and praise the craftsmanship. The judge declares the illusion a work of art."
+  "a3_more": {
+   "src": "L7231-7234",
+   "text": "The villagers laugh and praise the craftsmanship. The judge declares the illusion a work of art."
   },
   "b1": {
-   "src": "L7236",
-   "text": "THE MIRACLE:",
+   "src": "L7236-7239",
+   "text": "THE MIRACLE:\nThe platform holds an astonishing load without bending.",
    "children": [
     {
-     "next": "b1_story"
+     "next": "b1_more"
     }
    ]
   },
-  "b1_story": {
-   "src": "L7237-7239",
-   "text": "The platform holds an astonishing load without bending. (builder) receives the highest praise of the builders, and the village adopts the new technique after independent testing."
+  "b1_more": {
+   "src": "L7236-7239",
+   "text": "(builder) receives the highest praise of the builders, and the village adopts the new technique after independent testing."
   },
   "b2": {
-   "src": "L7241",
-   "text": "THE EMBARRASSMENT:",
+   "src": "L7241-7245",
+   "text": "THE EMBARRASSMENT:\nA single basket of coconuts makes the platform tip into the sand.",
    "children": [
     {
-     "next": "b2_story"
+     "next": "b2_more"
     }
    ]
   },
-  "b2_story": {
-   "src": "L7242-7245",
-   "text": "A single basket of coconuts makes the platform tip into the sand. Nobody is hurt. The Master Stonewright folds (stonewright.his/her) arms. \"You have indeed defied the laws of building. Unfortunately, the building has objected.\""
+  "b2_more": {
+   "src": "L7241-7245",
+   "text": "Nobody is hurt. The Master Stonewright folds (stonewright.his/her) arms. \"You have indeed defied the laws of building. Unfortunately, the building has objected.\""
   },
   "b3": {
-   "src": "L7247",
-   "text": "THE UNSETTLING SUCCESS:",
+   "src": "L7247-7250",
+   "text": "THE UNSETTLING SUCCESS:\nThe structure remains upright even after its apparent supports are removed.",
    "children": [
     {
-     "next": "b3_story"
+     "next": "b3_more"
     }
    ]
   },
-  "b3_story": {
-   "src": "L7248-7250",
-   "text": "The structure remains upright even after its apparent supports are removed. The builders cannot explain why. They fence it off for study rather than pretending that mystery proves it is safe."
+  "b3_more": {
+   "src": "L7247-7250",
+   "text": "The builders cannot explain why. They fence it off for study rather than pretending that mystery proves it is safe."
   },
   "b4": {
-   "src": "L7252",
-   "text": "THE EXPERT WAS WRONG:",
+   "src": "L7252-7255",
+   "text": "THE EXPERT WAS WRONG:\nThe judge's calculations predict failure, but repeated safe tests show the design works.",
    "children": [
     {
-     "next": "b4_story"
+     "next": "b4_more"
     }
    ]
   },
-  "b4_story": {
-   "src": "L7253-7255",
-   "text": "The judge's calculations predict failure, but repeated safe tests show the design works. The judge checks the assumptions, discovers a mistake, and apologizes. (builder) becomes an advisor to builders."
+  "b4_more": {
+   "src": "L7252-7255",
+   "text": "The judge checks the assumptions, discovers a mistake, and apologizes. (builder) becomes an advisor to builders."
   },
   "c1": {
-   "src": "L7257",
-   "text": "THE PARADE:",
+   "src": "L7257-7260",
+   "text": "THE PARADE:\nThe crowd rushes onto the platform.",
    "children": [
     {
-     "next": "c1_story"
+     "next": "c1_more"
     }
    ]
   },
-  "c1_story": {
-   "src": "L7258-7260",
-   "text": "The crowd rushes onto the platform. A steward stops them before it is overloaded. The event is postponed until proper testing. (builder) is furious but later admits the steward acted wisely."
+  "c1_more": {
+   "src": "L7257-7260",
+   "text": "A steward stops them before it is overloaded. The event is postponed until proper testing. (builder) is furious but later admits the steward acted wisely."
   },
   "c2": {
-   "src": "L7262",
-   "text": "THE STUNT:",
+   "src": "L7262-7265",
+   "text": "THE STUNT:\n(builder) walks across the platform while the crowd gasps.",
    "children": [
     {
-     "next": "c2_story"
+     "next": "c2_more"
     }
    ]
   },
-  "c2_story": {
-   "src": "L7263-7265",
-   "text": "(builder) walks across the platform while the crowd gasps. It holds. The judge says, \"A successful gamble is not the same as a sound proof.\" A formal inspection follows."
+  "c2_more": {
+   "src": "L7262-7265",
+   "text": "It holds. The judge says, \"A successful gamble is not the same as a sound proof.\" A formal inspection follows."
   },
   "c3": {
-   "src": "L7267",
-   "text": "THE COLLAPSE:",
+   "src": "L7267-7270",
+   "text": "THE COLLAPSE:\nThe platform tilts and settles into soft earth before anyone steps on it.",
    "children": [
     {
-     "next": "c3_story"
+     "next": "c3_more"
     }
    ],
    "text_only": [
@@ -259,9 +259,9 @@
     }
    ]
   },
-  "c3_story": {
-   "src": "L7268-7270",
-   "text": "The platform tilts and settles into soft earth before anyone steps on it. (builder) becomes a laughingstock and returns to the drawing board, insisting that the next version will be even stranger.",
+  "c3_more": {
+   "src": "L7267-7270",
+   "text": "(builder) becomes a laughingstock and returns to the drawing board, insisting that the next version will be even stranger.",
    "text_only": [
     {
      "src": "L7267",
@@ -271,43 +271,43 @@
    ]
   },
   "d1": {
-   "src": "L7272",
-   "text": "THE EXPLANATION:",
+   "src": "L7272-7276",
+   "text": "THE EXPLANATION:\n(builder) presents an intricate account of load, balance and buried counterweights.",
    "children": [
     {
-     "next": "d1_story"
+     "next": "d1_more"
     }
    ]
   },
-  "d1_story": {
-   "src": "L7273-7276",
-   "text": "(builder) presents an intricate account of load, balance and buried counterweights. The crowd learns something valuable. A child asks whether the builder can make a roof that stays dry in the rain. \"That,\" says (builder), \"would be considerably harder.\""
+  "d1_more": {
+   "src": "L7272-7276",
+   "text": "The crowd learns something valuable. A child asks whether the builder can make a roof that stays dry in the rain. \"That,\" says (builder), \"would be considerably harder.\""
   },
   "d2": {
-   "src": "L7278",
-   "text": "THE NON-EXPLANATION:",
+   "src": "L7278-7281",
+   "text": "THE NON-EXPLANATION:\n(builder) says the building stands because it \"wants to.\"",
    "children": [
     {
-     "next": "d2_story"
+     "next": "d2_more"
     }
    ]
   },
-  "d2_story": {
-   "src": "L7279-7281",
-   "text": "(builder) says the building stands because it \"wants to.\" The Master Stonewright stares. \"I require a better explanation.\" (builder) replies, \"So do I.\" The building is closed pending study."
+  "d2_more": {
+   "src": "L7278-7281",
+   "text": "The Master Stonewright stares. \"I require a better explanation.\" (builder) replies, \"So do I.\" The building is closed pending study."
   },
   "d3": {
-   "src": "L7283",
-   "text": "THE IMPOSSIBLE CLAIM:",
+   "src": "L7283-7286",
+   "text": "THE IMPOSSIBLE CLAIM:\n(builder) insists that (builder.he/she) has overturned the very order of the world.",
    "children": [
     {
-     "next": "d3_story"
+     "next": "d3_more"
     }
    ]
   },
-  "d3_story": {
-   "src": "L7284-7286",
-   "text": "(builder) insists that (builder.he/she) has overturned the very order of the world. The judges discover a concealed stone brace. (builder) admits it was a dramatic exaggeration. The design remains impressive."
+  "d3_more": {
+   "src": "L7283-7286",
+   "text": "The judges discover a concealed stone brace. (builder) admits it was a dramatic exaggeration. The design remains impressive."
   },
   "set_a": {
    "type": "branch",

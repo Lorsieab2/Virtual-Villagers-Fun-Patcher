@@ -67,45 +67,6 @@
    "min_age": 14
   }
  },
- "pools": {
-  "ERROR": {
-   "set": "ERROR BANK",
-   "items": [
-    {
-     "text": "(Reciter) replaces a solemn word with a term for animal droppings.",
-     "src": "L7375"
-    },
-    {
-     "text": "(Reciter) accidentally praises a historical villain instead of a hero.",
-     "src": "L7376"
-    },
-    {
-     "text": "A forgotten pause changes a blessing into an apparent insult.",
-     "src": "L7377"
-    },
-    {
-     "text": "A misremembered rhyme makes the ancestors sound like greedy goats.",
-     "src": "L7378"
-    },
-    {
-     "text": "(Reciter) sings a funeral verse to the melody of a drinking song.",
-     "src": "L7379"
-    },
-    {
-     "text": "The performance accidentally implies that the village's founders were extraordinarily bad at farming.",
-     "src": "L7380-7381"
-    },
-    {
-     "text": "(Reciter) repeats an obscure archaic word with a very embarrassing modern meaning.",
-     "src": "L7382-7383"
-    },
-    {
-     "text": "(Reciter) improvises a verse that sounds like a personal attack on the village's most respected elder.",
-     "src": "L7384-7385"
-    }
-   ]
-  }
- },
  "start": "intro",
  "nodes": {
   "intro": {
@@ -114,14 +75,241 @@
    "text": "At the annual gathering of stories, (Reciter) has been invited to recite a beloved {poem|song|verse|ceremonial teaching|ancestral chronicle}. The text has been repeated for generations. (Reciter) has practiced for weeks and is determined to do it justice.\nUnfortunately, the first line comes out wrong.",
    "children": [
     {
-     "next": "question"
+     "next": "error"
     }
    ]
   },
-  "question": {
+  "error": {
+   "type": "branch",
+   "set": "ERROR BANK",
+   "children": [
+    {
+     "next": "err1"
+    },
+    {
+     "next": "err2"
+    },
+    {
+     "next": "err3"
+    },
+    {
+     "next": "err4"
+    },
+    {
+     "next": "err5"
+    },
+    {
+     "next": "err6"
+    },
+    {
+     "next": "err7"
+    },
+    {
+     "next": "err8"
+    }
+   ]
+  },
+  "err1": {
    "type": "question",
    "name": "The error",
-   "text": "{ERROR}",
+   "src": "L7375",
+   "text": "(Reciter) replaces a solemn word with a term for animal droppings.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err2": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7376",
+   "text": "(Reciter) accidentally praises a historical villain instead of a hero.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err3": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7377",
+   "text": "A forgotten pause changes a blessing into an apparent insult.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err4": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7378",
+   "text": "A misremembered rhyme makes the ancestors sound like greedy goats.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err5": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7379",
+   "text": "(Reciter) sings a funeral verse to the melody of a drinking song.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err6": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7380-7381",
+   "text": "The performance accidentally implies that the village's founders were extraordinarily bad at farming.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err7": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7382-7383",
+   "text": "(Reciter) repeats an obscure archaic word with a very embarrassing modern meaning.",
+   "choices": [
+    {
+     "label": "Continue confidently.",
+     "next": "set_a",
+     "src": "L7387"
+    },
+    {
+     "label": "Stop and apologize.",
+     "next": "set_b",
+     "src": "L7388"
+    },
+    {
+     "label": "Explain the new interpretation.",
+     "next": "set_c",
+     "src": "L7389"
+    },
+    {
+     "label": "Invite the scholars to debate the performance.",
+     "next": "set_d",
+     "src": "L7390"
+    }
+   ]
+  },
+  "err8": {
+   "type": "question",
+   "name": "The error",
+   "src": "L7384-7385",
+   "text": "(Reciter) improvises a verse that sounds like a personal attack on the village's most respected elder.",
    "choices": [
     {
      "label": "Continue confidently.",
@@ -146,89 +334,89 @@
    ]
   },
   "a1": {
-   "src": "L7392",
-   "text": "THE NEW SONG:",
+   "src": "L7392-7397",
+   "text": "THE NEW SONG:\nThe crowd bursts into laughter.",
    "children": [
     {
-     "next": "a1_story"
+     "next": "a1_more"
     }
    ]
   },
-  "a1_story": {
-   "src": "L7393-7397",
-   "text": "The crowd bursts into laughter. Instead of stopping, (Reciter) finishes the entire verse in the same ridiculous style. By morning, children are singing it everywhere. Within a generation, the comic version has become a beloved festival song, though the original is still preserved by the elders."
+  "a1_more": {
+   "src": "L7392-7397",
+   "text": "Instead of stopping, (Reciter) finishes the entire verse in the same ridiculous style. By morning, children are singing it everywhere. Within a generation, the comic version has become a beloved festival song, though the original is still preserved by the elders."
   },
   "a2": {
-   "src": "L7399",
-   "text": "THE OFFENSE:",
+   "src": "L7399-7403",
+   "text": "THE OFFENSE:\nAn elder rises and says the performance dishonors the ancestors.",
    "children": [
     {
-     "next": "a2_story"
+     "next": "a2_more"
     }
    ]
   },
-  "a2_story": {
-   "src": "L7400-7403",
-   "text": "An elder rises and says the performance dishonors the ancestors. (Reciter) is mortified. A discussion follows, distinguishing honest mistakes from deliberate mockery. The elder accepts an apology but asks that the original verse be taught accurately."
+  "a2_more": {
+   "src": "L7399-7403",
+   "text": "(Reciter) is mortified. A discussion follows, distinguishing honest mistakes from deliberate mockery. The elder accepts an apology but asks that the original verse be taught accurately."
   },
   "a3": {
-   "src": "L7405",
-   "text": "THE REVELATION:",
+   "src": "L7405-7408",
+   "text": "THE REVELATION:\nThe mistaken line causes the audience to hear a familiar teaching in a startling new way.",
    "children": [
     {
-     "next": "a3_story"
+     "next": "a3_more"
     }
    ]
   },
-  "a3_story": {
-   "src": "L7406-7408",
-   "text": "The mistaken line causes the audience to hear a familiar teaching in a startling new way. The Keeper of Verses calls it \"an accident of considerable wisdom.\" The scholars record both versions."
+  "a3_more": {
+   "src": "L7405-7408",
+   "text": "The Keeper of Verses calls it \"an accident of considerable wisdom.\" The scholars record both versions."
   },
   "a4": {
-   "src": "L7410",
-   "text": "THE LEGEND OF THE GOAT:",
+   "src": "L7410-7413",
+   "text": "THE LEGEND OF THE GOAT:\n(Reciter)'s mispronunciation becomes a story about a legendary goat that supposedly saved the village.",
    "children": [
     {
-     "next": "a4_story"
+     "next": "a4_more"
     }
    ]
   },
-  "a4_story": {
-   "src": "L7411-7413",
-   "text": "(Reciter)'s mispronunciation becomes a story about a legendary goat that supposedly saved the village. Nobody remembers who first told it. Years later, a scholar attempts to prove that the goat existed."
+  "a4_more": {
+   "src": "L7410-7413",
+   "text": "Nobody remembers who first told it. Years later, a scholar attempts to prove that the goat existed."
   },
   "b1": {
-   "src": "L7415",
-   "text": "THE GRACEFUL RECOVERY:",
+   "src": "L7415-7417",
+   "text": "THE GRACEFUL RECOVERY:\n(Reciter) admits the error, begins again, and performs beautifully.",
    "children": [
     {
-     "next": "b1_story"
+     "next": "b1_more"
     }
    ]
   },
-  "b1_story": {
-   "src": "L7416-7417",
-   "text": "(Reciter) admits the error, begins again, and performs beautifully. The audience applauds the courage to correct a mistake."
+  "b1_more": {
+   "src": "L7415-7417",
+   "text": "The audience applauds the courage to correct a mistake."
   },
   "b2": {
-   "src": "L7419",
-   "text": "THE WORSE APOLOGY:",
+   "src": "L7419-7423",
+   "text": "THE WORSE APOLOGY:\nIn apologizing, (Reciter) accidentally repeats the offensive phrase three times, each louder than the last.",
    "children": [
     {
-     "next": "b2_story"
+     "next": "b2_more"
     }
    ]
   },
-  "b2_story": {
-   "src": "L7420-7423",
-   "text": "In apologizing, (Reciter) accidentally repeats the offensive phrase three times, each louder than the last. The Keeper of Verses begs (reciter.him/her) to stop speaking. The village remembers the apology more vividly than the original error."
+  "b2_more": {
+   "src": "L7419-7423",
+   "text": "The Keeper of Verses begs (reciter.him/her) to stop speaking. The village remembers the apology more vividly than the original error."
   },
   "b3": {
-   "src": "L7425",
-   "text": "THE HUMILIATION:",
+   "src": "L7425-7428",
+   "text": "THE HUMILIATION:\n(Reciter) flees the stage in tears.",
    "children": [
     {
-     "next": "b3_story"
+     "next": "b3_more"
     }
    ],
    "text_only": [
@@ -239,9 +427,9 @@
     }
    ]
   },
-  "b3_story": {
-   "src": "L7426-7428",
-   "text": "(Reciter) flees the stage in tears. A teacher later reminds the crowd that public laughter can wound even when nobody means harm. A few villagers visit (Reciter) and offer encouragement.",
+  "b3_more": {
+   "src": "L7425-7428",
+   "text": "A teacher later reminds the crowd that public laughter can wound even when nobody means harm. A few villagers visit (Reciter) and offer encouragement.",
    "text_only": [
     {
      "src": "L7426",
@@ -251,134 +439,134 @@
    ]
   },
   "b4": {
-   "src": "L7430",
-   "text": "THE COMPASSION:",
+   "src": "L7430-7433",
+   "text": "THE COMPASSION:\nThe elder whose honor was supposedly insulted stands and recites the next line alongside (Reciter).",
    "children": [
     {
-     "next": "b4_story"
+     "next": "b4_more"
     }
    ]
   },
-  "b4_story": {
-   "src": "L7431-7433",
-   "text": "The elder whose honor was supposedly insulted stands and recites the next line alongside (Reciter). Together they finish the poem. The crowd is moved to silence."
+  "b4_more": {
+   "src": "L7430-7433",
+   "text": "Together they finish the poem. The crowd is moved to silence."
   },
   "c1": {
-   "src": "L7435",
-   "text": "THE BRILLIANT INTERPRETATION:",
+   "src": "L7435-7439",
+   "text": "THE BRILLIANT INTERPRETATION:\n(Reciter) explains that the altered wording was intended to question whether the old heroes were flawless.",
    "children": [
     {
-     "next": "c1_story"
+     "next": "c1_more"
     }
    ]
   },
-  "c1_story": {
-   "src": "L7436-7439",
-   "text": "(Reciter) explains that the altered wording was intended to question whether the old heroes were flawless. The Keeper of Verses praises the thoughtful reading while noting that the original text should still be accurately identified."
+  "c1_more": {
+   "src": "L7435-7439",
+   "text": "The Keeper of Verses praises the thoughtful reading while noting that the original text should still be accurately identified."
   },
   "c2": {
-   "src": "L7441",
-   "text": "THE DESPERATE EXCUSE:",
+   "src": "L7441-7444",
+   "text": "THE DESPERATE EXCUSE:\n(Reciter) claims the ancestors spoke entirely in goat metaphors.",
    "children": [
     {
-     "next": "c2_story"
+     "next": "c2_more"
     }
    ]
   },
-  "c2_story": {
-   "src": "L7442-7444",
-   "text": "(Reciter) claims the ancestors spoke entirely in goat metaphors. A historian asks for evidence. (Reciter) has none. The audience laughs; (Reciter) admits the mistake."
+  "c2_more": {
+   "src": "L7441-7444",
+   "text": "A historian asks for evidence. (Reciter) has none. The audience laughs; (Reciter) admits the mistake."
   },
   "c3": {
-   "src": "L7446",
-   "text": "THE HEATED DISPUTE:",
+   "src": "L7446-7449",
+   "text": "THE HEATED DISPUTE:\nA devotee argues that the verse must never change.",
    "children": [
     {
-     "next": "c3_story"
+     "next": "c3_more"
     }
    ]
   },
-  "c3_story": {
-   "src": "L7447-7449",
-   "text": "A devotee argues that the verse must never change. A scholar insists that reinterpretation keeps traditions alive. The leaders allow both to speak and commission a record of the debate."
+  "c3_more": {
+   "src": "L7446-7449",
+   "text": "A scholar insists that reinterpretation keeps traditions alive. The leaders allow both to speak and commission a record of the debate."
   },
   "c4": {
-   "src": "L7451",
-   "text": "THE NEW TRADITION:",
+   "src": "L7451-7453",
+   "text": "THE NEW TRADITION:\nThe villagers begin performing the solemn original at dawn and the comic reinterpretation at sunset.",
    "children": [
     {
-     "next": "c4_story"
+     "next": "c4_more"
     }
    ]
   },
-  "c4_story": {
-   "src": "L7452-7453",
-   "text": "The villagers begin performing the solemn original at dawn and the comic reinterpretation at sunset. Both become annual customs."
+  "c4_more": {
+   "src": "L7451-7453",
+   "text": "Both become annual customs."
   },
   "d1": {
-   "src": "L7455",
-   "text": "THE SCHOLARLY CRITIQUE:",
+   "src": "L7455-7458",
+   "text": "THE SCHOLARLY CRITIQUE:\nThree scholars produce an exhaustive commentary on the mistaken line.",
    "children": [
     {
-     "next": "d1_story"
+     "next": "d1_more"
     }
    ]
   },
-  "d1_story": {
-   "src": "L7456-7458",
-   "text": "Three scholars produce an exhaustive commentary on the mistaken line. It is longer than the original poem. A child asks whether they have all lost their minds."
+  "d1_more": {
+   "src": "L7455-7458",
+   "text": "It is longer than the original poem. A child asks whether they have all lost their minds."
   },
   "d2": {
-   "src": "L7460",
-   "text": "THE GREAT DISAGREEMENT:",
+   "src": "L7460-7463",
+   "text": "THE GREAT DISAGREEMENT:\nThe Keeper of Verses declares the error unforgivable.",
    "children": [
     {
-     "next": "d2_story"
+     "next": "d2_more"
     }
    ]
   },
-  "d2_story": {
-   "src": "L7461-7463",
-   "text": "The Keeper of Verses declares the error unforgivable. Another scholar calls it a masterpiece. Their argument becomes a yearly public debate that draws enthusiastic crowds."
+  "d2_more": {
+   "src": "L7460-7463",
+   "text": "Another scholar calls it a masterpiece. Their argument becomes a yearly public debate that draws enthusiastic crowds."
   },
   "d3": {
-   "src": "L7465",
-   "text": "THE LOST ORIGINAL:",
+   "src": "L7465-7469",
+   "text": "THE LOST ORIGINAL:\nAn elder reveals that the supposedly incorrect wording appears in an ancient copy of the verse.",
    "children": [
     {
-     "next": "d3_story"
+     "next": "d3_more"
     }
    ]
   },
-  "d3_story": {
-   "src": "L7466-7469",
-   "text": "An elder reveals that the supposedly incorrect wording appears in an ancient copy of the verse. Nobody knows which version came first. (Reciter) becomes famous for rediscovering a forgotten line entirely by accident."
+  "d3_more": {
+   "src": "L7465-7469",
+   "text": "Nobody knows which version came first. (Reciter) becomes famous for rediscovering a forgotten line entirely by accident."
   },
   "d4": {
-   "src": "L7471",
-   "text": "THE BITTER SATIRIST:",
+   "src": "L7471-7475",
+   "text": "THE BITTER SATIRIST:\n(Reciter) embraces the controversy and writes increasingly outrageous verses mocking village pretensions.",
    "children": [
     {
-     "next": "d4_story"
+     "next": "d4_more"
     }
    ]
   },
-  "d4_story": {
-   "src": "L7472-7475",
-   "text": "(Reciter) embraces the controversy and writes increasingly outrageous verses mocking village pretensions. Some villagers adore the work; others are offended. The leaders protect peaceful criticism while asking (Reciter) not to spread false accusations as fact."
+  "d4_more": {
+   "src": "L7471-7475",
+   "text": "Some villagers adore the work; others are offended. The leaders protect peaceful criticism while asking (Reciter) not to spread false accusations as fact."
   },
   "d5": {
-   "src": "L7477",
-   "text": "THE LEGACY:",
+   "src": "L7477-7480",
+   "text": "THE LEGACY:\nGenerations later, children learn both the traditional verse and \"(Reciter)'s Version.\"",
    "children": [
     {
-     "next": "d5_story"
+     "next": "d5_more"
     }
    ]
   },
-  "d5_story": {
-   "src": "L7478-7480",
-   "text": "Generations later, children learn both the traditional verse and \"(Reciter)'s Version.\" Scholars still argue over its meaning. The original embarrassment has become part of Isola's history."
+  "d5_more": {
+   "src": "L7477-7480",
+   "text": "Scholars still argue over its meaning. The original embarrassment has become part of Isola's history."
   },
   "set_a": {
    "type": "branch",
@@ -394,7 +582,10 @@
      "next": "a3"
     },
     {
-     "next": "a4"
+     "next": "a4",
+     "if": {
+      "visited": "err4"
+     }
     }
    ]
   },
@@ -412,7 +603,17 @@
      "next": "b3"
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "if": {
+      "any": [
+       {
+        "visited": "err3"
+       },
+       {
+        "visited": "err8"
+       }
+      ]
+     }
     }
    ]
   },
@@ -424,7 +625,10 @@
      "next": "c1"
     },
     {
-     "next": "c2"
+     "next": "c2",
+     "if": {
+      "visited": "err4"
+     }
     },
     {
      "next": "c3"

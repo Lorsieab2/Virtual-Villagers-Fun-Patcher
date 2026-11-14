@@ -102,7 +102,7 @@
  "roles": {
   "critic": {
    "kind": "villager",
-   "min_age": 14
+   "min_age": 55
   }
  },
  "start": "critic",
@@ -133,7 +133,7 @@
   "critic1": {
    "name": "Master Stonewright",
    "src": "L7040-7044",
-   "text": "MASTER STONEWRIGHT (Critic):\nAn elderly craftsperson known for inspecting walls by tapping them with a knuckle. \"I've seen better foundations under a sleeping pig!\" (critic.He/She) can also recognize brilliant construction and will personally apologize when a supposedly impossible design proves sound.",
+   "text": "MASTER STONEWRIGHT (CRITIC):\nAn elderly craftsperson known for inspecting walls by tapping them with a knuckle. \"I've seen better foundations under a sleeping pig!\"",
    "children": [
     {
      "next": "ask1"
@@ -142,28 +142,28 @@
   },
   "ask1": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7040-7044",
-   "text": "\"I've seen better foundations under a sleeping pig!\"",
+   "text": "(critic.He/She) can also recognize brilliant construction and will personally apologize when a supposedly impossible design proves sound.",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -171,7 +171,7 @@
   "critic2": {
    "name": "Master Carver",
    "src": "L7046-7050",
-   "text": "MASTER CARVER (Critic):\nA renowned sculptor who insists that art should have intention, balance, and something worth looking at. \"Is it a person? A potato? Or a potato suffering from terrible news?\" (critic.He/She) secretly loves works that are ugly but strangely moving.",
+   "text": "MASTER CARVER (CRITIC):\nA renowned sculptor who insists that art should have intention, balance, and something worth looking at. \"Is it a person? A potato? Or a potato suffering from terrible news?\"",
    "children": [
     {
      "next": "ask2"
@@ -180,28 +180,28 @@
   },
   "ask2": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7046-7050",
-   "text": "\"Is it a person? A potato? Or a potato suffering from terrible news?\"",
+   "text": "(critic.He/She) secretly loves works that are ugly but strangely moving.",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -209,7 +209,7 @@
   "critic3": {
    "name": "The Stern Scholar",
    "src": "L7052-7056",
-   "text": "THE STERN SCHOLAR (Critic):\nA senior researcher who asks the same question of every invention: \"What does it do, and how do you know?\" The scholar will reject a beautiful fraud, praise an ugly success, and demand that failed tests be recorded instead of concealed.",
+   "text": "THE STERN SCHOLAR (CRITIC):\nA senior researcher who asks the same question of every invention: \"What does it do, and how do you know?\"",
    "children": [
     {
      "next": "ask3"
@@ -218,28 +218,28 @@
   },
   "ask3": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7052-7056",
-   "text": "\"What does it do, and how do you know?\"",
+   "text": "The scholar will reject a beautiful fraud, praise an ugly success, and demand that failed tests be recorded instead of concealed.",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -247,7 +247,7 @@
   "critic4": {
    "name": "The Keeper Of Verses",
    "src": "L7058-7062",
-   "text": "THE KEEPER OF VERSES (Critic):\nA famous poet and historian with an astonishing memory. (critic.He/She) notices every misplaced word, faulty rhyme, and unintentional insult. \"You have managed to rhyme 'moon' with 'coconut.' I would like to know how, and I am afraid of the answer.\"",
+   "text": "THE KEEPER OF VERSES (CRITIC):\nA famous poet and historian with an astonishing memory. (critic.He/She) notices every misplaced word, faulty rhyme, and unintentional insult.",
    "children": [
     {
      "next": "ask4"
@@ -256,28 +256,28 @@
   },
   "ask4": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7058-7062",
    "text": "\"You have managed to rhyme 'moon' with 'coconut.' I would like to know how, and I am afraid of the answer.\"",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -285,7 +285,7 @@
   "critic5": {
    "name": "The Harvest Master",
    "src": "L7064-7067",
-   "text": "THE HARVEST MASTER (Critic):\nAn experienced grower who distrusts impressive speeches about crops. \"Show me the roots. The roots never flatter anybody.\" This judge may recognize practical genius in a seemingly foolish technique.",
+   "text": "THE HARVEST MASTER (CRITIC):\nAn experienced grower who distrusts impressive speeches about crops. \"Show me the roots. The roots never flatter anybody.\"",
    "children": [
     {
      "next": "ask5"
@@ -294,28 +294,28 @@
   },
   "ask5": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7064-7067",
-   "text": "\"Show me the roots. The roots never flatter anybody.\"",
+   "text": "This judge may recognize practical genius in a seemingly foolish technique.",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -323,7 +323,7 @@
   "critic6": {
    "name": "The Elder Of Rites",
    "src": "L7069-7073",
-   "text": "THE ELDER OF RITES (Critic):\nA respected keeper of ceremonies who values sincerity and accuracy. \"A loud voice is not the same thing as a wise heart.\" (critic.He/She) may rebuke a performer for disrespect or praise a new interpretation that honors the tradition's spirit.",
+   "text": "THE ELDER OF RITES (CRITIC):\nA respected keeper of ceremonies who values sincerity and accuracy. \"A loud voice is not the same thing as a wise heart.\"",
    "children": [
     {
      "next": "ask6"
@@ -332,28 +332,28 @@
   },
   "ask6": {
    "type": "question",
-   "name": "The critic's words",
+   "name": "The critic",
    "src": "L7069-7073",
-   "text": "\"A loud voice is not the same thing as a wise heart.\"",
+   "text": "(critic.He/She) may rebuke a performer for disrespect or praise a new interpretation that honors the tradition's spirit.",
    "choices": [
     {
      "label": "Accept the expert's judgment and request specific feedback.",
-     "next": "set_endings",
+     "next": "pick_a",
      "src": "L7077"
     },
     {
      "label": "Ask for a second, independent judge.",
-     "next": "set_endings",
+     "next": "pick_b",
      "src": "L7078"
     },
     {
      "label": "Let the contestants defend their decisions before the audience.",
-     "next": "set_endings",
+     "next": "pick_c",
      "src": "L7079"
     },
     {
      "label": "Require a practical demonstration rather than relying on reputation.",
-     "next": "set_endings",
+     "next": "pick_d",
      "src": "L7080"
     }
    ]
@@ -404,33 +404,134 @@
     }
    ]
   },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_endings"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_endings"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_endings"
+    }
+   ]
+  },
+  "pick_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_endings"
+    }
+   ]
+  },
   "set_endings": {
    "type": "branch",
    "set": "endings",
    "children": [
     {
-     "next": "end1"
+     "next": "end1",
+     "if": {
+      "visited": "pick_d"
+     }
     },
     {
-     "next": "end2"
+     "next": "end2",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_c"
+       },
+       {
+        "visited": "pick_d"
+       }
+      ]
+     }
     },
     {
-     "next": "end3"
+     "next": "end3",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "pick_b"
+       },
+       {
+        "visited": "pick_c"
+       }
+      ]
+     }
     },
     {
-     "next": "end4"
+     "next": "end4",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "pick_c"
+       }
+      ]
+     }
     },
     {
-     "next": "end5"
+     "next": "end5",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "pick_d"
+       }
+      ]
+     }
     },
     {
-     "next": "end6"
+     "next": "end6",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "pick_b"
+       }
+      ]
+     }
     },
     {
      "next": "end7"
     },
     {
-     "next": "end8"
+     "next": "end8",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "pick_b"
+       },
+       {
+        "visited": "pick_d"
+       }
+      ]
+     }
     }
    ]
   }
