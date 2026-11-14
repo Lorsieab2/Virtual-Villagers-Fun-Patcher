@@ -2649,11 +2649,13 @@ static int cg_pronoun_names;          /* cg_label_text's second pass: names as p
 /* cg_expand's work at pool depth `depth`. */
 /* ---- Sentence case (cie-v6-binary.md 19; src/vv_cie_graph.py sentence_case / title_case: the same rule) ------
 
-   The owner, 2026-11-14: the entire event text is shown in sentence case.  A run of words written in capitals on one
-   line (two or more words of two or more letters, or one such word on a line with no lower-case word) is shown in
-   sentence case -- its letters and its placeholders' letters made lower case, then a capital where a sentence
-   starts and for "I" -- before anything is filled in, so names keep their own capitals.  A title in capitals is
-   shown in title case.  The graph's text is never changed: each expansion cases its own copy. */
+   The owner, 2026-11-14: the entire event text is shown in sentence case; capitals that mean something stay.  Shown
+   in sentence case: a heading (a line's start in capitals up to a ":"), a label with no lower-case letter, and a story
+   sentence with no lower-case letter and no "!" -- outside quotations.  Kept: emphasis inside ordinary text ("it was
+   HUGE"), speech in quotation marks, shouting ("CLOSE IT!").  In sentence case the letters and the placeholders'
+   letters are made lower case, then a capital where a sentence starts, for "I" and for the island's name -- before
+   anything is filled in, so names keep their own capitals.  A title in capitals is shown in title case.  The
+   graph's text is never changed: each expansion cases its own copy. */
 
 static int cg_up(unsigned char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 0xC0 && c <= 0xDE && c != 0xD7);
@@ -2729,11 +2731,31 @@ static int cg_case_token(const unsigned char *t, unsigned char *kind) {
 static int cg_cu_at[CG_CASE_UNITS];             /* each unit's first byte */
 static int cg_cu_len[CG_CASE_UNITS];
 static unsigned char cg_cu_kind[CG_CASE_UNITS]; /* 0 a character, 1 a placeholder, 2 a pick, 3 an escape */
-static int cg_cw_start[CG_CASE_UNITS], cg_cw_end[CG_CASE_UNITS], cg_cw_letters[CG_CASE_UNITS], cg_cw_line[CG_CASE_UNITS];
+static unsigned char cg_cu_flag[CG_CASE_UNITS]; /* 1 quoted, 2 in a heading, 4 a heading's ":", 8 in sentence case */
+static int cg_cu_sent[CG_CASE_UNITS];           /* each unit's sentence */
+static int cg_cu_word[CG_CASE_UNITS];           /* the word that starts at each unit, else -1 */
+static unsigned char cg_cs_flag[CG_CASE_UNITS]; /* each sentence: 1 a lower-case letter, 2 a word of two or more
+                                                   letters, 4 a "!" */
+static int cg_cw_start[CG_CASE_UNITS], cg_cw_end[CG_CASE_UNITS], cg_cw_letters[CG_CASE_UNITS];
 static unsigned char cg_cw_lower[CG_CASE_UNITS];
+static int cg_case_label;                       /* cg_label_text: the text is a button's label */
 
 static int cg_cu_char(const unsigned char *t, int u, unsigned char c) {
     return cg_cu_kind[u] == 0 && t[cg_cu_at[u]] == c;
+}
+
+static int cg_cu_mark(const unsigned char *t, int u) {
+    return cg_cu_char(t, u, '.') || cg_cu_char(t, u, '!') || cg_cu_char(t, u, '?');
+}
+
+static int cg_cu_alnum(const unsigned char *t, int u) {
+    return cg_cu_kind[u] == 0 && (cg_letter(t[cg_cu_at[u]]) || (t[cg_cu_at[u]] >= '0' && t[cg_cu_at[u]] <= '9'));
+}
+
+/* A space or a quotation mark (" ' and the cp1252 curly quotes 0x93 0x94). */
+static int cg_cu_quote_or_space(const unsigned char *t, int u) {
+    unsigned char c = t[cg_cu_at[u]];
+    return cg_cu_kind[u] == 0 && (c == ' ' || c == '"' || c == '\'' || c == 0x93 || c == 0x94);
 }
 
 /* Where placeholder unit `u`'s word starts (its capital goes there): after its last "." before any "|". */
@@ -2749,21 +2771,35 @@ static int cg_ph_word_at(const unsigned char *t, int u) {
 
 static int cg_case_start(const unsigned char *t, int u, int item) {
     int k = u - 1;
-    while (k >= 0 && cg_cu_kind[k] == 0 && (t[cg_cu_at[k]] == ' ' || t[cg_cu_at[k]] == '"' || t[cg_cu_at[k]] == '\'')) {
+    while (k >= 0 && cg_cu_quote_or_space(t, k)) {
         --k;
     }
     if (k < 0) {
-        return !item;
+        return !item || (cg_cu_flag[u] & 2) != 0;  /* a heading's first word starts a sentence, in an item too */
     }
-    return cg_cu_kind[k] == 0 && (t[cg_cu_at[k]] == '.' || t[cg_cu_at[k]] == '!' || t[cg_cu_at[k]] == '?'
-                                  || t[cg_cu_at[k]] == '\n');
+    return cg_cu_mark(t, k) || cg_cu_char(t, k, '\n') || (cg_cu_flag[k] & 4) != 0;
 }
 
-/* `text` (NUL-ended, changed in place) with its runs in capitals in sentence case; `item`: a pool's item. */
-static void cg_sentence_case(char *text, int item) {
+/* The island's name keeps its capital ("isola", "isolan", and before an apostrophe: "isola's"). */
+static int cg_case_proper(const unsigned char *t, int s0, int e0) {
+    static const char *const names[] = {"isola", "isolan"};
+    int i, b;
+    for (i = 0; i < 2; ++i) {
+        for (b = 0; s0 + b < e0 && t[cg_cu_at[s0 + b]] != '\'' && (unsigned char)names[i][b] == t[cg_cu_at[s0 + b]];
+             ++b) {
+        }
+        if (names[i][b] == '\0' && (s0 + b == e0 || t[cg_cu_at[s0 + b]] == '\'')) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* `text` (NUL-ended, changed in place) with its capitals in sentence case where they mean nothing (cie-v6-binary.md
+   19); `item`: a pool's item; `label`: a button's label. */
+static void cg_sentence_case(char *text, int item, int label) {
     unsigned char *t = (unsigned char *)text;
-    int n = 0, words = 0, k, i, line = 0, upper = 0, lines = 0;
-    static int line_start[CG_CASE_UNITS], line_end[CG_CASE_UNITS];
+    int n = 0, words = 0, k, w, u, upper = 0, sents = 0, q = 0, label_lower = 0, label_long = 0;
     for (k = 0; t[k] != 0; ++k) {
         upper |= cg_up(t[k]);
     }
@@ -2776,20 +2812,14 @@ static void cg_sentence_case(char *text, int item) {
         cg_cu_at[n] = k;
         cg_cu_kind[n] = len > 0 ? kind : 0;
         cg_cu_len[n] = len > 0 ? len : 1;
+        cg_cu_flag[n] = 0;
+        cg_cu_word[n] = -1;
         k += cg_cu_len[n];
     }
     if (t[k] != 0) {
         return;                         /* longer than any popup's text: as written */
     }
-    line_start[0] = 0;                  /* each line's units [start, end) */
-    for (k = 0; k < n; ++k) {
-        if (cg_cu_char(t, k, '\n')) {
-            line_end[lines++] = k;
-            line_start[lines] = k + 1;
-        }
-    }
-    line_end[lines] = n;
-    for (k = 0; k < n;) {
+    for (k = 0; k < n;) {               /* the words */
         if (cg_cu_kind[k] == 0 && cg_letter(t[cg_cu_at[k]])) {
             int start = k, letters = 0, lower = 0;
             while (k < n && cg_cu_kind[k] == 0
@@ -2800,63 +2830,114 @@ static void cg_sentence_case(char *text, int item) {
                 lower |= cg_lo(t[cg_cu_at[k]]);
                 ++k;
             }
+            cg_cu_word[start] = words;
             cg_cw_start[words] = start;
             cg_cw_end[words] = k;
             cg_cw_letters[words] = letters;
             cg_cw_lower[words] = (unsigned char)(lower != 0);
-            cg_cw_line[words] = line;
             ++words;
             continue;
         }
-        line += cg_cu_char(t, k, '\n');
         ++k;
     }
-    for (i = 0; i < words;) {
-        int first = i, last = i, lower_in_line = 0, j;
-        while (last < words && cg_cw_line[last] == cg_cw_line[first]) {
-            lower_in_line |= cg_cw_lower[last];
-            ++last;
+    for (k = 0; k < n; ++k) {           /* the headings: a line's start up to a ":" */
+        int j, long_word = 0;
+        if (k > 0 && !cg_cu_char(t, k - 1, '\n')) {
+            continue;
         }
-        for (j = first; j < last;) {
-            int r0, r1, long_words = 0, w;
-            if (cg_cw_lower[j]) {
-                ++j;
+        for (j = k; j < n && cg_cu_char(t, j, ' '); ++j) {
+        }
+        while (j < n) {
+            if (cg_cu_mark(t, j) || cg_cu_char(t, j, '\n') || (cg_cu_quote_or_space(t, j) && !cg_cu_char(t, j, ' '))
+                || cg_cu_char(t, j, ':')) {
+                break;
+            }
+            if (cg_cu_word[j] >= 0) {
+                w = cg_cu_word[j];
+                if (cg_cw_lower[w]) {
+                    break;
+                }
+                long_word |= cg_cw_letters[w] >= 2;
+                j = cg_cw_end[w];
                 continue;
             }
-            r0 = j;
-            while (j < last && !cg_cw_lower[j]) {
-                long_words += cg_cw_letters[j] >= 2;
-                ++j;
+            ++j;
+        }
+        if (j < n && cg_cu_char(t, j, ':') && long_word) {
+            for (u = k; u <= j; ++u) {
+                cg_cu_flag[u] |= 2;
             }
-            r1 = j;
-            if (long_words >= 2 || (long_words >= 1 && !lower_in_line)) {
-                /* the run's span: out to the words around it (or the line's ends) */
-                int u0 = r0 > first ? cg_cw_end[r0 - 1] : line_start[cg_cw_line[r0]];
-                int u1 = r1 < last ? cg_cw_start[r1] : line_end[cg_cw_line[r0]], u, b;
-                for (u = u0; u < u1; ++u) {
-                    for (b = 0; b < (cg_cu_kind[u] == 0 || cg_cu_kind[u] == 1 ? cg_cu_len[u] : 0); ++b) {
-                        t[cg_cu_at[u] + b] = cg_to_lo(t[cg_cu_at[u] + b]);
-                    }
+            cg_cu_flag[j] |= 4;
+        }
+    }
+    cg_cs_flag[0] = 0;                  /* the quotations and the sentences */
+    for (k = 0; k < n; ++k) {
+        unsigned char c = cg_cu_kind[k] == 0 ? t[cg_cu_at[k]] : 0;
+        if (k > 0 && (cg_cu_char(t, k - 1, '\n') || (cg_cu_flag[k - 1] & 4) != 0
+                      || (cg_cu_mark(t, k - 1) && !cg_cu_mark(t, k)))) {
+            cg_cs_flag[++sents] = 0;
+        }
+        cg_cu_sent[k] = sents;
+        if (cg_cu_kind[k] == 0) {
+            if (c == '\n') {
+                q = 0;
+            } else if (q == 0 && (c == '"' || c == 0x93)) {
+                q = 1;
+            } else if (q == 1 && (c == '"' || c == 0x94)) {
+                q = 0;
+            } else if (c == '\'') {
+                if (q == 0 && (k == 0 || (cg_cu_kind[k - 1] == 0 && !cg_cu_alnum(t, k - 1))) && k + 1 < n
+                    && !cg_cu_char(t, k + 1, ' ') && !cg_cu_char(t, k + 1, '\n')) {
+                    q = 2;              /* ' opens after no letter, digit, placeholder or pick, with one after it */
+                } else if (q == 2 && (k + 1 >= n || !cg_cu_alnum(t, k + 1))) {
+                    q = 0;
                 }
-                for (u = u0; u < u1; ++u) {
-                    if (cg_cu_kind[u] == 1 && cg_cu_len[u] > 2 && cg_case_start(t, u, item)) {
-                        int at = cg_ph_word_at(t, u);
-                        t[cg_cu_at[u] + at] = cg_to_up(t[cg_cu_at[u] + at]);
-                    }
-                }
-                for (w = r0; w < r1; ++w) {
-                    int s0 = cg_cw_start[w], e0 = cg_cw_end[w];
-                    unsigned char *c = t + cg_cu_at[s0];
-                    if (cg_case_start(t, s0, item)) {
-                        *c = cg_to_up(*c);
-                    }
-                    if ((*c == 'i' || *c == 'I') && (e0 - s0 == 1 || cg_cu_char(t, s0 + 1, '\''))) {
-                        *c = 'I';
-                    }
-                }
+            } else if (c == '!') {
+                cg_cs_flag[sents] |= 4;
             }
         }
-        i = last;
+        if (q != 0) {
+            cg_cu_flag[k] |= 1;
+        }
+    }
+    for (w = 0; w < words; ++w) {
+        cg_cs_flag[cg_cu_sent[cg_cw_start[w]]] |= (unsigned char)((cg_cw_lower[w] ? 1 : 0) | (cg_cw_letters[w] >= 2 ? 2 : 0));
+        label_lower |= cg_cw_lower[w];
+        label_long |= cg_cw_letters[w] >= 2;
+    }
+    for (u = 0; u < n; ++u) {           /* in sentence case: a heading; outside quotations a label or a sentence */
+        int b;
+        if ((cg_cu_flag[u] & 2) == 0
+            && ((cg_cu_flag[u] & 1) != 0
+                || (label ? (label_lower || !label_long) : (cg_cs_flag[cg_cu_sent[u]] & 7) != 2))) {
+            continue;
+        }
+        cg_cu_flag[u] |= 8;
+        for (b = 0; b < (cg_cu_kind[u] == 0 || cg_cu_kind[u] == 1 ? cg_cu_len[u] : 0); ++b) {
+            t[cg_cu_at[u] + b] = cg_to_lo(t[cg_cu_at[u] + b]);
+        }
+    }
+    for (u = 0; u < n; ++u) {
+        if ((cg_cu_flag[u] & 8) && cg_cu_kind[u] == 1 && cg_cu_len[u] > 2 && cg_case_start(t, u, item)) {
+            int at = cg_ph_word_at(t, u);
+            t[cg_cu_at[u] + at] = cg_to_up(t[cg_cu_at[u] + at]);
+        }
+    }
+    for (w = 0; w < words; ++w) {
+        int s0 = cg_cw_start[w], e0 = cg_cw_end[w];
+        unsigned char *c = t + cg_cu_at[s0];
+        if ((cg_cu_flag[s0] & 8) == 0) {
+            continue;
+        }
+        if (cg_case_start(t, s0, item)) {
+            *c = cg_to_up(*c);
+        }
+        if ((*c == 'i' || *c == 'I') && (e0 - s0 == 1 || cg_cu_char(t, s0 + 1, '\''))) {
+            *c = 'I';
+        }
+        if (cg_case_proper(t, s0, e0)) {
+            *c = cg_to_up(*c);
+        }
     }
 }
 
@@ -2930,7 +3011,7 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         /* 19: runs in capitals in sentence case, on the text as shown (a popup's whole text: src/vv_cie_graph.py
            cases the joined text too) */
         lstrcpynA(cased[depth], raw, CG_RAW_BYTES);
-        cg_sentence_case(cased[depth], depth > 0);
+        cg_sentence_case(cased[depth], depth > 0, cg_case_label);
         s = cased[depth];
     }
     while (*s != '\0' && o < cap - 1) {
@@ -3079,12 +3160,15 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
    than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15). */
 static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
     static char real[CG_LABEL_V6 * 4];
-    int n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+    int n;
+    cg_case_label = 1;                  /* 19: a label is cased as a whole */
+    n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
     if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
         cg_pronoun_names = 1;
         cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
         cg_pronoun_names = 0;
     }
+    cg_case_label = 0;
     lstrcpynA(out, real, CG_LABEL_V6);
 }
 
@@ -6033,12 +6117,13 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupBegun(int game) {
     return cg_op_begun_take(game);
 }
 
-/* 19: `text` (changed in place) in sentence case (title 0; `item` a pool's item) or title case (title 1). */
-__declspec(dllexport) void __stdcall VvfpStoryProbeSentenceCase(char *text, int item, int title) {
-    if (title) {
+/* 19: `text` (changed in place) in sentence case (kind 0; `item` a pool's item), title case (kind 1) or as a
+   button's label (kind 2). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSentenceCase(char *text, int item, int kind) {
+    if (kind == 1) {
         cg_title_case(text);
     } else {
-        cg_sentence_case(text, item);
+        cg_sentence_case(text, item, kind == 2);
     }
 }
 
