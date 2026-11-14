@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Water Argument",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_the_great_water_argument",
+  "source": "v26",
+  "lines": [
+   7962,
+   7971
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7962",
+  "ledger": [
+   {
+    "src": "L7965",
+    "kind": "instruction",
+    "text": "Gain food or a small tech reward.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Great Water Argument",
+   "src": "L7963",
+   "text": "Two farmers disagree about how best to carry water to a thirsty patch of ground near the Tree.",
+   "choices": [
+    {
+     "label": "Test both methods.",
+     "next": "set_a",
+     "src": "L7964"
+    },
+    {
+     "label": "Ask the builders to decide.",
+     "next": "set_b",
+     "src": "L7968"
+    }
+   ]
+  },
+  "a1_1": {
+   "src": "L7965",
+   "text": "A channel of carefully fitted stones proves efficient.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7965"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7965",
+     "what": "or a small tech reward",
+     "reason": "food OR tech: the other page gives the tech"
+    }
+   ]
+  },
+  "a1_2": {
+   "src": "L7965",
+   "text": "A channel of carefully fitted stones proves efficient.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7965"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7965",
+     "what": "Gain food",
+     "reason": "food OR tech: the other page gives the food"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_1"
+    },
+    {
+     "next": "a1_2"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7966",
+   "text": "Both methods fail because neither farmer noticed a blocked inlet."
+  },
+  "a3": {
+   "src": "L7967",
+   "text": "A child combines the ideas and succeeds. The farmers reluctantly share the credit."
+  },
+  "b1": {
+   "src": "L7969",
+   "text": "The builders propose a sturdy solution and gain respect."
+  },
+  "b2": {
+   "src": "L7970",
+   "text": "Their elaborate design takes longer than simply carrying the water by hand."
+  },
+  "b3": {
+   "src": "L7971",
+   "text": "The builders admit the farmers know the ground better and work together."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

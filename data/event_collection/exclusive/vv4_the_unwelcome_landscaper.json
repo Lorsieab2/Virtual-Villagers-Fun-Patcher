@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwelcome Landscaper",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_the_unwelcome_landscaper",
+  "source": "v26",
+  "lines": [
+   7938,
+   7949
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7940",
+  "ledger": [
+   {
+    "src": "L7938",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L7943",
+    "kind": "instruction",
+    "text": "Gain a small tech reward.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Unwelcome Landscaper",
+   "src": "L7941",
+   "text": "A young villager insists that the Tree of Life needs a personal gardener and begins arranging stones, flowers, and moss around its roots.",
+   "choices": [
+    {
+     "label": "Encourage the gardener.",
+     "next": "set_a",
+     "src": "L7942"
+    },
+    {
+     "label": "Ask the gardener to consult the elders first.",
+     "next": "set_b",
+     "src": "L7946"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7943",
+   "text": "The arrangement improves drainage and protects fragile seedlings.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7943"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7944",
+   "text": "The gardener accidentally blocks a water channel. The villagers correct the mistake together."
+  },
+  "a3": {
+   "src": "L7945",
+   "text": "The flowers attract colorful insects, delighting the children."
+  },
+  "b1": {
+   "src": "L7947",
+   "text": "The gardener learns how carefully the Tree must be tended."
+  },
+  "b2": {
+   "src": "L7948",
+   "text": "An elder adopts the idea and creates a shared gardening ritual."
+  },
+  "b3": {
+   "src": "L7949",
+   "text": "The gardener sulks, then returns with a detailed sketch that impresses the builders."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

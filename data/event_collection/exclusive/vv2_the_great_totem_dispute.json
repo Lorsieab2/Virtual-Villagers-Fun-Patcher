@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Totem Dispute",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_the_great_totem_dispute",
+  "source": "v26",
+  "lines": [
+   7868,
+   7877
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7868",
+  "ledger": [
+   {
+    "src": "L7872",
+    "kind": "instruction",
+    "text": "Lose a little food.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7877",
+    "kind": "instruction",
+    "text": "Gain a small tech reward as its history is recorded.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Great Totem Dispute",
+   "src": "L7869",
+   "text": "Two villagers quarrel about which totem deserves the greatest honor.",
+   "choices": [
+    {
+     "label": "Hold a celebration for the totems.",
+     "next": "set_a",
+     "src": "L7870"
+    },
+    {
+     "label": "Ask an elder to mediate.",
+     "next": "set_b",
+     "src": "L7874"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7871",
+   "text": "The celebration becomes a beloved festival.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L7871"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7872",
+   "text": "Rival speeches last so long that the food grows cold.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7872",
+     "loss": true
+    }
+   ]
+  },
+  "a3": {
+   "src": "L7873",
+   "text": "A child asks why the village must choose only one. The adults fall silent, then laugh."
+  },
+  "b1": {
+   "src": "L7875",
+   "text": "The elder recalls the founders' journey and brings both sides together."
+  },
+  "b2": {
+   "src": "L7876",
+   "text": "The elder accidentally insults both factions and must apologize publicly."
+  },
+  "b3": {
+   "src": "L7877",
+   "text": "The elder proposes a shared ceremony.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7877"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

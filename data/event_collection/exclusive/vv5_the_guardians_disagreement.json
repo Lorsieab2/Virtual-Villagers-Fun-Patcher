@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guardians' Disagreement",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_the_guardians_disagreement",
+  "source": "v26",
+  "lines": [
+   8019,
+   8028
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8019",
+  "ledger": [
+   {
+    "src": "L8022",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L8027",
+    "kind": "instruction",
+    "text": "Lose a small amount of food.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Guardians' Disagreement",
+   "src": "L8020",
+   "text": "Two respected villagers disagree over what it means to protect Isola: guarding its traditions or allowing them to change.",
+   "choices": [
+    {
+     "label": "Hold a council.",
+     "next": "set_a",
+     "src": "L8021"
+    },
+    {
+     "label": "Give each side a task to demonstrate its vision.",
+     "next": "set_b",
+     "src": "L8025"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L8022",
+   "text": "The council agrees that remembrance and change can coexist.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8022"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L8023",
+   "text": "The debate grows heated until a child asks why protecting the island should require hurting one another."
+  },
+  "a3": {
+   "src": "L8024",
+   "text": "An elder proposes that both sides collaborate on a lasting record of their history."
+  },
+  "b1": {
+   "src": "L8026",
+   "text": "One group restores an old gathering place; the other builds a new one. Both become beloved."
+  },
+  "b2": {
+   "src": "L8027",
+   "text": "Their efforts compete for supplies, forcing a difficult compromise.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8027",
+     "loss": true
+    }
+   ]
+  },
+  "b3": {
+   "src": "L8028",
+   "text": "The groups unexpectedly exchange ideas and produce a better plan than either had proposed alone."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

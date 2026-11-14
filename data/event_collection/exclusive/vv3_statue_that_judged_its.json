@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Statue That Judged Its Makers",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_statue_that_judged_its",
+  "source": "v26",
+  "lines": [
+   7927,
+   7936
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7927",
+  "ledger": [
+   {
+    "src": "L7930",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7932",
+    "kind": "instruction",
+    "text": "Increase construction progress slightly.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Statue That Judged Its Makers",
+   "src": "L7928",
+   "text": "During work on the great statue, a builder claims its expression changes depending on who looks at it.",
+   "choices": [
+    {
+     "label": "Investigate the claim.",
+     "next": "set_a",
+     "src": "L7929"
+    },
+    {
+     "label": "Declare the statue's expression a mystery.",
+     "next": "set_b",
+     "src": "L7933"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7930",
+   "text": "Shadows explain the illusion.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7930"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7931",
+   "text": "A child moves a polished shell, making the face seem to wink. The crowd roars with laughter."
+  },
+  "a3": {
+   "src": "L7932",
+   "text": "The workers interpret the face as a reminder to finish their task.",
+   "text_only": [
+    {
+     "src": "L7932",
+     "what": "construction progress",
+     "reason": "rule 8: no game effect adds construction progress"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L7934",
+   "text": "Villagers begin leaving gifts nearby, until the Chief reminds them the workers need supplies more."
+  },
+  "b2": {
+   "src": "L7935",
+   "text": "Two poets compose rival interpretations. The resulting argument becomes village entertainment."
+  },
+  "b3": {
+   "src": "L7936",
+   "text": "A worried builder confesses to carving the eyebrows unevenly. The village decides the flaw gives the statue character."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

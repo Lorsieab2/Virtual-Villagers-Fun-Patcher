@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Belief",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_old_belief_and_new",
+  "source": "v26",
+  "lines": [
+   7997,
+   8006
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7997",
+  "ledger": [
+   {
+    "src": "L8000",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "figure": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Old Belief and the New Question",
+   "src": "L7998",
+   "text": "A young Isolan asks an elder whether accepting a new community means forgetting the people who came before.",
+   "choices": [
+    {
+     "label": "Invite the elder to share the old stories.",
+     "next": "set_a",
+     "src": "L7999"
+    },
+    {
+     "label": "Ask the young Isolan to write a reflection.",
+     "next": "set_b",
+     "src": "L8003"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L8000",
+   "text": "The villagers record the stories respectfully.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8000"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L8001",
+   "text": "A forgotten song is revived and taught to the children."
+  },
+  "a3": {
+   "src": "L8002",
+   "text": "A disagreement arises, but careful listening leads to a new understanding."
+  },
+  "b1": {
+   "src": "L8004",
+   "text": "The essay moves both communities."
+  },
+  "b2": {
+   "src": "L8005",
+   "text": "The child writes an unintentionally funny comparison of the two traditions. The adults laugh kindly and discuss it."
+  },
+  "b3": {
+   "src": "L8006",
+   "text": "The child admits that the question remains unanswered, and the elder praises the honesty."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}
