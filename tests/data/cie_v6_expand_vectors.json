@@ -3865,6 +3865,114 @@
    }
   },
   {
+   "name": "sex_words_vv4_father",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The (Mother/Father)'s Lullaby",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "parent": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Parent) is the baby's (parent.mother/father). (Mom/Dad) sings; (SISTER/BROTHER) hums; (aunt/uncle) claps; (Girl/Boy) at heart; a (lady/gentleman); (Father/Mother) for life."
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "parent": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo is the baby's father. Dad sings; BROTHER hums; uncle claps; Boy at heart; a gentleman; Father for life."
+    ],
+    "titles": [
+     "The Father's Lullaby"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "1ac6eb3c0b54dc64c236f38b6907e172a3908be905cf586aedf89b92b2803877"
+   }
+  },
+  {
+   "name": "sex_words_vv2_mother",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The (Mother/Father)'s Lullaby",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "parent": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Parent) is the baby's (parent.mother/father). (Mom/Dad) sings; (SISTER/BROTHER) hums; (aunt/uncle) claps; (Girl/Boy) at heart; a (lady/gentleman); (Father/Mother) for life."
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "parent": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana is the baby's mother. Mom sings, SISTER hums, aunt claps, Girl at heart, a lady, Mother for life."
+    ],
+    "titles": [
+     "The Mother's Lullaby"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "1ac6eb3c0b54dc64c236f38b6907e172a3908be905cf586aedf89b92b2803877"
+   }
+  },
+  {
    "name": "named_stranger_vv5",
    "graph": {
     "format": "vvfp-cie-graph",

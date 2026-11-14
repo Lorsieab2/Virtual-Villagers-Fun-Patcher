@@ -183,6 +183,17 @@ TITLED_NAMES["title"] = "(Name1)'s No Good, Very Bad Day"
 TITLED_NAMES["nodes"]["y"]["title"] = "(NAME|HE/SHE) Decides For (his/her) Elders"
 del TITLED_NAMES["nodes"]["inv"]["title"]          # the opening "inv" shows the event's own title
 
+LULLABY = {
+    # Role-sex words (cie-v6-binary.md 5): The Lullaby's nursing parent may be a father.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The (Mother/Father)'s Lullaby", "games": [1, 2, 3, 4, 5],
+    "roles": {"parent": {"kind": "villager"}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Parent) is the baby's (parent.mother/father). (Mom/Dad) sings; (SISTER/BROTHER) hums; "
+                      "(aunt/uncle) claps; (Girl/Boy) at heart; a (lady/gentleman); (Father/Mother) for life."},
+    },
+}
+
 LABELS = {
     # Button labels too wide with the names show pronouns (cie-v6-binary.md 15): the object form by default, the
     # hint's form, in the case written.
@@ -274,6 +285,10 @@ def vector_cases() -> list[dict]:
         {"name": "title_placeholders_vv1", "graph": TITLED_NAMES, "game": 1, "unicode": False, "rolls": [0],
          "bindings": {"subject": {"name": "Bartholomew Longname Junior", "sex": "m"}}, "answers": [0],
          "facts": None},
+        {"name": "sex_words_vv4_father", "graph": LULLABY, "game": 4, "unicode": False, "rolls": [],
+         "bindings": {"parent": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
+        {"name": "sex_words_vv2_mother", "graph": LULLABY, "game": 2, "unicode": False, "rolls": [],
+         "bindings": {"parent": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
         {"name": "named_stranger_vv5", "graph": VISITOR, "game": 5, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aipi", "sex": "f"}},
          "answers": [0], "facts": None},
@@ -1085,6 +1100,28 @@ class TitlePlaceholders(unittest.TestCase):
         self.assertEqual(cg.title_worst(g, g["title"], game), "Him's No Good, Very Bad Day",
                          "27 W's and the rest are 52 characters: A New Home shows the pronoun")
         self.assertEqual(cg.widest_title(g, [""], game.plain, game), "Him's No Good, Very Bad Day")
+
+
+class SexWords(unittest.TestCase):
+    """Role-sex word pairs (cie-v6-binary.md 5)."""
+
+    def test_the_word_of_the_roles_sex(self):
+        g = cg.load(copy.deepcopy(LULLABY))
+        r = cg.simulate(g, 4, [], {"parent": cg.Binding("Bo", "m")})
+        self.assertEqual(r["popups"], ["Bo is the baby's father. Dad sings; BROTHER hums; uncle claps; Boy at heart; "
+                                       "a gentleman; Father for life."])
+        self.assertEqual(r["titles"], ["The Father's Lullaby"])
+        r = cg.simulate(g, 4, [], {"parent": cg.Binding("Ana", "f")})
+        self.assertEqual(r["popups"], ["Ana is the baby's mother. Mom sings; SISTER hums; aunt claps; Girl at heart; "
+                                       "a lady; Mother for life."])
+        self.assertEqual(cg.readable_title(g["title"]), "The Mother or father's Lullaby")
+        self.assertEqual(cg.worst_v6("(lady/gentleman)", cg.lower(g), cg.GAMES[3], None), "gentleman")
+        d = copy.deepcopy(LULLABY)
+        d["version"] = 5
+        d["roles"] = {"subject": {"kind": "villager"}}
+        d["title"] = "Lullaby"
+        d["nodes"]["p"]["text"] = "(mother/father) sings."
+        self.assertTrue(any("is not a placeholder" in p for p in t.problems_of(d)), "version 6 only")
 
 
 class NamedStrangers(unittest.TestCase):

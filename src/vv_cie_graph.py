@@ -394,7 +394,11 @@ COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
 KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
 PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
                "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
-               "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter")}
+               "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter"),
+               # Role-sex words (male word, female word), as the pronouns (cie-v6-binary.md 5).
+               "mother/father": ("father", "mother"), "father/mother": ("father", "mother"), "mom/dad": ("dad", "mom"),
+               "sister/brother": ("brother", "sister"), "aunt/uncle": ("uncle", "aunt"), "girl/boy": ("boy", "girl"),
+               "lady/gentleman": ("gentleman", "lady")}
 HINT_PRONOUNS = ("he/she", "him/her", "his/her", "himself/herself")   # a label name's fallback forms (section 15)
 HINT_DEFAULT = "him/her"
 GLYPH_FALLBACK = {";": ",", "(": "-", ")": "-", "&": "and", "%": " percent"}
@@ -2715,8 +2719,7 @@ def title_shown(g: dict, title: str, game: int, bindings: dict, aliases: dict | 
     return expand_v6(title, g, bindings, None, None, game, unicode, aliases, pronoun_names=True)
 
 
-_READ_PRONOUN = {k: f"{a} or {b}" for k, (a, b) in PRONOUNS_V6.items()}
-_READ_PRONOUN["woman/man"] = "woman or man"
+_READ_PRONOUN = {k: k.replace("/", " or ") for k in PRONOUNS_V6}     # the pair as written
 
 
 def readable_title(title: str) -> str:

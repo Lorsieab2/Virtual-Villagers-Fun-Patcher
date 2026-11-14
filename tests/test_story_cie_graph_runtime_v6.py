@@ -681,6 +681,29 @@ class NodeTitles(unittest.TestCase):
 
 
 @emulated
+class SexWords(unittest.TestCase):
+    """Role-sex word pairs (cie-v6-binary.md 5): the word of the role's sex, in every game."""
+
+    def test_mother_or_father(self):
+        from test_cie_graph_v6 import LULLABY
+        g = cg.load(copy.deepcopy(LULLABY))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for name, sex in (("Bo", "m"), ("Ana", "f")):
+                with self.subTest(game=game, sex=sex):
+                    r = V6(game, [(0, sex, 30, name, 0, False)])
+                    r.rolls([0] * 40)
+                    r.log(1)
+                    self.assertIsNone(r.queue6(compiled(LULLABY)))
+                    r.walk_through()
+                    want = cg.simulate(g, int(game[2]), [], {"parent": cg.Binding(name, sex)})
+                    self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
+                    self.assertEqual(r.titles(), want["titles"])
+                    self.assertIn("Event: The Mother or father's Lullaby", r.log()[2])
+
+
+@emulated
 class NamedStrangers(unittest.TestCase):
     """A named stranger draws a name from the game's own list, never a living villager's (cie-v6-binary.md 16)."""
 

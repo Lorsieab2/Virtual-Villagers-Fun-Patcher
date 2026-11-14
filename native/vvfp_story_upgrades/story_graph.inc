@@ -185,7 +185,9 @@ enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_B
 
 /* The pronouns are CG_PH_HE .. CG_PH_MAN and CG_PH_HIMSELF .. CG_PH_SON (cg_pronoun). */
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
-       CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON };
+       CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON,
+       /* role-sex words (cie-v6-binary.md 5) */
+       CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -458,8 +460,10 @@ static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
 /* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
 static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
-                                         "himself/herself", "woman/man", "boy/girl", "son/daughter" };
-    int words = g->version >= 6 ? 11 : 7;
+                                         "himself/herself", "woman/man", "boy/girl", "son/daughter",
+                                         "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
+                                         "girl/boy", "lady/gentleman" };
+    int words = g->version >= 6 ? 18 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -2421,9 +2425,11 @@ static void cg_path_add(const cg_history *s, const cg_pick *picks, int count) {
 
 /* The pronouns, (male, female): he/she .. man/woman, then version 6's himself/herself, woman/man, boy/girl,
    son/daughter. */
-static const char *const CG_PRONOUNS[8][2] = {
+static const char *const CG_PRONOUNS[15][2] = {
     { "he", "she" }, { "his", "her" }, { "him", "her" }, { "man", "woman" },
-    { "himself", "herself" }, { "man", "woman" }, { "boy", "girl" }, { "son", "daughter" } };
+    { "himself", "herself" }, { "man", "woman" }, { "boy", "girl" }, { "son", "daughter" },
+    { "father", "mother" }, { "father", "mother" }, { "dad", "mom" }, { "brother", "sister" }, { "uncle", "aunt" },
+    { "boy", "girl" }, { "gentleman", "lady" } };
 
 static const char *const *cg_pronoun(int what) {
     return CG_PRONOUNS[what <= CG_PH_MAN ? what - CG_PH_HE : what - CG_PH_HIMSELF + 4];
@@ -2997,10 +3003,7 @@ static void cg_title_text(unsigned short t, char *out, int cap) {
 /* 17: a title's readable form (the log, Pick Island Event, the library): each name "someone", each pronoun "he or
    she" ..., in the case written; cut to CE_TITLE_BYTES - 1. */
 static void cg_readable_title(const char *raw, char *out, int cap) {
-    static const char *const WORDS[10] = { "he/she", "his/her", "him/her", "man/woman", "himself/herself",
-                                           "woman/man", "boy/girl", "son/daughter", NULL, NULL };
-    static const char *const READ[8] = { "he or she", "his or her", "him or her", "man or woman",
-                                         "himself or herself", "woman or man", "boy or girl", "son or daughter" };
+    static char pair[48];
     int o = 0;
     if (cap > CE_TITLE_BYTES) {
         cap = CE_TITLE_BYTES;
@@ -3024,9 +3027,24 @@ static void cg_readable_title(const char *raw, char *out, int cap) {
         }
         for (w = end; w > raw + 1 && w[-1] != '.'; --w) {
         }
-        for (k = 0; WORDS[k] != NULL; ++k) {
-            if (cg_word_is(w, (int)(end - w), WORDS[k])) {
-                put = READ[k];
+        {
+            /* A pronoun or role-sex word (the loader let only those hold "/"): its pair as written, with "or". */
+            int slash = 0, p = 0;
+            for (k = 0; w + k < end; ++k) {
+                slash |= w[k] == '/';
+            }
+            if (slash && (int)(end - w) < 30) {
+                for (k = 0; w + k < end; ++k) {
+                    char c = w[k];
+                    if (c == '/') {
+                        memcpy(pair + p, " or ", 4);
+                        p += 4;
+                        continue;
+                    }
+                    pair[p++] = (char)(c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c);
+                }
+                pair[p] = '\0';
+                put = pair;
             }
         }
         for (w = raw + 1; w < end; ++w) {
