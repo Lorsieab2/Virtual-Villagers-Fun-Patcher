@@ -26,6 +26,24 @@
     "src": "L8898-8900",
     "kind": "note",
     "why": "naming note and the section's end line, never displayed"
+   },
+   {
+    "src": "L8886",
+    "kind": "note",
+    "text": "An optional multi-discipline festival combines ten randomly selected",
+    "why": "designer framing (review M10), never displayed"
+   },
+   {
+    "src": "L8887",
+    "kind": "note",
+    "text": "trials from the twelve events above.",
+    "why": "designer framing (review M10), never displayed"
+   },
+   {
+    "src": "L8893",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: d3 is shown in VV5 only"
    }
   ]
  },
@@ -39,7 +57,7 @@
  "nodes": {
   "intro": {
    "name": "The Decathlon",
-   "text": "An optional multi-discipline festival combines ten randomly selected trials from the twelve events above. A champion must demonstrate more than one kind of talent; teams can win through complementary strengths.",
+   "text": "A champion must demonstrate more than one kind of talent; teams can win through complementary strengths.",
    "src": "L8886-8888",
    "children": [
     {
@@ -72,7 +90,7 @@
   "d3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "A mixed VV5 team wins; both communities argue over whose victory it is until the champions insist the prize belongs to everyone.",
+   "text": "A mixed team wins; both communities argue over whose victory it is until the champions insist the prize belongs to everyone.",
    "src": "L8893-8894",
    "children": [
     {
@@ -121,6 +139,31 @@
     }
    ]
   },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
   "coda": {
    "type": "branch",
    "children": [
@@ -136,62 +179,78 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_c1"
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
     },
     {
-     "next": "coda_c6"
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
     },
     {
-     "next": "coda_c8"
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
     },
     {
-     "next": "coda_c9"
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
     },
     {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
     }
-   ]
-  },
-  "coda_c1": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c1}"
-  },
-  "coda_c6": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
-  },
-  "coda_c9": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c9}"
-  },
-  "coda_c11": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c11}"
-  },
-  "coda_c14": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c14}"
-  },
-  "coda_c15": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c15}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
@@ -200,9 +259,7 @@
  "include_pools": [
   "v8_c1",
   "v8_c6",
-  "v8_c8",
   "v8_c9",
-  "v8_c11",
   "v8_c14",
   "v8_c15"
  ]

@@ -315,43 +315,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
-    }
-   ]
-  },
   "coda_c1": {
    "popup": "append",
    "join": "paragraph",
@@ -386,6 +349,133 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "visited": "b2"
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "visited": "a3"
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p1"
+       },
+       {
+        "visited": "p2"
+       },
+       {
+        "visited": "p3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p2"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
