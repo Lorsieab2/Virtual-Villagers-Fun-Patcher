@@ -1,0 +1,438 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Panel of Impossible Standards",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_panel_of_impossible",
+  "source": "v26",
+  "lines": [
+   7030,
+   7099
+  ],
+  "section": "v13",
+  "credit": "AUTHORSHIP AND IDEA CREDIT — V13\nOriginal creative direction, requested competition critic archetypes, and\nfive specific outcome concepts: Lorsieab2.\nOriginal event text, new characters, individual dialogue, additional\noutcomes, branching and implementation notes below: ChatGPT (OpenAI).\nThe Cooking Contest's original text and randomized framework remain\ncredited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites\nof the original. The other competition add-ons preserve the authorship\nof their existing base events as identified in the V12 credit ledger.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7031",
+  "ledger": [
+   {
+    "src": "L7031",
+    "kind": "structural",
+    "why": "section heading"
+   },
+   {
+    "src": "L7032",
+    "kind": "structural",
+    "why": "section heading"
+   },
+   {
+    "src": "L7035-7038",
+    "kind": "note",
+    "why": "designer note: how the critic joins a contest, never displayed"
+   },
+   {
+    "src": "L7076",
+    "kind": "structural",
+    "why": "choices heading"
+   },
+   {
+    "src": "L7082",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L7073",
+    "kind": "note",
+    "text": "In VV3-VV5, optional Magic/Nature",
+    "why": "designer rule (no Magic/Nature specialists in VV1-VV2); none are shown"
+   },
+   {
+    "src": "L7074",
+    "kind": "note",
+    "why": "the rest of the designer rule"
+   },
+   {
+    "src": "L7040",
+    "kind": "structural",
+    "text": "BUILDING  -",
+    "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7046",
+    "kind": "structural",
+    "text": "SCULPTURE/BEAUTIFICATION  -",
+    "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7052",
+    "kind": "structural",
+    "text": "RESEARCH/INVENTION  -",
+    "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7058",
+    "kind": "structural",
+    "text": "STORYTELLING/POETRY  -",
+    "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7064",
+    "kind": "structural",
+    "text": "FARMING  -",
+    "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7069",
+    "kind": "structural",
+    "text": "DEVOTION/CEREMONY  -",
+    "why": "the contest type the critic belongs to"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "critic": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "critic",
+ "nodes": {
+  "critic": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "critic1"
+    },
+    {
+     "next": "critic2"
+    },
+    {
+     "next": "critic3"
+    },
+    {
+     "next": "critic4"
+    },
+    {
+     "next": "critic5"
+    },
+    {
+     "next": "critic6"
+    }
+   ]
+  },
+  "critic1": {
+   "name": "Master Stonewright",
+   "src": "L7040-7044",
+   "text": "MASTER STONEWRIGHT (Critic):\nAn elderly craftsperson known for inspecting walls by tapping them with a knuckle. \"I've seen better foundations under a sleeping pig!\" (critic.He/She) can also recognize brilliant construction and will personally apologize when a supposedly impossible design proves sound.",
+   "children": [
+    {
+     "next": "ask1"
+    }
+   ]
+  },
+  "ask1": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7040-7044",
+   "text": "\"I've seen better foundations under a sleeping pig!\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "critic2": {
+   "name": "Master Carver",
+   "src": "L7046-7050",
+   "text": "MASTER CARVER (Critic):\nA renowned sculptor who insists that art should have intention, balance, and something worth looking at. \"Is it a person? A potato? Or a potato suffering from terrible news?\" (critic.He/She) secretly loves works that are ugly but strangely moving.",
+   "children": [
+    {
+     "next": "ask2"
+    }
+   ]
+  },
+  "ask2": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7046-7050",
+   "text": "\"Is it a person? A potato? Or a potato suffering from terrible news?\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "critic3": {
+   "name": "The Stern Scholar",
+   "src": "L7052-7056",
+   "text": "THE STERN SCHOLAR (Critic):\nA senior researcher who asks the same question of every invention: \"What does it do, and how do you know?\" The scholar will reject a beautiful fraud, praise an ugly success, and demand that failed tests be recorded instead of concealed.",
+   "children": [
+    {
+     "next": "ask3"
+    }
+   ]
+  },
+  "ask3": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7052-7056",
+   "text": "\"What does it do, and how do you know?\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "critic4": {
+   "name": "The Keeper Of Verses",
+   "src": "L7058-7062",
+   "text": "THE KEEPER OF VERSES (Critic):\nA famous poet and historian with an astonishing memory. (critic.He/She) notices every misplaced word, faulty rhyme, and unintentional insult. \"You have managed to rhyme 'moon' with 'coconut.' I would like to know how, and I am afraid of the answer.\"",
+   "children": [
+    {
+     "next": "ask4"
+    }
+   ]
+  },
+  "ask4": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7058-7062",
+   "text": "\"You have managed to rhyme 'moon' with 'coconut.' I would like to know how, and I am afraid of the answer.\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "critic5": {
+   "name": "The Harvest Master",
+   "src": "L7064-7067",
+   "text": "THE HARVEST MASTER (Critic):\nAn experienced grower who distrusts impressive speeches about crops. \"Show me the roots. The roots never flatter anybody.\" This judge may recognize practical genius in a seemingly foolish technique.",
+   "children": [
+    {
+     "next": "ask5"
+    }
+   ]
+  },
+  "ask5": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7064-7067",
+   "text": "\"Show me the roots. The roots never flatter anybody.\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "critic6": {
+   "name": "The Elder Of Rites",
+   "src": "L7069-7073",
+   "text": "THE ELDER OF RITES (Critic):\nA respected keeper of ceremonies who values sincerity and accuracy. \"A loud voice is not the same thing as a wise heart.\" (critic.He/She) may rebuke a performer for disrespect or praise a new interpretation that honors the tradition's spirit.",
+   "children": [
+    {
+     "next": "ask6"
+    }
+   ]
+  },
+  "ask6": {
+   "type": "question",
+   "name": "The critic's words",
+   "src": "L7069-7073",
+   "text": "\"A loud voice is not the same thing as a wise heart.\"",
+   "choices": [
+    {
+     "label": "Accept the expert's judgment and request specific feedback.",
+     "next": "set_endings",
+     "src": "L7077"
+    },
+    {
+     "label": "Ask for a second, independent judge.",
+     "next": "set_endings",
+     "src": "L7078"
+    },
+    {
+     "label": "Let the contestants defend their decisions before the audience.",
+     "next": "set_endings",
+     "src": "L7079"
+    },
+    {
+     "label": "Require a practical demonstration rather than relying on reputation.",
+     "next": "set_endings",
+     "src": "L7080"
+    }
+   ]
+  },
+  "end1": {
+   "src": "L7083-7084",
+   "text": "THE EXPERT IS VINDICATED:\nThe flaw appears during the demonstration. The contestant is embarrassed but learns how to correct it."
+  },
+  "end2": {
+   "src": "L7085-7086",
+   "text": "THE EXPERT IS HUMBLED:\nThe supposed flaw turns out to be intentional and effective. The expert publicly acknowledges the oversight."
+  },
+  "end3": {
+   "src": "L7087-7089",
+   "text": "THE CROWD DISAGREES:\nThe expert dislikes the work, but the village adores it. The judges explain that popularity and technical merit are different measures; neither is automatically worthless.",
+   "text_only": [
+    {
+     "src": "L7087",
+     "what": "dislikes",
+     "reason": "the expert's opinion, not a game preference"
+    }
+   ]
+  },
+  "end4": {
+   "src": "L7090-7091",
+   "text": "THE BITTER RIVAL:\nThe contestant rejects the criticism, vows to return next year, and spends months practicing."
+  },
+  "end5": {
+   "src": "L7092-7093",
+   "text": "THE UNEXPECTED MENTOR:\nThe judge offers instruction after seeing determination beneath the errors."
+  },
+  "end6": {
+   "src": "L7094-7095",
+   "text": "THE SHAMEFUL INSULT:\nThe judge crosses from critique into cruelty. The organizers demand an apology and appoint a fair replacement."
+  },
+  "end7": {
+   "src": "L7096-7097",
+   "text": "THE STUNNING MASTERPIECE:\nThe judge is rendered speechless for the first time in living memory. A child asks whether (critic.he/she) is ill."
+  },
+  "end8": {
+   "src": "L7098-7099",
+   "text": "THE POINTLESS PERFECTION:\nThe work is technically flawless but serves no discernible purpose. The judge awards skill, not utility.",
+   "text_only": [
+    {
+     "src": "L7099",
+     "what": "awards skill",
+     "reason": "rule 7: an award told only; no skill is named"
+    }
+   ]
+  },
+  "set_endings": {
+   "type": "branch",
+   "set": "endings",
+   "children": [
+    {
+     "next": "end1"
+    },
+    {
+     "next": "end2"
+    },
+    {
+     "next": "end3"
+    },
+    {
+     "next": "end4"
+    },
+    {
+     "next": "end5"
+    },
+    {
+     "next": "end6"
+    },
+    {
+     "next": "end7"
+    },
+    {
+     "next": "end8"
+    }
+   ]
+  }
+ }
+}
