@@ -54,9 +54,10 @@ NEEDS = unittest.skipUnless(HAVE_EMULATOR and EXE.is_file() and DLL.is_file(),
                             "unicorn/pefile, the stock executable or the companion is missing")
 
 # The detours (va, stock bytes) and the stock code the companion checks before writing anything.
-DETOURS = ((0x430AF9, "8B8840050000"), (0x461B10, "518B44240C53"))
+DETOURS = ((0x430AF9, "8B8840050000"), (0x4642EB, "5E5B59C20800"))
 CHECKED = ((0x430AB4, "8B86E40100008B4E2069C08CE4000003C1"), (0x430AFF, "85C9"), (0x430F63, "8B8EE4010000"),
-           (0x461B16, "33DB"), (0x449B70, "83EC188B4424208B"), (0x44FBB0, "8B4424048BD069D2"),
+           (0x461B18, "4883F845568BF1895C24080F87C2270000"), (0x449B70, "83EC188B4424208B"),
+           (0x44FBB0, "8B4424048BD069D2"),
            (0x4454E0, "8B54240433C069D2"), (0x44B010, "5356578B7C24108B"), (0x425B20, "33C089814C040300"))
 
 DROP_FROM, DROP_DONE = 0x430AB4, 0x430F63
@@ -367,12 +368,21 @@ class DoorwayTests(unittest.TestCase):
     def test_with_every_other_patch_in_every_mode(self):
         for mode in MODES:
             with self.subTest(mode=mode):
-                v = Village(_rendered(tuple(_others()), mode))
+                exe = _rendered(tuple(_others()), mode)
+                v = Village(exe)
                 self.assertEqual(v.installed, 1)
                 v.stew(7, 5000)
                 v.drop(DOOR)
                 v.finish()
                 self.assertEqual(v.p.u32(v.state + STEW), 0)
+                # Hospital Recovery Heals' callback 126 (through the dispatcher entry's cave), with and without
+                runs = []
+                for with_dll in (False, True):
+                    w = Village(exe, with_dll=with_dll)
+                    w.p.put32(w.record() + 0x52C, 40)
+                    w.p.call(DISPATCH, [SLOT, 0x7E], ecx=w.mgr)
+                    runs.append(w.p.u32(w.record() + 0x52C))
+                self.assertEqual(runs, [41, 41])
 
 
 @NEEDS
@@ -432,15 +442,31 @@ class RowTests(unittest.TestCase):
         self.assertIn(DLL_NAME, vfp.STARTUP_LOADER_COMPANIONS_2)
 
     def test_the_detours_are_the_ones_the_companion_holds(self):
+        import re
         source = (ROOT / "native" / "vvfp_vv2_empty_stew" / "vvfp_vv2_empty_stew.c").read_text(encoding="utf-8")
+        # the byte arrays, read without comments and line breaks
+        flat = re.sub(r"\s+", " ", re.sub(r"/\*.*?\*/", " ", source, flags=re.S))
         for va, stock in DETOURS + CHECKED:
             self.assertIn(f"0x{va:X}", source)
-            self.assertIn(", ".join(f"0x{b:02X}" for b in bytes.fromhex(stock)), source, hex(va))
+            self.assertIn(", ".join(f"0x{b:02X}" for b in bytes.fromhex(stock)), flat, hex(va))
 
     @unittest.skipUnless(EXE.is_file(), "the stock executable is missing")
     def test_no_other_row_claims_a_site(self):
         pe = pefile.PE(str(EXE), fast_load=True)
         ranges = [(va, va + len(stock) // 2) for va, stock in DETOURS + CHECKED]
+        # the shared support patches some rows bring (the dispatcher's entry cave of Teaching Children Grants Skill
+        # and Hospital Recovery Heals, 0x461B10..0x461B14, sits just before the range test the companion checks)
+        builds = __import__("json").loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        for support in builds["fun_patch_support"]:
+            if support["game_id"] != "vv2":
+                continue
+            for patch in support["patches"]:
+                rva = pe.get_rva_from_offset(int(patch["offset"], 16))
+                if rva is None:
+                    continue
+                va, n = 0x400000 + rva, len(patch["before"]) // 2
+                for start, end in ranges:
+                    self.assertFalse(va < end and start < va + n, (support["when_any"], hex(va), hex(start)))
         for p in vfp._load_fun_patch_records():
             if p.raw.get("game_id") != "vv2" or p.id == ROW:
                 continue

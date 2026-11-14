@@ -30,9 +30,12 @@
        stew (state + 0x3044C, the stew 1..18; 0 = none) and the villager is 14 or older (record + 0x530 >= 280), the
        companion queues the job (or the running away) and continues at the drop's stock tail 0x430F63 (the move off
        the hut, the placement); otherwise it runs the stolen instruction and continues at 0x430AFF, the stock drop.
-     * 0x461B10 (the job-step completion dispatcher, step 17 of the villager update): its first 6 bytes become
-       `jmp cb_detour` + a nop.  The companion's own callback id (CB_EMPTY, past the game's 1..70) is answered by
-       the companion; every other id runs the stolen bytes and continues at 0x461B16, the stock dispatcher.
+     * 0x4642EB, the shared epilogue of the job-step completion dispatcher 0x461B10 (step 17 of the villager
+       update): `pop esi / pop ebx / pop ecx / ret 8` becomes `jmp cb_tail` + a nop.  An id past the game's 1..70
+       reaches it straight from the dispatcher's range test (0x461B23, esi the villagers); the companion's own id
+       (CB_EMPTY) is answered there, then the stock epilogue runs.  (The dispatcher's entry is not touched: Teaching
+       Children Grants Skill and Hospital Recovery Heals route it through their own cave, 0x461B10 -> 0x473D80, which
+       comes back to 0x461B15 for every other id.)
 
    THE JOB is built like the game's own stew jobs, with the game's queue push 0x449B70 and start 0x44FBB0 (the drop
    has already emptied the villager's queue, 0x430A95 -> 0x4492A0), its Details text "Emptying the pot" (the later
@@ -61,9 +64,9 @@
 #define DROP_DONE 0x430F63              /* the drop's stock tail: mov ecx, [esi+0x1E4] */
 #define DROP_RECORD 0x430AB4u           /* eax = [esi+0x1E4] * 0xE48C + [esi+0x20]: the record the site reads */
 
-/* The job-step completion dispatcher: thiscall (slot, callback), ret 8. */
-#define CB_SITE 0x461B10u
-#define CB_RESUME 0x461B16
+/* The job-step completion dispatcher 0x461B10: thiscall (slot, callback), ret 8. */
+#define CB_SITE 0x4642EBu               /* its shared epilogue: pop esi / pop ebx / pop ecx / ret 8 */
+#define CB_RANGE 0x461B18u              /* dec eax / cmp eax, 0x45 / push esi / mov esi, ecx / ... / ja 0x4642EB */
 
 /* Game routines. */
 #define QUEUE_PUSH 0x449B70u            /* thiscall (slot, step, a, b, c, d, param), ret 0x1C */
@@ -115,9 +118,13 @@ static const unsigned char DROP_RECORD_STOCK[17] = {
 };
 static const unsigned char DROP_RESUME_STOCK[2] = { 0x85, 0xC9 };                       /* test ecx, ecx */
 static const unsigned char DROP_DONE_STOCK[6] = { 0x8B, 0x8E, 0xE4, 0x01, 0x00, 0x00 };   /* mov ecx,[esi+0x1E4] */
-/* push ecx; mov eax, [esp+0xC]; push ebx */
-static const unsigned char CB_SITE_STOCK[6] = { 0x51, 0x8B, 0x44, 0x24, 0x0C, 0x53 };
-static const unsigned char CB_RESUME_STOCK[2] = { 0x33, 0xDB };                         /* xor ebx, ebx */
+static const unsigned char CB_SITE_STOCK[6] = { 0x5E, 0x5B, 0x59, 0xC2, 0x08, 0x00 };     /* pop esi .. ret 8 */
+static const unsigned char CB_RANGE_STOCK[17] = {
+    0x48, 0x83, 0xF8, 0x45,                                      /* dec eax; cmp eax, 0x45       */
+    0x56, 0x8B, 0xF1,                                            /* push esi; mov esi, ecx       */
+    0x89, 0x5C, 0x24, 0x08,                                      /* mov [esp+8], ebx             */
+    0x0F, 0x87, 0xC2, 0x27, 0x00, 0x00                           /* ja 0x4642EB                  */
+};
 static const unsigned char QUEUE_PUSH_STOCK[8] = { 0x83, 0xEC, 0x18, 0x8B, 0x44, 0x24, 0x20, 0x8B };
 static const unsigned char JOB_START_STOCK[8] = { 0x8B, 0x44, 0x24, 0x04, 0x8B, 0xD0, 0x69, 0xD2 };
 static const unsigned char DISLIKES_STOCK[8] = { 0x8B, 0x54, 0x24, 0x04, 0x33, 0xC0, 0x69, 0xD2 };
@@ -232,21 +239,20 @@ __declspec(naked) static void drop_detour(void) {
     }
 }
 
-/* At 0x461B10: ecx the villagers, [esp+4] the slot, [esp+8] the callback id. */
-__declspec(naked) static void cb_detour(void) {
+/* At 0x4642EB: [esp] esi, [esp+4] ebx, [esp+8] the dispatcher's local, [esp+0xC] its return, [esp+0x10] the slot,
+   [esp+0x14] the callback id; esi the villagers when the id is past the game's own (the range test's path). */
+__declspec(naked) static void cb_tail(void) {
     __asm {
-        cmp dword ptr [esp + 8], CB_EMPTY
-        je mine
-        push ecx
-        mov eax, dword ptr [esp + 0xC]
-        push ebx
-        push CB_RESUME
-        ret
-    mine:
-        push dword ptr [esp + 4]
-        push ecx
+        cmp dword ptr [esp + 0x14], CB_EMPTY
+        jne stock
+        push dword ptr [esp + 0x10]
+        push esi
         call empty_hook
         add esp, 8
+    stock:
+        pop esi
+        pop ebx
+        pop ecx
         ret 8
     }
 }
@@ -267,7 +273,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         { DROP_RECORD, DROP_RECORD_STOCK, sizeof DROP_RECORD_STOCK },
         { DROP_RESUME, DROP_RESUME_STOCK, sizeof DROP_RESUME_STOCK },
         { DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK },
-        { CB_RESUME, CB_RESUME_STOCK, sizeof CB_RESUME_STOCK },
+        { CB_RANGE, CB_RANGE_STOCK, sizeof CB_RANGE_STOCK },
         { QUEUE_PUSH, QUEUE_PUSH_STOCK, sizeof QUEUE_PUSH_STOCK },
         { JOB_START, JOB_START_STOCK, sizeof JOB_START_STOCK },
         { DISLIKES, DISLIKES_STOCK, sizeof DISLIKES_STOCK },
@@ -290,7 +296,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         }
     }
     vvfp_site_branch(&w[0], DROP_SITE, sizeof DROP_SITE_STOCK, DROP_SITE_STOCK, 0xE9, (const void *)drop_detour);
-    vvfp_site_branch(&w[1], CB_SITE, sizeof CB_SITE_STOCK, CB_SITE_STOCK, 0xE9, (const void *)cb_detour);
+    vvfp_site_branch(&w[1], CB_SITE, sizeof CB_SITE_STOCK, CB_SITE_STOCK, 0xE9, (const void *)cb_tail);
     if (vvfp_install_sites(w, 2)) {
         g_installed = 1;
     }
