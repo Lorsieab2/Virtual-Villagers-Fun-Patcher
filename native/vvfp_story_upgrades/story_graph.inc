@@ -422,10 +422,37 @@ typedef struct {
     int what;                         /* CG_PH_* */
     int capital;
     int caps;                         /* version 6: written ALL CAPS ("(NAME1)", "(HE/SHE)"): the word in capitals */
+    int hint;                         /* version 6 labels: a name's pronoun hint, (ACCUSED|HE/SHE): its CG_PH_*;
+                                         -1 none (the fallback is him/her, cie-v6-binary.md 15) */
 } cg_ph;
 
-/* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
+static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph);
+
+/* A placeholder's inside, a label name's pronoun hint included ("ACCUSED|HE/SHE"). */
 static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
+    static const char *const HINTS[4] = { "he/she", "him/her", "his/her", "himself/herself" };
+    static const int HINT_PH[4] = { CG_PH_HE, CG_PH_HIM, CG_PH_HIS, CG_PH_HIMSELF };
+    int bar, k;
+    ph->hint = -1;
+    for (bar = 0; bar < n && tok[bar] != '|'; ++bar) {
+    }
+    if (bar == n) {
+        return cg_parse_ph_in(g, tok, n, ph);
+    }
+    if (g->version < 6 || !cg_parse_ph_in(g, tok, bar, ph) || ph->what != CG_PH_NAME) {
+        return 0;
+    }
+    for (k = 0; k < 4; ++k) {
+        if (cg_word_is(tok + bar + 1, n - bar - 1, HINTS[k])) {
+            ph->hint = HINT_PH[k];
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
+static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter" };
     int words = g->version >= 6 ? 11 : 7;
@@ -539,7 +566,8 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             while (*e != '\0' && *e != ')' && *e != '(' && *e != '\n') {
                 ++e;
             }
-            if (*e != ')' || !cg_parse_ph(g, s + 1, (int)(e - s - 1), &ph) || (label && ph.role < 0)) {
+            if (*e != ')' || !cg_parse_ph(g, s + 1, (int)(e - s - 1), &ph) || (label && ph.role < 0)
+                || (!label && ph.hint >= 0)) {     /* a pronoun hint only in a label (cie-v6-binary.md 15) */
                 return 0;
             }
             s = e;
@@ -2372,6 +2400,8 @@ static const char *cg_pool_text(int pool, int instance, int mode) {
     return best != NULL ? best : "";
 }
 
+static int cg_pronoun_names;          /* cg_label_text's second pass: names as pronouns (cie-v6-binary.md 15) */
+
 /* cg_expand's work at pool depth `depth`. */
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
@@ -2459,6 +2489,11 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             }
         } else if (ph.what == CG_PH_UNIT) {
             put = award_kind < 0 ? NULL : award_kind == 0 ? "food" : "tech points";
+        } else if (ph.what == CG_PH_NAME && cg_pronoun_names) {
+            /* A label too wide with the names: each name as its role's pronoun (cie-v6-binary.md 15). */
+            const char *const *pair = cg_pronoun(ph.hint >= 0 ? ph.hint : CG_PH_HIM);
+            put = mode == CG_EXPAND_WORST ? (lstrlenA(pair[1]) > lstrlenA(pair[0]) ? pair[1] : pair[0])
+                                          : pair[role >= 0 && cg.female[role] ? 1 : 0];
         } else if (mode == CG_EXPAND_WORST) {
             if (ph.what == CG_PH_NAME) {
                 repeat = name_room;
@@ -2505,6 +2540,19 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
         n = cg_glyph_fallback(out, n, cap);
     }
     return n;
+}
+
+/* A button label as the player reads it into `out` (CG_LABEL_V6 bytes): the real names, or -- when that is wider
+   than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15). */
+static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
+    static char real[CG_LABEL_V6 * 4];
+    int n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+    if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
+        cg_pronoun_names = 1;
+        cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_pronoun_names = 0;
+    }
+    lstrcpynA(out, real, CG_LABEL_V6);
 }
 
 typedef struct {
@@ -3936,7 +3984,7 @@ static void cg_begin_question(int game, char *text, int size) {
             real[0] = '\0';
             if (b < shown) {
                 const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + map[b]);
-                cg_expand(cg_s(&cg_g, cg_u16(c + 8)), real, CG_LABEL_V6, CG_EXPAND_REAL, a->name_room, -1, 0);
+                cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), real);
             }
             lstrcpynA(cg_labels[b], real, CG_LABEL_V6);
             if (b < 2) {
@@ -3994,7 +4042,7 @@ static int cg_resolve(int game, int button, char *text, int size) {
     {
         const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + choice);
         char line[CG_LABEL_V6 + 16];
-        cg_expand(cg_s(&cg_g, cg_u16(c + 8)), label, CG_LABEL_V6, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), label);
         cg.q_entry[qi] = cg.entry_len;
         if (cg.entry_head == 0) {
             cg_entry_start(label);     /* the title and the start question's answer */

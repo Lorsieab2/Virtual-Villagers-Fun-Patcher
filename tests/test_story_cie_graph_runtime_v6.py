@@ -284,6 +284,8 @@ class SharedVectors(unittest.TestCase):
         self.assertEqual(aliases, e["aliases"])
         self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(e["popups"])), "the words the player reads")
         self.assertEqual(runs(r.titles()), runs(e["titles"]), "the popup titles (cie-v6-binary.md 14)")
+        self.assertEqual([labels for kind, _t, labels in shown if kind == "question"], e["labels"],
+                         "the buttons as read (cie-v6-binary.md 15)")
         self.assertTrue(shown)
 
     def test_every_vector_in_its_game(self):
@@ -648,6 +650,31 @@ class NodeTitles(unittest.TestCase):
         why = r.queue6(bytes(data))
         self.assertIsNotNone(why)
         self.assertIn("popup title", why)
+
+
+@emulated
+class LabelPronouns(unittest.TestCase):
+    """A label too wide with the names shows pronouns (cie-v6-binary.md 15), in every game."""
+
+    def test_names_or_pronouns_by_the_screen(self):
+        from test_cie_graph_v6 import LABELS
+        people = [(0, "f", 30, "Rosalind", 0, False), (1, "m", 30, "Bartholomew", 0, False)]
+        lg = cg.lower(cg.load(copy.deepcopy(LABELS)))
+        b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = V6(game, people)
+                r.rolls([0, 0] + [0] * 40)
+                self.assertIsNone(r.queue6(compiled(LABELS)))
+                shown = r.walk_through([0])
+                want = [cg.label_shown(c["label"], lg, b, int(game[2])) for c in lg["nodes"]["q"]["choices"]]
+                self.assertEqual(shown[0][2], want)
+                if game == "vv5":
+                    self.assertIn("ROSALIND AND BARTHOLOMEW", want[0], "fits New Believers' wider screen")
+                else:
+                    self.assertTrue(want[0].startswith("TELL HER AND HE "), want[0])
 
 
 @emulated

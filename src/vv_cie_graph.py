@@ -394,6 +394,8 @@ KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
 PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
                "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
                "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter")}
+HINT_PRONOUNS = ("he/she", "him/her", "his/her", "himself/herself")   # a label name's fallback forms (section 15)
+HINT_DEFAULT = "him/her"
 GLYPH_FALLBACK = {";": ",", "(": "-", ")": "-", "&": "and", "%": " percent"}
 FALLBACK_GAMES = (1, 2)       # A New Home and The Lost Children's fonts lack ; ( ) & %
 SIZES = {"small": (1, 2), "normal": (1, 1), "large": (2, 1), "huge": (3, 1)}     # multiply, divide (rounding down)
@@ -527,6 +529,21 @@ def title_px(game: int, text: str) -> int:
 def label_max_px(game: int) -> int:
     """The widest label the game's screen shows whole, centred."""
     return _label_table(game)["max_px"]
+
+
+def label_fits(game: int, text: str) -> bool:
+    """A version 6 label as shown fits: at most LABEL_BYTES_V6 bytes and the screen's width (section 15)."""
+    return len(text) <= LABEL_BYTES_V6 and label_px(game, text) <= label_max_px(game)
+
+
+def label_shown(label: str, g: dict, bindings: dict, game: int, aliases: dict | None = None,
+                tribe: str | None = None, unicode: bool = False, picks: dict | None = None) -> str:
+    """A version 6 button label as the player reads it (`g` lowered): the real names, or -- when that does not fit
+    the screen (label_fits) -- every name as its role's pronoun (cie-v6-binary.md 15)."""
+    real = expand_v6(label, g, bindings, picks, None, game, unicode, aliases, tribe=tribe)
+    if label_fits(game, real):
+        return real
+    return expand_v6(label, g, bindings, picks, None, game, unicode, aliases, tribe=tribe, pronoun_names=True)
 
 
 class GraphError(ValueError):
@@ -1437,6 +1454,7 @@ class Placeholder:
     what: str             # "name", a PRONOUNS key, "award", "award_unit"
     capital: bool
     upper: bool = False   # version 6: written in capitals, (NAME1) (HE/SHE): the word in capitals
+    hint: str | None = None   # version 6 labels: a name's pronoun fallback form, (ACCUSED|HE/SHE) (section 15)
 
 
 def parse_placeholder(token: str) -> Placeholder | None:
@@ -1508,7 +1526,13 @@ def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
     """A version 6 placeholder's inside: v5's, the four new pronouns, and the role shorthand (gardener1) /
     (Gardener1) -- that role's name, the id matched ignoring capitals.  A keyword always wins.  All in capitals
     ((NAME1), (HIM/HER), (FRIEND.HE/SHE), (GARDENER1)): the same word in capitals, the role prefix matched ignoring
-    capitals."""
+    capitals.  A name may end in a pronoun hint, (ACCUSED|HE/SHE): its label fallback's form (section 15)."""
+    if "|" in token:
+        base, _bar, hint = token.partition("|")
+        p = parse_placeholder_v6(base, roles)
+        if p is None or p.what != "name" or hint.lower() not in HINT_PRONOUNS:
+            return None
+        return replace(p, hint=hint.lower())
     role, dot, word = token.rpartition(".")
     if dot and not role:
         return None
@@ -1542,7 +1566,8 @@ def _role_of_ph(p: Placeholder, roles: dict) -> dict | None:
 
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
-              aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None) -> str:
+              aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
+              pronoun_names: bool = False) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
     ({@tribe}; None: "the village").  The glyph fallback is applied last."""
@@ -1566,7 +1591,10 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 out.append(unit.upper() if p.upper else unit)
                 continue
             b = bindings[aliases.get(p.role, p.role)]
-            word = b.name if p.what == "name" else PRONOUNS_V6[p.what][0 if b.sex == "m" else 1]
+            if p.what == "name" and pronoun_names:      # section 15: a label too wide shows pronouns
+                word = PRONOUNS_V6[p.hint or HINT_DEFAULT][0 if b.sex == "m" else 1]
+            else:
+                word = b.name if p.what == "name" else PRONOUNS_V6[p.what][0 if b.sex == "m" else 1]
             out.append(word.upper() if p.upper else word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
@@ -1585,7 +1613,8 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
     return text if _depth or game is None else glyph_fallback(text, game, unicode)
 
 
-def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0) -> str:
+def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0,
+             pronoun_names: bool = False) -> str:
     """Version 6 text at its widest in `game` (`g` lowered): the longest names, the longer pronouns, the widest
     award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
     the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
@@ -1606,6 +1635,9 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             elif p.what == "award_unit":
                 unit = UNITS[award[0]] if award else UNITS["tech"]
                 out.append(unit.upper() if p.upper else unit)
+            elif p.what == "name" and pronoun_names:      # section 15: the label's pronoun fallback
+                word = max(PRONOUNS_V6[p.hint or HINT_DEFAULT], key=len)
+                out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
             elif p.what == "name":
                 out.append("W" * game.name_room)
             else:
@@ -2415,8 +2447,11 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
             if raw not in ("\\(", "\\)"):
                 problems.append(f"{where}: {raw} is not \\( or \\)")
         elif kind == "ph":
-            if parse_placeholder_v6(raw[1:-1], g["roles"]) is None:
+            ph = parse_placeholder_v6(raw[1:-1], g["roles"])
+            if ph is None:
                 problems.append(f"{where}: {raw} is not a placeholder (write \\( \\) for a parenthesis)")
+            elif ph.hint and not label:
+                problems.append(f"{where}: {raw}: a pronoun hint is only for button labels")
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "bad":
@@ -2673,6 +2708,11 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
             for c in n["choices"]:
                 if v6:
                     label = worst_v6(c["label"], lg_labels, game, None)
+                    if not label_fits(gn, label):
+                        # Section 15: the engine shows the names as pronouns when they do not fit.
+                        fallback = worst_v6(c["label"], lg_labels, game, None, pronoun_names=True)
+                        if label_fits(gn, fallback):
+                            continue
                     if len(label) > LABEL_BYTES_V6:
                         problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with "
                                         f"the longest names; at most {LABEL_BYTES_V6}")
@@ -3547,8 +3587,16 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
     titles = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in titles]
+    labels = []                        # 15: each question's shown buttons, as read
+    seen = ()
+    for nid in path:
+        seen = seen + (nid,)
+        n = lg["nodes"][nid]
+        if n["type"] == "question":
+            labels.append([label_shown(c["label"], lg, bindings, game, aliases, tribe, unicode, pick_map)
+                           for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)])
     return {"nodes": path, "fx": fx, "picks": picks, "aliases": aliases, "popups": popups, "titles": titles,
-            "rolls_used": used[0]}
+            "labels": labels, "rolls_used": used[0]}
 
 
 # ---- The chances of every outcome ----------------------------------------------------------------------------------

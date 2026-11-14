@@ -178,6 +178,22 @@ TITLES = {
 }
 
 
+LABELS = {
+    # Button labels too wide with the names show pronouns (cie-v6-binary.md 15): the object form by default, the
+    # hint's form, in the case written.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Far Reef", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}, "friend": {"kind": "villager"}},
+    "start": "q",
+    "nodes": {
+        "q": {"type": "question", "text": "(Name) and (friend.name) look out to sea.", "choices": [
+            {"label": "TELL (NAME1) AND (FRIEND|HE/SHE) TO SAIL OUT TO THE FAR REEF AT DAWN", "next": "a"},
+            {"label": "Keep (name1) home", "next": "b"}]},
+        "a": {"text": "They sail at dawn."},
+        "b": {"text": "(Name) stays home."},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -226,6 +242,12 @@ def vector_cases() -> list[dict]:
          "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [0], "facts": None},
         {"name": "node_titles_vv4", "graph": TITLES, "game": 4, "unicode": False, "rolls": [1],
          "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None},
+        {"name": "label_pronouns_vv3", "graph": LABELS, "game": 3, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
+         "answers": [0], "facts": None},
+        {"name": "label_names_vv5", "graph": LABELS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
+         "answers": [1], "facts": None},
     ]
 
 
@@ -869,10 +891,12 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertEqual(cg.worst_v6("(HIS/HER) (NAME)", g, cg.GAMES[3], None), "HIS " + "W" * 23)
         for scrolling in (False, True):
             self.assertEqual(cg.validate(CAPS, scrolling)[1], [])
-        # The fit is kept: an all-caps NAME in that label runs off the screen with the longest name, so the content
-        # uses the all-caps pronoun there.
+        # An all-caps NAME in that label runs off the screen with the longest name; since cie-v6-binary.md 15 the
+        # engine then shows the pronoun (TELL HIM / HER ...), so the label passes; with no room even for that, not.
         d = copy.deepcopy(CAPS)
         d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."
+        self.assertEqual(t.problems_of(d, True), [])
+        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT BY THE MACHINE IT BUILT."
         self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
 
     def test_no_roles(self):
@@ -967,6 +991,42 @@ class NodeTitles(unittest.TestCase):
         self.assertEqual(cg.widest_title(g, ["", "Short", "Threeline Titleline Hereline"], layout, cg.GAMES[1]),
                          "Threeline Titleline Hereline")
         self.assertEqual(cg.widest_title(g, ["", "Short"], layout, cg.GAMES[1]), "The Revolution")
+
+
+class LabelPronouns(unittest.TestCase):
+    """Button labels too wide with the names show pronouns (cie-v6-binary.md 15)."""
+
+    def test_the_fit_takes_the_fallback(self):
+        self.assertEqual(t.problems_of(copy.deepcopy(LABELS)), [])
+        d = copy.deepcopy(LABELS)
+        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO SAIL OUT TO THE VERY FAR REEF AT DAWN WITH EVERY " \
+                                                  "BOAT THE VILLAGE OWNS"
+        self.assertTrue(any("the label 'TELL (NAME1) TO SAIL" in p for p in t.problems_of(d)),
+                        "too wide even as pronouns")
+
+    def test_the_hint_is_only_for_labels(self):
+        d = copy.deepcopy(LABELS)
+        d["nodes"]["a"]["text"] = "(Name|he/she) sails."
+        self.assertTrue(any("a pronoun hint is only for button labels" in p for p in t.problems_of(d)))
+        d["nodes"]["a"]["text"] = "They sail."
+        d["nodes"]["q"]["choices"][1]["label"] = "Keep (name1|they/them) home"
+        self.assertTrue(any("is not a placeholder" in p for p in t.problems_of(d)))
+        d["nodes"]["q"]["choices"][1]["label"] = "Keep (him/her|he/she) home"
+        self.assertTrue(any("is not a placeholder" in p for p in t.problems_of(d)), "a hint only on a name")
+
+    def test_the_label_shown(self):
+        g = cg.load(copy.deepcopy(LABELS))
+        lg = cg.lower(g)
+        b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
+        wide = lg["nodes"]["q"]["choices"][0]["label"]
+        self.assertEqual(cg.label_shown(wide, lg, b, 3), "TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN")
+        self.assertEqual(cg.label_shown(wide, lg, b, 5),
+                         "TELL ROSALIND AND BARTHOLOMEW TO SAIL OUT TO THE FAR REEF AT DAWN")
+        self.assertEqual(cg.label_shown("Ask (Name1) and (friend.Name)" + " now" * 40, lg, b, 3),
+                         "Ask Her and Him" + " now" * 40, "capitalised: the object form, capitalised")
+        r = cg.simulate(g, 3, [], b, [0])
+        self.assertEqual(r["labels"], [["TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN", "Keep Rosalind home"]])
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g)), cg.without_names(g))
 
 
 if __name__ == "__main__":
