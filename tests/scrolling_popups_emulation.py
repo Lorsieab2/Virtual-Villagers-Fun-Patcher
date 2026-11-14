@@ -150,6 +150,24 @@ EVENTS = {
     },
 }
 EVENT_HEIGHT = {"vv1": 0x402100, "vv2": 0x402190}
+# The island-event dialog's villager's picture (native/shared/scroll_popup.h portrait_site): the game's portrait
+# draw, how many dword arguments it takes (thiscall, it pops them), where x and y are among them, and the villager
+# field (A New Home and The Lost Children: the record's index in the encounter dialog; the later three: the villager
+# object).  The harness's stand-in for the villager's sprite (which needs a whole village loaded) is one frame of the
+# game's own head sheet (40 x 65, the size of an adult's sprite box: The Secret City 0x455E80), drawn by the game's own picture draw at the call's (x, y), under the game's clip.
+PORTRAITS = {
+    "vv1": dict(fn=0x4375F0, args=3, xy=(1, 2), field=0x5098, sheet=b"male_heads.png", columns=7, rows=20,
+                strip=0x40A070, draw=0x4093E0),
+    "vv2": dict(fn=0x445950, args=3, xy=(1, 2), field=0x50A0, sheet=b"male_heads.png", columns=7, rows=30,
+                strip=0x40A270, draw=0x4095D0),
+    "vv3": dict(fn=0x456CA0, args=3, xy=(0, 1), field=0x834, sheet=b"male_heads.png", columns=8, rows=30,
+                strip=0x40AF10, draw=0x409F80),
+    "vv4": dict(fn=0x45F7C0, args=5, xy=(0, 1), field=0x834, sheet=b"male_heads00.png", columns=8, rows=30,
+                strip=0x40AB10, draw=0x409A00),
+    "vv5": dict(fn=0x466EF0, args=5, xy=(0, 1), field=0x834, sheet=b"male_heads00.png", columns=8, rows=30,
+                strip=0x40B010, draw=0x409C30),
+}
+PORTRAIT_W, PORTRAIT_H = 40, 65
 EVENT_STRIP = {"vv1": 0x40A070, "vv2": 0x40A270}
 TIP_ID = 0x106                    # the string id a tip is made with here (its text: Dialog.tip_text)
 # The tip (theTipDialog), per game: its constructor and its arguments (the string id, or the text for The Secret
@@ -628,9 +646,69 @@ class Dialog:
         top = min(b[3][1] for b in body)
         return tuple((b[1], b[3][0]) for b in body if b[3][1] < top + 4)
 
+    # -- the villager's picture --------------------------------------------------------------------------------------
+    def _install_portrait(self) -> None:
+        """The game's portrait draw answered by the stand-in (PORTRAITS): its entry jumps to a thunk that draws the
+        head sheet's first frame with the game's own picture draw at the call's (x, y) and returns as it does.
+        Every call's (x, y) is kept in portrait_calls."""
+        if getattr(self, "_portrait_strip", None):
+            return
+        p = PORTRAITS[self.game]
+        mu = self.mu
+        strip = self.m.font_heap.alloc(0x40)
+        self.run._call(p["strip"], strip, self._cstr(p["sheet"]), p["columns"], p["rows"])
+        self._portrait_strip = strip
+        self.portrait_calls: list[tuple[int, int]] = []
+        at = CODE + 0xE000
+        x_off, y_off = 4 + 4 * p["xy"][0], 4 + 4 * p["xy"][1]
+        code = b"\x8B\x44\x24" + bytes([x_off])                      # mov eax, [esp + x]
+        code += b"\x8B\x54\x24" + bytes([y_off])                     # mov edx, [esp + y]
+        code += b"\x68" + struct.pack("<I", 0x3F800000)              # push 1.0f (alpha)
+        code += b"\x6A" + bytes([p["columns"] + 4]) + b"\x52\x50"     # push a face (frame); push y; push x
+        code += b"\x68" + struct.pack("<I", strip)                   # push the strip
+        code += b"\xB9" + struct.pack("<I", self.holder)             # mov ecx, holder
+        code += b"\xE8" + struct.pack("<i", p["draw"] - (at + len(code) + 5))
+        code += b"\xC2" + struct.pack("<H", 4 * p["args"])           # ret (its arguments)
+        mu.mem_write(at, code)
+        mu.mem_write(p["fn"], b"\xE9" + struct.pack("<i", at - (p["fn"] + 5)))
+        mu.ctl_flush_tb()
+
+        def _called(mu, address, size, user):
+            sp = mu.reg_read(UC_X86_REG_ESP)
+            args = struct.unpack("<%di" % p["args"], mu.mem_read(sp + 4, 4 * p["args"]))
+            self.portrait_calls.append((args[p["xy"][0]], args[p["xy"][1]]))
+
+        mu.hook_add(UC_HOOK_CODE, _called, begin=at, end=at)
+
+    def portrait_surfaces(self) -> set:
+        return set(self.loaded.get(PORTRAITS[self.game]["sheet"].decode().lower(), set()))
+
+    def portrait_blits(self, blits) -> list:
+        """The stand-in picture's blits (the villager's picture)."""
+        s = self.portrait_surfaces()
+        return [b for b in blits if b[0] in s]
+
+    def opaque_box(self, blit) -> tuple[int, int, int, int] | None:
+        """The screen rectangle (left, top, right, bottom; exclusive) of a blit's visible (not transparent)
+        pixels, or None when it shows none."""
+        src, rect, _dst, to = blit
+        sw, sh, pitch, pixels, amask, ashift = self.run.surface(src)
+        x1, y1, rw, rh = rect if rect is not None else (0, 0, sw, sh)
+        xs, ys = [], []
+        for yy in range(rh):
+            row = (y1 + yy) * pitch
+            for xx in range(rw):
+                p = struct.unpack_from("<I", pixels, row + (x1 + xx) * 4)[0]
+                if not amask or (p & amask) >> ashift:
+                    xs.append(xx)
+                    ys.append(yy)
+        if not xs:
+            return None
+        return to[0] + min(xs), to[1] + min(ys), to[0] + max(xs) + 1, to[1] + max(ys) + 1
+
     # -- the dialog -------------------------------------------------------------------------------------------------
     def make(self, text: bytes, choices: bool = False, title: bytes = b"The Mysterious Footprints",
-             one_popup: dict | None = None) -> int:
+             one_popup: dict | None = None, portrait: bool = False) -> int:
         """A dialog with `text` (and two choice buttons, or OK), laid out by the constructor's own tail.
         `one_popup` (see _op_rows, its "popup" filled in here): a one-popup island event's dialog."""
         g = self.g
@@ -675,6 +753,23 @@ class Dialog:
         line = self.justify_height(self._cstr(b"X"), 0x1B0)
         box_w = g["width"] - 0x50
         self.put(d + 0x848, g["width"] // 2, 0, 0x28, 2 * line, box_w)
+        self.portrait = portrait
+        if portrait:
+            # The constructor's layout with a villager (an adult: the sprite's anchor 20 px in from its left, 55 px
+            # below its top; The Secret City 0x419443, The Tree of Life 0x4178FA, New Believers 0x418187): the title
+            # one line down, the picture below it, the text a line below the picture's room.
+            self._install_portrait()
+            mu.mem_write(d + 0x834, struct.pack("<I", heap.alloc(0x40)))
+            title_y = line
+            if self.game == "vv3":
+                py = title_y + 2 * (10 + line)
+                px = (0x200 - 40) // 2 - 20
+            else:
+                py = title_y + 2 * line + 55
+                px = (0x100 if self.game == "vv4" else 0x160) - 20
+            self.put(d + 0x83C, 0, px, py)
+            self.put(d + 0x84C, title_y)
+            self.put(d + 0x854, py + 55 + line)
         # The tail: with OK alone, from the constructor's own measure of the text (its measure site) and height
         # formula; with two choices (whose measures take the event's three texts) from loading the panel picture,
         # with the height the constructor's formula gives (the tallest text: the question here).  Then through the
@@ -744,7 +839,7 @@ class Dialog:
         return d
 
     def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30,
-                   answers_room: int = 0, one_popup: dict | None = None) -> int:
+                   answers_room: int = 0, one_popup: dict | None = None, portrait: bool = False) -> int:
         """A New Home's / The Lost Children's island-event dialog `kind` with `text` (and a result text, shown when
         `show_result` is called): the base constructor, the dialog's own vtable and fields, then the constructor's
         own size site run with the height its own formula gives (the text's height by the game's routine plus the
@@ -778,6 +873,9 @@ class Dialog:
         self.put(d + e["mgr"] + 4, self.holder)
         for field in (0x5098, 0x50A0):        # no villager's picture beside the text
             self.put(d + field, -1)
+        if portrait:
+            self._install_portrait()
+            self.put(d + PORTRAITS[self.game]["field"], 0)
         strip = heap.alloc(0x40)
         self.run._call(EVENT_STRIP[self.game], strip, self._cstr(b"OrangeDlgTileGrid.png"), 9, 1)
         height = self.run._call(EVENT_HEIGHT[self.game], self.font, d + e["a"])
@@ -798,6 +896,11 @@ class Dialog:
             raise AssertionError(self.m.error or f"event stopped at {mu.reg_read(UC_X86_REG_EIP):#x}")
         self.stock_height = self.stock_heights[-1] if self.stock_heights else None
         self.put(d + 0x44, 0x3F800000)
+        if portrait:
+            # The picture's y, as the constructor keeps it (A New Home 0x41A890, The Lost Children 0x4227BB): the
+            # y it keeps + 0x23 + three lines.
+            self.put(d + 0x68, self.i32(d + e["y"]) + 0x23 + 3 * self.run._call(EVENT_HEIGHT[self.game], self.font,
+                                                                                 self._cstr(b"X")))
         return d
 
     def show_result(self) -> None:

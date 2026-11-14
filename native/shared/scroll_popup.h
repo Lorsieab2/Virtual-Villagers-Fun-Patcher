@@ -155,7 +155,25 @@ typedef struct sp_game {
        `row_colour_va`; 0: black, A New Home's and The Lost Children's labels). */
     sp_art row;
     unsigned int row_colour_va;
+    /* THE VILLAGER'S PICTURE SCROLLS WITH THE TEXT (the owner, 2026-11-14: "the villager's picture should scroll
+       too!").  The island-event dialog's body draw calls the game's portrait draw once, `call portrait_fn` at
+       `portrait_site` (after `push eax`; esi = the dialog), thiscall(villager or the villager table; `portrait_args`
+       dwords) ret 4 x portrait_args:
+         A New Home 0x4187E0 -> 0x4375F0 (the record's index, x 0x16D, y +0x68; +0x68 = the y the constructor keeps
+           + 0x23 + three lines), The Lost Children 0x41F430 -> 0x445950 (the same);
+         The Secret City 0x418510 -> 0x456CA0 (x +0x840, y +0x844, +0x83C), The Tree of Life 0x416EC0 -> 0x45F7C0
+           (x +0x840 + 0x19, y +0x844, +0x83C, 1.0f, 1), New Believers 0x417660 -> 0x466EF0 (x +0x840, y +0x844,
+           +0x83C, 1.0f, 1): the picture between the title (+0x84C, one line high) and the text (+0x854), the
+           villager at +0x834 (0: none).
+       The first two scroll the dialog's whole body (sp_shift), so the picture is drawn moved by the same scroll; the
+       later three scroll the text box (sp_class), which then starts under the title and holds the picture first. */
+    unsigned int portrait_site, portrait_fn;
+    int portrait_args;
 } sp_game;
+
+/* The later three's island-event dialog (sp_class): the title's y and the villager shown. */
+#define SP_TITLE_Y 0x84Cu
+#define SP_VILLAGER 0x834u
 
 /* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
    (a tutorial tip's text starts 0x24 - 0x1A below it), above twice the OK button's height. */
@@ -220,30 +238,35 @@ static const sp_game SP_GAMES[6] = {
      NULL, 0,
      0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u},
      0x40C9A3u, 5, SP_VV1_SHIFTS, 4, 0, 0x402100u, 0x402160u,
-     0x481B58u, 0x88u, 0x409501u, 0x409160u, SP_LABEL_PANELS(1), {0, 3, "ultra_wide_button.png"}, 0},                   /* vv1 */
+     0x481B58u, 0x88u, 0x409501u, 0x409160u, SP_LABEL_PANELS(1), {0, 3, "ultra_wide_button.png"}, 0,
+     0x4188A6u, 0x4375F0u, 3},                                                                         /* vv1 */
     {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
      0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u},
      0x40D383u, 5, SP_VV2_SHIFTS, 4, 0, 0x402190u, 0x4021F0u,
-     0x48FB48u, 0x90u, 0x4096F1u, 0x409360u, SP_LABEL_PANELS(2), {0, 3, "ultra_wide_button.png"}, 0},                   /* vv2 */
+     0x48FB48u, 0x90u, 0x4096F1u, 0x409360u, SP_LABEL_PANELS(2), {0, 3, "ultra_wide_button.png"}, 0,
+     0x41F4F6u, 0x445950u, 3},                                                                         /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),
      0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u},
-     0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u, 0x4021C0u, 0x402230u, 0x47F498u, 0x6Cu, 0, 0, SP_LABEL_PANELS(3), {0x04, 3, 0}, 0x4A460Cu},                   /* vv3 */
+     0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u, 0x4021C0u, 0x402230u, 0x47F498u, 0x6Cu, 0, 0, SP_LABEL_PANELS(3), {0x04, 3, 0}, 0x4A460Cu,
+     0x41853Au, 0x456CA0u, 3},                                                                         /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
      {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
      {0xA2, 1, 0, {3, 5, 16, 21}},
      SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0]),
      0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u},
-     0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u, 0x402500u, 0x402430u, 0x48D4ECu, 0x6Cu, 0, 0, SP_LABEL_PANELS(4), {0x83, 3, 0}, 0x4B8E34u},                   /* vv4 */
+     0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u, 0x402500u, 0x402430u, 0x48D4ECu, 0x6Cu, 0, 0, SP_LABEL_PANELS(4), {0x83, 3, 0}, 0x4B8E34u,
+     0x416EF5u, 0x45F7C0u, 5},                                                                         /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
      {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
      {0x80, 1, 0, {3, 5, 16, 21}},
      SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0]),
      0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u},
-     0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u, 0x4024B0u, 0x4023E0u, 0x4986E8u, 0x6Cu, 0, 0, SP_LABEL_PANELS(5), {0x65, 3, 0}, 0x4C6D24u},                   /* vv5 */
+     0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u, 0x4024B0u, 0x4023E0u, 0x4986E8u, 0x6Cu, 0, 0, SP_LABEL_PANELS(5), {0x65, 3, 0}, 0x4C6D24u,
+     0x417692u, 0x466EF0u, 5},                                                                         /* vv5 */
 };
 
 #endif /* VVFP_SCROLL_POPUP_H */
