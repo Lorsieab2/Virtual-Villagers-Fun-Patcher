@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Statue That Divided the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v21_c2_divided_statue",
+  "source": "v26",
+  "lines": [
+   9425,
+   9463
+  ],
+  "section": "v21",
+  "credit": "CREDITS: Original requests for ceramic pottery/statue making and a crafts fair:\nLorsieab2. New scenarios, choices, prose, and outcome branches: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9425",
+  "ledger": [
+   {
+    "src": "L9438",
+    "kind": "instruction",
+    "text": "Gain Tech points.",
+    "why": "the tech effect on a3"
+   }
+  ]
+ },
+ "roles": {
+  "sculptor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "other": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Sculptor) unveils a new statue made from fired clay, carved wood, or volcanic stone. The sculpture is intended to honor the island's history, but its unusual proportions provoke an argument before the unveiling is even over.",
+   "src": "L9427-9429",
+   "choices": [
+    {
+     "label": "DISPLAY IT PROUDLY IN THE VILLAGE CENTER.",
+     "next": "set_a",
+     "src": "L9431"
+    },
+    {
+     "label": "INVITE THE PUBLIC TO IMPROVE IT.",
+     "next": "set_b",
+     "src": "L9445"
+    },
+    {
+     "label": "PLACE IT AT A QUIET SHRINE OR GARDEN.",
+     "next": "set_c",
+     "src": "L9455"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Beloved Monstrosity: The statue is staggeringly ugly, yet somehow endearing. Villagers leave flowers beside it; it becomes a landmark.",
+   "src": "L9432-9433"
+  },
+  "a2": {
+   "text": "The Unflattering Portrait: (Other), the subject, recognizes (other.himself/herself) and is deeply offended. (Sculptor) must apologize, defend artistic freedom, or reveal that the resemblance was accidental.",
+   "src": "L9434-9436"
+  },
+  "a3": {
+   "text": "The Masterwork: The statue is praised for balance and expression; (Sculptor) becomes a distinguished artisan.",
+   "src": "L9437-9438",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9438"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9437-9438",
+     "what": "a distinguished artisan",
+     "reason": "rule 7: reputations are told only"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The Terrible Omen: A sudden crack splits the figure at the unveiling. Some villagers fear an omen; others blame poor firing. A debate follows.",
+   "src": "L9439-9440"
+  },
+  "a5": {
+   "text": "The Impossible Balance: A top-heavy statue stands upright despite every builder's prediction. Researchers inspect the base; perhaps (Sculptor) is brilliant, perhaps the island is playing a trick.",
+   "src": "L9441-9443"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a5"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Many Hands: Children add shells and pigments. The statue becomes a beloved community work, though (Sculptor) loses sole credit.",
+   "src": "L9446-9447"
+  },
+  "b2": {
+   "text": "The Artistic War: Two factions repaint the figure every night. The elders finally demand that both sides stop.",
+   "src": "L9448-9449"
+  },
+  "b3": {
+   "text": "The Unexpected Genius: A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
+   "src": "L9450-9451"
+  },
+  "b4": {
+   "text": "The Ruined Treasure: An enthusiastic helper damages the statue; (Sculptor) must decide whether to forgive (Other).",
+   "src": "L9452-9453"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Secret Favorite: Villagers begin visiting the sculpture in private; its popularity grows slowly into a lasting tradition.",
+   "src": "L9456-9457"
+  },
+  "c2": {
+   "text": "The False Miracle: Rainwater trickles from the statue's eyes. Some call it weeping; a child finds a crack collecting water from above.",
+   "src": "L9458-9459"
+  },
+  "c3": {
+   "text": "The Real Mystery: The statue casts a shadow in an unexpected direction at sunset. The scholars cannot explain it; no answer is imposed.",
+   "src": "L9460-9461"
+  },
+  "c4": {
+   "text": "Forgotten Art: Plants grow around the statue until it is rediscovered by a later generation and hailed as an ancient masterpiece.",
+   "src": "L9462-9463"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9434",
+   "before": "The subject recognizes",
+   "after": "(Name2), the subject, recognizes"
+  },
+  {
+   "src": "L9453",
+   "before": "forgive (him/her).",
+   "after": "forgive (Name2)."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 2
+ }
+}

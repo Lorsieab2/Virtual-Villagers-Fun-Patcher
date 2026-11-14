@@ -1,0 +1,510 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Isolan Crafts Fair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v21_c3_crafts_fair",
+  "source": "v26",
+  "lines": [
+   9465,
+   9515
+  ],
+  "section": "v21",
+  "credit": "CREDITS: Original requests for ceramic pottery/statue making and a crafts fair:\nLorsieab2. New scenarios, choices, prose, and outcome branches: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9465",
+  "ledger": [
+   {
+    "src": "L9489",
+    "kind": "instruction",
+    "text": "Modest",
+    "why": "the small tech effect on b1"
+   },
+   {
+    "src": "L9490",
+    "kind": "instruction",
+    "text": "Tech reward; several villagers gain crafting experience.",
+    "why": "the small tech effect on b1; crafting experience is text only (rule 8)"
+   },
+   {
+    "src": "L9494",
+    "kind": "instruction",
+    "text": "Large Tech reward.",
+    "why": "the large tech effect on b3"
+   },
+   {
+    "src": "L9526-9527",
+    "kind": "note",
+    "why": "a designer rule for VV3 (neither faction superior)"
+   },
+   {
+    "src": "L9518",
+    "kind": "structural",
+    "text": "VV1  -  SOUTHERN SHORE:",
+    "why": "per-game heading"
+   },
+   {
+    "src": "L9521",
+    "kind": "structural",
+    "text": "VV2  -  WESTERN SHORE:",
+    "why": "per-game heading"
+   },
+   {
+    "src": "L9525",
+    "kind": "structural",
+    "text": "VV3  -  SECRET CITY:",
+    "why": "per-game heading"
+   },
+   {
+    "src": "L9528",
+    "kind": "structural",
+    "text": "VV4  -  TREE OF LIFE:",
+    "why": "per-game heading"
+   },
+   {
+    "src": "L9532",
+    "kind": "structural",
+    "text": "VV5  -  NEW BELIEVERS:",
+    "why": "per-game heading"
+   }
+  ],
+  "shared_lines": [
+   "L9518-9536"
+  ]
+ },
+ "roles": {
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.",
+   "src": "L9467-9471",
+   "choices": [
+    {
+     "label": "HOLD A JURIED COMPETITION.",
+     "next": "set_a",
+     "src": "L9473"
+    },
+    {
+     "label": "ENCOURAGE BARTER AND SHARED TEACHING.",
+     "next": "set_b",
+     "src": "L9488"
+    },
+    {
+     "label": "MAKE THE FAIR A CEREMONIAL FESTIVAL.",
+     "next": "set_c",
+     "src": "L9502"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe fair celebrates the village's first thriving settlement. The Golden Child may make an astonishing miniature sculpture or solve a kiln-design problem, then wander off to play with the other children.",
+     "src": "L9467-9471,L9518-9520"
+    },
+    {
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe Lost Children contribute tiny clay animals and painted shells. A competition may honor the founders, the totems, or the Great Falls; an elder discovers a child's apparently childish design is more practical than a master's.",
+     "src": "L9467-9471,L9521-9524"
+    },
+    {
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe Tribal Chief opens the fair and arbitrates disputes.",
+     "src": "L9467-9471,L9525"
+    },
+    {
+     "if": {
+      "game": [
+       4
+      ]
+     },
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nSculptors and potters incorporate fallen leaves and non-damaging natural motifs. A dispute arises when someone wants to remove living material from the Tree; the villagers must choose preservation or artistic ambition.",
+     "src": "L9467-9471,L9528-9531"
+    },
+    {
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nVillagers and Heathens/Isolans can enter as makers, judges, critics, traders, and spectators. Rival groups accuse each other of stealing designs; an Isolan judge may fairly award a prize to a villager, or a village judge may publicly praise an Isolan rival. A mixed team may win the highest honor, provoking either reconciliation or a boycott.",
+     "src": "L9467-9471,L9532-9536"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9470",
+     "what": "food",
+     "reason": "narrative: visitors barter; no food changes hands in the village stores"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The Judge Who Feared No Craft: The judge calls a bowl 'a coconut shell pretending to be important' and a basket 'a nest with delusions.' Then (judge.he/she) praises a shy child's tiny woven fish as the best work at the fair. The crowd erupts in applause.",
+   "src": "L9474-9477",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The Great Upset: A novice defeats a celebrated master. The master demands a recount; the judges confirm the result.",
+   "src": "L9478-9479",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9478",
+     "what": "celebrated",
+     "reason": "narrative: 'celebrated' is part of the story, not a change the event makes"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The Perfectly Useless Wonder: A contraption is exquisite, intricate, and entirely incapable of doing what its maker claims. The judges award it a special prize for imagination.",
+   "src": "L9480-9482",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The Rigged Prize: A judge secretly favors a relative. A witness exposes the bias; the council orders a new judging panel.",
+   "src": "L9483-9484",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a5": {
+   "text": "The Shared Victory: Two rivals create an extraordinary object together and refuse to claim individual credit. Both receive recognition.",
+   "src": "L9485-9486",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a5"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A Village of Artisans: Techniques spread across households.",
+   "src": "L9489-9490",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9489"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9490",
+     "what": "crafting experience",
+     "reason": "rule 8: no game has a Crafting skill"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The Great Barter Disaster: One villager trades an entire basket of food for a 'rare sacred pebble' that turns out to be ordinary stone.",
+   "src": "L9491-9492",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9492",
+     "what": "food",
+     "reason": "narrative: one villager's basket of food, not the village stores"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The Invention Exchange: A potter and weaver combine techniques to create an unexpectedly useful container.",
+   "src": "L9493-9494",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9494"
+    }
+   ]
+  },
+  "b4": {
+   "text": "The Lost Heirloom: A treasured family ornament vanishes amid the crowd. The search ends in recovery, an accusation, or an awkward discovery that its owner put it in the wrong basket.",
+   "src": "L9495-9497",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9495",
+     "what": "vanishes",
+     "reason": "narrative: an ornament goes missing, not a villager"
+    }
+   ]
+  },
+  "b5": {
+   "text": "The Children's Fair: Children begin trading miniature clay animals, shell necklaces, and painted stones. The adults realize their fair has been thoroughly outshone.",
+   "src": "L9498-9500",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    },
+    {
+     "next": "b5"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Night of a Hundred Lamps: Safe, sheltered firelight illuminates the exhibits as singers recite the makers' names. The festival becomes an annual tradition.",
+   "src": "L9503-9505",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L9503"
+    }
+   ]
+  },
+  "c2": {
+   "text": "The Uninvited Storm: Rain sweeps through the clearing. Potters rush to protect unfired work, while the weavers rescue their dyes and fibers. A hastily built shelter inspires a new communal structure.",
+   "src": "L9506-9508",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c3": {
+   "text": "The Mask That Chose Its Owner: A ceremonial mask repeatedly falls toward the same villager. Some see a sign; others find a crooked stand.",
+   "src": "L9509-9510",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Feast of Reconciliation: Two feuding households exchange handmade gifts and begin speaking again.",
+   "src": "L9511-9512",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c5": {
+   "text": "The Fair Nobody Could End: The celebrations run so long that farming and building are neglected. The elders establish sensible festival hours next time.",
+   "src": "L9513-9515",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L9513"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}
