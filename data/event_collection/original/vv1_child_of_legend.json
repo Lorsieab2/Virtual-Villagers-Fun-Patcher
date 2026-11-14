@@ -1,0 +1,433 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child of Legend",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_child_of_legend",
+  "source": "v26",
+  "lines": [
+   728,
+   791
+  ],
+  "section": "original",
+  "credit": "* The Child of Legend (VV1): original premise and original event manuscript\n  by Lorsieab2. Later editing and/or expansion where present: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L728",
+  "ledger": [
+   {
+    "src": "L753",
+    "kind": "instruction",
+    "text": "(earn tech points)",
+    "why": "the tech effect on this reaction"
+   },
+   {
+    "src": "L760",
+    "kind": "instruction",
+    "text": "(earn food or restore crops or restore berries)",
+    "why": "the food effect on this reaction"
+   },
+   {
+    "src": "L773",
+    "kind": "structural",
+    "why": "heading of the added (4) endings (one bank with the original three)"
+   },
+   {
+    "src": "L791",
+    "kind": "note",
+    "why": "designer note, never displayed"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L737",
+   "before": "(random from:1)",
+   "after": "(He/she) (random from:1)."
+  },
+  {
+   "src": "L751",
+   "before": "smiles (3)",
+   "after": "smiles, (3)"
+  },
+  {
+   "src": "L758",
+   "before": "understanding (3)",
+   "after": "understanding, (3)"
+  }
+ ],
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "pools": {
+  "LESSON": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "teaches him sign language",
+     "src": "L739"
+    },
+    {
+     "text": "teaches him ways to play fairly with others",
+     "src": "L740"
+    },
+    {
+     "text": "teaches him not to disrupt others while they're busy",
+     "src": "L741"
+    },
+    {
+     "text": "teaches him sharing",
+     "src": "L742"
+    },
+    {
+     "text": "teaches him how to draw",
+     "src": "L743"
+    },
+    {
+     "text": "teaches him to hum a song",
+     "src": "L744"
+    },
+    {
+     "text": "teaches him how to control his emotions",
+     "src": "L745"
+    },
+    {
+     "text": "teaches him how to pick out letters from a board",
+     "src": "L746"
+    },
+    {
+     "text": "teaches him how to communicate his feelings through actions",
+     "src": "L747"
+    }
+   ]
+  },
+  "WHICH": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "which moves (teacher) to tears. (teacher.He/She) is overjoyed by the gesture and hugs him back before",
+     "src": "L763"
+    },
+    {
+     "text": "which makes (teacher) laugh. (teacher.He/She) enjoys seeing how {funny|creative|eccentric|spontaneous} he is, and tells everyone to sit in a circle before",
+     "src": "L764"
+    },
+    {
+     "text": "which makes (teacher) content. (teacher.He/She) clearly underestimated this little pupil, and (teacher.he/she) tells the other children to make a line before",
+     "src": "L765"
+    },
+    {
+     "text": "which surprises (teacher) greatly. (teacher.He/She) is astonished by his powers and brings him to the other children before",
+     "src": "L766"
+    }
+   ]
+  },
+  "ENDING": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "introducing him to his classmates. It seems that (child) has made plenty of new friends!",
+     "src": "L769"
+    },
+    {
+     "text": "inviting everyone to a game. (child) takes turns winning and letting others have the spotlight, which makes him well-liked by his peers.",
+     "src": "L770"
+    },
+    {
+     "text": "letting him play next to his classmates. It seems that (child) is going to be just fine. The other children love seeing him create new things out of nothing, and he soon becomes very popular within the class.",
+     "src": "L771"
+    },
+    {
+     "text": "inviting the other children to sit beside him. They are still unsure of his powers, but they are willing to give him a chance. One child offers him a toy, and (child) {smiles|nods|conjures up a matching toy|gently pushes it back toward its owner}. It's a start!",
+     "src": "L775"
+    },
+    {
+     "text": "encouraging the children to include him in their games. Some accept him reluctantly, and others keep their distance. Still, they make room for him, even if no one quite knows what to say. Perhaps friendship takes time.",
+     "src": "L777"
+    },
+    {
+     "text": "showing the children how (child) communicates through {gestures|drawings|arranging objects|expressions|little bursts of light}. To their astonishment, he has a rich mind of his own! He {asks a question without words|shares a clever joke|shows them how to solve a problem|tells a little story through pictures}. The children soon learn to communicate with him in ways they never expected.",
+     "src": "L779"
+    },
+    {
+     "text": "letting the children try to understand him for themselves. They still cannot quite communicate with him, and some of his actions remain a mystery. But they learn that being different does not make him any less deserving of friendship and respect. (Child) seems perfectly content to sit among them.",
+     "src": "L781"
+    },
+    {
+     "text": "explaining that not everyone communicates in the same way. The class tries {signs|pictures|games|quiet companionship}, but (child) does not respond in a way they understand. Not yet, anyway. (Teacher) promises not to stop trying, for he is just as much a part of the class as anyone else.",
+     "src": "L783"
+    },
+    {
+     "text": "asking (child) to show the class something of his own. He {makes a pattern of lights that seems to tell a story|draws an astonishingly detailed picture|arranges the toys in a way that solves a difficult puzzle|teaches the class a new game without saying a word}. Even (teacher) is in awe! For a little while, (teacher) becomes his student, too.",
+     "src": "L785"
+    },
+    {
+     "text": "watching as the other children begin to teach (child) their favorite games. In return, he shows them {a curious trick|a new way of drawing|a clever way to share toys|a beautiful display of light}. Soon, everyone is learning from everyone else. (Teacher) realizes that perhaps (teacher.he/she) has as much to learn from this little pupil as (teacher.he/she) has to teach him.",
+     "src": "L787"
+    },
+    {
+     "text": "allowing (child) to join the group at his own pace. Some children become close friends, others remain unsure, and a few simply learn to leave him in peace. (Teacher) is pleased that the class is beginning to respect his differences, even without understanding all of them.",
+     "src": "L789"
+    }
+   ]
+  }
+ },
+ "start": "legend",
+ "nodes": {
+  "legend": {
+   "name": "The Golden Child",
+   "src": "L730",
+   "text": "A few weeks have passed since the Golden Child of legend, (child) was born. Already he has shown unparalleled wisdom and an uncanny ability to generate things out of thin air. However, he hasn't spoken a word, even though he appears to be around five years old.",
+   "children": [
+    {
+     "next": "class"
+    }
+   ]
+  },
+  "class": {
+   "type": "question",
+   "name": "The class",
+   "src": "L731",
+   "text": "The other children seem to avoid him due to his special powers. Some are frightened, some are curious, and some simply have no idea what to make of him. (Child) doesn't seem troubled, but no one can really understand what he's thinking. (Teacher), the schoolteacher, is wondering how (teacher.he/she) can help little (child) integrate better with his peers.",
+   "choices": [
+    {
+     "label": "Try to speak with him",
+     "next": "speak",
+     "src": "L733"
+    },
+    {
+     "label": "Teach him something new",
+     "next": "teach",
+     "src": "L736"
+    }
+   ]
+  },
+  "speak": {
+   "src": "L734",
+   "text": "(Teacher) tries to ask little (child) some questions. \"Are you alright? Are you feeling sick? Are you scared of the other kids? Do you need any help?\" No matter what (teacher.he/she) says, (child) does not respond. Instead, he...",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "teach": {
+   "src": "L737",
+   "text": "(Teacher) does not speak using words. Instead, (teacher.he/she) takes the opportunity to show him a new skill. (teacher.He/She) {LESSON}. To (teacher)'s surprise, (child) picks up the new skill with ease, almost as if he was born to do it. In gratitude, (child)...",
+   "text_only": [
+    {
+     "src": "L737",
+     "what": "a new skill",
+     "reason": "the lesson in the story; no game skill is named or given"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "react": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    },
+    {
+     "next": "r4"
+    },
+    {
+     "next": "r5"
+    },
+    {
+     "next": "r6"
+    },
+    {
+     "next": "r7"
+    },
+    {
+     "next": "r8"
+    },
+    {
+     "next": "r9"
+    },
+    {
+     "next": "r10"
+    },
+    {
+     "next": "r11"
+    }
+   ]
+  },
+  "rest": {
+   "popup": "append",
+   "join": "space",
+   "text": "{WHICH} {ENDING}"
+  },
+  "r1": {
+   "popup": "append",
+   "join": "space",
+   "src": "L750",
+   "text": "gives (teacher) a big hug,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r2": {
+   "popup": "append",
+   "join": "space",
+   "src": "L751",
+   "text": "smiles,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r3": {
+   "popup": "append",
+   "join": "space",
+   "src": "L752",
+   "text": "makes light shine on (teacher.him/her),",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r4": {
+   "popup": "append",
+   "join": "space",
+   "src": "L753",
+   "text": "conjures up a bunch of shiny new toys,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L753"
+    }
+   ]
+  },
+  "r5": {
+   "popup": "append",
+   "join": "space",
+   "src": "L754",
+   "text": "conjures up a group of pretty flapping butterflies,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r6": {
+   "popup": "append",
+   "join": "space",
+   "src": "L755",
+   "text": "conjures up a bunch of iridescent bubbles,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r7": {
+   "popup": "append",
+   "join": "space",
+   "src": "L756",
+   "text": "conjures up a bouquet of colorful flowers,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r8": {
+   "popup": "append",
+   "join": "space",
+   "src": "L757",
+   "text": "conjures up a beautiful drawing,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r9": {
+   "popup": "append",
+   "join": "space",
+   "src": "L758",
+   "text": "nods in adult-like understanding,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r10": {
+   "popup": "append",
+   "join": "space",
+   "src": "L759",
+   "text": "conjures up a funny fart noise,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ]
+  },
+  "r11": {
+   "popup": "append",
+   "join": "space",
+   "src": "L760",
+   "text": "conjures up a nice pile of snacks,",
+   "children": [
+    {
+     "next": "rest"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L760"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L760",
+     "what": "restore crops or restore berries",
+     "reason": "no effect restores crops or berries (rule 8); the source's first alternative, food, is given"
+    }
+   ]
+  }
+ }
+}

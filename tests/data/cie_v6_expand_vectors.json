@@ -271,7 +271,7 @@
      "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
     ],
     "rolls_used": 6,
-    "cieg_sha256": "56835195f2639017bfae270af62c66e0543b700538ca7aca5c08b1631dc84401"
+    "cieg_sha256": "9956c6651038de900bd23de60154ca3ab8464e133356e93a1b703af9fa987014"
    }
   },
   {
@@ -544,7 +544,7 @@
      "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
     ],
     "rolls_used": 6,
-    "cieg_sha256": "56835195f2639017bfae270af62c66e0543b700538ca7aca5c08b1631dc84401"
+    "cieg_sha256": "9956c6651038de900bd23de60154ca3ab8464e133356e93a1b703af9fa987014"
    }
   },
   {
@@ -897,7 +897,7 @@
      "The trader smiles at himself. She nods.\nA storm damages a hut."
     ],
     "rolls_used": 11,
-    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
    }
   },
   {
@@ -1250,7 +1250,7 @@
      "The trader smiles at himself. She nods.\nA storm damages a hut."
     ],
     "rolls_used": 11,
-    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
    }
   },
   {
@@ -1584,7 +1584,7 @@
      "Ana keeps it, her daughter cheers."
     ],
     "rolls_used": 10,
-    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
    }
   },
   {
@@ -1932,7 +1932,7 @@
      "Bo sells it and scowls. Cy helps himself."
     ],
     "rolls_used": 11,
-    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
    }
   },
   {
@@ -2262,7 +2262,7 @@
      "The Chief approves."
     ],
     "rolls_used": 11,
-    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
    }
   },
   {
@@ -2416,6 +2416,439 @@
     ],
     "rolls_used": 0,
     "cieg_sha256": "97c26f2627105e842f31297242189f94995141f7456eb510b1e91f35202321ec"
+   }
+  },
+  {
+   "name": "gaps_vv1_tribe",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The \"Twin\" Cooks",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     }
+    },
+    "roles": {
+     "judge": {
+      "kind": "stranger",
+      "sex": "female"
+     },
+     "cook1": {
+      "kind": "villager"
+     },
+     "cook2": {
+      "kind": "villager"
+     },
+     "winner": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "loser": {
+      "kind": "other",
+      "of": "winner"
+     }
+    },
+    "pools": {
+     "LIKE": {
+      "items": [
+       "soup",
+       "stew",
+       "cake"
+      ]
+     },
+     "HATE": {
+      "items": [
+       "soup",
+       "stew",
+       "cake"
+      ],
+      "distinct_from": [
+       "LIKE"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "{@Tribe} gathers. The judge likes {LIKE} and hates {HATE}. {a quiet} morning for {the {@chief}|2:{@tribe}}.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Who wins?",
+      "choices": [
+       {
+        "label": "One",
+        "next": "a"
+       },
+       {
+        "label": "Two",
+        "next": "a"
+       },
+       {
+        "label": "Three",
+        "next": "a"
+       },
+       {
+        "label": "Four",
+        "next": "a"
+       },
+       {
+        "label": "Five",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "(Winner) wins; (loser) sulks and (loser.his/her) hut shakes.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "winner",
+        "skills": [
+         "Farming"
+        ],
+        "size": "large"
+       },
+       {
+        "do": "mood",
+        "role": "loser",
+        "mood": "bad"
+       },
+       {
+        "do": "damage",
+        "size": "small"
+       }
+      ]
+     },
+     "b": {
+      "text": "A tie: (cook1) and (cook2) share it."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    1,
+    0,
+    0,
+    2,
+    5,
+    3,
+    1,
+    7,
+    4,
+    9,
+    2,
+    8,
+    6,
+    3,
+    5,
+    1,
+    0,
+    7,
+    2,
+    4
+   ],
+   "bindings": {
+    "judge": {
+     "name": "",
+     "sex": "f"
+    },
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "tribe": "Kalahuna",
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "a"
+    ],
+    "fx": [
+     [
+      2,
+      25
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      13,
+      0
+     ]
+    ],
+    "picks": [
+     [
+      "LIKE",
+      1,
+      0
+     ],
+     [
+      "HATE",
+      1,
+      1
+     ],
+     [
+      "_i1",
+      1,
+      1
+     ]
+    ],
+    "aliases": {
+     "winner": "cook2",
+     "loser": "cook1"
+    },
+    "popups": [
+     "Kalahuna gathers. The judge likes soup and hates stew. a quiet morning for Kalahuna.",
+     "Who wins?",
+     "Bo wins, Ana sulks and her hut shakes."
+    ],
+    "rolls_used": 12,
+    "cieg_sha256": "33f15bf464743cb6e27e67516c7a9832849b8cc830d00ec2811b9f8df403d521"
+   }
+  },
+  {
+   "name": "gaps_vv3_no_tribe",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The \"Twin\" Cooks",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     }
+    },
+    "roles": {
+     "judge": {
+      "kind": "stranger",
+      "sex": "female"
+     },
+     "cook1": {
+      "kind": "villager"
+     },
+     "cook2": {
+      "kind": "villager"
+     },
+     "winner": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "loser": {
+      "kind": "other",
+      "of": "winner"
+     }
+    },
+    "pools": {
+     "LIKE": {
+      "items": [
+       "soup",
+       "stew",
+       "cake"
+      ]
+     },
+     "HATE": {
+      "items": [
+       "soup",
+       "stew",
+       "cake"
+      ],
+      "distinct_from": [
+       "LIKE"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "{@Tribe} gathers. The judge likes {LIKE} and hates {HATE}. {a quiet} morning for {the {@chief}|2:{@tribe}}.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Who wins?",
+      "choices": [
+       {
+        "label": "One",
+        "next": "a"
+       },
+       {
+        "label": "Two",
+        "next": "a"
+       },
+       {
+        "label": "Three",
+        "next": "a"
+       },
+       {
+        "label": "Four",
+        "next": "a"
+       },
+       {
+        "label": "Five",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "(Winner) wins; (loser) sulks and (loser.his/her) hut shakes.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "winner",
+        "skills": [
+         "Farming"
+        ],
+        "size": "large"
+       },
+       {
+        "do": "mood",
+        "role": "loser",
+        "mood": "bad"
+       },
+       {
+        "do": "damage",
+        "size": "small"
+       }
+      ]
+     },
+     "b": {
+      "text": "A tie: (cook1) and (cook2) share it."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    0,
+    1,
+    1,
+    0,
+    9,
+    4,
+    2,
+    6,
+    8,
+    3,
+    7,
+    1,
+    5,
+    2,
+    0,
+    6,
+    4,
+    9,
+    3,
+    8
+   ],
+   "bindings": {
+    "judge": {
+     "name": "",
+     "sex": "f"
+    },
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "tribe": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "a"
+    ],
+    "fx": [
+     [
+      0,
+      29
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      14,
+      0
+     ]
+    ],
+    "picks": [
+     [
+      "LIKE",
+      1,
+      1
+     ],
+     [
+      "HATE",
+      1,
+      2
+     ],
+     [
+      "_i1",
+      1,
+      0
+     ],
+     [
+      "@chief",
+      1,
+      1
+     ]
+    ],
+    "aliases": {
+     "winner": "cook1",
+     "loser": "cook2"
+    },
+    "popups": [
+     "The village gathers. The judge likes stew and hates cake. a quiet morning for the the Chief.",
+     "Who wins?",
+     "Ana wins; Bo sulks and his hut shakes."
+    ],
+    "rolls_used": 12,
+    "cieg_sha256": "33f15bf464743cb6e27e67516c7a9832849b8cc830d00ec2811b9f8df403d521"
    }
   }
  ]
