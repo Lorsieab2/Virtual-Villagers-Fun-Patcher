@@ -1,7 +1,8 @@
 """The Isola Grand Event Collection's rows and files (scripts/build_event_collection_features.py).
 
   * the five rows: right after More Island Events in each game, off by default, on in Owner's Defaults, off in
-    Select All, not in Classic VV Difficulty, needing Story / Cheat Upgrades -- said in bold -- and pinning every file
+    Select All, not in Classic VV Difficulty, needing Story / Cheat Upgrades and Scrolling Popups -- each said in
+    bold, both ticked by Owner's Defaults and by ticking the row -- and pinning every file
     it ships (the shipped rows are what the build makes now);
   * the files: "<game folder>\\Virtual Villagers Fun Patcher Files\\Island Event Collection\\" (src/patcher_files.py),
     each game's own manifest.txt and .cieg files, and the credits;
@@ -32,6 +33,7 @@ import vv_fun_patcher_gui as gui  # noqa: E402
 
 GAMES = (1, 2, 3, 4, 5)
 BOLD_NEEDS = "**Needs Story / Cheat Upgrades (on by default)"
+BOLD_NEEDS_SCROLLING = ("**Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.**")
 
 
 def rid(game: int) -> str:
@@ -66,9 +68,60 @@ class TheRows(unittest.TestCase):
             for ident in (rid(game), f"vv{game}_more_island_events"):
                 with self.subTest(ident=ident):
                     row = self.rows[ident]
-                    self.assertEqual(row["dependencies"], [f"vv{game}_story_cheat_upgrades"])
+                    expected = [f"vv{game}_story_cheat_upgrades"]
+                    if ident == rid(game):   # the collection also needs Scrolling Popups (lead, 2026-11-14)
+                        expected.append(f"vv{game}_scrolling_popups")
+                    self.assertEqual(row["dependencies"], expected)
                     self.assertIn(BOLD_NEEDS, row["description"])
                     self.assertNotIn("**Needs no other patch.**", row["description"])
+
+    def test_needs_scrolling_popups_in_bold(self) -> None:
+        """The collection's popups are fit-checked with scrolling on, so its rows require Scrolling Popups, wired as
+        the Story / Cheat Upgrades prerequisite is: a dependency, said in bold."""
+        for game in GAMES:
+            with self.subTest(game=game):
+                row = self.rows[rid(game)]
+                self.assertIn(f"vv{game}_scrolling_popups", row["dependencies"])
+                self.assertIn(f"vv{game}_scrolling_popups", self.rows)
+                self.assertIn(BOLD_NEEDS_SCROLLING, row["description"])
+
+    def test_owners_defaults_tick_both_prerequisites(self) -> None:
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.assertTrue(gui.owners_default_fun_patch_selection(rid(game)))
+                for need in self.rows[rid(game)]["dependencies"]:
+                    self.assertTrue(gui.owners_default_fun_patch_selection(need), need)
+
+    def test_ticking_the_collection_ticks_both_prerequisites(self) -> None:
+        import types
+
+        class Var:
+            def __init__(self, value=False):
+                self.value = value
+
+            def get(self):
+                return self.value
+
+            def set(self, value):
+                self.value = value
+
+        for game in GAMES:
+            with self.subTest(game=game):
+                public = [p for p in self.catalog if p.id.startswith(f"vv{game}_")]
+                win = types.SimpleNamespace(fun_patches=public, fun_patch_vars={p.id: Var() for p in public},
+                                            _last_fun_selection=set())
+                win._patch_dependency_map = lambda w=win: gui.App._patch_dependency_map(w)
+                win.fun_patch_vars[rid(game)].set(True)
+                gui.App._apply_gui_dependency_selection(win, cotick=False)
+                ticked = {pid for pid, var in win.fun_patch_vars.items() if var.get()}
+                self.assertIn(rid(game), ticked)
+                self.assertIn(f"vv{game}_story_cheat_upgrades", ticked)
+                self.assertIn(f"vv{game}_scrolling_popups", ticked)
+                # ...and unticking Scrolling Popups unticks the collection, never Story / Cheat Upgrades.
+                win.fun_patch_vars[f"vv{game}_scrolling_popups"].set(False)
+                gui.App._apply_gui_dependency_selection(win, cotick=False)
+                self.assertFalse(win.fun_patch_vars[rid(game)].get())
+                self.assertTrue(win.fun_patch_vars[f"vv{game}_story_cheat_upgrades"].get())
 
     def test_more_island_events_never_takes_a_share(self) -> None:
         for game in GAMES:

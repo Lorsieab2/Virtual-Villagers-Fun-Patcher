@@ -108,35 +108,13 @@ class Manifest(unittest.TestCase):
         self.assertEqual(rows["all_v22_4_parents_lesson"]["choices"], 7)
 
 
-# Format gaps Track A / B must close before Phase 2 (each pinned so the test flips when the gap closes): a file listed
-# here may fail ONLY with problems matching its pattern.
-#   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
-#   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
-#   GAP-ANSWER-SENTENCE: after a four-button question an answer's first page shares the question's popup; in VV2 without
-#   Scrolling Popups one source sentence of The Secret of Life A4 and B2 is taller than that room on its own, and a
-#   sentence is never split.  Needs a fresh answer popup for 2-4 buttons too (lead / format decision).
-#   GAP-LABEL-NAME: a button label that holds a villager's name in capitals ("TELL (NAME1) TO STOP ...") is wider than
-#   the screen with the longest names, and the format has no all-caps name or pronoun form (lead/owner decision).
-KNOWN_GAPS: dict[str, str] = {   # G1 closed GAP-FIT7; the label name-to-pronoun fallback closed GAP-LABEL-NAME
-    "all_secret_of_life.json": r"^a SCHEMA: A New Home: the popup of (a4|b2) runs off the screen without scrolling: "
-                               r"a sentence is taller than the popup",
-    # GAP-VISITOR: V17-E's "(Visitor)" is an offscreen Isolan competitor shown by name; Isolans are never cast
-    # (authoring rule 15) and a stranger has no name, so the format cannot show it yet. Written for the coming named
-    # stranger ({"kind": "stranger", "named": true}: a random name from the game's own list, never a living villager's).
-    "vv5_v17_cooking.json": r"a SCHEMA: (\(scrolling\) )?(node \w+: \(Visitor\): a stranger has no name|"
-                            r"role visitor: unknown fields named)$",
-    # GAP-LABELFIT: "Praise (Name1) for creating something alive." is too wide with the longest names; the engine's
-    # label-only name-to-pronoun fallback for screen fit is coming, so the source's name stays.
-    "all_its_alive.json": r"a SCHEMA: (\(scrolling\) )?[A-Za-z ]+: the label 'Praise \(researcher\) for creating "
-                          r"something alive\.' runs off the screen with the longest names \(\d+ of \d+ pixels\)$",
-    # The two GAP-LABEL-NAME pins are closed by the engine's label fallback (decision 14).
-    # Decision 3 (review r1 M6): one sentence after a four-button question that does not fit the answer page in
-    # VV1 without Scrolling Popups; a sentence is never split and a heading never stands alone.
-    "all_v20_r1_should_not_exist.json": r"^a SCHEMA: A New Home: the popup of (a3|d2) runs off the screen without "
-                                        r"scrolling: a sentence is taller than the popup",
-    "all_v22_1_drawing_contest.json": r"^a SCHEMA: A New Home: the popup of b3 runs off the screen without scrolling: "
-                                      r"a sentence is taller than the popup",
-}
+# Format gaps Track A / B must close (each pinned so the test flips when the gap closes): a file listed here may fail
+# ONLY with problems matching its pattern.  None is open:
+#   GAP-FIT7 and GAP-ANSWER-SENTENCE (an answer page too short for one sentence without Scrolling Popups) closed when the
+#   collection's rows came to require Scrolling Popups (lead's decision, 2026-11-14): its popups are checked scrolling.
+#   GAP-LABEL-NAME and GAP-LABELFIT closed with the engine's label name-to-pronoun fallback (decision 14).
+#   GAP-VISITOR closed with the named stranger ({"kind": "stranger", "named": true}).
+KNOWN_GAPS: dict[str, str] = {}
 
 
 class CollectionFiles(unittest.TestCase):

@@ -35,6 +35,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cie  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "scripts"))
+from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
+
 SOURCE = ROOT / "docs" / "more-island-events" / \
     "Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt"
 SOURCE_SHA256 = "F5ABB8BF95F7345EDA4F7ACF676E58C536841C7767322348AAD8134CDC96E567"
@@ -101,7 +104,7 @@ def compile_events(src: Path = DATA) -> list[dict]:
         data = json.loads(path.read_text(encoding="utf-8"))
         if data.get("format") != "vvfp-cie-graph" or not isinstance(data.get("collection"), dict):
             continue
-        g, problems = cie.validate(data, shared_pools=pools)
+        g, problems = cie.validate(graph_for_engine(data), scrolling=True, shared_pools=pools)   # the rows require Scrolling Popups
         if problems:
             raise SystemExit(f"{path.relative_to(ROOT)}: " + "; ".join(problems[:5]))
         meta = data["collection"]
@@ -175,6 +178,7 @@ def description(game: int, count: int) -> str:
         + "\" group. " + (f"{count} events in this game in this build. " if count else "")
         + "Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. "
         "**Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** "
+        "**Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** "
         "**Unverified in play: the events have not been seen in a running game** (emulated)."
     )
 
@@ -189,7 +193,7 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int) -> dict:
         "name": NAME,
         "description": description(game, count),
         "output_tag": "Isola Grand Event Collection",
-        "dependencies": [f"vv{game}_story_cheat_upgrades"],
+        "dependencies": [f"vv{game}_story_cheat_upgrades", f"vv{game}_scrolling_popups"],
         "behavior_changes": [
             "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural "
             "island event (the Island Events Seen count went up with nothing armed or on its way), past the two "

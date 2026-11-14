@@ -904,16 +904,16 @@ def check_engine(doc: dict, rep: Report) -> None:
         return
     g = graph_for_engine(doc)
     shared = {"pools": shared_pools()}
-    norm = None
-    for scrolling in (False, True):   # the text fits with and without Scrolling Popups
-        try:
-            n2, problems = cg.validate(g, scrolling=scrolling, shared_pools=shared)
-        except Exception as ex:  # a crash is a problem, never a pass
-            rep.add("a SCHEMA", f"validate raised {type(ex).__name__}: {ex}")
-            return
-        for p in problems:
-            rep.add("a SCHEMA", f"{'(scrolling) ' if scrolling else ''}{p}")
-        norm = norm or (None if problems else n2)
+    # The collection's rows require Scrolling Popups (lead's decision, 2026-11-14), so its popups are checked with
+    # scrolling on: any height fits, and the byte limit still holds.
+    try:
+        n2, problems = cg.validate(g, scrolling=True, shared_pools=shared)
+    except Exception as ex:  # a crash is a problem, never a pass
+        rep.add("a SCHEMA", f"validate raised {type(ex).__name__}: {ex}")
+        return
+    for p in problems:
+        rep.add("a SCHEMA", p)
+    norm = None if problems else n2
     if norm is None:
         return
     # f SAFETY cross-check: the compiler's harm-capable roles are the ones derived here

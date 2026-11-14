@@ -298,8 +298,9 @@ an Isolan character is text only (or a `stranger` role when a pronoun is needed)
   missing (Q10): write the real character.
 - Titles: the CIE title set (no `"`), at most 30 characters in VV3-VV5 ("Between Life and Death", "The Meaning of
   Faith").
-- Every popup must fit with and without Scrolling Popups. A sentence taller than a page is an error; split the page
-  at a paragraph or put the text on a popup of its own.
+- The collection's rows require Scrolling Popups, so every popup is checked with scrolling on: any height fits, and a
+  popup's text must still stay within the engine's byte limit. Split long pages at a paragraph or sentence, never
+  inside a sentence.
 
 ## 17. Known format gaps (as of the pilot)
 
@@ -307,7 +308,7 @@ Write around these as described, list each use in your report, and never invent 
 
 | Id | Gap | Write-around |
 |---|---|---|
-| G1 | An answer's first page shares the question popup, which keeps the room of 5-7 buttons; without Scrolling Popups an outcome sentence does not fit (VV1-VV5, 7 buttons; VV1, 5) | None in content; pinned in `tests/test_event_collection_files.py` `KNOWN_GAPS` |
+| G1 | An answer's first page shares the question popup, which keeps the room of 5-7 buttons; without Scrolling Popups an outcome sentence does not fit (VV1-VV5, 7 buttons; VV1, 5) | Closed: the collection requires Scrolling Popups, so its popups are checked scrolling |
 | G2 | No "the other member" of an alias | Fixed roles and both-winner pages (section 10) |
 | G3 | Pool items cannot follow the role of the instance that uses them | `mirror_of` pools |
 | G4 | A one-option inline pick `{x}` is refused; nested inline picks are refused; a game word inside an inline pick is refused | `src_pick` literal text; named pools |
