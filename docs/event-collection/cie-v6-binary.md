@@ -31,9 +31,13 @@ Versions 1 to 5 are unchanged byte for byte (pinned by `tests/test_cie_graph_v6.
 | 90 | `H` | the `collection` block as one string (its canonical JSON, ASCII, `\uXXXX` escapes), or `NONE` **(differs from A4: was 0)**. Never shown in game; the engine may ignore it. |
 | 92 | `H` | the first title variant in the variants table (section 18); 0 when there is none |
 | 94 | `H` | the title variants' count (0 = none; a file made before section 18 holds 0 here) |
+| 96 | `I` | **only when the header is 104 bytes:** the kinship relations' offset (section 21) |
+| 100 | `H` | **only when the header is 104 bytes:** the relations' count (1 .. role count) |
+| 102 | `H` | **only when the header is 104 bytes:** 0 |
 
-Section order in the file: header, roles, nodes, children, effects, conds, variants, patches, **pools, items**,
-strings. The engine must use the offsets, not the order.
+The header is 96 bytes, or **104** when a role has a kinship relation (section 21); a file with no relation is
+byte for byte as before. Section order in the file: header, roles, nodes, children, effects, conds, variants,
+patches, **pools, items**, (relations), strings. The engine must use the offsets, not the order.
 
 ## 2. Role: 16 bytes (v1-v5: 8)
 
@@ -56,8 +60,10 @@ strings. The engine must use the offsets, not the order.
 - In v6 the compiler sets flags 2 and 4 exactly when it sets 32, so code that reads only 2 and 4 stays safe.
 - `exclude_protected` (32) = keep out nursing parents of either sex, the Golden Child, the VV3 Tribal Chief, the
   VV5 special roles, VV2 totems, the VV3 stand-in record and anyone the stock pickers skip.
-- `harm_capable` (16) is compiler-derived (section 7). A harm-capable role always has 32 in an owner's
-  collection event; in a player's own graph the player may set `protected: "allow"` (see 7).
+- `harm_capable` (16) is compiler-derived (section 7). A harm-capable role has 32 unless its author wrote
+  `protected: "allow"` (section 7, the owner's protection model of 2026-11-14).
+- A villager role may also require a kinship relation to another role (section 21); it is kept outside the role
+  record, in the relations table.
 - A skill name the game does not have is ignored in that game; when none of the listed names exists in the game,
   the skill requirement does not apply there.
 - Alias (kind 2): flags 16 when harm-capable, else 0; sex 0, min_age 0, no requirements. It is never cast. See 6.
@@ -182,6 +188,9 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
    - damage (16): a = lo + random_below(hi - lo + 1), the percent. The structure is chosen when the effect is
      made (game state), not in the walk.
    - skill (9) may now be negative (both of min, max in -100..-1): same roll, `lo + random_below(hi - lo + 1)`.
+   - appearance (17): a = the head's, b = the body's: a fixed row is itself (no roll), "kept" is -1 (no roll),
+     "random" is `random_below(rows - 1)` (the head's first, then the body's; rows = the game's count, section
+     22). die_unrecovered (18), baby_lost (19): no roll; a = b = 0.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
    - **No "!." or "?.":** when an inserted pool item (an inline pick's and a game word's included; never
@@ -203,16 +212,27 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 7. Harm and the protected filter
 
-Harmful effects: `kill`, `vanish`, `sick`, `health` with max < 100, `health_change` with min < 0, `preference`
-dislikes, `skill` with a negative amount, `mood` bad, `action` from the MOOD group or marked (Unsafe) in the
-game's action list (`data/cie_actions.json`).
+Harmful effects: `kill`, `vanish`, `die_unrecovered`, `baby_lost`, `sick`, `health` with max < 100,
+`health_change` with min < 0, `preference` dislikes, `skill` with a negative amount, `mood` bad, `action` from the
+MOOD group or marked (Unsafe) in the game's action list (`data/cie_actions.json`). `appearance` is harmless.
 
 - A role is harm-capable when a harmful effect anywhere in the graph acts on it, or on an alias whose members
   include it (an alias that is harmed makes every member harm-capable). Flag 16.
 - `protected`: `"auto"` (default) sets 32 exactly when 16 is set; `"exclude"` sets 32 always; `"allow"` sets 32
-  never. In an owner's collection event (a graph with a `collection` block) `"allow"` on a harm-capable role
-  and any `special` role that is harm-capable are errors. In a player's own graph the player decides (the owner,
-  Q5): `"allow"` is accepted.
+  never.
+- **The protection model (the owner, 2026-11-14, V28).** Only The Lost Children's totems are ALWAYS protected;
+  everyone else -- nursing parents, the Golden Child, The Secret City's Tribal Chief -- may be harmed where the
+  event makes sense, when its author opts in with `protected: "allow"` on that role, in a collection event as in
+  a player's graph. The default `"auto"` still keeps them out, so nothing changes unless an author opts in.
+  - A `special` role (it MUST be that villager) that is harm-capable needs `"allow"`: with `"auto"` its own
+    villager would be kept out and the role could never be cast (an error).
+  - **Always kept out of a harm-capable role, whatever its `protected`:** The Lost Children's totem statues (the
+    adapter's `listed` never lists them, so they are never cast at all), The Secret City's stand-in record, New
+    Believers' Heathens (believers only) and New Believers' story villagers (roles 12-17: the chief, the Retired
+    Chief, the puzzles' Heathens; **UNCONFIRMED** whether harming them is safe, so they stay out: an owner
+    question). The engine refuses a harmful effect on them even if they were bound (`cg_never_harmed`).
+  - `scripts/collection_check.py --allow-report` lists every `allow` on a harm-capable role in the collection, for
+    the owner's review.
 - The guard (3) is added only for roles with flag 32.
 
 ## 8. Effect codes and cond ops (v6 additions)
@@ -227,8 +247,11 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 14 | health_change | role index | a..b signed delta; result clamped to 1..100 (never kills) | NONE |
 | 15 | skill_set | role index | a = value 0..100 | the skills, comma separated |
 | 16 | damage | 0xFF | a..b percent 1..100 | the structures, comma separated, or `any` |
+| 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
+| 18 | die_unrecovered | role index | 0, 0 | the cause (as kill's) |
+| 19 | baby_lost | role index | 0, 0 | NONE |
 
-A role byte may name an alias; the effect goes to the member drawn.
+A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22.
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -484,3 +507,79 @@ label), before anything is filled in:
 - a TITLE written in capitals (no lower-case letter, a word of two or more letters) is shown in title case: each
   word's first letter a capital, the rest lower case, a placeholder's name as written (`"(NAME)'S BIG DAY"` ->
   `"(Name)'s Big Day"`); any other title as written. The titles of section 17 (as written, logged, the library's file name) are made from it.
+
+## 21. Kinship roles
+
+JSON: a villager role may carry `"relation": {"spouse_of": r} | {"parent_of": r} | {"child_of": r} |
+{"sibling_of": r}` -- this role's villager must be that relation of role `r`'s villager. `r` is another villager role
+the event needs (not optional, not a stranger, alias or other role); one relation a role.
+
+- **Binary:** the header grows to 104 bytes (section 1) and the relations table holds one 4-byte record per role
+  with a relation: `B role, B kind (1 spouse_of, 2 parent_of, 3 child_of, 4 sibling_of), B other role, B 0`, in role
+  order. The loader refuses a relation whose roles are not two different villager roles, an unknown kind, or two
+  relations on one role.
+- **Casting.** A relation is a rule between two roles, so -- as an age gap (version 3) -- the roles are then filled
+  by the search (`cg_search`, `cg_gap_ok`): each role in turn takes an eligible villager who keeps every relation
+  and age gap with the roles already filled. STRICT casting (the rare roll, Pick Island Event): a relation the
+  village cannot meet means the event is not drawn. PREFER (bought through the library): as every requirement, a
+  role nobody can fill with its relation has its requirements dropped (the relation too); the safety rules never.
+- **What each relation reads** (the game's own data; nothing is guessed, and nothing is matched by name alone):
+  - *A villager's recorded parents.* The Lost Children to New Believers keep each child's father and mother on its
+    own record (name, head and body: VV2 +0x57D / +0x596, VV3 +0xDF8 / +0xE11, VV4 and VV5 +0x1BC0 / +0x1BD9, as
+    the Details screen reads them). A New Home keeps none on its records: there the parents come from the
+    patcher's parentage sidecar ("VVFP VV1 Parentage.dll" `Vv1ParentageQueryNames` / `Vv1ParentageQuery`), only
+    while that companion is loaded (the parentage log patch); without it no A New Home villager has parents here.
+  - A parent field names villager X when its name, head and body are X's now (as `has_living_child`). The games'
+    default fathers are never anybody: The Lost Children's Gong "?" (head 0, body 0), The Tree of Life's and New
+    Believers' "Joey" / "Joey Joerson" (head 2, body 2), and A New Home's sidecar fallback "Unknown" (head 0, body
+    0). **Known limit:** a parent whose look changed after the child was born (Change Appearance, an island event,
+    the `appearance` effect) no longer matches the child's record, so the relation does not hold for them.
+  - `parent_of`: this villager is a recorded parent (father or mother) of `r`'s. `child_of`: `r`'s villager is a
+    recorded parent of this one.
+  - `sibling_of`: the two share a recorded mother, or a recorded father who is not a default father (half
+    siblings count).
+  - `spouse_of`: **no game keeps a spouse or partner field** (no record field; the games have no marriage). The
+    relation is the nearest the games record: the two are the recorded father and mother of one living villager,
+    or one of them is carrying the other's baby (the expected father on the mother: VV2 +0x5C0 / +0x5E0 / +0x5DC,
+    VV3 +0xE48 / +0xE68 / +0xE64, VV4 and VV5 +0x1C10 / +0x1C30 / +0x1C2C; A New Home from the sidecar's
+    `Vv1ParentageQueryExpectedFather`). An owner question: whether this is what "spouse" should mean.
+- **Python:** `simulate` takes the bindings as given (no casting), so relations change nothing there;
+  `compile_graph` / `decompile_graph` round-trip them.
+
+## 22. Appearance, death with no body, and a lost baby
+
+- **`{"do": "appearance", "role": r, "head": n | "random", "body": n | "random"}`** (code 17; at least one of head
+  and body). The villager's head and/or body becomes that row of the game's own sprite sheets (a head or body value
+  is a row): A New Home 20 heads and 20 bodies, the later four 30 and 30; every row fits every age. A fixed `n` must
+  be a row in every game of the event (0..19 when A New Home is one of them, else 0..29). `"random"` is any row but
+  the villager's current one: the walk's roll `k` in `0 .. rows - 2` becomes `k`, or `k + 1` from the current row
+  up, when the effect is made. The write is the Custom Island Event's own (`ce_apply_fields`: the record's head and
+  body fields, as Origins' Change Appearance writes them), so it is saved with the village: permanent. The head
+  look (young / old) is the villager's own sidecar setting and is not touched; "Reset to original" (VVFP Original
+  Look) still knows the look before the event (an island event's change is never folded into the original).
+  **The Secret City's Tribal Chief keeps the chief's robe** (the game's own robing gives body 29): their body is
+  not changed, only their head. The Island Events log's entry gets "<name>'s look changed." beside the
+  companion's Head / Body lines and its "Appearance changed" record. Harmless.
+- **`{"do": "die_unrecovered", "role": r, "cause": "unknown"}`** (code 18; the cause as `kill`'s, default
+  `"unknown"`). The villager dies and the body is never recovered: removed with no body, no skeleton and no grave
+  (the adapter's `vanish`, the stock disappearance), and told to "VVFP Cause of Death.dll" as a DEATH:
+  `VvfpCauseDiedUnrecovered(game, index, words)` writes a "Death <n>" record in the Deaths and Disappearances log
+  with "Cause of death: Unknown causes" (the owner: every death from the new events is "Unknown causes"; an
+  author's own words where given) and "Grave: no grave (the body was not recovered)", with the babies a nursing
+  mother carried (as every Death record). The Village Statistics' reconciliation reads that record as a departure
+  (a death), never a burial: its Grave line is "no grave", so Villagers Buried does not count it (the statistics
+  log has no row that counts deaths or disappearances; "Villagers Died" was removed at the owner's instruction).
+  The Island Events log's entry says "<name> died (Unknown causes); the body was not recovered." With an older Cause
+  of Death companion (no export) it is told as a disappearance instead. Harmful; the role is gone for the rest of
+  the run.
+- **`{"do": "baby_lost", "role": r}`** (code 19). The nursing parent's baby is lost: the pregnancy ends exactly as
+  the Custom Island Event's "0 babies" ends it (the adapter's `cancel`, every game: the countdown and the litter
+  cleared as the delivery clears them, then the game's own stop that releases the place the pregnancy held; A New
+  Home +0x358 / +0x35C, The Lost Children +0x540 / +0x544, The Secret City +0xE8C / +0xE90, The Tree of Life and New
+  Believers +0x1C4C / +0x1C50). The games keep a nursing baby only as the parent's state, never as a villager (the
+  owner: a nursing baby vanishes with no grave), so nothing else is written. "VVFP Cause of Death.dll" is told
+  first (`VvfpCauseBabyLost`): the Births and Conceptions log closes the open Conception with a "Lost before
+  birth" record ("What happened: the baby was lost in <title>; never born"). Babies Made stays as counted (the games
+  count at conception). The role MUST be `"special": "nursing_parent"`, so it needs `protected: "allow"` (section
+  7). A parent no longer nursing when the page is shown (the baby was born since) is a refusal ("N changes could
+  not be made"). Harmful. The Island Events log's entry says "<name>'s baby was lost."

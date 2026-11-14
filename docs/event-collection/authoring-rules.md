@@ -130,6 +130,9 @@ effect of that kind, or a `text_only` entry for that line.
 | dislikes | `{"do": "preference", "role": r, "list": "dislikes", "preference": "<the game's own word>"}` |
 | injured, lose health, health | `{"do": "health_change", "role": r, "min": ..., "max": ...}` |
 | collapses (a structure) | `{"do": "damage", "structures": "any", "min": 50, "max": 100}` |
+| looks different, new hair, appearance | `{"do": "appearance", "role": r, "head": "random"}` (and/or `"body"`) |
+| dies, body never found / not recovered | `{"do": "die_unrecovered", "role": r, "cause": "unknown"}` (no grave; logged as a death) |
+| loses the baby (a nursing parent) | `{"do": "baby_lost", "role": r}` on a `"special": "nursing_parent"` role with `"protected": "allow"` |
 
 - "(large award) food" shown in the text is `(award)`: give `"defer": true` on the food and a `{"do": "pay_award"}`
   on the same node (`Your village gains (award) food.`).
@@ -197,10 +200,19 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
   Requirements: adults `"min_age": 14`; a child `"min_age": 3, "max_age": 13`; a skill when the source names one
   (`"skill": {"names": ["Farming"], "min": 1}`).
 - **Special villagers** (Q17): the Golden Child (`"special": "golden_child"`, `"min_age": 0`), the VV3 Chief, a named
-  nursing parent are cast only in harmless roles. Casting one with no token in the text is allowed (the cast is the
-  requirement). Unnamed mentions ("A nursing mother nearby") stay text.
-- **Protection** is automatic (`protected: "auto"`): a role any harmful effect can reach keeps protected villagers
-  out. Never write `"protected": "allow"` on such a role. VV5 roles are believers only (the default).
+  nursing parent. Casting one with no token in the text is allowed (the cast is the requirement). Unnamed mentions
+  ("A nursing mother nearby") stay text.
+- **Protection** (the owner, 2026-11-14, V28; cie-v6-binary.md 7): `protected: "auto"` (the default) keeps nursing
+  parents, the Golden Child and the VV3 Chief out of any role a harmful effect can reach. Only The Lost Children's
+  totems are ALWAYS protected: where harming one of the others makes sense in the event (a nursing mother who loses
+  her baby, the Chief hurt in a storm), write `"protected": "allow"` on that role -- a harmed `special` role needs
+  it. Use judgement; ask the owner on doubtful cases. Every `allow` on a harmed role is listed by
+  `python scripts/collection_check.py --allow-report` for the owner's review. VV5 roles are believers only (the
+  default), and New Believers' story villagers stay out of harm whatever `protected` says.
+- **Kinship** (cie-v6-binary.md 21): `"relation": {"spouse_of" | "parent_of" | "child_of" | "sibling_of": role}`
+  when the text needs the two villagers to be family ("(Parent) watches (his/her) son (Child)"). The other role must
+  be a villager the event needs. A New Home knows parents only with the parentage log patch; no game keeps a
+  spouse (the engine takes co-parents), so a kinship event may be drawn rarely.
 - **Pronouns are role-prefixed** whenever the event has two or more roles: `(gardener2.he/she)`,
   `(child.His/Her)`, `(child.himself/herself)`. Capitalise inside the token: `(patient.He/She)`. The source's
   lower-case `(he/she)` at a sentence start is fixed this way, with no grammar fix needed.
