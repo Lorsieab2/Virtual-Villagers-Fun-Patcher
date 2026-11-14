@@ -660,6 +660,970 @@
     }
    ],
    "distinct": true
+  },
+  "v20_relics": {
+   "items": [
+    {
+     "text": "A smooth glowing black rectangle",
+     "src": "L9191"
+    },
+    {
+     "text": "A little box of voices",
+     "src": "L9192"
+    },
+    {
+     "text": "A tiny fire-making wand",
+     "src": "L9193"
+    },
+    {
+     "text": "Two transparent seeing-stones joined by metal",
+     "src": "L9194"
+    },
+    {
+     "text": "A writing stick that needs no ink bowl",
+     "src": "L9195"
+    },
+    {
+     "text": "A circle that remembers numbers",
+     "src": "L9196"
+    },
+    {
+     "text": "A sealed cylinder marked with unknown symbols",
+     "src": "L9197"
+    },
+    {
+     "text": "A metal vessel containing strangely preserved food",
+     "src": "L9198"
+    },
+    {
+     "text": "A portrait of impossible precision",
+     "src": "L9199"
+    },
+    {
+     "text": "A singing shell with a turning handle",
+     "src": "L9200"
+    },
+    {
+     "text": "A tube emitting cold light without flame",
+     "src": "L9201"
+    },
+    {
+     "text": "A tiny metal-and-resin token with no visible purpose",
+     "src": "L9202"
+    }
+   ]
+  },
+  "v26_food": {
+   "items": [
+    {
+     "text": "Breadfruit flour",
+     "src": "L10460"
+    },
+    {
+     "text": "grated taro",
+     "src": "L10460"
+    },
+    {
+     "text": "mashed yam",
+     "src": "L10460"
+    },
+    {
+     "text": "roasted sweet potato",
+     "src": "L10460"
+    },
+    {
+     "text": "green banana",
+     "src": "L10460-10461"
+    },
+    {
+     "text": "ripe banana",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut milk",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut cream",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut water",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut flesh",
+     "src": "L10461-10462"
+    },
+    {
+     "text": "shredded coconut",
+     "src": "L10462"
+    },
+    {
+     "text": "palm sugar",
+     "src": "L10462"
+    },
+    {
+     "text": "wild honey",
+     "src": "L10462"
+    },
+    {
+     "text": "sugarcane syrup",
+     "src": "L10462"
+    },
+    {
+     "text": "fruit juice",
+     "src": "L10462-10463"
+    },
+    {
+     "text": "fermented fruit",
+     "src": "L10463"
+    },
+    {
+     "text": "sour citrus",
+     "src": "L10463"
+    },
+    {
+     "text": "guava",
+     "src": "L10463"
+    },
+    {
+     "text": "papaya",
+     "src": "L10463"
+    },
+    {
+     "text": "mango",
+     "src": "L10463"
+    },
+    {
+     "text": "starfruit",
+     "src": "L10463"
+    },
+    {
+     "text": "passionfruit",
+     "src": "L10464"
+    },
+    {
+     "text": "sea grapes",
+     "src": "L10464"
+    },
+    {
+     "text": "seaweed",
+     "src": "L10464"
+    },
+    {
+     "text": "edible flowers",
+     "src": "L10464"
+    },
+    {
+     "text": "fragrant leaves",
+     "src": "L10464"
+    },
+    {
+     "text": "banana leaves used as wrappers",
+     "src": "L10465"
+    },
+    {
+     "text": "fresh herbs",
+     "src": "L10465"
+    },
+    {
+     "text": "toasted seeds",
+     "src": "L10465"
+    },
+    {
+     "text": "ground nuts",
+     "src": "L10465"
+    },
+    {
+     "text": "rice where available",
+     "src": "L10466"
+    },
+    {
+     "text": "edible roots",
+     "src": "L10466"
+    },
+    {
+     "text": "wild mushrooms identified as safe",
+     "src": "L10466"
+    },
+    {
+     "text": "fish",
+     "src": "L10467"
+    },
+    {
+     "text": "smoked fish",
+     "src": "L10467"
+    },
+    {
+     "text": "shellfish",
+     "src": "L10467"
+    },
+    {
+     "text": "sea salt",
+     "src": "L10467"
+    },
+    {
+     "text": "brine",
+     "src": "L10467"
+    },
+    {
+     "text": "ocean water used only in appropriate cooking processes",
+     "src": "L10467-10468"
+    },
+    {
+     "text": "river water made safe for drinking",
+     "src": "L10468"
+    },
+    {
+     "text": "crushed ice or snow in exceptional settings",
+     "src": "L10468-10469"
+    }
+   ]
+  },
+  "v26_food_samples": {
+   "items": [
+    {
+     "text": "Sweet breadfruit cakes wrapped in banana leaves with guava syrup.",
+     "src": "L10472"
+    },
+    {
+     "text": "Roasted taro with coconut cream, herbs, and a pinch of sea salt.",
+     "src": "L10473"
+    },
+    {
+     "text": "A chilled fruit drink made from papaya, citrus, and crushed ice.",
+     "src": "L10474"
+    },
+    {
+     "text": "Smoked fish with sea grapes, toasted seeds, and fragrant leaves.",
+     "src": "L10475"
+    },
+    {
+     "text": "A tart fermented-fruit sauce that the entire village debates.",
+     "src": "L10476"
+    },
+    {
+     "text": "Thin breadfruit crisps served with a savory herb-and-coconut dip.",
+     "src": "L10477"
+    },
+    {
+     "text": "A layered sweet made with mashed yam, fruit pulp, and wild honey.",
+     "src": "L10478"
+    },
+    {
+     "text": "A bubbling beverage that is either a triumph or a sticky disaster.",
+     "src": "L10479"
+    }
+   ]
+  },
+  "v26_healing": {
+   "items": [
+    {
+     "text": "Clean cloth",
+     "src": "L10482"
+    },
+    {
+     "text": "ripped-up cloth for nonsterile crafts",
+     "src": "L10482"
+    },
+    {
+     "text": "fresh bandages",
+     "src": "L10482"
+    },
+    {
+     "text": "woven grass splints",
+     "src": "L10482-10483"
+    },
+    {
+     "text": "smooth bamboo",
+     "src": "L10483"
+    },
+    {
+     "text": "boiled water",
+     "src": "L10483"
+    },
+    {
+     "text": "clean river water",
+     "src": "L10483"
+    },
+    {
+     "text": "sea salt",
+     "src": "L10483"
+    },
+    {
+     "text": "medicinal herbs",
+     "src": "L10484"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10484"
+    },
+    {
+     "text": "resin",
+     "src": "L10484"
+    },
+    {
+     "text": "wax",
+     "src": "L10484"
+    },
+    {
+     "text": "clay jars",
+     "src": "L10484"
+    },
+    {
+     "text": "ceramic bowls",
+     "src": "L10484"
+    },
+    {
+     "text": "ground mineral pigments",
+     "src": "L10484-10485"
+    },
+    {
+     "text": "plaster for casts or repairs",
+     "src": "L10485"
+    },
+    {
+     "text": "healing potions",
+     "src": "L10485"
+    },
+    {
+     "text": "previously brewed remedies",
+     "src": "L10485-10486"
+    },
+    {
+     "text": "strange stews",
+     "src": "L10486"
+    },
+    {
+     "text": "alchemical reagents",
+     "src": "L10486"
+    },
+    {
+     "text": "white powder of unknown identity",
+     "src": "L10486-10487"
+    },
+    {
+     "text": "smelly salts",
+     "src": "L10487"
+    },
+    {
+     "text": "sulfur",
+     "src": "L10487"
+    },
+    {
+     "text": "fish oil",
+     "src": "L10487"
+    },
+    {
+     "text": "plant oils",
+     "src": "L10487"
+    },
+    {
+     "text": "aromatic flowers",
+     "src": "L10487-10488"
+    },
+    {
+     "text": "moss",
+     "src": "L10488"
+    },
+    {
+     "text": "feathers used as tools",
+     "src": "L10488"
+    },
+    {
+     "text": "preserved hospital supplies",
+     "src": "L10488"
+    }
+   ]
+  },
+  "v26_healing_samples": {
+   "items": [
+    {
+     "text": "A plaster-and-bamboo support is surprisingly comfortable.",
+     "src": "L10491"
+    },
+    {
+     "text": "A carefully labeled herbal remedy becomes the hospital's pride.",
+     "src": "L10492"
+    },
+    {
+     "text": "A mislabeled white powder forces the healer to discard a batch.",
+     "src": "L10493"
+    },
+    {
+     "text": "A pungent salt jar clears the room before anyone tests it.",
+     "src": "L10494"
+    },
+    {
+     "text": "A sticky resin dressing inspires a better storage container.",
+     "src": "L10495"
+    },
+    {
+     "text": "An experimental stew smells so awful that nobody volunteers to taste it.",
+     "src": "L10496"
+    }
+   ]
+  },
+  "v26_building": {
+   "items": [
+    {
+     "text": "Fallen timber",
+     "src": "L10499"
+    },
+    {
+     "text": "driftwood",
+     "src": "L10499"
+    },
+    {
+     "text": "seasoned hardwood",
+     "src": "L10499"
+    },
+    {
+     "text": "flexible branches",
+     "src": "L10499"
+    },
+    {
+     "text": "bamboo",
+     "src": "L10499"
+    },
+    {
+     "text": "palm fronds",
+     "src": "L10500"
+    },
+    {
+     "text": "woven reeds",
+     "src": "L10500"
+    },
+    {
+     "text": "woven grass",
+     "src": "L10500"
+    },
+    {
+     "text": "coconut shells",
+     "src": "L10500"
+    },
+    {
+     "text": "coconut fibers",
+     "src": "L10500"
+    },
+    {
+     "text": "coir rope",
+     "src": "L10501"
+    },
+    {
+     "text": "barkcloth",
+     "src": "L10501"
+    },
+    {
+     "text": "ripped-up cloth",
+     "src": "L10501"
+    },
+    {
+     "text": "animal skins",
+     "src": "L10501"
+    },
+    {
+     "text": "animal hides",
+     "src": "L10501"
+    },
+    {
+     "text": "animal leather",
+     "src": "L10501-10502"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10502"
+    },
+    {
+     "text": "feathers",
+     "src": "L10502"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10502"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10502"
+    },
+    {
+     "text": "shells",
+     "src": "L10502"
+    },
+    {
+     "text": "pebbles",
+     "src": "L10503"
+    },
+    {
+     "text": "crushed rocks",
+     "src": "L10503"
+    },
+    {
+     "text": "gravel",
+     "src": "L10503"
+    },
+    {
+     "text": "dirt",
+     "src": "L10503"
+    },
+    {
+     "text": "mud",
+     "src": "L10503"
+    },
+    {
+     "text": "river clay",
+     "src": "L10503"
+    },
+    {
+     "text": "wet sand",
+     "src": "L10503"
+    },
+    {
+     "text": "dry sand",
+     "src": "L10503-10504"
+    },
+    {
+     "text": "limestone",
+     "src": "L10504"
+    },
+    {
+     "text": "plaster",
+     "src": "L10504"
+    },
+    {
+     "text": "resin",
+     "src": "L10504"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10504"
+    },
+    {
+     "text": "rubber",
+     "src": "L10504"
+    },
+    {
+     "text": "natural latex",
+     "src": "L10504"
+    },
+    {
+     "text": "charcoal",
+     "src": "L10505"
+    },
+    {
+     "text": "ash",
+     "src": "L10505"
+    },
+    {
+     "text": "glass",
+     "src": "L10505"
+    },
+    {
+     "text": "sea glass",
+     "src": "L10505"
+    },
+    {
+     "text": "metal",
+     "src": "L10505"
+    },
+    {
+     "text": "copper",
+     "src": "L10505"
+    },
+    {
+     "text": "bronze",
+     "src": "L10505"
+    },
+    {
+     "text": "iron",
+     "src": "L10505"
+    },
+    {
+     "text": "stone blades",
+     "src": "L10505-10506"
+    },
+    {
+     "text": "polished stones",
+     "src": "L10506"
+    },
+    {
+     "text": "paper",
+     "src": "L10506"
+    },
+    {
+     "text": "woven mats",
+     "src": "L10506"
+    },
+    {
+     "text": "pigments",
+     "src": "L10506"
+    },
+    {
+     "text": "carved bone",
+     "src": "L10506"
+    }
+   ]
+  },
+  "v26_building_samples": {
+   "items": [
+    {
+     "text": "Fallen timber beams tied with coconut-fiber rope.",
+     "src": "L10509"
+    },
+    {
+     "text": "A rainproof roof of overlapping palm fronds and resin-sealed reeds.",
+     "src": "L10510"
+    },
+    {
+     "text": "A flexible bridge of bamboo, woven grass, and braided coir.",
+     "src": "L10511"
+    },
+    {
+     "text": "A decorative wall of river stones, mud plaster, and sea glass.",
+     "src": "L10512"
+    },
+    {
+     "text": "A wind-driven mechanism using wood, leather straps, and metal gears.",
+     "src": "L10513"
+    },
+    {
+     "text": "A waterproof basket woven from reeds and sealed with tree sap.",
+     "src": "L10514"
+    },
+    {
+     "text": "A paper-and-bamboo star chart protected in a carved wooden case.",
+     "src": "L10515"
+    },
+    {
+     "text": "A springy sandal made with rubber, woven cloth, and soft leather.",
+     "src": "L10516"
+    }
+   ]
+  },
+  "v26_specimens": {
+   "items": [
+    {
+     "text": "Sulfur",
+     "src": "L10519"
+    },
+    {
+     "text": "volcanic ash",
+     "src": "L10519"
+    },
+    {
+     "text": "mineral crystals",
+     "src": "L10519"
+    },
+    {
+     "text": "powdered limestone",
+     "src": "L10519"
+    },
+    {
+     "text": "white powder",
+     "src": "L10519-10520"
+    },
+    {
+     "text": "smelly salts",
+     "src": "L10520"
+    },
+    {
+     "text": "alchemical reagents",
+     "src": "L10520"
+    },
+    {
+     "text": "resin",
+     "src": "L10520"
+    },
+    {
+     "text": "rubber",
+     "src": "L10520"
+    },
+    {
+     "text": "ambergris",
+     "src": "L10520"
+    },
+    {
+     "text": "rafflesia musk",
+     "src": "L10521"
+    },
+    {
+     "text": "fermented fruit",
+     "src": "L10521"
+    },
+    {
+     "text": "rotting meat",
+     "src": "L10521"
+    },
+    {
+     "text": "dung",
+     "src": "L10521"
+    },
+    {
+     "text": "pig sweat",
+     "src": "L10521"
+    },
+    {
+     "text": "animal entrails",
+     "src": "L10521-10522"
+    },
+    {
+     "text": "animal skins",
+     "src": "L10522"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10522"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10522"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10522"
+    },
+    {
+     "text": "shed feathers",
+     "src": "L10522-10523"
+    },
+    {
+     "text": "firefly wings",
+     "src": "L10523"
+    },
+    {
+     "text": "butterfly chrysalises",
+     "src": "L10523"
+    },
+    {
+     "text": "insect bits",
+     "src": "L10523"
+    },
+    {
+     "text": "grubs",
+     "src": "L10523"
+    },
+    {
+     "text": "worms",
+     "src": "L10524"
+    },
+    {
+     "text": "empty cocoons",
+     "src": "L10524"
+    },
+    {
+     "text": "river sediment",
+     "src": "L10524"
+    },
+    {
+     "text": "ocean salt",
+     "src": "L10524"
+    },
+    {
+     "text": "sand",
+     "src": "L10524"
+    },
+    {
+     "text": "glass",
+     "src": "L10524"
+    },
+    {
+     "text": "pebbles",
+     "src": "L10524"
+    },
+    {
+     "text": "crushed rocks",
+     "src": "L10525"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10525"
+    },
+    {
+     "text": "plant dyes",
+     "src": "L10525"
+    },
+    {
+     "text": "strange stews",
+     "src": "L10525"
+    },
+    {
+     "text": "unidentified bottles from forgotten ruins",
+     "src": "L10525-10526"
+    }
+   ]
+  },
+  "v26_clothing": {
+   "items": [
+    {
+     "text": "Barkcloth",
+     "src": "L10535"
+    },
+    {
+     "text": "paper",
+     "src": "L10535"
+    },
+    {
+     "text": "dyed cloth",
+     "src": "L10535"
+    },
+    {
+     "text": "torn cloth",
+     "src": "L10535"
+    },
+    {
+     "text": "woven grass",
+     "src": "L10535"
+    },
+    {
+     "text": "woven reeds",
+     "src": "L10535"
+    },
+    {
+     "text": "palm fronds",
+     "src": "L10536"
+    },
+    {
+     "text": "banana leaves",
+     "src": "L10536"
+    },
+    {
+     "text": "coconut fibers",
+     "src": "L10536"
+    },
+    {
+     "text": "polished coconut shells",
+     "src": "L10536"
+    },
+    {
+     "text": "feathers",
+     "src": "L10537"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10537"
+    },
+    {
+     "text": "hides",
+     "src": "L10537"
+    },
+    {
+     "text": "leather",
+     "src": "L10537"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10537"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10537"
+    },
+    {
+     "text": "shell beads",
+     "src": "L10538"
+    },
+    {
+     "text": "sea glass",
+     "src": "L10538"
+    },
+    {
+     "text": "colored sand",
+     "src": "L10538"
+    },
+    {
+     "text": "clay pigments",
+     "src": "L10538"
+    },
+    {
+     "text": "mineral powder",
+     "src": "L10538"
+    },
+    {
+     "text": "charcoal ink",
+     "src": "L10539"
+    },
+    {
+     "text": "flower petals",
+     "src": "L10539"
+    },
+    {
+     "text": "fragrant herbs",
+     "src": "L10539"
+    },
+    {
+     "text": "resin",
+     "src": "L10539"
+    },
+    {
+     "text": "carved wood",
+     "src": "L10539"
+    },
+    {
+     "text": "hammered metal ornaments",
+     "src": "L10540"
+    },
+    {
+     "text": "polished pebbles",
+     "src": "L10540"
+    }
+   ]
+  },
+  "v26_clothing_samples": {
+   "items": [
+    {
+     "text": "A ceremonial cape of dyed barkcloth and iridescent fish scales.",
+     "src": "L10543"
+    },
+    {
+     "text": "A fashionable hat woven from palm fronds and bright feathers.",
+     "src": "L10544"
+    },
+    {
+     "text": "A mosaic portrait made of sea glass, sand, and colored pebbles.",
+     "src": "L10545"
+    },
+    {
+     "text": "A ridiculous new dance performed in jingling coconut-shell anklets.",
+     "src": "L10546"
+    },
+    {
+     "text": "A paper-and-reed lantern festival that becomes a village tradition.",
+     "src": "L10547"
+    },
+    {
+     "text": "A leather-and-feather costume that everyone either loves or mocks.",
+     "src": "L10548"
+    }
+   ]
+  },
+  "v26_invention_examples": {
+   "items": [
+    {
+     "text": "A glass lens framed in bronze reveals tiny creatures in pond water.",
+     "src": "L10559"
+    },
+    {
+     "text": "A clay vessel, sea salt, and an unusual cooling technique produce a surprising new way to preserve food.",
+     "src": "L10560-10561"
+    },
+    {
+     "text": "A machine built from driftwood, rubber, and metal springs leaps across the workshop and is declared either genius or a menace.",
+     "src": "L10562-10563"
+    },
+    {
+     "text": "An artist's layered paper and mineral pigments create a new technique for recording maps and stories.",
+     "src": "L10564-10565"
+    },
+    {
+     "text": "A curious scholar notices patterns in firefly flashes and begins recording observations on barkcloth.",
+     "src": "L10566-10567"
+    },
+    {
+     "text": "A tailor invents a spectacularly impractical feathered cape that becomes the season's most copied fashion.",
+     "src": "L10568-10569"
+    }
+   ]
   }
  }
 }
