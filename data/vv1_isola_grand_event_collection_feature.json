@@ -39,12 +39,12 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "678AB84E5CEE2937558491F91BAC74BDCDA484E5C991DAD907A94F04615BD756"
+      "sha256": "07D1BA53C8806A0FA4F92F985E51240CA75B6C7C85D4399004A3E22BD9EC3F03"
     },
     {
       "source": "assets/event_collection/all_everybodys_a_winner.cieg",
       "destination": "Island Event Collection/all_everybodys_a_winner.cieg",
-      "sha256": "4C6CE60139567D3A27FFD747464BBCE923AD81BE348EC6B90EB958B1690866C5"
+      "sha256": "8368FF2D9B6B460E8FE3D85564345007F9786756AF13C99C0AA5DE5C0680A256"
     },
     {
       "source": "assets/event_collection/all_grand_isolan_scholasticon.cieg",
@@ -59,7 +59,7 @@
     {
       "source": "assets/event_collection/all_great_beautification.cieg",
       "destination": "Island Event Collection/all_great_beautification.cieg",
-      "sha256": "6B1B711A2459E0C6F85182DCC66648FB219B0889347A034D9F404AB5F92A9A1D"
+      "sha256": "9A951D12AFEFA3BC94016313CAA09F356E40FF80BF6FF78F49385EBBE607301A"
     },
     {
       "source": "assets/event_collection/all_impossible_invention.cieg",
@@ -79,7 +79,7 @@
     {
       "source": "assets/event_collection/all_isolan_storytelling.cieg",
       "destination": "Island Event Collection/all_isolan_storytelling.cieg",
-      "sha256": "366C30888599C7DCB552BBF1836EF7B248769B12C7DE1C89B3A64D4971F0BE8F"
+      "sha256": "4B1530A575D4A888FC47085212221E62AC768653EB18CFFE80A72B56B1312648"
     },
     {
       "source": "assets/event_collection/all_its_alive.cieg",
@@ -354,7 +354,7 @@
     {
       "source": "assets/event_collection/vv1_elders_favorite_stone.cieg",
       "destination": "Island Event Collection/vv1_elders_favorite_stone.cieg",
-      "sha256": "482B56EE4A587CEC50AFE36D7DE5B0234D9B38958973DC5ADE9415D5D783D586"
+      "sha256": "73E87B7E00AE7F4DFACCF064FE36678CB387F388F43C611EDD2C2765F6BCE4DC"
     },
     {
       "source": "assets/event_collection/vv1_last_song_before_sunset.cieg",
@@ -379,7 +379,7 @@
     {
       "source": "assets/event_collection/vv1_unexpected_question.cieg",
       "destination": "Island Event Collection/vv1_unexpected_question.cieg",
-      "sha256": "AD99978E7BD951E13A5D0A468B66D37E33EC119874C17CE2AF37963F6BE9D5D7"
+      "sha256": "EFF89CA3907DB421D0462DD29DCA734EDA363B8FBB3696D9B8489B05CD46ED3E"
     },
     {
       "source": "assets/event_collection/vv1_v14_01_impossible_equation.cieg",

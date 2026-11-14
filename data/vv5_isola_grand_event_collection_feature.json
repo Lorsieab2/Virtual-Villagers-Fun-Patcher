@@ -39,12 +39,12 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "678AB84E5CEE2937558491F91BAC74BDCDA484E5C991DAD907A94F04615BD756"
+      "sha256": "07D1BA53C8806A0FA4F92F985E51240CA75B6C7C85D4399004A3E22BD9EC3F03"
     },
     {
       "source": "assets/event_collection/all_everybodys_a_winner.cieg",
       "destination": "Island Event Collection/all_everybodys_a_winner.cieg",
-      "sha256": "4C6CE60139567D3A27FFD747464BBCE923AD81BE348EC6B90EB958B1690866C5"
+      "sha256": "8368FF2D9B6B460E8FE3D85564345007F9786756AF13C99C0AA5DE5C0680A256"
     },
     {
       "source": "assets/event_collection/all_grand_isolan_scholasticon.cieg",
@@ -59,7 +59,7 @@
     {
       "source": "assets/event_collection/all_great_beautification.cieg",
       "destination": "Island Event Collection/all_great_beautification.cieg",
-      "sha256": "6B1B711A2459E0C6F85182DCC66648FB219B0889347A034D9F404AB5F92A9A1D"
+      "sha256": "9A951D12AFEFA3BC94016313CAA09F356E40FF80BF6FF78F49385EBBE607301A"
     },
     {
       "source": "assets/event_collection/all_impossible_invention.cieg",
@@ -79,7 +79,7 @@
     {
       "source": "assets/event_collection/all_isolan_storytelling.cieg",
       "destination": "Island Event Collection/all_isolan_storytelling.cieg",
-      "sha256": "366C30888599C7DCB552BBF1836EF7B248769B12C7DE1C89B3A64D4971F0BE8F"
+      "sha256": "4B1530A575D4A888FC47085212221E62AC768653EB18CFFE80A72B56B1312648"
     },
     {
       "source": "assets/event_collection/all_its_alive.cieg",
@@ -364,7 +364,7 @@
     {
       "source": "assets/event_collection/vv5_field_day.cieg",
       "destination": "Island Event Collection/vv5_field_day.cieg",
-      "sha256": "0F75B3935D107D1DF76CDDB597EDE147FF8D385CCCDFF1F4A7778FFFA785E1D5"
+      "sha256": "0B3BE4DBF160928628A3EED8DC6DC98894F42324A0D9C6EB97279027EC79C3CF"
     },
     {
       "source": "assets/event_collection/vv5_gift_or_insult.cieg",
@@ -374,17 +374,17 @@
     {
       "source": "assets/event_collection/vv5_great_laundry_mishap.cieg",
       "destination": "Island Event Collection/vv5_great_laundry_mishap.cieg",
-      "sha256": "EF02E50B505BEFDE548E50B4ECFB4072CD74E593F16681D23CB32B3BFD54BF84"
+      "sha256": "2134779F76FC884793F9E4C924F2EE59175A0D3A9038A5412AD475297D25119E"
     },
     {
       "source": "assets/event_collection/vv5_great_woodworking.cieg",
       "destination": "Island Event Collection/vv5_great_woodworking.cieg",
-      "sha256": "4A09681F62018C9DB24D34B152221F9C82505E736558032DA46FC41992191666"
+      "sha256": "EABE8EDF76F37E609DC83EAACCDC22EE60627CD664AA292EF2DB3A519B7F2F2F"
     },
     {
       "source": "assets/event_collection/vv5_keeper_of_little_things.cieg",
       "destination": "Island Event Collection/vv5_keeper_of_little_things.cieg",
-      "sha256": "8A8DC89D7F93E89D28E7685EDC6DA26CB2C00D49999C3B2F63CC63DCF4E0AECF"
+      "sha256": "FA1B1EFAA601579ED17634566D86A53FF59671999B07CF2A78A3E47DC19AB1BD"
     },
     {
       "source": "assets/event_collection/vv5_little_things_remember.cieg",
@@ -399,7 +399,7 @@
     {
       "source": "assets/event_collection/vv5_multicultural_festival.cieg",
       "destination": "Island Event Collection/vv5_multicultural_festival.cieg",
-      "sha256": "17816A2707838E0349782AD154B750B08B7A8D03B67709962789361A508570CB"
+      "sha256": "C52A14B94FA31EFB21A77A84E86CB0377F07A305528AEDF1C3369235FC3FD38F"
     },
     {
       "source": "assets/event_collection/vv5_old_belief_and_new.cieg",
@@ -409,7 +409,7 @@
     {
       "source": "assets/event_collection/vv5_potluck_dispute.cieg",
       "destination": "Island Event Collection/vv5_potluck_dispute.cieg",
-      "sha256": "4C0B246361760FF0796C007B5FAB32CDC55208AE29DA4688BE0CB99ECD2F2021"
+      "sha256": "DA1DFCF89D64AF9E492CDF9E4022F75358063BF74692C1B94878015C3405BB0D"
     },
     {
       "source": "assets/event_collection/vv5_slug_race.cieg",

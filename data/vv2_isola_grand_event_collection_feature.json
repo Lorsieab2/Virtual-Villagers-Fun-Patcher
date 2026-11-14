@@ -39,12 +39,12 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "678AB84E5CEE2937558491F91BAC74BDCDA484E5C991DAD907A94F04615BD756"
+      "sha256": "07D1BA53C8806A0FA4F92F985E51240CA75B6C7C85D4399004A3E22BD9EC3F03"
     },
     {
       "source": "assets/event_collection/all_everybodys_a_winner.cieg",
       "destination": "Island Event Collection/all_everybodys_a_winner.cieg",
-      "sha256": "4C6CE60139567D3A27FFD747464BBCE923AD81BE348EC6B90EB958B1690866C5"
+      "sha256": "8368FF2D9B6B460E8FE3D85564345007F9786756AF13C99C0AA5DE5C0680A256"
     },
     {
       "source": "assets/event_collection/all_grand_isolan_scholasticon.cieg",
@@ -59,7 +59,7 @@
     {
       "source": "assets/event_collection/all_great_beautification.cieg",
       "destination": "Island Event Collection/all_great_beautification.cieg",
-      "sha256": "6B1B711A2459E0C6F85182DCC66648FB219B0889347A034D9F404AB5F92A9A1D"
+      "sha256": "9A951D12AFEFA3BC94016313CAA09F356E40FF80BF6FF78F49385EBBE607301A"
     },
     {
       "source": "assets/event_collection/all_impossible_invention.cieg",
@@ -79,7 +79,7 @@
     {
       "source": "assets/event_collection/all_isolan_storytelling.cieg",
       "destination": "Island Event Collection/all_isolan_storytelling.cieg",
-      "sha256": "366C30888599C7DCB552BBF1836EF7B248769B12C7DE1C89B3A64D4971F0BE8F"
+      "sha256": "4B1530A575D4A888FC47085212221E62AC768653EB18CFFE80A72B56B1312648"
     },
     {
       "source": "assets/event_collection/all_its_alive.cieg",
@@ -349,7 +349,7 @@
     {
       "source": "assets/event_collection/vv2_cooking_contest.cieg",
       "destination": "Island Event Collection/vv2_cooking_contest.cieg",
-      "sha256": "2FE037425028BE403D83F7FE1008294A7DC35643CC781AE7637F6365DDC075D4"
+      "sha256": "83A76338FC102F5E86D6A6A8E3719C6761FC29366F269EFD7372735BE0054EF7"
     },
     {
       "source": "assets/event_collection/vv2_experimental_remedy.cieg",
@@ -364,7 +364,7 @@
     {
       "source": "assets/event_collection/vv2_hut_sharing_negotiation.cieg",
       "destination": "Island Event Collection/vv2_hut_sharing_negotiation.cieg",
-      "sha256": "B3991FF11BA12DC393839B51D3EF0EAE646A5A8A73EDD97726DCBE77716E6EF3"
+      "sha256": "09C0119F88CD579A501E771B9333121CD250653B35A825054B0AEA5E9B851CEB"
     },
     {
       "source": "assets/event_collection/vv2_packed_hospital.cieg",
