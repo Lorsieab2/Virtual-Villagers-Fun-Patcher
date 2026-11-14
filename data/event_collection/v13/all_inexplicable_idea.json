@@ -1,0 +1,720 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Inexplicable Idea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_inexplicable_idea",
+  "source": "v26",
+  "lines": [
+   7482,
+   7590
+  ],
+  "section": "v13",
+  "credit": "AUTHORSHIP AND IDEA CREDIT — V13\nOriginal creative direction, requested competition critic archetypes, and\nfive specific outcome concepts: Lorsieab2.\nOriginal event text, new characters, individual dialogue, additional\noutcomes, branching and implementation notes below: ChatGPT (OpenAI).\nThe Cooking Contest's original text and randomized framework remain\ncredited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites\nof the original. The other competition add-ons preserve the authorship\nof their existing base events as identified in the V12 credit ledger.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7483",
+  "ledger": [
+   {
+    "src": "L7484",
+    "kind": "structural",
+    "why": "section subheading"
+   },
+   {
+    "src": "L7491",
+    "kind": "instruction",
+    "why": "the idea is drawn first; A1 and A2 are limited to the ideas the source names (visited conditions)"
+   },
+   {
+    "src": "L7513",
+    "kind": "structural",
+    "text": "(A1-A5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7514",
+    "kind": "structural",
+    "text": "(B1-B5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7515",
+    "kind": "structural",
+    "text": "(C1-C5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7492",
+    "kind": "structural",
+    "text": "I01.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7493",
+    "kind": "structural",
+    "text": "I02.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7494",
+    "kind": "structural",
+    "text": "I03.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7495",
+    "kind": "structural",
+    "text": "I04.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7496",
+    "kind": "structural",
+    "text": "I05.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7497",
+    "kind": "structural",
+    "text": "I06.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7498",
+    "kind": "structural",
+    "text": "I07.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7499",
+    "kind": "structural",
+    "text": "I08.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7500",
+    "kind": "structural",
+    "text": "I09.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7501",
+    "kind": "structural",
+    "text": "I10.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7502",
+    "kind": "structural",
+    "text": "I11.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7503",
+    "kind": "structural",
+    "text": "I12.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7504",
+    "kind": "structural",
+    "text": "I13.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7505",
+    "kind": "structural",
+    "text": "I14.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7506",
+    "kind": "structural",
+    "text": "I15.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7507",
+    "kind": "structural",
+    "text": "I16.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7508",
+    "kind": "structural",
+    "text": "I17.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7509",
+    "kind": "structural",
+    "text": "I18.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7510",
+    "kind": "structural",
+    "text": "I19.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7511",
+    "kind": "structural",
+    "text": "I20.",
+    "why": "the idea's number"
+   },
+   {
+    "src": "L7521",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L7526",
+    "kind": "instruction",
+    "text": "Suitable for I07, I11, I13, I15 or I18.",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L7531",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The proposal",
+   "src": "L7487-7488",
+   "text": "(Inventor) presents a proposal so peculiar that the village council cannot determine whether it is brilliant, foolish, or a joke.",
+   "children": [
+    {
+     "next": "ideas"
+    }
+   ]
+  },
+  "ideas": {
+   "type": "branch",
+   "set": "IDEA BANK",
+   "children": [
+    {
+     "next": "idea1"
+    },
+    {
+     "next": "idea2"
+    },
+    {
+     "next": "idea3"
+    },
+    {
+     "next": "idea4"
+    },
+    {
+     "next": "idea5"
+    },
+    {
+     "next": "idea6"
+    },
+    {
+     "next": "idea7"
+    },
+    {
+     "next": "idea8"
+    },
+    {
+     "next": "idea9"
+    },
+    {
+     "next": "idea10"
+    },
+    {
+     "next": "idea11"
+    },
+    {
+     "next": "idea12"
+    },
+    {
+     "next": "idea13"
+    },
+    {
+     "next": "idea14"
+    },
+    {
+     "next": "idea15"
+    },
+    {
+     "next": "idea16"
+    },
+    {
+     "next": "idea17"
+    },
+    {
+     "next": "idea18"
+    },
+    {
+     "next": "idea19"
+    },
+    {
+     "next": "idea20"
+    }
+   ]
+  },
+  "idea1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7492",
+   "text": "Make a raft from tightly tied empty gourds.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7493",
+   "text": "Carry water uphill in a long chain of hollow reeds.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7494",
+   "text": "Train birds to deliver messages tied to their legs.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7495",
+   "text": "Build a bridge whose planks are suspended by woven vines.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7496",
+   "text": "Keep food cool in a shaded clay vessel surrounded by damp sand.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7496",
+     "what": "food",
+     "reason": "the idea keeps food cool; no food is gained or lost"
+    }
+   ]
+  },
+  "idea6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7497",
+   "text": "Use polished shells to reflect daylight into a dark hut.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea7": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7498",
+   "text": "Make a chair that follows its owner everywhere.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea8": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7499",
+   "text": "Teach fish to recognize the sound of a dinner bell.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea9": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7500",
+   "text": "Invent a spoon with a second spoon attached to it.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea10": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7501",
+   "text": "Plant every seed upside down to confuse the roots.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea11": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7502",
+   "text": "Construct a self-opening door that opens only when nobody approaches.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea12": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7503",
+   "text": "Paint the village's shadows to keep them from wandering away.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea13": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7504",
+   "text": "Create a hat large enough to shelter the entire village.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea14": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7505",
+   "text": "Replace all spoken greetings with an elaborate dance.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea15": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7506",
+   "text": "Build a cart with square wheels because circles are \"overused.\"",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea16": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7507",
+   "text": "Train snails to carry the harvest one grain at a time.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea17": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7508",
+   "text": "Invent a ceremonial bell that makes no sound.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea18": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7509",
+   "text": "Build a ladder that can be climbed from either end.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea19": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7510",
+   "text": "Store wind in sealed clay jars for a windless day.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "idea20": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L7511",
+   "text": "Place a wooden sign reading \"RAIN\" beside the crops to encourage clouds.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Entirely serious",
+   "src": "L7489",
+   "text": "(Inventor) is entirely serious.",
+   "choices": [
+    {
+     "label": "Give the inventor a modest budget and a safe trial.",
+     "next": "set_a",
+     "src": "L7513"
+    },
+    {
+     "label": "Ask the inventor to defend the idea before the council.",
+     "next": "set_b",
+     "src": "L7514"
+    },
+    {
+     "label": "Reject the proposal and invite a revised version.",
+     "next": "set_c",
+     "src": "L7515"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7517-7520",
+   "text": "IT WORKS:\nThe council is astonished. The idea solves a practical problem with ordinary materials, though the inventor's original explanation was nonsense. (Inventor) is offered a chance to teach the method.",
+   "text_only": [
+    {
+     "src": "L7521",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7523-7526",
+   "text": "IT SORT OF WORKS:\nThe device functions, but only under such specific conditions that it is scarcely useful. The villagers praise the effort and decline to build another.",
+   "text_only": [
+    {
+     "src": "L7526",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "a3": {
+   "src": "L7528-7530",
+   "text": "THE ABSOLUTE FAILURE:\nThe project fails instantly. (Inventor) insists that the failure proves the idea is \"ahead of its time.\" The council requests evidence.",
+   "text_only": [
+    {
+     "src": "L7531",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "a4": {
+   "src": "L7533-7537",
+   "text": "THE UNEXPECTED SIDE EFFECT:\nThe device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better."
+  },
+  "a5": {
+   "src": "L7539-7542",
+   "text": "THE GREAT LAUGH:\nThe entire audience assumes the proposal is comedy and applauds. (Inventor) is devastated to discover that nobody believed (inventor.him/her). A sympathetic elder offers to review the idea seriously."
+  },
+  "b1": {
+   "src": "L7544-7547",
+   "text": "THE GENIUS:\n(Inventor) gives a clear demonstration and anticipates every objection. The council approves a supervised trial. The stern scholar grudgingly admits that appearances can deceive."
+  },
+  "b2": {
+   "src": "L7549-7552",
+   "text": "THE NONSENSE:\n(Inventor) explains that the invention works because \"everything wants to be somewhere else.\" The council asks for a testable explanation. (Inventor) offers a drawing of a smiling coconut."
+  },
+  "b3": {
+   "src": "L7554-7557",
+   "text": "THE INSULTED INVENTOR:\nWhen the crowd laughs, (Inventor) shouts, \"YOU LAUGHED AT MY LAST INVENTION TOO!\" A builder replies, \"Your last invention was a hole.\" \"AN IMPROVED HOLE!\" (Inventor) screams."
+  },
+  "b4": {
+   "src": "L7559-7562",
+   "text": "THE BETTER QUESTION:\nA child asks what problem the invention solves. (Inventor) cannot answer. After a long silence, (inventor.he/she) admits that the invention was made simply to see whether it could be done."
+  },
+  "b5": {
+   "src": "L7564-7567",
+   "text": "THE COUNCIL IS STUMPED:\nThe leaders debate for hours and finally admit they cannot decide whether the invention is possible. They ask the researchers to test it rather than inventing a verdict."
+  },
+  "c1": {
+   "src": "L7569-7571",
+   "text": "THE QUIET COMEBACK:\n(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly."
+  },
+  "c2": {
+   "src": "L7573-7575",
+   "text": "THE SPITEFUL MASTERPIECE:\n(Inventor) spends months perfecting the rejected design. It works, but is still completely useless. The inventor demands a parade."
+  },
+  "c3": {
+   "src": "L7577-7580",
+   "text": "THE FORTY-SEVEN REVISIONS:\n(Inventor) returns with forty-seven revised sketches. The leaders ask which one is best. \"All of them,\" says (Inventor). The meeting ends abruptly."
+  },
+  "c4": {
+   "src": "L7582-7585",
+   "text": "THE LOST OPPORTUNITY:\nA visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes."
+  },
+  "c5": {
+   "src": "L7587-7590",
+   "text": "THE FINAL WORD:\n(Inventor) abandons the invention and returns to ordinary work. Years later, the village still jokes about it. (Inventor) finally laughs too, then admits that the ridicule hurt at the time."
+  },
+  "set_a": {
+   "type": "branch",
+   "set": "A",
+   "children": [
+    {
+     "next": "a1",
+     "if": {
+      "any": [
+       {
+        "visited": "idea1"
+       },
+       {
+        "visited": "idea2"
+       },
+       {
+        "visited": "idea3"
+       },
+       {
+        "visited": "idea4"
+       },
+       {
+        "visited": "idea5"
+       },
+       {
+        "visited": "idea6"
+       },
+       {
+        "visited": "idea8"
+       },
+       {
+        "visited": "idea18"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a2",
+     "if": {
+      "any": [
+       {
+        "visited": "idea7"
+       },
+       {
+        "visited": "idea11"
+       },
+       {
+        "visited": "idea13"
+       },
+       {
+        "visited": "idea15"
+       },
+       {
+        "visited": "idea18"
+       }
+      ]
+     }
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a5"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    },
+    {
+     "next": "b5"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  }
+ }
+}

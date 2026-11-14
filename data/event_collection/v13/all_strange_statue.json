@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strange Statue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_strange_statue",
+  "source": "v26",
+  "lines": [
+   7288,
+   7360
+  ],
+  "section": "v13",
+  "credit": "AUTHORSHIP AND IDEA CREDIT — V13\nOriginal creative direction, requested competition critic archetypes, and\nfive specific outcome concepts: Lorsieab2.\nOriginal event text, new characters, individual dialogue, additional\noutcomes, branching and implementation notes below: ChatGPT (OpenAI).\nThe Cooking Contest's original text and randomized framework remain\ncredited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites\nof the original. The other competition add-ons preserve the authorship\nof their existing base events as identified in the V12 credit ledger.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7289",
+  "ledger": [
+   {
+    "src": "L7290",
+    "kind": "structural",
+    "why": "section subheading"
+   },
+   {
+    "src": "L7306",
+    "kind": "structural",
+    "text": "(A1-A4)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7307",
+    "kind": "structural",
+    "text": "(B1-B4)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7308",
+    "kind": "structural",
+    "text": "(C1-C3)",
+    "why": "the choice's outcome range"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "sculptor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "carver": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "elderly": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "SUBJECT": {
+   "items": [
+    {
+     "text": "a beloved elder",
+     "src": "L7295",
+     "if": {
+      "visited": "subj_elder"
+     }
+    },
+    {
+     "text": "a heroic fisher",
+     "src": "L7295",
+     "if": {
+      "visited": "subj_fisher"
+     }
+    },
+    {
+     "text": "a sacred tree",
+     "src": "L7295",
+     "if": {
+      "visited": "subj_tree"
+     }
+    },
+    {
+     "text": "a sleeping cat",
+     "src": "L7296",
+     "if": {
+      "visited": "subj_cat"
+     }
+    },
+    {
+     "text": "a legendary island explorer",
+     "src": "L7296",
+     "if": {
+      "visited": "subj_explorer"
+     }
+    }
+   ]
+  }
+ },
+ "start": "subject",
+ "nodes": {
+  "subject": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "subj_elder"
+    },
+    {
+     "next": "subj_fisher"
+    },
+    {
+     "next": "subj_tree"
+    },
+    {
+     "next": "subj_cat"
+    },
+    {
+     "next": "subj_explorer"
+    }
+   ]
+  },
+  "subj_elder": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "subj_fisher": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "subj_tree": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "subj_cat": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "subj_explorer": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "intro": {
+   "name": "The statue",
+   "src": "L7293-7296,L7298-7301",
+   "text": "(sculptor) unveils a sculpture made from driftwood, volcanic ash, pulverized limestone and several extremely unfortunate-looking pearls. It depicts {SUBJECT}.\nIts proportions are dreadful. One eye is enormous. The other seems to be looking toward a different village. The left arm is longer than the entire body. Yet something about the sculpture is oddly lovable.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The Master Carver",
+   "src": "L7303-7304",
+   "text": "The Master Carver stares at it for a full minute. \"I cannot decide whether to praise you or bury it.\"",
+   "choices": [
+    {
+     "label": "Enter it into the sculpture competition.",
+     "next": "set_a",
+     "src": "L7306"
+    },
+    {
+     "label": "Ask the villagers what it makes them feel.",
+     "next": "set_b",
+     "src": "L7307"
+    },
+    {
+     "label": "Let the artist revise the work.",
+     "next": "set_c",
+     "src": "L7308"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7310-7313",
+   "text": "THE PEOPLE'S FAVORITE:\nThe judges award it low marks for craftsmanship. The villagers, however, adore it and begin leaving flowers at its feet. The organizers establish a separate People's Favorite award."
+  },
+  "a2": {
+   "src": "L7315-7318",
+   "text": "THE SCANDAL:\nThe sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote."
+  },
+  "a3": {
+   "src": "L7320-7323",
+   "text": "THE UNINTENDED INSULT:\nThe elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home."
+  },
+  "a4": {
+   "src": "L7325-7328",
+   "text": "THE UNFORGIVING CRITIC:\nThe Master Carver declares it an offense against stone, wood and sight itself. Later, (carver.he/she) is discovered secretly sketching it. \"For study,\" the critic insists. Nobody believes (carver.him/her)."
+  },
+  "b1": {
+   "src": "L7330-7332",
+   "text": "THE CHARM:\nChildren insist the statue looks friendly. Adults begin to agree. It becomes the village's unofficial good-luck monument."
+  },
+  "b2": {
+   "src": "L7334-7336",
+   "text": "THE NIGHTMARE:\nA child bursts into tears upon seeing it at dusk. The sculpture is moved to a sunny spot where it looks considerably less threatening."
+  },
+  "b3": {
+   "src": "L7338-7341",
+   "text": "THE MEMORY:\nAn elderly villager says the crooked face reminds (elderly.him/her) of a lost friend. The audience falls quiet. The artist decides to keep the flaws exactly as they are."
+  },
+  "b4": {
+   "src": "L7343-7346",
+   "text": "THE DIVISION:\nHalf the village loves the statue; the other half wants it hidden. The leaders choose a public place where it can be admired without blocking anyone's path. The argument continues for years."
+  },
+  "c1": {
+   "src": "L7348-7351",
+   "text": "THE RUINED IMPROVEMENT:\n(sculptor) corrects the proportions. The sculpture becomes technically excellent and completely forgettable. The villagers beg for the crooked version back."
+  },
+  "c2": {
+   "src": "L7353-7356",
+   "text": "THE DOUBLE STATUE:\nThe artist displays the original beside the corrected version. The judges debate which is better. A child says, \"That one looks right. This one looks happy.\" Nobody can improve on the answer."
+  },
+  "c3": {
+   "src": "L7358-7360",
+   "text": "THE ARTIST'S CHOICE:\n(sculptor) refuses to change a thing. \"It is ugly,\" (sculptor.he/she) admits. \"But it is mine.\" The Master Carver grants a reluctant nod."
+  },
+  "set_a": {
+   "type": "branch",
+   "set": "A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3",
+     "if": {
+      "visited": "subj_elder"
+     }
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ }
+}
