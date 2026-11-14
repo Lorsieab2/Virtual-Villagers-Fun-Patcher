@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Golden Child's Great Experiment",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v14_22_golden_childs_great",
+  "source": "v26",
+  "lines": [
+   7796,
+   7800
+  ],
+  "section": "v14",
+  "credit": "ORIGINAL CONCEPTS & CREATIVE DIRECTION: Lorsieab2 — the Golden Child\nsolves equations beyond his peers, explains advanced subjects simply,\ncomposes a song alone, invents an instrument, summons rainbows and storms,\nwaters and regrows crops/berry bush, and helps children discover plants,\nanimals, fungi, stars, planets and hidden places. Also requested more\nage-appropriate actions suggesting an adult's insight in a child's body.\nADDITIONAL CONCEPTS, EVENT PROSE & EXPANSIONS: ChatGPT — the further\nchild-scholar, music, empathy, play, invention and social scenarios below.",
+  "draw_weight": 1,
+  "series": "v14_golden_child",
+  "title_src": "L7796",
+  "ledger": [
+   {
+    "src": "L7800",
+    "kind": "instruction",
+    "why": "modest food OR farming skill: a silent branch, one page each (rule 8)"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  },
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "food"
+    },
+    {
+     "next": "farming"
+    }
+   ]
+  },
+  "food": {
+   "name": "A food reward",
+   "src": "L7797-7799",
+   "text": "The boy plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that his simple comparison reveals which conditions help seedlings grow.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7800"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7800",
+     "what": "farming-skill reward",
+     "reason": "the other half of food OR farming skill: the farming page gives it"
+    }
+   ]
+  },
+  "farming": {
+   "name": "A farming reward",
+   "src": "L7797-7799",
+   "text": "The boy plants seeds in several small patches, varying the soil and amount of water while keeping careful marks on a stone. Farmers notice that his simple comparison reveals which conditions help seedlings grow.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "farmer",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7800"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7800",
+     "what": "food reward",
+     "reason": "the other half of food OR farming skill: the food page gives it"
+    }
+   ]
+  }
+ }
+}

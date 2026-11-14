@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast of Two Traditions",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_feast_of_two_traditions",
+  "source": "v26",
+  "lines": [
+   7984,
+   7995
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7986",
+  "ledger": [
+   {
+    "src": "L7984",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L7989",
+    "kind": "instruction",
+    "text": "Gain a little food through shared preparations.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7994",
+    "kind": "instruction",
+    "text": "Lose a little food.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Feast of Two Traditions",
+   "src": "L7987",
+   "text": "A converted Isolan family and a village family each offer to host a feast, but neither agrees on how it should be prepared.",
+   "choices": [
+    {
+     "label": "Combine the traditions.",
+     "next": "set_a",
+     "src": "L7988"
+    },
+    {
+     "label": "Hold two smaller feasts.",
+     "next": "set_b",
+     "src": "L7992"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7989",
+   "text": "The meal becomes a new annual celebration.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7989"
+    },
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L7989"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7990",
+   "text": "The cooks produce an astonishingly strange dish that tastes unexpectedly wonderful."
+  },
+  "a3": {
+   "src": "L7991",
+   "text": "The two head cooks quarrel, then discover their children have already eaten everything."
+  },
+  "b1": {
+   "src": "L7993",
+   "text": "Guests attend both and exchange stories late into the night."
+  },
+  "b2": {
+   "src": "L7994",
+   "text": "A scheduling mishap leaves both feasts short of cooks.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7994",
+     "loss": true
+    }
+   ]
+  },
+  "b3": {
+   "src": "L7995",
+   "text": "The families decide that next year they will cook together."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

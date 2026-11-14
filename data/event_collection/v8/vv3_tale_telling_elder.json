@@ -1,0 +1,298 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tale-Telling Elder",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_tale_telling_elder",
+  "source": "v26",
+  "lines": [
+   4027,
+   4078
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4028",
+  "ledger": [
+   {
+    "src": "L4027",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4029",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4030",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4044",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4054",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4068",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4077",
+    "kind": "instruction",
+    "why": "the Research effect on the ending page (VV3 has no Devotion skill)"
+   },
+   {
+    "src": "L4078",
+    "kind": "note",
+    "why": "designer note: no Chief removal, no dangerous effects"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c4",
+  "v8_c5",
+  "v8_c7",
+  "v8_c10",
+  "v8_c16"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "the first night the villagers spent in the Secret City",
+     "src": "L4045"
+    },
+    {
+     "text": "a storm that frightened everyone but brought them closer",
+     "src": "L4046"
+    },
+    {
+     "text": "a friend who taught the elder an important skill",
+     "src": "L4047"
+    },
+    {
+     "text": "a disagreement that once seemed impossible to resolve",
+     "src": "L4048"
+    },
+    {
+     "text": "the day the village finally found enough food",
+     "src": "L4049"
+    },
+    {
+     "text": "the first child born after a difficult season",
+     "src": "L4050"
+    },
+    {
+     "text": "an old mistake that the elder can finally laugh about",
+     "src": "L4051"
+    },
+    {
+     "text": "someone who is gone, but whose kindness is remembered",
+     "src": "L4052"
+    }
+   ]
+  },
+  "DEV": {
+   "items": [
+    {
+     "text": "The child asks whether the elder was ever afraid. \"Of course,\" (elder.he/she) replies. \"I just kept going.\"",
+     "src": "L4055-4056"
+    },
+    {
+     "text": "The researcher gently corrects one detail. The elder laughs: \"Then you tell it next year.\"",
+     "src": "L4057-4058"
+    },
+    {
+     "text": "The parent notices the baby has fallen asleep. The story continues in softer voices.",
+     "src": "L4059-4060"
+    },
+    {
+     "text": "The builder admits (builder.he/she) had forgotten the story. The elder says, \"That's why we tell it.\"",
+     "src": "L4061-4062"
+    },
+    {
+     "text": "A child asks a painfully funny question at the most solemn moment. The elder laughs first.",
+     "src": "L4063-4064"
+    },
+    {
+     "text": "The elder falls quiet at a difficult memory. Nobody rushes (elder.him/her) to continue.",
+     "src": "L4065-4066"
+    }
+   ]
+  },
+  "END": {
+   "items": [
+    {
+     "text": "The gathering disperses slowly, with villagers still talking.",
+     "src": "L4069"
+    },
+    {
+     "text": "The child asks to hear the story again tomorrow.",
+     "src": "L4070"
+    },
+    {
+     "text": "The elder goes home feeling less alone.",
+     "src": "L4071"
+    },
+    {
+     "text": "The researcher writes down the story, leaving room for different versions.",
+     "src": "L4072-4073"
+    },
+    {
+     "text": "Nobody says anything profound. Someone offers the elder a warm meal, and (elder.he/she) accepts.",
+     "src": "L4074-4075"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "Old stories",
+   "src": "L4032-4042",
+   "text": "One evening, a child asks an elder why the village tells the same stories every year.\n\"Because,\" the elder says, \"one day there will be people who weren't here when they happened.\"\nA nursing parent settles nearby with a baby. A researcher puts down (researcher.his/her) notes. A builder, still covered in dust, sits at the edge of the gathering.\nThe elder begins a story about {A}.",
+   "children": [
+    {
+     "next": "dev"
+    }
+   ]
+  },
+  "dev": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{DEV}",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4077"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c4"
+    },
+    {
+     "next": "coda_c5"
+    },
+    {
+     "next": "coda_c7"
+    },
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c16"
+    }
+   ]
+  },
+  "coda_c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c4}"
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5}"
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

@@ -1,0 +1,531 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief and the Pearl",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_chief_and_the_pearl",
+  "source": "v26",
+  "lines": [
+   4874,
+   4934
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4875",
+  "ledger": [
+   {
+    "src": "L4874",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4876",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4877",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4892",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4898",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4904",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4910",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4917",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4925",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4930",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4933-4934",
+    "kind": "note",
+    "why": "designer note: the holding cell is never shown; the Chief and protected villagers are never removed"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chief": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "tribal_chief"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_r4",
+  "v9_r5",
+  "v9_r6",
+  "v9_r9",
+  "v9_r10",
+  "v9_r15",
+  "v9_r16",
+  "v9_r25"
+ ],
+ "pools": {},
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "Three confessions",
+   "src": "L4879-4882",
+   "text": "A priceless decorative pearl disappears from a ceremonial display. A young builder confesses immediately. Then an elder confesses. Then a Master Scientist confesses, insisting the pearl was needed for 'a critical experiment in spherical elegance.'",
+   "text_only": [
+    {
+     "src": "L4879",
+     "what": "a pearl disappears",
+     "reason": "an object goes missing, not a villager"
+    }
+   ],
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The Chief decides",
+   "src": "L4884-4885",
+   "text": "The Chief stares at the three suspects. 'One pearl. Three confessions. I have a feeling this will be a very long day.'",
+   "choices": [
+    {
+     "label": "Separate the witnesses and verify their accounts.",
+     "next": "testimony",
+     "src": "L4887"
+    },
+    {
+     "label": "Examine the display and inventory.",
+     "next": "evidence",
+     "src": "L4888"
+    },
+    {
+     "label": "Ask why each person confessed.",
+     "next": "motives",
+     "src": "L4889"
+    },
+    {
+     "label": "Convene a formal hearing.",
+     "next": "courtroom",
+     "src": "L4890"
+    }
+   ]
+  },
+  "testimony": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L4893",
+   "text": "All three describe different days. Two confessions are false.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L4894",
+   "text": "One confession matches a witness and a physical trace.",
+   "children": [
+    {
+     "next": "responsibility"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L4895",
+   "text": "None can describe the pearl accurately.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L4896",
+   "text": "A child reveals that the display was moved for cleaning.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "evidence": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "src": "L4899",
+   "text": "The pearl rolled beneath a carved stone.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "e2": {
+   "src": "L4900",
+   "text": "The 'pearl' was an imitation bead used in a demonstration.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "e3": {
+   "src": "L4901",
+   "text": "A researcher had legitimately borrowed it but failed to record it.",
+   "children": [
+    {
+     "next": "responsibility"
+    }
+   ]
+  },
+  "e4": {
+   "src": "L4902",
+   "text": "The display was vandalized by an unrelated adult.",
+   "children": [
+    {
+     "next": "misconduct"
+    }
+   ]
+  },
+  "motives": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    },
+    {
+     "next": "m4"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L4905",
+   "text": "The builder feared the Chief would blame an apprentice.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L4906",
+   "text": "The elder thought accepting blame would restore peace.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L4907",
+   "text": "The scientist wanted to seem important.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "m4": {
+   "src": "L4908",
+   "text": "One adult really did take it and is ashamed.",
+   "children": [
+    {
+     "next": "responsibility"
+    }
+   ]
+  },
+  "courtroom": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L4911",
+   "text": "The Chief insists on evidence and dismisses unsupported claims.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L4912",
+   "text": "A witness bursts into tears, then admits to lying to protect a friend.",
+   "children": [
+    {
+     "next": "misconduct"
+    }
+   ]
+  },
+  "c3": {
+   "src": "L4913-4914",
+   "text": "The scientist tries to introduce a chart of pearl trajectories. The Chief says, 'We are not putting a coconut on trial.'",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "c4": {
+   "src": "L4915",
+   "text": "The Chief calls a recess when two witnesses begin shouting.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "false": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4918-4920",
+   "text": "The Chief explains that fear, love, and shame can make people accept blame for things they did not do. The confessions alone do not prove guilt. The villagers are cleared where evidence warrants it.",
+   "children": [
+    {
+     "next": "false_set"
+    }
+   ]
+  },
+  "false_set": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    }
+   ]
+  },
+  "f1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4921",
+   "text": "The elder cries from relief and embarrassment.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "f2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4922",
+   "text": "The apprentice asks whether telling the truth can still be brave.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "f3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4923",
+   "text": "The scientist requests permission to keep the chart. The Chief sighs.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "responsibility": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4926-4928",
+   "text": "The responsible adult returns the pearl, admits the specific act, and makes restitution. The Chief praises honesty without pretending it erases the original wrong.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "misconduct": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4931-4932",
+   "text": "A fair hearing establishes deliberate theft or false testimony. The Chief orders proportionate restitution or community service.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r4"
+    },
+    {
+     "next": "coda_r5"
+    },
+    {
+     "next": "coda_r6"
+    },
+    {
+     "next": "coda_r9"
+    },
+    {
+     "next": "coda_r10"
+    },
+    {
+     "next": "coda_r15"
+    },
+    {
+     "next": "coda_r16"
+    },
+    {
+     "next": "coda_r25"
+    }
+   ]
+  },
+  "coda_r4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r4}"
+  },
+  "coda_r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r5}"
+  },
+  "coda_r6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r6}"
+  },
+  "coda_r9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r9}"
+  },
+  "coda_r10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r10}"
+  },
+  "coda_r15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r15}"
+  },
+  "coda_r16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r16}"
+  },
+  "coda_r25": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r25}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

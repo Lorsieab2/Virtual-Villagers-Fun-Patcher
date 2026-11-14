@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask That Wouldn't Stay Hidden",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_mask_that_wouldnt_stay",
+  "source": "v26",
+  "lines": [
+   7951,
+   7960
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7951",
+  "ledger": [
+   {
+    "src": "L7956",
+    "kind": "instruction",
+    "text": "Gain a small tech reward from the discovery.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Mask That Wouldn't Stay Hidden",
+   "src": "L7952",
+   "text": "An old mask keeps appearing in unexpected places, although every villager denies moving it.",
+   "choices": [
+    {
+     "label": "Watch the mask overnight.",
+     "next": "set_a",
+     "src": "L7953"
+    },
+    {
+     "label": "Hold a ceremony to return it to a safe place.",
+     "next": "set_b",
+     "src": "L7957"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7954",
+   "text": "A curious animal has been dragging it around. The children name the creature the Mask Keeper."
+  },
+  "a2": {
+   "src": "L7955",
+   "text": "A child confesses to moving it as part of a game and apologizes."
+  },
+  "a3": {
+   "src": "L7956",
+   "text": "Wind through a hollow opening makes the mask whistle eerily.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7956"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L7958",
+   "text": "The ceremony brings the village together."
+  },
+  "b2": {
+   "src": "L7959",
+   "text": "The mask slips off its stand and lands on the officiant's head. Everyone laughs, including the officiant."
+  },
+  "b3": {
+   "src": "L7960",
+   "text": "A storyteller invents an elaborate legend that becomes a favorite bedtime tale."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

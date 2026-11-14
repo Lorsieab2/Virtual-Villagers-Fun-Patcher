@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Claimed to Be Chief",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_child_who_claimed_to_be",
+  "source": "v26",
+  "lines": [
+   7879,
+   7891
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7881",
+  "ledger": [
+   {
+    "src": "L7879",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L7885",
+    "kind": "instruction",
+    "text": "Gain a small food reward;",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7886",
+    "kind": "instruction",
+    "text": "Lose a small amount of food;",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chief": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "tribal_chief"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Child Who Claimed to Be Chief",
+   "src": "L7882",
+   "text": "A child of the Secret City appears before the Tribal Chief wearing a crown of woven grass and declares that the village has been governed incorrectly. The child demands the right to rule for one day. The Chief considers the challenge while the gathered villagers struggle not to laugh.",
+   "choices": [
+    {
+     "label": "Let the child govern for one day under the Chief's supervision.",
+     "next": "set_a",
+     "src": "L7883"
+    },
+    {
+     "label": "Have the Chief explain the responsibilities of leadership.",
+     "next": "set_b",
+     "src": "L7888"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7884",
+   "text": "THE TINY TYRANT: The child decrees that everyone must play. The Chief asks who will gather supper. After a hungry afternoon, the young ruler reluctantly withdraws the decree."
+  },
+  "a2": {
+   "src": "L7885",
+   "text": "THE UNEXPECTED REFORMER: The child asks why supplies are carried back and forth so often. The Chief allows the farmers to test a better arrangement.\nThe Chief publicly praises the child's observation.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7885"
+    }
+   ]
+  },
+  "a3": {
+   "src": "L7886",
+   "text": "THE ROYAL FEAST: The child demands a feast fit for a ruler. The Chief places the child in charge of gathering and preparing it.\nThe child learns what such orders cost.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7886",
+     "loss": true
+    }
+   ]
+  },
+  "a4": {
+   "src": "L7887",
+   "text": "THE PEOPLE'S CHIEF: Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment."
+  },
+  "b1": {
+   "src": "L7889",
+   "text": "The Chief invites the child to help an exhausted farmer. By sunset the child admits that leadership is harder than wearing a crown."
+  },
+  "b2": {
+   "src": "L7890",
+   "text": "The child challenges the Chief to a public debate and makes a surprisingly clever argument. The Chief graciously acknowledges it, whereupon the child forgets the subject entirely."
+  },
+  "b3": {
+   "src": "L7891",
+   "text": "The child happily withdraws the challenge in favor of hide-and-seek. The Chief solemnly accepts the abdication and returns to governing."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,444 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Impossible Invention",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_impossible_invention",
+  "source": "v26",
+  "lines": [
+   5524,
+   5605
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5525",
+  "ledger": [
+   {
+    "src": "L5524",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5526",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5527",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5548",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5560",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5570",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5579",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5592",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5604-5605",
+    "kind": "note",
+    "why": "reputations are story only (rule 7); no promotion"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "include_pools": [
+  "v10_o2",
+  "v10_o3",
+  "v10_o4",
+  "v10_o8",
+  "v10_o16",
+  "v10_o18",
+  "v10_o20",
+  "v10_o29",
+  "v10_o30"
+ ],
+ "pools": {
+  "RESULT": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "(Subject) earns genuine respect for careful observation.",
+     "src": "L5571"
+    },
+    {
+     "text": "The invention wins a small prize, and the former mockers apologize.",
+     "src": "L5572-5573"
+    },
+    {
+     "text": "The inventor accepts the criticism and returns with a better design next season.",
+     "src": "L5574-5575"
+    },
+    {
+     "text": "A Master Scientist offers mentorship, insisting that enthusiasm is not a substitute for evidence.",
+     "src": "L5576-5577"
+    }
+   ]
+  },
+  "MAD": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "(Subject) insists the bubbling yogurt is \"ALIVE!\" The healer replies, \"That is not the reassuring statement you think it is.\"",
+     "src": "L5580-5582"
+    },
+    {
+     "text": "(Subject) wears a dramatic cloak woven from tough vines. It gets caught on a door.",
+     "src": "L5583-5584"
+    },
+    {
+     "text": "(Subject) names a jar of slug slime \"THE FUTURE.\" The village leaders ask that it be kept outside.",
+     "src": "L5585-5586"
+    },
+    {
+     "text": "A rival admits that the experiment was clever. (Subject) faints theatrically.",
+     "src": "L5587-5588"
+    },
+    {
+     "text": "(Subject) becomes known as the village's eccentric experimentalist, not as someone inherently foolish.",
+     "src": "L5589-5590"
+    }
+   ]
+  },
+  "HUMAN": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "\"I can survive being wrong,\" says (Subject). \"I just wish you wouldn't enjoy it so much.\"",
+     "src": "L5593-5594"
+    },
+    {
+     "text": "An elder says, \"Some of your ideas are dreadful. That doesn't make you dreadful.\"",
+     "src": "L5595-5596"
+    },
+    {
+     "text": "A child offers (Subject) a tiny wooden trophy labeled MOST IMPROVED FAILURE.",
+     "src": "L5597-5598"
+    },
+    {
+     "text": "The loudest critic admits to once building a bridge that led directly into a pond.",
+     "src": "L5599-5600"
+    },
+    {
+     "text": "(Subject) keeps experimenting, but begins recording failures as carefully as successes.",
+     "src": "L5601-5602"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "Dreadful ideas",
+   "src": "L5529-5538",
+   "text": "(Subject) has become famous for proposing dreadful ideas: a chair held together with fermented fruit juice, a roof made from tree bark and rotten wood, and a ceremonial necklace fashioned from {polished pearls|pulverized gemstones|crushed-up snail shells}.\nAfter the latest failure, some villagers cruelly call (Subject) \"the village idiot.\"\n(Subject) hears them.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "A new experiment",
+   "src": "L5540-5543",
+   "text": "Then (subject.he/she) announces a new experiment involving {volcanic ash and crushed snail shells|spider silk and tough vines|yeast and fermented yogurt|tree bark and animal rawhide}.",
+   "choices": [
+    {
+     "label": "OFFER SUPERVISION AND A FAIR TEST.",
+     "next": "test",
+     "src": "L5545"
+    },
+    {
+     "label": "TELL (subject.Him/Her) TO STOP BEFORE ANYONE IS HURT.",
+     "next": "warning",
+     "src": "L5546"
+    }
+   ]
+  },
+  "test": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    },
+    {
+     "next": "t5"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L5549-5550",
+   "text": "The material works surprisingly well for a harmless decorative application.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L5551-5552",
+   "text": "The invention fails, but the observations reveal something useful about material strength.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L5553-5554",
+   "text": "The experiment creates a horrible smell. The judges retreat in an orderly fashion.",
+   "children": [
+    {
+     "next": "mad"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L5555-5556",
+   "text": "The inventor has accidentally reinvented a technique an elder has used for forty years.",
+   "children": [
+    {
+     "next": "human"
+    }
+   ]
+  },
+  "t5": {
+   "src": "L5557-5558",
+   "text": "The invention is impressive but unsafe for its intended use; the village declines to deploy it.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "warning": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "w1"
+    },
+    {
+     "next": "w2"
+    },
+    {
+     "next": "w3"
+    },
+    {
+     "next": "w4"
+    }
+   ]
+  },
+  "w1": {
+   "src": "L5561-5562",
+   "text": "(Subject) feels humiliated and stops presenting ideas. An elder later encourages a safer project.",
+   "children": [
+    {
+     "next": "human"
+    }
+   ]
+  },
+  "w2": {
+   "src": "L5563-5564",
+   "text": "(Subject) angrily declares (subject.himself/herself) a MAD SCIENTIST and starts wearing a ridiculous leaf-covered hat.",
+   "children": [
+    {
+     "next": "mad"
+    }
+   ]
+  },
+  "w3": {
+   "src": "L5565-5566",
+   "text": "The leaders establish sensible testing rules rather than forbidding experimentation entirely.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "w4": {
+   "src": "L5567-5568",
+   "text": "A child asks why mistakes are funny when adults make them but shameful when children do.",
+   "children": [
+    {
+     "next": "human"
+    }
+   ]
+  },
+  "result": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RESULT}",
+   "text_only": [
+    {
+     "src": "L5572",
+     "what": "a small prize",
+     "reason": "rule 7: prizes are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "mad": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{MAD}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "human": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{HUMAN}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o2"
+    },
+    {
+     "next": "coda_o3"
+    },
+    {
+     "next": "coda_o4"
+    },
+    {
+     "next": "coda_o8"
+    },
+    {
+     "next": "coda_o16"
+    },
+    {
+     "next": "coda_o18"
+    },
+    {
+     "next": "coda_o20"
+    },
+    {
+     "next": "coda_o29"
+    },
+    {
+     "next": "coda_o30"
+    }
+   ]
+  },
+  "coda_o2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o2}"
+  },
+  "coda_o3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o3}"
+  },
+  "coda_o4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o4}"
+  },
+  "coda_o8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o8}"
+  },
+  "coda_o16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o16}"
+  },
+  "coda_o18": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o18}"
+  },
+  "coda_o20": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o20}"
+  },
+  "coda_o29": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o29}"
+  },
+  "coda_o30": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o30}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

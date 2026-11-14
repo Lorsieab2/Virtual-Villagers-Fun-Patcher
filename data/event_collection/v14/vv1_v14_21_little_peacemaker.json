@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Peacemaker",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v14_21_little_peacemaker",
+  "source": "v26",
+  "lines": [
+   7790,
+   7794
+  ],
+  "section": "v14",
+  "credit": "ORIGINAL CONCEPTS & CREATIVE DIRECTION: Lorsieab2 — the Golden Child\nsolves equations beyond his peers, explains advanced subjects simply,\ncomposes a song alone, invents an instrument, summons rainbows and storms,\nwaters and regrows crops/berry bush, and helps children discover plants,\nanimals, fungi, stars, planets and hidden places. Also requested more\nage-appropriate actions suggesting an adult's insight in a child's body.\nADDITIONAL CONCEPTS, EVENT PROSE & EXPANSIONS: ChatGPT — the further\nchild-scholar, music, empathy, play, invention and social scenarios below.",
+  "draw_weight": 1,
+  "series": "v14_golden_child",
+  "title_src": "L7790",
+  "ledger": [
+   {
+    "src": "L7794",
+    "kind": "instruction",
+    "text": "Outcome: friendship and morale flavor.",
+    "why": "the scene's outcome, carried by its effect or text_only reason"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The Little Peacemaker",
+   "src": "L7791-7794",
+   "text": "Two children refuse to speak after a quarrel. The Golden Child asks each to explain what hurt without interruption. They apologize and return to their game. Asked where he learned such diplomacy, he says, 'I just wanted us to play together.'",
+   "text_only": [
+    {
+     "src": "L7794",
+     "what": "the outcome",
+     "reason": "friendship and morale are flavor in the source; no game effect"
+    }
+   ]
+  }
+ }
+}

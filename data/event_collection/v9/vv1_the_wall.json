@@ -1,0 +1,929 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_the_wall",
+  "source": "v26",
+  "lines": [
+   4595,
+   4692
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4596",
+  "ledger": [
+   {
+    "src": "L4595",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4597",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4598",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4617",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4626",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4637",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4645",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4653",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4659",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4667",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4675",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4682",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4692",
+    "kind": "instruction",
+    "why": "the Building effects on the ending pages; the optional modest Tech is one of two equal copies of each ending"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "culprit": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_materials",
+  "v9_r1",
+  "v9_r3",
+  "v9_r5",
+  "v9_r7",
+  "v9_r8",
+  "v9_r13",
+  "v9_r14",
+  "v9_r18",
+  "v9_r19",
+  "v9_r24"
+ ],
+ "pools": {
+  "END8": {
+   "set": "(8)",
+   "items": [
+    {
+     "text": "The rivals refuse to speak for a week, then exchange tools without a word.",
+     "src": "L4676"
+    },
+    {
+     "text": "Both leave the hearing convinced they won. The leader is exhausted.",
+     "src": "L4677"
+    },
+    {
+     "text": "The wall stands crooked. Nobody wants to touch it again.",
+     "src": "L4678"
+    },
+    {
+     "text": "A child paints a sign reading 'PLEASE DO NOT ARGUE NEAR THE WALL.'",
+     "src": "L4679"
+    },
+    {
+     "text": "The rivalry continues, but neither is allowed to make unproven accusations.",
+     "src": "L4680"
+    }
+   ]
+  },
+  "END9": {
+   "set": "(9)",
+   "items": [
+    {
+     "text": "'I still think your wall is ugly.' / 'I still think you're impossible.' They shake hands anyway.",
+     "src": "L4683-4684"
+    },
+    {
+     "text": "(Subject) admits the public accusation hurt more than the failed project. (Friend) listens, then says, 'Yes. It did.'",
+     "src": "L4685-4686"
+    },
+    {
+     "text": "The two build a better wall together and refuse to call it friendship.",
+     "src": "L4687"
+    },
+    {
+     "text": "A child asks whether they are friends now. Both shout, 'NO!' in unison.",
+     "src": "L4688"
+    },
+    {
+     "text": "(Friend) leaves a small bag of clean shell powder at (Subject)'s door. The note reads, 'Try not to ruin it this time.'",
+     "src": "L4689-4690"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The coating",
+   "src": "L4600-4608",
+   "text": "Two builders, (Subject) and (Friend), have disliked each other ever since (Subject) called (Friend)'s favorite bench 'an architectural apology.'\nNow (Subject) unveils a revolutionary wall coating made from {v9_materials}. (Friend) declares it {a masterpiece|a fraud|a waste of good materials|a personal attack on the discipline of Building}.\nAt sunrise, the wall has {cracked|turned purple|started shedding flakes|acquired a horrifying smell|become unexpectedly beautiful}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L4600",
+     "what": "the builders dislike each other",
+     "reason": "a story rivalry between two villagers, not a preference"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Sabotage!",
+   "src": "L4609-4610",
+   "text": "(Subject) accuses (Friend) of sabotage. (Friend) is so furious that (friend.he/she) kicks an EMPTY basket across the workshop.",
+   "choices": [
+    {
+     "label": "Investigate the evidence.",
+     "next": "inv",
+     "src": "L4612"
+    },
+    {
+     "label": "Let the builders confront one another before the leader.",
+     "next": "hearing",
+     "src": "L4613"
+    },
+    {
+     "label": "Ask the apprentices and children what they saw.",
+     "next": "wit",
+     "src": "L4614"
+    },
+    {
+     "label": "Separate the rivals and repair the wall first.",
+     "next": "rep",
+     "src": "L4615"
+    }
+   ]
+  },
+  "inv": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "i1"
+    },
+    {
+     "next": "i2"
+    },
+    {
+     "next": "i3"
+    },
+    {
+     "next": "i4"
+    },
+    {
+     "next": "i5"
+    }
+   ]
+  },
+  "i1": {
+   "src": "L4618-4619",
+   "text": "Tool marks suggest deliberate interference, but the marks match the inventor's own tools.",
+   "children": [
+    {
+     "next": "evidence"
+    }
+   ]
+  },
+  "i2": {
+   "src": "L4620-4621",
+   "text": "The missing ingredient is discovered in (Friend)'s workshop; a receipt proves (friend.he/she) bought an identical batch.",
+   "children": [
+    {
+     "next": "evidence"
+    }
+   ]
+  },
+  "i3": {
+   "src": "L4622",
+   "text": "The wall failed because the mixture was poorly prepared.",
+   "children": [
+    {
+     "next": "fault"
+    }
+   ]
+  },
+  "i4": {
+   "src": "L4623",
+   "text": "A third builder secretly altered it to win a commission.",
+   "children": [
+    {
+     "next": "sabotage"
+    }
+   ]
+  },
+  "i5": {
+   "src": "L4624",
+   "text": "Nothing is conclusive. The accusation must not become a conviction.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "hearing": {
+   "src": "L4627-4629",
+   "text": "The village leader convenes a public hearing. The rivals interrupt one another so often that the leader threatens to charge them both with wasting everyone's afternoon.",
+   "children": [
+    {
+     "next": "hearing_set"
+    }
+   ]
+  },
+  "hearing_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "h1"
+    },
+    {
+     "next": "h2"
+    },
+    {
+     "next": "h3"
+    },
+    {
+     "next": "h4"
+    }
+   ]
+  },
+  "h1": {
+   "src": "L4630-4631",
+   "text": "(Subject) bursts into tears from humiliation, then grows furious at being seen crying.",
+   "children": [
+    {
+     "next": "evidence"
+    }
+   ]
+  },
+  "h2": {
+   "src": "L4632",
+   "text": "(Friend) admits to insulting the invention, but denies touching it.",
+   "children": [
+    {
+     "next": "evidence"
+    }
+   ]
+  },
+  "h3": {
+   "src": "L4633",
+   "text": "Both admit they have been spreading cruel rumors.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "h4": {
+   "src": "L4634-4635",
+   "text": "(Friend) shouts, 'I HATE YOUR GUTS!' and (Subject) replies, 'THE FEELING IS MUTUAL!' The leader orders a recess.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "wit": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "w1"
+    },
+    {
+     "next": "w2"
+    },
+    {
+     "next": "w3"
+    },
+    {
+     "next": "w4"
+    }
+   ]
+  },
+  "w1": {
+   "src": "L4638",
+   "text": "A child saw a figure near the wall, but cannot identify the person.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "w2": {
+   "src": "L4639",
+   "text": "An apprentice saw (Subject) add the wrong powder.",
+   "children": [
+    {
+     "next": "fault"
+    }
+   ]
+  },
+  "w3": {
+   "src": "L4640-4641",
+   "text": "An elder remembers (Friend) lending (Subject) a tool. The rivals had forgotten that brief moment of cooperation.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "w4": {
+   "src": "L4642-4643",
+   "text": "A child confesses to 'ruining the wall' because (child.he/she) dropped a pebble nearby. The leader explains that guilt requires evidence.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "rep": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "p1"
+    },
+    {
+     "next": "p2"
+    },
+    {
+     "next": "p3"
+    },
+    {
+     "next": "p4"
+    }
+   ]
+  },
+  "p1": {
+   "src": "L4646",
+   "text": "The wall is salvaged. The rivals argue about whose repair worked.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "p2": {
+   "src": "L4647-4648",
+   "text": "The wall collapses harmlessly into an empty work area. Nobody is hurt. Both builders stare in absolute silence.",
+   "text_only": [
+    {
+     "src": "L4647",
+     "what": "the wall collapses",
+     "reason": "the coated wall is a workshop piece, not one of the game's structures"
+    }
+   ],
+   "children": [
+    {
+     "next": "fault"
+    }
+   ]
+  },
+  "p3": {
+   "src": "L4649",
+   "text": "(Friend) quietly helps without asking for credit.",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "p4": {
+   "src": "L4650-4651",
+   "text": "(Subject) refuses assistance, then apologizes after exhausting (subject.himself/herself).",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "evidence": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4654",
+   "text": "The leader announces that an accusation is not proof.",
+   "children": [
+    {
+     "next": "evidence_set"
+    }
+   ]
+  },
+  "evidence_set": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4655",
+   "text": "(Subject) withdraws the allegation and apologizes awkwardly.",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "e2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4656",
+   "text": "(Friend) demands a public apology and receives one.",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "e3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4657",
+   "text": "(Subject) cannot yet apologize. The hearing ends without a verdict.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "fault": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4660-4662",
+   "text": "The notes show that (Subject) accidentally substituted {v9_materials} for the intended ingredient. (Subject) {laughs helplessly|looks ill|tries to blame the handwriting|admits the mistake}.",
+   "children": [
+    {
+     "next": "fault_set"
+    }
+   ]
+  },
+  "fault_set": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    }
+   ]
+  },
+  "f1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4663",
+   "text": "The rival offers a correction, without gloating.",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "f2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4664",
+   "text": "The rival gloats spectacularly. The leader orders (friend.him/her) to stop.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "f3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4665",
+   "text": "The inventor admits guilt for the failure but not for the rumor.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "sabotage": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4668",
+   "text": "A third adult admits to damaging the wall out of envy.",
+   "children": [
+    {
+     "next": "sabotage_set"
+    }
+   ]
+  },
+  "sabotage_set": {
+   "type": "branch",
+   "set": "(7)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    }
+   ]
+  },
+  "s1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4669",
+   "text": "The culprit pays for repairs through supervised work and apologizes.",
+   "children": [
+    {
+     "next": "reconcile"
+    }
+   ]
+  },
+  "s2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4670-4671",
+   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "s3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4672-4673",
+   "text": "The culprit claims (Friend) put (culprit.him/her) up to it. The allegation is investigated separately, not treated as established fact.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "unresolved": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u_tech"
+    },
+    {
+     "next": "u_plain"
+    }
+   ]
+  },
+  "u_tech": {
+   "name": "Unresolved",
+   "text": "{END8}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L4692"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u_plain": {
+   "name": "Unresolved",
+   "text": "{END8}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L4692",
+     "what": "optional modest Tech",
+     "reason": "the source makes the Tech optional: this is the equally likely ending without it"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "reconcile": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "r_tech"
+    },
+    {
+     "next": "r_plain"
+    }
+   ]
+  },
+  "r_tech": {
+   "name": "Reconciliation",
+   "text": "{END9}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L4692"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "r_plain": {
+   "name": "Reconciliation",
+   "text": "{END9}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L4692"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L4692",
+     "what": "optional modest Tech",
+     "reason": "the source makes the Tech optional: this is the equally likely ending without it"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r1"
+    },
+    {
+     "next": "coda_r3"
+    },
+    {
+     "next": "coda_r5"
+    },
+    {
+     "next": "coda_r7"
+    },
+    {
+     "next": "coda_r8"
+    },
+    {
+     "next": "coda_r13"
+    },
+    {
+     "next": "coda_r14"
+    },
+    {
+     "next": "coda_r18"
+    },
+    {
+     "next": "coda_r19"
+    },
+    {
+     "next": "coda_r24"
+    }
+   ]
+  },
+  "coda_r1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r1}"
+  },
+  "coda_r3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r3}"
+  },
+  "coda_r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r5}"
+  },
+  "coda_r7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r7}"
+  },
+  "coda_r8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r8}"
+  },
+  "coda_r13": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r13}"
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r18": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r18}"
+  },
+  "coda_r19": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r19}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

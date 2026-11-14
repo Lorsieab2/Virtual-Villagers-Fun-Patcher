@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dolphins' Strange Gift",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_the_dolphins_strange_gift",
+  "source": "v26",
+  "lines": [
+   7973,
+   7982
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7973",
+  "ledger": [
+   {
+    "src": "L7976",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Dolphins' Strange Gift",
+   "src": "L7974",
+   "text": "A villager finds a smooth, oddly shaped object washed ashore after dolphins were seen playing offshore.",
+   "choices": [
+    {
+     "label": "Study the object.",
+     "next": "set_a",
+     "src": "L7975"
+    },
+    {
+     "label": "Return it to the sea.",
+     "next": "set_b",
+     "src": "L7979"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7976",
+   "text": "It is an unusual shell. The researchers document it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7976"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7977",
+   "text": "It is an ordinary stone polished by waves, but the children treasure it anyway."
+  },
+  "a3": {
+   "src": "L7978",
+   "text": "A skilled craftsperson turns it into a charming ornament."
+  },
+  "b1": {
+   "src": "L7980",
+   "text": "A dolphin surfaces nearby; the children insist it has come to say thank you."
+  },
+  "b2": {
+   "src": "L7981",
+   "text": "The object washes ashore again the next day, starting a village joke."
+  },
+  "b3": {
+   "src": "L7982",
+   "text": "The villagers hold a small celebration of the sea's mysteries.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L7982"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

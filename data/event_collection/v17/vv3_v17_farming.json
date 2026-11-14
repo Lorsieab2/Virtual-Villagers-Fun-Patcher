@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden of Rival Methods",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_v17_farming",
+  "source": "v26",
+  "lines": [
+   8257,
+   8261
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8257",
+  "shared_lines": [
+   "L8214"
+  ],
+  "ledger": [
+   {
+    "src": "L8261",
+    "kind": "instruction",
+    "text": "Food rewards depend on actual results.",
+    "why": "the text-only reason"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8214,L8258-8261",
+   "text": "The Tribal Chief presides ceremonially over the Secret City's festival.\nNature-oriented growers favor careful soil stewardship; a Magic-oriented entrant proposes a ceremonial approach paired with practical cultivation. Blind harvest measurement may favor either or reveal that both methods need revision.",
+   "text_only": [
+    {
+     "src": "L8261",
+     "what": "food rewards",
+     "reason": "depend on results the source leaves open; no food change is made"
+    }
+   ],
+   "name": "The Garden of Rival Methods",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_u}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "no_coda": {
+   "type": "branch"
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  }
+ },
+ "include_pools": [
+  "v17_u",
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

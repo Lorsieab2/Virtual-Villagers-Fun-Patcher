@@ -1,0 +1,513 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Judge Who Feared No Dish",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_cooking_judge_who_feared",
+  "source": "v26",
+  "lines": [
+   6862,
+   7028
+  ],
+  "section": "v13",
+  "credit": "AUTHORSHIP AND IDEA CREDIT — V13\nOriginal creative direction, requested competition critic archetypes, and\nfive specific outcome concepts: Lorsieab2.\nOriginal event text, new characters, individual dialogue, additional\noutcomes, branching and implementation notes below: ChatGPT (OpenAI).\nThe Cooking Contest's original text and randomized framework remain\ncredited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites\nof the original. The other competition add-ons preserve the authorship\nof their existing base events as identified in the V12 credit ledger.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6863",
+  "ledger": [
+   {
+    "src": "L6863",
+    "kind": "structural",
+    "why": "section heading"
+   },
+   {
+    "src": "L6864",
+    "kind": "structural",
+    "why": "section heading"
+   },
+   {
+    "src": "L6867",
+    "kind": "note",
+    "why": "designer placement note: the judge comes before the core's judging phase"
+   },
+   {
+    "src": "L6874",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L6881",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L7024-7028",
+    "kind": "note",
+    "why": "integration and credit note, never displayed"
+   },
+   {
+    "src": "L6890",
+    "kind": "structural",
+    "text": "(A1-A6)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L6891",
+    "kind": "structural",
+    "text": "(B1-B5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L6892",
+    "kind": "structural",
+    "text": "(C1-C5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L6893",
+    "kind": "structural",
+    "text": "(D1-D5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L6901",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6907",
+    "kind": "instruction",
+    "text": "; use the original contest's winner",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6908",
+    "kind": "instruction",
+    "why": "the rest of the outcome's result"
+   },
+   {
+    "src": "L6919-6920",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6927",
+    "kind": "instruction",
+    "text": "Result: surprising praise; judging",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6928",
+    "kind": "instruction",
+    "why": "the rest of the outcome's result"
+   },
+   {
+    "src": "L6935",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6942",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6969",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L6998",
+    "kind": "instruction",
+    "text": "Result: hilarious role reversal, possible friendship.",
+    "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L7011",
+    "kind": "instruction",
+    "text": "Use the original contest's tie-breaker branches.",
+    "why": "the outcome's result, carried by its effect or text_only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "cook1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "judge": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "senior": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "JUDGE_TEMPER": {
+   "items": [
+    {
+     "text": "Thunderous, theatrical, and almost impossible to impress",
+     "src": "L6875"
+    },
+    {
+     "text": "Quiet and devastating, speaking in a whisper that frightens everyone",
+     "src": "L6876"
+    },
+    {
+     "text": "Warm toward earnest apprentices, merciless toward boastful masters",
+     "src": "L6877"
+    },
+    {
+     "text": "Astonishingly fair, but prone to comparisons involving dead fish",
+     "src": "L6878"
+    },
+    {
+     "text": "Perpetually furious at wasted food and unhygienic preparation",
+     "src": "L6879"
+    }
+   ]
+  },
+  "JUDGE_REMARK": {
+   "items": [
+    {
+     "text": "\"I've eaten better meals during a famine! At least then I was grateful!\"",
+     "src": "L6882"
+    },
+    {
+     "text": "\"This fish died twice. Once in the sea, and once in your hands.\"",
+     "src": "L6883"
+    },
+    {
+     "text": "\"You call this a stew? I've seen puddles with greater ambition.\"",
+     "src": "L6884"
+    },
+    {
+     "text": "\"Beautifully presented. Pity you forgot to make it edible.\"",
+     "src": "L6885"
+    },
+    {
+     "text": "\"Who seasoned this? A frightened snail?\"",
+     "src": "L6886"
+    },
+    {
+     "text": "\"A fine dish. I'm almost angry that I have nothing to complain about.\"",
+     "src": "L6887"
+    },
+    {
+     "text": "\"Do not tell me how much effort it took. Tell me why it tastes good.\"",
+     "src": "L6888"
+    }
+   ]
+  }
+ },
+ "start": "v13a_intro",
+ "nodes": {
+  "v13a_intro": {
+   "name": "The famous judge",
+   "src": "L6868-6872",
+   "text": "A famous visiting cook, (judge), has been asked to examine the finalists' work. (judge.He/She) has served feasts for entire villages, trained more apprentices than (judge.he/she) can count, and once rejected a banquet because the soup tasted like boiled sandals. (judge.He/She) has an extraordinary palate, a terrifying voice, and absolutely no patience for carelessness.\n{JUDGE_TEMPER}",
+   "children": [
+    {
+     "next": "v13a_remark"
+    }
+   ]
+  },
+  "v13a_remark": {
+   "type": "question",
+   "name": "The first remark",
+   "text": "{JUDGE_REMARK}",
+   "choices": [
+    {
+     "label": "Invite the judge to taste both dishes publicly.",
+     "next": "v13a_set_a",
+     "src": "L6890"
+    },
+    {
+     "label": "Ask the judge to give constructive instruction first.",
+     "next": "v13a_set_b",
+     "src": "L6891"
+    },
+    {
+     "label": "Allow the finalists to challenge the judge's standards.",
+     "next": "v13a_set_c",
+     "src": "L6892"
+    },
+    {
+     "label": "Hold a blind tasting, with the judge unaware of the cooks.",
+     "next": "v13a_set_d",
+     "src": "L6893"
+    }
+   ]
+  },
+  "v13a_a1": {
+   "src": "L6895-6900",
+   "text": "THE THUNDERCLAP:\n(judge) takes one mouthful of (cook1)'s stew, sets down the spoon, and asks whether the cook is trying to feed the villagers or punish them. (cook1) protests that it is an ancient family recipe. \"Then your ancestors deserve an apology!\" The crowd roars. Later, the judge privately explains exactly what went wrong and offers another lesson.",
+   "text_only": [
+    {
+     "src": "L6901",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_a2": {
+   "src": "L6903-6907",
+   "text": "THE PERFECT DISH:\n(judge) tastes (cook2)'s dish. The hall falls silent. (judge.He/She) tastes it again, then a third time. \"Well,\" (judge.he/she) mutters, \"that's infuriating.\" Asked what is wrong, (judge) replies, \"Nothing.\" (cook2) wins the judge's praise",
+   "text_only": [
+    {
+     "src": "L6907-6908",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_a3": {
+   "src": "L6910-6918",
+   "text": "THE DISASTER THAT EVACUATED THE VILLAGE:\nThe lid is lifted from (cook1)'s covered pot. A thick, eye-watering cloud rolls across the judging table. The judge staggers backward. \"CLOSE IT! CLOSE THE WRETCHED THING!\" The cooks flee, the spectators scatter, and the entire village retreats to higher ground until the smell disperses. The dish consists of fermented fish, old cabbage, tree resin and a seasoning that (cook1) refuses to identify. The food is discarded. The judges postpone the competition. Nobody is harmed, but the village speaks of THE GREAT STENCH for generations.",
+   "text_only": [
+    {
+     "src": "L6919-6920",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    },
+    {
+     "src": "L6917",
+     "what": "the food is discarded",
+     "reason": "the contest dish, not the village's stores"
+    }
+   ]
+  },
+  "v13a_a4": {
+   "src": "L6922-6927",
+   "text": "THE REVOLTING MASTERPIECE:\n(cook2) presents a grey, quivering mound covered in dark green sauce. (judge) closes (judge.his/her) eyes in despair, then tastes a tiny portion. The expression changes. \"It's... delicious.\" The audience gasps. \"I hate everything about looking at it,\" says (judge), \"but I would gladly eat another bowl.\"",
+   "text_only": [
+    {
+     "src": "L6927-6928",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_a5": {
+   "src": "L6930-6934",
+   "text": "THE JUDGE IS WRONG:\n(judge) loudly condemns a dish for containing a bitter herb. A quiet healer points out that the herb was carefully prepared and is a traditional delicacy. The judge tastes it properly, pauses, and apologizes before everyone. \"Even I can be wrong. Remember that.\"",
+   "text_only": [
+    {
+     "src": "L6935",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_a6": {
+   "src": "L6937-6941",
+   "text": "THE FURIOUS APPRENTICE:\n(cook1) finally snaps. \"If you know so much, why don't YOU cook?\" (judge) calmly accepts. (judge.He/She) prepares a modest dish from the remaining ingredients, explaining every step. It is exquisite. (cook1) may apologize, study in silence, or vow to surpass the judge.",
+   "text_only": [
+    {
+     "src": "L6942",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_b1": {
+   "src": "L6944-6948",
+   "text": "THE LESSON:\n(judge) has the cooks prepare a simple broth. The boastful finalist tries to hide an elaborate garnish in it. \"NO!\" bellows the judge. \"First learn to feed someone. Then learn to impress them.\" Both improve, and the competition resumes."
+  },
+  "v13a_b2": {
+   "src": "L6950-6954",
+   "text": "THE KINDNESS BENEATH THE RAGE:\nA nervous apprentice drops a spoon. (judge) kneels to retrieve it and says quietly, \"A mistake is not a disgrace. Refusing to learn is.\" When a senior cook laughs, the judge turns on (senior.him/her): \"And what exactly have YOU taught anyone today?\" The room falls silent."
+  },
+  "v13a_b3": {
+   "src": "L6956-6959",
+   "text": "THE USELESS LESSON:\n(judge) explains how to judge a stew by scent. Unfortunately, a nearby cauldron of spoiled shellfish overwhelms every nose in the hall. \"My lesson,\" says the judge grimly, \"has been defeated.\""
+  },
+  "v13a_b4": {
+   "src": "L6961-6964",
+   "text": "THE TEACHER IS TESTED:\nA child asks why the judge shouts at people. (judge) pauses, admits that shouting is not always helpful, and conducts the next lesson without raising (judge.his/her) voice. Everyone finds this more frightening."
+  },
+  "v13a_b5": {
+   "src": "L6966-6968",
+   "text": "THE OLD RECIPE:\nAn elderly villager shares a simple family recipe. (judge) listens, tastes, and asks for the method to be recorded so it is not lost.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "judge",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L6969"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L6969",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_c1": {
+   "src": "L6971-6975",
+   "text": "THE CHALLENGE:\n(cook1) accuses the judge of valuing reputation over flavor. The judge orders a blind tasting and agrees to be bound by the result. (cook1)'s dish wins. \"You were right,\" the judge says. \"Don't become insufferable about it.\" (cook1) immediately becomes insufferable."
+  },
+  "v13a_c2": {
+   "src": "L6977-6980",
+   "text": "THE OUTBURST:\n(cook2) screams that the judge is a tyrant. The judge replies, \"Perhaps. But the stew is still burnt.\" The organizers separate the pair, allow both to cool down, and resume fairly."
+  },
+  "v13a_c3": {
+   "src": "L6982-6986",
+   "text": "THE BRIBE:\nA finalist attempts to slip the judge a polished pearl. (judge) raises it for the whole crowd to see. \"Is this supposed to improve the taste?\" A fair investigation follows; the judges do not punish the other contestant for the attempted bribe."
+  },
+  "v13a_c4": {
+   "src": "L6988-6992",
+   "text": "THE BET:\nThe finalists challenge the judge to identify ingredients while blindfolded. (judge.He/She) identifies every herb, then confidently calls one ingredient \"river mud.\" It is actually mashed beans. The villagers never let (judge.him/her) forget it."
+  },
+  "v13a_c5": {
+   "src": "L6994-6998",
+   "text": "THE CRITIC'S CRITIC:\nA visiting elder politely reviews the judge's review, identifying three unsupported claims and two excellent observations. The judge is speechless. The elder offers to teach (judge.him/her) how to accept criticism.",
+   "text_only": [
+    {
+     "src": "L6998",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_d1": {
+   "src": "L7000-7002",
+   "text": "THE SURPRISE:\nThe judge praises the dish of a cook (judge.he/she) had publicly dismissed. When the identity is revealed, (judge) congratulates the cook openly."
+  },
+  "v13a_d2": {
+   "src": "L7004-7007",
+   "text": "THE FAVORITE LOSES:\nThe village's celebrated cook loses to an unassuming apprentice. (judge) says, \"The spoon does not care about your title.\" The apprentice nearly drops the trophy.",
+   "text_only": [
+    {
+     "src": "L7005",
+     "what": "celebrated",
+     "reason": "an adjective for the cook; nobody celebrates"
+    }
+   ]
+  },
+  "v13a_d3": {
+   "src": "L7009-7011",
+   "text": "THE DRAW:\nThe judge cannot separate the two dishes and calls for a second blind tasting.",
+   "text_only": [
+    {
+     "src": "L7011",
+     "what": "the result line",
+     "reason": "rule 7 / rule 9: told only"
+    }
+   ]
+  },
+  "v13a_d4": {
+   "src": "L7013-7016",
+   "text": "THE FATAL FLAW IN THE PLAN:\nBoth cooks have made exactly the same dish after secretly borrowing the same recipe. The judge suspects collusion; a hearing establishes that both were independently taught by the same grandmother."
+  },
+  "v13a_d5": {
+   "src": "L7018-7022",
+   "text": "THE GREAT CRITIC'S HUMILIATION:\nThe judge mistakenly praises a bowl of plain boiled roots as the most imaginative dish in the contest. The roots were intended as a side dish. The audience erupts. \"At least,\" says the judge, \"someone here knows when to leave a good ingredient alone.\""
+  },
+  "v13a_set_a": {
+   "type": "branch",
+   "set": "A",
+   "children": [
+    {
+     "next": "v13a_a1"
+    },
+    {
+     "next": "v13a_a2"
+    },
+    {
+     "next": "v13a_a3"
+    },
+    {
+     "next": "v13a_a4"
+    },
+    {
+     "next": "v13a_a5"
+    },
+    {
+     "next": "v13a_a6"
+    }
+   ]
+  },
+  "v13a_set_b": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "v13a_b1"
+    },
+    {
+     "next": "v13a_b2"
+    },
+    {
+     "next": "v13a_b3"
+    },
+    {
+     "next": "v13a_b4"
+    },
+    {
+     "next": "v13a_b5"
+    }
+   ]
+  },
+  "v13a_set_c": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "v13a_c1"
+    },
+    {
+     "next": "v13a_c2"
+    },
+    {
+     "next": "v13a_c3"
+    },
+    {
+     "next": "v13a_c4"
+    },
+    {
+     "next": "v13a_c5"
+    }
+   ]
+  },
+  "v13a_set_d": {
+   "type": "branch",
+   "set": "D",
+   "children": [
+    {
+     "next": "v13a_d1"
+    },
+    {
+     "next": "v13a_d2"
+    },
+    {
+     "next": "v13a_d3"
+    },
+    {
+     "next": "v13a_d4"
+    },
+    {
+     "next": "v13a_d5"
+    }
+   ]
+  }
+ }
+}

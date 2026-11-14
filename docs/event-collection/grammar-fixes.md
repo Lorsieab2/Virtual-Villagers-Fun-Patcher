@@ -92,6 +92,11 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L2260 | `entries, (6).` | `entries, (6)` | The Great Woodworking Competition | Every (6) interruption is one or more full sentences ending in a full stop; a second full stop follows |
 | L3006 | `begins: (A).` | `begins: (A)` | The Chief's Monumental Speech | Every (A) opening is a full quotation ending in its own full stop or ellipsis; a second full stop follows the closing quote |
 
+### Part 3a (lines 6837-8489: V13, V14, the game-exclusive events, V17)
+
+No glaring grammar mistake was found in this range, so no fix is applied. The inventory's two suggestions for it
+(L6985-6986 "the other contestant"; L7183 "not a proven resurrection") are wording, not grammar, and are listed below.
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.
@@ -112,7 +117,9 @@ These stay as the owner wrote them. Some are handled another way; the rest are l
 | L4913-4914 | coconut retort | Logic, not grammar: owner question |
 | L5401 and others | "Go to (5)." vs "(5)" | Structural markers, never shown |
 | L6522-6523 | `none of which have occurred` | Both forms are accepted English |
-| L7851 | `the villager finds a priceless treasure chest!` | An unlabelled fragment: owner question Q10 |
+| L6985-6986 | `the judges do not punish the other contestant for the attempted bribe` | Reads correctly (the innocent finalist is not punished); wording only |
+| L7183 | `not a proven resurrection` | Word choice ("creation of life" was suggested), not grammar |
+| L7851 | `the villager finds a priceless treasure chest!` | An unlabelled fragment: owner question Q10. Shipped as a fifth "Investigate" outcome of The Secret Behind the Waterfall (its first letter capitalised, which the rules allow), told only |
 | L8709, L8715 | living or deceased composer | Content: owner question |
 | L8747 | the Chief's title in an all-games event | The game-word rule (`{@chief}`) handles it |
 | L9679-9680, L9794-9798, L10187-10208 | designer rules inside display text | Ledger notes: never displayed |

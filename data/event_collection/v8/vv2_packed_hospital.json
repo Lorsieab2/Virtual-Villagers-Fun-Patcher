@@ -1,0 +1,517 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Packed Hospital",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_packed_hospital",
+  "source": "v26",
+  "lines": [
+   3806,
+   3894
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3807",
+  "ledger": [
+   {
+    "src": "L3806",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3808",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L3809",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3819",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3826",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3833",
+    "kind": "note",
+    "text": "Stable patients",
+    "why": "designer note on triage, never displayed"
+   },
+   {
+    "src": "L3834-3835",
+    "kind": "note",
+    "why": "designer note on triage, never displayed"
+   },
+   {
+    "src": "L3842",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3850",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3857",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3865",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3873",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3884",
+    "kind": "structural",
+    "why": "bank heading; (5) has no route onward in the source, so it leads to (6)"
+   },
+   {
+    "src": "L3893",
+    "kind": "instruction",
+    "why": "the Healing effects on the ending page; the optional Tech is one of two equal endings"
+   },
+   {
+    "src": "L3894",
+    "kind": "note",
+    "why": "designer note: no death or disappearance"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "parent": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c4",
+  "v8_c5",
+  "v8_c10"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a roll of clean bandages",
+     "src": "L3820"
+    },
+    {
+     "text": "the hospital's only working measuring stick",
+     "src": "L3821"
+    },
+    {
+     "text": "a basket of freshly washed cloths",
+     "src": "L3822"
+    },
+    {
+     "text": "the inventory ledger",
+     "src": "L3823"
+    },
+    {
+     "text": "a very important wooden spoon used for mixing harmless salves",
+     "src": "L3824"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "an aching knee",
+     "src": "L3827"
+    },
+    {
+     "text": "a sore shoulder",
+     "src": "L3828"
+    },
+    {
+     "text": "a persistent cough that warrants assessment",
+     "src": "L3829"
+    },
+    {
+     "text": "a headache that has already improved",
+     "src": "L3830"
+    },
+    {
+     "text": "the fact that nobody listens when (elder.he/she) says the benches are awful",
+     "src": "L3831"
+    }
+   ]
+  },
+  "SHELVES": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The missing item is found exactly where it belongs. The apprentice looks personally betrayed by the shelf.",
+     "src": "L3843-3844"
+    },
+    {
+     "text": "The healer creates a clear labeling system. The entire hospital suddenly seems less chaotic.",
+     "src": "L3845-3846"
+    },
+    {
+     "text": "A stack of empty baskets falls over. The noise wakes the baby. Everyone freezes.",
+     "src": "L3847-3848"
+    }
+   ]
+  },
+  "APPRENTICE": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The apprentice finds the item and earns a quiet word of praise.",
+     "src": "L3851"
+    },
+    {
+     "text": "The apprentice admits (apprentice.he/she) moved it to \"somewhere safe\" and has forgotten where that is.",
+     "src": "L3852-3853"
+    },
+    {
+     "text": "The apprentice asks for help rather than pretending to know. The healer is impressed.",
+     "src": "L3854-3855"
+    }
+   ]
+  },
+  "ELDER": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The elder suggests a simple repair to the waiting bench. The healer thanks (elder.him/her).",
+     "src": "L3858-3859"
+    },
+    {
+     "text": "The elder offers a long story about how hospitals used to work. Some of it is useful. Much of it is not.",
+     "src": "L3860-3861"
+    },
+    {
+     "text": "The elder declares the hospital's decor depressing and offers to carve a cheerful wooden sign.",
+     "src": "L3862-3863"
+    }
+   ]
+  },
+  "PARENT": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "The parent asks for a quiet corner to feed the baby. The staff make room without treating the request as a nuisance.",
+     "src": "L3866-3867"
+    },
+    {
+     "text": "The parent says (parent.he/she) would simply like to sit down. A villager immediately offers a seat.",
+     "src": "L3868-3869"
+    },
+    {
+     "text": "The parent jokes that the baby has better organizational skills than the entire hospital. The healer cannot argue.",
+     "src": "L3870-3871"
+    }
+   ]
+  },
+  "STRAW": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The healer discovers that the missing inventory ledger was under (healer.his/her) own arm all along.",
+     "src": "L3874-3875"
+    },
+    {
+     "text": "A child wanders in carrying the missing spoon, asking why everyone is looking for the \"tiny paddle.\"",
+     "src": "L3876-3877"
+    },
+    {
+     "text": "The elder's carved sign reads \"HOSPITAL: PLEASE REMAIN ALIVE.\" The healer requests a revision.",
+     "src": "L3878-3879"
+    },
+    {
+     "text": "The baby laughs for the first time all afternoon. Every exhausted adult in the room smiles.",
+     "src": "L3880-3881"
+    },
+    {
+     "text": "Nothing else goes wrong. The healer finds this suspicious.",
+     "src": "L3882"
+    }
+   ]
+  },
+  "END": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "The hospital returns to its usual routine. The healer finally sits down for a moment.",
+     "src": "L3885-3886"
+    },
+    {
+     "text": "The apprentice writes a new inventory list in enormous letters so nobody can possibly miss it.",
+     "src": "L3887-3888"
+    },
+    {
+     "text": "The elder leaves satisfied that somebody listened.",
+     "src": "L3889"
+    },
+    {
+     "text": "The parent thanks the staff and carries the baby home.",
+     "src": "L3890"
+    },
+    {
+     "text": "The healer says, \"Tomorrow will be quieter.\" Nobody believes it.",
+     "src": "L3891"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "A busy day",
+   "src": "L3811-3817",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {A}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "First things first",
+   "src": "L3833",
+   "text": "The healer has to decide what to address first.",
+   "choices": [
+    {
+     "label": "ORGANIZE THE SUPPLIES.",
+     "next": "shelves",
+     "src": "L3837"
+    },
+    {
+     "label": "ASK THE APPRENTICE TO LEAD THE SEARCH.",
+     "next": "search",
+     "src": "L3838"
+    },
+    {
+     "label": "INVITE THE ELDER TO HELP IMPROVE THE WAITING AREA.",
+     "next": "elder",
+     "src": "L3839"
+    },
+    {
+     "label": "ASK THE PARENT WHAT WOULD MAKE THE WAIT EASIER.",
+     "next": "parent",
+     "src": "L3840"
+    }
+   ]
+  },
+  "shelves": {
+   "text": "{SHELVES}",
+   "children": [
+    {
+     "next": "straw"
+    }
+   ]
+  },
+  "search": {
+   "text": "{APPRENTICE}",
+   "children": [
+    {
+     "next": "straw"
+    }
+   ]
+  },
+  "elder": {
+   "text": "{ELDER}",
+   "children": [
+    {
+     "next": "straw"
+    }
+   ]
+  },
+  "parent": {
+   "text": "{PARENT}",
+   "children": [
+    {
+     "next": "straw"
+    }
+   ]
+  },
+  "straw": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{STRAW}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "end_tech"
+    },
+    {
+     "next": "end_plain"
+    }
+   ]
+  },
+  "end_tech": {
+   "name": "Ending",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3893"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3893"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3893"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "end_plain": {
+   "name": "Ending",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3893"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3893"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3893",
+     "what": "optional Tech for inventory improvement",
+     "reason": "the source makes the Tech optional: this is the equally likely ending without it"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c4"
+    },
+    {
+     "next": "coda_c5"
+    },
+    {
+     "next": "coda_c10"
+    }
+   ]
+  },
+  "coda_c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c4}"
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

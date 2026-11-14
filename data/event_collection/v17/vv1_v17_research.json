@@ -34,12 +34,15 @@
     ],
     "min": 1
    }
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
   }
  },
  "start": "contest",
  "nodes": {
   "contest": {
-   "name": "The stone table",
    "src": "L8099-8101,L8132-8135",
    "text": "The villagers of the Southern Shore celebrate the work that helped their settlement survive. Competitors display their creations near the village center while elders tell the children how much knowledge was once lost.\nResearchers demonstrate practical tools and mathematical puzzles. The harsh scholar dismisses (Researcher)'s odd lever until it lifts a stone that three adults could not budge. Another invention merely flings a coconut into the sea. The scholar demands a record of both results.",
    "text_only": [
@@ -48,7 +51,108 @@
      "what": "the villagers celebrate",
      "reason": "the festival's setting, told as scenery; the contest itself gives no reward in the source"
     }
+   ],
+   "name": "The Stone Table of Questions",
+   "children": [
+    {
+     "next": "u"
+    }
    ]
+  },
+  "u": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_u}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "no_coda": {
+   "type": "branch"
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
   }
- }
+ },
+ "include_pools": [
+  "v17_u",
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
 }
