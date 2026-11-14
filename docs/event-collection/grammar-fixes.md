@@ -17,6 +17,12 @@ then fail their checks until they follow the source again.
 
 ## Fixes
 
+### Part 1 (lines 1-3519)
+
+Besides the inventories' fixes: placeholders written without their parentheses would show the words "his/her",
+"he/she" or "contestant1" instead of the villager's own pronoun or name, and stray full stops sit inside a slash
+list or after a quotation that already ends one.
+
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | L104 | `is.... ` | `is ` | The Cooking Contest | Four stray dots break the sentence "(Name1) is (A) (B)." (twice on the line) |
@@ -47,20 +53,6 @@ then fail their checks until they follow the source again.
 | L2472 | `The judges announce` | `The judge announces` | The Potluck Dispute | As above |
 | L3136 | `Cook1 wins for flavor; Cook2 accepts` | `(Cook1) wins for flavor; (cook2) accepts` | The Breadfruit Breakdown | Placeholders without parentheses would show the words "Cook1" / "Cook2" |
 | L3137 | `Cook2 wins for texture; Cook1 requests` | `(Cook2) wins for texture; (cook1) requests` | The Breadfruit Breakdown | As above |
-| L4976 | `ARBOR-DAY` | `ARBOR DAY` | The Arbor-Day Festival | Spelling of the title (inventory part 2 also suggests a rename; that is the owner's call) |
-| L8206 | `The Children are asked` | `The children are asked` | V17-B The Children's Jury | Stray capital |
-| L8589 | `The judges present one question:` | `The judges present one of these questions:` | V18-03 The Great Question | Four questions follow; one is drawn |
-| L9434 | `The subject recognizes` | `(Name2), the subject, recognizes` | V21 C2 The Statue That Divided the Village | "(himself/herself)" needs a named villager |
-| L9453 | `forgive (him/her).` | `forgive (Name2).` | V21 C2 The Statue That Divided the Village | "(him/her)" refers to nobody named |
-| L9592 | `The subject objects` | `(Name2), the subject, objects` | V22-1 The Great Isolan Drawing Competition | "(his/her)" needs a named villager |
-
-### Found while authoring the pilot (not in the inventories)
-
-Placeholders written without their parentheses would show the words "his/her" / "he/she" instead of the villager's
-own pronoun; two stray full stops sit inside a slash list or mid-sentence.
-
-| Line | Before | After | Event | Why |
-|---|---|---|---|---|
 | L171 | `fuel their art.` | `fuel (his/her) art` | The Cooking Contest, bank C | Same line as the inventory's fix: "their" for one contestant and a stray full stop mid-sentence |
 | L469 | `all his/her friends his/her skills` | `all (his/her) friends (his/her) skills` | The Cooking Contest, bank P | Placeholders without parentheses |
 | L473 | `down his/her experiences` | `down (his/her) experiences` | The Cooking Contest, bank P | Placeholder without parentheses |
@@ -73,11 +65,6 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L510 | `thankful he/she got` | `thankful (he/she) got` | The Cooking Contest, bank Q | Placeholder without parentheses |
 | L561 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (5) | The full stop belongs after the list, not inside one option |
 | L623 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (8) | As above |
-
-### Part 1 (lines 1-3519): found while authoring
-
-| Line | Before | After | Event | Why |
-|---|---|---|---|---|
 | L2835 | `replies, (A).` | `replies, (A)` | The Elder's Favorite Stone | Every (A) reply is a full quotation ending in its own full stop; a second full stop follows the closing quote |
 | L1458 | `contestant1` | `(contestant1)` | The Great Beautification Project, (6) | Placeholder without parentheses would show the word "contestant1" |
 | L1459 | `contestant2` | `(contestant2)` | The Great Beautification Project, (6) | As above |
@@ -89,12 +76,13 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L2260 | `entries, (6).` | `entries, (6)` | The Great Woodworking Competition | Every (6) interruption is one or more full sentences ending in a full stop; a second full stop follows |
 | L3006 | `begins: (A).` | `begins: (A)` | The Chief's Monumental Speech | Every (A) opening is a full quotation ending in its own full stop or ellipsis; a second full stop follows the closing quote |
 
-### V10 (review r1, minor 1)
+### Part 2 (lines 3520-6836)
 
-Each "goes wrong when:" item ends the page's sentence, so it needs its full stop.
+Each V10 "goes wrong when:" item ends the page's sentence, so it needs its full stop (review r1, minor 1).
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| L4976 | `ARBOR-DAY` | `ARBOR DAY` | The Arbor-Day Festival | Spelling of the title (inventory part 2 also suggests a rename; that is the owner's call) |
 | L5696 | `cannot answer` | `cannot answer.` | V10 The Teacher Who Failed | The page's sentence has no closing full stop |
 | L5697 | `rotten wood` | `rotten wood.` | V10 The Teacher Who Failed | As above |
 | L5698 | `the wrong notes` | `the wrong notes.` | V10 The Teacher Who Failed | As above |
@@ -105,10 +93,11 @@ Each "goes wrong when:" item ends the page's sentence, so it needs its full stop
 ### Part 3a (lines 6837-8489: V13, V14, the game-exclusive events, V17)
 
 Outcome pages and drawn bank items that would show as fragments: a missing full stop, a missing article, or a drawn
-word with no sentence around it (review r2, M8, M18, M19). L8206 (above) is also applied.
+word with no sentence around it (review r2, M8, M18, M19).
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| L8206 | `The Children are asked` | `The children are asked` | V17-B The Children's Jury | Stray capital |
 | L7660 | `the same subject` | `the same subject, (subject),` | V14-02 The World's Simplest Explanation | The drawn subject is named inside the source's sentence instead of as a bare word |
 | L7739 | `something the adults overlooked.` | `something the adults overlooked: (discovery).` | V14-13 The Curious Little Explorer | The drawn discovery is named inside the source's sentence |
 | L7740 | `unusual beetle` | `an unusual beetle` | V14-13 | The list's items are shown one at a time; each needs its article |
@@ -126,7 +115,7 @@ word with no sentence around it (review r2, M8, M18, M19). L8206 (above) is also
 | L8459 | `sincere apology;` | `sincere apology.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 | L8460 | `adult disagreement;` | `adult disagreement.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 
-### Part 3b (content agent 4: V18-V26)
+### Part 3b (lines 8490-10571: V18-V26)
 
 The compact medical crises (V20 D6-D12) list each choice's outcomes as "the patient recovers; or dies; or ...". Each
 outcome is its own page, so an outcome without its subject would read "Dies". Each fix restores the subject the line
@@ -134,6 +123,10 @@ already names (approved by the lead as glaring, 2026-11-14).
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| L8589 | `The judges present one question:` | `The judges present one of these questions:` | V18-03 The Great Question | Four questions follow; one is drawn |
+| L9434 | `The subject recognizes` | `(Name2), the subject, recognizes` | V21 C2 The Statue That Divided the Village | "(himself/herself)" needs a named villager |
+| L9453 | `forgive (him/her).` | `forgive (Name2).` | V21 C2 The Statue That Divided the Village | "(him/her)" refers to nobody named |
+| L9592 | `The subject objects` | `(Name2), the subject, objects` | V22-1 The Great Isolan Drawing Competition | "(his/her)" needs a named villager |
 | L9034 | `or dies;` | `or the patient dies;` | V20 D6 The Physician Who Refused | The outcome has no subject |
 | L9036 | `fails; or is wisely` | `the procedure fails; or the procedure is wisely` | V20 D6 The Physician Who Refused | As above (two outcomes) |
 | L9038 | `argue too long; or hear a` | `they argue too long; or they hear a` | V20 D6 The Physician Who Refused | As above (two outcomes) |
