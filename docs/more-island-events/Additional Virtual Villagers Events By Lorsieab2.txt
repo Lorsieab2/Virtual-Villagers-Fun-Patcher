@@ -762,11 +762,11 @@ AS BUILT (your decisions of 13 November 2026)
     The Lost Children .... the memorial: Honoring the Dead or Reflecting, 50% each
     The Secret City ...... the graveyard (it has no mausoleum): Honoring the Dead or Reflecting, 50% each
     The Tree of Life ..... the graveyard: Honoring the Dead
-    New Believers ........ the mausoleum: Honoring. With "Memorial Actions Can Also Occur at the Heathen Hovel": the old Heathen hovel instead 50% of the time, where they Honor or Reflect (50% each) the way that patch sends them. Without that patch Reflecting is never used.
+    New Believers ........ the mausoleum: Honoring the Dead. With "Memorial Actions Can Also Occur at the Heathen Hovel": the old Heathen hovel instead 50% of the time, where they Honor the Dead or Reflect (50% each) the way that patch sends them. Without that patch Reflecting is never used.
 
 THE REMEMBRANCE CEREMONY -- CHANCES
   Its own place in the draw, as likely as one stock island event.
-  New Believers with the hovel patch: the mausoleum (Honoring) 50%; the hovel, Honoring 25%; the hovel, Reflecting 25%.
+  New Believers with the hovel patch: the mausoleum (Honoring the Dead) 50%; the hovel, Honoring the Dead 25%; the hovel, Reflecting 25%.
 
 ==========================================================================
 THE RUMBLINGS (all five games)

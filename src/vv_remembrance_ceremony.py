@@ -16,9 +16,11 @@ THE OWNER'S RULES (2026-11-13, with the owner's answers of the same day):
   * each villager is sent on its own through the game's own action starter (the stop, then the action, as the
     game's own Day of Honor starts each one), so the stock group filters leave no one out;
   * the place and the action: the game's own honoring (and reflecting, 50% each where the game has both at that
-    place) at that game's graveyard or memorial (PLACES below); New Believers: "Honoring" at the mausoleum, or --
-    with the "Memorial Actions Can Also Occur at the Heathen Hovel" patch installed -- 50% the mausoleum, 50% the old
-    Heathen hovel, where Honoring or Reflecting (50% each) go there the way that patch sends them;
+    place) at that game's graveyard or memorial (PLACES below); New Believers: "Honoring the Dead" (behaviour 17,
+    the game's own "Honoring the dead"; never bare "Honoring", the owner 2026-11-13, which is the devotees' separate
+    job) at the mausoleum, or -- with the "Memorial Actions Can Also Occur at the Heathen Hovel" patch installed --
+    50% the mausoleum, 50% the old Heathen hovel, where Honoring the Dead or Reflecting (50% each) go there the way
+    that patch sends them;
   * the feast quietly uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule in A
     New Home, The Lost Children and The Secret City, and the same in the other two); the popup does not say it;
   * the effects come as the popup shows, with one Island Events log entry; it can happen again, as likely as one
@@ -54,7 +56,7 @@ PLACES = {
     2: ("the memorial", ("\"Honoring the Dead\"", "\"Reflecting\"")),
     3: ("the graveyard", ("\"Honoring the Dead\"", "\"Reflecting\"")),
     4: ("the graveyard", ("\"Honoring the Dead\"",)),
-    5: ("the mausoleum", ("\"Honoring\"",)),
+    5: ("the mausoleum", ("\"Honoring the Dead\"",)),
 }
 
 

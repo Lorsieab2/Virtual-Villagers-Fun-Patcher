@@ -33,11 +33,12 @@
      The Tree of Life  the graveyard only (the owner): "Honoring the Dead" (action 9, 0x452DE0), started as the Day
                      of Honor's 0x4671A0 does (0x467256..0x46726F): stop 0x468C60, 0x45DEC0(9, &flag), 0x46A030.
                      Graves: 0x45D670 on 0x5025C8 (the Day of Honor's 0x414AD0 asks for 2).
-     New Believers   "Honoring" (behaviour 17, 0x4595B0: its walks go to area 0x7B, inside the mausoleum's area
+     New Believers   "Honoring the Dead" (behaviour 17, the game's own "Honoring the dead", 0x4595B0; never the
+                     devotees' separate "Honoring" job: its walks go to area 0x7B, inside the mausoleum's area
                      0x38), started as the Day of Honor's 0x470C60 does (0x470D34..0x470D46): stop 0x473440, then
                      0x465580(17, &flag).  With "Memorial Actions Can Also Occur at the Heathen Hovel" installed
                      (its exact bytes: the two sites and both caves, as scripts/build_vv5_hovel_memorial_actions.py
-                     writes them): 50% the mausoleum as above, 50% the hovel, where Honoring (the patch's own start,
+                     writes them): 50% the mausoleum as above, 50% the hovel, where Honoring the Dead (the patch's own start,
                      past its 25% roll: 0x494B88, so its three grave walks go to the hovel) or Reflecting (the
                      patch's own wrapper past its roll, 0x494B6F, with +0x1D10 = 29 as 0x465580 writes it; its five
                      walks go to the hovel) 50% each.  Without the patch Reflecting is never used (the owner).
@@ -498,7 +499,7 @@ static const unsigned char CR_HOVEL_CAVE_B[65] = {
     0x8D, 0x90, 0x28, 0x06, 0x00, 0x00, 0x58, 0x05, 0x80, 0x08, 0x00, 0x00, 0x59, 0xC3, 0x81, 0x7C, 0x24, 0x1C, 0x78,
     0x4B, 0x49, 0x00, 0x0F, 0x85, 0xD1, 0xF7, 0xFD, 0xFF, 0xE8, 0xCC, 0xFF, 0xFF, 0xFF, 0x89, 0x44, 0x24, 0x04, 0x89,
     0x54, 0x24, 0x08, 0xE9, 0xBF, 0xF7, 0xFD, 0xFF };
-#define CR_HOVEL_HONOR 0x494B88u          /* the patch's Honoring start past its roll (thiscall: 17, &flag) */
+#define CR_HOVEL_HONOR 0x494B88u          /* the patch's Honoring the Dead start past its roll (thiscall: 17, &flag) */
 #define CR_HOVEL_REFLECT 0x494B6Fu        /* the patch's Reflecting wrapper past its roll (cdecl: the villager) */
 
 static int cr_hovel_patch(void) {

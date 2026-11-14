@@ -40,7 +40,7 @@ WHAT = {
     2: "goes to the memorial and goes \"Honoring the Dead\" or \"Reflecting\" (50% each)",
     3: "goes to the graveyard and goes \"Honoring the Dead\" or \"Reflecting\" (50% each)",
     4: "goes to the graveyard and goes \"Honoring the Dead\"",
-    5: "goes \"Honoring\" at the mausoleum",
+    5: "goes \"Honoring the Dead\" at the mausoleum",
 }
 
 
@@ -60,8 +60,8 @@ def remembrance_event(game: int) -> Event:
     if game == 5:
         subs.append("With the patcher's \"Memorial Actions Can Also Occur at the Heathen Hovel\": each believer "
                     f"goes to the old Heathen hovel instead {rc.HOVEL_PERCENT}% of the time, and there goes "
-                    f"\"Honoring\" or \"Reflecting\" ({rc.HONOR_PERCENT}% each), the way that patch sends them; the "
-                    "rest go \"Honoring\" at the mausoleum. Without it, \"Reflecting\" is never used.")
+                    f"\"Honoring the Dead\" or \"Reflecting\" ({rc.HONOR_PERCENT}% each), the way that patch sends "
+                    "them; the rest go \"Honoring the Dead\" at the mausoleum. Without it, \"Reflecting\" is never used.")
     subs += [
         f"The feast quietly uses {rc.FOOD_PER_VILLAGER} food for every villager the game counts, never below 0 (the "
         "same as Blessings Day" + (" in this game" if game in (1, 2, 3) else " in A New Home, The Lost Children and "

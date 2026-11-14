@@ -154,8 +154,9 @@ CEREMONY_PLACES = {
     2: "at the memorial, \"Honoring the Dead\" or \"Reflecting\" (half the time each)",
     3: "at the graveyard, \"Honoring the Dead\" or \"Reflecting\" (half the time each)",
     4: "at the graveyard, \"Honoring the Dead\"",
-    5: "at the mausoleum, \"Honoring\" -- or, with \"Memorial Actions Can Also Occur at the Heathen Hovel\" installed, "
-       "half of them at the old Heathen hovel instead, \"Honoring\" or \"Reflecting\" (half the time each)",
+    5: "at the mausoleum, \"Honoring the Dead\" -- or, with \"Memorial Actions Can Also Occur at the Heathen Hovel\" "
+       "installed, half of them at the old Heathen hovel instead, \"Honoring the Dead\" or \"Reflecting\" (half the "
+       "time each)",
 }
 RUMBLING_STRUCTURES = {
     1: "the second and third population huts (the first, \"The Hut\", is a puzzle and is never damaged)",
