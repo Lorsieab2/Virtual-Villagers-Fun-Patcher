@@ -112,7 +112,12 @@ class Manifest(unittest.TestCase):
 # here may fail ONLY with problems matching its pattern.
 #   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
+#   GAP-ANSWER-SENTENCE: after a four-button question an answer's first page shares the question's popup; in VV2 without
+#   Scrolling Popups one source sentence of The Secret of Life A4 and B2 is taller than that room on its own, and a
+#   sentence is never split.  Needs a fresh answer popup for 2-4 buttons too (lead / format decision).
 KNOWN_GAPS: dict[str, str] = {   # G1 closed GAP-FIT7; the label name-to-pronoun fallback closed GAP-LABEL-NAME
+    "all_secret_of_life.json": r"^a SCHEMA: A New Home: the popup of (a4|b2) runs off the screen without scrolling: "
+                               r"a sentence is taller than the popup",
 }
 
 
