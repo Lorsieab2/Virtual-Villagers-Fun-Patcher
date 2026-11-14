@@ -43,7 +43,8 @@
   ],
   "shared_lines": [
    "L9538-9547"
-  ]
+  ],
+  "description": "A villager's new statue starts an argument, and the village decides what to do with it."
  },
  "roles": {
   "sculptor": {

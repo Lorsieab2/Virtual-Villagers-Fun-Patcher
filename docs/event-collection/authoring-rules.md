@@ -83,6 +83,8 @@ The fidelity check compares each text with its source lines after applying, in o
 
 The title may change only in case (`THE GARDENING CONTEST` becomes `The Gardening Contest`) and drop a heading's prefix
 (`EVENT:`, `V13-C — UNIVERSAL:`, `01.`). It must fit 30 characters in VV3-VV5 and may not hold `"` (section 16).
+An owner's rename ([owner-title-changes.md](owner-title-changes.md)) replaces the heading's title exactly as the owner
+wrote it; the check then requires that new title.
 
 Nothing else may differ. Every other change is a fidelity failure.
 
@@ -289,7 +291,21 @@ The source calls the non-believer community "Heathens" in its oldest text and "I
 naming on (L4505-4507: "call the formerly named Heathens ISOLANS throughout in-world narrative"). Write the word each
 line uses, exactly; never rename one to the other (that is the owner's call, Q14). Isolans and Heathens are never cast:
 an Isolan character is text only (or a `stranger` role when a pronoun is needed). The universal events' adjective
-"Isolan" ("The Grand Isolan Scholasticon", "the Isolan Decathlon") also stays as written.
+"Isolan" ("The Grand Isolan Decathlon", "the Isolan Decathlon") also stays as written.
+
+**With Guardians of Isola Rewrite** (the owner, 2026-11-14) New Believers says neither "Heathen" nor "convert": every
+text an event can show there with one of those words (title, page, variant, label, list item, description) gets a
+form with `{"patch": "guardians_of_isola"}` -- a `title_variants` entry, the node's FIRST variant, or a
+`description_variants` entry -- that is the text with the event's pairs of [guardians-wording.md](guardians-wording.md)
+made (check j). Add the pair to that table first; the owner reads it.
+
+## 15a. The Pick Island Event sentence
+
+`collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event
+shows for the event: what happens and, with a question, what the choice is, in the style of More Island Events'
+lines ("A villager sees dolphins playing: swim towards them, or hang back."). Sentence case, at most 130 characters,
+letters, digits, space and `. , ! ? : ; ' -` only: no placeholder, brace or role id, no spoiler of a rare outcome,
+the same words in every game (no "Chief" unless the event is VV3 only). Check i.
 
 ## 16. Characters and fit
 

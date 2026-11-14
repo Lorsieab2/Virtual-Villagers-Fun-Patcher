@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child makes a bare berry bush blossom and fill with berries."
  },
  "requirement": {
   "min_eligible": 1

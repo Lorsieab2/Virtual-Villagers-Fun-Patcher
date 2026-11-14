@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Hospital's Most Difficult Patient",
+ "title": "The Most Difficult Patient",
  "games": [
   2
  ],
@@ -36,7 +36,8 @@
     "text": "Lose health, then restore some.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A stubborn, exhausted villager refuses the hospital: send a healer to talk, or let them rest privately."
  },
  "requirement": {
   "min_eligible": 1
@@ -51,7 +52,7 @@
  "nodes": {
   "question": {
    "type": "question",
-   "name": "The Hospital's Most Difficult Patient",
+   "name": "The Most Difficult Patient",
    "src": "L7858",
    "text": "A stubborn villager insists that going to the hospital is unnecessary despite being visibly exhausted.",
    "choices": [

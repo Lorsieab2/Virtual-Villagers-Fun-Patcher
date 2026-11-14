@@ -100,7 +100,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "Pearls are smashed at a joint art exhibition, and the village decides how to find out what happened."
  },
  "requirement": {
   "min_eligible": 1

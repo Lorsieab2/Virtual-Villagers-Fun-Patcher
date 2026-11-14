@@ -47,7 +47,8 @@
     "kind": "instruction",
     "why": "a small ('modest') game-scaled tech reward on the constructive outcomes (A1, A2, A3, B1, B3); reputation is told only (rule 7)"
    }
-  ]
+  ],
+  "description": "Teams compete in a trivia contest: give everyone the same questions, or mix in practical demonstrations."
  },
  "roles": {
   "judge": {

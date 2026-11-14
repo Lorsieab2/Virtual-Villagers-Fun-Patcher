@@ -52,7 +52,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Two villagers enter a sculpture contest on the Southern Shore, and the village decides how to judge it."
  },
  "requirement": {
   "min_eligible": 1

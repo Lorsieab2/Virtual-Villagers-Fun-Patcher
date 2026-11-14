@@ -20,6 +20,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 import struct
 import sys
 import unittest
@@ -250,6 +251,16 @@ BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
               "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1])}   # the stranger's name (16)
 
 
+def installed(r, patches) -> None:
+    """The installed patches' list as the patcher writes it, with each engine patch name in `patches` as its row
+    (guardians_of_isola: New Believers' vv5_guardians_of_isola_rewrite; cie-v6-binary.md 18)."""
+    rows = {"guardians_of_isola": "vv5_guardians_of_isola_rewrite"} if r.n == 5 else {}   # elsewhere: a bare row
+    text = f"vv{r.n}\n" + "".join(rows.get(p, f"vv{r.n}_{p}") + "\n" for p in patches)
+    buf = r.p.alloc(len(text) + 1)
+    r.p.write(buf, text.encode("ascii") + b"\0")
+    r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+
+
 @emulated
 class SharedVectors(unittest.TestCase):
     """The engine's walk is the patcher's walk: path, effect rolls, picks, aliases and the words read."""
@@ -273,6 +284,7 @@ class SharedVectors(unittest.TestCase):
                 r.p.export("VvfpStoryProbeGraphNurseAtWalk", idx)
         if "tribe" in case:
             put_tribe(r, game, case["tribe"])
+        installed(r, case.get("patches", ()))
         self.assertIsNone(r.queue6(data))
         shown = r.walk_through(case["answers"])
         st = r.v6state()
@@ -639,7 +651,8 @@ class NodeTitles(unittest.TestCase):
                 self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
 
     def test_placeholders_in_titles(self):
-        """17: on screen with the names (or pronouns when they do not fit); the log's entry in the readable form."""
+        """17: on screen with the names (or pronouns when they do not fit); the log's entry with the real names (the
+        owner: "(Name1)" is filled with the cast villager's name -- "Ana's No Good, Very Bad Day")."""
         from test_cie_graph_v6 import TITLED_NAMES
         for game in GAME_IDS:
             if not have_stock(game):
@@ -663,7 +676,9 @@ class NodeTitles(unittest.TestCase):
                     self.assertEqual(titles[-1], cg.title_shown(lg, TITLED_NAMES["nodes"]["y"]["title"],
                                                                 int(game[2]), b))
                     _n, _now, filed = r.log()
-                    self.assertIn("Event: Someone's No Good, Very Bad Day", filed)
+                    logged = cg.expand_v6(TITLED_NAMES["title"], lg, b, None, None, int(game[2]))
+                    self.assertTrue(logged.startswith(want if name == "Ana" else name[:6]), logged)
+                    self.assertIn(f"  Event: {logged}\n", filed)
 
     def test_the_loader_refuses_a_bad_node_title(self):
         from test_cie_graph_v6 import TITLES
@@ -680,6 +695,45 @@ class NodeTitles(unittest.TestCase):
         why = r.queue6(bytes(data))
         self.assertIsNotNone(why)
         self.assertIn("popup title", why)
+
+
+@emulated
+class GuardiansOfIsola(unittest.TestCase):
+    """The owner (2026-11-14): New Believers with Guardians of Isola Rewrite shows no "Heathen" or "convert" in the
+    collection's events -- the popups, their titles and the Island Events log -- through title and page variants
+    (cie-v6-binary.md 18, docs/event-collection/guardians-wording.md); without it, the words are unchanged."""
+
+    EVENTS = {"vv5_convert_who_missed_home": ("The Homesick Convert", "The Homesick Newcomer"),
+              "vv5_feast_of_two_traditions": ("The Feast of Two Traditions",) * 2,
+              "vv5_little_things_remember": ("The Little Things They Remember",) * 2}
+
+    def test_the_shipped_events_with_and_without_the_patch(self):
+        if not have_stock("vv5"):
+            self.skipTest("needs New Believers' stock executable")
+        words = re.compile(r"heathen|convert", re.I)
+        people = [(i, "m" if i % 2 else "f", 30 + i, f"Vi{i}", 1, False) for i in range(6)]
+        for event, (plain_title, guardians_title) in self.EVENTS.items():
+            data = (ROOT / "assets" / "event_collection" / f"{event}.cieg").read_bytes()
+            for guardians in (False, True):
+                for first in (0, 1):
+                    with self.subTest(event=event, guardians=guardians, first=first):
+                        r = V6("vv5", people)
+                        r.rolls([first] * 64)
+                        r.log(1)
+                        if guardians:
+                            installed(r, ["guardians_of_isola"])
+                        self.assertIsNone(r.queue6(data))
+                        r.walk_through([first] * 4)
+                        shown = " ".join(r.displays())
+                        titles = r.titles()
+                        _n, _now, filed = r.log()
+                        self.assertEqual(titles[0], guardians_title if guardians else plain_title)
+                        self.assertIn(f"  Event: {guardians_title if guardians else plain_title}\n", filed)
+                        if guardians:
+                            for text in [shown, filed] + titles:
+                                self.assertIsNone(words.search(text), text)
+                        else:
+                            self.assertIsNotNone(words.search(shown + " ".join(titles)), shown)
 
 
 # Each game's record: (head, body) and its own parents (father name, mother name, father head, father body, mother
@@ -796,7 +850,8 @@ class SexWords(unittest.TestCase):
                     want = cg.simulate(g, int(game[2]), [], {"parent": cg.Binding(name, sex)})
                     self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
                     self.assertEqual(r.titles(), want["titles"])
-                    self.assertIn("Event: The Mother or father's Lullaby", r.log()[2])
+                    self.assertIn("Event: The Mother's Lullaby\n" if sex == "f" else "Event: The Father's Lullaby\n",
+                                  r.log()[2])
 
 
 @emulated

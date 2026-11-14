@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Great Isolan Potion-Making Trials",
+ "title": "The Great Isolan Potion-Making Trial",
  "games": [
   1,
   2,
@@ -108,7 +108,8 @@
   ],
   "shared_lines": [
    "L9952-9964"
-  ]
+  ],
+  "description": "A villager enters the potion-making trials, and the village decides what kind of potion to brew."
  },
  "roles": {
   "brewer": {

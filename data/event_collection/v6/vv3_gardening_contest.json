@@ -54,7 +54,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "Two gardeners plan a community garden: combine their plans, or give each a plot."
  },
  "requirement": {
   "min_eligible": 2

@@ -149,3 +149,4 @@ EXPORTS
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
     VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24
+    VvfpStoryProbeMoreDescription=_VvfpStoryProbeMoreDescription@12

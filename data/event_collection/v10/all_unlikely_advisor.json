@@ -77,7 +77,8 @@
     "kind": "note",
     "why": "the advisor reputation is story only (rule 7); the VV3 Chief is never replaced or targeted"
    }
-  ]
+  ],
+  "description": "A quiet villager may hold the answer to a council dispute, and the village decides how to hear them out."
  },
  "requirement": {
   "min_eligible": 1

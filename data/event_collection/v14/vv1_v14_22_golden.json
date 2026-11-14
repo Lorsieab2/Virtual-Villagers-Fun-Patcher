@@ -23,7 +23,8 @@
     "kind": "instruction",
     "why": "modest food OR farming skill: a silent branch, one page each (rule 8)"
    }
-  ]
+  ],
+  "description": "The Golden Child runs a simple planting experiment that teaches the farmers something useful."
  },
  "requirement": {
   "min_eligible": 1

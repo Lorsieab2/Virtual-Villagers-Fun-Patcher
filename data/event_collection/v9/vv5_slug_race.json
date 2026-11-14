@@ -68,7 +68,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "A child accuses an Isolan child's racing slug of cheating, and the village decides how to settle it."
  },
  "requirement": {
   "min_eligible": 1

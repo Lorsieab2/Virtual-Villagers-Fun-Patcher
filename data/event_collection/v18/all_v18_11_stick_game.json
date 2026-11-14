@@ -47,7 +47,8 @@
     "kind": "instruction",
     "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A1, B1, B2, B3); reputation is told only (rule 7)"
    }
-  ]
+  ],
+  "description": "Competitors guide a ball with wooden sticks: hold a fast team match, or a precision challenge."
  },
  "roles": {
   "player": {

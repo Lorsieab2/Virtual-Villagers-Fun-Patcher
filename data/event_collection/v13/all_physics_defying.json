@@ -57,7 +57,8 @@
     "text": "(D1-D3)",
     "why": "the choice's outcome range"
    }
-  ]
+  ],
+  "description": "A builder unveils a platform that seems to defy balance, and the village decides how to test it."
  },
  "requirement": {
   "min_eligible": 1

@@ -34,7 +34,8 @@
     "text": "Exceptionally rarely,",
     "why": "c4 is exceptionally rare: weight 1 against 20"
    }
-  ]
+  ],
+  "description": "A string of strange coincidences unsettles the village, and the village decides how to respond."
  },
  "roles": {},
  "start": "intro",

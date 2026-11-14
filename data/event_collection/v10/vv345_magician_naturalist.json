@@ -70,7 +70,8 @@
     "kind": "note",
     "why": "designer note: VV3-VV5 only; the VV3 Chief is never displaced"
    }
-  ]
+  ],
+  "description": "A Magician and a Naturalist have argued for weeks over a project, and the village decides how to settle it."
  },
  "requirement": {
   "min_eligible": 2

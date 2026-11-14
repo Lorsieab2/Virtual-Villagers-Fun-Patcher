@@ -112,7 +112,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "A villager is accused of wrongdoing and rumors spread, and the village decides how to find out the truth."
  },
  "requirement": {
   "min_eligible": 2

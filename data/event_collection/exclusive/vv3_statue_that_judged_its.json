@@ -30,7 +30,8 @@
     "text": "Increase construction progress slightly.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A builder claims the great statue's face changes with each onlooker: investigate, or call it a mystery."
  },
  "requirement": {
   "min_eligible": 1

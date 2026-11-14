@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Weather Dance That Went Wrong",
+ "title": "The Wacky Weather Dance",
  "games": [
   3
  ],
@@ -30,7 +30,8 @@
     "text": "Gain tech.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A performer claims to have perfected a weather dance: allow the performance, or ask for a modest demonstration."
  },
  "requirement": {
   "min_eligible": 1
@@ -40,7 +41,7 @@
  "nodes": {
   "question": {
    "type": "question",
-   "name": "The Weather Dance That Went Wrong",
+   "name": "The Wacky Weather Dance",
    "src": "L7905",
    "text": "A confident performer claims to have perfected a new weather dance.",
    "choices": [

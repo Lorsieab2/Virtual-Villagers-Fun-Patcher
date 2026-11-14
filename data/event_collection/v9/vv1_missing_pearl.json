@@ -53,7 +53,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "A pearl vanishes from an elder's box and three villagers confess: search the room, or question each one."
  },
  "requirement": {
   "min_eligible": 1

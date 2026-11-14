@@ -156,7 +156,7 @@ static void cr_v1_damage(int k, int loss) {
 
 static const cr_game CR_VV1 = {
     1, v1_count, v1_rand, cr_v1_graves, NULL, cr_v1_goes, cr_v1_send, cr_v1_feast,
-    cr_v1_puzzles, 2, SD_V1_NAMES, cr_v1_finished, cr_v1_damage, 40
+    cr_v1_puzzles, 2, SD_V1_NAMES, cr_v1_finished, cr_v1_damage, 40, NULL
 };
 
 /* ---- The Lost Children ---------------------------------------------------------------------------------------- */
@@ -217,7 +217,7 @@ static void cr_v2_damage(int k, int loss) {
 
 static const cr_game CR_VV2 = {
     2, v2_count, v2_rand, cr_v2_graves, NULL, cr_v2_goes, cr_v2_send, cr_v2_feast,
-    cr_v2_puzzles, 3, SD_V2_NAMES, cr_v2_finished, cr_v2_damage, 40
+    cr_v2_puzzles, 3, SD_V2_NAMES, cr_v2_finished, cr_v2_damage, 40, NULL
 };
 
 /* ---- The Secret City -------------------------------------------------------------------------------------------- */
@@ -400,15 +400,21 @@ static int cr_v5_feast(void) {
 
 static const cr_game CR_VV3 = {
     3, t_count, t_rand, cr_v3_graves, NULL, cr_v3_goes, cr_v3_send, cr_v3_feast,
-    cr_v3_puzzles, 4, SD_V3_NAMES, cr_v3_finished, cr_v3_damage, 0
+    cr_v3_puzzles, 4, SD_V3_NAMES, cr_v3_finished, cr_v3_damage, 0, NULL
 };
 static const cr_game CR_VV4 = {
     4, t_count, t_rand, cr_v4_graves, NULL, cr_v4_goes, cr_v4_send, cr_v4_feast,
-    cr_v4_puzzles, 7, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
+    cr_v4_puzzles, 7, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0, NULL
 };
+/* New Believers: Guardians of Isola's rewrite on, as The Aspiring Adventurer tells it (adv_vv345.inc vv5_joins_key:
+   the game's own "left the tribe" words). */
+static int cr_v5_isolans(void) {
+    return vv5_joins_key() == ADV_L2_ISOLANS;
+}
+
 static const cr_game CR_VV5 = {
     5, t_count, t_rand, cr_v5_graves, cr_v5_heathens_done, cr_v5_goes, cr_v5_send, cr_v5_feast,
-    cr_v5_puzzles, 5, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
+    cr_v5_puzzles, 5, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0, cr_v5_isolans
 };
 
 static const cr_game *g_cr;              /* the installed game's, NULL when not installed */

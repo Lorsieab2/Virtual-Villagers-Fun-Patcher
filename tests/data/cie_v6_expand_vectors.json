@@ -5192,6 +5192,222 @@
     "rolls_used": 4,
     "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
    }
+  },
+  {
+   "name": "title_variant_vv5_guardians",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Homesick Convert",
+    "title_variants": [
+     {
+      "if": {
+       "patch": "guardians_of_isola"
+      },
+      "title": "The Homesick Newcomer"
+     }
+    ],
+    "games": [
+     3,
+     5
+    ],
+    "patches": [
+     "guardians_of_isola"
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) is a recent convert who misses home.",
+      "variants": [
+       {
+        "if": {
+         "patch": "guardians_of_isola"
+        },
+        "text": "(Name) recently came to live with our tribe and misses home."
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "patches": [
+    "guardians_of_isola"
+   ],
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana recently came to live with our tribe and misses home."
+    ],
+    "titles": [
+     "The Homesick Newcomer"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "fa0d4b5580743739ee677618989622441db883d702f4402f2fcc6d1a99ee7ea1"
+   }
+  },
+  {
+   "name": "title_variant_vv5_plain",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Homesick Convert",
+    "title_variants": [
+     {
+      "if": {
+       "patch": "guardians_of_isola"
+      },
+      "title": "The Homesick Newcomer"
+     }
+    ],
+    "games": [
+     3,
+     5
+    ],
+    "patches": [
+     "guardians_of_isola"
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) is a recent convert who misses home.",
+      "variants": [
+       {
+        "if": {
+         "patch": "guardians_of_isola"
+        },
+        "text": "(Name) recently came to live with our tribe and misses home."
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana is a recent convert who misses home."
+    ],
+    "titles": [
+     "The Homesick Convert"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "fa0d4b5580743739ee677618989622441db883d702f4402f2fcc6d1a99ee7ea1"
+   }
+  },
+  {
+   "name": "title_variant_vv3_guardians",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Homesick Convert",
+    "title_variants": [
+     {
+      "if": {
+       "patch": "guardians_of_isola"
+      },
+      "title": "The Homesick Newcomer"
+     }
+    ],
+    "games": [
+     3,
+     5
+    ],
+    "patches": [
+     "guardians_of_isola"
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) is a recent convert who misses home.",
+      "variants": [
+       {
+        "if": {
+         "patch": "guardians_of_isola"
+        },
+        "text": "(Name) recently came to live with our tribe and misses home."
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "patches": [
+    "guardians_of_isola"
+   ],
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo recently came to live with our tribe and misses home."
+    ],
+    "titles": [
+     "The Homesick Newcomer"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "fa0d4b5580743739ee677618989622441db883d702f4402f2fcc6d1a99ee7ea1"
+   }
   }
  ]
 }

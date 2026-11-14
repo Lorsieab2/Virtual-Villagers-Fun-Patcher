@@ -58,7 +58,8 @@
     "kind": "note",
     "why": "designer note on tone"
    }
-  ]
+  ],
+  "description": "An elder tends a small garden near the Tree every morning: improve its path, or ask to hear its story."
  },
  "requirement": {
   "min_eligible": 2

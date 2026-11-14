@@ -53,7 +53,8 @@
     "kind": "instruction",
     "why": "the reward is text only: VV1 has no Devotion skill"
    }
-  ]
+  ],
+  "description": "At sunset an elder hums an old song, and a curious child asks where it came from."
  },
  "requirement": {
   "min_eligible": 3

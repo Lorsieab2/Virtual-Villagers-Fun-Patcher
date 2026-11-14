@@ -40,7 +40,8 @@
     "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "Several injured villagers arrive at once after a disaster, and the healers decide how to treat them."
  },
  "roles": {
   "patient": {

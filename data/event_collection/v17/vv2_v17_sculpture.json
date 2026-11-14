@@ -63,7 +63,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "A sculpture contest features a very ugly statue, and the village decides how the entries are judged."
  },
  "requirement": {
   "min_eligible": 1

@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child draws a map of the Southern Shore in the dirt, and scouts confirm some of the details."
  },
  "requirement": {
   "min_eligible": 1

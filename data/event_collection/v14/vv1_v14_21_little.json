@@ -24,7 +24,8 @@
     "text": "Outcome: friendship and morale flavor.",
     "why": "the scene's outcome, carried by its effect or text_only reason"
    }
-  ]
+  ],
+  "description": "The Golden Child helps two quarreling children make up and play together again."
  },
  "requirement": {
   "min_eligible": 1

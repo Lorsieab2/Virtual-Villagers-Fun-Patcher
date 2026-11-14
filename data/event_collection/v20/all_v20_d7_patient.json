@@ -34,7 +34,8 @@
     "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "A sick researcher insists the healers have the wrong illness: investigate, or continue the treatment."
  },
  "roles": {
   "patient": {

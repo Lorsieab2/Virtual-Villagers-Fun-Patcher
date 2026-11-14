@@ -44,7 +44,8 @@
     "kind": "structural",
     "why": "the political choices' heading"
    }
-  ]
+  ],
+  "description": "Two communities build rival bridges over a shallow crossing, and the village decides who judges them."
  },
  "requirement": {
   "min_eligible": 1

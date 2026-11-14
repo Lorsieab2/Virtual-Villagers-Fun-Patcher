@@ -28,7 +28,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child brings a soft rain to the dry crops."
  },
  "requirement": {
   "min_eligible": 1

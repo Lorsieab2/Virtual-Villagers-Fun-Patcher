@@ -50,7 +50,8 @@
     "text": "No skill or item reward is required.",
     "why": "designer note: no effect"
    }
-  ]
+  ],
+  "description": "An elder searches for a favorite stone, and a villager and a child help look for it."
  },
  "grammar_fixes": [
   {

@@ -97,7 +97,8 @@
   "shared_lines": [
    "L9333-9341",
    "L9344-9352"
-  ]
+  ],
+  "description": "A villager digs up a strange object nobody understands, and the village decides what to do with it."
  },
  "roles": {
   "finder": {

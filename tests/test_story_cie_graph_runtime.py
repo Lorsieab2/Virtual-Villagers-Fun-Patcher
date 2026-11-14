@@ -748,7 +748,7 @@ class RolesAndRefusals(unittest.TestCase):
             with self.subTest(game=game):
                 why = run.queue()
                 self.assertIsNotNone(why)
-                self.assertIn("Nobody in the village can be the event's subject", why)
+                self.assertIn("Nobody in the village can take part now: it needs ", why)
                 self.assertIn("not carrying or nursing a baby", why)
                 self.assertEqual(run.state()["phase"], IDLE, "nothing queued")
 
@@ -1156,7 +1156,7 @@ class Version3Rules(unittest.TestCase):
             with self.subTest(game=game, village="no pair within 5 years"):
                 run = Run(game, people=apart)
                 why = run.queue(data)
-                self.assertEqual(why, "No two villagers in the village can be the event's subject and friend now: "
+                self.assertEqual(why, "No two villagers in the village can take part together now: "
                                       "they must be at most 5 years apart. Nothing has been queued.")
                 self.assertEqual(run.state()["phase"], IDLE)
             for subject_roll in range(4):

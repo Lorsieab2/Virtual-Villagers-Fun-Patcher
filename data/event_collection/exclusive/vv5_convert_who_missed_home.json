@@ -1,9 +1,20 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Convert Who Missed Home",
+ "title": "The Homesick Convert",
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Homesick Newcomer"
+  }
+ ],
  "games": [
   5
+ ],
+ "patches": [
+  "guardians_of_isola"
  ],
  "collection": {
   "id": "vv5_convert_who_missed_home",
@@ -30,6 +41,15 @@
     "text": "Gain tech.",
     "why": "carried by the outcome's effect"
    }
+  ],
+  "description": "A recently converted villager sits alone, missing home: invite them to talk, or arrange a shared activity.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager who recently came to live with our tribe sits alone, missing home: invite them to talk, or arrange a shared activity."
+   }
   ]
  },
  "requirement": {
@@ -40,7 +60,7 @@
  "nodes": {
   "question": {
    "type": "question",
-   "name": "The Convert Who Missed Home",
+   "name": "The Homesick Convert",
    "src": "L8009",
    "text": "A recently converted Isolan is seen sitting alone, staring toward a familiar part of the island.",
    "choices": [
@@ -53,6 +73,14 @@
      "label": "Arrange a shared activity.",
      "next": "set_b",
      "src": "L8014"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan who recently came to live with our tribe is seen sitting alone, staring toward a familiar part of the island."
     }
    ]
   },

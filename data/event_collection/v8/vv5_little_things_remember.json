@@ -5,6 +5,9 @@
  "games": [
   5
  ],
+ "patches": [
+  "guardians_of_isola"
+ ],
  "collection": {
   "id": "vv5_little_things_remember",
   "source": "v26",
@@ -65,7 +68,8 @@
     "kind": "instruction",
     "why": "the small Devotion effect on the ending page"
    }
-  ]
+  ],
+  "description": "A villager and an Isolan visitor who knew each other years ago meet again and share memories."
  },
  "requirement": {
   "min_eligible": 1
@@ -241,6 +245,14 @@
     {
      "next": "memory"
     }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {A}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager."
+    }
    ]
   },
   "intro_parent": {
@@ -250,6 +262,14 @@
    "children": [
     {
      "next": "memory"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {AP}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager."
     }
    ]
   },

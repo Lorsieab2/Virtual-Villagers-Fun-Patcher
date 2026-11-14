@@ -94,7 +94,8 @@
     "kind": "note",
     "why": "designer note: no death or disappearance"
    }
-  ]
+  ],
+  "description": "The hospital is packed and chaotic, and the healer decides what to deal with first."
  },
  "requirement": {
   "min_eligible": 2

@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "After a rain shower, the Golden Child points to the sky as rainbows appear."
  },
  "requirement": {
   "min_eligible": 1

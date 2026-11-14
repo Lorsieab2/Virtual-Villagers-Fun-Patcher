@@ -79,7 +79,8 @@
   "shared_lines": [
    "L9333-9341",
    "L9344-9352"
-  ]
+  ],
+  "description": "Strange objects keep appearing and the villagers fear outsiders have found the island; the village decides what to do."
  },
  "roles": {},
  "start": "intro",

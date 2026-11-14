@@ -73,7 +73,8 @@
     "kind": "instruction",
     "why": "the Research or Building effect on the ending page"
    }
-  ]
+  ],
+  "description": "A portrait of the Chief turns out badly, and the village decides what to do about it."
  },
  "requirement": {
   "min_eligible": 1

@@ -32,7 +32,8 @@
     "kind": "note",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "A retelling of the settlers' history insults an elder by accident: correct it gently, or keep it as a festival song."
  },
  "requirement": {
   "min_eligible": 1

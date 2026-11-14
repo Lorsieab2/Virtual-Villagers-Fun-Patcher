@@ -52,7 +52,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Two storytellers recite the village's history in a contest, and the village decides how it is judged."
  },
  "requirement": {
   "min_eligible": 1

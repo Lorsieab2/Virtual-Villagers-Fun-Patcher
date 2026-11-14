@@ -63,7 +63,8 @@
     "kind": "instruction",
     "why": "the Building or Research effect on w3 (the labeling system)"
    }
-  ]
+  ],
+  "description": "A villager and an Isolan both claim a stray piece of laundry, and the village decides how to find its owner."
  },
  "requirement": {
   "min_eligible": 2

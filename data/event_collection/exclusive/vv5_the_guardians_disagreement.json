@@ -30,7 +30,8 @@
     "text": "Lose a small amount of food.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "Two villagers disagree on how to protect Isola's traditions: hold a council, or let each side show its vision."
  },
  "requirement": {
   "min_eligible": 1

@@ -21,7 +21,8 @@
   "draw_weight": 1,
   "series": null,
   "title_src": "L10095",
-  "ledger": []
+  "ledger": [],
+  "description": "Two villagers in a prank war each want the last laugh, and the village decides how it ends."
  },
  "roles": {
   "prankster1": {

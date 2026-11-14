@@ -60,7 +60,8 @@
     "text": "experience only if supported; otherwise narrative-only.",
     "why": "the Healing effect on e4"
    }
-  ]
+  ],
+  "description": "A small animal wanders into the hospital: let the children guide it out, or have the healer move it."
  },
  "requirement": {
   "min_eligible": 2

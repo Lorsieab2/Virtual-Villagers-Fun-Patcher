@@ -24,7 +24,8 @@
     "text": "Outcome: large technology reward if supported.",
     "why": "the tech effect"
    }
-  ]
+  ],
+  "description": "The Golden Child takes on a problem that has the older pupils stumped."
  },
  "requirement": {
   "min_eligible": 1

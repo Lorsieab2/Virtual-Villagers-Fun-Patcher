@@ -151,7 +151,8 @@
     "text": "an automatic claim to VV3's Tribal Chief position.",
     "why": "designer note on R6"
    }
-  ]
+  ],
+  "description": "A villager unveils a new invention or discovery, and the village decides what to do with it."
  },
  "requirement": {
   "min_eligible": 1

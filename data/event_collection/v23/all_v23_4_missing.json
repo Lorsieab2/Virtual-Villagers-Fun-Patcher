@@ -21,7 +21,8 @@
   "draw_weight": 1,
   "series": null,
   "title_src": "L10062",
-  "ledger": []
+  "ledger": [],
+  "description": "Coconuts go missing from the food stores, and the village decides how to find out why."
  },
  "roles": {
   "investigator": {

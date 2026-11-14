@@ -5,6 +5,9 @@
  "games": [
   5
  ],
+ "patches": [
+  "guardians_of_isola"
+ ],
  "collection": {
   "id": "vv5_feast_of_two_traditions",
   "source": "v26",
@@ -35,7 +38,8 @@
     "text": "Lose a little food.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "An Isolan family and a village family both want to host a feast: combine the traditions, or hold two feasts."
  },
  "requirement": {
   "min_eligible": 1
@@ -58,6 +62,14 @@
      "label": "Hold two smaller feasts.",
      "next": "set_b",
      "src": "L7992"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan family who came to live with our tribe and a village family each offer to host a feast, but neither agrees on how it should be prepared."
     }
    ]
   },
