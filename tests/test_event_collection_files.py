@@ -112,12 +112,7 @@ class Manifest(unittest.TestCase):
 # here may fail ONLY with problems matching its pattern.
 #   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
-#   GAP-TITLE30: the source's title is longer than the 30 characters VV3-VV5 show; only the owner may shorten it.
-_TITLE30 = r"a SCHEMA: (\(scrolling\) )?(The Secret City|The Tree of Life|New Believers): the title is longer than its 30"
 KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
-    "vv5_great_woodworking.json": _TITLE30,
-    "all_great_beautification.json": _TITLE30,
-    "all_isolan_storytelling.json": _TITLE30,
 }
 
 
