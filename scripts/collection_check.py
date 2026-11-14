@@ -136,6 +136,7 @@ def graph_for_engine(doc: dict) -> dict:
     for n in g.get("nodes", {}).values():
         n.pop("text_only", None)
         n.pop("set", None)
+        n.pop("src_pick", None)
     for p in g.get("pools", {}).values():
         p.pop("set", None)
         p["items"] = [i["text"] if isinstance(i, dict) and set(i) <= {"text", "src"} else i for i in p["items"]]
@@ -155,6 +156,7 @@ class Field:
     src: str | None
     node: str | None = None
     kind: str = "text"          # text | label | item | variant | title
+    picks: list = field(default_factory=list)   # the node's src_pick: [{"src": "L592", "alt": "..."}]
 
 
 def text_fields(doc: dict) -> list[Field]:
@@ -163,7 +165,7 @@ def text_fields(doc: dict) -> list[Field]:
     out.append(Field("title", doc.get("title", ""), col.get("title_src"), kind="title"))
     for nid, n in doc.get("nodes", {}).items():
         if n.get("text"):
-            out.append(Field(f"node {nid}", n["text"], n.get("src"), nid))
+            out.append(Field(f"node {nid}", n["text"], n.get("src"), nid, picks=n.get("src_pick", []) or []))
         for i, v in enumerate(n.get("variants", []) or []):
             out.append(Field(f"node {nid} variant {i + 1}", v.get("text", ""), v.get("src"), nid, "variant"))
         for i, c in enumerate(n.get("choices", []) or []):
@@ -284,6 +286,38 @@ def text_regex(text: str, words: dict, top: bool = True) -> str:
 class Span:
     text: str
     starts: list[tuple[int, int]]   # (offset in text, line number)
+    maps: dict = field(default_factory=dict)   # line -> [processed-line index of each character] where a pick applies
+
+
+def apply_pick(p: str, alt: str) -> tuple[str, list[int]] | None:
+    """`p` with the slash group "(... / alt / ...)" that holds `alt` as one whole alternative replaced by `alt` alone
+    (a node that fixes one option of the source's list, e.g. to route by it), and the index map back into `p`."""
+    stack = []
+    for i, ch in enumerate(p):
+        if ch == "(":
+            stack.append(i)
+        elif ch == ")" and stack:
+            gs = stack.pop()
+            inner = p[gs + 1:i]
+            depth, start, alts = 0, 0, []
+            for j, c in enumerate(inner):
+                if c == "(":
+                    depth += 1
+                elif c == ")":
+                    depth -= 1
+                elif c == "/" and depth == 0:
+                    alts.append((start, j))
+                    start = j + 1
+            alts.append((start, len(inner)))
+            if len(alts) < 2:
+                continue
+            for a, b in alts:
+                if inner[a:b].strip() == alt:
+                    lo = gs + 1 + a + (len(inner[a:b]) - len(inner[a:b].lstrip()))
+                    hi = lo + len(alt)
+                    text = p[:gs] + p[lo:hi] + p[i + 1:]
+                    return text, list(range(gs)) + list(range(lo, hi)) + list(range(i + 1, len(p)))
+    return None
 
 
 def processed_line(n: int, ledger_cuts: dict[int, list[str]], fixes: dict[int, list[tuple[str, str]]]) -> str:
@@ -297,17 +331,27 @@ def processed_line(n: int, ledger_cuts: dict[int, list[str]], fixes: dict[int, l
     return re.sub(r"\s+", " ", s).strip()
 
 
-def build_span(lines: list[int], cuts, fixes) -> Span:
-    text, starts = "", []
+def build_span(lines: list[int], cuts, fixes, picks: dict[int, list[str]] | None = None,
+               problems: list[str] | None = None) -> Span:
+    text, starts, maps = "", [], {}
     for n in lines:
         p = processed_line(n, cuts, fixes)
         if not p:
             continue
+        for alt in (picks or {}).get(n, []):
+            got = apply_pick(p, alt)
+            if got is None:
+                if problems is not None:
+                    problems.append(f"src_pick {alt!r} is not one alternative of a \"(a/b/c)\" list on L{n}")
+                continue
+            prev = maps.get(n)
+            p, m = got
+            maps[n] = [prev[k] for k in m] if prev else m
         if text:
             text += " "
         starts.append((len(text), n))
         text += p
-    return Span(text, starts)
+    return Span(text, starts, maps)
 
 
 def span_lines(span: Span, a: int, b: int) -> dict[int, tuple[int, int]]:
@@ -427,7 +471,17 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
             continue
         consumed.update(lines)
         text_lines.update(lines)
-        span = build_span(lines, cuts, fixes)
+        picks: dict[int, list[str]] = {}
+        for pk in f.picks:
+            try:
+                (pn,) = lib.src_lines(pk["src"])
+                picks.setdefault(pn, []).append(pk["alt"])
+            except (ValueError, KeyError, TypeError):
+                rep.add("b FIDELITY", f"{f.where}: a src_pick is {{\"src\": one line, \"alt\": one alternative}}")
+        pick_problems: list[str] = []
+        span = build_span(lines, cuts, fixes, picks, pick_problems)
+        for x in pick_problems:
+            rep.add("b FIDELITY", f"{f.where}: {x}")
         for para in [p for p in f.text.split("\n") if p.strip()]:
             if not "".join(s for k, s in scan(para) if k in ("lit", "esc")).strip():
                 continue   # a paragraph of tokens only ("{WRONG}"): its items carry their own src
@@ -438,7 +492,9 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                                       f"{span.text[:160]!r}")
                 continue
             for n, (a, b) in span_lines(span, m.start(), m.end()).items():
-                matched.setdefault(n, []).append((a, b))
+                mp = span.maps.get(n)
+                idx = {mp[k] for k in range(a, min(b, len(mp)))} if mp else set(range(a, b))
+                matched.setdefault(n, set()).update(idx)
     for e in doc.get("collection", {}).get("ledger", []) or []:
         if isinstance(e, dict) and e.get("text"):
             try:
@@ -472,8 +528,8 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
     for n in sorted(text_lines - whole):
         p = processed_line(n, cuts, fixes)
         mask = [False] * len(p)
-        for x, y in matched.get(n, []):
-            for k in range(x, min(y, len(p))):
+        for k in matched.get(n, set()):
+            if k < len(p):
                 mask[k] = True
         left = [w.group(0) for w in lib.WORD_RE.finditer(p) if not all(mask[w.start():w.end()])]
         left = [w for w in left if not re.fullmatch(r"[A-Z]\d*", w)]
