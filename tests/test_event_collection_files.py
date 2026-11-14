@@ -120,6 +120,8 @@ KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons
     # VV1 without Scrolling Popups; a sentence is never split and a heading never stands alone.
     "all_v20_r1_should_not_exist.json": r"^a SCHEMA: A New Home: the popup of (a3|d2) runs off the screen without "
                                         r"scrolling: a sentence is taller than the popup",
+    "all_v22_1_drawing_contest.json": r"^a SCHEMA: A New Home: the popup of b3 runs off the screen without scrolling: "
+                                      r"a sentence is taller than the popup",
 }
 
 

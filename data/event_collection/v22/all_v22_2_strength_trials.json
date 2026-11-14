@@ -28,6 +28,12 @@
     "why": "Physical skill only for practice or effort: no game has it (rule 8), so text only"
    },
    {
+    "src": "L9963",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
     "src": "L9644",
     "kind": "instruction",
     "text": "Gain Physical skill",
@@ -86,6 +92,9 @@
     "kind": "note",
     "why": "a designer rule for the carry (consent and safety), never displayed"
    }
+  ],
+  "shared_lines": [
+   "L9952-9964"
   ]
  },
  "roles": {
@@ -102,8 +111,8 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "To celebrate the village's hardworking builders, farmers, and gatherers, the elders announce a friendly strength competition. Coconuts are stacked, water-filled clay jugs are carefully inspected, sturdy fallen logs are marked, and a large stone is placed at the edge of the clearing. (Strongman) volunteers. Several spectators immediately begin arguing about which feat should count as the greatest demonstration of strength.\nWHAT CHALLENGE SHOULD (STRONGMAN) ATTEMPT?",
-   "src": "L9633-9638,L9640",
+   "text": "To celebrate the village's hardworking builders, farmers, and gatherers, the elders announce a friendly strength competition. Coconuts are stacked, water-filled clay jugs are carefully inspected, sturdy fallen logs are marked, and a large stone is placed at the edge of the clearing. (Strongman) volunteers. Several spectators immediately begin arguing about which feat should count as the greatest demonstration of strength.",
+   "src": "L9633-9638",
    "children": [
     {
      "next": "question"
@@ -493,40 +502,25 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "coda_v22_2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Champion Who Learned Humility: A strength champion later loses to a patient novice and offers sincere congratulations.",
+   "src": "L9955-9956",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda_v82"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "coda_v22_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "src": "L9963-9964",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda_v82"
     }
    ]
   },
@@ -539,11 +533,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
   },
   "coda_c9": {
    "popup": "append",
@@ -565,6 +554,279 @@
    "join": "paragraph",
    "text": "{v8_c15}"
   },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v22_2",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v22_6",
+     "if": {
+      "all": [
+       {
+        "any": [
+         {
+          "visited": "a1"
+         },
+         {
+          "visited": "a4"
+         },
+         {
+          "visited": "b1"
+         },
+         {
+          "visited": "c1"
+         },
+         {
+          "visited": "d1"
+         },
+         {
+          "visited": "e1"
+         }
+        ]
+       },
+       {
+        "game": [
+         5
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e1"
+       },
+       {
+        "visited": "e2"
+       },
+       {
+        "visited": "e3"
+       },
+       {
+        "visited": "e4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "e4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
   "no_coda": {
    "type": "branch"
   }
@@ -572,7 +834,6 @@
  "include_pools": [
   "v8_c1",
   "v8_c6",
-  "v8_c8",
   "v8_c9",
   "v8_c11",
   "v8_c14",

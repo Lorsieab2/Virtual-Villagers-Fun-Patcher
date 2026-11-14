@@ -49,7 +49,7 @@
     "src": "L9743",
     "kind": "instruction",
     "text": "rare supernatural mystery and Tech reward.",
-    "why": "the tech effect on b4"
+    "why": "the tech effect on b4; b4 is rare: weight 5 against 20 (review B2)"
    },
    {
     "src": "L9750",
@@ -98,7 +98,16 @@
     "kind": "instruction",
     "text": "No prize.",
     "why": "rule 7: told only"
+   },
+   {
+    "src": "L9963",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: coda 6 is drawn in VV5 only"
    }
+  ],
+  "shared_lines": [
+   "L9952-9964"
   ]
  },
  "roles": {
@@ -119,8 +128,8 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "The healers and herbalists assemble around low tables laden with island plants, clean water, gourds, stone bowls, and carefully labeled samples. The judges announce several possible contests. Some reward a useful preparation; others are demonstrations of harmless magical craft. (Brewer) chooses an entry. A rival declares that (rival.his/her) mixture will be \"the most powerful potion Isola has ever seen.\"\nWHAT KIND OF POTION SHOULD (BREWER) MAKE?",
-   "src": "L9708-9713,L9715",
+   "text": "The healers and herbalists assemble around low tables laden with island plants, clean water, gourds, stone bowls, and carefully labeled samples. The judges announce several possible contests. Some reward a useful preparation; others are demonstrations of harmless magical craft. (Brewer) chooses an entry. A rival declares that (rival.his/her) mixture will be \"the most powerful potion Isola has ever seen.\"",
+   "src": "L9708-9713",
    "children": [
     {
      "next": "question"
@@ -303,16 +312,21 @@
    "type": "branch",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "weight": 20
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "weight": 5,
+     "rarity": "rare"
     }
    ]
   },
@@ -524,16 +538,22 @@
    "type": "branch",
    "children": [
     {
-     "next": "e1"
+     "next": "e1",
+     "weight": 20
     },
     {
-     "next": "e2"
+     "next": "e2",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "e3"
+     "next": "e3",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "e4"
+     "next": "e4",
+     "weight": 20
     }
    ]
   },
@@ -592,40 +612,25 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "coda_v22_3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Potion That Became Tradition: A useful, carefully studied preparation enters the healers' records.",
+   "src": "L9957-9958",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda_v82"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "coda_v22_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "src": "L9963-9964",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda_v82"
     }
    ]
   },
@@ -659,10 +664,220 @@
    "join": "paragraph",
    "text": "{v8_c14}"
   },
-  "coda_c15": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c15}"
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v22_3",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v22_6",
+     "if": {
+      "all": [
+       {
+        "any": [
+         {
+          "visited": "a1"
+         },
+         {
+          "visited": "b1"
+         },
+         {
+          "visited": "c1"
+         }
+        ]
+       },
+       {
+        "game": [
+         5
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "visited": "d4"
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e1"
+       },
+       {
+        "visited": "e2"
+       },
+       {
+        "visited": "e3"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
@@ -674,8 +889,7 @@
   "v8_c8",
   "v8_c9",
   "v8_c11",
-  "v8_c14",
-  "v8_c15"
+  "v8_c14"
  ],
  "requirement": {
   "min_eligible": 1

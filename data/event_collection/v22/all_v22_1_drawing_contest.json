@@ -66,9 +66,9 @@
    },
    {
     "src": "L9610",
-    "kind": "note",
+    "kind": "instruction",
     "text": "Rare supernatural mystery; no confirmed explanation.",
-    "why": "designer note"
+    "why": "c3 is rare: weight 5 against 20 (review B2)"
    },
    {
     "src": "L9612",
@@ -99,7 +99,29 @@
     "kind": "structural",
     "text": "OPTIONAL CODA:",
     "why": "the coda's label; it is one of the event's codas"
+   },
+   {
+    "src": "L9933",
+    "kind": "note",
+    "text": "The Golden",
+    "why": "the VV1 adaptation's 'may' sentence, never displayed"
+   },
+   {
+    "src": "L9963",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
+    "src": "L9933",
+    "kind": "structural",
+    "text": "VV1  -  SOUTHERN SHORE:",
+    "why": "per-game heading"
    }
+  ],
+  "shared_lines": [
+   "L9952-9964",
+   "L9933"
   ]
  },
  "roles": {
@@ -120,11 +142,22 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "The artists of Isola assemble beneath the shade of broad tropical leaves. There are bowls of crushed berry pigments, charcoal sticks, colored earth, barkcloth, smooth wood, and prepared leaves. A row of judges sits before a growing collection of drawings. (Artist) has entered the competition, although (artist.he/she) has not yet decided what to draw.\nAn enthusiastic organizer announces, \"May the finest artist win!\" From the back, someone mutters, \"May the judges know what art is.\"\nWHAT SHOULD (ARTIST) DRAW?",
-   "src": "L9564-9568,L9570-9571,L9573",
+   "text": "The artists of Isola assemble beneath the shade of broad tropical leaves. There are bowls of crushed berry pigments, charcoal sticks, colored earth, barkcloth, smooth wood, and prepared leaves. A row of judges sits before a growing collection of drawings. (Artist) has entered the competition, although (artist.he/she) has not yet decided what to draw.\nAn enthusiastic organizer announces, \"May the finest artist win!\" From the back, someone mutters, \"May the judges know what art is.\"",
+   "src": "L9564-9568,L9570-9571",
    "children": [
     {
      "next": "question"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "text": "The artists of Isola assemble beneath the shade of broad tropical leaves. There are bowls of crushed berry pigments, charcoal sticks, colored earth, barkcloth, smooth wood, and prepared leaves. A row of judges sits before a growing collection of drawings. (Artist) has entered the competition, although (artist.he/she) has not yet decided what to draw.\nAn enthusiastic organizer announces, \"May the finest artist win!\" From the back, someone mutters, \"May the judges know what art is.\"\nDrawings celebrate the new settlement.",
+     "src": "L9564-9568,L9570-9571,L9933"
     }
    ]
   },
@@ -182,7 +215,7 @@
    ]
   },
   "a3": {
-   "text": "The Accidental Map: An explorer recognizes a detail that resembles a little-known route through the island.\nthe contest result is disputed.",
+   "text": "The Accidental Map: An explorer recognizes a detail that resembles a little-known route through the island. The contest result is disputed.",
    "src": "L9582-9584",
    "children": [
     {
@@ -257,7 +290,7 @@
    ]
   },
   "b3": {
-   "text": "The Accidental Insult:",
+   "text": "The Accidental Insult: (Artist) portrays a respected elder with an expression of great wisdom; the elder thinks it looks sleepy.",
    "src": "L9595-9597",
    "children": [
     {
@@ -345,16 +378,21 @@
    "type": "branch",
    "children": [
     {
-     "next": "c1"
+     "next": "c1",
+     "weight": 20
     },
     {
-     "next": "c2"
+     "next": "c2",
+     "weight": 20
     },
     {
-     "next": "c3"
+     "next": "c3",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "c4"
+     "next": "c4",
+     "weight": 20
     }
    ]
   },
@@ -433,43 +471,43 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "coda_child": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A child's simple drawing of the village may defeat every adult entry. The result is celebrated, disputed, or taken as a reminder that art need not be complicated.",
+   "src": "L9627-9629",
    "children": [
     {
-     "next": "coda_pick"
-    },
+     "next": "coda_v82"
+    }
+   ],
+   "text_only": [
     {
-     "next": "no_coda"
+     "src": "L9628",
+     "what": "celebrated",
+     "reason": "narrative: the child's drawing is celebrated or disputed; told only"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "coda_v22_1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Artist's Apprentice: A former contest loser becomes a beloved teacher of young artists.",
+   "src": "L9953-9954",
    "children": [
     {
-     "next": "coda_c1"
-    },
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v22_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "src": "L9963-9964",
+   "children": [
     {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
-    },
-    {
-     "next": "coda_child"
+     "next": "coda_v82"
     }
    ]
   },
@@ -482,11 +520,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
   },
   "coda_c9": {
    "popup": "append",
@@ -508,24 +541,242 @@
    "join": "paragraph",
    "text": "{v8_c15}"
   },
-  "no_coda": {
-   "type": "branch"
-  },
-  "coda_child": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "A child's simple drawing of the village may defeat every adult entry. The result is celebrated, disputed, or taken as a reminder that art need not be complicated.",
-   "src": "L9627-9629",
-   "text_only": [
+  "coda": {
+   "type": "branch",
+   "children": [
     {
-     "src": "L9628",
-     "what": "celebrated",
-     "reason": "narrative: the child's drawing is celebrated or disputed; told only"
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
     }
    ]
   },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_child"
+    },
+    {
+     "next": "coda_v22_1",
+     "if": {
+      "any": [
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v22_6",
+     "if": {
+      "all": [
+       {
+        "any": [
+         {
+          "visited": "a1"
+         },
+         {
+          "visited": "b1"
+         },
+         {
+          "visited": "c1"
+         },
+         {
+          "visited": "d3"
+         }
+        ]
+       },
+       {
+        "game": [
+         5
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  },
   "b3_2": {
-   "text": "(Artist) portrays a respected elder with an expression of great wisdom; the elder thinks it looks sleepy. The artist must apologize or explain the intention.",
+   "text": "The artist must apologize or explain the intention.",
    "src": "L9595-9597",
    "children": [
     {
@@ -539,12 +790,16 @@
    "src": "L9592",
    "before": "The subject objects",
    "after": "(Name2), the subject, objects"
+  },
+  {
+   "src": "L9584",
+   "before": "; the contest",
+   "after": "; The contest"
   }
  ],
  "include_pools": [
   "v8_c1",
   "v8_c6",
-  "v8_c8",
   "v8_c9",
   "v8_c11",
   "v8_c14",
