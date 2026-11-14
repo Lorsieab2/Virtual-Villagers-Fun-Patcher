@@ -648,7 +648,8 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
         for c in n.get("children", []) or []:
             collect_cond_roles(c.get("if"), used_roles)
     for rid, r in roles.items():
-        for m in r.get("of", []) or []:
+        of = r.get("of", []) or []
+        for m in ([of] if isinstance(of, str) else of):    # an "other" role names one alias (G2)
             used_roles.add(m)
             if m not in roles:
                 rep.add("d TOKENS", f"role {rid}: alias member {m!r} is not declared")
