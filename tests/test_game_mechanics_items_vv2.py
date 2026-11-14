@@ -75,7 +75,7 @@ PINNED = {
     "Beetle Collection": "EC",
     "Pebble Collection": "EC",
     "All four collections": "CC",
-    "Stews": "ECC" + "C" * 18 + "U",          # the stews one line each
+    "Stews": "ECC" + "C" * 18 + "UC",         # the stews one line each; Empty the Stew Pot from the Science Hut Door
     "A snack (the food store)": "E",
     "Teaching children": "CC",
     "The Gong of Wonder": "EC",

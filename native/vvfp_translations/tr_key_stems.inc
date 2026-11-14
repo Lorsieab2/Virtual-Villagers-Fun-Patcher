@@ -247,6 +247,7 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.more_island_events/mie_pick.remembrance_ceremony.needs",
     "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.description",
     "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs",
+    "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_isolans",
     "vvfp.more_island_events/mie_pick.the_climb.description",
     "vvfp.more_island_events/mie_pick.the_climb.needs",
     "vvfp.more_island_events/mie_pick.the_rumblings.description",
@@ -831,5 +832,6 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.storytelling/vvfp_storytelling.x.s1",
     "vvfp.storytelling/vvfp_storytelling.x.s2",
     "vvfp.storytelling/vvfp_storytelling.x.s3",
+    "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0",
     NULL
 };

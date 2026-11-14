@@ -641,6 +641,14 @@
       ]
     },
     {
+      "ids": ["vv2_empty_stew_pot"],
+      "guide": [
+        "On by default. While a ready stew is in the pot, drag a villager of 14 or more onto the science hut's doorway",
+        "(the hut with the bench and the pots): the villager walks to the pot and empties it, so you can cook again.",
+        "A villager who dislikes cooking runs away instead. With no ready stew, the doorway works as before. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_watering_trains_building"],
       "guide": [
         "\"Watering the field\" now trains Building, but only while it moves the garden puzzle forward (after the lagoon puzzle).",

@@ -69247,6 +69247,28 @@
    "notes": "a patcher window; %1 = a number (number)"
   },
   {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_isolans",
+   "english": "at least one grave and A Family Reunited achieved (every Isolan came to live with our tribe)",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, as .needs, with Guardians of Isola Rewrite installed (its words: Isolans, A Family Reunited) (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0",
+   "english": "Emptying the pot",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "d",
+   "context": "VVFP VV2 Empty Stew.dll (the villager's Details text while emptying the stew pot)",
+   "notes": "a patcher message shown by the game; at most 47 bytes (the Details text's room)",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -69261,15 +69283,60 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_isolans",
-   "english": "at least one grave and A Family Reunited achieved (every Isolan came to live with our tribe)",
+   "stem": "vvfp.story/story_graph.cg_load.s37",
+   "english": "its title variants do not fit in the file",
    "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
     "vv5"
    ],
    "mechanism": "b",
-   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, as .needs, with Guardians of Isola Rewrite installed (its words: Isolans, A Family Reunited) (lower case, no full stop)",
-   "route": "key"
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s38",
+   "english": "a title variant is not one the game can show",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s0",
+   "english": "a chief, the Retired Chief or a puzzle's Isolan",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_risk.s3",
+   "english": "This event may choose a chief, the Retired Chief or a puzzle's Isolan, whom the game's story needs.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

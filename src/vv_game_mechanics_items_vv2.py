@@ -456,6 +456,12 @@ ITEMS = (
         ("What each stew does, by the game's stew number (one line each below):", C),
         *((f"Stew {effect}", C) for effect in STEW_EFFECTS),
         ("Which ingredients make which stew number was not traced.", U),
+        # data/builds.json vv2_empty_stew_pot ("VVFP VV2 Empty Stew.dll"): the drop 0x430AF9, the pot's own empty
+        # 0x425B20 at the end of the walk; the stew's 10 food left at callback 46 (0x46236C).
+        ("With the patcher (Empty the Stew Pot from the Science Hut Door, on by default): a villager of 14 or more "
+         "dropped on the science hut's doorway while a ready stew is in the pot walks to the pot and empties it "
+         "(\"Emptying the pot\"); a villager who dislikes cooking runs away instead, and a stew still being made "
+         "is left alone. No food is lost or given back: the stew's 10 food was used when the food went in.", C),
     )),
     Entry(ITEM, "A snack (the food store)", (
         ("A villager below 100 health with food in store snacks: 1 food, +1 health 50% of the time (Chances: A "
