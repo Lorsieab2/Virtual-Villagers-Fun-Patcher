@@ -380,6 +380,7 @@ class FontRun:
         _register(ref)
         machine, _result, _features, _before, _shipped = run(game, mode, tuple(selection), swap=swap)
         self.game, self.m = game, machine
+        machine.stop_recording()          # the startup audit's log: nothing after WinMain reads it
         ref["machine"] = machine
         mu = machine.mu
         machine.font_heap = Heap(mu)
