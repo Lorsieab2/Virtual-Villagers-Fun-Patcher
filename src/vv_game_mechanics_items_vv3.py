@@ -81,7 +81,8 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_population_256", "vv3_fruit_trees_take_turns", "vv3_unicode_font",
                          "vv3_preferred_job_graves", "vv3_tech_cost_multiplier",
                          "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full",
-                         "vv3_collectibles_stay_collected", "vv3_more_island_events"})
+                         "vv3_collectibles_stay_collected", "vv3_more_island_events",
+                         "vv3_scrolling_popups", "vv3_isola_grand_event_collection"})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv3_origins_village_wide_upgrades"
