@@ -2282,7 +2282,7 @@ static int cg_glyph_fallback(char *out, int n, int cap) {
    field after it (the save slot); only bytes a player could type.  No name: "the village" / "The village". */
 static const unsigned int CG_TRIBE_MANAGER[6] = { 0, 0x48AEDCu, 0x4997BCu, 0x4B309Cu, 0x4CB51Cu, 0x4DACE0u };
 static const unsigned int CG_TRIBE_AT[6] = { 0, 0x10u, 0x10u, 0x12ED4u, 0x170C0u, 0x17D1Cu };
-static const int CG_TRIBE_BYTES[6] = { 0, 64, 64, 0x50, 0x54, 0x64 };
+static const int CG_TRIBE_BYTES[6] = { 0, 33, 33, 21, 21, 21 };   /* the name field (src/vv_tribe_rename.py save_field) */
 #define CG_TRIBE_MAX 64
 
 /* The tribe's name in `game` into `out` (`cap` bytes): 1 when the game holds one. */
