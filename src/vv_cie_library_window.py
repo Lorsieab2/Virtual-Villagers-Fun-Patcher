@@ -149,6 +149,9 @@ VILLAGER_SEX = {"any": "Anyone", "male": "A man", "female": "A woman"}
 STRANGER_SEX = {"random": "Man or woman, at random", "male": "A man", "female": "A woman"}
 KIND_WORDS = {"villager": "A villager", "stranger": "A stranger (no record, only a sex)"}
 ALIAS_WORDS = "One of the other villagers, picked at random"
+OTHER_WORDS = "The other one of a pair picked at random"
+DAMAGE_SIZE_WORDS = {"small": "A little (10 to 30)", "normal": "Some (25 to 50)", "large": "A lot (50 to 75)",
+                     "huge": "It collapses (75 to 100)"}
 SPECIAL_WORDS = {None: "(anyone)", "golden_child": "Must be the Golden Child", "tribal_chief": "Must be the tribal chief",
                  "nursing_parent": "Must be a mother or father nursing a baby"}
 PROTECTED_WORDS = {"auto": "Kept out only when this role can be harmed",
@@ -1191,6 +1194,13 @@ class Library:
         self.distinct_var = tk.BooleanVar(master=self.window)
         ttk.Checkbutton(page, text="Different each time (a second pick is never the same item)",
                         variable=self.distinct_var, command=self._distinct_changed).pack(anchor="w", pady=(4, 0))
+        apart = ttk.Frame(page)
+        apart.pack(fill="x", pady=(2, 0))
+        ttk.Label(apart, text="Never the same words as a pick from these lists (names, separated by commas):").pack(
+            side="left")
+        self.distinct_from_var = tk.StringVar(master=self.window)
+        ttk.Entry(apart, textvariable=self.distinct_from_var, width=24).pack(side="left", padx=(4, 0))
+        self.distinct_from_var.trace_add("write", lambda *_: self._distinct_from_changed())
         holder = ttk.Frame(page)
         holder.pack(fill="x", pady=(4, 0))
         self.items_table = ttk.Treeview(holder, columns=("text", "weight", "if"), show="headings", height=6,
@@ -1253,6 +1263,9 @@ class Library:
         self._loading = True
         try:
             self.distinct_var.set(bool(pool and pool["distinct"]))
+            words = ", ".join((pool or {}).get("distinct_from", []))
+            if self.distinct_from_var.get() != words:
+                self.distinct_from_var.set(words)
             for i, it in enumerate(pool["items"] if pool else []):
                 table.insert("", "end", iid=str(i), values=(it["text"], it["weight"],
                                                             capital(describe_cond(it["if"], self.g))))
@@ -1308,6 +1321,17 @@ class Library:
         self.changed()
         self.show_lists()
         self._build_insert_menu()
+
+    def _distinct_from_changed(self) -> None:
+        pool = self._pool()
+        if self._loading or pool is None:
+            return
+        names = [x.strip() for x in self.distinct_from_var.get().split(",") if x.strip()]
+        if names:
+            pool["distinct_from"] = names
+        else:
+            pool.pop("distinct_from", None)
+        self.changed()
 
     def _distinct_changed(self) -> None:
         pool = self._pool()
@@ -1686,7 +1710,7 @@ class Library:
         for r, role in self.g["roles"].items():
             sub = tk.Menu(menu, tearoff=False)
             prefix = "" if r == first else f"{r}."
-            if role["kind"] in ("villager", "alias"):
+            if role["kind"] in ("villager", "alias", "other"):
                 sub.add_command(label="Name", command=lambda t=f"({prefix}Name)": self.insert(t))
             for key in (cg.PRONOUNS_V6 if v6 else cg.PRONOUNS):
                 big = "/".join(w.capitalize() for w in key.split("/"))
@@ -2338,7 +2362,8 @@ class Library:
                                                                                               sticky="w")
             row = 1
         elif do == "celebrate":
-            people = ["all"] + [r for r, role in self.g["roles"].items() if role["kind"] in ("villager", "alias")]
+            people = ["all"] + [r for r, role in self.g["roles"].items()
+                                if role["kind"] in ("villager", "alias", "other")]
             ttk.Label(form, text="Who:").grid(row=row, column=0, sticky="w", pady=2)
             who = ttk.Combobox(form, state="readonly", width=24,
                                values=["Everyone in the village" if p == "all" else capital(role_words(p))
@@ -2364,11 +2389,24 @@ class Library:
                 self._effect_changed()
             names.trace_add("write", write_names)
             row += 1
+            ttk.Label(form, text="How much:").grid(row=row, column=0, sticky="w", pady=2)
+            sizes = list(DAMAGE_SIZE_WORDS)
+            how = ttk.Combobox(form, state="readonly", width=28, values=[DAMAGE_SIZE_WORDS[k] for k in sizes])
+            how.grid(row=row, column=1, sticky="w")
+            now = next((k for k in sizes if cg.DAMAGE_SIZES[k] == (e.get("min"), e.get("max"))), None)
+            how.set(DAMAGE_SIZE_WORDS[now] if now else "")
+
+            def write_size(_e=None):
+                e["min"], e["max"] = cg.DAMAGE_SIZES[sizes[how.current()]]
+                self._effect_changed()
+                self._effect_form()
+            how.bind("<<ComboboxSelected>>", write_size)
+            row += 1
             integer("min", 1, 100, "Loses from (percent of its work):")
             integer("max", 1, 100, "to:")
         else:
             villagers = [r for r, role in self.g["roles"].items()
-                         if role["kind"] == "villager" or (role["kind"] == "alias" and do in cg.VILLAGER_EFFECTS_V6)]
+                         if role["kind"] == "villager" or (role["kind"] in ("alias", "other") and do in cg.VILLAGER_EFFECTS_V6)]
             ttk.Label(form, text="Who:").grid(row=row, column=0, sticky="w", pady=2)
             who = ttk.Combobox(form, state="readonly", width=24, values=[capital(role_words(r)) for r in villagers])
             who.grid(row=row, column=1, sticky="w")
@@ -2502,6 +2540,8 @@ class Library:
         role = self.g["roles"][r]
         if role["kind"] == "alias":
             return (capital(role_words(r)), "One of: " + ", ".join(role_words(m) for m in role["of"]), "-", "-", "-")
+        if role["kind"] == "other":
+            return (capital(role_words(r)), f"The other one of {role_words(role['of'])}", "-", "-", "-")
         villager = role["kind"] == "villager"
         sex = (VILLAGER_SEX if villager else STRANGER_SEX).get(role["sex"], role["sex"])
         return (capital(role_words(r)), KIND_WORDS[role["kind"]].split(" (")[0],
@@ -2548,7 +2588,7 @@ class Library:
         first = next(iter(self.g["roles"]))
         ttk.Label(form, text=capital(role_words(r)), font=self.fonts["label"]).grid(row=0, column=0, sticky="w")
         ttk.Label(form, text="Who:").grid(row=1, column=0, sticky="w", pady=2)
-        kinds = dict(KIND_WORDS, alias=ALIAS_WORDS)
+        kinds = dict(KIND_WORDS, alias=ALIAS_WORDS, other=OTHER_WORDS)
         kind = ttk.Combobox(form, state="disabled" if r in ("subject", first) else "readonly", width=40,
                             values=list(kinds.values()))
         kind.grid(row=1, column=1, sticky="w")
@@ -2561,6 +2601,10 @@ class Library:
             if new == "alias":
                 to_v6(self.g)
                 self.g["roles"][r] = {"kind": "alias", "of": []}
+            elif new == "other":
+                to_v6(self.g)
+                pairs = [a for a, v in self.g["roles"].items() if v["kind"] == "alias" and len(v["of"]) == 2]
+                self.g["roles"][r] = {"kind": "other", "of": pairs[0] if pairs else ""}
             elif new == "stranger":
                 self.g["roles"][r] = {"kind": "stranger", "sex": "random"}
             else:
@@ -2580,6 +2624,22 @@ class Library:
                     self._role_changed()
                 ttk.Checkbutton(form, text=capital(role_words(m)), variable=var, command=write_member).grid(
                     row=3 + i, column=0, columnspan=2, sticky="w")
+            return
+        if role["kind"] == "other":
+            # The member of a two-villager pick that was not picked.
+            pairs = [a for a, v in self.g["roles"].items() if v["kind"] == "alias"]
+            ttk.Label(form, text="The one not picked by:").grid(row=2, column=0, sticky="w", pady=(6, 2))
+            pick = ttk.Combobox(form, state="readonly", width=40, values=[capital(role_words(a)) for a in pairs])
+            pick.grid(row=2, column=1, sticky="w")
+            if role["of"] in pairs:
+                pick.current(pairs.index(role["of"]))
+
+            def write_pair(_e=None):
+                role["of"] = pairs[pick.current()]
+                self._role_changed()
+            pick.bind("<<ComboboxSelected>>", write_pair)
+            ttk.Label(form, text="(the pick must be between exactly two villagers)").grid(
+                row=3, column=0, columnspan=2, sticky="w")
             return
         sexes = VILLAGER_SEX if role["kind"] == "villager" else STRANGER_SEX
         ttk.Label(form, text="Man or woman:").grid(row=2, column=0, sticky="w", pady=2)

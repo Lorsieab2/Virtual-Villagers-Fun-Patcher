@@ -300,8 +300,13 @@ class Tokens(unittest.TestCase):
 class Pools(unittest.TestCase):
     def test_pool_rules(self):
         self.assertEqual(t.problems_of(v6()), [])
-        self.assertEqual(cg.load(v6(nodes={"k": {"text": "{Y} and {X} or {two words}"}}))["nodes"]["k"]["text"],
-                         "Y and {X} or two words")                      # G4: a one-option brace is its text
+        # G4: a one-option brace that cannot be a name is its text; an identifier-shaped one must name a list.
+        self.assertEqual(cg.load(v6(nodes={"k": {"text": "{X} or {two words} or {quiet!}"}}))["nodes"]["k"]["text"],
+                         "{X} or two words or quiet!")
+        for typo in ("{Y}", "{Y.2}", "{Dish_2}"):
+            self.assertTrue(any(f"unknown list {typo[1:-1].split('.')[0]}" in p
+                                for p in t.problems_of(v6(nodes={"k": {"text": f"(Hero) keeps {typo}."}}))), typo)
+        self.assertTrue(any("names no game word" in p for p in t.problems_of(v6(nodes={"k": {"text": "{@nope}"}}))))
         d = v6(pools={"X": {"distinct": True, "items": ["a"]}})
         self.assertTrue(any("2 different items are used; it has 1" in p for p in t.problems_of(d)))
         d = v6(pools={"X": {"items": ["{X}"]}})
