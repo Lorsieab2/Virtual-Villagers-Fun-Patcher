@@ -41,6 +41,7 @@
 #include <windows.h>
 #include "../shared/install_sites.h"
 #include "../shared/scroll_popup.h"
+#include "../shared/one_popup.h"
 
 #define SP_GAME_BASE 0x400000u
 #define SP_MARGIN 16              /* kept free above and below a capped panel */
@@ -220,6 +221,154 @@ static int sp_reserve(const sp_class *c, unsigned char *popup) {
         {
             int b5 = 5 * sp_vcall_int(button, 0x10);
             return (b5 - (b5 >> 31)) >> 1;          /* the game's (5 x h) / 2: cdq, sub, sar */
+        }
+    }
+    return -1;
+}
+
+/* ---- One popup per island event (native/shared/one_popup.h) ---------------------------------------------------
+
+   A popup a companion runs a whole island event in: its text, then its choices drawn here as rows at the end of the
+   text, inside the scrolled content (both bars scroll them), each hit-tested at its scrolled place.  Its panel is
+   asked for the text, the rows and the room the companion's OK keeps below them (capped to the screen as any), and
+   it is always drawn through sp_scroll (bars only when needed) so the rows are drawn and clicked. */
+
+typedef struct sp_op {
+    int on;                       /* the popup asked about is a one-popup event */
+    op_rows r;
+    op_pick_fn pick;
+} sp_op;
+static sp_op g_op;                /* the popup sp_op_query asked about last */
+static sp_picture g_row;          /* the game's answer-button picture */
+static int g_row_art;             /* 0 not loaded, 1 loaded, -1 missing */
+typedef struct sp_op_draw {       /* the rows sp_scroll draws after the content (on: 1) */
+    int on, top;                  /* `top`: the first row's top, below the content's top */
+    int cx;                       /* the rows' centre (screen x) when the content is no wider than the box (0: the
+                                     box's centre) */
+    void *font;
+    unsigned int colour;
+} sp_op_draw;
+static sp_op_draw g_op_draw;
+/* Where the rows of the view's popup were drawn last (screen), and the choice pressed (1 + its index). */
+static int g_rows_n, g_row_x, g_row_y0, g_row_w, g_row_h, g_row_step;
+static op_pick_fn g_rows_pick;
+static int g_row_pressed;
+
+static int sp_op_query(const unsigned char *popup) {
+    static const char *const MODULES[2] = { "VVFP Story Upgrades.dll", "VVFP More Island Events.dll" };
+    int k;
+    g_op.on = 0;
+    for (k = 0; k < 2 && popup != NULL; ++k) {
+        HMODULE module = GetModuleHandleA(MODULES[k]);
+        op_rows_fn rows = module != NULL ? (op_rows_fn)(void *)GetProcAddress(module, "VvfpOnePopupRows") : NULL;
+        ZeroMemory(&g_op.r, sizeof g_op.r);
+        g_op.r.size = (int)sizeof g_op.r;
+        if (rows != NULL && rows(popup, &g_op.r) == 1) {
+            g_op.pick = (op_pick_fn)(void *)GetProcAddress(module, "VvfpOnePopupPick");
+            if (g_op.r.rows < 0 || g_op.r.rows > OP_MAX_ROWS || g_op.pick == NULL) {
+                g_op.r.rows = 0;
+            }
+            if (g_op.r.reserve < 0 || g_op.r.reserve > 1024) {
+                g_op.r.reserve = 0;
+            }
+            g_op.on = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int sp_load(sp_picture *pic, const sp_art *art);
+
+static int sp_row_ready(void) {
+    if (g_row_art == 0) {
+        g_row_art = sp_load(&g_row, &g_game->row) ? 1 : -1;
+    }
+    return g_row_art == 1;
+}
+
+/* The rows below the text: half a row's height of space, then each row 1.25 rows' heights below the last. */
+static int sp_rows_gap(void) {
+    return g_row.h / 2;
+}
+
+static int sp_rows_step(void) {
+    return g_row.h + g_row.h / 4;
+}
+
+static int sp_rows_h(int n) {
+    return n > 0 && sp_row_ready() ? sp_rows_gap() + (n - 1) * sp_rows_step() + g_row.h : 0;
+}
+
+typedef int (__fastcall *sp_label_w_fn)(void *font, void *edx, const char *text, float scale);
+typedef int (__fastcall *sp_label_h_fn)(void *font, void *edx, const char *text);
+
+/* The widest row (its picture, or its label when that is wider: a label may run past its button while it stays
+   readable, the owner 2026-11-12). */
+static int sp_rows_w(void *font) {
+    int w = sp_row_ready() ? g_row.w : 0, k;
+    for (k = 0; k < g_op.r.rows && font != NULL && g_game->width_fn != 0; ++k) {
+        int lw = ((sp_label_w_fn)(UINT_PTR)g_game->width_fn)(font, NULL, g_op.r.labels[k], 1.0f) + 8;
+        if (lw > w) {
+            w = lw;
+        }
+    }
+    return w;
+}
+
+static unsigned int sp_row_colour(void) {
+    unsigned int c = 0xFF000000u;
+    if (g_game->row_colour_va != 0) {
+        __try {
+            c = *(const unsigned int *)(UINT_PTR)g_game->row_colour_va;
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            c = 0xFF000000u;
+        }
+    }
+    return c;
+}
+
+static int sp_row_at(int x, int y);
+static void sp_frame_at(void *holder, const struct sp_picture *p, int x, int y, int frame);
+typedef void (__fastcall *sp_text_draw_fn)(void *holder, void *edx, const char *text, int x, int y,
+                                           unsigned int colour, void *font);
+
+/* The rows at (x, y0) (the first row's top), centred on `cw` from x, under the clip the caller set (the box). */
+static void sp_draw_rows(void *holder, int x, int y0, int cw) {
+    int k, rx = x + (cw - g_row.w) / 2, hover = sp_row_at(g_mx, g_my);
+    g_rows_n = g_op.r.rows;
+    g_row_x = rx;
+    g_row_y0 = y0;
+    g_row_w = g_row.w;
+    g_row_h = g_row.h;
+    g_row_step = sp_rows_step();
+    g_rows_pick = g_op.pick;
+    for (k = 0; k < g_op.r.rows; ++k) {
+        int ry = y0 + k * g_row_step;
+        int frame = g_row_pressed == k + 1 ? 2 : hover == k ? 1 : 0;
+        const char *label = g_op.r.labels[k];
+        int lw = 0, lh = 0;
+        sp_frame_at(holder, &g_row, rx, ry, frame);
+        if (g_op_draw.font != NULL && g_game->width_fn != 0 && g_game->height_fn != 0) {
+            lw = ((sp_label_w_fn)(UINT_PTR)g_game->width_fn)(g_op_draw.font, NULL, label, 1.0f);
+            lh = ((sp_label_h_fn)(UINT_PTR)g_game->height_fn)(g_op_draw.font, NULL, label);
+        }
+        ((sp_text_draw_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, label, rx + (g_row.w - lw) / 2,
+                                                        ry + (g_row.h - lh) / 2, g_op_draw.colour, g_op_draw.font);
+    }
+}
+
+/* The row under (x, y) (inside the box shown, where rows were drawn last), or -1. */
+static int sp_row_at(int x, int y) {
+    int k;
+    if (g_rows_n <= 0 || g_view.popup == NULL || x < g_view.box_x || x >= g_view.box_x + g_view.box_w
+        || y < g_view.box_y || y >= g_view.box_y + g_view.box_h || x < g_row_x || x >= g_row_x + g_row_w) {
+        return -1;
+    }
+    for (k = 0; k < g_rows_n; ++k) {
+        int ry = g_row_y0 + k * g_row_step;
+        if (y >= ry && y < ry + g_row_h) {
+            return k;
         }
     }
     return -1;
@@ -564,6 +713,20 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
     old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
     sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
     draw(holder, data, ox - g_sx, by - g_sy);
+    g_rows_n = 0;
+    if (g_op_draw.on && g_op.r.rows > 0 && sp_row_ready()) {
+        /* one_popup.h: the choices after the content, scrolled with it, centred on the box (or the content when
+           it is wider) */
+        sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
+        if (need_h || g_op_draw.cx == 0) {
+            sp_draw_rows(holder, bx - g_sx, by - g_sy + g_op_draw.top, need_h ? content_w : bw);
+        } else {
+            sp_draw_rows(holder, g_op_draw.cx - g_row.w / 2, by - g_sy + g_op_draw.top, g_row.w);
+        }
+    }
+    if (g_rows_n == 0) {
+        g_row_pressed = 0;
+    }
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
     if (g_bars) {
         sp_draw_bars(holder, clip, old);
@@ -599,8 +762,14 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     void *font = (void *)(UINT_PTR)a[5];
     unsigned char *popup = (unsigned char *)text - c->text;
     const int *panel = (const int *)(popup + c->panel);
-    int reserve = sp_reserve(c, popup), box_h, content_h, content_w, line;
+    int reserve, box_h, content_h, content_w, line, op = 0, text_h;
     sp_justify_draw d;
+    if (a[6] == 0 && sp_op_query(popup)) {
+        op = 1;                             /* one_popup.h: the rows after the text, the companion's OK room */
+        reserve = g_op.r.reserve;
+    } else {
+        reserve = sp_reserve(c, popup);
+    }
     if (reserve < 0 || sp_clip(holder) == NULL || a[6] != 0 || w <= 0) {
         return -1;
     }
@@ -609,8 +778,15 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     if (content_w < w) {
         content_w = w;
     }
-    content_h = sp_measure(holder, text, content_w, colour, font);   /* wrapped at the widest word: never stuck */
-    if (box_h <= 0 || (content_h <= box_h && content_w <= w)) {
+    content_h = text_h = sp_measure(holder, text, content_w, colour, font);   /* wrapped at the widest word */
+    if (op) {
+        int rw = sp_rows_w(font);
+        content_h += sp_rows_h(g_op.r.rows);
+        if (rw > content_w) {
+            content_w = rw;
+        }
+    }
+    if (box_h <= 0 || (!op && content_h <= box_h && content_w <= w)) {
         if (g_view.popup == popup) {
             g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
         }
@@ -622,9 +798,18 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     d.colour = colour;
     d.font = font;
     d.result = -1;
-    if (!sp_scroll(holder, popup, panel, x, y, w, box_h, x, panel[2] - 4, content_w, content_h, line, sp_hash(text),
-                   sp_draw_justified, &d)) {
-        return -1;
+    g_op_draw.on = op;
+    g_op_draw.cx = 0;
+    g_op_draw.top = text_h + sp_rows_gap();
+    g_op_draw.font = font;
+    g_op_draw.colour = sp_row_colour();
+    {
+        int k = sp_scroll(holder, popup, panel, x, y, w, box_h, x, panel[2] - 4, content_w, content_h, line,
+                          sp_hash(text) ^ (unsigned int)(op ? g_op.r.rows * 0x9E3779B1u : 0u), sp_draw_justified, &d);
+        g_op_draw.on = 0;
+        if (!k) {
+            return -1;
+        }
     }
     return d.result;
 }
@@ -657,6 +842,7 @@ static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int 
             r = sp_body(c, holder, a);
         } __except (EXCEPTION_EXECUTE_HANDLER) {
             r = -1;
+            g_op_draw.on = 0;
             if (clip != NULL) {
                 __try {
                     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
@@ -855,6 +1041,18 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
                             height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
                             width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
                         }
+                        if (sp_op_query((const unsigned char *)popup)) {
+                            /* one_popup.h: the text, the rows after it and the companion's OK room (no room for
+                               the game's own answers, which the companion hides) */
+                            int rw = sp_rows_w(font);
+                            room = 0;
+                            asked_h = s->text_top + height + sp_rows_h(g_op.r.rows) + g_op.r.reserve;
+                            a[2] = (unsigned int)asked_h;
+                            if (rw > width) {
+                                width = rw;
+                            }
+                            height = asked_h - s->text_top - g_op.r.reserve;   /* the reserve below is the OK's */
+                        }
                         if (width > (int)a[1] - 2 * s->side && sp_art_ready()) {
                             a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
                         }
@@ -880,6 +1078,12 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
         unsigned char *p = (unsigned char *)popup;
         int box_w = *(int *)(p + c->box + 8);
         void *holder = sp_holder();
+        if (sp_op_query(p)) {
+            /* one_popup.h: the room for the game's own buttons becomes the companion's OK room, and the rows
+               after the text are asked for too */
+            int stock = sp_reserve(c, p);
+            a[2] = (unsigned int)((int)a[2] - (stock > 0 ? stock : 0) + g_op.r.reserve + sp_rows_h(g_op.r.rows));
+        }
         if (holder != NULL && box_w > 0 && sp_art_ready()
             && sp_widest_word(holder, (const char *)(p + c->text), 0, *(void **)(p + c->font)) > box_w) {
             a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());
@@ -1282,6 +1486,40 @@ static int sp_measured_body(const sp_shift *s, const sp_asked *asked, unsigned c
     bottom = panel[3] - asked->reserve;
     bx = panel[0] + s->side;
     bw = pw - 2 * s->side;
+    if (sp_op_query(dialog)) {
+        /* one_popup.h: the whole body (the title, the villager's picture, the text) and the rows after it, from
+           the top of the panel's room down to the companion's OK room; always drawn so (the rows are ours). */
+        int rw = sp_rows_w(font), text_h = height;
+        bottom = panel[3] - g_op.r.reserve;
+        height += sp_rows_h(g_op.r.rows);
+        if (rw > width) {
+            width = rw;
+        }
+        by = panel[1] + s->text_top;
+        for (p = text; *p != 0; ++p) {
+            newlines += *p == '\n';
+        }
+        line = text_h / (newlines + 1);
+        d.dialog = dialog;
+        d.content = content;
+        d.bx = bx;
+        d.by = by;
+        d.dx0 = width > bw ? bx - (panel[0] + (pw - width) / 2) : 0;
+        d.dy0 = by - top;
+        d.yfield = s->yfield;
+        g_op_draw.on = 1;
+        g_op_draw.cx = (panel[0] + panel[2]) / 2;   /* where the game centres the text */
+        g_op_draw.top = text_h + sp_rows_gap();
+        g_op_draw.font = font;
+        g_op_draw.colour = sp_row_colour();
+        {
+            int k = sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, bx, panel[2] - s->side / 3,
+                              width, height, line > 0 ? line : s->line,
+                              sp_hash(text) ^ (unsigned int)(g_op.r.rows * 0x9E3779B1u), sp_draw_shifted, &d);
+            g_op_draw.on = 0;
+            return k;
+        }
+    }
     if (top >= panel[1] && top + height <= bottom && width <= bw) {
         if (g_view.popup == dialog) {
             g_view.popup = NULL;
@@ -1459,6 +1697,7 @@ static void __stdcall sp_content(unsigned char *dialog) {
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         done = 0;
+        g_op_draw.on = 0;
         if (clip != NULL) {
             __try {
                 clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
@@ -1533,6 +1772,19 @@ static int __stdcall sp_mouse(int type, int x, int y) {
             if (g_drag != 0) {
                 sp_drag_to(x, y);
                 used = 1;
+            }
+        } else if (type == 2 && sp_row_at(x, y) >= 0) {
+            g_row_pressed = sp_row_at(x, y) + 1;   /* one_popup.h: a choice pressed (taken when let go on it) */
+            used = 1;
+        } else if (type == 3 && g_row_pressed != 0) {
+            int k = g_row_pressed - 1;
+            op_pick_fn pick = g_rows_pick;
+            unsigned char *popup = g_view.popup;
+            g_row_pressed = 0;
+            used = 1;
+            if (sp_row_at(x, y) == k && pick != NULL) {
+                g_rows_n = 0;                       /* the popup's content changes: drawn again before a click */
+                pick(popup, k);
             }
         } else if (type == 2) {             /* down */
             if (g_view.vbar && sp_in(x, y, g_view.vx, g_view.vy, g_view.track_w, g_view.vh)) {
@@ -1609,23 +1861,25 @@ int __stdcall VvfpScrollingPopupsTestScrolled(void) {
     return (int)g_scroll_draws;
 }
 
-/* The dialog drawn last (for the tests' emulation): 20 ints -- shown (1/0), the box x, y, width, visible height,
+/* The dialog drawn last (for the tests' emulation): 26 ints -- shown (1/0), the box x, y, width, visible height,
    the content's width and height, the bars shown (vertical, horizontal), the vertical bar's x, top, height and
-   arrow height, the horizontal bar's x, y, width, height, one line's height, and the scroll position x, y.
+   arrow height, the horizontal bar's x, y, width, height, one line's height, the scroll position x, y, and the
+   one-popup rows drawn (their count, the first's x and top, a row's width and height, the step between rows).
    Returns how many it wrote. */
 int __stdcall VvfpScrollingPopupsTestView(int *out, int count) {
-    int v[20], i;
+    int v[26], i;
     v[0] = g_view.popup != NULL;
     v[1] = g_view.box_x; v[2] = g_view.box_y; v[3] = g_view.box_w; v[4] = g_view.box_h;
     v[5] = g_view.content_w; v[6] = g_view.content_h; v[7] = g_view.vbar; v[8] = g_view.hbar;
     v[9] = g_view.vx; v[10] = g_view.vy; v[11] = g_view.vh; v[12] = g_view.arrow_h;
     v[13] = g_view.hx; v[14] = g_view.hy; v[15] = g_view.hw; v[16] = g_view.hh;
     v[17] = g_view.line; v[18] = g_sx; v[19] = g_sy;
+    v[20] = g_rows_n; v[21] = g_row_x; v[22] = g_row_y0; v[23] = g_row_w; v[24] = g_row_h; v[25] = g_row_step;
     if (out == NULL || count <= 0) {
         return 0;
     }
-    if (count > 20) {
-        count = 20;
+    if (count > 26) {
+        count = 26;
     }
     __try {
         for (i = 0; i < count; ++i) {

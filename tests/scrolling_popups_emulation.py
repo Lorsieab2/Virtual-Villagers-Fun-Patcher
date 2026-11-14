@@ -191,6 +191,8 @@ class Dialog:
         self.g = dict(GAMES[game])
         self.watch = None
         self.multi_answer = None          # see _story_room
+        self.one_popup = None             # see _op_rows
+        self.picks: list[int] = []
         self._story_methods: dict = {}
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGB", (0, _map_rgb))
@@ -304,7 +306,8 @@ class Dialog:
                 if text.lower() == "sdl2.dll":
                     ret(SDL_MODULE, 4)
                     return
-                if text.lower() == "vvfp story upgrades.dll" and harness.multi_answer is not None:
+                if text.lower() == "vvfp story upgrades.dll" and (harness.multi_answer is not None
+                                                                   or harness.one_popup is not None):
                     ret(STORY_MODULE, 4)
                     return
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
@@ -316,7 +319,9 @@ class Dialog:
                 if not harness._story_methods:       # made once: the companion asks at every draw
                     harness._story_methods = {"VvfpStoryButtonRoom": harness._method(harness._story_room, 4),
                                               "VvfpMultiAnswerGameVtable":
-                                                  harness._method(harness._story_game_vtable, 8)}
+                                                  harness._method(harness._story_game_vtable, 8),
+                                              "VvfpOnePopupRows": harness._method(harness._op_rows, 8),
+                                              "VvfpOnePopupPick": harness._method(harness._op_pick, 8)}
                 ret(harness._story_methods.get(proc, 0), 8)
                 return
             if name == "GetSystemTimeAsFileTime":
@@ -343,15 +348,52 @@ class Dialog:
     # VvfpMultiAnswerGameVtable(popup, &room) answers the game's vtable and the room for a popup that carries a copy
     # (A New Home, The Lost Children), as native/shared/vvfp_multi_answer.h / vvfp_multi_answer_12.h do.
     def _story_room(self, args):
+        if self.multi_answer is None:
+            return 0
         popup, room, _copy, _game = self.multi_answer
         return room if args[0] == popup else 0
 
     def _story_game_vtable(self, args):
+        if self.multi_answer is None:
+            return 0
         popup, room, copy, game = self.multi_answer
         if copy and args[0] == popup and self.u32(popup) == copy:
             self.put(args[1], room)
             return game
         return 0
+
+    # -- a one-popup island event (native/shared/one_popup.h) as its companion runs it -----------------------------
+    # one_popup = {"popup": the dialog, "labels": [the choices shown now], "reserve": its OK room in pixels,
+    # "on_pick": fn(k) (the companion's answer: the outcome replacing the text, say)}: VvfpOnePopupRows answers it
+    # for that dialog, VvfpOnePopupPick records each pick in `picks` and calls on_pick.
+    def _op_rows(self, args):
+        op = self.one_popup
+        if op is None or args[0] != op["popup"]:
+            return 0
+        out = args[1]
+        assert self.i32(out) == 12 + 7 * 128, "op_rows' size as one_popup.h has it"
+        labels = op["labels"]
+        self.put(out + 4, len(labels), op["reserve"])
+        for k, label in enumerate(labels):
+            self.mu.mem_write(out + 12 + 128 * k, label[:127] + b"\0")
+        return 1
+
+    def _op_pick(self, args):
+        op = self.one_popup
+        if op is None or args[0] != op["popup"]:
+            return 0
+        self.picks.append(args[1])
+        if op.get("on_pick"):
+            op["on_pick"](args[1])
+        return 1
+
+    def view_rows(self) -> dict:
+        """The one-popup rows the companion drew last: count, first row's x and top, width, height, step."""
+        dll = next(m for k, m in self.m.modules.items() if "scrolling" in k)
+        out = self.m.font_heap.alloc(4 * 26)
+        n = self.run._call(dll.exports["VvfpScrollingPopupsTestView"], 0, out, 26)
+        values = struct.unpack("<%di" % n, self.mu.mem_read(out, 4 * n))
+        return dict(zip(("n", "x", "y", "w", "h", "step"), values[20:26]))
 
     # -- stand-in methods ----------------------------------------------------------------------------------------
     def _method(self, fn, pop: int, this: bool = False) -> int:
@@ -587,12 +629,17 @@ class Dialog:
         return tuple((b[1], b[3][0]) for b in body if b[3][1] < top + 4)
 
     # -- the dialog -------------------------------------------------------------------------------------------------
-    def make(self, text: bytes, choices: bool = False, title: bytes = b"The Mysterious Footprints") -> int:
-        """A dialog with `text` (and two choice buttons, or OK), laid out by the constructor's own tail."""
+    def make(self, text: bytes, choices: bool = False, title: bytes = b"The Mysterious Footprints",
+             one_popup: dict | None = None) -> int:
+        """A dialog with `text` (and two choice buttons, or OK), laid out by the constructor's own tail.
+        `one_popup` (see _op_rows, its "popup" filled in here): a one-popup island event's dialog."""
         g = self.g
         heap = self.m.font_heap
         mu = self.mu
         self.dialog = d = heap.alloc(0x900)
+        self.one_popup = one_popup
+        if one_popup is not None:
+            one_popup["popup"] = d
         self.run._call(g["base"], d, 0)                      # the base constructor, no fade-in
         ctor_code = bytes(mu.mem_read(g["ctor"], 0x80))
         at = ctor_code.find(b"\xC7\x06")
@@ -697,7 +744,7 @@ class Dialog:
         return d
 
     def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30,
-                   answers_room: int = 0) -> int:
+                   answers_room: int = 0, one_popup: dict | None = None) -> int:
         """A New Home's / The Lost Children's island-event dialog `kind` with `text` (and a result text, shown when
         `show_result` is called): the base constructor, the dialog's own vtable and fields, then the constructor's
         own size site run with the height its own formula gives (the text's height by the game's routine plus the
@@ -712,6 +759,9 @@ class Dialog:
         self.run._call(e["base"], d, 0)
         self.put(d, e["vt"])
         self.multi_answer = None
+        self.one_popup = one_popup
+        if one_popup is not None:
+            one_popup["popup"] = d
         if answers_room:
             copy = heap.alloc(0x100)
             self.mu.mem_write(copy, bytes(self.mu.mem_read(e["vt"], 0x100)))
