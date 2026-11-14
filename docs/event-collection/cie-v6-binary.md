@@ -70,6 +70,14 @@ strings. The engine must use the offsets, not the order.
   crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` is 0. A
   name or pronoun placeholder, a role condition or a villager effect in such a graph is an error.
 
+## 2a. Node record (28 bytes, unchanged size)
+
+`B type, B append, B paragraph, B 0, H id, H text, H variant first, H variant count, H child first, H child count,
+H else, H effect first, H effect count, H summary, H outcome, H title`. As v5, except the last H (0 in v1-v5): in
+v6 it is the node's **popup title** string (section 14), or `NONE` **(differs from A4; the v6 compiler wrote 0
+here before per-node titles, and nothing with that shipped)**. The loader refuses a v6 node whose title is not
+`NONE` or a title the game can show (section 14), and a title on a branch.
+
 ## 3. Child record (12 bytes, unchanged size)
 
 `H next, H weight, H cond, H else, H label, H guard` **(differs from A4: the last H, 0 in v1-v5, is the guard)**
@@ -278,3 +286,26 @@ order, the aliases drawn, each popup's text before paging, the rolls used and th
 - Answer segments: at each question, every SHOWN answer's segment is walked in choice order from the same state
   (each consumes its own rolls), then the clicked one is kept (as `cg_walk_answers` does today).
 - `simulate` assumes the facts stay the same for the whole run.
+
+## 14. Per-node popup titles
+
+JSON: a popup or question node may carry `"title": "..."` (v6 only; never on a branch, which shows no text). The
+title is checked exactly as the event's title (section 5, G6): its characters, at most 47 bytes, VV3-5 by its
+pixels in `ldwarialbold` against the body width (432 / 432 / 624 px), VV1/VV2 by `title_width` as the event title.
+
+**The title in force.** At the start of a run it is the event's own title. When a node with a title is reached, the
+title in force becomes that string from the page that node's text starts on, and stays for every later page (the
+answers of a later question included) until another titled node is reached. One exception: the answer's first page
+after a question showing 2 to 4 buttons is shown in the question's own popup and keeps the title that popup shows;
+a title set by a node starting on that page takes effect from the next page.
+
+- **Pages (engine).** Each display keeps the title in force on it (`cg_state.display_title`: the string index + 1,
+  0 = the event's title). A page's title is the title of the last change (the popup's starting title, then each
+  titled node in it, by where its text starts in the popup's raw text) that starts before the page's end. `cg_arm`
+  arms the stub with the display's title (VV3-5 draw it); `cg_show` and `cg_begin_question` compose with it (VV1/VV2
+  lead the text with it). `VvfpStoryGraphLogged` accepts the event's title or the title armed.
+- **Fit (both sides).** A popup is paged with its WIDEST title: of the titles in force anywhere on it (the one at
+  its start and each titled node's in it), the one whose worst case wraps into the most lines (the first on a tie).
+  Only VV1/VV2 lead their text with the title, so only their pages change.
+- **The event's title** is still the one the Island Events log, Pick Island Event and the library show.
+- **simulate** returns `titles`: for each popup, the title its first page shows (expanded as the text is).
