@@ -102,6 +102,20 @@ class OpenedEventBelongsToItsLibrary(unittest.TestCase):
         self.assertEqual(len(shown), 1)
 
 
+class UpgradeKeepsRoleObjects(unittest.TestCase):
+    def test_to_v6_edits_each_role_in_place(self) -> None:
+        g = w.new_event()
+        g["version"] = 3
+        roles = {r: role for r, role in g["roles"].items() if role.get("kind") == "villager"}
+        self.assertTrue(roles)
+        w.to_v6(g)
+        for r, role in roles.items():
+            self.assertIs(g["roles"][r], role)          # a form holding the old dict still edits the event
+            role["min_age"] = 40
+            self.assertEqual(g["roles"][r]["min_age"], 40)
+            self.assertEqual(role["protected"], "auto")
+
+
 class PerGameAmountWords(unittest.TestCase):
     def test_the_changes_list_names_each_games_amount(self) -> None:
         words = w.describe_effect({"do": "food", "amount": 100, "per_game": {"1": [200, 1500], "4": [300, 300]}})

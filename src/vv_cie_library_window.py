@@ -618,11 +618,13 @@ def to_v6(g: dict) -> None:
             continue
         nursing, special = role.pop("exclude_nursing", True), role.pop("exclude_special", True)
         allow = nursing is False or special is False
-        g["roles"][r] = {"kind": "villager", "optional": role.get("optional", False), "sex": role.get("sex", "any"),
-                         "min_age": role.get("min_age", 14), "max_age": None, "skill": None, "special": None,
-                         "protected": "allow" if allow else "auto",
-                         "believers_only": role.get("believers_only", True),
-                         **({"max_age_gap": role["max_age_gap"]} if role.get("max_age_gap") else {})}
+        new = {"kind": "villager", "optional": role.get("optional", False), "sex": role.get("sex", "any"),
+               "min_age": role.get("min_age", 14), "max_age": None, "skill": None, "special": None,
+               "protected": "allow" if allow else "auto",
+               "believers_only": role.get("believers_only", True),
+               **({"max_age_gap": role["max_age_gap"]} if role.get("max_age_gap") else {})}
+        role.clear()                        # in place: the Roles form's controls keep editing this same dict
+        role.update(new)
     for n in g.get("nodes", {}).values():
         for c in n.get("choices", []):
             c.setdefault("if", None)
