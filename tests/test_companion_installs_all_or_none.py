@@ -382,6 +382,11 @@ CASES = [
     Case("Island Events Scale", "assets/island_events_scale/VVFP Island Events Scale.dll", (1, 4, 5),
          lambda g: [f"vv{g}_island_events_scale_with_population"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandEventsScaleInstalled"))[1]),
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): the drop's expecting test and the completion
+    # dispatcher's first bytes.
+    Case("VV2 Empty Stew", "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll", (2,),
+         lambda g: ["vv2_empty_stew_pot"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpVv2EmptyStewInstalled"))[1]),
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the pick's epilogue and the
     # end-of-trip award call (VV1), the two jobs' award-step calls (VV2).
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",

@@ -471,10 +471,14 @@ class RowTests(unittest.TestCase):
         self.assertIn(ROW, {i for e in guides["patches"] for i in e["ids"]})
         log = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         self.assertIn(f"(`{ROW}`)", log)
+        import vv_game_mechanics_items_vv2 as items2
         import vv_game_mechanics_vv2 as gm2
-        self.assertIn("science hut", gm2.STEW_POT_LINE.lower() + " ".join(gm2.EMPTY_STEW_LINES).lower())
+        self.assertEqual(gm2.EMPTY_STEW, ROW)
+        self.assertIn("science hut's doorway", gm2.EMPTY_STEW_EFFECT)
+        self.assertTrue(any(NAME in line for e in items2.ITEMS if e.name == "Stews" for line, _ok in e.lines))
         strings = json.loads((ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8"))
-        row = next(r for r in strings["strings"] if r["stem"] == "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.x.s0")
+        stem = "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0"
+        row = next(r for r in strings["strings"] if r["stem"] == stem)
         self.assertEqual((row["english"], row["games"], row.get("route")), ("Emptying the pot", ["vv2"], "key"))
 
 

@@ -68951,6 +68951,17 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0",
+   "english": "Emptying the pot",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "d",
+   "context": "VVFP VV2 Empty Stew.dll (the villager's Details text while emptying the stew pot)",
+   "notes": "a patcher message shown by the game; at most 47 bytes (the Details text's room)",
+   "route": "key"
   }
  ]
 }

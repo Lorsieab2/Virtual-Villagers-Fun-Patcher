@@ -115,7 +115,8 @@ static const unsigned char DROP_RECORD_STOCK[17] = {
 };
 static const unsigned char DROP_RESUME_STOCK[2] = { 0x85, 0xC9 };                       /* test ecx, ecx */
 static const unsigned char DROP_DONE_STOCK[6] = { 0x8B, 0x8E, 0xE4, 0x01, 0x00, 0x00 };   /* mov ecx,[esi+0x1E4] */
-static const unsigned char CB_SITE_STOCK[6] = { 0x51, 0x8B, 0x44, 0x24, 0x0C, 0x53 };     /* push ecx; mov eax,[esp+0xC]; push ebx */
+/* push ecx; mov eax, [esp+0xC]; push ebx */
+static const unsigned char CB_SITE_STOCK[6] = { 0x51, 0x8B, 0x44, 0x24, 0x0C, 0x53 };
 static const unsigned char CB_RESUME_STOCK[2] = { 0x33, 0xDB };                         /* xor ebx, ebx */
 static const unsigned char QUEUE_PUSH_STOCK[8] = { 0x83, 0xEC, 0x18, 0x8B, 0x44, 0x24, 0x20, 0x8B };
 static const unsigned char JOB_START_STOCK[8] = { 0x8B, 0x44, 0x24, 0x04, 0x8B, 0xD0, 0x69, 0xD2 };
@@ -142,7 +143,7 @@ static void push_step(unsigned char *villagers, int slot, int step, int a, int b
 }
 
 static void set_label(unsigned char *record) {
-    const char *text = vvfp_tr("vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.x.s0", EMPTYING_EN, REC_LABEL_SIZE);
+    const char *text = vvfp_tr("vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0", EMPTYING_EN, REC_LABEL_SIZE);
     char *label = (char *)(record + REC_LABEL);
     int i = 0;
     for (; i < REC_LABEL_SIZE - 1 && text[i] != '\0'; ++i) {

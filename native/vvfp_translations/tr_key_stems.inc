@@ -831,5 +831,6 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.storytelling/vvfp_storytelling.x.s1",
     "vvfp.storytelling/vvfp_storytelling.x.s2",
     "vvfp.storytelling/vvfp_storytelling.x.s3",
+    "vvfp.vv2_empty_stew/vvfp_vv2_empty_stew.EMPTYING_EN.s0",
     NULL
 };

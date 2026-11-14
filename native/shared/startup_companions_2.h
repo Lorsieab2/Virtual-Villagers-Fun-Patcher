@@ -65,6 +65,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Long Words.dll",
     /* The Aspiring Adventurer (all five games): the owner's new island event. */
     "VVFP More Island Events.dll",
+    /* Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties
+       a ready stew. */
+    "VVFP VV2 Empty Stew.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

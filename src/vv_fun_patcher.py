@@ -12751,7 +12751,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "6C06B382391FDF883745472616917B62715037126CAC44B4A0C0DB6FE6222173",
+    "sha256": "8409EE0F26B8F917CBA6AE9C064C42E1726B7582C0FFFD16F6BA40B4BC24CC14",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12858,6 +12858,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Long Words.dll",
     # The Aspiring Adventurer (all five games): the owner's new island event.
     "VVFP More Island Events.dll",
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties a
+    # ready stew.
+    "VVFP VV2 Empty Stew.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
