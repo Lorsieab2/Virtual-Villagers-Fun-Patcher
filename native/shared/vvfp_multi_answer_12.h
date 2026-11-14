@@ -65,6 +65,9 @@ typedef struct {
     void (*label)(void *dialog, int k, char *out, int cap);
     /* The answer's resolve, after the choice field is set (3 to 7) and the answers are off and OK on. */
     void (*resolve)(void *dialog);
+    /* Optional (NULL: never): 1 when the answer just given shows its page in a popup of its own, so this one closes
+       at once, as OK would close it (five or more answers: the Isola Grand Event Collection's G1). */
+    int (*closes)(void *dialog);
 } mb_client;
 
 typedef struct {
@@ -274,6 +277,9 @@ static char __fastcall mb_message(void *dialog, void *unused, int message, int i
             *(int *)(d + g->choice) = 3 + (id - MB_FIRST_ID);
             g_mb.c->resolve(dialog);
             d[0x50] = 1;
+            if (g_mb.c->closes != NULL && g_mb.c->closes(dialog)) {
+                return mb_message(dialog, NULL, 8, *(int *)(d + 0x5C));   /* a popup of its own comes: OK now */
+            }
             return 1;
         }
         if (message == 8 && state == MB_ASKING && g_mb.made
@@ -282,7 +288,18 @@ static char __fastcall mb_message(void *dialog, void *unused, int message, int i
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
-    return ((mb_message_fn)(uintptr_t)g_mb.g->click)(dialog, NULL, message, id);
+    {
+        int own = message == 8 && dialog == g_mb.dialog && g_mb.c != NULL && g_mb.c->state(dialog) == MB_ASKING
+                  && (id == *(int *)(d + 0x54) || id == *(int *)(d + 0x58));
+        char handled = ((mb_message_fn)(uintptr_t)g_mb.g->click)(dialog, NULL, message, id);
+        __try {
+            if (own && g_mb.c->closes != NULL && g_mb.c->closes(dialog)) {
+                handled = mb_message(dialog, NULL, 8, *(int *)(d + 0x5C));   /* a popup of its own comes: OK now */
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+        return handled;
+    }
 }
 
 /* The dialog's keyboard handler (+0x08): Enter (0x3EB) or Esc (0x3E8) is OK while OK is shown; the typed keys 1 to N
