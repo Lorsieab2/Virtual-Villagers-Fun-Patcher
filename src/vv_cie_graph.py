@@ -1342,29 +1342,27 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
 
 
 # ---- Sentence case (the owner, 2026-11-14: "the entire event text is shown in sentence case") ----------------------
-# docs/event-collection/cie-v6-binary.md 19; story_graph.inc cg_sentence_case is the same rule, byte for byte.
+# docs/event-collection/cie-v6-binary.md 20; story_graph.inc cg_sentence_case is the same rule, byte for byte.
 # The source writes some lines and labels in ALL CAPS ("TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."); they are SHOWN
 # in sentence case ("Tell Ana to stop before anyone is hurt."); the data is never changed.  Capitals that mean
 # something are kept: emphasis, speech and shouting.  On version 6 text, before anything in it is filled in:
 #   * a WORD is a run of letters (A-Z, a-z, and the Latin-1 letters 0xC0-0xFF but x 0xD7 and / 0xF7), with an
 #     apostrophe between two letters inside it; it has a lower-case letter or not.  Placeholders "(...)", picks
 #     "{...}", escapes "\\x", digits and punctuation are not words;
-#   * a SENTENCE ends after a run of . ! ? (or a heading's ":", below), and at a line's end;
+#   * a SENTENCE ends after a run of . ! ? and at a line's end;
 #   * QUOTED text is inside " ... " or the cp1252 curly quotes 0x93 ... 0x94, or ' ... ' (a ' opens when the unit
 #     before it is not a letter, digit, placeholder or pick and one follows it; it closes when no letter or digit
 #     follows it); a line break ends a quotation;
-#   * a HEADING is a line's start (past spaces) up to a ":" with words in it, none with a lower-case letter, one of two
-#     or more letters, and no . ! ? or quotation mark before the ":" ("THE TINY TYRANT: The child ...");
-#   * shown in sentence case: a heading; and, outside quotations, a LABEL (a button) with no lower-case letter in it
+#   * shown in sentence case: outside quotations, a LABEL (a button) with no lower-case letter in it
 #     and a word of two or more letters; and, outside quotations, a story SENTENCE with no lower-case letter, a word of
 #     two or more letters and no "!" (a shouted "CLOSE IT!" or "WHAT?!" stays).  Anything else is kept as written:
 #     "it was HUGE", "I said DO NOT TOUCH the pot", any speech in quotation marks;
 #   * in sentence case every letter is made lower case, and a placeholder's letters too (so "(NAME1)" shows the name
 #     in its own case, "(HE)" "he"); then the first letter of a word or placeholder that starts a sentence (the text's
-#     or a line's start, after . ! ? or a heading's ":", past spaces and quotation marks) is made a capital, and the
+#     or a line's start, after . ! or ?, past spaces and quotation marks) is made a capital, and the
 #     word "I" (also in "I'm", "I'll", "I've", "I'd") and the island's name ("Isola", "Isolan", with "'s" too) keep
 #     a capital.  Villagers' names keep their own capitals: they are filled in afterwards.
-#   * A pool's item is cased on its own the same way, its start not a sentence's start (but a heading's is).
+#   * A pool's item is cased on its own the same way, its start not a sentence's start.
 # A TITLE in capitals (no lower-case letter, one word of two or more letters) is shown in title case: each word's
 # first letter a capital, the rest lower case ("THE PARENT'S LESSON" -> "The Parent's Lesson").
 
@@ -1413,15 +1411,14 @@ def _ph_word_at(raw: str) -> int:
     return 1 + inner.rfind(".") + 1
 
 
-def _sentence_start(units: list[tuple[str, str]], at: int, item: bool, heading: list[bool],
-                    colon: list[bool]) -> bool:
+def _sentence_start(units: list[tuple[str, str]], at: int, item: bool) -> bool:
     k = at - 1
     while k >= 0 and units[k][0] == "c" and units[k][1] in _SENTENCE_QUOTES:
         k -= 1
     if k < 0:
-        return not item or heading[at]      # a heading's first word starts a sentence, in a pool's item too
+        return not item
     kind, ch = units[k]
-    return kind == "c" and (ch in ".!?\n" or colon[k])
+    return kind == "c" and ch in ".!?\n"
 
 
 def _alnum(unit: tuple[str, str]) -> bool:
@@ -1435,9 +1432,8 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
         return text
     units = _units(text)
     n = len(units)
-    # The words: (first unit, last unit + 1, letters, has a lower-case letter); word_at: the word starting at a unit.
+    # The words: (first unit, last unit + 1, letters, has a lower-case letter).
     words: list[list] = []
-    word_at = [-1] * n
     k = 0
     while k < n:
         kind, ch = units[k]
@@ -1448,37 +1444,9 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
                     and _is_letter(units[k + 1][1]))):
                 k += 1
             chars = [units[j][1] for j in range(start, k)]
-            word_at[start] = len(words)
             words.append([start, k, sum(1 for c in chars if _is_letter(c)), any(_is_lower(c) for c in chars)])
             continue
         k += 1
-    # Headings: heading[k] for their units; colon[k] for the ":" that ends one (and for a heading's first unit).
-    heading = [False] * n
-    colon = [False] * n
-    for k in range(n):
-        if k > 0 and units[k - 1] != ("c", "\n"):
-            continue
-        j, long_word = k, False
-        while j < n and units[j] == ("c", " "):
-            j += 1
-        while j < n:
-            kind, ch = units[j]
-            if kind == "c" and (ch in "\n\"'\x93\x94" or ch in _SENTENCE_MARKS):
-                break
-            if kind == "c" and ch == ":":
-                break
-            if word_at[j] >= 0:
-                w = words[word_at[j]]
-                if w[3]:
-                    break
-                long_word = long_word or w[2] >= 2
-                j = w[1]
-                continue
-            j += 1
-        if j < n and units[j] == ("c", ":") and long_word:
-            for u in range(k, j + 1):
-                heading[u] = True
-            colon[j] = True
     # Quotations, sentences (each: a lower-case letter, a word of two or more letters, a "!") and each unit's.
     quoted = [False] * n
     sent = [0] * n
@@ -1486,7 +1454,7 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
     q = 0                                   # 0 none, 1 in " ... " (or 0x93 ... 0x94), 2 in ' ... '
     for k in range(n):
         kind, ch = units[k]
-        if k > 0 and (units[k - 1] == ("c", "\n") or colon[k - 1] or (
+        if k > 0 and (units[k - 1] == ("c", "\n") or (
                 units[k - 1][0] == "c" and units[k - 1][1] in _SENTENCE_MARKS
                 and not (kind == "c" and ch in _SENTENCE_MARKS))):
             sentences.append([False, False, False])
@@ -1511,8 +1479,8 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
         sentences[sent[w[0]]][0] |= w[3]
         sentences[sent[w[0]]][1] |= w[2] >= 2
     label_caps = label and not any(w[3] for w in words) and any(w[2] >= 2 for w in words)
-    conv = [heading[k] or (not quoted[k] and (label_caps if label else (
-        not sentences[sent[k]][0] and sentences[sent[k]][1] and not sentences[sent[k]][2]))) for k in range(n)]
+    conv = [not quoted[k] and (label_caps if label else (
+        not sentences[sent[k]][0] and sentences[sent[k]][1] and not sentences[sent[k]][2])) for k in range(n)]
     out = list(units)
     for u in range(n):
         kind, raw = out[u]
@@ -1522,13 +1490,13 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
             out[u] = ("ph", "".join(_to_lower(c) for c in raw))
     for u in range(n):
         kind, raw = out[u]
-        if conv[u] and kind == "ph" and len(raw) > 2 and _sentence_start(out, u, item, heading, colon):
+        if conv[u] and kind == "ph" and len(raw) > 2 and _sentence_start(out, u, item):
             at = _ph_word_at(raw)
             out[u] = ("ph", raw[:at] + _to_upper(raw[at]) + raw[at + 1:])
     for s, e, _letters, _lower in words:
         if not conv[s]:
             continue
-        if _sentence_start(out, s, item, heading, colon):
+        if _sentence_start(out, s, item):
             out[s] = ("c", _to_upper(out[s][1]))
         if out[s][1] in "iI" and (e - s == 1 or out[s + 1][1] == "'"):
             out[s] = ("c", "I")
@@ -1881,7 +1849,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
     aliases = aliases or {}
     out = []
     drop_dot = False
-    text = sentence_case(text, item=_depth > 0, label=label)   # section 19: capitals shown in sentence case
+    text = sentence_case(text, item=_depth > 0, label=label)   # section 20: capitals shown in sentence case
     for kind, raw in text_tokens(text):
         if drop_dot and kind == "lit" and raw.startswith("."):
             raw = raw[1:]                       # section 6 step 5: no "!." / "?." after a pool's item
@@ -1932,7 +1900,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
     award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
     the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
     out = []
-    text = sentence_case(text, item=_depth > 0, label=label)   # section 19
+    text = sentence_case(text, item=_depth > 0, label=label)   # section 20
     tokens = list(text_tokens(text))
     drop_dot = False
     for at, (kind, raw) in enumerate(tokens):
@@ -2418,6 +2386,8 @@ class Popup:
     room: int = 0                       # lines kept for a question's third and fourth buttons (answer_room)
     answers: int = 0                    # a question's buttons shown (version 6: its answer's page room)
     titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
+    chosen: str = ""                    # a question's: the choice this history takes, as its row shows it at its
+                                        # widest (one_popup puts it first in the answer's text)
 
 
 @dataclass
@@ -2493,8 +2463,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles))
-                  for p in popups]
+        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
+                        p.chosen) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -2639,6 +2609,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 if v6 and not cond_holds(c.get("if"), ctx, path):
                     continue
                 if c["next"] in nodes:
+                    # One popup (cie-v6-binary.md 19): the answer's text starts with this choice's row.
+                    asked_pop = popups[-1]
+                    asked_pop.chosen = chosen_label(c["label"], lg, game, v6)
                     visit(c["next"], i if choice is None else choice, path, chance, popups, award, paid, gone,
                           effects, answers + ((nid, i),), (True, False, False), title)
             return
@@ -2940,12 +2913,23 @@ ONE_POPUP_TEXT_MAX_12 = 8000  # one popup's bytes in A New Home and The Lost Chi
                               # story_graph.inc CG_TEXT_MAX_12); the later games' popups hold POPUP_TEXT_MAX
 
 
+def chosen_label(label: str, lg: dict, game: Game, v6: bool) -> str:
+    """A choice's label as its row shows it at its widest (section 15: the names, or the pronouns when the names do
+    not fit the screen) -- what one popup puts first in the answer's text."""
+    if not v6:
+        return worst_case(label, game, None)
+    shown = worst_v6(label, lg, game, None, label=True)
+    return shown if label_fits(game.number, shown) else worst_v6(label, lg, game, None, pronoun_names=True,
+                                                                  label=True)
+
+
 def one_popup(popups: list[Popup]) -> list[Popup]:
     """The popups of one history as ONE popup per island event shows them (the owner, 2026-11-14; scrolling only,
     native/shared/one_popup.h, story_graph.inc cg_group): the text from the start (or from an answer) up to and
     including the next question, or the ending, is one text -- what were popups of their own joined by a blank line
     (ONE_POPUP_JOIN), the question's words last, its choices after them.  Each is shown in the event's one popup,
-    replacing the one before."""
+    replacing the one before.  An answer's text starts with the choice picked, as its row shows it, a blank line
+    after it (story_graph.inc cg_op_lead; "Honesty\n\n..."): in `worst`, which the bytes are checked on."""
     out: list[Popup] = []
     for pop in popups:
         if out and out[-1].layout != "question":
@@ -2959,9 +2943,13 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
                 last.layout = "question"
                 last.room = pop.room
                 last.answers = pop.answers
+                last.chosen = pop.chosen
             continue
-        out.append(Popup(pop.layout, pop.text, pop.worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles)))
+        worst = pop.worst
+        if out and out[-1].chosen:
+            worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
+        out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
+                         list(pop.titles), pop.chosen))
     return out
 
 
@@ -3033,7 +3021,7 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
         return out
     for gn in g["games"]:
         game = GAMES[gn]
-        worst = worst_v6(title_case(title), g, game, None)                # section 19
+        worst = worst_v6(title_case(title), g, game, None)                # section 20
         if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
         if len(worst) > TITLE_BYTES:
@@ -3059,7 +3047,7 @@ def title_worst(g: dict, title: str, game: "Game") -> str:
     pronouns (section 17)."""
     if g["version"] < VERSION_V6:
         return title
-    title = title_case(title)                             # section 19: a title in capitals in title case
+    title = title_case(title)                             # section 20: a title in capitals in title case
     worst = worst_v6(title, g, game, None)
     return worst if title_fits(game.number, worst) else worst_v6(title, g, game, None, pronoun_names=True)
 
@@ -3067,7 +3055,7 @@ def title_worst(g: dict, title: str, game: "Game") -> str:
 def title_shown(g: dict, title: str, game: int, bindings: dict, aliases: dict | None = None,
                 unicode: bool = False) -> str:
     """A title as the player reads it (section 17): the real names, else -- when that does not fit -- pronouns."""
-    title = title_case(title)                             # section 19
+    title = title_case(title)                             # section 20
     real = expand_v6(title, g, bindings, None, None, game, unicode, aliases)
     if title_fits(game, real):
         return real
@@ -3088,7 +3076,7 @@ def readable_title(title: str) -> str:
         if upper:
             return out.upper()
         return out[0].upper() + out[1:] if word[:1].isupper() else out
-    return PLACEHOLDER_RE.sub(one, title_case(title))[:TITLE_BYTES]   # 19: a title in capitals in title case
+    return PLACEHOLDER_RE.sub(one, title_case(title))[:TITLE_BYTES]   # 20: a title in capitals in title case
 
 
 def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game") -> str:

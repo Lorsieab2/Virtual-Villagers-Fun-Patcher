@@ -27,6 +27,7 @@ static struct {
     int next_page;                     /* the first page not yet shown */
     int effects_due;                   /* the ending's effects, made when its last page is shown */
     int cap;                           /* the dialog's text room */
+    const char *lead;                  /* the answer just picked, its row's words: the next text's first line */
     char text[MOP_TEXT_BYTES];         /* the text shown now */
 } mop;
 
@@ -34,6 +35,15 @@ static struct {
 static void mop_fill(void) {
     int first = 1, cap = mop.cap > 0 && mop.cap <= MOP_TEXT_BYTES ? mop.cap : MOP_TEXT_BYTES;
     mop.text[0] = '\0';
+    if (mop.lead != NULL && mop.lead[0] != '\0') {
+        /* cie-v6-binary.md 19: the choice picked starts its outcome, a blank line after it (display only: the
+           log's "Choice:" line is the record) */
+        adv_cat(mop.text, cap, mop.lead);
+        if (mop.pages != NULL && mop.next_page < mop.pages->count) {
+            adv_cat(mop.text, cap, "\n\n");
+        }
+    }
+    mop.lead = NULL;
     while (mop.pages != NULL && mop.next_page < mop.pages->count) {
         const char *page = mop.pages->text[mop.next_page];
         if (!first && adv_len(mop.text) + 1 + adv_len(page) >= cap) {
@@ -102,6 +112,7 @@ static int mop_pick(int k) {
         mop.node = next;
         mop.pages = mop.flow->question(next);
     }
+    mop.lead = label;
     mop_fill();
     return 1;
 }

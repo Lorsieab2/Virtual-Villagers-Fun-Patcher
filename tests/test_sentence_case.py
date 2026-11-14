@@ -1,5 +1,5 @@
 """The sentence-case rule (the owner, 2026-11-14: "the entire event text is shown in sentence case"; docs/event-
-collection/cie-v6-binary.md 19): one rule in the patcher (src/vv_cie_graph.py sentence_case / title_case: the fit,
+collection/cie-v6-binary.md 20): one rule in the patcher (src/vv_cie_graph.py sentence_case / title_case: the fit,
 the walk, the simulation) and in Story / Cheat Upgrades (story_graph.inc cg_sentence_case / cg_title_case: what the
 game shows), the same byte for byte -- checked here on the rule's own cases and on every text, label and title of
 the Isola Grand Event Collection, run through the companion's test build in the emulator.  The data is never
@@ -35,7 +35,7 @@ CASES = [
     ("It was the BEST.", "It was the BEST."),
     ("OK then", "OK then"),
     ("I said DO NOT TOUCH the pot.", "I said DO NOT TOUCH the pot."),
-    ("Parenting skill: MODERATE GAIN.", "Parenting skill: MODERATE GAIN."),    # not a heading: "skill" is lower case
+    ("Parenting skill: MODERATE GAIN.", "Parenting skill: MODERATE GAIN."),
     ("The village speaks of THE GREAT STENCH for generations.",
      "The village speaks of THE GREAT STENCH for generations."),
     # Speech: capitals in quotation marks stay, a whole sentence too -- straight, single and curly (cp1252) quotes.
@@ -48,13 +48,11 @@ CASES = [
     ("I THINK I'M READY. YOU ARE NOT!", "I think I'm ready. YOU ARE NOT!"),
     ("CLOSE IT! CLOSE THE WRETCHED THING!", "CLOSE IT! CLOSE THE WRETCHED THING!"),
     ("WHAT IS THAT!? RUN.", "WHAT IS THAT!? Run."),
-    # Headings: capitals from a text's or a paragraph's start up to a ":".
+    # No heading rule (the owner, 2026-11-14: such headings leave the data): a ":" is ordinary text.
     ("THE TINY TYRANT: The child decrees that everyone must play.",
-     "The tiny tyrant: The child decrees that everyone must play."),
-    ("A quiet day.\nTHE ROYAL FEAST: The child demands a feast.", "A quiet day.\nThe royal feast: The child demands a feast."),
-    ("THE PEOPLE'S CHIEF: Two adults share.", "The people's chief: Two adults share."),
+     "THE TINY TYRANT: The child decrees that everyone must play."),
     ("MASTER STONEWRIGHT (CRITIC):\nAn elderly craftsperson.", "Master stonewright (critic):\nAn elderly craftsperson."),
-    ("WARNING: DO NOT TOUCH.", "Warning: Do not touch."),
+    ("WARNING: DO NOT TOUCH.", "Warning: do not touch."),
     ("Already in sentence case.", "Already in sentence case."),
 ]
 # Button labels: a label with no lower-case letter is shown in sentence case as a whole, "!" too; quoted text stays.
@@ -91,8 +89,8 @@ class TheRule(unittest.TestCase):
 
     def test_a_pool_item_does_not_start_a_sentence(self):
         self.assertEqual(cg.sentence_case("A HUGE FISH", item=True), "a huge fish")
-        self.assertEqual(cg.sentence_case("THE INSULT: A judge calls.", item=True), "The insult: A judge calls.",
-                         "a heading starts one, in an item too")
+        self.assertEqual(cg.sentence_case("THE INSULT: A judge calls.", item=True), "THE INSULT: A judge calls.",
+                         "no heading rule: a sentence with a lower-case letter keeps its capitals")
 
     def test_names_keep_their_capitals_and_the_bytes_stay(self):
         g = cg.load({"format": "vvfp-cie-graph", "version": 6, "title": "THE TEST", "games": [3],
@@ -102,7 +100,7 @@ class TheRule(unittest.TestCase):
         b = {"pal": cg.Binding("Ana", "f")}
         self.assertEqual(cg.expand_v6(g["nodes"]["a"]["text"], lg, b), "Tell Ana to stop before anyone is hurt.")
         self.assertEqual(g["nodes"]["a"]["text"], "TELL (PAL) TO STOP BEFORE ANYONE IS HURT.", "data unchanged")
-        # A label is cased as one (cie-v6-binary.md 19): "RUN!" on a button is "Run!", in the story it is shouted.
+        # A label is cased as one (cie-v6-binary.md 20): "RUN!" on a button is "Run!", in the story it is shouted.
         self.assertEqual(cg.label_shown("RUN, (PAL)!", lg, b, 3), "Run, Ana!")
         self.assertEqual(cg.expand_v6("RUN, (PAL)!", lg, b), "RUN, ANA!")
 

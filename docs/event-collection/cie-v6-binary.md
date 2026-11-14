@@ -278,7 +278,7 @@ holds only `per_game`.
 `ceil(2.5 x (n - 1) - 3)` (7, 10, 12: `CG_ANSWER_LINES`), and from five answers never more than the layout's lines
 less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the question layout.
 
-**With Scrolling Popups installed, section 18 replaces everything below in this section (no pages, no button room, no G1).** Without it:
+**With Scrolling Popups installed, section 19 replaces everything below in this section (no pages, no button room, no G1).** Without it:
 
 **G1: the answer's page.** With 2 to 4 buttons shown, the answer's first page is shown in the question's popup,
 keeping the same room (unchanged). With **5 or more buttons shown**, the answer's first page starts a FRESH popup:
@@ -403,7 +403,7 @@ Bad Day`.
   "Someone's No Good, Very Bad Day". The library's file name is made from this form.
 - `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
 
-## 18. One popup per island event (with Scrolling Popups)
+## 19. One popup per island event (with Scrolling Popups)
 
 The owner, 2026-11-14 (after The Parent's Lesson, live in A New Home, showed its title, the top of the villager's
 picture and seven buttons, and no question text): every new island event (More Island Events, the Isola Grand Event
@@ -416,12 +416,21 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   laid out as one page (only a text longer than the popup holds would be split, and the checks refuse one: below).
 - **The choices** sit at the END of the text, INSIDE the scrolled content: Scrolling Popups draws them as rows after
   the text (each the game's own answer-button picture with the label in the body text's font, as shown: sentence
-  case, section 19) and hit-tests them at their scrolled place (`native/shared/one_popup.h`, `VvfpOnePopupRows` /
+  case, section 20) and hit-tests them at their scrolled place (`native/shared/one_popup.h`, `VvfpOnePopupRows` /
   `VvfpOnePopupPick`). The keys 1 to 7 pick them. The game's own two answer buttons are never shown; its OK only
   while no choice is asked.
 - **An answer** shows its text (up to the next question, or the ending) in the SAME popup, scrolled to its top; a
   question there puts its choices at its end again (`cg_resolve`). The game's OK ends the event (`cg_op_ok` returns
   0). One window from start to finish.
+- **The choice picked starts its answer's text** (the owner, 2026-11-14): its label exactly as its row showed it
+  (section 15's names or pronouns, section 20's label case), alone on the first line of the text's own words, then a
+  blank line, then the outcome -- `"Honesty\n\nTruth with Kindness: ..."`; no "You chose:". In A New Home and The
+  Lost Children it comes after the title line and the villager picture's gap the dialog keeps. An answer with no
+  text of its own shows the label alone. Story Upgrades composes it into the text (`cg_op_lead`, `cg_compose_once`);
+  More Island Events question events the same (`mie_one_popup.inc` `mop.lead`, its labels as its rows show them).
+  It is display only: the Island Events log's "Choice:" line is unchanged and the label line is never logged.
+  Python `one_popup` puts the label at its widest (`chosen_label`) and `ONE_POPUP_JOIN` before the answer's `worst`,
+  so the bytes below count it. Only with Scrolling Popups; the paged popups without it have no label line.
 - **Arming.** The run is armed ONCE: as a question when its start can reach a question through pages and branches
   (`cg_start_may_ask`), so its popup is the game's question popup (A New Home's and The Lost Children's encounter
   dialog, the later games' two-choice dialog), else as a plain event (one text, OK). Nothing waits for another
@@ -436,10 +445,10 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
   (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
 - Without Scrolling Popups everything is as before (pages, button room, G1).
 
-## 19. Sentence case
+## 20. Sentence case
 
 The owner, 2026-11-14: the entire event text is shown in sentence case, the choices too ("Honesty", not
-"HONESTY"); capitals that mean something stay. The source writes some labels, headings and lines in capitals; the
+"HONESTY"); capitals that mean something stay. The source writes some labels and lines in capitals; the
 data is never changed: the rule is applied to what is shown, by the same code shape in Python (`sentence_case`,
 `title_case`) and in the engine (`cg_sentence_case`, `cg_title_case`), pinned equal on every collection text, label
 and title by `tests/test_sentence_case.py`. It is applied to a version 6 text as shown (`cg_expand` REAL and WORST,
@@ -449,16 +458,12 @@ anything is filled in:
 - a WORD is a run of letters (A-Z, a-z, Latin-1 0xC0-0xFF but 0xD7 and 0xF7), an apostrophe between two letters
   inside it; it has a lower-case letter or not. Placeholders `(...)`, picks `{...}`, escapes `\x`, digits and
   punctuation are not words;
-- a SENTENCE ends after a run of `.` `!` `?`, after a heading's `:` (below) and at a line's end;
+- a SENTENCE ends after a run of `.` `!` `?` and at a line's end (a `:` ends nothing);
 - QUOTED text is inside `"` ... `"`, the cp1252 curly quotes 0x93 ... 0x94, or `'` ... `'`: a `'` opens a
   quotation when the unit before it is not a letter, digit, placeholder or pick and something other than a space
   follows it, and closes it when no letter or digit follows it (so "DON'T" and "(NAME)'S" open nothing); a line
   break ends any quotation;
-- a HEADING is a line's start (past spaces) up to a `:`, holding words, none with a lower-case letter and one of two
-  or more letters, with no `.` `!` `?` or quotation mark before the `:` ("THE TINY TYRANT: The child ...",
-  "ROUND ONE - THE IMPOSSIBLE INGREDIENT:", "MASTER STONEWRIGHT (CRITIC):"); at the text's start or after a line
-  break, in a pool's item too;
-- shown in SENTENCE CASE: a heading; outside quotations, a LABEL with no lower-case letter in the whole label and a
+- shown in SENTENCE CASE: outside quotations, a LABEL with no lower-case letter in the whole label and a
   word of two or more letters (a "!" too: "RUN!" is "Run!"); outside quotations, a story SENTENCE with no
   lower-case letter, a word of two or more letters and no `!` ("AN ALL CAPS LINE.", "WHICH LESSON SHOULD
   (PARENT) TEACH?");
@@ -468,12 +473,13 @@ anything is filled in:
   -- shouting, "CLOSE IT!", "WHAT IS THAT!?";
 - in sentence case every letter, and every placeholder's letter, is made lower case -- so `(NAME1)` shows the name
   in its own case and `(HE)` "he" -- then the first letter of a word or placeholder that starts a sentence (the
-  text's or a line's start, a heading's first word, after `.` `!` `?` or a heading's `:`, past spaces and quotation
-  marks) is made a capital, the word "I" (also in "I'm", "I'll", "I've", "I'd") stays a capital, and so do the
+  text's or a line's start, or after `.` `!` `?`, past spaces and quotation marks) is made a capital, the word "I" (also in "I'm", "I'll", "I've", "I'd") stays a capital, and so do the
   island's names "Isola" and "Isolan" ("Isola's" too). Villagers' names keep their own capitals (they are filled in
   afterwards);
-- a pool's item is cased on its own the same way (as a label inside a label), its start not a sentence's start
-  unless a heading starts there;
+- a pool's item is cased on its own the same way (as a label inside a label), its start not a sentence's start;
+- there is no heading rule (the owner, 2026-11-14): subroute headings such as "THE TINY TYRANT:" leave the data in a
+  content pass; until then a line like "THE TINY TYRANT: The child ..." is one sentence with lower-case letters and
+  stays as written;
 - a TITLE written in capitals (no lower-case letter, a word of two or more letters) is shown in title case: each
   word's first letter a capital, the rest lower case, a placeholder's name as written (`"(NAME)'S BIG DAY"` ->
   `"(Name)'s Big Day"`); any other title as written. The readable title (17) is made from it.

@@ -2647,11 +2647,11 @@ static const char *cg_pool_text(int pool, int instance, int mode) {
 static int cg_pronoun_names;          /* cg_label_text's second pass: names as pronouns (cie-v6-binary.md 15) */
 
 /* cg_expand's work at pool depth `depth`. */
-/* ---- Sentence case (cie-v6-binary.md 19; src/vv_cie_graph.py sentence_case / title_case: the same rule) ------
+/* ---- Sentence case (cie-v6-binary.md 20; src/vv_cie_graph.py sentence_case / title_case: the same rule) ------
 
    The owner, 2026-11-14: the entire event text is shown in sentence case; capitals that mean something stay.  Shown
-   in sentence case: a heading (a line's start in capitals up to a ":"), a label with no lower-case letter, and a story
-   sentence with no lower-case letter and no "!" -- outside quotations.  Kept: emphasis inside ordinary text ("it was
+   in sentence case: a label with no lower-case letter, and a story sentence with no lower-case letter and no "!" --
+   outside quotations.  Kept: emphasis inside ordinary text ("it was
    HUGE"), speech in quotation marks, shouting ("CLOSE IT!").  In sentence case the letters and the placeholders'
    letters are made lower case, then a capital where a sentence starts, for "I" and for the island's name -- before
    anything is filled in, so names keep their own capitals.  A title in capitals is shown in title case.  The
@@ -2731,9 +2731,8 @@ static int cg_case_token(const unsigned char *t, unsigned char *kind) {
 static int cg_cu_at[CG_CASE_UNITS];             /* each unit's first byte */
 static int cg_cu_len[CG_CASE_UNITS];
 static unsigned char cg_cu_kind[CG_CASE_UNITS]; /* 0 a character, 1 a placeholder, 2 a pick, 3 an escape */
-static unsigned char cg_cu_flag[CG_CASE_UNITS]; /* 1 quoted, 2 in a heading, 4 a heading's ":", 8 in sentence case */
+static unsigned char cg_cu_flag[CG_CASE_UNITS]; /* 1 quoted, 8 in sentence case */
 static int cg_cu_sent[CG_CASE_UNITS];           /* each unit's sentence */
-static int cg_cu_word[CG_CASE_UNITS];           /* the word that starts at each unit, else -1 */
 static unsigned char cg_cs_flag[CG_CASE_UNITS]; /* each sentence: 1 a lower-case letter, 2 a word of two or more
                                                    letters, 4 a "!" */
 static int cg_cw_start[CG_CASE_UNITS], cg_cw_end[CG_CASE_UNITS], cg_cw_letters[CG_CASE_UNITS];
@@ -2775,9 +2774,9 @@ static int cg_case_start(const unsigned char *t, int u, int item) {
         --k;
     }
     if (k < 0) {
-        return !item || (cg_cu_flag[u] & 2) != 0;  /* a heading's first word starts a sentence, in an item too */
+        return !item;
     }
-    return cg_cu_mark(t, k) || cg_cu_char(t, k, '\n') || (cg_cu_flag[k] & 4) != 0;
+    return cg_cu_mark(t, k) || cg_cu_char(t, k, '\n');
 }
 
 /* The island's name keeps its capital ("isola", "isolan", and before an apostrophe: "isola's"). */
@@ -2796,7 +2795,7 @@ static int cg_case_proper(const unsigned char *t, int s0, int e0) {
 }
 
 /* `text` (NUL-ended, changed in place) with its capitals in sentence case where they mean nothing (cie-v6-binary.md
-   19); `item`: a pool's item; `label`: a button's label. */
+   20); `item`: a pool's item; `label`: a button's label. */
 static void cg_sentence_case(char *text, int item, int label) {
     unsigned char *t = (unsigned char *)text;
     int n = 0, words = 0, k, w, u, upper = 0, sents = 0, q = 0, label_lower = 0, label_long = 0;
@@ -2813,7 +2812,6 @@ static void cg_sentence_case(char *text, int item, int label) {
         cg_cu_kind[n] = len > 0 ? kind : 0;
         cg_cu_len[n] = len > 0 ? len : 1;
         cg_cu_flag[n] = 0;
-        cg_cu_word[n] = -1;
         k += cg_cu_len[n];
     }
     if (t[k] != 0) {
@@ -2830,7 +2828,6 @@ static void cg_sentence_case(char *text, int item, int label) {
                 lower |= cg_lo(t[cg_cu_at[k]]);
                 ++k;
             }
-            cg_cu_word[start] = words;
             cg_cw_start[words] = start;
             cg_cw_end[words] = k;
             cg_cw_letters[words] = letters;
@@ -2840,41 +2837,10 @@ static void cg_sentence_case(char *text, int item, int label) {
         }
         ++k;
     }
-    for (k = 0; k < n; ++k) {           /* the headings: a line's start up to a ":" */
-        int j, long_word = 0;
-        if (k > 0 && !cg_cu_char(t, k - 1, '\n')) {
-            continue;
-        }
-        for (j = k; j < n && cg_cu_char(t, j, ' '); ++j) {
-        }
-        while (j < n) {
-            if (cg_cu_mark(t, j) || cg_cu_char(t, j, '\n') || (cg_cu_quote_or_space(t, j) && !cg_cu_char(t, j, ' '))
-                || cg_cu_char(t, j, ':')) {
-                break;
-            }
-            if (cg_cu_word[j] >= 0) {
-                w = cg_cu_word[j];
-                if (cg_cw_lower[w]) {
-                    break;
-                }
-                long_word |= cg_cw_letters[w] >= 2;
-                j = cg_cw_end[w];
-                continue;
-            }
-            ++j;
-        }
-        if (j < n && cg_cu_char(t, j, ':') && long_word) {
-            for (u = k; u <= j; ++u) {
-                cg_cu_flag[u] |= 2;
-            }
-            cg_cu_flag[j] |= 4;
-        }
-    }
     cg_cs_flag[0] = 0;                  /* the quotations and the sentences */
     for (k = 0; k < n; ++k) {
         unsigned char c = cg_cu_kind[k] == 0 ? t[cg_cu_at[k]] : 0;
-        if (k > 0 && (cg_cu_char(t, k - 1, '\n') || (cg_cu_flag[k - 1] & 4) != 0
-                      || (cg_cu_mark(t, k - 1) && !cg_cu_mark(t, k)))) {
+        if (k > 0 && (cg_cu_char(t, k - 1, '\n') || (cg_cu_mark(t, k - 1) && !cg_cu_mark(t, k)))) {
             cg_cs_flag[++sents] = 0;
         }
         cg_cu_sent[k] = sents;
@@ -2905,11 +2871,10 @@ static void cg_sentence_case(char *text, int item, int label) {
         label_lower |= cg_cw_lower[w];
         label_long |= cg_cw_letters[w] >= 2;
     }
-    for (u = 0; u < n; ++u) {           /* in sentence case: a heading; outside quotations a label or a sentence */
+    for (u = 0; u < n; ++u) {           /* in sentence case: outside quotations, a label or a sentence */
         int b;
-        if ((cg_cu_flag[u] & 2) == 0
-            && ((cg_cu_flag[u] & 1) != 0
-                || (label ? (label_lower || !label_long) : (cg_cs_flag[cg_cu_sent[u]] & 7) != 2))) {
+        if ((cg_cu_flag[u] & 1) != 0
+            || (label ? (label_lower || !label_long) : (cg_cs_flag[cg_cu_sent[u]] & 7) != 2)) {
             continue;
         }
         cg_cu_flag[u] |= 8;
@@ -3008,7 +2973,7 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
     const char *s = raw;
     if (cg_g.version >= 6 && mode != CG_EXPAND_AWARD && depth >= 0 && depth < CG_POOL_DEPTH + 2
         && lstrlenA(raw) < CG_RAW_BYTES) {
-        /* 19: runs in capitals in sentence case, on the text as shown (a popup's whole text: src/vv_cie_graph.py
+        /* 20: runs in capitals in sentence case, on the text as shown (a popup's whole text: src/vv_cie_graph.py
            cases the joined text too) */
         lstrcpynA(cased[depth], raw, CG_RAW_BYTES);
         cg_sentence_case(cased[depth], depth > 0, cg_case_label);
@@ -3161,7 +3126,7 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
 static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
     static char real[CG_LABEL_V6 * 4];
     int n;
-    cg_case_label = 1;                  /* 19: a label is cased as a whole */
+    cg_case_label = 1;                  /* 20: a label is cased as a whole */
     n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
     if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
         cg_pronoun_names = 1;
@@ -3347,6 +3312,12 @@ static void cg_paginate(cg_pager *w, const char *text) {
 
 /* A display's text: the title first where the popup leads with it, the page, and -- with `r` -- the refusal
    lines (with their reasons while they fit, else the count alone); 1 when it fits. */
+/* One popup (cie-v6-binary.md 19): the choice just picked, as its row showed it (cg_label_text), set by cg_resolve
+   while it composes the answer's text: the first line of the text's own words (after a title line and the picture's
+   gap the dialog keeps), a blank line after it ("Honesty\n\n...").  Display only: the log's "Choice:" line is the
+   record. */
+static const char *cg_op_lead;
+
 static int cg_compose_once(const ce_layout *l, const char *title, const char *text, const ce_result *r, int reasons,
                            char *out, int size) {
     ce_writer w;
@@ -3360,6 +3331,11 @@ static int cg_compose_once(const ce_layout *l, const char *title, const char *te
         ce_wrap(&w, title);
         ce_newline(&w);
         ce_newline(&w);
+        ce_newline(&w);
+        ce_newline(&w);
+    }
+    if (cg_op_lead != NULL && cg_op_lead[0] != '\0') {
+        ce_wrap(&w, cg_op_lead);
         ce_newline(&w);
         ce_newline(&w);
     }
@@ -3462,7 +3438,7 @@ static void cg_title_expand(unsigned short t, int mode, char *out, int cap) {
         return;
     }
     lstrcpynA(cased, raw, sizeof cased);
-    cg_title_case(cased);                               /* 19: a title in capitals in title case */
+    cg_title_case(cased);                               /* 20: a title in capitals in title case */
     raw = cased;
     cg_expand(raw, buf, sizeof buf, mode, room, -1, 0);
     if (!cg_title_fits(buf)) {
@@ -3485,7 +3461,7 @@ static void cg_readable_title(const char *raw, char *out, int cap) {
     static char cased[CG_LABEL_V6 * 4];
     int o = 0;
     lstrcpynA(cased, raw, sizeof cased);
-    cg_title_case(cased);                               /* 19: a title in capitals in title case */
+    cg_title_case(cased);                               /* 20: a title in capitals in title case */
     raw = cased;
     if (cap > CE_TITLE_BYTES) {
         cap = CE_TITLE_BYTES;
@@ -4859,7 +4835,9 @@ static int cg_resolve(int game, int button, char *text, int size) {
         /* One popup: the answer's text ends in another question -- asked in the same popup, its choices after
            its text (its effects with it). */
         cg_op_in_place = 1;
+        cg_op_lead = label;            /* 19: the choice picked starts the answer's text */
         cg_begin_question(game, text, size);
+        cg_op_lead = NULL;
         cg_op_in_place = 0;
         ce_asked = 1;
         ce_asked_game = game;
@@ -4868,9 +4846,11 @@ static int cg_resolve(int game, int button, char *text, int size) {
         return 1;
     }
     if (first < cg.display_count) {
+        cg_op_lead = cg_one_popup() ? label : NULL;   /* 19: the choice picked starts the answer's text */
         cg_show(a, game, first, text, size);
+        cg_op_lead = NULL;
     } else if (size > 0) {
-        text[0] = '\0';
+        lstrcpynA(text, cg_one_popup() ? label : "", size);
     }
     if (cg.display_next >= cg.display_count) {
         cg_finish();
@@ -6117,7 +6097,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupBegun(int game) {
     return cg_op_begun_take(game);
 }
 
-/* 19: `text` (changed in place) in sentence case (kind 0; `item` a pool's item), title case (kind 1) or as a
+/* 20: `text` (changed in place) in sentence case (kind 0; `item` a pool's item), title case (kind 1) or as a
    button's label (kind 2). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeSentenceCase(char *text, int item, int kind) {
     if (kind == 1) {
