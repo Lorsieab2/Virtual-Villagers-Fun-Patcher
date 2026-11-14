@@ -139,3 +139,13 @@ EXPORTS
     VvfpStoryProbeGraphFacts=_VvfpStoryProbeGraphFacts@12
     VvfpStoryProbeGraphNurseAtWalk=_VvfpStoryProbeGraphNurseAtWalk@4
     VvfpStoryProbeGraphFileLayout=_VvfpStoryProbeGraphFileLayout@4
+    VvfpStoryProbeCollectionStep=_VvfpStoryProbeCollectionStep@4
+    VvfpStoryProbeCollectionReset=_VvfpStoryProbeCollectionReset@0
+    VvfpStoryProbeCollectionManifest=_VvfpStoryProbeCollectionManifest@12
+    VvfpStoryProbeCollectionChoose=_VvfpStoryProbeCollectionChoose@12
+    VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
+    VvfpStoryProbeCollectionFile=_VvfpStoryProbeCollectionFile@4
+    VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
+    VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
+    VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
+    VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24

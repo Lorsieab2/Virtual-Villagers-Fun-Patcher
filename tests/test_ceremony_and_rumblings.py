@@ -8,9 +8,12 @@ EMULATED (unicorn, each stock executable, the built "VVFP More Island Events.dll
 villagers in the game's own records as tests/test_aspiring_adventurer.py puts them):
   * the spawn rules: no grave / one grave; New Believers: The Last Heathen not done / done; one puzzle missing / all
     solved; no finished structure / one; a structure that is a puzzle never counts;
-  * the draw: A New Home's and The Lost Children's chooser widened for the one constructor call (and put back), a
-    draw past the stock cases shows the event (its text in the event's own buffer); the later three: one entry each
-    in the selector's list, the event happening once, inside the presenter's constructor;
+  * the draw: never a share of the game's own (stock island event chances never change) -- each comes only when it
+    is due (Pick Island Event or the rare roll): A New Home's and The Lost Children's chooser is redirected for the
+    one constructor call only then (and put back; with nothing due the chooser runs on the stock bytes, its stock
+    bound), the due case past the stock cases shows the event (its text in the event's own buffer); the later three:
+    the due object in slot 0 and no entry added to the selector's list, the event happening once, inside the
+    presenter's constructor;
   * The Remembrance Ceremony: everyone living and present goes -- children, babies that are records, nursing mothers
     and fathers, the protected (the Golden Child, the Tribal Chief, Esteemed Elders that are not statues...), puzzle
     workers -- each through the game's own stop and starter, to the game's own actions (50/50 where there are two);
@@ -52,6 +55,12 @@ except ImportError:                       # pragma: no cover
 
 NATIVE = ROOT / "native" / "vvfp_more_island_events"
 REMEMBRANCE, RUMBLINGS = 0, 1
+
+
+def pick_index(game: int, which: int) -> int:
+    """The registry index (mie_pick.inc) of `which` in `game`: The Remembrance Ceremony 7 (New Believers' own line 8),
+    The Rumblings 9."""
+    return 9 if which == RUMBLINGS else (8 if game == 5 else 7)
 ACT_HONOR, ACT_REFLECT, ACT_HOVEL_HONOR, ACT_HOVEL_REFLECT = 1, 2, 3, 4
 NEEDS = unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(),
                             "needs unicorn, pefile and the stock executables")
@@ -274,8 +283,8 @@ class Ceremony(Village):
             p.put32(event + 0x50A4, self.world if g == 1 else self.base)
             p.put32(event + 0x50A8, self.base)
             p.put32(event + 0x50AC, self.world)
-            listed = [w for w in (REMEMBRANCE, RUMBLINGS) if self.possible(w)]
-            self.rolls = [cases + listed.index(which)] + list(rolls)
+            self.due = pick_index(g, which)                              # due: Pick Island Event or the rare roll
+            self.rolls = list(rolls)
             esp = STACK_TOP - 0x3000
             p.put32(esp, 2)
             p.put32(esp + 4, 3)
@@ -308,35 +317,17 @@ class Ceremony(Village):
         return title + "\n" + text
 
     def list_draw(self, which: int) -> tuple[int, int]:
-        """The selector's loop with every stock slot empty: (entries added, the object in slot 0), the coin putting
-        `which`'s object there."""
-        p, t = self.p, self.t
-        objects = [p.export("VvfpCeremonyObject", w) for w in (REMEMBRANCE, RUMBLINGS)]
-        esp = STACK_TOP - 0x2000
-        p.set_reg("esp", esp)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", 0)
-        for coin in range(8):
-            self.rolls = [coin]
-            p.set_reg("esp", esp)
-            p.set_reg("esi", 1)
-            p.set_reg("edi", 0)
-            p.run(*t["loop"])
-            if p.u32(t["table"]) == objects[which]:
-                break
-        self.rolls = []
-        return p.reg("edi"), p.u32(t["table"])
+        """The selector's loop with every stock slot empty and `which` due: (entries added, the object in slot 0)."""
+        self.due = pick_index(self.game, which)
+        added = self.run_list(0)
+        return added, self.obj
 
-    def entries_listed(self) -> int:
-        p, t = self.p, self.t
-        esp = STACK_TOP - 0x2000
-        self.rolls = [0]
-        p.set_reg("esp", esp)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", 0)
-        p.run(*t["loop"])
-        self.rolls = []
-        return p.reg("edi")
+    def due_can_happen(self, which: int) -> bool:
+        """`which` due, the selector's loop run: its object in slot 0, no entry added, and its own condition."""
+        added, slot0 = self.list_draw(which)
+        if added != 0 or slot0 != self.p.export("VvfpCeremonyObject", which):
+            raise AssertionError((added, slot0))
+        return self.can_fire(slot0)
 
 
 def remembrance_village(game: int) -> Ceremony:
@@ -751,7 +742,7 @@ class TheRumblings(unittest.TestCase):
 
 @NEEDS
 class TheDraw(unittest.TestCase):
-    def test_a_new_home_and_the_lost_children_widen_once_and_put_it_back(self) -> None:
+    def test_a_new_home_and_the_lost_children_never_widen_and_put_it_back(self) -> None:
         for game, site, stock in ((1, 0x4284DB, "E830AAFDFF"), (2, 0x434607, "E894EBFCFF")):
             with self.subTest(game=game):
                 v = remembrance_village(game)
@@ -763,25 +754,73 @@ class TheDraw(unittest.TestCase):
                     return inner(pr)
                 v.p.stub(rand, spy)
                 v.happen(REMEMBRANCE, [])
-                self.assertEqual(widths[0], (15 if game == 1 else 28) + 1)   # one wider: one event can happen
+                self.assertNotIn((15 if game == 1 else 28) + 1, widths)     # never one wider
                 self.assertEqual(v.draw_site.hex().upper(), stock)           # put back
                 self.assertEqual(v.cr_state()[0], REMEMBRANCE)
+                self.assertEqual(v.done, [(game, 1)])
 
-    def test_the_later_games_list_one_entry_for_each(self) -> None:
-        for game in (3, 4, 5):
+    def test_nothing_due_the_chooser_is_stock(self) -> None:
+        """Both events possible and nothing due: the chooser's draw is never redirected and keeps its stock bound."""
+        from unicorn import UC_HOOK_MEM_WRITE
+        for game, draw_site, cases in ((1, 0x4284DB, 15), (2, 0x434607, 28)):
             with self.subTest(game=game):
-                v = Ceremony(game)
-                v.villager(0, "Ana", True, years=10)                 # no other event can happen (one child)
-                self.assertEqual(v.entries_listed(), 0)
-                v.graves(1)
-                if game == 5:
-                    v.last_heathen(True)
-                self.assertEqual(v.entries_listed(), 1)
+                v = remembrance_village(game)
                 v.puzzles()
                 for k in range(v.structures()):
                     v.finish(k, False)
                 v.finish(0)
-                self.assertEqual(v.entries_listed(), 2)
+                self.assertTrue(v.possible(REMEMBRANCE) and v.possible(RUMBLINGS))
+                widths: list[int] = []
+
+                def spy(pr, inner=v._rand):
+                    widths.append(pr.arg(0))
+                    return inner(pr)
+                v.p.stub(v.rand, spy)
+                writes: list[int] = []
+                v.p.mu.hook_add(UC_HOOK_MEM_WRITE, lambda mu, a, address, size, value, d: writes.append(address),
+                                begin=draw_site, end=draw_site + 4)
+                v.due = -1
+                p, g = v.p, game
+                ctor, chooser, site = (0x4286B0, 0x428470, 0x423A06) if g == 1 else (0x4348E0, 0x434570, 0x42F0F7)
+                rel = (chooser - (ctor + 5)) & 0xFFFFFFFF
+                p.mu.mem_write(ctor, b"\xE9" + struct.pack("<I", rel))
+                p.mu.ctl_flush_tb()
+                event = p.alloc(0x6000)
+                p.put32(event + 0x50A4, v.world if g == 1 else v.base)
+                p.put32(event + 0x50A8, v.base)
+                p.put32(event + 0x50AC, v.world)
+                v.rolls = [0] * 12
+                esp = STACK_TOP - 0x3000
+                p.put32(esp, 2)
+                p.put32(esp + 4, 3)
+                p.set_reg("esp", esp)
+                p.set_reg("ecx", event)
+                p.run(site, site + 5)
+                self.assertTrue(widths)
+                self.assertEqual(set(widths), {cases})                       # the stock bound only
+                self.assertEqual(writes, [])                                 # the draw's call never written
+                self.assertEqual(v.cr_state()[6], 0)                         # nothing of ours happened
+
+    def test_the_later_games_add_no_entry_and_put_the_due_one_in_slot_0(self) -> None:
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                v = Ceremony(game)
+                v.villager(0, "Ana", True, years=10)                 # no other event can happen (one child)
+                self.assertFalse(v.due_can_happen(REMEMBRANCE))
+                self.assertFalse(v.due_can_happen(RUMBLINGS))
+                v.graves(1)
+                if game == 5:
+                    v.last_heathen(True)
+                self.assertTrue(v.due_can_happen(REMEMBRANCE))
+                self.assertFalse(v.due_can_happen(RUMBLINGS))
+                v.puzzles()
+                for k in range(v.structures()):
+                    v.finish(k, False)
+                v.finish(0)
+                self.assertTrue(v.due_can_happen(REMEMBRANCE))
+                self.assertTrue(v.due_can_happen(RUMBLINGS))
+                v.due = -1
+                self.assertEqual(v.run_list(0), 0)                   # nothing due: still no entry
 
     def test_it_happens_once_only_in_the_presenter(self) -> None:
         v = remembrance_village(3)

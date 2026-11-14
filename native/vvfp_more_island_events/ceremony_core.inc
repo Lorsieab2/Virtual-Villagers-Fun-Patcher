@@ -117,17 +117,6 @@ static int cr_possible_safe(const cr_game *g, int which) {
     return possible;
 }
 
-/* The events that can happen now, in their draw order (Remembrance first): their count, each in `can`. */
-static int cr_listable(const cr_game *g, int can[CR_EVENTS]) {
-    int which, n = 0;
-    for (which = 0; which < CR_EVENTS; ++which) {
-        if (cr_possible_safe(g, which)) {
-            can[n++] = which;
-        }
-    }
-    return n;
-}
-
 /* The title and the words of `which`, in the player's language. */
 static void cr_compose(int which) {
     cr_piece(cr_title_text, sizeof cr_title_text, which == CR_REMEMBRANCE ? RC_TITLE : RB_TITLE);

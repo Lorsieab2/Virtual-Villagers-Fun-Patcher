@@ -349,6 +349,11 @@ SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_
 # Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_more_island_events.py.
 MORE_ISLAND_EVENTS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_more_island_events_feature.json" for n in range(1, 6))
+# Isola Grand Event Collection (all five games; v1.35.97): the owner's collection of island events as data, run by
+# Story / Cheat Upgrades (its prerequisite); listed right after More Island Events; off by default, on in Owner's
+# Defaults; scripts/build_event_collection_features.py.
+EVENT_COLLECTION_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_isola_grand_event_collection_feature.json" for n in range(1, 6))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4217,7 +4222,8 @@ def _load_fun_patch_records(
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
-                         + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS):
+                         + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
+                         + EVENT_COLLECTION_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

@@ -99,6 +99,15 @@ game's own code, with its own choices, random outcomes and amounts -- except
 the outcomes the player sets (below), which are the game's own rolls answered
 with the chosen value.
 
+### The Isola Grand Event Collection and the rare roll (v1.35.97)
+
+With the Isola Grand Event Collection patch installed, the list then shows the collection's
+events of the game played (from `Island Event Collection\manifest.txt` beside the companions),
+each possible now by a strict cast or with what it needs; the in-game Custom Island Event
+library has them too, in its own group. More Island Events' events and the collection's also
+come through a separate rare roll after a natural island event, which never changes the game's
+own events' chances: `story_collection.inc`, described in `docs/island-event-collection-trigger.md`.
+
 ### More Island Events' events (v1.35.97)
 
 With the More Island Events patch installed, the list ends with that patch's

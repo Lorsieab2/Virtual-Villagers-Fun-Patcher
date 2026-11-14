@@ -5100,7 +5100,7 @@ static void cg_village_reset(int game, int slot) {
 
 /* ---- The library (the in-game "From the library..." picker) ----------------------------------------------- */
 
-#define CG_LIBRARY_MAX 64
+#define CG_LIBRARY_MAX 256              /* the player's library and the Isola Grand Event Collection's group */
 enum { IDD_CE_LIBRARY = 312, IDC_LB_LIST = 3801, IDC_LB_NOTE = 3802 };
 
 static struct {
@@ -5157,11 +5157,13 @@ static void cg_library_scan(int game) {
     cg_lib.game = game;
     cg_lib.chosen = -1;
     if (!cg_library_folder(folder)) {
+        sc_library_add(game);
         return;
     }
     wsprintfA(pattern, "%s\\*.cieg", folder);
     find = FindFirstFileA(pattern, &found);
     if (find == INVALID_HANDLE_VALUE) {
+        sc_library_add(game);
         return;
     }
     do {
@@ -5201,6 +5203,7 @@ static void cg_library_scan(int game) {
         }
     } while (FindNextFileA(find, &found));
     FindClose(find);
+    sc_library_add(game);             /* the Isola Grand Event Collection's group (story_collection.inc) */
 }
 
 static INT_PTR CALLBACK cg_library_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {

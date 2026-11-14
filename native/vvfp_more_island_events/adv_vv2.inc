@@ -9,15 +9,20 @@
    kept when its own condition holds; the draw 21 (`cmp eax, 0x14; ja 0x41F696`, 0x41F5AC) is never kept, so it
    draws again -- and the modal loop (0x401AD0 with 0) runs only the dialog.
 
-   EACH EVENT ITS OWN SLOT (the owner, 2026-11-12: "Each its own slot").  The draw is one wider for each event past
-   the first: rand(23), 21 The Aspiring Adventurer (the slot the stock draw never keeps), 22 The Climb -- each kept
-   when it can happen (The Aspiring Adventurer: two villagers who may go, adv_possible; The Climb: one villager who
-   may climb, climb_possible; never the village's first island event), so each is 1 in 23 a draw, exactly like each
-   stock event (they are 1 in 23 too now).  The widening is the chooser's own call at 0x41F792 coming here
-   (v2_choose_event): for that one run the draw's call 0x41F59D is pointed here and put back before the chooser
-   returns, chaining onto whatever it held -- the game's rand, or Story / Cheat Upgrades' own Pick Island Event roll
+   THE DUE EVENT.  These events never take a share of the game's own draw (the owner's rule: stock island event
+   chances never change): they come only when they are due -- picked with Pick Island Event, or drawn by Story /
+   Cheat Upgrades' separate rare roll (story_collection.inc).  Each has a draw value past the stock events: 21 The
+   Aspiring Adventurer (the value the stock draw never keeps), 22 The Climb.  The chooser's own call at 0x41F792
+   comes here (v2_choose_event): only while one of them is due (mie_pick.inc mp_due_flow) is the draw's call 0x41F59D
+   pointed here for that one run, and put back before the chooser returns -- so the draw's bytes are the stock bytes
+   whenever nothing is due -- and its first draw is then the due event's value, when it can happen (The Aspiring
+   Adventurer: two villagers who may go, adv_possible; The Climb: one villager who may climb, climb_possible; never
+   the village's first island event); every other draw is the inner roll with the stock bound, rand(22).  The
+   redirect chains onto whatever the draw's call held -- the game's rand, or Story / Cheat Upgrades' own Pick Island
+   Event roll
    (story_vv2.inc vv2_event_roll_a, which installs later, from the Origins companion, and checks the stock bytes
-   there; its picks and its custom questions are unchanged).  The `ja` at 0x41F5AC keeps 21 and 22 here; the setup's
+   there; its picks and its custom questions are unchanged).  The `ja` at 0x41F5AC keeps 21 or 22 here only when it
+   is the due event just drawn (a stock draw of 21 is never kept, as in the stock game); the setup's
    `ja 0x420408` past its jump table (0x41F7A0) and the resolve's `ja 0x422257` (0x4204CE) take them here; every
    other value goes on as before.  The setup writes the
    question (+0x7C: the title line, the picture's five lines -- 0x41F430 draws the villager under the title -- and
@@ -188,24 +193,37 @@ static int v2_possible(int event) {
 typedef int (__cdecl *v2_roll_fn)(int bound);
 static v2_roll_fn v2_roll_inner;       /* what the draw's call reached: the game's rand, or Story's own roll */
 
-/* The family-A draw, one wider for each event past the first (whose slot, 21, the stock draw already holds). */
-static int __cdecl v2_keep(int event);
+static int v2_due_drawn = -1;          /* the due event's draw value this chooser run returned, -1 none */
 
+/* Whether `event` (a draw value of ours) can happen now (never the village's first island event). */
+static int v2_can(int event) {
+    unsigned char *world = VV2_WORLD();
+    int can = 0;
+    __try {
+        can = world != NULL && *(int *)(world + 0x2E51C) > 1 && v2_is_ours(event) && v2_possible(event);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        can = 0;
+    }
+    return can;
+}
+
+/* The family-A draw while one of ours is due (Pick Island Event or the rare roll, mie_pick.inc): its own value, once,
+   when it can happen; every other draw is the inner roll with the stock bound. */
 static int __cdecl v2_draw(int bound) {
     v2_roll_fn inner = v2_roll_inner != NULL ? v2_roll_inner : (v2_roll_fn)(uintptr_t)0x4031A0u;
-    /* Pick Island Event chose one of ours (mie_pick.inc): its own draw, once, when it can happen. */
-    const adv_flow *picked = mp_due_flow(2);
+    const adv_flow *picked = v2_due_drawn < 0 ? mp_due_flow(2) : NULL;
     if (picked != NULL) {
         int k;
         for (k = 0; k < V2_EVENT_COUNT; ++k) {
-            if (V2_EVENTS[k] == picked && v2_keep(V2_DRAW_FIRST + k)) {
+            if (V2_EVENTS[k] == picked && v2_can(V2_DRAW_FIRST + k)) {
                 mp_done(2, 1);
-                return V2_DRAW_FIRST + k;
+                v2_due_drawn = V2_DRAW_FIRST + k;
+                return v2_due_drawn;
             }
         }
         mp_done(2, 0);
     }
-    return inner(bound + V2_EVENT_COUNT - 1);
+    return inner(bound);
 }
 
 /* Whether `target` is in "VVFP Story Upgrades.dll" (its Pick Island Event roll, story_vv2.inc vv2_event_roll_a). */
@@ -216,19 +234,21 @@ static int v2_from_story(unsigned int target) {
         && info.AllocationBase == (void *)story;
 }
 
-/* In place of the setup's `call 0x41F570` (0x41F792; thiscall, the dialog): for this one chooser run the draw's
-   call (0x41F59D) comes here first -- whatever it reaches (the game's rand 0x4031A0, or Story / Cheat Upgrades' own
-   roll, which installs later, from the Origins companion, and checks the stock bytes there) is called with the
-   wider bound -- and the call is put back as it was before the chooser returns. */
+/* In place of the setup's `call 0x41F570` (0x41F792; thiscall, the dialog): only while one of ours is due, for this
+   one chooser run the draw's call (0x41F59D) comes here first -- whatever it reaches (the game's rand 0x4031A0, or
+   Story / Cheat Upgrades' own roll, which installs later, from the Origins companion, and checks the stock bytes
+   there) is called with the stock bound -- and the call is put back as it was before the chooser returns.  With
+   nothing due the chooser runs on the stock bytes. */
 static int __fastcall v2_choose_event(void *dialog, void *unused) {
     static vvfp_site_write w;
     unsigned char held[5];
     int widened = 0, event;
     (void)unused;
     adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
+    v2_due_drawn = -1;
     __try {
         memcpy(held, (const void *)(uintptr_t)V2_DRAW_SITE, sizeof held);
-        if (held[0] == 0xE8) {
+        if (held[0] == 0xE8 && mp_due_flow(2) != NULL) {
             unsigned int target = V2_DRAW_SITE + 5u + *(const unsigned int *)(held + 1);
             if (target == 0x4031A0u || v2_from_story(target)) {
                 v2_roll_inner = (v2_roll_fn)(uintptr_t)target;
@@ -249,19 +269,14 @@ static int __fastcall v2_choose_event(void *dialog, void *unused) {
         } __except (EXCEPTION_EXECUTE_HANDLER) {
         }
     }
+    v2_due_drawn = -1;
     return event;
 }
 
-/* An event's draw: kept when it can happen (never the village's first island event). */
+/* A draw of ours: kept only when it is the due event this chooser run drew (a stock draw of 21 is drawn again, as in
+   the stock game). */
 static int __cdecl v2_keep(int event) {
-    unsigned char *world = VV2_WORLD();
-    int keep = 0;
-    __try {
-        keep = world != NULL && *(int *)(world + 0x2E51C) > 1 && v2_is_ours(event) && v2_possible(event);
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        keep = 0;
-    }
-    return keep;
+    return v2_due_drawn >= 0 && event == v2_due_drawn && v2_can(event);
 }
 
 /* `ja` from 0x41F5AC (eax the draw, above 20; bl 0 = not kept). */

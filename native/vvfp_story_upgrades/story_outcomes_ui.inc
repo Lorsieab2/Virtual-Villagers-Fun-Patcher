@@ -1113,7 +1113,7 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             if (!chooser.gong && index >= SM_ROW) {
                 int m = index - SM_ROW;
                 if (!sm_list.possible[m]) {
-                    sm_refusal(sm_list.title[m], sm_list.needs[m], why, sizeof why);
+                    sm_refusal_of(m, why, sizeof why);
                     MessageBoxA(window, why, "Pick Island Event", MB_OK | MB_ICONINFORMATION);
                     return TRUE;
                 }

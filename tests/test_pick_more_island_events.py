@@ -14,7 +14,8 @@ stood in for; the Story TEST build with More Island Events' three stood in for):
     when its own requirements hold (the owner's protected villagers never count), with plain words for what it needs;
   * the draw takes the picked event, in all five games: A New Home's encounter setup begins it without a draw and
     says it came; The Lost Children's family-A draw is its own number; the later games' selector puts its object in
-    slot 0 (Diving for Treasure and The Troubling Signs each their own, whatever the coin would have said);
+    slot 0 (Diving for Treasure and The Troubling Signs each their own; with nothing due the Adventurer's, which
+    nothing presents);
   * an event that can no longer happen when it is due is refused (A New Home, The Lost Children: told, the stock
     draw runs);
   * the Story side: the list is empty without More Island Events; an armed pick is due only in its game and village,
@@ -36,7 +37,6 @@ import test_aspiring_adventurer as aa  # noqa: E402
 
 STORY_DLL = Path(os.environ.get(
     "VVFP_STORY_TEST_DLL", ROOT / "tests" / "test_dlls" / "VVFP Story Upgrades.test.dll"))
-FAKE_STORY = 0x0E900000
 FAKE_MORE = 0x0EA00000
 NEEDS_RUN = aa.HAVE_EMULATOR and aa.HAVE_STOCK and aa.DLL.is_file()
 
@@ -56,40 +56,8 @@ REGISTRY = [
 
 
 class PickedVillage(aa.Village):
-    """A game with More Island Events started, and Pick Island Event's two exports stood in for: `due` is the
-    registry index Pick Island Event has due (-1 none); every Done is kept."""
-
-    def __init__(self, game: int):
-        self.due = -1
-        self.done: list[tuple[int, int]] = []
-        super().__init__(game)
-
-    def _cod(self) -> None:
-        super()._cod()
-        p = self.p
-        module, proc = p.api_handlers["GetModuleHandleA"], p.api_handlers["GetProcAddress"]
-        due_stub, done_stub = p.alloc(16), p.alloc(16)
-
-        def module2(pr):
-            name = pr.cstring(pr.arg(0)) if pr.arg(0) else ""
-            return (FAKE_STORY, 4) if name == "VVFP Story Upgrades.dll" else module(pr)
-
-        def proc2(pr):
-            if pr.arg(0) == FAKE_STORY:
-                name = pr.cstring(pr.arg(1))
-                return {"VvfpStoryMoreEventDue": due_stub, "VvfpStoryMoreEventDone": done_stub}.get(name, 0), 8
-            return proc(pr)
-
-        p.api_handlers["GetModuleHandleA"] = module2
-        p.api_handlers["GetProcAddress"] = proc2
-        p.stub(due_stub, lambda pr: ((self.due if pr.arg(0) == self.game else -1) & 0xFFFFFFFF, 4))
-
-        def done(pr):
-            self.done.append((pr.arg(0), pr.arg(1)))
-            if pr.arg(0) == self.game:
-                self.due = -1
-            return 0, 8
-        p.stub(done_stub, done)
+    """A game with More Island Events started; Pick Island Event's two exports are stood in for by aa.Village: `due`
+    is the registry index Pick Island Event has due (-1 none); every Done is kept."""
 
     def entries(self) -> list[tuple[int, str, int, str]]:
         """The game's registry entries: (index, title, possible, needs)."""
@@ -223,7 +191,7 @@ class TheDraw(unittest.TestCase):
         self.assertEqual(len(set(objects.values())), 3)              # each its own object, whatever the coin said
         v.due = -1
         v.listed()
-        self.assertIn(v.obj, (objects[0], objects[4]))               # unpicked: one that can happen (no chief robe)
+        self.assertEqual(v.obj, objects[0])                          # nothing due: the Adventurer's, never presented
 
 
 @unittest.skipUnless(aa.HAVE_EMULATOR and aa.HAVE_STOCK and STORY_DLL.is_file(), "needs the Story TEST build")
@@ -309,6 +277,66 @@ class TheStorySide(unittest.TestCase):
         p.export("VvfpStoryProbeMoreArm", 3, 0, 0)
         p.export("VvfpStoryProbeSetPick", 3, 0, 0)                 # a stock event armed over it
         self.assertEqual(p.export("VvfpStoryMoreEventDue", 3), 0xFFFFFFFF)
+
+
+@unittest.skipUnless(aa.HAVE_EMULATOR and aa.HAVE_STOCK and STORY_DLL.is_file(), "needs the Story TEST build")
+class TheCollection(unittest.TestCase):
+    """The Isola Grand Event Collection's events in the Pick Island Event list (story_collection.inc sc_pick_fill):
+    listed after More Island Events' when the collection's row is installed, each possible now by the strict cast or
+    with what it needs; chosen anyway, refused with it.  The event is the design's worked example (The Gardening
+    Contest, tests/data/cie_v6_gardening.json, compiled here), its Farming requirement left out."""
+
+    MANIFEST = "vv3_gardening_contest\tThe Gardening Contest\t3\t1\t\ttest\n"
+
+    def story(self, adults: int):
+        import json
+        sys.path.insert(0, str(ROOT / "src"))
+        import test_story_custom_island_event as sci
+        import vv_cie_graph as cie
+        data = json.loads((ROOT / "tests" / "data" / "cie_v6_gardening.json").read_text(encoding="utf-8"))
+        for role in data["roles"].values():
+            role.pop("skill", None)
+        g, problems = cie.validate(data)
+        self.assertEqual(problems, [])
+        cieg = cie.compile_graph(g)
+        st = sci.Story("vv3")
+        p = st.proc
+        for i in range(adults):
+            st.village.put(i, sex="m" if i % 2 else "f", years=25, name=f"V{i}")
+        text = p.alloc(len(self.MANIFEST) + 1)
+        p.write(text, self.MANIFEST.encode() + b"\0")
+        p.export("VvfpStoryProbeCollectionManifest", text, 0, 0)
+        blob = p.alloc(len(cieg))
+        p.write(blob, cieg)
+        p.export("VvfpStoryProbeCollectionCieg", blob, len(cieg))
+        return p
+
+    def entry(self, p, m: int):
+        bufs = [p.alloc(1200) for _ in range(3)]
+        k = p.export("VvfpStoryProbeMoreEntry", 3, m, *bufs, 1200)
+        return (k if k != 0xFFFFFFFF else -1), [p.cstring(b, 1200) for b in bufs]
+
+    def test_listed_possible_now(self) -> None:
+        p = self.story(adults=2)
+        k, (title, needs, _refusal) = self.entry(p, 0)
+        self.assertEqual(k, 0x4000)                               # SM_COLL_BASE + 0
+        self.assertEqual(title, "The Gardening Contest")
+        self.assertEqual(needs, "")
+        self.assertEqual(self.entry(p, 1)[0], -1)
+
+    def test_what_it_needs_and_the_refusal(self) -> None:
+        p = self.story(adults=1)
+        k, (title, needs, refusal) = self.entry(p, 0)
+        self.assertEqual(k, 0x4000)
+        self.assertTrue(needs)
+        self.assertNotIn("Nothing has been queued", needs)
+        self.assertTrue(refusal.startswith("The Gardening Contest can not happen right now: "))
+        self.assertIn(needs, refusal)
+
+    def test_not_listed_without_the_row(self) -> None:
+        p = self.story(adults=2)
+        p.export("VvfpStoryProbeCollectionManifest", 0, 0, 0)     # the real folder: no row installed here
+        self.assertEqual(self.entry(p, 0)[0], -1)
 
 
 if __name__ == "__main__":

@@ -16,9 +16,11 @@ EMULATED (unicorn, the stock executables, the shipped DLL; tests/story_emulator.
     Heathens, roles 12-17 and Reanimated spirits), anyone under 14, anyone carrying a baby, the dead and the absent;
     the condition needs two who may go (1 -> never; 2 -> yes; 3 adults of whom 2 nurse -> never), and with exactly
     two the friend of A8 is the other one;
-  * THE DRAW: the game's own selection with the companion -- The Secret City, The Tree of Life, New Believers: the
-    selector's loop lists slot 0 after the stock slots only when the condition holds; A New Home: the encounter
-    setup takes the draw m of rand(m + 1); The Lost Children: family A's draw 21 is kept;
+  * THE DRAW: the event never takes a share of the game's own draw (stock island event chances never change); it
+    comes only when it is due (Pick Island Event or Story / Cheat Upgrades' rare roll, Story's VvfpStoryMoreEventDue
+    stood in for) -- The Secret City, The Tree of Life, New Believers: the selector's loop puts its object in slot 0
+    and adds no entry to the list; A New Home: the encounter setup takes it in place of the roller's draw; The Lost
+    Children: family A's draw is its own number 21, the draw's call put back after;
   * THE POPUP through the game's own click handler, OK and constructor sites: the question's pages with OK, then the
     two buttons, the answer, the result's pages with OK, the close on the last;
   * EVERY EFFECT: A1 / A5 / A8 the reward through the game's writer (once), A2 / A4 / H1 / L4 / L5 the game's own
@@ -274,15 +276,23 @@ TABLES = {3: dict(manager=0x59E110, first=0x14, stride=0x1F8C, table=0x4B3C78, s
 COUNTERS = {4: {0x412F90: 8}, 5: {0x413450: 8, 0x423600: 4}}
 TOP = 99999                                    # a scripted roll meaning "the last value" (n - 1)
 TITLE_LINE = "The Aspiring Adventurer\n"       # A New Home's and The Lost Children's title line
+FAKE_STORY = 0x0E700000                        # "VVFP Story Upgrades.dll", stood in for (its two More exports)
 FAKE_COD = 0x0E800000
 
 
 class Village:
     """One game with the companion started, villagers in the game's own records, the popup driven through the
-    game's own click handler."""
+    game's own click handler.  Story / Cheat Upgrades' two exports the draw asks are stood in for: `due` is the
+    registry index (mie_pick.inc) it has due in this game (-1 none), and every Done is kept in `done`; `begin` makes
+    the village's event (PICK) due first, as Pick Island Event or the rare roll does -- the only way it comes."""
+
+    PICK = 0                                   # The Aspiring Adventurer's registry index
 
     def __init__(self, game: int, exe: bytes | None = None):
         self.game = game
+        self.due = -1
+        self.done: list[tuple[int, int]] = []
+        self.story_handles = {FAKE_STORY}          # handles Story's two exports are found at
         self.p = Process(exe if exe is not None else STOCK[game].read_bytes(), DLL)
         self.rolls: list[int] = []
         self.ui: list[tuple] = []
@@ -377,9 +387,28 @@ class Village:
         def told(pr):
             self.vanished.append((pr.arg(0), pr.arg(1), pr.cstring(pr.arg(2))))
             return 0, 12
-        p.api_handlers["GetModuleHandleA"] = module
-        p.api_handlers["GetProcAddress"] = proc
+        due_stub, done_stub = p.alloc(16), p.alloc(16)
+
+        def module2(pr):
+            name = pr.cstring(pr.arg(0)) if pr.arg(0) else ""
+            return (FAKE_STORY, 4) if name == "VVFP Story Upgrades.dll" else module(pr)
+
+        def proc2(pr):
+            if pr.arg(0) in self.story_handles:
+                name = pr.cstring(pr.arg(1))
+                return {"VvfpStoryMoreEventDue": due_stub, "VvfpStoryMoreEventDone": done_stub}.get(name, 0), 8
+            return proc(pr)
+
+        def done(pr):
+            self.done.append((pr.arg(0), pr.arg(1)))
+            if pr.arg(0) == self.game:
+                self.due = -1
+            return 0, 8
+        p.api_handlers["GetModuleHandleA"] = module2
+        p.api_handlers["GetProcAddress"] = proc2
         p.stub(stub, told)
+        p.stub(due_stub, lambda pr: ((self.due if pr.arg(0) == self.game else -1) & 0xFFFFFFFF, 4))
+        p.stub(done_stub, done)
 
     def _rand(self, pr):
         n = pr.arg(0)
@@ -461,35 +490,48 @@ class Village:
             k += 1
 
     # -- the draw ------------------------------------------------------------------------------------------------
-    def listed(self) -> bool:
-        """The Secret City, The Tree of Life, New Believers: every stock slot empty, the selector's loop run; True
-        when slot 0 was listed with this event in it (The Secret City lists one entry for each of its More Island
-        Events events that can happen -- Diving for Treasure too, whenever two adults may go -- and the coin, no
-        roll scripted, puts the Adventurer's object in the slot)."""
+    def run_list(self, listed: int = 0) -> int:
+        """The Secret City, The Tree of Life, New Believers: the selector's loop end with `listed` stock entries
+        already in its list; the entries it holds after (the companion adds none: the stock draw is untouched).
+        `obj` is then slot 0's object (the due event's, else the Adventurer's)."""
         p, t = self.p, self.t
-        esp = STACK_TOP - 0x2000
-        p.set_reg("esp", esp)
+        p.set_reg("esp", STACK_TOP - 0x2000)
         p.set_reg("esi", 1)
-        p.set_reg("edi", 0)
-        saved, self.rolls = self.rolls, [0]
+        p.set_reg("edi", listed)
+        saved, self.rolls = self.rolls, []
         p.run(*t["loop"])
         self.rolls = saved
         self.obj = p.u32(t["table"])
-        entries = p.reg("edi")
-        return entries >= 1 and all(p.u32(esp + t["offset"] + 4 * k) == 0 for k in range(entries))
+        return p.reg("edi")
+
+    def can_fire(self, obj: int) -> bool:
+        """The object's own condition (virtual +0x04), as the game and Story's pick ask it."""
+        return bool(self.p.call(self.p.u32(self.p.u32(obj) + 4), ecx=obj) & 0xFF)
+
+    def listed(self) -> bool:
+        """The Secret City, The Tree of Life, New Believers: the selector's loop run (no stock slot listed); True when
+        slot 0 then holds an event object of this DLL whose own condition holds -- what Story's pick presents when
+        it is due.  The list itself never gains an entry."""
+        added = self.run_list(0)
+        if added != 0:
+            raise AssertionError(f"the selector's list gained {added} entries")
+        return self.obj != 0 and self.can_fire(self.obj)
 
     # -- the popup -----------------------------------------------------------------------------------------------
     def begin(self, rolls: list[int]) -> bool:
-        """The event drawn and its popup built; False when the game's own code went another way."""
+        """The event made due (PICK, unless a test set `due`), then drawn and its popup built; False when the game's
+        own code went another way."""
         p = self.p
         self.ui.clear()
+        if self.due < 0:
+            self.due = self.PICK
         if self.game == 1:
             self.dlg = p.alloc(0x6000)
             p.put32(self.dlg + 0x50A4, self.world)
             p.put32(self.dlg + 0x50A8, self.base)
             for o, v in ((0x54, 2), (0x58, 3), (0x5C, 4), (0x50BC, 0x111), (0x50C0, 0x222), (0x50C4, 0x333)):
                 p.put32(self.dlg + o, v)
-            self.rolls = [TOP] + list(rolls)
+            self.rolls = list(rolls)
             p.call(0x4189E0, [], ecx=self.dlg)
             if p.u32(self.dlg + 0x5094) != 0x7F4B1A2E:
                 return False
@@ -505,8 +547,8 @@ class Village:
             p.put32(self.dlg + 0x50B0, self.base)
             for o, v in ((0x54, 2), (0x58, 3), (0x5C, 4), (0x50C8, 0x111), (0x50CC, 0x222), (0x50D0, 0x333)):
                 p.put32(self.dlg + o, v)
-            # The draw 21, this event's own slot of rand(23) (22 is The Climb's).
-            self.rolls = [21] + list(rolls)
+            # The due event's own draw number, 21 (22 is The Climb's): no roll of the game's is taken for it.
+            self.rolls = list(rolls)
             if p.call(0x41F780, [], ecx=self.dlg) & 0xFF == 0 or p.u32(self.dlg + 0x509C) != 21:
                 return False
             p.stub(0x422380, lambda pr: (pr.reg("ecx"), 0))

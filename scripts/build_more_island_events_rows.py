@@ -15,6 +15,10 @@ def reward_words(game: int) -> str:
     return f"{adv.award_words(game, 'food')} for the meat, {adv.award_words(game, 'tech')} for the chest"
 
 
+# Every event's way in (collection_design.md C2): never a share of the stock draw.
+RARE = ("it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare "
+        "roll or Pick Island Event")
+
 CAVE_DESCRIPTION = (
     " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
     "years apart, wonder what the cave hides. \"Don't explore\" changes nothing; \"Explore the Cave\" leads on: "
@@ -44,10 +48,11 @@ CLIMB_DESCRIPTION = (
     "the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech "
     "award (twice a normal one: " + adv.award_words(2, "tech", "large") + ", then the game's own factor) and "
     "everyone celebrates. \"Follow the scientists' advice\": +10 to 20 Research (at most 100). One villager who "
-    "may go is enough; it has its own slot among the two-choice events.")
+    "may go is enough; it comes as one of the two-choice events, never taking a share of their draw.")
 CLIMB_BEHAVIOUR = (
-    "The Climb (The Lost Children): its own slot in family A's draw, 22 of rand(23) (The Aspiring Adventurer 21; each "
-    "1 in 23 a draw, like each stock event), kept only while a villager who may go on The "
+    "The Climb (The Lost Children): its own number in family A's draw, 22 (The Aspiring Adventurer 21), taken only "
+    "while it is due (Story / Cheat Upgrades' rare roll or Pick Island Event: the draw's first answer then; the stock "
+    "rand(22) otherwise, untouched) and only while a villager who may go on The "
     "Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own \"Trainee\" "
     "level, 0x429C3D); the villager is drawn among them. \"Go with the plan\": 50% the fall (health 0: a body and a "
     "grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, "
@@ -65,8 +70,7 @@ TROUBLING_DESCRIPTION = (
     "stored. Each group's advisor speaks, the chief calls the tribe by its own name, and the decree sends five "
     "villagers of 18 or more away for good (no graves). It needs the robed chief, nine other villagers of 18 or more "
     "who are not nursing a baby (four advisors, who stay, and the five) and a population of 61 or more (The Lost "
-    "Children's \"A Dangerous Mission\" rule: the living villagers plus the babies being carried); it has its own share "
-    "of the draw.")
+    "Children's \"A Dangerous Mission\" rule: the living villagers plus the babies being carried); " + RARE + ".")
 TROUBLING_BEHAVIOUR = (
     "The Troubling Signs (The Secret City): needs the Tribal Chief in the robe (+0xE80 and the robe's body +0xDF4 = 29, "
     "as the robing 0x45FBC0 writes them), nine other different villagers of 18 or more (360 age units) who are not "
@@ -74,8 +78,9 @@ TROUBLING_BEHAVIOUR = (
     "the event; they stay) and five travellers, any nine equally likely -- a population of 61 or more (The Lost "
     "Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the "
     "game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure "
-    "but has its own share of the draw: the loop-end stub lists slot 0 once for each of them that can happen (never "
-    "past the list's room) and puts one of their objects there, each equally likely. "
+    "and never takes a share of the draw: the loop-end stub adds no entry to the selector's list and puts the object "
+    "of the event that is due (Story / Cheat Upgrades' rare roll or Pick Island Event) in slot 0, which Story / Cheat "
+    "Upgrades' pick then presents in place of the stock event drawn. "
     "The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two "
     "(0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child "
     "0x40C1F0), stacked and centred 1.5 button heights apart, room for them measured by the game's own paragraph "
@@ -93,13 +98,13 @@ DIVE_DESCRIPTION = (
     "ashore and now dislikes swimming; 25% the diver sinks: dies (17%, a grave), is never found (17%, no grave) or "
     "is rescued (66%, +10 to 20 Healing, at most 100). \"Better not\": +10 to 20 Parenting, at most 100. It needs two "
     "villagers of 18 or more who are not nursing a baby and not the Tribal Chief (the diver, and another named as the "
-    "head Doctor on the rescue page); it has its own share of the draw.")
+    "head Doctor on the rescue page); " + RARE + ".")
 DIVE_BEHAVIOUR = (
     "Diving for Treasure (The Secret City): the diver and the rescue page's head Doctor are two different villagers "
     "of 18 or more (360 age units) who may be picked (vv3_eligible: alive +0xE78, present +0xF10, not a look-alike "
     "+0xE94, adv_is_protected: nursing +0xE8C, the chief +0xE80), each drawn among them. One more two-choice object "
-    "with the Adventurer's virtual table and methods (adv_flow), its own entry in the draw (t_list: one entry for slot "
-    "0 per event that can happen, never past the list's room; the object put there drawn among them). \"Swim "
+    "with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due (t_list adds no "
+    "entry to the selector's list). \"Swim "
     "deeper\": rand(4) A / B / C / D; D: rand(100) < 75 survives -- swimming (preference 37 of the game's list at file "
     "0x97488) taken from the likes +0xFB4 and added to the dislikes +0xFC0 -- else sinks: rand(100) < 17 the game's "
     "own death (0x462670, health 0, cause -1: a grave), < 34 removed as a living villager is (no body; told to Cause "
@@ -114,13 +119,13 @@ DOLPHIN_DESCRIPTION = (
     + f"{2 * adv.award_range(4, 'food')[0]:,}" + " food before the scaling); half the time a tail slaps the swimmer, "
     "who loses 30 to 50 health but never dies of it (at least 1 is left). \"Hang back\": a small food award (half a "
     "normal one: " + f"{adv.award_range(4, 'food')[0] // 2:,}" + " food before the scaling). It needs two villagers of 14 or more who are not "
-    "nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); it has its own share of the "
-    "draw.")
+    "nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); " + RARE + ".")
 DOLPHIN_BEHAVIOUR = (
     "The Playful Dolphins (The Tree of Life): the swimmer is a villager who may be picked (vv4_eligible: present "
     "+0x1CC4, alive +0x1C40, 14 or more +0x1B8C, adv_is_protected: nursing +0x1C4C, a body or ghost +0x1CC7), drawn "
     "among them; it can happen while two such villagers live, with no puzzle (not the Fishing Nets). One more "
-    "two-choice object with the Adventurer's virtual table and methods (adv_flow), its own entry in the draw (t_list). "
+    "two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due "
+    "(t_list adds no entry). "
     "\"Swim towards the dolphins\": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the "
     "game's own skill adder 0x46AD80 caps (the double 100.0 at 0x48A7C0) -- and a large food award (the game's range "
     "x 2, then Island Events Scale, through 0x41D920), else the tail slap: health (+0x1C40, 0..100, in the block "
@@ -134,8 +139,8 @@ MASK_DESCRIPTION = (
     "home safe 50%, else lost -- then rescued 75% or captured 25%, when every child of the group is gone for good, no "
     "graves). The elders' speech tells what happened, and in every ending five volunteers of 18 or more leave on an "
     "expedition for good (no graves). It needs a population of 61 or more (the living plus the babies carried), two "
-    "children under 14 and five villagers of 18 or more who are not nursing a baby and not a body or a ghost; it has "
-    "its own share of the draw.")
+    "children under 14 and five villagers of 18 or more who are not nursing a baby and not a body or a ghost; "
+    + RARE + ".")
 MASK_BEHAVIOUR = (
     "The Mysterious Mask (The Tree of Life): the group is 4 children under 14 (+0x1B8C < 280), or all of them when "
     "fewer (at least 2), the expedition 5 villagers of 18 or more (vv4_eligible and +0x1B8C >= 360), each drawn among "
@@ -143,7 +148,7 @@ MASK_BEHAVIOUR = (
     "more counted as the game's own 0x467610 counts (present +0x1CC4, not a body +0x1CC7, health +0x1C40 > 0, plus "
     "the babies +0x1C50 while carrying +0x1C4C). One more object with the Adventurer's virtual table and methods "
     "(adv_flow, answers 4: the shared multi-answer popup native/shared/vvfp_multi_answer.h, ids 4 and 5 and the keys "
-    "1 to 4), its own entry in the draw (t_list). A walk: rand(100) < 50 home safe, else lost: rand(100) < 25 "
+    "1 to 4), put in slot 0 only while it is due (t_list adds no entry). A walk: rand(100) < 50 home safe, else lost: rand(100) < 25 "
     "captured, else rescued. Its pages are laid out 6 lines shorter (3 for each answer past two) so the popup is no "
     "taller than a two-answer one. The five volunteers, and when captured every child of the group, are removed as a "
     "living villager is (adv_vv345.inc t_vanish: no body, no grave; told to Cause of Death) when the elders' last page "
@@ -170,13 +175,13 @@ CEREMONY_WHEN = {
     5: "at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up)",
 }
 CEREMONY_SITES = {
-    1: "its own case in the island events' draw (rand(15) one wider for each of the two that can happen), through two "
-       "sites of its own",
-    2: "its own case in the single-result events' draw (rand(28) one wider for each of the two that can happen), "
-       "through two sites of its own",
-    3: "its own entry in the draw (t_list), no site of its own",
-    4: "its own entry in the draw (t_list), no site of its own",
-    5: "its own entry in the draw (t_list), no site of its own",
+    1: "its own case past the island events' 15, the chooser's first answer only while it is due (the stock "
+       "rand(15) otherwise, untouched), through two sites of its own",
+    2: "its own case past the single-result events' 28, the chooser's first answer only while it is due (the stock "
+       "rand(28) otherwise, untouched), through two sites of its own",
+    3: "in slot 0 only while it is due (t_list adds no entry), no site of its own",
+    4: "in slot 0 only while it is due (t_list adds no entry), no site of its own",
+    5: "in slot 0 only while it is due (t_list adds no entry), no site of its own",
 }
 
 
@@ -190,7 +195,7 @@ def ceremony_description(game: int) -> str:
         + " one time in four (at least one always), each losing 10 to 100% of its building work; the builders must "
         "build it again (at 100% it is unbuilt again, as in a new village" + ("; an unbuilt one can be moved" if game in
         (4, 5) else "") + "). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is "
-        "rebuilt. Each has its own share of the draw and can come again.")
+        "rebuilt. Each can come again.")
 
 
 def ceremony_behaviour(game: int) -> str:
@@ -220,9 +225,9 @@ CLASSIC = (4, 5)
 SITES = {
     1: (
         (0x4189F2, "E829FFFFFF", "E8XXXXXXXX",
-         "the encounter setup 0x4189E0's call of its roller 0x418920: the companion draws rand(m + k), m the "
-         "encounters the roller would accept now and k the events that can happen (The Aspiring Adventurer, The "
-         "Cave Explorers): a draw of m or more is one of them, each 1 in m + k; else it calls the roller as before"),
+         "the encounter setup 0x4189E0's call of its roller 0x418920: while one of the events is due (Story / Cheat "
+         "Upgrades' rare roll or Pick Island Event) and can happen, it is taken instead; otherwise the companion calls "
+         "the roller as before (the stock draws, untouched)"),
         (0x41939D, "0F87D70F0000", "E9XXXXXXXX90",
          "the answer's resolve 0x419380, past its stock kinds (ja 0x41A37A): the event's own kind is answered by the "
          "companion (the effects and the first result page, or The Cave Explorers' next question); every other kind "
@@ -234,9 +239,9 @@ SITES = {
          "first page, with OK"),
         (0x423A06, "E8A54C0000", "E8XXXXXXXX",
          "the trigger's call of the island event's constructor 0x4286B0 for the island family (type 2): for that one "
-         "call the chooser's draw 0x4284DB (the game's rand, or Story / Cheat Upgrades' own roll) is pointed into the "
-         "companion and put back after, one wider for each of The Remembrance Ceremony and The Rumblings that can "
-         "happen -- the only way to give them their own case without writing Story / Cheat Upgrades' sites for good"),
+         "call, only while The Remembrance Ceremony or The Rumblings is due, the chooser's draw 0x4284DB (the game's "
+         "rand, or Story / Cheat Upgrades' own roll) is pointed into the companion and put back after: its first "
+         "answer is the due event's case, every other the stock rand(15); with nothing due the call is the stock one"),
         (0x4284E7, "83FF0E77EA", "E9XXXXXXXX",
          "the chooser 0x428470's `cmp edi, 0xE; ja` past its 15 cases: a draw of 15 or more is one of the two events "
          "(its text written into the event's own buffer +0x277F, its effects made, the chooser's own ending 0x428630); "
@@ -244,13 +249,13 @@ SITES = {
     ),
     2: (
         (0x41F792, "E8D9FDFFFF", "E8XXXXXXXX",
-         "family A's setup 0x41F780's call of its chooser 0x41F570: for that one run the draw's call 0x41F59D (the "
-         "game's rand, or Story / Cheat Upgrades' own roll) is pointed into the companion and put back after, so the "
-         "draw is one wider for each event past the first: rand(23) -- the only way to widen it without writing "
-         "Story / Cheat Upgrades' own site for good (it installs later and checks the stock bytes there)"),
+         "family A's setup 0x41F780's call of its chooser 0x41F570: only while one of the events is due (Story / "
+         "Cheat Upgrades' rare roll or Pick Island Event), for that one run the draw's call 0x41F59D (the game's rand, "
+         "or Story / Cheat Upgrades' own roll) is pointed into the companion and put back after: its first answer is "
+         "the due event's number, every other the stock rand(22); with nothing due the draw's bytes stay stock"),
         (0x41F5AC, "0F87E4000000", "0F87XXXXXXXX",
-         "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for The Aspiring Adventurer and "
-         "22 for The Climb, each when it can happen -- each 1 in 23 a draw, like each stock event"),
+         "family A's draw 0x41F570: 21 (The Aspiring Adventurer) or 22 (The Climb) is kept only when it is the due "
+         "event just drawn; a stock draw of 21 is drawn again, as in the stock game"),
         (0x41F7A0, "0F87620C0000", "0F87XXXXXXXX",
          "family A's setup 0x41F780, past its jump table: the events' 21 and 22 are set up by the companion"),
         (0x4204CE, "0F87831D0000", "0F87XXXXXXXX",
@@ -263,10 +268,10 @@ SITES = {
          "the trigger's call of family A's constructor 0x422380: after it, a question of more than one page starts on "
          "its first page, with OK"),
         (0x42F0F7, "E8E4570000", "E8XXXXXXXX",
-         "the trigger's call of the single-result constructor 0x4348E0 (type 2): for that one call the chooser's draw "
-         "0x434607 (the game's rand, or Story / Cheat Upgrades' own roll) is pointed into the companion and put back "
-         "after, one wider for each of The Remembrance Ceremony and The Rumblings that can happen -- the only way to "
-         "give them their own case without writing Story / Cheat Upgrades' sites for good"),
+         "the trigger's call of the single-result constructor 0x4348E0 (type 2): only while The Remembrance Ceremony "
+         "or The Rumblings is due, for that one call the chooser's draw 0x434607 (the game's rand, or Story / Cheat "
+         "Upgrades' own roll) is pointed into the companion and put back after: its first answer is the due event's "
+         "case, every other the stock rand(28); with nothing due the call is the stock one"),
         (0x43462C, "0F87F2010000", "E9XXXXXXXX90",
          "the single-result chooser 0x434570's `ja` past its 28 cases: a draw of 28 or more is one of the two events "
          "(its text written into the event's own buffer +0x277F, its effects made, the chooser's own ending "
@@ -274,8 +279,9 @@ SITES = {
     ),
     3: (
         (0x419B6E, "83FE3A7CE1", "E9XXXXXXXX",
-         "the selector 0x419B30's loop end over the event table 0x4B3C78 (slots 1-57): the event, in slot 0, is "
-         "listed after them when it can happen, so it is drawn like any listed event"),
+         "the selector 0x419B30's loop end over the event table 0x4B3C78 (slots 1-57): no entry is added to the "
+         "selector's list (the stock draw, untouched); the due event's object is put in slot 0 for Story / Cheat "
+         "Upgrades' pick to present"),
         (0x419A18, "8B4E508B01", "E9XXXXXXXX",
          "the event dialog's click handler 0x419A00, OK: while the event has a page left it is shown instead"),
         (0x419BEA, "E801F7FFFF", "E8XXXXXXXX",
@@ -284,8 +290,9 @@ SITES = {
     ),
     4: (
         (0x418070, "83FE327CDB", "E9XXXXXXXX",
-         "the selector 0x418000's loop end over the event table 0x4CCA28 (slots 1-49): the event, in slot 0, is "
-         "listed after them when it can happen, so it is drawn like any listed event"),
+         "the selector 0x418000's loop end over the event table 0x4CCA28 (slots 1-49): no entry is added to the "
+         "selector's list (the stock draw, untouched); the due event's object is put in slot 0 for Story / Cheat "
+         "Upgrades' pick to present"),
         (0x417EB8, "8B4E508B01", "E9XXXXXXXX",
          "the event dialog's click handler 0x417EA0, OK: while the event has a page left it is shown instead"),
         (0x418106, "E885F6FFFF", "E8XXXXXXXX",
@@ -294,8 +301,9 @@ SITES = {
     ),
     5: (
         (0x4188E0, "83FE387CDB", "E9XXXXXXXX",
-         "the selector 0x418870's loop end over the event table 0x4DC850 (slots 1-55): the event, in slot 0, is "
-         "listed after them when it can happen, so it is drawn like any listed event"),
+         "the selector 0x418870's loop end over the event table 0x4DC850 (slots 1-55): no entry is added to the "
+         "selector's list (the stock draw, untouched); the due event's object is put in slot 0 for Story / Cheat "
+         "Upgrades' pick to present"),
         (0x418738, "8B4E508B01", "E9XXXXXXXX",
          "the event dialog's click handler 0x418720, OK: while the event has a page left it is shown instead"),
         (0x41896A, "E8B1F6FFFF", "E8XXXXXXXX",
@@ -331,14 +339,28 @@ SCALE = {
        "that patch scales the game's own events",
 }
 HOW = {
-    1: "one more of the game's villager encounters (its two-choice island events), drawn 1 in m + 1 when the encounters "
-       "are drawn (m the encounters possible then; 1 in m + 2 while The Cave Explorers can happen too), never the "
+    1: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
+       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
+       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
+       "place of a rescue, and Pick Island Event can pick it; it comes as one of the villager encounters, never the "
        "village's first island event",
-    2: "one more of the game's two-choice island events (family A) with its own slot in the draw, 1 in 23 a draw like "
-       "each of them (the draw is one wider for The Climb), never the village's first island event",
-    3: "one more island event, listed and drawn like the game's own (1 in the number listed)",
-    4: "one more island event, listed and drawn like the game's own (1 in the number listed)",
-    5: "one more island event, listed and drawn like the game's own (1 in the number listed)",
+    2: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
+       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
+       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
+       "place of a rescue, and Pick Island Event can pick it; it comes as one of the two-choice island events, never "
+       "the village's first island event",
+    3: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
+       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
+       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
+       "place of a rescue, and Pick Island Event can pick it",
+    4: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
+       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
+       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
+       "place of a rescue, and Pick Island Event can pick it",
+    5: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
+       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
+       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
+       "place of a rescue, and Pick Island Event can pick it",
 }
 
 
@@ -364,9 +386,10 @@ def description(game: int) -> str:
         "for the page that tells them, and the Island Events log keeps one entry for each event."
         + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION + DIVE_DESCRIPTION
            if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "")
-        + ceremony_description(game) + " With Story / Cheat Upgrades, Pick Island Event lists each of these events "
-        "and picks one whenever its own requirements hold (otherwise it says what the event needs). " + classic
-        + " **Needs no other patch.** "
+        + ceremony_description(game) + " Pick Island Event lists each of these events and picks one whenever its own "
+        "requirements hold (otherwise it says what the event needs). " + classic
+        + " **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking "
+        "this ticks it.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -382,7 +405,7 @@ def row(game: int, sha: str) -> dict:
         "name": NAME,
         "description": description(game),
         "output_tag": "Aspiring Adventurer",
-        "dependencies": [],
+        "dependencies": [f"vv{game}_story_cheat_upgrades"],
         "behavior_changes": [
             f"The event is {HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
             f"units), alive and present, not carrying a baby, and not {WHO_NOT[game]}; the adventurer and the friend "

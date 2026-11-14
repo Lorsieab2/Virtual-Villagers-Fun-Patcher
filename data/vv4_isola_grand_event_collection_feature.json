@@ -1,0 +1,36 @@
+{
+  "id": "vv4_isola_grand_event_collection",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Isola Grand Event Collection",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "output_tag": "Isola Grand Event Collection",
+  "dependencies": [
+    "vv4_story_cheat_upgrades"
+  ],
+  "behavior_changes": [
+    "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. More Island Events and the collection are drawn 1:1, each event of the collection by its draw weight, a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it.",
+    "The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened.",
+    "Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled."
+  ],
+  "evidence_status": "the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/event_collection/vv4/manifest.txt",
+      "destination": "Island Event Collection/manifest.txt",
+      "sha256": "ABB783DF8BD886F1F822F60B2438530635D7FF8AE6BA7CA074B87452C3DF2CDB"
+    },
+    {
+      "source": "assets/event_collection/Credits.txt",
+      "destination": "Island Event Collection/Credits.txt",
+      "sha256": "DEE3485B2E995D957958D9C9F2305695E8BF61D62DB182C33E25DAAC3D7E2EF3"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": []
+}

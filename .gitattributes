@@ -126,3 +126,6 @@ assets/island_events_scale/*.txt -text
 # collection JSON masters are compared byte for byte after a round trip.
 /docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt -text
 /data/event_collection/** text eol=lf
+# The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
+assets/event_collection/** -text
+docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collection[[:space:]]-[[:space:]]Credits.md -text

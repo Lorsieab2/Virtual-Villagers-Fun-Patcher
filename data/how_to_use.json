@@ -235,14 +235,24 @@
     {
       "ids": ["vv1_more_island_events", "vv2_more_island_events", "vv3_more_island_events", "vv4_more_island_events", "vv5_more_island_events"],
       "guide": [
-        "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers).",
+        "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers). Needs Story / Cheat Upgrades.",
         "Adds the owner's island events. The Aspiring Adventurer (all games): a villager sees something glinting off the path.",
         "Choose \"Go investigate!\" (food, tech points, or a death or disappearance) or \"Stay on the safe path\" (home 9 times in 10).",
         "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
         "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
         "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
-        "Most need two villagers of 14 or more who are not nursing and not special. They come at the game's usual times; Story / Cheat Upgrades can pick them.",
+        "Most need two villagers of 14 or more, not nursing, not special. Rare, never in the game's own draw: a separate roll or Pick Island Event brings them.",
         "Long text comes in pages (one popup with Scrolling Popups): click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_isola_grand_event_collection", "vv2_isola_grand_event_collection", "vv3_isola_grand_event_collection", "vv4_isola_grand_event_collection", "vv5_isola_grand_event_collection"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it, nor Classic VV Difficulty. Needs Story / Cheat Upgrades.",
+        "Adds the Isola Grand Event Collection: the owner's large collection of island events, with its credits beside the patcher's files.",
+        "They are rare and never change the game's own events' chances: after a natural island event a separate roll may bring one some hours later.",
+        "About three a week of game time; never in the village's first two events, never in trouble, never in place of a rescue event.",
+        "Pick Island Event lists them (and what each needs); the Custom Island Event library has them in its own group. Not yet tested in play."
       ]
     },
     {
@@ -1186,7 +1196,7 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
+        "2-10x Tech Cost (all five games), Classic VV Difficulty and Isola Grand Event Collection are not ticked either.",
         "It does not change the population mode."
       ]
     },
@@ -1198,7 +1208,7 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events,",
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]

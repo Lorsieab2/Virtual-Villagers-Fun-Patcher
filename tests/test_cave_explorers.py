@@ -12,8 +12,9 @@ Static (always run):
 EMULATED (unicorn, the stock A New Home executable, the shipped DLL; tests/story_emulator.py):
   * WHO: never before The Cave puzzle is done; never without two villagers of 18 or more at most 5 years apart who
     may go (alive, present, not carrying a baby, not the Golden Child); the pair drawn among the ordered pairs;
-  * THE DRAW: the encounter setup's rand(m + k) takes this event at m + 1 when both events can happen, at m when only
-    it can;
+  * THE DRAW: the event never takes a share of the encounters' draw (stock island event chances never change): it
+    comes only when it is due (Pick Island Event or the rare roll), in place of the roller's draw; with nothing due
+    the stock roller runs;
   * THE POPUP through the game's own click handler, OK and constructor sites: each question's pages with OK, then its
     two answers (relabelled and centred as the constructor places them), every path to every ending, the close;
   * EVERY EFFECT: the awards (normal, large 2x, huge 3x, within the game's range), the deaths (health 0: a body and a
@@ -184,6 +185,8 @@ class CaveVillage(Village):
     """A New Home with the companion started, The Cave puzzle done (or not), real-looking answer buttons whose
     relabel and move are recorded."""
 
+    PICK = 1                               # The Cave Explorers' registry index
+
     RECT = (100, 50, 550, 450)            # the dialog's left, top, right, bottom (+0x14 .. +0x20)
 
     def __init__(self, cave_open: bool = True):
@@ -219,9 +222,12 @@ class CaveVillage(Village):
         self.moves.append((pr.reg("ecx"), pr.arg(0) - (1 << 32) if pr.arg(0) >> 31 else pr.arg(0), pr.arg(1)))
         return 0, 8
 
-    def begin(self, rolls: list[int], draw: int = TOP) -> bool:
+    def begin(self, rolls: list[int], pick: int | None = 1) -> bool:
+        """The encounter setup with registry entry `pick` due (None: nothing due, the stock roller); True when the
+        dialog is one of the companion's events."""
         p = self.p
         self.ui.clear()
+        self.due = -1 if pick is None else pick
         self.dlg = p.alloc(0x6000)
         p.put32(self.dlg + 0x50A4, self.world)
         p.put32(self.dlg + 0x50A8, self.base)
@@ -230,7 +236,7 @@ class CaveVillage(Village):
             p.put32(self.dlg + o, v)
         for k, v in enumerate(self.RECT):
             p.put32(self.dlg + 0x14 + 4 * k, v)
-        self.rolls = [draw] + list(rolls)
+        self.rolls = list(rolls)
         # Every popup laid out with the longest names: more than the emulator's default cap of instructions.
         p.call(0x4189E0, [], ecx=self.dlg, limit=8_000_000)
         if p.u32(self.dlg + 0x5094) != 0x7F4B1A2E:
@@ -319,7 +325,9 @@ class Who(unittest.TestCase):
     def test_never_before_the_cave_puzzle(self) -> None:
         v = self.village(cave_open=False)
         self.assertEqual(v.cave_possible(), 0)
-        self.assertTrue(v.begin([0] * 20))                 # the draw goes to the only event that can happen
+        self.assertFalse(v.begin([0] * 20))                # due, but it cannot happen: refused, the stock roller
+        self.assertEqual(v.done, [(1, 0)])
+        self.assertTrue(v.begin([0] * 20, pick=0))         # The Aspiring Adventurer can
         self.assertTrue(v.shown().startswith("The Aspiring Adventurer\n"))
         v = self.village(cave_open=True)
         self.assertEqual(v.cave_possible(), 1)
@@ -354,10 +362,14 @@ class Who(unittest.TestCase):
         state = v.cave_state()
         self.assertEqual(state[:4], [1, 0, 0, 1])             # name1 Ben, name2 Ana
         self.assertEqual(v.asked[0], ("Explore the Cave", "Don't explore"))
-        # With both events possible, the draw m is The Aspiring Adventurer, m + 1 The Cave Explorers.
+        # Both possible, nothing due: the stock roller's own encounter, never one of ours.
         v = self.village()
         v.villager(2, "Cal", False, years=40)
-        self.assertTrue(v.begin([0] * 20, draw=TOP))
+        self.assertFalse(v.begin([TOP] * 20, pick=None))
+        self.assertEqual(v.done, [])
+        v = self.village()
+        v.villager(2, "Cal", False, years=40)
+        self.assertTrue(v.begin([0] * 20))
         self.assertTrue(v.shown().startswith(TITLE_LINE))
 
 

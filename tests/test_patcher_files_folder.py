@@ -135,7 +135,8 @@ class TheRule(unittest.TestCase):
         in_place = {k.casefold() for k in patcher_files.GAME_READS_IN_PLACE}
         self.assertEqual(in_place - catalog, set())
         non_dll = {d for d in catalog if not d.endswith(".dll")}
-        self.assertEqual(non_dll - in_place, {k.casefold() for k in patcher_files.PATCHER_READS})
+        in_folders = {d for d in non_dll if d.startswith(tuple(f.casefold() for f in patcher_files.PATCHER_READ_FOLDERS))}
+        self.assertEqual(non_dll - in_place - in_folders, {k.casefold() for k in patcher_files.PATCHER_READS})
 
     def test_an_unclassified_file_is_refused(self):
         with self.assertRaises(vfp.PatcherError):

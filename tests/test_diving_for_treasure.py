@@ -14,8 +14,9 @@ own click handler, OK and constructor sites):
     Healing and Parenting gains capped at 100;
   * the effects on the ending's last page only; the Island Events log's one entry; nothing at a save or quit before
     the last page, and a left event never comes back;
-  * the draw: one entry for each More Island Events event that can happen (1, 2 and 3), each event's object in slot 0
-    as often as the others, and never an entry past the list's room.
+  * the draw: never a share of the game's own draw (stock island event chances never change): the selector's
+    list gains no entry; the event's object is in slot 0 only while it is due (Pick Island Event or the rare roll),
+    for Story's pick to present.
 
 The live game is NOT exercised here.
 """
@@ -68,6 +69,9 @@ def dive_rolls(*, diver=0, doctor=0, find=0, survive=True, sink="rescued", heal=
     return out + [tech, 0, food, 0]
 
 
+DIVE_PICK = 4                                    # Diving for Treasure's registry index (mie_pick.inc)
+
+
 class Dive(Village):
     """The Secret City with the companion, its villagers and Diving for Treasure's popup."""
 
@@ -104,23 +108,12 @@ class Dive(Village):
         return [self.i32(i, LIKES + 4 * k) for k in range(3)]
 
     # -- the draw ------------------------------------------------------------------------------------------------
-    def list_draw(self, coin: int, listed: int = 0, sentinel: bool = False) -> tuple[int, int]:
-        """The selector's loop with every stock slot empty and `listed` entries already in the list: (entries the
-        companion added, the object in slot 0)."""
-        p = self.p
-        esp = STACK_TOP - 0x2000
-        if sentinel:
-            for k in range(listed, 64):
-                p.put32(esp + T["offset"] + 4 * k, 0xA5A5A5A5)
-        self.rolls = [coin]
-        p.set_reg("esp", esp)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", listed)
-        p.run(*T["loop"])
-        self.rolls = []
-        self.obj = p.u32(T["table"])
-        self.list_esp = esp
-        return p.reg("edi") - listed, self.obj
+    def list_draw(self, pick: int = DIVE_PICK, listed: int = 0) -> tuple[int, int]:
+        """Registry entry `pick` due (-1: nothing due), the selector's loop with every stock slot empty and `listed`
+        entries already in the list: (entries the companion added -- always 0 --, the object in slot 0)."""
+        self.due = pick
+        added = self.run_list(listed) - listed
+        return added, self.obj
 
     def title_of(self, obj: int) -> str:
         """The title an event object gives (its +0x08, as the dialog asks it first)."""
@@ -129,12 +122,12 @@ class Dive(Village):
         return self.p.cstring(self.p.u32(entry + 8), 400)
 
     # -- the popup -----------------------------------------------------------------------------------------------
-    def open(self, rolls: list[int], coin: int = 1) -> bool:
-        """Diving for Treasure drawn (`coin` its index among the events that can happen: 1 after the Adventurer)
-        and its popup built through the game's presenter site."""
+    def open(self, rolls: list[int]) -> bool:
+        """Diving for Treasure due, put in slot 0 and presented (its own condition holding, as Story's pick asks it),
+        its popup built through the game's presenter site."""
         p = self.p
-        entries, obj = self.list_draw(coin)
-        if not entries:
+        added, obj = self.list_draw(DIVE_PICK)
+        if added or not self.can_fire(obj):
             return False
         self.ui.clear()
         self.rolls = list(rolls)
@@ -558,69 +551,53 @@ class Pages(unittest.TestCase):
 
 @NEEDS
 class TheDraw(unittest.TestCase):
-    def test_one_event_the_adventurer_alone(self) -> None:
-        v = Dive()
-        v.adults(2, years=15)                                   # 14 or more, under 18: the Adventurer only
-        self.assertEqual(v.dv_possible(), 0)
-        entries, obj = v.list_draw(0)
-        self.assertEqual(entries, 1)
-        self.assertEqual(v.title_of(obj), "The Aspiring Adventurer")
+    """Never a share of the draw (stock island event chances never change): the selector's list gains no entry; the
+    due event's object is in slot 0, for Story's pick to present."""
 
-    def test_two_events_two_entries_each_its_own(self) -> None:
-        titles = []
-        for coin in (0, 1):
-            v = three()
-            entries, obj = v.list_draw(coin)
-            self.assertEqual(entries, 2)
-            for k in range(entries):
-                self.assertEqual(v.p.u32(v.list_esp + T["offset"] + 4 * k), 0)   # slot 0's entries
-            titles.append(v.title_of(obj))
-        self.assertEqual(titles, ["The Aspiring Adventurer", dt.TITLE])
-
-    def test_three_events_three_entries_each_its_own(self) -> None:
+    def test_the_due_event_in_slot_0_and_no_entry(self) -> None:
         from test_troubling_signs import standard
         titles = []
-        for coin in (0, 1, 2):
+        for pick in (0, 3, DIVE_PICK):
             v = standard()
-            entries, obj = v.list_draw(coin)
-            self.assertEqual(entries, 3)
+            added, obj = v.list_draw(pick)
+            self.assertEqual(added, 0)
+            self.assertTrue(v.can_fire(obj))
             v.rolls = []
             v.p.call(v.p.u32(v.p.u32(obj) + 8), ecx=obj)
             entry = v.p.u32(T["strings"] + 4 * TITLE_ID)
             titles.append(v.p.cstring(v.p.u32(entry + 8), 400))
         self.assertEqual(titles, ["The Aspiring Adventurer", "The Troubling Signs", dt.TITLE])
 
-    def test_each_event_as_likely_as_one_stock_event(self) -> None:
-        """With `listed` stock events and n of ours, the list holds listed + n entries, one per event of ours; the
-        object in slot 0 is each of ours 1 in n -- so each of ours is drawn 1 in (listed + n), as a stock event."""
+    def test_nothing_due_nothing_listed(self) -> None:
         v = three()
-        objects = [v.list_draw(c, listed=10)[1] for c in (0, 1)]
-        self.assertEqual(len(set(objects)), 2)
-        self.assertEqual(v.list_draw(0, listed=10)[0], 2)
+        for listed in (0, 10, 57):
+            with self.subTest(listed=listed):
+                added, obj = v.list_draw(-1, listed=listed)
+                self.assertEqual(added, 0)                          # the stock count: rand(listed) as in the game
+                self.assertEqual(v.title_of(obj), "The Aspiring Adventurer")   # never presented without a pick
 
-    def test_never_past_the_list(self) -> None:
-        """The list holds the stock slots + 1 entries (57 + 1): with 56 stock events listed there is room for two,
-        with 57 for one -- the rest are left out, nothing written past the list."""
+    def test_due_but_not_possible(self) -> None:
+        v = Dive()
+        v.adults(2, years=15)                                   # 14 or more, under 18: never a diver
+        self.assertEqual(v.dv_possible(), 0)
+        added, obj = v.list_draw(DIVE_PICK)
+        self.assertEqual(added, 0)
+        self.assertFalse(v.can_fire(obj))                       # Story's pick refuses it: the stock event runs
+
+    def test_never_writes_the_list(self) -> None:
+        """Whatever is listed, nothing is written into the selector's list."""
         from test_troubling_signs import standard
-        for listed, room in ((55, 3), (56, 2), (57, 1)):
+        for listed in (0, 55, 57):
             with self.subTest(listed=listed):
                 v = standard()
                 p = v.p
                 esp = STACK_TOP - 0x2000
                 for k in range(listed, 64):
                     p.put32(esp + T["offset"] + 4 * k, 0xA5A5A5A5)
-                v.rolls = [0]
-                p.set_reg("esp", esp)
-                p.set_reg("esi", 1)
-                p.set_reg("edi", listed)
-                p.run(*T["loop"])
-                added = p.reg("edi") - listed
-                self.assertEqual(added, min(3, room))
-                for k in range(listed, listed + added):
-                    self.assertEqual(p.u32(esp + T["offset"] + 4 * k), 0)
-                for k in range(listed + added, 64):
+                v.due = DIVE_PICK
+                self.assertEqual(v.run_list(listed), listed)
+                for k in range(listed, 64):
                     self.assertEqual(p.u32(esp + T["offset"] + 4 * k), 0xA5A5A5A5)
-                self.assertLessEqual(listed + added, 58)
 
 
 if __name__ == "__main__":

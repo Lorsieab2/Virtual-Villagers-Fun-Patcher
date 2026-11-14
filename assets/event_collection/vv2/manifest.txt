@@ -1,0 +1,2 @@
+# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit
