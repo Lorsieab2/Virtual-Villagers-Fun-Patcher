@@ -64,6 +64,44 @@ class ScrollingPopupsDetected(unittest.TestCase):
         self.assertIn("self.detect_scrolling()", source)
 
 
+class OpenedEventBelongsToItsLibrary(unittest.TestCase):
+    """After the Game or Save folder changes, the open event's name means another library's event: Save must ask
+    (Save As, with its Replace check) and Delete must refuse, never write over or bin that other event."""
+
+    def lib(self, opened_in: str, chosen: str):
+        lib = w.Library.__new__(w.Library)
+        lib.stem, lib.stem_folder = "My Event", Path(opened_in)
+        lib.save_folder = lambda: Path(chosen)
+        calls = []
+        lib.save_as = lambda *a: calls.append("save_as")
+        lib._write = lambda stem: calls.append(("write", stem))
+        return lib, calls
+
+    def test_same_library_saves_in_place(self) -> None:
+        lib, calls = self.lib("C:/saves/a", "C:/saves/a")
+        self.assertEqual(lib.opened_here(), "My Event")
+        lib.save()
+        self.assertEqual(calls, [("write", "My Event")])
+
+    def test_other_library_asks(self) -> None:
+        lib, calls = self.lib("C:/saves/a", "C:/saves/b")
+        self.assertIsNone(lib.opened_here())
+        lib.save()
+        self.assertEqual(calls, ["save_as"])
+
+    def test_delete_refuses_in_another_library(self) -> None:
+        lib, _calls = self.lib("C:/saves/a", "C:/saves/b")
+        shown = []
+        old = w.SHOW_INFO
+        w.SHOW_INFO = lambda *a, **k: shown.append(a[1])
+        try:
+            lib.window = None
+            lib.delete()
+        finally:
+            w.SHOW_INFO = old
+        self.assertEqual(len(shown), 1)
+
+
 class PerGameAmountWords(unittest.TestCase):
     def test_the_changes_list_names_each_games_amount(self) -> None:
         words = w.describe_effect({"do": "food", "amount": 100, "per_game": {"1": [200, 1500], "4": [300, 300]}})

@@ -803,6 +803,7 @@ class Library:
         self.app = app
         self.g = new_event()
         self.stem: str | None = None
+        self.stem_folder = None            # the save folder whose library `stem` names (opened_here)
         self.dirty = False
         self.nid = self.g["start"]
         self.child_index: int | None = None
@@ -1517,6 +1518,7 @@ class Library:
     def load_event(self, g: dict, stem: str | None, dirty: bool = False) -> None:
         self.g = g
         self.stem = stem
+        self.stem_folder = self.save_folder() if stem is not None else None
         self.dirty = dirty
         self.nid = g["start"] if g["start"] in g["nodes"] else next(iter(g["nodes"]), "")
         self.child_index = None
@@ -3034,6 +3036,7 @@ class Library:
             SHOW_ERROR(TITLE, f"The event could not be saved: {exc}", parent=self.window)
             return None
         self.stem = stem
+        self.stem_folder = folder
         self.dirty = False
         self.list_library()
         self.refresh_now()
@@ -3048,10 +3051,20 @@ class Library:
             self.status.configure(text=f"Saved {stem}: the game lists it.", foreground=GREEN)
         return saved
 
+    def opened_here(self) -> str | None:
+        """The open event's library name, but only while the chosen library is the one it came from: after the
+        Game or Save folder changes, the same name there is a different event, so Save asks (Save As) and Delete
+        refuses."""
+        if self.stem is None or self.stem_folder is None:
+            return None
+        folder = self.save_folder()
+        return self.stem if folder is not None and Path(folder) == Path(self.stem_folder) else None
+
     def save(self) -> Saved | None:
-        if self.stem is None:
+        stem = self.opened_here()
+        if stem is None:
             return self.save_as()
-        return self._write(self.stem)
+        return self._write(stem)
 
     def copy_stem(self) -> str:
         """The name a new save gets: the title, and " copy" for a collection event (its file is never replaced)."""
@@ -3066,7 +3079,7 @@ class Library:
             return None
         stem = cg.library_stem(name)
         folder = self.save_folder()
-        if folder is not None and stem != self.stem and \
+        if folder is not None and stem != self.opened_here() and \
                 (cg.library_folder(folder) / (stem + cg.GRAPH_SUFFIX)).exists() and \
                 not ASK_YES_NO(TITLE, f"{stem} is already in the library. Replace it?", parent=self.window):
             return None
@@ -3081,7 +3094,7 @@ class Library:
 
     def delete(self) -> None:
         folder = self.save_folder()
-        if folder is None or self.stem is None:
+        if folder is None or self.opened_here() is None:
             SHOW_INFO(TITLE, "Open an event from the library to delete it.", parent=self.window)
             return
         paths = [p for p in (cg.library_folder(folder) / (self.stem + cg.GRAPH_SUFFIX),
