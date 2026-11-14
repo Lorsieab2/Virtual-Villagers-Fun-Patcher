@@ -477,7 +477,7 @@ static int sc_scan(int game) {
         sc_field_end(p, end, 4, e->series, sizeof e->series);
         sc_field_end(p, end, 6, e->description, sizeof e->description);
         if (game == 5 && cg_guardians_on()) {
-            char alt[CE_TITLE_BYTES + 32];
+            char alt[sizeof e->description];   /* the longer of the two: a sentence */
             sc_field_end(p, end, 7, alt, sizeof alt);
             if (alt[0] != '\0') {
                 lstrcpynA(e->title, alt, sizeof e->title);

@@ -200,7 +200,10 @@ class TheDescriptions(unittest.TestCase):
                     self.assertEqual(desc, row[6])
                     self.assertNotEqual(desc, GENERIC)
                     self.assertRegex(desc, r"^[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]$")   # no placeholder, brace, role id
-                    no_role_id(self, desc)
+                    # no code label: a role id with a digit or "_" (gardener1, zz_helper9); plain words such as
+                    # "inventor" or "cook" are English the sentence may use
+                    labels = {r for r in CODE_LABELS if re.search(r"[0-9_]", r)}
+                    self.assertEqual(sorted(set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", desc)) & labels), [], desc)
                     seen.add(desc)
             self.assertGreater(len(seen), 1)
 

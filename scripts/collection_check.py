@@ -73,7 +73,7 @@ AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons",
                  "description_variants")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
-DESCRIPTION_MAX = 130
+DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
 DESCRIPTION_RE = re.compile(r"[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]")
 # j GUARDIANS (the owner, 2026-11-14): with Guardians of Isola Rewrite, New Believers says neither of these.
 GUARDIANS_PATCH = "guardians_of_isola"
