@@ -356,7 +356,10 @@ class StartupMachine:
             address = arg(0)
             section, characteristics = self.section_of(address)
             protect = 0x20 if characteristics & 0x20000000 else 0x04
-            mu.mem_write(arg(1), struct.pack("<7I", address & ~0xFFF, EXE_BASE, protect, 0x1000,
+            # The allocation an address is in, as Windows reports it: a loaded companion's own image base for an
+            # address inside it (a companion asks whether a call's target is in another companion), else the game's.
+            owner = next((m.base for m in self.modules.values() if m.base <= address < m.base + m.size), EXE_BASE)
+            mu.mem_write(arg(1), struct.pack("<7I", address & ~0xFFF, owner, protect, 0x1000,
                                              0x1000, protect, 0x1000000))
             ret(28)
         elif name == "VirtualAlloc":

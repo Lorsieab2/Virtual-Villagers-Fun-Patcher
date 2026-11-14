@@ -1,10 +1,12 @@
 /* The Aspiring Adventurer and The Cave Explorers: A New Home.  Included by vvfp_more_island_events.c.
 
-   BOTH EVENTS share the sites below through adv_flow (adv_core.inc): the draw takes rand(m + k), k the events that
-   can happen now (the Adventurer at m, The Cave Explorers after it), each one more encounter.  The Cave Explorers asks
-   up to three questions in the same dialog: after an answer that leads to another question, the two answer buttons
-   get that question's words (the constructor's own text setter 0x4015A0, then centred again with the button's own
-   size and move, as the constructor places them) and come back on its last page.
+   BOTH EVENTS share the sites below through adv_flow (adv_core.inc).  They never take a share of the game's own
+   draw (the owner's rule: stock island event chances never change): they come only when they are due -- picked with
+   Pick Island Event, or drawn by Story / Cheat Upgrades' separate rare roll (story_collection.inc) -- and the
+   encounter the stock roller would have drawn is then theirs instead.  The Cave Explorers asks up to three questions
+   in the same dialog: after an answer that leads to another question, the two answer buttons get that question's
+   words (the constructor's own text setter 0x4015A0, then centred again with the button's own size and move, as the
+   constructor places them) and come back on its last page.
 
    A New Home's two-choice island events are its villager encounters: the trigger (0x4237B3; 20% of its island
    events, and the village's first) builds the encounter dialog (0x41A460, on its own stack), whose setup 0x4189E0
@@ -12,12 +14,11 @@
    the drawn encounter's class says it cannot happen -- so each possible encounter is 1 in m (m the possible ones).
    The modal loop (0x401AB0 with 0) runs only the dialog: the village does not run while it is up.
 
-   THE SHARE.  The setup's `call 0x418920` (0x4189F2) calls this DLL first: when the event can happen (two
-   villagers who may go, adv_possible; never the village's first island event, the visitor every village starts
-   with; never while a Story / Cheat Upgrades pick or custom event is on its way) it draws rand(m + 1) with the
-   game's own rand (0x402F10) -- m counted from the live class table as the roller would accept, so a re-aimed
-   entry (Restore Missing Island Events' The Furry Food: stored food) counts too -- and takes the draw m: one more
-   encounter, 1 in m + 1, like each of the others.  Otherwise the stock roller runs (its own draws).  The event then
+   THE DUE EVENT.  The setup's `call 0x418920` (0x4189F2) calls this DLL first: when one of these events is due
+   (mie_pick.inc mp_due_flow) and can happen (two villagers who may go, adv_possible, or one cave explorer; never the
+   village's first island event, the visitor every village starts with) it is taken in place of the roller's draw;
+   otherwise -- always, when none is due -- the stock roller runs with its own draws, exactly the stock odds.  The
+   event then
    writes the setup's fields itself and leaves through the setup's own ending (0x4192E3: AL = 1, the dialog kept):
    its kind +0x5094 = ADV_VV1_KIND (past every stock jump table), the question +0x74 (the title line, the five lines
    the villager's picture is drawn in -- 0x4187E0 draws it under the title at +0x68 -- and the first page, padded
@@ -173,52 +174,13 @@ static const adv_game ADV_VV1 = {
     200, 1500, 500, 4999, v1_age, v1_cave_open
 };
 
-/* ---- The share --------------------------------------------------------------------------------------------- */
+/* ---- The dialog --------------------------------------------------------------------------------------------- */
 
 static void *v1_dialog;
 static int v1_stage, v1_page;
 static const adv_flow *v1_flow;        /* the event in the dialog: ADV_FLOW or CAVE_FLOW */
 static int v1_node, v1_ending;         /* its question on screen; the ending reached */
 static int v1_effects_page;            /* the ending's page that makes its effects (its last), -1 made */
-
-static int v1_any_child(void) {
-    int i;
-    for (i = 0; i < VV1_RECORDS; ++i) {
-        const unsigned char *r = v1_record(i);
-        if (r != NULL && r[0x28] != 0 && *(const int *)(r + 0x344) > 0 && *(const int *)(r + 0x348) < ADV_ADULT_UNITS) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/* The encounters the roller would accept now (its class table, read live). */
-static int v1_possible_encounters(void) {
-    unsigned char *world = VV1_WORLD();
-    int v, m = 0;
-    for (v = 0; v < 16; ++v) {
-        unsigned int cls = *(const unsigned char *)(uintptr_t)(0x4189A4u + (unsigned int)v);
-        unsigned int target = cls < 5 ? *(const unsigned int *)(uintptr_t)(0x418990u + 4u * cls) : 0u;
-        int ok;
-        switch (target) {
-        case 0x41894Fu: ok = *(int *)(world + 0xA2BC) < 3; break;
-        case 0x418963u: ok = *(int *)(world + 0xA2D4) < 3; break;
-        case 0x418977u: ok = v1_any_child(); break;
-        case 0x418930u: ok = 0; break;               /* the stock re-roll */
-        case 0x456670u: ok = *(int *)(world + 0xA2EC) > 0; break;   /* Restore Missing Island Events */
-        default: ok = 1; break;                      /* 0x418987, or anything else that accepts */
-        }
-        m += ok;
-    }
-    return m;
-}
-
-static int v1_story_busy(void) {
-    typedef int (__stdcall *pending_fn)(int);
-    HMODULE module = GetModuleHandleA("VVFP Story Upgrades.dll");
-    pending_fn pending = module != NULL ? (pending_fn)(void *)GetProcAddress(module, "VvfpStoryPickPending") : NULL;
-    return pending != NULL && pending(1) != 0;
-}
 
 /* A page as the dialog shows it: the title, the picture's lines, the page's own lines (wrapped here: the dialog
    breaks only at '\n'). */
@@ -339,12 +301,10 @@ static void v1_fill(unsigned char *d) {
     }
 }
 
-/* In place of the setup's `call 0x418920`: the stock draw, or ADV_VV1_KIND -2 when one of the events is drawn --
-   each possible event one more encounter, rand(m + k) with k of them possible: m + 0 The Aspiring Adventurer (when
-   it can happen), the next The Cave Explorers (when it can). */
+/* In place of the setup's `call 0x418920`: the stock roller (the stock odds, untouched), or ADV_VV1_KIND -2 when
+   one of the events is due (Pick Island Event, or Story / Cheat Upgrades' rare roll) and can happen. */
 static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
-    int m, adv_ok, cave_ok, draw;
     const adv_flow *picked;
     adv_log_reset();                   /* an encounter is drawn: whatever was ours is over */
     __try {
@@ -367,28 +327,6 @@ static int __cdecl v1_choose(void *dialog) {
                 v1_stage = ADV_STAGE_QUESTION;
                 v1_page = 0;
                 return -2;
-            }
-        } else if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()) {
-            adv_ok = adv_possible(&ADV_VV1);
-            cave_ok = cave_possible(&ADV_VV1);
-            if (adv_ok || cave_ok) {
-                m = v1_possible_encounters();
-                draw = v1_rand(m + adv_ok + cave_ok) - m;
-                if (draw >= 0) {
-                    int is_cave = !adv_ok || draw > 0;
-                    if (is_cave ? cave_begin(&ADV_VV1) : adv_begin(&ADV_VV1)) {
-                        v1_flow = is_cave ? &CAVE_FLOW : &ADV_FLOW;
-                        v1_node = 0;
-                        v1_ending = -1;
-                        v1_fill((unsigned char *)dialog);
-                        adv_log_event(1, g_vv12_title);
-                        v1_effects_page = -1;
-                        v1_dialog = dialog;
-                        v1_stage = ADV_STAGE_QUESTION;
-                        v1_page = 0;
-                        return -2;
-                    }
-                }
             }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {

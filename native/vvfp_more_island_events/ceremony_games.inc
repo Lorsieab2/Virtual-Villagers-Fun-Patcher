@@ -99,13 +99,6 @@ typedef void (__cdecl *cr_cdecl1)(void *a);
 #define CR_TC0R(va, self) ((adv_tc0r)(uintptr_t)(va))((void *)(uintptr_t)(self), NULL)
 #define CR_TC1R(va, self, a) ((cr_tc1r)(uintptr_t)(va))((void *)(uintptr_t)(self), NULL, (int)(a))
 
-static int cr_story_busy(int game) {
-    typedef int (__stdcall *pending_fn)(int);
-    HMODULE module = GetModuleHandleA("VVFP Story Upgrades.dll");
-    pending_fn pending = module != NULL ? (pending_fn)(void *)GetProcAddress(module, "VvfpStoryPickPending") : NULL;
-    return pending != NULL && pending(game) != 0;
-}
-
 /* ---- A New Home ------------------------------------------------------------------------------------------------ */
 
 static const char *const CR_V1_NAMES[2] = { "the second population hut", "the third population hut" };
@@ -566,15 +559,17 @@ static const cr_game *g_cr;              /* the installed game's, NULL when not 
    own buffer (+0x277F, 0x270F bytes: the title line, three blank lines, the words) which the game's own popup then
    shows (the game's modal loop, 0x401AB0 / 0x401AD0).
 
-   EACH EVENT ITS OWN SLOT: for that one constructor call the chooser's draw (A New Home 0x4284DB, The Lost Children
-   0x434607 -- Story / Cheat Upgrades' sites too) is pointed here and put back before the constructor returns,
-   chaining onto whatever it held (the game's rand, or Story's own roll) with the bound one wider for each of these
-   events that can happen now -- so each is one more case, as likely as each stock case (A New Home: 1 in m + k of
-   the m stock cases whose condition holds; The Lost Children: 1 in 28 + k a draw).  A draw past the stock cases
-   reaches the chooser's own "not a case" branch (A New Home 0x4284E7 `cmp edi, 0xE; ja`, The Lost Children
-   0x43462C `ja 0x434824`), which comes here: the event's text is written into the buffer, its effects made and its
-   log entry handed over, and the chooser leaves through its own ending (0x428630 / 0x434842), as after a case.  Not
-   while a Story / Cheat Upgrades pick is on its way (its own roll decides then).
+   THE DUE EVENT.  These events never take a share of the chooser's draw (the owner's rule: stock island event
+   chances never change): they come only when they are due -- picked with Pick Island Event, or drawn by Story /
+   Cheat Upgrades' separate rare roll (story_collection.inc; mie_pick.inc mp_due_cr).  Only then, for that one
+   constructor call, the chooser's draw (A New Home 0x4284DB, The Lost Children 0x434607 -- Story / Cheat Upgrades'
+   sites too) is pointed here and put back before the constructor returns, chaining onto whatever it held (the
+   game's rand, or Story's own roll): its first draw is the due event's case, past the stock cases, and any later
+   draw is the inner roll with the stock bound.  With nothing due the chooser runs on the stock bytes.  The case past
+   the stock cases reaches the chooser's own "not a case" branch (A New Home 0x4284E7 `cmp edi, 0xE; ja`, The Lost
+   Children 0x43462C `ja 0x434824`), which comes here: the event's text is written into the buffer, its effects made
+   and its log entry handed over, and the chooser leaves through its own ending (0x428630 / 0x434842), as after a
+   case.
 
    EXE SITES (the minimal redirect, the owner's rule "DLLs and outside files only"): the trigger's one `call` of the
    constructor for this family (5 bytes) and the chooser's one "not a case" branch (5 / 6 bytes).  Story / Cheat
@@ -588,7 +583,7 @@ static unsigned int g_cr_stock_rand;
 static unsigned int g_cr_cases;          /* the stock cases: 15 / 28 */
 static cr_roll_fn g_cr_inner;
 static int g_cr_can[CR_EVENTS];
-static int g_cr_listed;                  /* the events widening the draw now, 0: not widened */
+static int g_cr_listed;                  /* 1 while the due event's case may be answered, else 0 */
 static int g_cr_picked;                  /* Pick Island Event's event: the draw's next answer is its case, once */
 static int g_cr_result;
 
@@ -598,7 +593,7 @@ static int __cdecl cr_draw(int bound) {
         g_cr_picked = 0;                 /* Pick Island Event's: its case, once (mie_pick.inc) */
         return (int)g_cr_cases;
     }
-    return inner(bound + g_cr_listed);
+    return inner(bound);
 }
 
 static int cr_from_story(unsigned int target) {
@@ -608,7 +603,8 @@ static int cr_from_story(unsigned int target) {
         && info.AllocationBase == (void *)story;
 }
 
-/* The trigger's constructor call: the draw widened for this one call, then put back. */
+/* The trigger's constructor call: while one of these events is due, the draw redirected for this one call (its
+   first answer the due event's case), then put back. */
 static void cr_v12_construct(void *event, int type, int magnitude, unsigned int ctor) {
     static vvfp_site_write w;
     unsigned char held[5];
@@ -622,17 +618,17 @@ static void cr_v12_construct(void *event, int type, int magnitude, unsigned int 
             mp_done(g_cr->game, 0);      /* Pick Island Event's, no longer possible: the game's own draw */
             picked = -1;
         }
-        if (g_cr != NULL && (picked >= 0 || !cr_story_busy(g_cr->game))) {
-            int n = picked >= 0 ? (g_cr_can[0] = picked, 1) : cr_listable(g_cr, g_cr_can);
+        if (g_cr != NULL && picked >= 0) {
+            g_cr_can[0] = picked;
             memcpy(held, (const void *)(uintptr_t)g_cr_draw_site, sizeof held);
-            if (n > 0 && held[0] == 0xE8) {
+            if (held[0] == 0xE8) {
                 unsigned int target = g_cr_draw_site + 5u + *(const unsigned int *)(held + 1);
                 if (target == g_cr_stock_rand || cr_from_story(target)) {
                     g_cr_inner = (cr_roll_fn)(uintptr_t)target;
                     vvfp_site_branch(&w, g_cr_draw_site, 5, held, 0xE8, (const void *)cr_draw);
                     widened = vvfp_install_sites(&w, 1);
-                    g_cr_listed = widened ? n : 0;
-                    g_cr_picked = widened && picked >= 0;
+                    g_cr_listed = widened;
+                    g_cr_picked = widened;
                 }
             }
         }

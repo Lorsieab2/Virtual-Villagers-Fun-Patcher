@@ -12,7 +12,9 @@ popup through the game's own click handler, OK and constructor sites):
   * every effect: Farming set to 100 (the game's maximum), the large and the small food awards (and their scaling),
     the tail slap's 30 to 50 health lost, never below 1;
   * the effects on the ending's last page only; the Island Events log's one entry; nothing handed over before it;
-  * the draw: its own entry beside The Aspiring Adventurer's, as likely as one stock event.
+  * the draw: never a share of the game's own draw (stock island event chances never change): the selector's
+    list gains no entry; the event's object is in slot 0 only while it is due (Pick Island Event or the rare roll),
+    for Story's pick to present.
 
 The live game is NOT exercised here.
 """
@@ -62,6 +64,9 @@ def dp_rolls(*, swimmer=0, slap=False, loss=0, candidates=3) -> list[int]:
     return ([swimmer] if candidates > 1 else []) + [99 if slap else 0, loss]
 
 
+DOLPHINS_PICK = 5                                # The Playful Dolphins' registry index (mie_pick.inc)
+
+
 class Dolphins(Village):
     """The Tree of Life with the companion, its villagers and The Playful Dolphins' popup."""
 
@@ -99,19 +104,12 @@ class Dolphins(Village):
         self.p.put32(self.rec(i) + self.L["health"], value)
 
     # -- the draw ------------------------------------------------------------------------------------------------
-    def list_draw(self, coin: int, listed: int = 0) -> tuple[int, int]:
-        """The selector's loop with every stock slot empty and `listed` entries already in the list: (entries the
-        companion added, the object in slot 0)."""
-        p = self.p
-        esp = STACK_TOP - 0x2000
-        self.rolls = [coin]
-        p.set_reg("esp", esp)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", listed)
-        p.run(*T["loop"])
-        self.rolls = []
-        self.list_esp = esp
-        return p.reg("edi") - listed, p.u32(T["table"])
+    def list_draw(self, pick: int = DOLPHINS_PICK, listed: int = 0) -> tuple[int, int]:
+        """Registry entry `pick` due (-1: nothing due), the selector's loop with every stock slot empty and `listed`
+        entries already in the list: (entries the companion added -- always 0 --, the object in slot 0)."""
+        self.due = pick
+        added = self.run_list(listed) - listed
+        return added, self.obj
 
     def title_of(self, obj: int) -> str:
         """The title an event object gives (its +0x08, as the dialog asks it first)."""
@@ -120,12 +118,12 @@ class Dolphins(Village):
         return self.p.cstring(self.p.u32(entry + 8), 400)
 
     # -- the popup -----------------------------------------------------------------------------------------------
-    def open(self, rolls: list[int], coin: int = 1) -> bool:
-        """The Playful Dolphins drawn (`coin` its index among the events that can happen: 1 after the Adventurer)
-        and its popup built through the game's presenter site."""
+    def open(self, rolls: list[int]) -> bool:
+        """The Playful Dolphins due, put in slot 0 and presented (its own condition holding, as Story's pick asks
+        it), its popup built through the game's presenter site."""
         p = self.p
-        entries, obj = self.list_draw(coin)
-        if not entries:
+        added, obj = self.list_draw(DOLPHINS_PICK)
+        if added or not self.can_fire(obj):
             return False
         self.ui.clear()
         self.rolls = list(rolls)
@@ -338,8 +336,9 @@ class Who(unittest.TestCase):
                 v.p.put32(PUZZLE_PROGRESS, progress)
                 v.p.put32(PUZZLE_DONE_AT, done_at)
                 self.assertEqual(v.dp_possible(), 1)
-                entries, obj = v.list_draw(1)
-                self.assertEqual(entries, 2)
+                added, obj = v.list_draw(DOLPHINS_PICK)
+                self.assertEqual(added, 0)
+                self.assertTrue(v.can_fire(obj))
                 self.assertTrue(v.open(dp_rolls()))
                 v.play(0)
                 self.assertEqual(ENDINGS[v.dp_state()[8]], "HUNT")
@@ -552,49 +551,44 @@ class Pages(unittest.TestCase):
 
 @NEEDS
 class TheDraw(unittest.TestCase):
-    def test_two_events_two_entries_each_its_own(self) -> None:
+    """Never a share of the draw (stock island event chances never change): the selector's list gains no entry; the
+    due event's object is in slot 0, for Story's pick to present."""
+
+    def test_the_due_event_in_slot_0_and_no_entry(self) -> None:
         titles = []
-        for coin in (0, 1):
+        for pick in (0, DOLPHINS_PICK):
             v = three()
-            entries, obj = v.list_draw(coin)
-            self.assertEqual(entries, 2)
-            for k in range(entries):
-                self.assertEqual(v.p.u32(v.list_esp + T["offset"] + 4 * k), 0)   # slot 0's entries
+            added, obj = v.list_draw(pick)
+            self.assertEqual(added, 0)
+            self.assertTrue(v.can_fire(obj))
             titles.append(v.title_of(obj))
         self.assertEqual(titles, ["The Aspiring Adventurer", dp.TITLE])
 
-    def test_none_without_two_who_may_go(self) -> None:
+    def test_due_but_not_possible(self) -> None:
         v = Dolphins()
         v.villager(0, "Ana", True, years=30)
-        self.assertEqual(v.list_draw(0)[0], 0)
+        added, obj = v.list_draw(DOLPHINS_PICK)
+        self.assertEqual(added, 0)
+        self.assertFalse(v.can_fire(obj))
 
-    def test_each_event_as_likely_as_one_stock_event(self) -> None:
-        """With `listed` stock events, the list holds listed + 2 entries, one per event of ours; the object in slot 0
-        is each of ours 1 in 2 -- so each is drawn 1 in (listed + 2), as a stock event."""
+    def test_nothing_due_nothing_listed(self) -> None:
         v = three()
-        objects = [v.list_draw(c, listed=10)[1] for c in (0, 1)]
-        self.assertEqual(len(set(objects)), 2)
-        self.assertEqual(v.list_draw(0, listed=10)[0], 2)
+        for listed in (0, 10, 49):
+            with self.subTest(listed=listed):
+                self.assertEqual(v.list_draw(-1, listed=listed)[0], 0)
 
-    def test_never_past_the_list(self) -> None:
-        """The list holds the stock slots + 1 entries (49 + 1): with 49 stock events listed there is room for one."""
-        for listed, room in ((47, 3), (48, 2), (49, 1)):
+    def test_never_writes_the_list(self) -> None:
+        for listed in (0, 47, 49):
             with self.subTest(listed=listed):
                 v = three()
                 p = v.p
                 esp = STACK_TOP - 0x2000
                 for k in range(listed, 64):
                     p.put32(esp + T["offset"] + 4 * k, 0xA5A5A5A5)
-                v.rolls = [0]
-                p.set_reg("esp", esp)
-                p.set_reg("esi", 1)
-                p.set_reg("edi", listed)
-                p.run(*T["loop"])
-                added = p.reg("edi") - listed
-                self.assertEqual(added, min(2, room))
-                for k in range(listed + added, 64):
+                v.due = DOLPHINS_PICK
+                self.assertEqual(v.run_list(listed), listed)
+                for k in range(listed, 64):
                     self.assertEqual(p.u32(esp + T["offset"] + 4 * k), 0xA5A5A5A5)
-                self.assertLessEqual(listed + added, 50)
 
 
 @NEEDS

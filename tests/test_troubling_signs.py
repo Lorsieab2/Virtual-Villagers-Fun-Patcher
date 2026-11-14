@@ -4,7 +4,7 @@ EMULATED (unicorn, the stock The Secret City executable, the built "VVFP More Is
 the villagers in the game's own records as tests/test_aspiring_adventurer.py puts them):
   * who: a robed Tribal Chief, nine different villagers of 18 or more who are not protected (four advisors, five
     travellers), a population of 61 or more (babies being carried count), the tribe's name; else it never happens;
-  * the selector: each event its own share of the draw (two entries when The Aspiring Adventurer can happen too);
+  * the selector: never a share of the draw (no entry added); its object in slot 0 only while it is due;
   * the four answers by mouse (the game's own click handler for its two, this dialog's own for ours) and by keyboard;
   * the five travellers leave only as the decree's last page is shown, never the chief or an advisor; the award in
     The Secret City's scaled range; a loss never below 0;
@@ -48,6 +48,9 @@ GROUPS = ts.GROUPS
 LABELS = {g: dict(ts.TEXTS)["LABEL_" + g] for g in GROUPS}
 # The stand-in constructor: the event at +0x50, the measure of the tallest page (+0x28(0)), ready (+0x4C).
 CTOR = bytes.fromhex("56" "8BF1" "8B442408" "894650" "8BC8" "8B10" "6A00" "FF5228" "C6464C01" "8BC6" "5E" "C20400")
+
+
+SIGNS_PICK = 3                                   # The Troubling Signs' registry index (mie_pick.inc)
 
 
 class Signs(Village):
@@ -140,23 +143,18 @@ class Signs(Village):
             k += 1
 
     # -- the draw and the popup ----------------------------------------------------------------------------------
-    def list_draw(self, coin: int) -> tuple[int, int]:
-        """The selector's loop with every stock slot empty: (entries added, the object in slot 0)."""
-        p, t = self.p, self.t
-        self.rolls = [coin]
-        esp = STACK_TOP - 0x2000
-        p.set_reg("esp", esp)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", 0)
-        p.run(*t["loop"])
-        self.obj = p.u32(t["table"])
-        return p.reg("edi"), self.obj
+    def list_draw(self, pick: int = SIGNS_PICK) -> tuple[int, int]:
+        """Registry entry `pick` due (-1: nothing due), the selector's loop with every stock slot empty: (entries
+        added -- always 0 --, the object in slot 0)."""
+        self.due = pick
+        return self.run_list(0), self.obj
 
     def open(self, picks=None, awards=(0, 0, 0, 0)) -> bool:
-        """The Troubling Signs drawn (the Adventurer's share lost to the coin) and its popup built."""
+        """The Troubling Signs due, put in slot 0 and presented (its own condition holding, as Story's pick asks it),
+        and its popup built."""
         p, t = self.p, self.t
-        entries, obj = self.list_draw(1)
-        if not entries:
+        added, obj = self.list_draw(SIGNS_PICK)
+        if added or not self.can_fire(obj):
             return False
         rolls = list(picks if picks is not None else [0] * 9)
         for a in awards:
@@ -324,8 +322,9 @@ class Who(unittest.TestCase):
         self.assertEqual(v.possible(), 0)
         v = standard(robed=False)
         self.assertEqual(v.possible(), 0)
-        entries, _ = v.list_draw(1)
-        self.assertEqual(entries, 2)                       # the Adventurer and Diving for Treasure only
+        added, obj = v.list_draw(SIGNS_PICK)
+        self.assertEqual(added, 0)
+        self.assertFalse(v.can_fire(obj))                  # due, but never presented
 
     def test_population_60_never_61_yes_babies_count(self) -> None:
         v = standard(population=60)
@@ -363,17 +362,14 @@ class Who(unittest.TestCase):
 
 @NEEDS
 class TheDraw(unittest.TestCase):
-    def test_each_its_own_share(self) -> None:
+    def test_never_a_share_only_when_due(self) -> None:
         v = standard()
-        entries, first = v.list_draw(0)
-        self.assertEqual(entries, 3)                         # with the Adventurer and Diving for Treasure: three
-        entries, second = v.list_draw(1)                     # entries for slot 0 (tests/test_diving_for_treasure.py)
-        self.assertEqual(entries, 3)
-        self.assertNotEqual(first, second)                   # the draw puts any event's object in the slot
-        v = Signs()
-        v.chief()
-        v.village(1)                                        # the Adventurer cannot happen (one who may go)
-        self.assertEqual(v.list_draw(0)[0], 0)
+        added, adventurer = v.list_draw(-1)
+        self.assertEqual(added, 0)                           # nothing due: no entry, the Adventurer's object
+        added, signs = v.list_draw(SIGNS_PICK)
+        self.assertEqual(added, 0)                           # due: still no entry, its own object in slot 0
+        self.assertNotEqual(adventurer, signs)
+        self.assertTrue(v.can_fire(signs))
 
 
 # ---- The pages, the answers, the effects ---------------------------------------------------------------------------

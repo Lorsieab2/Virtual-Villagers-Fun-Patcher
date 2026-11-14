@@ -13,7 +13,9 @@ tests/story_emulator.py, the villagers in the game's own records as tests/test_a
     when captured -- each told to Cause of Death, counted right;
   * the effects on the last page only; the Island Events log's one entry, nothing handed over before it;
   * the owner's words, exactly; the four buttons made, stacked and centred, and the pages laid out shorter;
-  * the draw: its own entry beside The Aspiring Adventurer's and The Playful Dolphins'.
+  * the draw: never a share of the game's own draw (stock island event chances never change): the selector's
+    list gains no entry; the event's object is in slot 0 only while it is due (Pick Island Event or the rare roll),
+    for Story's pick to present.
 
 The game's own dialog constructor is stood in for by a few instructions that do what it does (the event, the measure
 of the tallest page, ready); the button and label routines are stood in for.  The live game is NOT exercised here.
@@ -63,6 +65,9 @@ def words(text: str) -> list[str]:
 
 def what_happened(ending: str) -> str:
     return ending if ending in ("WAIT", "CRY") else ending.split("_")[1]
+
+
+MASK_PICK = 6                                    # The Mysterious Mask's registry index (mie_pick.inc)
 
 
 class Mask(Village):
@@ -143,15 +148,11 @@ class Mask(Village):
             k += 1
 
     # -- the draw and the popup ----------------------------------------------------------------------------------
-    def list_draw(self, coin: int) -> tuple[int, int]:
-        p = self.p
-        self.rolls = [coin]
-        p.set_reg("esp", STACK_TOP - 0x2000)
-        p.set_reg("esi", 1)
-        p.set_reg("edi", 0)
-        p.run(*T["loop"])
-        self.rolls = []
-        return p.reg("edi"), p.u32(T["table"])
+    def list_draw(self, pick: int = MASK_PICK) -> tuple[int, int]:
+        """Registry entry `pick` due (-1: nothing due), the selector's loop with every stock slot empty: (entries the
+        companion added -- always 0 --, the object in slot 0)."""
+        self.due = pick
+        return self.run_list(0), self.obj
 
     def title_of(self, obj: int) -> str:
         """The title an event object gives (its +0x08, as the dialog asks it first: the event is composed here --
@@ -160,12 +161,12 @@ class Mask(Village):
         entry = self.p.u32(T["strings"] + 4 * TITLE_ID)
         return self.p.cstring(self.p.u32(entry + 8), 400)
 
-    def open(self, rolls: list[int], coin: int = 2) -> bool:
-        """The Mysterious Mask drawn (`coin` its index among the events that can happen: 2 after the Adventurer and
-        The Playful Dolphins) and its popup built through the game's presenter site."""
+    def open(self, rolls: list[int]) -> bool:
+        """The Mysterious Mask due, put in slot 0 and presented (its own condition holding, as Story's pick asks it),
+        its popup built through the game's presenter site."""
         p = self.p
-        entries, obj = self.list_draw(coin)
-        if not entries:
+        added, obj = self.list_draw(MASK_PICK)
+        if added or not self.can_fire(obj):
             return False
         self.ui.clear()
         self.rolls = list(rolls)
@@ -437,17 +438,20 @@ class Who(unittest.TestCase):
             seen.add(v.mk_state()[0])
         self.assertEqual(seen, {0, 1, 2, 3})
 
-    def test_its_own_entry_in_the_draw(self) -> None:
+    def test_never_a_share_of_the_draw_only_when_due(self) -> None:
         titles = []
-        for coin in (0, 1, 2):
+        for pick in (0, 5, MASK_PICK):
             v = standard()
-            entries, obj = v.list_draw(coin)
-            self.assertEqual(entries, 3)                      # the Adventurer, The Playful Dolphins, The Mysterious Mask
+            added, obj = v.list_draw(pick)
+            self.assertEqual(added, 0)                        # the selector's list gains no entry
+            self.assertTrue(v.can_fire(obj))
             v.rolls = []
             titles.append(v.title_of(obj))
         self.assertEqual(titles, ["The Aspiring Adventurer", "The Playful Dolphins", mm.TITLE])
-        v = standard(4, 56)                                   # 60 people: the other two only
-        self.assertEqual(v.list_draw(0)[0], 2)
+        v = standard(4, 56)                                   # 60 people: never
+        added, obj = v.list_draw(MASK_PICK)
+        self.assertEqual(added, 0)
+        self.assertFalse(v.can_fire(obj))
 
 
 # ---- The answers, the endings, the effects (emulated) ------------------------------------------------------------

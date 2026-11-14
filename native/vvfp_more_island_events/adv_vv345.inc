@@ -9,15 +9,15 @@
    THE EVENT is one more such object (a copy of a stock two-choice event's vtable -- 0x47EA40, 0x48CB64, 0x497D34 --
    with its own methods), kept in the table's slot 0: every selector lists slots 1 and up only, slot 0 is never
    written by a table builder (the teardowns 0x418F00 / 0x417760 / ... delete it like any slot: its deleter does
-   nothing, the object is this DLL's), so the stock events keep every slot.  The selector's loop end (cmp esi, N /
-   jl) jumps here: after the stock slots are listed, slot 0 is listed once for each of our events whose condition
-   holds (the Adventurer: at least two villagers who may go, adv_possible; The Secret City's The Troubling Signs and
-   Diving for Treasure and The Tree of Life's The Playful Dolphins their own), and the object put in slot 0 is one of theirs, each equally likely (t_list) -- so
-   each takes an equal share of the draw, rand(count), like any listed event, with the game's own timing, rescue rule
-   and counting.  Each selector's array holds one entry more than its stock slots (the slot count + 1 dwords before
-   the dialog on the stack): t_list never adds more entries than that room.  Slot 0 is put
-   back at every selection (a teardown clears it).  The picked index 0 is presented by the stock code as any other
-   (`mov reg, [esi*4 + table]`), and its "shown" byte (table - slots - 1 + 0, never read) is set as any other's.
+   nothing, the object is this DLL's), so the stock events keep every slot.  These events never take a share of the
+   draw (the owner's rule: stock island event chances never change): the selector's loop end (cmp esi, N / jl) jumps
+   here only to put the object of the event that is DUE -- picked with Pick Island Event, or drawn by Story / Cheat
+   Upgrades' separate rare roll (story_collection.inc), mie_pick.inc mp_due_object -- in slot 0 (else The Aspiring
+   Adventurer's, which nothing presents), and it adds no entry to the selector's list: the selector draws among the
+   stock slots exactly as the stock game does, and Story / Cheat Upgrades' pick then presents slot 0 in place of the
+   drawn event (vvfp_story_upgrades.c choose_from_table) when the object's own condition holds.  Slot 0 is put back
+   at every selection (a teardown clears it); a slot 0 holding an object that is not this DLL's is left alone.  The
+   game's data is never read before WinMain: the table is looked at only by the selection.
 
    THE POPUP.  The dialog asks the object, as story_objects.inc lists: +0x08 the title (looked up once: here the
    event is composed, adv_begin), +0x1C the villager shown (the adventurer), +0x10 "two choices" (yes), +0x24 the
@@ -74,7 +74,6 @@ typedef struct {
     /* The sites. */
     unsigned int loop_site, loop_top, loop_after;
     unsigned char loop_stock[5];
-    int list_offset;                   /* the selector's list: [esp + offset + 4 * i] */
     unsigned int ok_site, ok_resume, ok_stay;
     unsigned int ctor_site, ctor;
     unsigned char ctor_stock[5];
@@ -82,15 +81,15 @@ typedef struct {
 
 static const adv_table_game ADV_TABLE_GAMES[3] = {
     { 3, 0x4B3C78u, 57, 0x592730u, 0x3A7, 0x3A9, 0x47EA40u, 0x4185A0u, 0x40C230u, 0x40C1F0u, 0x4032D0u,
-      0x419B6Eu, 0x419B54u, 0x419B73u, { 0x83, 0xFE, 0x3A, 0x7C, 0xE1 }, 0x08,
+      0x419B6Eu, 0x419B54u, 0x419B73u, { 0x83, 0xFE, 0x3A, 0x7C, 0xE1 },
       0x419A18u, 0x419A1Du, 0x419AB4u,
       0x419BEAu, 0x4192F0u, { 0xE8, 0x01, 0xF7, 0xFF, 0xFF } },
     { 4, 0x4CCA28u, 49, 0x4DEA20u, 0x35F, 0x361, 0x48CB64u, 0x416F60u, 0x40C210u, 0x40C190u, 0x4036D0u,
-      0x418070u, 0x418050u, 0x418075u, { 0x83, 0xFE, 0x32, 0x7C, 0xDB }, 0x10,
+      0x418070u, 0x418050u, 0x418075u, { 0x83, 0xFE, 0x32, 0x7C, 0xDB },
       0x417EB8u, 0x417EBDu, 0x417F60u,
       0x418106u, 0x417790u, { 0xE8, 0x85, 0xF6, 0xFF, 0xFF } },
     { 5, 0x4DC850u, 55, 0x5240A8u, 0x3B3, 0x3B5, 0x497D34u, 0x417700u, 0x40C700u, 0x40C680u, 0x403660u,
-      0x4188E0u, 0x4188C0u, 0x4188E5u, { 0x83, 0xFE, 0x38, 0x7C, 0xDB }, 0x10,
+      0x4188E0u, 0x4188C0u, 0x4188E5u, { 0x83, 0xFE, 0x38, 0x7C, 0xDB },
       0x418738u, 0x41873Du, 0x4187E0u,
       0x41896Au, 0x418020u, { 0xE8, 0xB1, 0xF6, 0xFF, 0xFF } },
 };
@@ -100,7 +99,7 @@ static const adv_table_game *g_tg;
 static const adv_game *g_table_adv;
 
 /* The stubs' addresses (read by the naked stubs). */
-static unsigned int g_loop_end, g_loop_top, g_loop_after, g_list_offset;
+static unsigned int g_loop_end, g_loop_top, g_loop_after;
 static unsigned int g_ok_resume, g_ok_stay, g_ctor;
 
 /* ---- The villagers of the three games ---------------------------------------------------------------------- */
@@ -405,7 +404,6 @@ static unsigned int g_vtable[17];      /* [0] = the source's RTTI locator */
 static adv_object g_object;            /* The Aspiring Adventurer's */
 static adv_object g_ts_object;         /* The Troubling Signs' (The Secret City, troubling_vv3.inc) */
 static void *g_ctor_dialog;            /* the dialog being built (t_ctor_thunk) */
-static int g_list_count;               /* the entries t_list adds */
 static void ts_after_ctor(void *dialog);
 static int ts_ok(void *dialog);
 static void ts_install(void);
@@ -702,43 +700,34 @@ static int adv_begin_now(void) {
 
 /* ---- The sites ------------------------------------------------------------------------------------------------ */
 
-/* After the stock slots are listed (`listed` of them): the entries to add, one for EACH registered event that can
-   happen now -- so each is drawn as any stock event, 1 in (count + entries) -- and the object put in slot 0 one of
-   those events', each equally likely (the game's own rand; none drawn when only one can happen).  Whichever entry
-   the selector then draws presents slot 0, so each event's chance is its own entry's.  The list holds the stock
-   slots + 1 entries (the dialog's frame follows it): never more entries than its room (when it is full the extra
-   entries are left out, never written past it; the slot's object is still drawn fairly among the events). */
-static int __cdecl t_list(int listed) {
-    int k, n = 0, room = g_tg->slots + 1 - listed;
-    int can[T_MAX_EVENTS];
+/* Whether `object` is this DLL's (an event's object, or none). */
+static int t_ours(const void *object) {
+    int k;
+    if (object == NULL || object == (const void *)&g_object) {
+        return 1;
+    }
+    for (k = 0; k < g_event_count; ++k) {
+        if ((const void *)g_events[k].object == object) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* After the stock slots are listed: slot 0 gets the due event's object (Pick Island Event or the rare roll,
+   mie_pick.inc), else The Aspiring Adventurer's (never presented then).  No entry is added to the selector's list:
+   the stock draw is untouched. */
+static void __cdecl t_list(void) {
     adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
     g_cr_made = 0;
     __try {
-        *(void **)(uintptr_t)g_tg->table = &g_object;
-        for (k = 0; k < g_event_count; ++k) {
-            if (g_events[k].listable != NULL && g_events[k].listable()) {
-                can[n++] = k;
-            }
-        }
-        if (n > 0) {
-            *(void **)(uintptr_t)g_tg->table = g_events[can[t_rand(n)]].object;
-        }
-        {
-            /* Pick Island Event chose one of ours (mie_pick.inc): its object in slot 0, which the Story companion's
-               pick (slot 0) presents when the object's own condition holds. */
+        void **slot0 = (void **)(uintptr_t)g_tg->table;
+        if (t_ours(*slot0)) {
             adv_object *picked = mp_due_object(g_tg->game);
-            if (picked != NULL) {
-                *(void **)(uintptr_t)g_tg->table = picked;
-            }
+            *slot0 = picked != NULL ? (void *)picked : (void *)&g_object;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        *(void **)(uintptr_t)g_tg->table = &g_object;
-        n = 0;
     }
-    if (room < 0) {
-        room = 0;
-    }
-    return n < room ? n : room;
 }
 
 /* jmp from the loop end `cmp esi, N; jl top` (5 bytes). */
@@ -749,21 +738,8 @@ __declspec(naked) static void t_loop_stub(void) {
         jmp dword ptr [g_loop_top]
     done_loop:
         pushad
-        push edi
         call t_list
-        add esp, 4
-        mov dword ptr [g_list_count], eax
         popad
-    next_entry:
-        cmp dword ptr [g_list_count], 0
-        jle not_listed
-        mov eax, esp
-        add eax, dword ptr [g_list_offset]
-        mov dword ptr [eax + edi * 4], 0
-        inc edi
-        dec dword ptr [g_list_count]
-        jmp next_entry
-    not_listed:
         jmp dword ptr [g_loop_after]
     }
 }
@@ -999,14 +975,12 @@ static int t_install(int game) {
     g_loop_end = (unsigned int)(g_tg->slots + 1);
     g_loop_top = g_tg->loop_top;
     g_loop_after = g_tg->loop_after;
-    g_list_offset = (unsigned int)g_tg->list_offset;
     g_ok_resume = g_tg->ok_resume;
     g_ok_stay = g_tg->ok_stay;
     g_ctor = g_tg->ctor;
-    if (*(const unsigned int *)(uintptr_t)g_tg->table != 0u
-        || !vvfp_site_holds(g_tg->source_vtable - 4u, (const unsigned char *)(uintptr_t)(g_tg->source_vtable - 4u),
-                            (int)sizeof g_vtable)) {
-        return 0;                       /* slot 0 taken by something else, or no vtable to copy */
+    if (!vvfp_site_holds(g_tg->source_vtable - 4u, (const unsigned char *)(uintptr_t)(g_tg->source_vtable - 4u),
+                         (int)sizeof g_vtable)) {
+        return 0;                       /* no vtable to copy */
     }
     t_build_object();
     g_event_count = 0;

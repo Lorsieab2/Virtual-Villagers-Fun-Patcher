@@ -12,9 +12,12 @@ Static (always run):
 EMULATED (unicorn, the stock The Lost Children executable, the shipped DLL; tests/story_emulator.py):
   * WHO: Research 19 never, 20 yes; 17 years never, 18 yes; never the nursing, an Esteemed Elder's statue, the dead or
     the absent; one villager is enough; the villager drawn among those who may go;
-  * THE DRAW, each event its own slot: family A's draw is rand(23) -- 21 The Aspiring Adventurer, 22 The Climb, each
-    kept only when it can happen -- chained onto whatever the draw's call holds (the game's rand, or Story / Cheat
-    Upgrades' own roll), which is put back after; an unknown call is left alone;
+  * THE DRAW: the event never takes a share of family A's draw (stock island event chances never change): with
+    nothing due the chooser runs on the stock bytes, rand(22), a stock draw of 21 drawn again as in the stock game;
+    only while it is due (Pick Island Event or the rare roll) is the draw's call pointed into the companion for that
+    one run -- its first draw the event's own number, 22 (21 The Aspiring Adventurer), when it can happen -- chained
+    onto whatever the call holds (the game's rand, or Story / Cheat Upgrades' own roll), and put back after; an
+    unknown call is left alone;
   * THE POPUP through the game's own click handler, OK and constructor sites: the question's pages with OK, the two
     answers, the result's pages with OK, the close;
   * EVERY EFFECT, made when the page that ends its ending's text is shown (never on the plan's page): the fall -- the
@@ -212,10 +215,13 @@ class TheMechanicsPage(unittest.TestCase):
 # ---- Emulated -----------------------------------------------------------------------------------------------------
 
 FAKE_ISLAND_EVENTS = 0x0EA00000                # "VVFP Island Events.dll", stood in for
-CLIMB_DRAW, ADVENTURER_DRAW = 22, 21           # each event's own slot of family A's rand(23)
+CLIMB_DRAW, ADVENTURER_DRAW = 22, 21           # each event's own number in family A's draw (past the stock 0..20)
+CLIMB_PICK, ADVENTURER_PICK = 2, 0             # their registry indexes (mie_pick.inc)
 
 
 class ClimbVillage(Village):
+
+    PICK = CLIMB_PICK
     """The Lost Children with the companion started; the game's own celebration stood in for (recorded), and -- with
     `log` -- the Island Events log's one-entry exports stood in for (each call recorded, with the village then)."""
 
@@ -298,9 +304,9 @@ class ClimbVillage(Village):
             out.append(self.p.cstring(at, 4000))
             k += 1
 
-    def begin_climb(self, rolls: list[int], draw: int = CLIMB_DRAW) -> bool:
-        """Family A's setup with the draw `draw` (rand(23): 22 The Climb's own slot); True when the dialog is The
-        Climb's."""
+    def begin_climb(self, rolls: list[int], pick: int | None = CLIMB_PICK) -> bool:
+        """Family A's setup with registry entry `pick` due (None: nothing due, the stock draw); True when the dialog
+        is The Climb's."""
         p = self.p
         self.ui.clear()
         self.bounds.clear()
@@ -309,7 +315,8 @@ class ClimbVillage(Village):
         p.put32(self.dlg + 0x50B0, self.base)
         for o, v in ((0x54, 2), (0x58, 3), (0x5C, 4), (0x50C8, 0x111), (0x50CC, 0x222), (0x50D0, 0x333)):
             p.put32(self.dlg + o, v)
-        self.rolls = [draw] + list(rolls)
+        self.due = -1 if pick is None else pick
+        self.rolls = list(rolls)
         if p.call(0x41F780, [], ecx=self.dlg) & 0xFF == 0 or p.u32(self.dlg + 0x509C) not in (21, 22):
             return False
         p.stub(0x422380, lambda pr: (pr.reg("ecx"), 0))
@@ -398,54 +405,73 @@ class Who(unittest.TestCase):
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
 class TheDraw(unittest.TestCase):
-    """Each its own slot (the owner): family A's draw is rand(23) -- 0..20 the stock events, 21 The Aspiring
-    Adventurer, 22 The Climb -- and the draw's call is put back as it was."""
+    """Never a share of the draw (the owner's rule: stock island event chances never change): with nothing due family
+    A's chooser runs on the stock bytes; a due event takes its own number, and the draw's call is put back."""
 
-    def test_each_event_its_own_slot(self) -> None:
+    def watch_draw_site(self, v: ClimbVillage) -> list[int]:
+        """Every write to the draw's call 0x41F59D (5 bytes), kept."""
+        from unicorn import UC_HOOK_MEM_WRITE
+        writes: list[int] = []
+        v.p.mu.hook_add(UC_HOOK_MEM_WRITE, lambda mu, access, address, size, value, data: writes.append(address),
+                        begin=0x41F59D, end=0x41F5A1)
+        return writes
+
+    def test_nothing_due_the_stock_draw(self) -> None:
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.scientist(1, "Ben")
         self.assertEqual((v.possible(), v.climb_possible()), (1, 1))
-        self.assertTrue(v.begin_climb(climb_rolls(hero=0), draw=CLIMB_DRAW))
-        self.assertEqual(v.bounds[0], 23)
+        writes = self.watch_draw_site(v)
+        # 21 (the value the stock draw never keeps) is drawn again; 5 is a stock event.
+        self.assertFalse(v.begin_climb([ADVENTURER_DRAW, 5] + [0] * 20, pick=None))
+        self.assertEqual(v.p.u32(v.dlg + 0x509C), 5)
+        self.assertEqual(v.bounds[:2], [22, 22])                  # the stock bound, rand(22)
+        self.assertEqual(writes, [])                              # the draw's call never written
+        self.assertEqual(v.done, [])
+
+    def test_a_due_event_takes_its_own_number(self) -> None:
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.scientist(1, "Ben")
-        self.assertFalse(v.begin_climb([0] * 20, draw=ADVENTURER_DRAW))
-        self.assertEqual(v.p.u32(v.dlg + 0x509C), 21)
-        self.assertTrue(v.shown().startswith("The Aspiring Adventurer\n"))
-        self.assertEqual(v.bounds[0], 23)
-
-    def test_a_slot_whose_event_cannot_happen_draws_again(self) -> None:
-        v = ClimbVillage()
-        v.scientist(0, "Ana", True)                               # one villager: the Adventurer cannot happen
-        self.assertTrue(v.begin_climb([CLIMB_DRAW] + climb_rolls(), draw=ADVENTURER_DRAW))
-        self.assertEqual(v.bounds[:2], [23, 23])                  # 21 not kept: drawn again, 22 kept
+        self.assertTrue(v.begin_climb(climb_rolls(hero=0)))
+        self.assertNotIn(22, v.bounds)                            # no draw of the game's was taken for it
+        self.assertNotIn(23, v.bounds)
+        self.assertEqual(v.done, [(2, 1)])
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
-        self.assertTrue(v.begin_climb(climb_rolls(), draw=CLIMB_DRAW))
-        self.assertEqual(v.bounds, [23, 100, 2501, 11])           # the draw, then the Climb's own rolls
+        v.scientist(1, "Ben")
+        self.assertFalse(v.begin_climb([0] * 20, pick=ADVENTURER_PICK))
+        self.assertEqual(v.p.u32(v.dlg + 0x509C), 21)
+        self.assertTrue(v.shown().startswith("The Aspiring Adventurer\n"))
+        self.assertEqual(v.done, [(2, 1)])
+
+    def test_a_due_event_that_cannot_happen_is_refused(self) -> None:
         v = ClimbVillage()
-        v.scientist(0, "Ana", True, research=0)                   # nobody may climb: 22 is drawn again
-        self.assertFalse(v.begin_climb([5] * 20, draw=CLIMB_DRAW))
-        self.assertEqual(v.bounds[:2], [23, 23])
+        v.scientist(0, "Ana", True, research=0)                   # nobody may climb
+        self.assertFalse(v.begin_climb([5] * 20))
+        self.assertEqual(v.done, [(2, 0)])
+        self.assertEqual(v.p.u32(v.dlg + 0x509C), 5)              # the stock draw ran ...
+        self.assertEqual(set(v.bounds), {22})                     # ... with the stock bound
         # Never the village's first island event.
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.p.put32(v.world + 0x2E51C, 1)
         self.assertFalse(v.begin_climb(climb_rolls()))
+        self.assertEqual(v.done, [(2, 0)])
 
     def test_the_draws_call_is_put_back(self) -> None:
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         stock = v.p.read(0x41F59D, 5)
         self.assertEqual(stock.hex().upper(), "E8FE3BFEFF")      # the game's rand, as at the start
-        v.begin_climb(climb_rolls())
+        writes = self.watch_draw_site(v)
+        self.assertTrue(v.begin_climb(climb_rolls()))
         self.assertEqual(v.p.read(0x41F59D, 5), stock)
+        self.assertTrue(writes)                                   # pointed into the companion while due, put back
 
     def test_chained_onto_story_cheat_upgrades_roll(self) -> None:
         """With Story / Cheat Upgrades' roll at the draw's call (it installs later, from the Origins companion), the
-        widened bound reaches that roll, and its call is put back as it was."""
+        stock bound reaches that roll whenever the game draws, and its call is put back as it was."""
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         p = v.p
@@ -456,17 +482,21 @@ class TheDraw(unittest.TestCase):
 
         def story_roll(pr):
             seen.append(pr.arg(0))
-            return CLIMB_DRAW, 0                                 # as Story's roll returns the game's rand
+            return 5, 0                                           # The Voices In The Brush, always possible
         p.stub(story_fn, story_roll)
+        v.story_handles.add(story_base)
         module = p.api_handlers["GetModuleHandleA"]
         p.api_handlers["GetModuleHandleA"] = lambda pr, m=module: (
             (story_base, 4) if pr.arg(0) and pr.cstring(pr.arg(0)) == "VVFP Story Upgrades.dll" else m(pr))
         story_call = b"\xE8" + struct.pack("<i", story_fn - (0x41F59D + 5))
         p.write(0x41F59D, story_call)
         p.mu.ctl_flush_tb()
-        # Story's roll gives the draw itself: the scripted rolls go to the Climb's own (the fall, the award, the gain).
-        self.assertTrue(v.begin_climb([0, 0, 0], draw=FALL))
-        self.assertEqual(seen, [23])
+        self.assertFalse(v.begin_climb([], pick=None))            # nothing due: Story's roll, the stock bound
+        self.assertEqual(seen, [22])
+        self.assertEqual(p.u32(v.dlg + 0x509C), 5)
+        seen.clear()
+        self.assertTrue(v.begin_climb(climb_rolls()))             # due: its own number, Story's roll not asked
+        self.assertEqual(seen, [])
         self.assertEqual(p.read(0x41F59D, 5), story_call)
         self.assertEqual(p.u32(v.dlg + 0x509C), 22)
 
@@ -615,7 +645,7 @@ class TheLog(unittest.TestCase):
                          (2, "  Event: The Climb\n  Choice: Go with the plan\n  Ana: Health 100 -> 0\n", -1, 1))
         self.assertEqual(v.logged_while_open, 1)
         self.assertEqual(v.logged(), 1)                            # through the close's own bracket
-        v.begin_climb([5] * 20, draw=5)                            # the game's next draw: not ours
+        v.begin_climb([5] * 20, pick=None)                         # the game's next draw: not ours
         self.assertEqual(v.logged(), 0)
 
     def test_the_advice_is_logged_on_its_own_last_page(self) -> None:
