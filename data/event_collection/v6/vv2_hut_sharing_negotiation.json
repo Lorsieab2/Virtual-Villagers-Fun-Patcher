@@ -70,7 +70,8 @@
     "kind": "note",
     "why": "implementation note: no housing change is made (the games have no housing effect)"
    }
-  ]
+  ],
+  "description": "Newcomers make sleeping space tight, and the village decides how to share the huts."
  },
  "words": {
   "chief": {

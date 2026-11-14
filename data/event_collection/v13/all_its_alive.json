@@ -56,7 +56,8 @@
     "text": " (VV3-VV5 ONLY)",
     "why": "the game limit, stripped with its space so the heading keeps its colon"
    }
-  ]
+  ],
+  "description": "A researcher unveils a figure that seems to walk and speak, and the village decides how to respond."
  },
  "requirement": {
   "min_eligible": 1

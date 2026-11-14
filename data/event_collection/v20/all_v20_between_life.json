@@ -78,7 +78,8 @@
     "text": " with randomized recovery",
     "why": "an effect or a text_only reason on this outcome"
    }
-  ]
+  ],
+  "description": "A villager collapses and is dying, and the village decides which kind of healing to try."
  },
  "requirement": {
   "min_eligible": 1

@@ -58,7 +58,8 @@
     "kind": "note",
     "why": "designer note: no Chief removal, no dangerous effects"
    }
-  ]
+  ],
+  "description": "An elder tells the village a story from the past, so those who were not there will remember."
  },
  "requirement": {
   "min_eligible": 3

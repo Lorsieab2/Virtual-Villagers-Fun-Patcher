@@ -40,7 +40,8 @@
     "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "A master healer refuses a risky procedure an apprentice wants to try, and the village decides who to support."
  },
  "roles": {
   "patient": {

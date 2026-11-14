@@ -208,6 +208,9 @@ typedef struct {
     unsigned int header_bytes, role_bytes;
     int n_pool, n_item, flags;
     unsigned int o_pool, o_item;
+    /* Version 6 (cie-v6-binary.md 18): the title as the file holds it, and its title variants (header +92 the
+       first in the variants table, +94 the count; 0 none).  `title` is the one cg_choose_title picked. */
+    int base_title, tv_first, tv_count;
 } cg_graph;
 
 static unsigned int cg_u16(const unsigned char *p) {
@@ -802,9 +805,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         g->n_item = (int)cg_u16(h + 86);
         g->flags = (int)cg_u16(h + 88);
         if (g->n_pool > CG_MAX_POOLS || g->n_item > CG_MAX_ITEMS || !cg_section(g, g->o_pool, g->n_pool, 12)
-            || !cg_section(g, g->o_item, g->n_item, 8) || cg_u32(h + 92) != 0u) {
+            || !cg_section(g, g->o_item, g->n_item, 8)) {
             return cg_bad("its pools do not fit in the file");
         }
+        g->tv_first = (int)cg_u16(h + 92);
+        g->tv_count = (int)cg_u16(h + 94);
     }
     if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
         || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
@@ -828,6 +833,17 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     if (!cg_title_ok(g, cg_s(g, (unsigned int)g->title))) {
         return cg_bad("its title is not one the game can show");
+    }
+    g->base_title = g->title;
+    if ((g->tv_count == 0 && g->tv_first != 0) || g->tv_first + g->tv_count > g->n_variant) {
+        return cg_bad("its title variants do not fit in the file");
+    }
+    for (i = 0; i < g->tv_count; ++i) {
+        const unsigned char *v = g->d + g->o_variant + 4u * (unsigned int)(g->tv_first + i);
+        unsigned int c = cg_u16(v), t = cg_u16(v + 2);
+        if ((c != CG_NONE && c >= (unsigned int)g->n_cond) || !cg_str_ok(g, t, 0) || !cg_title_ok(g, cg_s(g, t))) {
+            return cg_bad("a title variant is not one the game can show");
+        }
     }
     for (i = 0; i < g->n_patch; ++i) {
         if (!cg_str_ok(g, cg_u16(data + g->o_patch + 2u * (unsigned int)i), 0)) {
@@ -4498,6 +4514,8 @@ static int cg_featured(int game) {
 
 /* ---- Queueing ----------------------------------------------------------------------------------------------- */
 
+static int cg_guardians_on(void);
+
 /* What role `r` needs, in words. */
 static void cg_role_words(int game, int r, char *out, int size) {
     const unsigned char *spec = cg_role_at(&cg_g, r);
@@ -4508,7 +4526,8 @@ static void cg_role_words(int game, int r, char *out, int size) {
     }
     if (spec[1] & CG_ROLE_SPECIAL) {
         const char *who = game == 1 ? "the Golden Child" : game == 3 ? "the Tribal Chief"
-                        : game == 5 ? "a chief, the Retired Chief or a puzzle's Heathen" : NULL;
+                        : game == 5 ? (cg_guardians_on() ? "a chief, the Retired Chief or a puzzle's Isolan"
+                                                         : "a chief, the Retired Chief or a puzzle's Heathen") : NULL;
         if (who != NULL) {
             wsprintfA(part, ", not %s", who);
             lstrcatA(out, part);
@@ -4627,6 +4646,34 @@ static unsigned int cg_patches_on(int game) {
     return on;
 }
 
+/* New Believers with Guardians of Isola's rewrite on (the installed patches' list, or the game's own text as the
+   Faith popup sees it): the engine's own words then say "Isolan" for "Heathen" (the owner, 2026-11-14). */
+static int cg_guardians_on(void) {
+    cg_installed_load();
+    return (cg_installed_state == 1 && cg_installed_has(5, "guardians_of_isola")) || faith_notice_left_the_tribe();
+}
+
+/* The loaded event's title in `game` (cie-v6-binary.md 18): the first title variant whose condition (game and patch
+   conditions only) holds with the patches on now, else the file's own title.  Into cg_g.title, so every later use
+   -- the popups, the log, the refusals -- shows it. */
+static void cg_choose_title(int game) {
+    unsigned int keep = cg.patches;
+    int k;
+    cg_g.title = cg_g.base_title;
+    if (cg_g.tv_count == 0) {
+        return;
+    }
+    cg.patches = cg_patches_on(game);
+    for (k = 0; k < cg_g.tv_count; ++k) {
+        const unsigned char *v = cg_variant_at(&cg_g, cg_g.tv_first + k);
+        if (cg_holds_cond((int)cg_u16(v), game, 0)) {
+            cg_g.title = (int)cg_u16(v + 2);
+            break;
+        }
+    }
+    cg.patches = keep;
+}
+
 /* The roles a refusal planned with their requirements dropped (CG_CAST_PREFER), for the run cg_queue makes. */
 static unsigned int cg_plan_relaxed;
 
@@ -4681,6 +4728,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     if (a == NULL) {
         return "Custom Island Event is not available in this game.";
     }
+    cg_choose_title(game);
     if (!(cg_g.games & (1u << (game - 1)))) {
         wsprintfA(reason, "\"%s\" is not made for %s.", cg_readable(&cg_g), a->game_name);
         return reason;
@@ -4778,6 +4826,8 @@ static const char *cg_risk(int game) {
         if (spec[0] == 0 && !(spec[1] & CG_ROLE_SPECIAL) && (game == 1 || game == 3 || game == 5)) {
             return game == 1 ? "This event may choose the Golden Child, whom the game's puzzles need."
                  : game == 3 ? "This event may choose the Tribal Chief."
+                 : cg_guardians_on() ? "This event may choose a chief, the Retired Chief or a puzzle's Isolan, whom "
+                                       "the game's story needs."
                              : "This event may choose a chief, the Retired Chief or a puzzle's Heathen, whom the "
                                "game's story needs.";
         }
@@ -4811,6 +4861,7 @@ static int cg_queue(int game, unsigned int planned, int due) {
             cg.alias[r] = -1;
         }
     }
+    cg_choose_title(game);
     lstrcpynA(cg.title, cg_readable(&cg_g), sizeof cg.title);
     if (cg.question) {
         static cg_pages pages;
@@ -5033,6 +5084,7 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     cg_g = check;                      /* checked above: the same bytes, now in the run's own buffer */
     cg_g.d = cg_bytes;
     cg = cg_read_state;
+    cg_choose_title(game);             /* 18: the title variant in force, as when it was queued */
     cg_village = story_village_now(game);
     cg_display_armed = 0;
     {

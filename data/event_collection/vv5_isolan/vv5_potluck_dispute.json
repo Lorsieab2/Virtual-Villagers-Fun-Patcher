@@ -68,7 +68,8 @@
     "kind": "instruction",
     "why": "the food and Devotion or Farming effects on the ending page (every ending is a successful feast)"
    }
-  ]
+  ],
+  "description": "The village and its Isolan guests disagree at a shared feast, and the village decides how to settle it."
  },
  "grammar_fixes": [
   {

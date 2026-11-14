@@ -186,7 +186,8 @@
     "kind": "instruction",
     "why": "the outcome's result, carried by its effect or text_only"
    }
-  ]
+  ],
+  "description": "A villager presents a peculiar invention, and the village council decides what to do with it."
  },
  "requirement": {
   "min_eligible": 1

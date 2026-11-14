@@ -28,7 +28,8 @@
     "text": " and earn a large tech reward",
     "why": "the large tech effect on b2"
    }
-  ]
+  ],
+  "description": "A researcher proposes a treatment nobody has ever tried: attempt it, or research the theory first."
  },
  "roles": {
   "patient": {

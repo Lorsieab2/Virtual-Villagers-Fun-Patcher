@@ -56,7 +56,8 @@
     "text": "(D1-D5)",
     "why": "the choice's outcome range"
    }
-  ]
+  ],
+  "description": "A villager botches the first line of a beloved verse at the story gathering, and decides how to carry on."
  },
  "requirement": {
   "min_eligible": 1

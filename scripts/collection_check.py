@@ -26,6 +26,12 @@ The checks (each problem names its check):
               the v6 format: ENGINE SEAM)
   h CHANCES   every node reachable; a split's weights equal unless a rarity word gives them (rare 1/4, very rare
               1/10, exceptionally rare 1/20 of a normal outcome: weights 20 / 5 / 2 / 1)
+  i PICK      collection.description: the Pick Island Event list's one sentence (plain, at most DESCRIPTION_MAX
+              characters, no placeholder); an owner's title change (docs/event-collection/owner-title-changes.md)
+              is the title
+  j GUARDIANS every text New Believers can show (title, page, variant, label, list item, description) that says
+              Heathen or convert has a Guardians of Isola Rewrite form ({"patch": "guardians_of_isola"}): the
+              same text with the event's pairs of docs/event-collection/guardians-wording.md made, saying neither
 
 ENGINE SEAM.  Track A owns src/vv_cie_graph.py and its v6 format.  graph_for_engine() takes the authoring-only keys
 out of a collection file ("src", node "text_only" and "set", child / item "rarity", collection "ledger",
@@ -63,7 +69,16 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
-AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots")
+AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
+                 "description_variants")
+# i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
+# units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
+DESCRIPTION_MAX = 130
+DESCRIPTION_RE = re.compile(r"[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]")
+# j GUARDIANS (the owner, 2026-11-14): with Guardians of Isola Rewrite, New Believers says neither of these.
+GUARDIANS_PATCH = "guardians_of_isola"
+GUARDIANS_IF = {"patch": GUARDIANS_PATCH}
+GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -168,7 +183,9 @@ def text_fields(doc: dict) -> list[Field]:
         if n.get("text"):
             out.append(Field(f"node {nid}", n["text"], n.get("src"), nid, picks=n.get("src_pick", []) or []))
         for i, v in enumerate(n.get("variants", []) or []):
-            out.append(Field(f"node {nid} variant {i + 1}", v.get("text", ""), v.get("src"), nid, "variant"))
+            # j: a Guardians of Isola Rewrite form is checked against its page's text, not the source
+            out.append(Field(f"node {nid} variant {i + 1}", v.get("text", ""), v.get("src"), nid,
+                             "guardians" if v.get("if") == GUARDIANS_IF else "variant"))
         for i, c in enumerate(n.get("choices", []) or []):
             out.append(Field(f"node {nid} choice {i + 1}", c.get("label", ""), c.get("src"), nid, "label"))
     for pname, p in doc.get("pools", {}).items():
@@ -466,7 +483,10 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
     consumed: set[int] = set(whole)
     matched: dict[int, list[tuple[int, int]]] = {}
     text_lines: set[int] = set()
+    owner = lib.owner_titles().get((doc.get("collection") or {}).get("id"))
     for f in text_fields(doc):
+        if f.kind == "guardians":
+            continue
         if f.kind == "title":
             if f.src:
                 try:
@@ -476,7 +496,15 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                     continue
                 consumed.update(lines)
                 head = " ".join(lib.normalize_source_text(lib.line(n)) for n in lines).lower()
-                if re.sub(r"[^a-z0-9]+", " ", f.text.lower()).strip() not in re.sub(r"[^a-z0-9]+", " ", head):
+                if owner is not None:
+                    # the owner's rename (owner-title-changes.md): exactly the new title, and the old one is the
+                    # heading the rename replaces
+                    if f.text != owner["new"]:
+                        rep.add("b FIDELITY", f"title {f.text!r} is not the owner's new title {owner['new']!r}")
+                    if re.sub(r"[^a-z0-9]+", " ", owner["old"].lower()).strip() \
+                            not in re.sub(r"[^a-z0-9]+", " ", head):
+                        rep.add("b FIDELITY", f"the owner's old title {owner['old']!r} is not the heading on {f.src}")
+                elif re.sub(r"[^a-z0-9]+", " ", f.text.lower()).strip() not in re.sub(r"[^a-z0-9]+", " ", head):
                     rep.add("b FIDELITY", f"title {f.text!r} is not the heading on {f.src}")
             else:
                 rep.add("b FIDELITY", "title has no collection.title_src")
@@ -977,6 +1005,101 @@ def check_engine(doc: dict, rep: Report) -> None:
         rep.add("g ROUND", f"compile / decompile raised {type(ex).__name__}: {ex}")
 
 
+def check_description(doc: dict, rep: Report) -> None:
+    """i PICK: the one sentence Pick Island Event shows for the event."""
+    col = doc.get("collection") or {}
+    texts = [("collection.description", col.get("description"))]
+    variants = col.get("description_variants")
+    if variants is not None:
+        if not isinstance(variants, list) or not variants:
+            rep.add("i PICK", "collection.description_variants is a list of {\"if\": condition, \"description\"}")
+            variants = []
+        for i, v in enumerate(variants):
+            if not isinstance(v, dict) or set(v) != {"if", "description"} or v.get("if") != GUARDIANS_IF:
+                rep.add("i PICK", f"collection.description_variants {i + 1} is {{\"if\": {json.dumps(GUARDIANS_IF)}, "
+                                  "\"description\": \"...\"}")
+                continue
+            texts.append((f"collection.description_variants {i + 1}", v["description"]))
+    for where, t in texts:
+        if not isinstance(t, str) or not t:
+            rep.add("i PICK", f"{where} is missing: Pick Island Event would show the generic line")
+            continue
+        if len(t) > DESCRIPTION_MAX:
+            rep.add("i PICK", f"{where} is {len(t)} characters; at most {DESCRIPTION_MAX}")
+        if not DESCRIPTION_RE.fullmatch(t) or "  " in t:
+            rep.add("i PICK", f"{where} {t!r} is not one plain sentence (a capital first, letters, digits, "
+                              "space and . , ! ? : ; ' - only, a full stop last; no placeholder)")
+
+
+def guardians_form(text: str, pairs: list[tuple[str, str, str]]) -> str:
+    """`text` with each (where, before, after) pair of the event made (every occurrence)."""
+    for _where, before, after in pairs:
+        text = text.replace(before, after)
+    return text
+
+
+def check_guardians(doc: dict, rep: Report) -> None:
+    """j GUARDIANS: New Believers with Guardians of Isola Rewrite never shows Heathen or convert in this event.  Blind
+    to the event's ids: only the texts the game shows are read."""
+    if 5 not in (doc.get("games") or []):
+        return
+    col = doc.get("collection") or {}
+    pairs = lib.guardians_pairs().get(col.get("id"), [])
+    used: set[int] = set()
+
+    def want(where: str, text: str, forms: list[str]) -> None:
+        if not GUARDIANS_WORDS.search(text):
+            return
+        good = guardians_form(text, pairs)
+        for k, (_w, before, _a) in enumerate(pairs):
+            if before in text:
+                used.add(k)
+        if GUARDIANS_WORDS.search(good):
+            rep.add("j GUARDIANS", f"{where}: {text!r} has no pair in guardians-wording.md for every Heathen / "
+                                   "convert word")
+        elif good not in forms:
+            rep.add("j GUARDIANS", f"{where}: says Heathen or convert, and has no Guardians of Isola Rewrite form "
+                                   f"{good!r}")
+
+    if GUARDIANS_WORDS.search(doc.get("title", "")) or doc.get("title_variants"):
+        if GUARDIANS_PATCH not in (doc.get("patches") or []):
+            rep.add("j GUARDIANS", f"patches does not name {GUARDIANS_PATCH}")
+    tvs = doc.get("title_variants") or []
+    want("the title", doc.get("title", ""),
+         [tv.get("title") for tv in tvs[:1] if tv.get("if") == GUARDIANS_IF])
+    for i, tv in enumerate(tvs):
+        if tv.get("if") == GUARDIANS_IF and GUARDIANS_WORDS.search(tv.get("title", "")):
+            rep.add("j GUARDIANS", f"title variant {i + 1} says Heathen or convert")
+    for nid, n in (doc.get("nodes") or {}).items():
+        vs = n.get("variants") or []
+        if GUARDIANS_WORDS.search(n.get("text", "")) and GUARDIANS_PATCH not in (doc.get("patches") or []):
+            rep.add("j GUARDIANS", f"patches does not name {GUARDIANS_PATCH}")
+        # the first variant whose condition holds wins: the Guardians form comes first
+        want(f"node {nid}", n.get("text", ""), [v.get("text") for v in vs[:1] if v.get("if") == GUARDIANS_IF])
+        for i, v in enumerate(vs):
+            if v.get("if") == GUARDIANS_IF:
+                if GUARDIANS_WORDS.search(v.get("text", "")):
+                    rep.add("j GUARDIANS", f"node {nid} variant {i + 1} (Guardians) says Heathen or convert")
+            elif GUARDIANS_WORDS.search(v.get("text", "")):
+                want(f"node {nid} variant {i + 1}", v["text"], [])
+        for i, c in enumerate(n.get("choices") or []):
+            want(f"node {nid} choice {i + 1}", c.get("label", ""), [])
+    for pname, p in (doc.get("pools") or {}).items():
+        for i, it in enumerate(p.get("items", [])):
+            t = it.get("text", "") if isinstance(it, dict) else it
+            want(f"pool {pname} item {i + 1}", t, [])
+    for word, per in (doc.get("words") or {}).items():
+        for gn, t in per.items():
+            if gn in ("5", "*"):
+                want(f"word {word}", t, [])
+    dvs = col.get("description_variants") or []
+    want("collection.description", col.get("description") or "",
+         [v.get("description") for v in dvs[:1] if isinstance(v, dict) and v.get("if") == GUARDIANS_IF])
+    for k, (where, before, _after) in enumerate(pairs):
+        if k not in used:
+            rep.add("j GUARDIANS", f"guardians-wording.md: {before!r} ({where}) is in none of the event's texts")
+
+
 def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
     col = doc.get("collection")
     if doc.get("format") != "vvfp-cie-graph" or doc.get("version") != 6:
@@ -1041,6 +1164,8 @@ def check_file(path: Path, rows: dict | None = None) -> Report:
     check_safety(doc, rep)
     check_chances(doc, rep)
     check_engine(doc, rep)
+    check_description(doc, rep)
+    check_guardians(doc, rep)
     text = path.read_text(encoding="utf-8")
     if text != canonical(doc):
         rep.add("g ROUND", "the file is not in canonical form (python scripts/collection_check.py --format FILE)")

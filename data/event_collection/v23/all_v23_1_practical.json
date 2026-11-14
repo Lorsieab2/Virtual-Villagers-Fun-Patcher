@@ -40,7 +40,8 @@
     "text": "THE PRANK WAR.",
     "why": "a text_only reason on c3 (rule 9)"
    }
-  ]
+  ],
+  "description": "A villager plans a harmless prank to lighten the mood, and decides how elaborate to make it."
  },
  "roles": {
   "prankster": {

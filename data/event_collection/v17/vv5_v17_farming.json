@@ -33,7 +33,8 @@
     "kind": "structural",
     "why": "the political choices' heading"
    }
-  ]
+  ],
+  "description": "Villagers and Isolans compete in a harvest contest over shared water, and the village decides how it is judged."
  },
  "requirement": {
   "min_eligible": 1

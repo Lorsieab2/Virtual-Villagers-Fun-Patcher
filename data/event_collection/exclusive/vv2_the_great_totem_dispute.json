@@ -30,7 +30,8 @@
     "text": "Gain a small tech reward as its history is recorded.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "Two villagers quarrel over which totem deserves the most honor: hold a celebration, or ask an elder to mediate."
  },
  "requirement": {
   "min_eligible": 1

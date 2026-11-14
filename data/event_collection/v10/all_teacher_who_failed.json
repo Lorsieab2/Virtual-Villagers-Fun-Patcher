@@ -52,7 +52,8 @@
     "kind": "note",
     "why": "the teacher reputation is story only (rule 7)"
    }
-  ]
+  ],
+  "description": "A skilled villager is invited to teach at the school, and the first lesson goes wrong."
  },
  "requirement": {
   "min_eligible": 1

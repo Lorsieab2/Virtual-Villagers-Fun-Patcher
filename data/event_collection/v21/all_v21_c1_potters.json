@@ -61,7 +61,8 @@
   ],
   "shared_lines": [
    "L9538-9547"
-  ]
+  ],
+  "description": "A villager enters a new clay vessel in the pottery contest, and the village decides how it is judged."
  },
  "roles": {
   "potter": {

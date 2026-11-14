@@ -53,7 +53,8 @@
     "kind": "note",
     "why": "gameplay note: the nursing parent is cast as the special nursing_parent role (harmless); the event has no effect"
    }
-  ]
+  ],
+  "description": "A nursing parent tries to settle a baby near a musician: adapt the song, or sing a quiet lullaby."
  },
  "requirement": {
   "min_eligible": 2

@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The Golden Child names the stars and spots a wandering light the adults had missed."
  },
  "requirement": {
   "min_eligible": 1

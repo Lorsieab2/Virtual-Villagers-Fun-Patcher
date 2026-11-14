@@ -68,7 +68,8 @@
     "kind": "instruction",
     "why": "the Building or Devotion effect on the ending page; the Isolan visitor is text only"
    }
-  ]
+  ],
+  "description": "An Isolan neighbor gives the village a carving that seems insulting, and the village decides how to respond."
  },
  "requirement": {
   "min_eligible": 1

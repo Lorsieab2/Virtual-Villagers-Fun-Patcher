@@ -67,7 +67,8 @@
     "kind": "note",
     "why": "reputations are story only (rule 7); no promotion"
    }
-  ]
+  ],
+  "description": "A villager known for dreadful ideas announces a new experiment: offer a fair test, or ask the inventor to stop."
  },
  "requirement": {
   "min_eligible": 1

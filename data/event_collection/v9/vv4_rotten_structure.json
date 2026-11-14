@@ -53,7 +53,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "A structure built with rotten wood collapses and a builder blames an apprentice: check the records, or hold a hearing."
  },
  "requirement": {
   "min_eligible": 1

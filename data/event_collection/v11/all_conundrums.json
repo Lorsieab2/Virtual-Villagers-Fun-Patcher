@@ -220,7 +220,8 @@
     "kind": "instruction",
     "why": "the ending's outcome: its effects or text only"
    }
-  ]
+  ],
+  "description": "A villager proposes a council for absurd ideas, and the village decides how far to let it go."
  },
  "requirement": {
   "min_eligible": 2

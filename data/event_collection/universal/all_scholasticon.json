@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Grand Isolan Scholasticon",
+ "title": "The Grand Isolan Decathlon",
  "games": [
   1,
   2,
@@ -134,7 +134,8 @@
     "kind": "instruction",
     "why": "the Research effects: one or both researchers, equally (q1, q2, q3)"
    }
-  ]
+  ],
+  "description": "Two researchers race to solve a hard problem by sundown, and the village decides how they should work."
  },
  "words": {
   "chief": {

@@ -59,6 +59,8 @@ typedef struct cr_game {
     int (*finished)(int k);
     void (*damage)(int k, int loss);
     int text_width;                           /* A New Home / The Lost Children: the popup's line (it does not wrap) */
+    int (*isolans)(void);                     /* New Believers: Guardians of Isola's rewrite (the log says "Isolan"
+                                                 for "Heathen"); NULL elsewhere */
 } cr_game;
 
 enum { CR_ACT_NONE = 0, CR_ACT_HONOR, CR_ACT_REFLECT, CR_ACT_HOVEL_HONOR, CR_ACT_HOVEL_REFLECT };
@@ -171,7 +173,8 @@ static void cr_remembrance(const cr_game *g) {
     }
     cr_log_line("  Villagers at the ceremony: ", "", cr.sent, "\n");
     if (cr.hovel > 0) {
-        cr_log_line("  Of them at the old Heathen hovel: ", "", cr.hovel, "\n");
+        cr_log_line(g->isolans != NULL && g->isolans() ? "  Of them at the old Isolan hovel: "
+                                                       : "  Of them at the old Heathen hovel: ", "", cr.hovel, "\n");
     }
 }
 

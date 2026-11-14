@@ -73,7 +73,8 @@
     "kind": "note",
     "why": "designer note: the holding cell is never shown; the Chief and protected villagers are never removed"
    }
-  ]
+  ],
+  "description": "A ceremonial pearl disappears and three villagers confess, and the Chief decides how to find the truth."
  },
  "requirement": {
   "min_eligible": 1

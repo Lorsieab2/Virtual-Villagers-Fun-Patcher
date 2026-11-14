@@ -345,7 +345,8 @@
   },
   {
    "id": "all_scholasticon",
-   "title": "The Grand Isolan Scholasticon",
+   "title": "The Grand Isolan Decathlon",
+   "source_title": "The Grand Isolan Scholasticon",
    "games": [
     1,
     2,
@@ -2510,7 +2511,8 @@
   },
   {
    "id": "all_great_appointment",
-   "title": "The Great Appointment Scandal",
+   "title": "The Appointment Scandal",
+   "source_title": "The Great Appointment Scandal",
    "games": [
     1,
     2,
@@ -2911,7 +2913,8 @@
   },
   {
    "id": "all_panel_standards",
-   "title": "The Panel of Impossible Standards",
+   "title": "The Crafty Inspector",
+   "source_title": "The Panel of Impossible Standards",
    "games": [
     1,
     2,
@@ -3709,7 +3712,8 @@
   },
   {
    "id": "vv1_v14_16_child_who",
-   "title": "The Child Who Settled an Argument",
+   "title": "The Mediator",
+   "source_title": "The Child Who Settled an Argument",
    "games": [
     1
    ],
@@ -3971,7 +3975,8 @@
   },
   {
    "id": "vv1_v14_24_boy_who",
-   "title": "The Boy Who Understood Grief",
+   "title": "The Griever",
+   "source_title": "The Boy Who Understood Grief",
    "games": [
     1
    ],
@@ -4002,7 +4007,8 @@
   },
   {
    "id": "vv1_v14_25_child_who",
-   "title": "The Child Who Refused to Be an Adult",
+   "title": "The Wise Child",
+   "source_title": "The Child Who Refused to Be an Adult",
    "games": [
     1
    ],
@@ -4123,7 +4129,8 @@
   },
   {
    "id": "vv2_hospitals_most_difficult",
-   "title": "The Hospital's Most Difficult Patient",
+   "title": "The Most Difficult Patient",
+   "source_title": "The Hospital's Most Difficult Patient",
    "games": [
     2
    ],
@@ -4259,7 +4266,8 @@
   },
   {
    "id": "vv3_weather_dance_that_went",
-   "title": "The Weather Dance That Went Wrong",
+   "title": "The Wacky Weather Dance",
+   "source_title": "The Weather Dance That Went Wrong",
    "games": [
     3
    ],
@@ -4565,7 +4573,8 @@
   },
   {
    "id": "vv5_convert_who_missed_home",
-   "title": "The Convert Who Missed Home",
+   "title": "The Homesick Convert",
+   "source_title": "The Convert Who Missed Home",
    "games": [
     5
    ],
@@ -6046,7 +6055,8 @@
   },
   {
    "id": "all_v18_01_warriors",
-   "title": "The Warriors' Tournament",
+   "title": "The Warriors' Duel",
+   "source_title": "The Warriors' Tournament",
    "games": [
     1,
     2,
@@ -7553,7 +7563,8 @@
   },
   {
    "id": "all_v22_2_strength",
-   "title": "The Great Isolan Strength Trials",
+   "title": "A Test of Strength",
+   "source_title": "The Great Isolan Strength Trials",
    "games": [
     1,
     2,
@@ -7590,7 +7601,8 @@
   },
   {
    "id": "all_v22_3_potion",
-   "title": "The Great Isolan Potion-Making Trials",
+   "title": "The Great Isolan Potion-Making Trial",
+   "source_title": "The Great Isolan Potion-Making Trials",
    "games": [
     1,
     2,

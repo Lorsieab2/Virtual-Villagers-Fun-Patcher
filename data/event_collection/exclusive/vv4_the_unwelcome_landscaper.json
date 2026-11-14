@@ -29,7 +29,8 @@
     "text": "Gain a small tech reward.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "A young villager starts decorating the roots of the Tree of Life: encourage it, or consult the elders first."
  },
  "requirement": {
   "min_eligible": 1

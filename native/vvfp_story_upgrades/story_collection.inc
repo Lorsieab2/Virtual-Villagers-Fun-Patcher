@@ -79,6 +79,7 @@ typedef struct {
     char id[64];
     char title[CE_TITLE_BYTES + 32];
     char series[48];
+    char description[160];             /* the Pick Island Event list's sentence ("" = none: the generic line) */
     int weight;
 } sc_entry;
 
@@ -427,8 +428,21 @@ static int sc_games_has(const char *games, int game) {
     return 0;
 }
 
-/* The collection's events for `game` from manifest.txt: "id<TAB>title<TAB>games<TAB>weight<TAB>series<TAB>credit",
-   one line each ('#' a comment), each with its "<id>.cieg" beside it.  The count. */
+/* Field `n` of the line [p, end) as sc_field reads it, without a line's last '\r'. */
+static void sc_field_end(const char *p, const char *end, int n, char *out, int cap) {
+    int len;
+    sc_field(p, end, n, out, cap);
+    len = lstrlenA(out);
+    if (len > 0 && out[len - 1] == '\r') {
+        out[len - 1] = '\0';
+    }
+}
+
+/* The collection's events for `game` from manifest.txt: "id<TAB>title<TAB>games<TAB>weight<TAB>series<TAB>credit
+   <TAB>description<TAB>Guardians title<TAB>Guardians description", one line each ('#' a comment), each with its
+   "<id>.cieg" beside it.  The last two (New Believers only; empty = the same) are the event's title and sentence
+   with Guardians of Isola's rewrite on: its title variant's (cie-v6-binary.md 18), as the event shows it.  The
+   count. */
 static int sc_scan(int game) {
     const char *text = NULL, *p, *end;
     unsigned int size = 0;
@@ -460,11 +474,17 @@ static int sc_scan(int game) {
         sc_field(p, end, 1, e->title, sizeof e->title);
         sc_field(p, end, 2, games, sizeof games);
         sc_field(p, end, 3, weight, sizeof weight);
-        sc_field(p, end, 4, e->series, sizeof e->series);
-        {
-            int n = lstrlenA(e->series);
-            if (n > 0 && e->series[n - 1] == '\r') {
-                e->series[n - 1] = '\0';
+        sc_field_end(p, end, 4, e->series, sizeof e->series);
+        sc_field_end(p, end, 6, e->description, sizeof e->description);
+        if (game == 5 && cg_guardians_on()) {
+            char alt[CE_TITLE_BYTES + 32];
+            sc_field_end(p, end, 7, alt, sizeof alt);
+            if (alt[0] != '\0') {
+                lstrcpynA(e->title, alt, sizeof e->title);
+            }
+            sc_field_end(p, end, 8, alt, sizeof alt);
+            if (alt[0] != '\0') {
+                lstrcpynA(e->description, alt, sizeof e->description);
             }
         }
         if (e->id[0] == '\0' || !sc_games_has(games, game)) {
@@ -716,8 +736,9 @@ static int sc_pick_fill(int game) {
     for (i = 0; i < sc_count && sm_list.count < SM_MAX; ++i) {
         int m = sm_list.count;
         lstrcpynA(sm_list.title[m], sc_list[i].title, SM_TEXT);
-        lstrcpynA(sm_list.description[m], vvfp_tr("vvfp.story/story_collection.sc_pick_fill.s0",
-                                                  "An event of the Isola Grand Event Collection.", 200), SM_TEXT);
+        lstrcpynA(sm_list.description[m], sc_list[i].description[0] != '\0' ? sc_list[i].description
+                  : vvfp_tr("vvfp.story/story_collection.sc_pick_fill.s0", "An event of the Isola Grand Event Collection.",
+                            200), SM_TEXT);
         sm_list.k[m] = SM_COLL_BASE + i;
         sm_list.possible[m] = sc_check(game, i, sm_list.needs[m], SM_TEXT) == NULL;
         if (sm_list.possible[m]) {

@@ -63,7 +63,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Scientists compete to explain the Great Falls' currents, and the village decides how to judge them."
  },
  "requirement": {
   "min_eligible": 1

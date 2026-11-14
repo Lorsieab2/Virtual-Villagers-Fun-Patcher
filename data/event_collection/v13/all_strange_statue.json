@@ -45,7 +45,8 @@
     "text": "(C1-C3)",
     "why": "the choice's outcome range"
    }
-  ]
+  ],
+  "description": "A villager unveils an oddly lovable, badly proportioned statue, and the village decides what to do with it."
  },
  "requirement": {
   "min_eligible": 1

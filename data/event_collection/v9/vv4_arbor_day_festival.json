@@ -58,7 +58,8 @@
     "kind": "structural",
     "why": "bank heading"
    }
-  ]
+  ],
+  "description": "An inventor's strange creation lands on the Tree of Life festival table, and the village decides what to do."
  },
  "requirement": {
   "min_eligible": 1

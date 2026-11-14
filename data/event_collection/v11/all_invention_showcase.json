@@ -310,7 +310,8 @@
     "kind": "instruction",
     "why": "the ending's outcome: its effects or text only"
    }
-  ]
+  ],
+  "description": "An imaginative inventor brings odd ideas to an invention showcase, and the village decides how to respond."
  },
  "requirement": {
   "min_eligible": 2

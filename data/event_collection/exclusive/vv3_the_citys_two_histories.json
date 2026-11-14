@@ -30,7 +30,8 @@
     "text": "Gain tech.",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "Two scholars find conflicting accounts of the Secret City's past: preserve both, or choose the more credible one."
  },
  "requirement": {
   "min_eligible": 1

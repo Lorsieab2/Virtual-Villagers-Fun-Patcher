@@ -122,7 +122,8 @@
   "shared_lines": [
    "L9952-9964",
    "L9933"
-  ]
+  ],
+  "description": "A villager enters a drawing competition, and the village decides what the artist should draw."
  },
  "roles": {
   "artist": {

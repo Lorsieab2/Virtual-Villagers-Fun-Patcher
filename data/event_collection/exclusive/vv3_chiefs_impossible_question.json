@@ -30,7 +30,8 @@
     "text": "Lose a little food;",
     "why": "carried by the outcome's effect"
    }
-  ]
+  ],
+  "description": "The Chief asks the scholars what makes a decision wise: hold a debate, or let the Chief decide alone."
  },
  "requirement": {
   "min_eligible": 1

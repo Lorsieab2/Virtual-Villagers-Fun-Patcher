@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Child Who Refused to Be an Adult",
+ "title": "The Wise Child",
  "games": [
   1
  ],
@@ -29,7 +29,8 @@
     "kind": "instruction",
     "why": "the rest of the scene's outcome instruction"
    }
-  ]
+  ],
+  "description": "The scholars summon the Golden Child to a long council meeting, but his friends are playing outside."
  },
  "requirement": {
   "min_eligible": 1
@@ -44,7 +45,7 @@
  "start": "scene",
  "nodes": {
   "scene": {
-   "name": "The Child Who Refused to Be an Adult",
+   "name": "The Wise Child",
    "src": "L7816-7819",
    "text": "Impressed scholars summon the Golden Child to a long council meeting. He listens politely, answers a difficult question, and then spots his friends playing outside. 'Can I go now?' he asks. Before they finish replying, he is running toward the game.",
    "text_only": [

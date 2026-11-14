@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Panel of Impossible Standards",
+ "title": "The Crafty Inspector",
  "games": [
   1,
   2,
@@ -94,7 +94,8 @@
     "text": "DEVOTION/CEREMONY  -",
     "why": "the contest type the critic belongs to"
    }
-  ]
+  ],
+  "description": "A demanding elder critic judges a village contest, and the village decides how to weigh the verdict."
  },
  "requirement": {
   "min_eligible": 1

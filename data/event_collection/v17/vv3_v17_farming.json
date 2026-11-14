@@ -58,7 +58,8 @@
     "text": ", where the game setting makes that meaningful.",
     "why": "designer rule, never shown"
    }
-  ]
+  ],
+  "description": "Nature and Magic growers compete with rival methods, and the village decides how to judge them."
  },
  "requirement": {
   "min_eligible": 1

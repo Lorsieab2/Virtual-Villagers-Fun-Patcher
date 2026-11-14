@@ -34,7 +34,8 @@
     "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "A young apprentice quietly challenges a diagnosis: listen, or dismiss the child."
  },
  "roles": {
   "patient": {

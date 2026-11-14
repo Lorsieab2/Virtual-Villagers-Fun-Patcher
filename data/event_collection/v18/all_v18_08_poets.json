@@ -47,7 +47,8 @@
     "kind": "instruction",
     "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A2, B1, B2); reputation is told only (rule 7)"
    }
-  ]
+  ],
+  "description": "Poets compose verses on a drawn subject: judge technical mastery, or emotional impact and originality."
  },
  "roles": {
   "judge": {

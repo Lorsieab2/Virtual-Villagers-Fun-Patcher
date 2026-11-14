@@ -34,7 +34,8 @@
     "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
-  ]
+  ],
+  "description": "A new pain remedy leaves patients too sleepy to eat or work: keep using it carefully, or suspend it."
  },
  "roles": {
   "patient": {

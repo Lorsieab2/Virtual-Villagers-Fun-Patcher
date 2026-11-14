@@ -28,7 +28,8 @@
     "text": ", very rarely",
     "why": "c4 is very rare: weight 2 against 20"
    }
-  ]
+  ],
+  "description": "A villager runs in shouting that something terrible is happening, and the village decides how to respond."
  },
  "roles": {
   "alarmist": {

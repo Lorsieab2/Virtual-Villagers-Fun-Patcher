@@ -47,7 +47,8 @@
     "kind": "instruction",
     "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A1, A2, B1, B2, B3); reputation is told only (rule 7)"
    }
-  ]
+  ],
+  "description": "Teams compete in a ball tournament: play for the championship, or mix the teams and stress cooperation."
  },
  "roles": {
   "shy": {

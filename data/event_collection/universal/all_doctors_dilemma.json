@@ -112,7 +112,8 @@
     "kind": "note",
     "why": "designer note, never displayed"
    }
-  ]
+  ],
+  "description": "The healers disagree over how to treat a seriously ill villager, and the village decides what they should do."
  },
  "words": {
   "chief": {
