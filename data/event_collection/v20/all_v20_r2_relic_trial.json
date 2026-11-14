@@ -21,7 +21,65 @@
   "draw_weight": 1,
   "series": null,
   "title_src": "L9252",
-  "ledger": []
+  "ledger": [
+   {
+    "src": "L9341",
+    "kind": "note",
+    "why": "designer options ('may') for the VV5 variant"
+   },
+   {
+    "src": "L9333",
+    "kind": "structural",
+    "text": "VV1:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9334",
+    "kind": "structural",
+    "text": "VV2:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9335",
+    "kind": "structural",
+    "text": "VV3:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9337",
+    "kind": "structural",
+    "text": "VV4:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "structural",
+    "text": "VV5:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "note",
+    "text": "Heathens/",
+    "why": "the author's alternative name; VV5 narrative says Isolans (L4505-4507)"
+   },
+   {
+    "src": "L9340",
+    "kind": "note",
+    "text": "An Isolan elder may reveal old knowledge, be accused",
+    "why": "designer options ('may')"
+   },
+   {
+    "src": "L9351",
+    "kind": "instruction",
+    "text": "Exceptionally rarely,",
+    "why": "P8 is exceptionally rare: weight 1 against 20"
+   }
+  ],
+  "shared_lines": [
+   "L9333-9341",
+   "L9344-9352"
+  ]
  },
  "roles": {
   "accused": {
@@ -52,23 +110,63 @@
      "next": "set_c",
      "src": "L9276"
     }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "text": "Following a suspicious discovery, (Accused) is brought before a council of elders. The object rests on a woven mat. Some accuse (accused.him/her) of spying; others defend (accused.his/her) curiosity.\nThe Tribal Chief weighs suppression against inquiry; scholars, magicians, and naturalists disagree over what the object means.",
+     "src": "L9253-9255,L9335-9336"
+    },
+    {
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "text": "Following a suspicious discovery, (Accused) is brought before a council of elders. The object rests on a woven mat. Some accuse (accused.him/her) of spying; others defend (accused.his/her) curiosity.\nVillagers and Isolans accuse one another of concealing artifacts.",
+     "src": "L9253-9255,L9339-9340"
+    }
    ]
   },
   "a1": {
    "text": "Innocent: Evidence clears (Accused), who is publicly vindicated.",
-   "src": "L9258"
+   "src": "L9258",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "a2": {
    "text": "The Hidden Visitor: Strange footprints and materials suggest someone else has recently visited the island.",
-   "src": "L9259-9260"
+   "src": "L9259-9260",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "a3": {
    "text": "The False Confession: Frightened, (Accused) admits to something untrue; another witness eventually exposes the mistake.",
-   "src": "L9261-9262"
+   "src": "L9261-9262",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "a4": {
    "text": "The Unexpected Spy: Another villager planted the object to discredit (Accused).",
-   "src": "L9263-9264"
+   "src": "L9263-9264",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "set_a": {
    "type": "branch",
@@ -90,6 +188,11 @@
   "b1": {
    "text": "The Wrongful Prisoner: (Accused) is innocent. Later revelations bring shame upon the council and demands for restitution.",
    "src": "L9267-9268",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
    "text_only": [
     {
      "src": "L9267-9268",
@@ -100,15 +203,30 @@
   },
   "b2": {
    "text": "The Prisoner's Discovery: In confinement, (Accused) recalls a crucial clue about the object's arrival.",
-   "src": "L9269-9270"
+   "src": "L9269-9270",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "b3": {
    "text": "The Village Divided: Supporters demand release while fearful villagers demand continued confinement.",
-   "src": "L9271-9272"
+   "src": "L9271-9272",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "b4": {
    "text": "The Escape: (Accused) flees into the forest; the village cannot decide whether this proves guilt or desperation.",
    "src": "L9273-9274",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
    "effects": [
     {
      "do": "vanish",
@@ -137,6 +255,11 @@
   "c1": {
    "text": "The Vindicated Explorer: The accusation collapses; (Accused) receives public thanks for the discovery.",
    "src": "L9277-9278",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
    "text_only": [
     {
      "src": "L9277",
@@ -147,15 +270,30 @@
   },
   "c2": {
    "text": "The Unanswered Suspicion: (Accused) is freed, but rumors persist.",
-   "src": "L9279"
+   "src": "L9279",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "c3": {
    "text": "The Courageous Elder: An elder argues that fear must not become an excuse for cruelty, winning grudging respect.",
-   "src": "L9280-9281"
+   "src": "L9280-9281",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "c4": {
    "text": "The Genuine Conspiracy: The relic was planted deliberately, although (Accused) may still be innocent.",
-   "src": "L9282-9283"
+   "src": "L9282-9283",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "set_c": {
    "type": "branch",
@@ -173,6 +311,64 @@
      "next": "c4"
     }
    ]
+  },
+  "coda_p3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Political Prisoner: A wrongfully confined villager is cleared years later.",
+   "src": "L9346"
+  },
+  "coda_p8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "First Contact: evidence shows the object was deliberately left by someone who knows Isola exists.",
+   "src": "L9351-9352"
+  },
+  "rare_coda_p8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_p8",
+     "weight": 1,
+     "rarity": "exceptionally_rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_p3",
+     "if": {
+      "visited": "b1"
+     }
+    },
+    {
+     "next": "rare_coda_p8",
+     "if": {
+      "visited": "a2"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "requirement": {

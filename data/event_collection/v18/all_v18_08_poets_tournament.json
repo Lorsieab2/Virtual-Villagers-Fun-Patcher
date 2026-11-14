@@ -320,14 +320,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_pick"
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "no_coda"
+     "next": "no_coda",
+     "weight": 20
     }
    ]
   },
-  "coda_pick": {
+  "pick_v8": {
    "type": "branch",
    "children": [
     {

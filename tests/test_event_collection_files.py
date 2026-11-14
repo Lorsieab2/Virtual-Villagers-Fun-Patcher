@@ -115,10 +115,11 @@ class Manifest(unittest.TestCase):
 #   GAP-LABEL-NAME: a button label that holds a villager's name in capitals ("TELL (NAME1) TO STOP ...") is wider than
 #   the screen with the longest names, and the format has no all-caps name or pronoun form (lead/owner decision).
 KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
-    "all_impossible_invention.json": r"^a SCHEMA: .*the label 'TELL \(SUBJECT\) TO STOP .* runs off the screen with the "
-                                     r"longest names",
-    "all_unlikely_advisor.json": r"^a SCHEMA: .*the label 'INVITE \(SUBJECT\) TO SPEAK\.' runs off the screen with the "
-                                 r"longest names",
+    # The two GAP-LABEL-NAME pins are closed by the engine's label fallback (decision 14).
+    # Decision 3 (review r1 M6): one sentence after a four-button question that does not fit the answer page in
+    # VV1 without Scrolling Popups; a sentence is never split and a heading never stands alone.
+    "all_v20_r1_should_not_exist.json": r"^a SCHEMA: A New Home: the popup of (a3|d2) runs off the screen without "
+                                        r"scrolling: a sentence is taller than the popup",
 }
 
 
