@@ -1,0 +1,556 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Potluck Dispute",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_potluck_dispute",
+  "source": "v26",
+  "lines": [
+   2398,
+   2487
+  ],
+  "section": "vv5_isolan",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* VV5 woodworking showcase, potluck dispute, laundry misunderstanding,\n  neighborly games, keeper of little things and festival events:\n  event prose/branches by ChatGPT; overarching VV5 two-community setup,\n  Guardians of Harmony naming and gameplay constraints by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2400",
+  "ledger": [
+   {
+    "src": "L2399",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2401",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L2409",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2421",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2436",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2447",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2456",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2464",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2475",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2486-2487",
+    "kind": "instruction",
+    "why": "the food and Devotion or Farming effects on the ending page (every ending is a successful feast)"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2470",
+   "before": "A judge accidentally",
+   "after": "The judge accidentally"
+  },
+  {
+   "src": "L2472",
+   "before": "The judges announce",
+   "after": "The judge announces"
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "organizer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "isolan": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "whether the meal should begin with a blessing, a toast, or simply eating",
+     "src": "L2410"
+    },
+    {
+     "text": "whether a particularly pungent herb is a delicacy or an abomination",
+     "src": "L2411"
+    },
+    {
+     "text": "who gets to sit at the head of the table",
+     "src": "L2412"
+    },
+    {
+     "text": "whether a sweet coconut dish counts as dinner",
+     "src": "L2413"
+    },
+    {
+     "text": "whether the oldest recipe must be served first",
+     "src": "L2414"
+    },
+    {
+     "text": "whether the guests are expected to bring gifts",
+     "src": "L2415"
+    },
+    {
+     "text": "whether the feast should be formal or relaxed",
+     "src": "L2416"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "distinct": true,
+   "items": [
+    {
+     "text": "follow the traditional customs exactly",
+     "src": "L2422"
+    },
+    {
+     "text": "let everyone choose for themselves",
+     "src": "L2423"
+    },
+    {
+     "text": "make a compromise",
+     "src": "L2424"
+    },
+    {
+     "text": "ask the elders for guidance",
+     "src": "L2425"
+    },
+    {
+     "text": "invent a new tradition together",
+     "src": "L2426"
+    },
+    {
+     "text": "avoid making a fuss and just eat",
+     "src": "L2427"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The guests exchange recipes and promise to cook together again.",
+     "src": "L2476"
+    },
+    {
+     "text": "The villagers agree that different customs can coexist without anyone having to declare a winner.",
+     "src": "L2477-2478"
+    },
+    {
+     "text": "The meal ends in laughter, with everyone arguing over who should wash the dishes.",
+     "src": "L2479-2480"
+    },
+    {
+     "text": "A child asks for seconds of the dish everyone called disgusting. The cook looks deeply vindicated.",
+     "src": "L2481-2482"
+    },
+    {
+     "text": "The Isolan organizer quietly thanks (organizer) for making the visitors feel welcome.",
+     "src": "L2483-2484"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The feast",
+   "src": "L2404-2405,L2407,L2418-2419",
+   "text": "The village has invited a group of Isolan neighbors to a shared feast. Everyone is supposed to bring a favorite dish and a story about it.\nUnfortunately, the villagers disagree about {A}.\n(Organizer), the village organizer, wants to {B.1}. The visiting Isolan organizer prefers {B.2}.",
+   "text_only": [
+    {
+     "src": "L2404",
+     "what": "a shared feast",
+     "reason": "narrative: the occasion; the food reward is on the ending page"
+    }
+   ],
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to do",
+   "src": "L2429",
+   "text": "What should the village do?",
+   "choices": [
+    {
+     "label": "Respect both customs separately.",
+     "next": "two",
+     "src": "L2431"
+    },
+    {
+     "label": "Create a shared celebration.",
+     "next": "new",
+     "src": "L2432"
+    },
+    {
+     "label": "Let the guests choose the order.",
+     "next": "guests",
+     "src": "L2433"
+    },
+    {
+     "label": "Hold a friendly tasting competition.",
+     "next": "taste",
+     "src": "L2434"
+    }
+   ]
+  },
+  "two": {
+   "src": "L2437-2438",
+   "text": "The hosts make room for both traditions without demanding that either group abandon its own practice.",
+   "children": [
+    {
+     "next": "two_set"
+    }
+   ]
+  },
+  "two_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    }
+   ]
+  },
+  "t1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2439-2440",
+   "text": "The meal proceeds peacefully, and several villagers learn something new about their neighbors.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "t2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2441-2442",
+   "text": "The arrangements are confusing at first, but a few friendly explanations solve the problem.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "t3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2443-2445",
+   "text": "Everyone is so determined to be polite that nobody starts eating until a child asks whether the food is supposed to get cold.",
+   "text_only": [
+    {
+     "src": "L2444-2445",
+     "what": "the food",
+     "reason": "narrative: the meal itself"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "new": {
+   "src": "L2448",
+   "text": "The organizers combine elements of both celebrations.",
+   "text_only": [
+    {
+     "src": "L2448",
+     "what": "celebrations",
+     "reason": "narrative: the two feasts' customs, not the Celebrating action"
+    }
+   ],
+   "children": [
+    {
+     "next": "new_set"
+    }
+   ]
+  },
+  "new_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "n1"
+    },
+    {
+     "next": "n2"
+    },
+    {
+     "next": "n3"
+    },
+    {
+     "next": "n4"
+    }
+   ]
+  },
+  "n1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2449",
+   "text": "The guests are delighted by the result.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2450",
+   "text": "The new ceremony is lovely but takes an absurdly long time.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2451-2452",
+   "text": "One elder dislikes the changes. The organizers listen, then agree to keep the older tradition available too.",
+   "text_only": [
+    {
+     "src": "L2451",
+     "what": "an elder dislikes the changes",
+     "reason": "an unnamed elder's opinion, not a game preference"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2453-2454",
+   "text": "A child invents a ridiculous ceremonial dance. By the end, half the village is doing it.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "guests": {
+   "src": "L2457",
+   "text": "The hosts ask their visitors what would make them comfortable.",
+   "children": [
+    {
+     "next": "guests_set"
+    }
+   ]
+  },
+  "guests_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "g1"
+    },
+    {
+     "next": "g2"
+    },
+    {
+     "next": "g3"
+    }
+   ]
+  },
+  "g1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2458",
+   "text": "The visitors appreciate the gesture and suggest an easy compromise.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "g2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2459-2460",
+   "text": "The Isolan organizer admits (isolan.he/she) was hoping the hosts would decide. Both organizers burst out laughing.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "g3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2461-2462",
+   "text": "The visitors choose a custom that the village already follows. Everyone wonders what the argument was about.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "taste": {
+   "src": "L2465-2466",
+   "text": "Both communities present their favorite dishes. A neutral visitor agrees to judge them.",
+   "children": [
+    {
+     "next": "taste_set"
+    }
+   ]
+  },
+  "taste_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    },
+    {
+     "next": "d5"
+    }
+   ]
+  },
+  "d1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2467",
+   "text": "The village wins for flavor, while the Isolans win for presentation.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "d2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2468",
+   "text": "The Isolans win by a hair. The village cook asks for the recipe.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "d3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2469",
+   "text": "The judge declares a tie and requests another helping of both.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "d4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2470-2471",
+   "text": "The judge accidentally tastes a decoration instead of the food. The contest is paused while everyone confirms what is edible.",
+   "text_only": [
+    {
+     "src": "L2470",
+     "what": "the food",
+     "reason": "narrative: the dishes being judged"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "d5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2472-2473",
+   "text": "The judge announces that the best dish is a combination of both communities' recipes. The cooks are horrified.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L2486"
+    },
+    {
+     "do": "skill",
+     "role": "organizer",
+     "skills": [
+      "Devotion",
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2487"
+    }
+   ]
+  }
+ }
+}
