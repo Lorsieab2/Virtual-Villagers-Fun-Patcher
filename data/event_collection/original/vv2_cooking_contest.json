@@ -1030,14 +1030,23 @@
    "vv2_cooking_addon1",
    "vv2_cooking_addon2",
    "vv2_cooking_judge_who_feared"
+  ],
+  "bank_slots": [
+   {
+    "src": "L1003",
+    "slot": "(25)"
+   },
+   {
+    "src": "L1003",
+    "slot": "(26)"
+   },
+   {
+    "src": "L1104",
+    "slot": "(30)"
+   }
   ]
  },
  "grammar_fixes": [
-  {
-   "src": "L104",
-   "before": "is.... ",
-   "after": "is "
-  },
   {
    "src": "L135",
    "before": "works things out.",
@@ -1086,7 +1095,7 @@
   {
    "src": "L263",
    "before": "the charismatic crowner",
-   "after": "the charismatic contender"
+   "after": "the charismatic crooner"
   },
   {
    "src": "L300",
@@ -1184,14 +1193,29 @@
    "after": "8)."
   },
   {
-   "src": "L1003",
-   "before": "(25). The judges (26).",
-   "after": "(response). The judges (decision)."
+   "src": "L300",
+   "before": "into a (J, different",
+   "after": "into (J, different"
   },
   {
-   "src": "L1104",
-   "before": "explains that (30).",
-   "after": "explains that (reason)."
+   "src": "L305",
+   "before": "into a (J, different",
+   "after": "into (J, different"
+  },
+  {
+   "src": "L192",
+   "before": "underestimates themselves",
+   "after": "underestimates (himself/herself)"
+  },
+  {
+   "src": "L194",
+   "before": "overestimates themselves",
+   "after": "overestimates (himself/herself)"
+  },
+  {
+   "src": "L203",
+   "before": "put their talents",
+   "after": "put (his/her) talents"
   }
  ],
  "words": {
@@ -1243,13 +1267,18 @@
    ]
   },
   "judge": {
-   "kind": "villager",
-   "min_age": 14,
-   "optional": true
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
   },
   "senior": {
    "kind": "stranger",
    "sex": "random"
+  },
+  "recipe_elder": {
+   "kind": "villager",
+   "min_age": 50,
+   "optional": true
   }
  },
  "pools": {
@@ -1751,7 +1780,7 @@
      "src": "L191"
     },
     {
-     "text": "that (cook1.he/she) underestimates themselves",
+     "text": "that (cook1.he/she) underestimates (cook1.himself/herself)",
      "src": "L192"
     },
     {
@@ -1759,7 +1788,7 @@
      "src": "L193"
     },
     {
-     "text": "that (cook1.he/she) overestimates themselves",
+     "text": "that (cook1.he/she) overestimates (cook1.himself/herself)",
      "src": "L194"
     },
     {
@@ -1795,7 +1824,7 @@
      "src": "L202"
     },
     {
-     "text": "that (cook1.he/she) doesn't put their talents to use",
+     "text": "that (cook1.he/she) doesn't put (cook1.his/her) talents to use",
      "src": "L203"
     },
     {
@@ -1868,7 +1897,7 @@
      "src": "L191"
     },
     {
-     "text": "that (cook2.he/she) underestimates themselves",
+     "text": "that (cook2.he/she) underestimates (cook2.himself/herself)",
      "src": "L192"
     },
     {
@@ -1876,7 +1905,7 @@
      "src": "L193"
     },
     {
-     "text": "that (cook2.he/she) overestimates themselves",
+     "text": "that (cook2.he/she) overestimates (cook2.himself/herself)",
      "src": "L194"
     },
     {
@@ -1912,7 +1941,7 @@
      "src": "L202"
     },
     {
-     "text": "that (cook2.he/she) doesn't put their talents to use",
+     "text": "that (cook2.he/she) doesn't put (cook2.his/her) talents to use",
      "src": "L203"
     },
     {
@@ -2143,7 +2172,7 @@
      "src": "L262"
     },
     {
-     "text": "the charismatic contender",
+     "text": "the charismatic crooner",
      "src": "L263"
     },
     {
@@ -3011,7 +3040,19 @@
    "items": [
     {
      "text": "vows to beat (cook1.him/her) next year",
-     "src": "L486"
+     "src": "L486",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "gracefully backs down",
@@ -3019,7 +3060,19 @@
     },
     {
      "text": "congratulates them for the win",
-     "src": "L488"
+     "src": "L488",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "jumps up and down screaming \"It's not fair!\"",
@@ -3039,11 +3092,35 @@
     },
     {
      "text": "pats them on the back",
-     "src": "L493"
+     "src": "L493",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "gives them a thumbs up",
-     "src": "L494"
+     "src": "L494",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "argues for a re-do",
@@ -3051,15 +3128,51 @@
     },
     {
      "text": "celebrates with (cook1.him/her) in joy",
-     "src": "L496"
+     "src": "L496",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "claps for them",
-     "src": "L497"
+     "src": "L497",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "stands proud at having gotten second place",
-     "src": "L498"
+     "src": "L498",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "pouts",
@@ -3079,11 +3192,35 @@
     },
     {
      "text": "hugs (cook1.him/her)",
-     "src": "L503"
+     "src": "L503",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "tearfully concedes",
-     "src": "L504"
+     "src": "L504",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "cries in shame",
@@ -3095,23 +3232,83 @@
     },
     {
      "text": "humbly takes the loss in stride",
-     "src": "L507"
+     "src": "L507",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "pretends (cook2.he/she) did not lose",
-     "src": "L508"
+     "src": "L508",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "gives words of encouragement",
-     "src": "L509"
+     "src": "L509",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "is thankful (cook2.he/she) got to compete with (cook1.him/her)",
-     "src": "L510"
+     "src": "L510",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "challenges (cook1.him/her) to another cook-off soon!",
-     "src": "L511"
+     "src": "L511",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "says \"Are you kidding me?\"",
@@ -3126,9 +3323,25 @@
      "text": "vows to beat (cook2.him/her) next year",
      "src": "L486",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
@@ -3139,9 +3352,25 @@
      "text": "congratulates them for the win",
      "src": "L488",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
@@ -3164,18 +3393,50 @@
      "text": "pats them on the back",
      "src": "L493",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "gives them a thumbs up",
      "src": "L494",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
@@ -3186,23 +3447,76 @@
      "text": "celebrates with (cook2.him/her) in joy",
      "src": "L496",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "claps for them",
      "src": "L497",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "stands proud at having gotten second place",
-     "src": "L498"
+     "src": "L498",
+     "if": {
+      "all": [
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       },
+       {
+        "not": {
+         "visited": "seven"
+        }
+       }
+      ]
+     }
     },
     {
      "text": "pouts",
@@ -3224,14 +3538,51 @@
      "text": "hugs (cook2.him/her)",
      "src": "L503",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "tearfully concedes",
-     "src": "L504"
+     "src": "L504",
+     "if": {
+      "all": [
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       },
+       {
+        "not": {
+         "visited": "seven"
+        }
+       }
+      ]
+     }
     },
     {
      "text": "cries in shame",
@@ -3243,37 +3594,109 @@
     },
     {
      "text": "humbly takes the loss in stride",
-     "src": "L507"
+     "src": "L507",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "pretends (cook1.he/she) did not lose",
-     "src": "L508"
+     "src": "L508",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "gives words of encouragement",
      "src": "L509",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "is thankful (cook1.he/she) got to compete with (cook2.him/her)",
      "src": "L510",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
      "text": "challenges (cook2.him/her) to another cook-off soon!",
      "src": "L511",
      "if": {
-      "not": {
-       "visited": "seven"
-      }
+      "all": [
+       {
+        "not": {
+         "visited": "seven"
+        }
+       },
+       {
+        "not": {
+         "any": [
+          {
+           "visited": "sab1"
+          },
+          {
+           "visited": "sab2"
+          }
+         ]
+        }
+       }
+      ]
      }
     },
     {
@@ -3733,7 +4156,7 @@
   "intro": {
    "name": "The finalists",
    "src": "L102,L104,L106",
-   "text": "Today is the last day of the annual Cooking Contest! After many grueling weeks, (cook1) and (cook2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion.\n(Cook1) is {A.1} {B}. (Cook2) is {A.2} {B2}.\n(Cook1)'s biggest strength is {C}, while (cook2)'s is {C2}. (Cook1)'s biggest weakness is {F}, while (cook2)'s is {F2}. The judges like how (cook1) prefers {DC} cuisine. Compared to (cook2), they believe (cook1)'s cooking style is {DS}. Overall, (cook1) seems to be {G}.",
+   "text": "Today is the last day of the annual Cooking Contest! After many grueling weeks, (cook1) and (cook2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion.\n(Cook1) is.... {A.1} {B}. (Cook2) is.... {A.2} {B2}.\n(Cook1)'s biggest strength is {C}, while (cook2)'s is {C2}. (Cook1)'s biggest weakness is {F}, while (cook2)'s is {F2}. The judges like how (cook1) prefers {DC} cuisine. Compared to (cook2), they believe (cook1)'s cooking style is {DS}. Overall, (cook1) seems to be {G}.",
    "children": [
     {
      "next": "ready"
@@ -3775,7 +4198,7 @@
      "next": "v13a_opt"
     }
    ],
-   "text": "(Cook1) decides not to risk it and goes for the safe option. This dish has been loved by many, and (cook1.he/she) knows nothing else can compare to it. (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into a {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
+   "text": "(Cook1) decides not to risk it and goes for the safe option. This dish has been loved by many, and (cook1.he/she) knows nothing else can compare to it. (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
   },
   "new": {
    "src": "L305",
@@ -3784,7 +4207,7 @@
      "next": "v13a_opt"
     }
    ],
-   "text": "(Cook1) decides that (cook1.his/her) initial recipe is too safe. To win a competition of this caliber, (cook1.he/she) needs to reach deep within and cook the most extraordinary dish Isola has ever seen! (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into a {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
+   "text": "(Cook1) decides that (cook1.his/her) initial recipe is too safe. To win a competition of this caliber, (cook1.he/she) needs to reach deep within and cook the most extraordinary dish Isola has ever seen! (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
   },
   "bell": {
    "name": "The bell",
@@ -3825,9 +4248,6 @@
     },
     {
      "next": "a1_i"
-    },
-    {
-     "next": "a2_16"
     },
     {
      "next": "a2_24"
@@ -4531,19 +4951,39 @@
      "next": "six5"
     },
     {
-     "next": "six6"
+     "next": "six6",
+     "if": {
+      "not": {
+       "visited": "f14"
+      }
+     }
     },
     {
-     "next": "six7"
+     "next": "six7",
+     "if": {
+      "not": {
+       "visited": "f14"
+      }
+     }
     },
     {
-     "next": "six8"
+     "next": "six8",
+     "if": {
+      "not": {
+       "visited": "f14"
+      }
+     }
     },
     {
      "next": "six9"
     },
     {
-     "next": "six10"
+     "next": "six10",
+     "if": {
+      "not": {
+       "visited": "f14"
+      }
+     }
     }
    ]
   },
@@ -5343,6 +5783,9 @@
    "children": [
     {
      "next": "a1_16"
+    },
+    {
+     "next": "a2_16"
     }
    ]
   },
@@ -6190,6 +6633,15 @@
         },
         {
          "visited": "a2_29"
+        },
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "sab2"
+        },
+        {
+         "visited": "d_out"
         }
        ]
       }
@@ -7225,7 +7677,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1076-1079",
-   "text": "Both dishes are equally magnificent. The judges declare a joint victory. The rivals stare at each other before {bursting out laughing|arguing about whose half of the trophy is bigger|agreeing to share the honor}.",
+   "text": "both dishes are equally magnificent. The judges declare a joint victory. The rivals stare at each other before {bursting out laughing|arguing about whose half of the trophy is bigger|agreeing to share the honor}.",
    "children": [
     {
      "next": "a2_coda"
@@ -7258,7 +7710,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1080-1082",
-   "text": "The judges discover that the two final dishes taste best when eaten TOGETHER. The rivals have accidentally invented a new Isolan feast. They are {delighted|horrified|unwilling to admit it}.",
+   "text": "the judges discover that the two final dishes taste best when eaten TOGETHER. The rivals have accidentally invented a new Isolan feast. They are {delighted|horrified|unwilling to admit it}.",
    "children": [
     {
      "next": "a2_coda"
@@ -7277,7 +7729,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1083-1085",
-   "text": "A sudden downpour ruins both dishes. The judges declare the competition postponed. The rivals are too exhausted to argue and spend the evening sharing an ordinary bowl of soup. Nobody wins, but nobody seems to mind.",
+   "text": "a sudden downpour ruins both dishes. The judges declare the competition postponed. The rivals are too exhausted to argue and spend the evening sharing an ordinary bowl of soup. Nobody wins, but nobody seems to mind.",
    "children": [
     {
      "next": "a2_coda"
@@ -7288,7 +7740,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1086-1088",
-   "text": "A coconut lands squarely on the judges' table, smashing both plates. After a very long silence, someone declares the coconut the winner. {@Chief} refuses to award it the trophy.",
+   "text": "a coconut lands squarely on the judges' table, smashing both plates. After a very long silence, someone declares the coconut the winner. {@Chief} refuses to award it the trophy.",
    "children": [
     {
      "next": "a2_coda"
@@ -7299,7 +7751,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1089-1090",
-   "text": "Both chefs refuse to concede. The judges declare the competition a draw and go home. The competitors continue arguing until well after sunset.",
+   "text": "both chefs refuse to concede. The judges declare the competition a draw and go home. The competitors continue arguing until well after sunset.",
    "children": [
     {
      "next": "a2_coda"
@@ -7310,7 +7762,7 @@
    "popup": "append",
    "join": "space",
    "src": "L1091-1093",
-   "text": "The judges select a winner, but the losing competitor quietly congratulates (a2one.him/her). No speeches. No tantrums. Just a handshake and a promise to cook together someday.",
+   "text": "the judges select a winner, but the losing competitor quietly congratulates (a2one.him/her). No speeches. No tantrums. Just a handshake and a promise to cook together someday.",
    "children": [
     {
      "next": "a2_coda"
@@ -7440,7 +7892,22 @@
    "type": "branch",
    "children": [
     {
-     "next": "a2_coda_text"
+     "next": "a2_coda_text",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "a2_21"
+        },
+        {
+         "visited": "a2_31_3"
+        },
+        {
+         "visited": "a2_17_7"
+        }
+       ]
+      }
+     }
     },
     {
      "next": "a2_none"
@@ -7628,7 +8095,7 @@
    "effects": [
     {
      "do": "skill",
-     "role": "judge",
+     "role": "recipe_elder",
      "skills": [
       "Research"
      ],
@@ -7655,7 +8122,7 @@
    "text": "THE CHALLENGE:\n(cook1) accuses the judge of valuing reputation over flavor. The judge orders a blind tasting and agrees to be bound by the result. (cook1)'s dish wins. \"You were right,\" the judge says. \"Don't become insufferable about it.\" (cook1) immediately becomes insufferable.",
    "children": [
     {
-     "next": "v13a_bell"
+     "next": "win1"
     }
    ]
   },
@@ -7723,7 +8190,7 @@
    ],
    "children": [
     {
-     "next": "v13a_bell"
+     "next": "win_either"
     }
    ]
   },
@@ -7795,7 +8262,10 @@
      "next": "v13a_b4"
     },
     {
-     "next": "v13a_b5"
+     "next": "v13a_b5",
+     "if": {
+      "role": "recipe_elder"
+     }
     }
    ]
   },
@@ -7845,11 +8315,7 @@
    "type": "branch",
    "children": [
     {
-     "next": "v13a_intro",
-     "if": {
-      "role": "judge"
-     },
-     "else": "bell"
+     "next": "v13a_intro"
     },
     {
      "next": "bell"
