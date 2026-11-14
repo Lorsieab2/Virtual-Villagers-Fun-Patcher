@@ -120,6 +120,11 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 - `(token)`: a placeholder as in v5, plus:
   - v6 pronouns (male word, female word): `himself/herself`, `woman/man` (man, woman), `boy/girl`, `son/daughter`,
     each with an optional `role.` prefix and a capital form (`(Himself/Herself)`);
+  - **role-sex words:** `mother/father`, `father/mother`, `mom/dad`, `sister/brother`, `aunt/uncle`, `girl/boy`,
+    `lady/gentleman` -- the word of the pair that matches the role's sex (a male role: father, father, dad, brother,
+    uncle, boy, gentleman), with the optional `role.` prefix, the capital form and ALL CAPS, exactly as the pronouns
+    (worst case: the longer word). E.g. The Lullaby's nursing parent: `(parent.mother/father)`. In the engine they
+    are `CG_PH_MOTHER` .. `CG_PH_LADY`, after `CG_PH_SON`;
   - role shorthand `(roleid)` / `(Roleid)`: that role's name (role ids are matched ignoring case). A keyword
     (`name`, `name1`, `name2`, `award`, `award_unit`, a pronoun) always wins; the compiler refuses a role id that
     equals a keyword ignoring case, and two role ids that differ only by case.
@@ -366,8 +371,8 @@ Bad Day`.
   worst case of the form that fits (names when they fit, else pronouns).
 - **The readable form** (the Island Events log's "Event:" line, "Disappeared in ...", Pick Island Event, the library,
   the queue's messages; `readable_title` / `cg_readable_title`): every name placeholder becomes "someone" in the
-  case written (`(Name1)` -> `Someone`, `(NAME1)` -> `SOMEONE`, `(name1)` -> `someone`), every pronoun "he or she",
-  "his or her", "him or her", "himself or herself", "man or woman", "woman or man", "boy or girl", "son or daughter"
+  case written (`(Name1)` -> `Someone`, `(NAME1)` -> `SOMEONE`, `(name1)` -> `someone`), every pronoun or role-sex
+  word its pair as written, joined by "or": "he or she", "his or her", "woman or man", "mother or father", ...
   (the case written: `(He/She)` -> `He or she`, `(HE/SHE)` -> `HE OR SHE`). The result is cut to 47 bytes. E.g.
   "Someone's No Good, Very Bad Day". The library's file name is made from this form.
 - `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
