@@ -127,6 +127,47 @@ static int g_ts_room;                  /* three button heights: the room the fou
 
 static int __fastcall ts_o_result(void *self, void *unused, int choice);
 
+/* The event as a flow (adv_core.inc adv_flow), for its one popup with Scrolling Popups (mie_one_popup.inc): the
+   opening, the four advisors (TS_SPIRITUAL .. TS_SCIENTISTS, in the buttons' order), each answer's decree and its
+   effects (ts_flow_effects). */
+static const adv_pages *ts_op_question(int node) {
+    (void)node;
+    return &ts.intro;
+}
+
+static void ts_op_label(int node, int which, char *out, int cap) {
+    (void)node;
+    ts_piece(out, cap, TS_LABELS[which >= 0 && which < TS_GROUPS ? which : 0], 0);
+}
+
+static int ts_op_choose(int node, int choice) {
+    (void)node;
+    ts_answer(choice);
+    return ADV_ENDING(ts.choice);
+}
+
+static const adv_pages *ts_op_ending(int e) {
+    return &ts.result[e >= 0 && e < TS_GROUPS ? e : 0];
+}
+
+static int ts_op_subject(void) {
+    return ts.chief;
+}
+
+static void ts_op_title(char *out, int cap) {
+    ts_piece(out, cap, TS_TITLE, 0);
+}
+
+static int ts_op_answers(int node) {
+    (void)node;
+    return TS_GROUPS;
+}
+
+static const adv_flow TS_FLOW = {
+    ts_op_question, ts_op_label, ts_op_choose, ts_op_ending, ts_tallest_text, ts_op_subject, ts_op_title,
+    ts_op_choose, ts_flow_effects, ts_op_answers
+};
+
 static char __fastcall ts_o_condition(void *self, void *unused) {
     (void)self; (void)unused;
     return (char)ts_possible(g_ts);
@@ -147,12 +188,20 @@ static int __fastcall ts_o_title(void *self, void *unused) {
     if (ts.ready) {
         adv_log_event(g_ts->g->game, g_title);
     }
+    if (ts.ready && adv_scrolls()) {
+        mop_begin(&TS_FLOW, ADV_PAGE_TEXT_MAX);        /* one popup: the whole opening, one text */
+    } else {
+        mop.active = 0;
+    }
     t_strings_in();
     return g_tg->title_id;
 }
 
 static int __fastcall ts_o_question(void *self, void *unused) {
     (void)self; (void)unused;
+    if (t_op_for(&TS_FLOW)) {
+        return t_text_id(mop.text);
+    }
     return t_text_id(ts.intro.count > 0 ? ts.intro.text[ts.intro.count - 1] : "");
 }
 
@@ -178,6 +227,9 @@ static int __fastcall ts_o_label_b(void *self, void *unused) {
    the shared popup's padding, vvfp_multi_answer.h), then the answer's page. */
 static int __fastcall ts_o_result(void *self, void *unused, int choice) {
     (void)self; (void)unused; (void)choice;
+    if (t_op_for(&TS_FLOW)) {
+        return t_text_id(mop.text);              /* one popup: its panel is sized for the text shown first */
+    }
     if (!ts.answered) {
         const char *text = ts_tallest_text();
         __try {
@@ -224,6 +276,7 @@ static void __fastcall ts_o_apply(void *self, void *unused, int choice) {
     if (g_ts_effects_page >= 0 && ts.answered) {
         ts_page_effects();                       /* never left unmade (a page count that changed: a fault) */
     }
+    t_op_close();
     g_ts_stage = ADV_STAGE_NONE;
     g_ts_dialog = NULL;
     t_strings_out();
@@ -317,6 +370,16 @@ static void ts_after_ctor(void *dialog) {
     const char *words[TS_GROUPS];
     unsigned char *d = (unsigned char *)dialog;
     int k;
+    if (g_t_op) {
+        if (ts.ready && t_op_for(&TS_FLOW) && ma_op_attach(dialog)) {
+            g_ts_dialog = dialog;               /* one popup: our virtual table, the game's answers hidden */
+            g_ts_page = 0;
+            g_ts_stage = ADV_STAGE_QUESTION;
+            return;
+        }
+        mop.active = 0;                        /* not taken: as without Scrolling Popups' rows */
+        t_op_close();
+    }
     if (!ts.ready || d[0x4C] == 0) {
         return;
     }

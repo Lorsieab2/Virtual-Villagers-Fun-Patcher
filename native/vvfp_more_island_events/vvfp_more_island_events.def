@@ -38,3 +38,5 @@ EXPORTS
     VvfpCeremonyAct=_VvfpCeremonyAct@4
     VvfpCeremonyObject=_VvfpCeremonyObject@4
     VvfpCeremonyHovelPatch=_VvfpCeremonyHovelPatch@0
+    VvfpOnePopupRows=_VvfpOnePopupRows@8
+    VvfpOnePopupPick=_VvfpOnePopupPick@8

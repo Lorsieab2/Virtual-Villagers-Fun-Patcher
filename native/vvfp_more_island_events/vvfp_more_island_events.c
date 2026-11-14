@@ -31,6 +31,7 @@
 #include "cave_text.inc"
 #include "adv_core.inc"
 #include "adv_log.inc"
+#include "mie_one_popup.inc"    /* one popup per island event with Scrolling Popups (native/shared/one_popup.h) */
 #include "climb_text.inc"
 #include "troubling_text.inc"
 #include "dive_text.inc"
@@ -411,6 +412,27 @@ int __stdcall VvfpMoreIslandEventsProtected(int game, const unsigned char *recor
         is_protected = 1;
     }
     return is_protected;
+}
+
+/* For Scrolling Popups (native/shared/one_popup.h): 1 when `popup` is this companion's one-popup event (its
+   answers now, their words, the room OK keeps), else 0 -- only its own dialog: "VVFP Story Upgrades.dll" answers for
+   its own.  The later three games' dialog is known from the presenter's call before its constructor sizes it. */
+int __stdcall VvfpOnePopupRows(const void *popup, op_rows *out) {
+    if (ma_op_rows(popup, out)) {
+        return 1;
+    }
+    return mb_op_rows(popup, out);
+}
+
+/* Answer k (0 the first) of this companion's one-popup event clicked in Scrolling Popups' rows: 1 when taken. */
+int __stdcall VvfpOnePopupPick(const void *popup, int k) {
+    if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL) {
+        return ma_op_pick((void *)popup, k);
+    }
+    if (popup != NULL && popup == g_mb.dialog && g_mb_op != NULL) {
+        return mb_op_pick((void *)popup, k);
+    }
+    return 0;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

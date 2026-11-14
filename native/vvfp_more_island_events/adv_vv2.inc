@@ -245,6 +245,8 @@ static int __fastcall v2_choose_event(void *dialog, void *unused) {
     int widened = 0, event;
     (void)unused;
     adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
+    v12_op = 0;
+    mb_op_forget();
     v2_due_drawn = -1;
     __try {
         memcpy(held, (const void *)(uintptr_t)V2_DRAW_SITE, sizeof held);
@@ -366,11 +368,13 @@ static int __cdecl v2_setup(unsigned char *d) {
         v2_effects_page = -1;
         v2_flow->title(g_vv12_title, sizeof g_vv12_title);
         adv_log_event(2, g_vv12_title);
-        v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
-                     adv_lines(&ADV_VV2, v2_flow->tallest())
-                     + (v2_flow->answers != NULL ? mb_room_lines(2, d, adv_answers(v2_flow, 0)) : 0));
-        if (v2_flow->answers != NULL) {
-            mb_attach(2, &V2_MB, d);           /* three or four answers (vvfp_multi_answer_12.h) */
+        if (!v12_op_start(2, d, v2_flow)) {   /* one popup with Scrolling Popups (adv_vv1.inc) */
+            v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
+                         adv_lines(&ADV_VV2, v2_flow->tallest())
+                         + (v2_flow->answers != NULL ? mb_room_lines(2, d, adv_answers(v2_flow, 0)) : 0));
+            if (v2_flow->answers != NULL) {
+                mb_attach(2, &V2_MB, d);       /* three or four answers (vvfp_multi_answer_12.h) */
+            }
         }
         v2_flow->label(0, 0, label, sizeof label);
         adv_copy((char *)d + VV2_DLG_LABEL_A, VV2_DLG_LABEL, label);
@@ -442,8 +446,8 @@ static void v2_result(unsigned char *d, const char *page) {
 static void __cdecl v2_answer(unsigned char *d) {
     __try {
         int which;
-        if (!v2_ours(d) || v2_stage != ADV_STAGE_QUESTION) {
-            return;
+        if (!v2_ours(d) || v2_stage != ADV_STAGE_QUESTION || v12_op) {
+            return;                                    /* one popup: the game's answers are never shown */
         }
         which = *(int *)(d + VV2_DLG_CHOICE) - 1;          /* 1 / 2 the game's two, 3 / 4 ours */
         if (which < 0 || which >= adv_answers(v2_flow, 0)) {
@@ -494,7 +498,7 @@ static void *__fastcall v2_ctor(void *dialog, void *unused) {
             if (!v2_is_ours(*(int *)(d + VV2_DLG_EVENT))) {
                 v2_dlg = NULL;
             }
-        } else if (v2_flow->question(0)->count > 1) {
+        } else if (!v12_op && v2_flow->question(0)->count > 1) {
             ADV_TC1(0x40B5A0u, dialog, *(void **)(d + 0x50C8));
             ADV_TC1(0x40B5A0u, dialog, *(void **)(d + 0x50CC));
             ADV_TC1(0x40B560u, dialog, *(void **)(d + 0x50D0));
@@ -512,7 +516,12 @@ static void __fastcall v2_ok(void *dialog, void *unused) {
     unsigned char *d = (unsigned char *)dialog;
     (void)unused;
     __try {
-        if (v2_ours(d)) {
+        if (v2_ours(d) && v12_op) {
+            mop_end();                           /* one popup: OK ends the event (its effects came with its text) */
+            v12_op = 0;
+            v2_dlg = NULL;
+            v2_stage = ADV_STAGE_NONE;
+        } else if (v2_ours(d)) {
             if (v2_stage == ADV_STAGE_INTRO) {
                 const adv_pages *intro = v2_flow->question(0);
                 ++v2_page;
