@@ -716,7 +716,7 @@
   "v26_food": {
    "items": [
     {
-     "text": "Breadfruit flour",
+     "text": "breadfruit flour",
      "src": "L10460"
     },
     {
@@ -920,7 +920,7 @@
   "v26_healing": {
    "items": [
     {
-     "text": "Clean cloth",
+     "text": "clean cloth",
      "src": "L10482"
     },
     {
@@ -1068,7 +1068,7 @@
   "v26_building": {
    "items": [
     {
-     "text": "Fallen timber",
+     "text": "fallen timber",
      "src": "L10499"
     },
     {
@@ -1304,7 +1304,7 @@
   "v26_specimens": {
    "items": [
     {
-     "text": "Sulfur",
+     "text": "sulfur",
      "src": "L10519"
     },
     {
@@ -1456,7 +1456,7 @@
   "v26_clothing": {
    "items": [
     {
-     "text": "Barkcloth",
+     "text": "barkcloth",
      "src": "L10535"
     },
     {
