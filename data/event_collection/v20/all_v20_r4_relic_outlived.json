@@ -87,16 +87,17 @@
   ]
  },
  "requirement": {
-  "min_eligible": 2
+  "min_eligible": 1
  },
  "roles": {
-  "first": {
-   "kind": "villager",
-   "min_age": 55
-  },
   "second": {
    "kind": "villager",
    "min_age": 14
+  },
+  "first": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
   }
  },
  "start": "intro",
@@ -109,7 +110,7 @@
     {
      "src": "L9315",
      "what": "the original discoverer may now be elderly or dead",
-     "reason": "the first discoverer is one of the oldest villagers (a named stranger once the engine has them)"
+     "reason": "the first discoverer is a named stranger, not a living villager (decision 11)"
     }
    ],
    "children": [
