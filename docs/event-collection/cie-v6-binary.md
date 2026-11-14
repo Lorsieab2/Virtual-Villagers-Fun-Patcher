@@ -134,6 +134,9 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
 - Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
+- **Pronoun hint (labels only, section 15):** a name placeholder may end in `|` and a pronoun pair, e.g.
+  `(ACCUSED|HE/SHE)`, `(Name1|his/her)`: the form its fallback takes (`he/she`, `him/her`, `his/her`,
+  `himself/herself`, any case). Without a hint the fallback is `him/her`. The hint is refused in body text.
 - Titles (G6): v6 titles may hold `"` too (every game's font draws it). At most 47 bytes (`CE_TITLE_BYTES` 48)
   in every game. VV1/VV2 wrap the title into the text (51 / 46 characters a line, as before). **VV3-5 (v6):** the
   dialog draws the title on ONE line, centred, in its own font (`ldwarialbold`), with no wrap and no cut (body
@@ -309,3 +312,18 @@ a title set by a node starting on that page takes effect from the next page.
   Only VV1/VV2 lead their text with the title, so only their pages change.
 - **The event's title** is still the one the Island Events log, Pick Island Event and the library show.
 - **simulate** returns `titles`: for each popup, the title its first page shows (expanded as the text is).
+
+## 15. Button labels: names fall back to pronouns
+
+For BUTTON LABELS only (never body text): at run time a label is expanded with the real names; when that is wider
+than the screen-fit limit (`label_max_px` / `ce_label_max_px`) or longer than 95 bytes, the label is expanded again
+with every name placeholder in it as its role's pronoun (the role's sex; an alias's member drawn), in the case the
+placeholder is written in: `(NAME1)` -> `HIM` / `HER`, `(Name1)` -> `Him` / `Her`, `(name1)` -> `him` / `her`. The
+pronoun is the object form unless the placeholder carries a hint (section 5): `(ACCUSED|HE/SHE)` -> `HE` / `SHE`.
+
+- **Engine:** `cg_label_text` (used by `cg_begin_question` for the buttons and by `cg_resolve` for the log's
+  "Choice:" line) measures the real-name label with `ce_label_px` and substitutes when it is too wide.
+- **Fit (Python):** a label passes when its worst case with the longest names fits, OR its worst case with every
+  name as the longer pronoun of its form fits (the engine then shows the pronoun form whenever the names do not).
+- **simulate** returns `labels`: for each question asked, its shown buttons' labels as the player reads them (the
+  real names, or the pronoun form when they do not fit the game's screen).
