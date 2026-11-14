@@ -391,7 +391,14 @@ lib.role_id = "rest"
 lib.show_roles()
 out["other_row"] = list(lib.roles_table.item("rest", "values"))
 out["other_form"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
-for r in ("rest", "either", "cook"):
+lib.g["roles"]["visitor"] = {"kind": "stranger", "sex": "female"}
+lib.role_id = "visitor"
+lib.show_roles()
+[c for c in lib.role_form.winfo_children() if "checkbutton" in str(c)][0].invoke()
+out["stranger_named"] = lib.g["roles"]["visitor"].get("named")
+[c for c in lib.role_form.winfo_children() if "checkbutton" in str(c)][0].invoke()
+out["stranger_unnamed"] = "named" not in lib.g["roles"]["visitor"]
+for r in ("rest", "either", "cook", "visitor"):
     del lib.g["roles"][r]
 del lib.g["pools"]["DRINK"]
 lib.role_id = "subject"
@@ -420,6 +427,18 @@ size_box.event_generate("<<ComboboxSelected>>")
 window.update()
 out["damage_size"] = [e for e in lib.g["nodes"][ends[0]]["effects"] if e["do"] == "damage"][0]
 out["v6_problems"] = lib.problems
+# A part's popup title (cie-v6-binary.md 14): typed in, kept, compiled; emptied, taken away.
+lib.select_node(ends[0], "Text")
+lib.node_title_var.set("A Title From Here")
+window.update()
+out["node_title"] = lib.g["nodes"][ends[0]].get("title")
+lib.refresh_now()
+out["node_title_problems"] = [p for p in lib.problems if "popup title" in p]
+lib.node_title_var.set("")
+window.update()
+out["node_title_gone"] = "title" not in lib.g["nodes"][ends[0]]
+lib.node_title_var.set("A Title From Here")
+window.update()
 saved = lib.save_as("Seven Ways")
 back = cg.decompile_graph(saved.cieg.read_bytes())
 out["seven_round_trip"] = back == cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
@@ -582,6 +601,16 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["pool_rows"], 2)
         self.assertEqual(self.out["distinct_from"], ["DISH"])
 
+    def test_a_named_stranger(self):
+        self.assertTrue(self.out["stranger_named"])
+        self.assertTrue(self.out["stranger_unnamed"])
+
+    def test_a_parts_popup_title(self):
+        self.assertEqual(self.out["node_title"], "A Title From Here")
+        self.assertEqual(self.out["node_title_problems"], [])
+        self.assertTrue(self.out["node_title_gone"])
+        self.assertTrue(self.out["seven_round_trip"], "the title is compiled and read back")
+
     def test_the_other_role_and_damage_sizes(self):
         self.assertIn("The other one of the either", self.out["other_row"][1])
         self.assertIn("The one not picked by:", self.out["other_form"])
@@ -635,7 +664,7 @@ class Wiring(unittest.TestCase):
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         for path in ("src/vv_cie_library_window.py", "src/vv_cie_graph.py",
                      "data/cie_graphs/the_aspiring_adventurer.json", "data/cie_graphs/the_cave_explorers.json",
-                     "data/cie_label_widths.json", "data/cie_actions.json"):
+                     "data/cie_label_widths.json", "data/cie_actions.json", "data/cie_villager_names.json"):
             self.assertIn(f'"{path}"', release)
 
     def test_translation_coverage(self) -> None:

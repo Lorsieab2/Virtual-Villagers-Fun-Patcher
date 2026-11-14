@@ -179,6 +179,9 @@ enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
 enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DONE = 5 };
 enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_BELIEVERS = 8,
        CG_ROLE_HARM = 16, CG_ROLE_PROTECTED = 32 };
+#define CG_STRANGER_NAMED 1u          /* a stranger's flags: named (cie-v6-binary.md 16) */
+#include "story_villager_names.h"     /* each game's first-name lists (scripts/build_cie_villager_names.py) */
+
 /* The pronouns are CG_PH_HE .. CG_PH_MAN and CG_PH_HIMSELF .. CG_PH_SON (cg_pronoun). */
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
        CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON };
@@ -421,10 +424,38 @@ typedef struct {
     int role;                         /* -1: the award */
     int what;                         /* CG_PH_* */
     int capital;
+    int caps;                         /* version 6: written ALL CAPS ("(NAME1)", "(HE/SHE)"): the word in capitals */
+    int hint;                         /* version 6 labels: a name's pronoun hint, (ACCUSED|HE/SHE): its CG_PH_*;
+                                         -1 none (the fallback is him/her, cie-v6-binary.md 15) */
 } cg_ph;
 
-/* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
+static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph);
+
+/* A placeholder's inside, a label name's pronoun hint included ("ACCUSED|HE/SHE"). */
 static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
+    static const char *const HINTS[4] = { "he/she", "him/her", "his/her", "himself/herself" };
+    static const int HINT_PH[4] = { CG_PH_HE, CG_PH_HIM, CG_PH_HIS, CG_PH_HIMSELF };
+    int bar, k;
+    ph->hint = -1;
+    for (bar = 0; bar < n && tok[bar] != '|'; ++bar) {
+    }
+    if (bar == n) {
+        return cg_parse_ph_in(g, tok, n, ph);
+    }
+    if (g->version < 6 || !cg_parse_ph_in(g, tok, bar, ph) || ph->what != CG_PH_NAME) {
+        return 0;
+    }
+    for (k = 0; k < 4; ++k) {
+        if (cg_word_is(tok + bar + 1, n - bar - 1, HINTS[k])) {
+            ph->hint = HINT_PH[k];
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
+static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter" };
     int words = g->version >= 6 ? 11 : 7;
@@ -443,8 +474,17 @@ static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
     if (dot == 0 || wn <= 0) {
         return 0;
     }
+    {
+        /* Version 6: ALL CAPS -- at least two letters, none lower case (docs/event-collection/cie-v6-binary.md 5). */
+        int letters = 0, lower = 0;
+        for (i = 0; i < n; ++i) {
+            letters += (tok[i] >= 'A' && tok[i] <= 'Z') || (tok[i] >= 'a' && tok[i] <= 'z');
+            lower += tok[i] >= 'a' && tok[i] <= 'z';
+        }
+        ph->caps = g->version >= 6 && letters >= 2 && lower == 0;
+    }
     if (dot > 0) {
-        role = cg_role_by_id(g, tok, dot);
+        role = ph->caps ? cg_role_by_id_ci(g, tok, dot) : cg_role_by_id(g, tok, dot);
         if (role < 0) {
             return 0;
         }
@@ -484,12 +524,16 @@ static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
         if (role < 0) {
             role = cg_role_by_id(g, "subject", 7);
             if (role < 0) {
+                if (g->n_role < 1) {
+                    return 0;          /* version 6: a graph with no roles has no one to name */
+                }
                 role = 0;
             }
         }
     }
-    if (ph->what == CG_PH_NAME && cg_role_at(g, role)[0] == CG_ROLE_STRANGER) {
-        return 0;                     /* a stranger has no name */
+    if (ph->what == CG_PH_NAME && cg_role_at(g, role)[0] == CG_ROLE_STRANGER
+        && !(g->version >= 6 && (cg_role_at(g, role)[1] & CG_STRANGER_NAMED))) {
+        return 0;                     /* a stranger has no name (version 6: unless named, cie-v6-binary.md 16) */
     }
     ph->role = role;
     return 1;
@@ -526,7 +570,8 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             while (*e != '\0' && *e != ')' && *e != '(' && *e != '\n') {
                 ++e;
             }
-            if (*e != ')' || !cg_parse_ph(g, s + 1, (int)(e - s - 1), &ph) || (label && ph.role < 0)) {
+            if (*e != ')' || !cg_parse_ph(g, s + 1, (int)(e - s - 1), &ph) || (label && ph.role < 0)
+                || (!label && ph.hint >= 0)) {     /* a pronoun hint only in a label (cie-v6-binary.md 15) */
                 return 0;
             }
             s = e;
@@ -677,6 +722,18 @@ static int cg_pools_ok(const cg_graph *g) {
 }
 
 /* Read `data` (`size` bytes) as a .cieg into `g` (which points into `data`): 1, or 0 with the reason in cg_why. */
+/* A title the game can show (the event's, or -- version 6 -- a node's popup title, docs/event-collection/
+   cie-v6-binary.md 14): ce_text_char_ok's characters (version 6: and quotes, G6), one line, under CE_TITLE_BYTES. */
+static int cg_title_ok(const cg_graph *g, const char *title) {
+    const char *t;
+    for (t = title; *t != '\0'; ++t) {
+        if (!ce_text_char_ok(*t) && !(*t == '"' && g->version >= 6)) {
+            return 0;
+        }
+    }
+    return title[0] != '\0' && lstrlenA(title) < CE_TITLE_BYTES;
+}
+
 static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     const unsigned char *h = data;
     int i, k;
@@ -729,7 +786,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             return cg_bad("its pools do not fit in the file");
         }
     }
-    if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < 1 || g->n_role > CG_MAX_ROLES || g->n_node < 1
+    if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
         || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
         || g->n_cond >= 0xFFFF || g->n_variant >= 0xFFFF || g->n_string >= 0xFFFF
         || !cg_section(g, g->o_role, g->n_role, g->role_bytes) || !cg_section(g, g->o_node, g->n_node, 28)
@@ -749,16 +806,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     if (!cg_str_ok(g, (unsigned int)g->title, 0) || g->start >= g->n_node) {
         return cg_bad("its title or start is missing");
     }
-    {
-        const char *title = cg_s(g, (unsigned int)g->title);
-        int ok = 1;
-        const char *t;
-        for (t = title; *t != '\0' && ok; ++t) {
-            ok = ce_text_char_ok(*t) || (*t == '"' && g->version >= 6);   /* version 6: quotes too (G6) */
-        }
-        if (title[0] == '\0' || lstrlenA(title) >= CE_TITLE_BYTES || !ok) {
-            return cg_bad("its title is not one the game can show");
-        }
+    if (!cg_title_ok(g, cg_s(g, (unsigned int)g->title))) {
+        return cg_bad("its title is not one the game can show");
     }
     for (i = 0; i < g->n_patch; ++i) {
         if (!cg_str_ok(g, cg_u16(data + g->o_patch + 2u * (unsigned int)i), 0)) {
@@ -770,8 +819,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
             || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
             || (r[0] == 1 && (r[2] < 1u || r[2] > 3u))
+            || (r[0] == 1 && g->version >= 6 && (r[1] & ~CG_STRANGER_NAMED) != 0u)
             || (i == 0 && ((r[0] != CG_ROLE_VILLAGER && !(g->version >= 6 && r[0] == CG_ROLE_STRANGER))
-                           || (r[1] & CG_ROLE_OPTIONAL)))
+                           || (r[0] == CG_ROLE_VILLAGER && (r[1] & CG_ROLE_OPTIONAL))))
             ) {
             return cg_bad("a role is not one this game can read");
         }
@@ -936,6 +986,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             || !cg_str_ok(g, cg_u16(n + 24), 1)) {
             return cg_bad("a node is not one this game can read");
         }
+        if (g->version >= 6 && cg_u16(n + 26) != CG_NONE
+            && (n[0] == CG_BRANCH || !cg_str_ok(g, cg_u16(n + 26), 0) || !cg_title_ok(g, cg_s(g, cg_u16(n + 26))))) {
+            return cg_bad("a node's popup title is not one the game can show");
+        }
         if (ccount > 256u) {
             return cg_bad("a node has more than 256 children");
         }
@@ -1089,6 +1143,8 @@ typedef struct {
     unsigned char q_shown[CG_MAX_QUESTIONS];
     unsigned char q_map[CG_MAX_QUESTIONS][CG_MAX_ANSWERS];
     int start_picks;                   /* the picks drawn at the purchase (a start question's own) */
+    /* Each display's popup title (cie-v6-binary.md 14): a node title's string index + 1, 0 = the event's title. */
+    unsigned short display_title[CG_MAX_DISPLAYS];
 } cg_state;
 
 
@@ -1586,6 +1642,134 @@ static void cg_draw_aliases(const ce_adapter *a, unsigned int bound) {
     }
 }
 
+/* ---- Named strangers (docs/event-collection/cie-v6-binary.md 16) ------------------------------------------ */
+
+/* The game's own first-name list of one sex (read where the game keeps it), else the same list built in. */
+static const char *cg_names_list(int game, int female) {
+    static char list[2048];
+    unsigned int n;
+    int ok = 1;
+    if (game < 1 || game > 5) {
+        return "";
+    }
+    n = CG_NAMES_BYTES[game][female];
+    if (n == 0u || n >= sizeof list) {
+        return CG_NAMES_TEXT[game][female];
+    }
+    __try {
+        memcpy(list, (const void *)(uintptr_t)CG_NAMES_VA[game][female], n);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 0;
+    }
+    list[n] = '\0';
+    {
+        unsigned int i;
+        for (i = 0; ok && i < n; ++i) {
+            char c = list[i];
+            ok = c == ',' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+        }
+        ok = ok && list[0] != ',' && list[n - 1] == ',';
+    }
+    return ok ? list : CG_NAMES_TEXT[game][female];
+}
+
+/* `a` and `b` agree in their first `n` bytes, ignoring the case of A-Z. */
+static int cg_same_ci(const char *a, const char *b, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        char x = a[i], y = b[i];
+        x = (char)(x >= 'a' && x <= 'z' ? x - 'a' + 'A' : x);
+        y = (char)(y >= 'a' && y <= 'z' ? y - 'a' + 'A' : y);
+        if (x != y) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Whether `name` (`n` bytes) is a living, listed villager's first name or a named stranger's bound before role
+   `upto`, ignoring case. */
+static int cg_name_taken(const ce_adapter *a, int upto, const char *name, int n) {
+    char have[CG_NAME_BYTES];
+    int i, k;
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        const unsigned char *rec = a->record(i);
+        if (rec == NULL || !a->listed(rec)) {
+            continue;
+        }
+        ce_copy_name(have, CG_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        for (k = 0; have[k] != '\0' && have[k] != ' '; ++k) {
+        }
+        have[k] = '\0';
+        if (k == n && cg_same_ci(have, name, n)) {
+            return 1;
+        }
+    }
+    for (i = 0; i < upto; ++i) {
+        if (cg_role_at(&cg_g, i)[0] == CG_ROLE_STRANGER && lstrlenA(cg.name[i]) == n
+            && cg_same_ci(cg.name[i], name, n)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Stranger role `r`'s first name: random_below over the list of its sex's names nobody has (else the whole list). */
+static void cg_stranger_name(const ce_adapter *a, int game, int r) {
+    const char *list = cg_names_list(game, cg.female[r]);
+    int pass, count, pick = -1;
+    for (pass = 0; pass < 2 && pick < 0; ++pass) {
+        const char *s;
+        int k = 0;
+        count = 0;
+        for (s = list; *s != '\0';) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && (pass == 1 || !cg_name_taken(a, r, s, (int)(e - s)))) {
+                ++count;
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+        if (count == 0) {
+            continue;
+        }
+        pick = ce_random_below(a, count);
+        for (s = list; *s != '\0';) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && (pass == 1 || !cg_name_taken(a, r, s, (int)(e - s)))) {
+                if (k++ == pick) {
+                    int n = (int)(e - s) < CG_NAME_BYTES - 1 ? (int)(e - s) : CG_NAME_BYTES - 1;
+                    memcpy(cg.name[r], s, (size_t)n);
+                    cg.name[r][n] = '\0';
+                    return;
+                }
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+    }
+}
+
+/* The longest name in the game's two lists: a named stranger's worst case. */
+static int cg_stranger_room(int game) {
+    int f, best = 0;
+    for (f = 0; f < 2 && game >= 1 && game <= 5; ++f) {
+        const char *s = CG_NAMES_TEXT[game][f];
+        int n = 0;
+        for (; *s != '\0'; ++s) {
+            n = *s == ',' ? 0 : n + 1;
+            if (n > best) {
+                best = n;
+            }
+        }
+    }
+    return best;
+}
+
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
 static int cg_bind(int game) {
@@ -1620,6 +1804,10 @@ static int cg_bind(int game) {
         }
         if (spec[0] == 1) {
             cg.female[r] = spec[2] == 2 ? 1 : spec[2] == 1 ? 0 : ce_random_below(a, 2);
+            cg.name[r][0] = '\0';
+            if (cg_g.version >= 6 && (spec[1] & CG_STRANGER_NAMED)) {
+                cg_stranger_name(a, game, r);      /* cie-v6-binary.md 16 */
+            }
             continue;
         }
         if (!(left & (1u << r))) {
@@ -2349,6 +2537,8 @@ static const char *cg_pool_text(int pool, int instance, int mode) {
     return best != NULL ? best : "";
 }
 
+static int cg_pronoun_names;          /* cg_label_text's second pass: names as pronouns (cie-v6-binary.md 15) */
+
 /* cg_expand's work at pool depth `depth`. */
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
@@ -2436,20 +2626,28 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             }
         } else if (ph.what == CG_PH_UNIT) {
             put = award_kind < 0 ? NULL : award_kind == 0 ? "food" : "tech points";
+        } else if (ph.what == CG_PH_NAME && cg_pronoun_names) {
+            /* A label too wide with the names: each name as its role's pronoun (cie-v6-binary.md 15). */
+            const char *const *pair = cg_pronoun(ph.hint >= 0 ? ph.hint : CG_PH_HIM);
+            put = mode == CG_EXPAND_WORST ? (lstrlenA(pair[1]) > lstrlenA(pair[0]) ? pair[1] : pair[0])
+                                          : pair[role >= 0 && cg.female[role] ? 1 : 0];
         } else if (mode == CG_EXPAND_WORST) {
-            if (ph.what == CG_PH_NAME) {
+            if (ph.what == CG_PH_NAME && role >= 0 && cg_role_at(&cg_g, role)[0] == CG_ROLE_STRANGER) {
+                repeat = cg_stranger_room(cg.game);       /* 16: the longest name in the game's lists */
+            } else if (ph.what == CG_PH_NAME) {
                 repeat = name_room;
             } else {
                 const char *const *pair = cg_pronoun(ph.what);
                 put = lstrlenA(pair[1]) > lstrlenA(pair[0]) ? pair[1] : pair[0];
             }
         } else if (ph.what == CG_PH_NAME) {
-            put = role >= 0 && (cg.bound & (1u << role)) ? cg.name[role] : "";
+            put = role >= 0 && ((cg.bound & (1u << role)) || cg_role_at(&cg_g, role)[0] == CG_ROLE_STRANGER)
+                  ? cg.name[role] : "";             /* 16: a named stranger's drawn name */
         } else {
             put = cg_pronoun(ph.what)[role >= 0 && cg.female[role] ? 1 : 0];
         }
         if (put != NULL) {
-            int first = 1;
+            int first = 1, from = o;
             for (; *put != '\0' && o < cap - 1; ++put) {
                 char c = *put;
                 if (first && ph.capital && c >= 'a' && c <= 'z') {
@@ -2457,6 +2655,9 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                 }
                 first = 0;
                 out[o++] = c;
+            }
+            if (ph.caps && o > from) {
+                CharUpperBuffA(out + from, (DWORD)(o - from));   /* ALL CAPS: the word in capitals */
             }
         }
         while (repeat-- > 0 && o < cap - 1) {
@@ -2479,6 +2680,19 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
         n = cg_glyph_fallback(out, n, cap);
     }
     return n;
+}
+
+/* A button label as the player reads it into `out` (CG_LABEL_V6 bytes): the real names, or -- when that is wider
+   than the screen or longer than a label holds -- each name as its role's pronoun (cie-v6-binary.md 15). */
+static void cg_label_text(const ce_adapter *a, const char *raw, char *out) {
+    static char real[CG_LABEL_V6 * 4];
+    int n = cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+    if (cg_g.version >= 6 && (n >= CG_LABEL_V6 || ce_label_px(a, real) > ce_label_max_px(a))) {
+        cg_pronoun_names = 1;
+        cg_expand(raw, real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_pronoun_names = 0;
+    }
+    lstrcpynA(out, real, CG_LABEL_V6);
 }
 
 typedef struct {
@@ -2693,6 +2907,7 @@ static int cg_add_display(const char *text, int kind, int villager) {
     cg.display_used += n + 1;
     cg.display_kind[k] = (unsigned char)kind;
     cg.display_node[k] = -1;
+    cg.display_title[k] = 0;
     cg.display_villager[k] = (unsigned char)(villager != 0);
     cg.job_first[k] = (short)cg.jobs_used;
     cg.job_count[k] = 0;
@@ -2704,6 +2919,43 @@ static int cg_add_display(const char *text, int kind, int villager) {
 
 static const char *cg_display(int k) {
     return k >= 0 && k < cg.display_count ? cg.displays + cg.display_off[k] : "";
+}
+
+/* ---- Per-node popup titles (docs/event-collection/cie-v6-binary.md 14) ------------------------------------- */
+
+#define CG_TITLE_CHANGES 16
+
+/* Node `node`'s popup title as display_title holds it (string index + 1), 0 for none (before version 6: none). */
+static unsigned short cg_node_title(int node) {
+    const unsigned char *n;
+    if (cg_g.version < 6 || node < 0 || node >= cg_g.n_node) {
+        return 0;
+    }
+    n = cg_node_at(&cg_g, node);
+    return n[0] != CG_BRANCH && cg_u16(n + 26) != CG_NONE ? (unsigned short)(cg_u16(n + 26) + 1u) : 0;
+}
+
+/* The words of title `t` (0: the event's own) into `out`. */
+static void cg_title_text(unsigned short t, char *out, int cap) {
+    lstrcpynA(out, t == 0 ? cg.title : cg_s(&cg_g, (unsigned int)t - 1u), cap);
+}
+
+/* The title of display `k`'s popup, into `out`. */
+static void cg_display_title(int k, char *out, int cap) {
+    cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, out, cap);
+}
+
+/* The title in force before history node `upto`: the last titled node's on the way, else the event's. */
+static unsigned short cg_title_before(const cg_history *h, int upto) {
+    unsigned short t = 0;
+    int i;
+    for (i = 0; i < upto && i < h->nodes; ++i) {
+        unsigned short nt = cg_node_title(h->node[i]);
+        if (nt != 0) {
+            t = nt;
+        }
+    }
+    return t;
 }
 
 /* ---- The effects ------------------------------------------------------------------------------------------ */
@@ -3146,6 +3398,9 @@ typedef struct {
     char raw[CG_RAW_BYTES];            /* the award filled in, the names not */
     int effects;                       /* carries villager effects: two lines kept on each page for the refusals */
     int question;                      /* a question's own popup: the node, else -1 */
+    int tcount;                        /* its titles: the one in force at its start (toff 0), then each titled */
+    int toff[CG_TITLE_CHANGES];        /* node's, from where that node's text starts in raw */
+    unsigned short ttitle[CG_TITLE_CHANGES];
 } cg_popup;
 
 static cg_popup cg_pops[CG_MAX_POPUPS];
@@ -3175,9 +3430,12 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
 /* The popups of history `h` as the patcher's walk builds them (src/vv_cie_graph.py walk: a node's effects first --
    an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
    popup and the place in it its effects go with. */
+static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
+    unsigned short title = cg_title_before(h, from);
     cg_pop_count = 0;
     fx = cg_award_before(h, from, &award_kind, &award);
     cg_visit_path(from);
@@ -3199,6 +3457,8 @@ static void cg_group(int game, const cg_history *h, int from) {
         }
         if (n[0] != CG_BRANCH) {
             cg_popup *p = NULL;
+            int start = 0;
+            unsigned short nt = cg_node_title(node);
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
             if (n[0] == CG_QUESTION || n[1] == 0 || cg_pop_count == 0 || cg_pops[cg_pop_count - 1].question >= 0) {
                 if (cg_pop_count < CG_MAX_POPUPS) {
@@ -3206,13 +3466,25 @@ static void cg_group(int game, const cg_history *h, int from) {
                     memset(p, 0, sizeof *p);
                     p->question = n[0] == CG_QUESTION ? node : -1;
                     lstrcpynA(p->raw, text, sizeof p->raw);
+                    p->tcount = 1;     /* the title in force at its start */
+                    p->ttitle[0] = title;
                 }
             } else {
                 p = &cg_pops[cg_pop_count - 1];
                 if (lstrlenA(p->raw) + 1 + lstrlenA(text) + 1 < (int)sizeof p->raw) {
+                    start = lstrlenA(p->raw) + 1;
                     lstrcatA(p->raw, n[2] ? "\n" : " ");
                     lstrcatA(p->raw, text);
                 }
+            }
+            if (nt != 0) {
+                if (p != NULL && start == 0 && p->tcount == 1 && !(cg_group_in_question && p == &cg_pops[0])) {
+                    p->ttitle[0] = nt;         /* a new popup starting with a titled node: only that title */
+                } else if (p != NULL && p->tcount < CG_TITLE_CHANGES) {
+                    p->toff[p->tcount] = start;   /* from the page this node's text starts on */
+                    p->ttitle[p->tcount++] = nt;
+                }
+                title = nt;
             }
             if (first_text < 0) {
                 first_text = i;
@@ -3253,10 +3525,40 @@ static ce_layout cg_notice_layout(const ce_adapter *a) {
    question's); each page with the nodes whose effects it makes.  A question's text is laid out for the question
    popup: its earlier pages shown first (notices, through the plain popup, which is never smaller), its last page
    the two-button popup itself. */
+/* 14: the popup's WIDEST title (of those in force on it, the one that wraps into the most lines in `l`; the first
+   on a tie) into `out`: its pages are laid out with it. */
+static void cg_widest_title(const cg_popup *p, const ce_layout *l, char *out, int cap) {
+    static char t[CE_TITLE_BYTES + 64];
+    int j, most = -1;
+    cg_title_text(0, out, cap);
+    for (j = 0; j < p->tcount; ++j) {
+        int lines;
+        cg_title_text(p->ttitle[j], t, sizeof t);
+        lines = ce_lines_used_in(l, t, "");
+        if (lines > most) {
+            most = lines;
+            lstrcpynA(out, t, cap);
+        }
+    }
+}
+
+/* 14: the title page `k` of popup `p` shows: the last change that starts before the page's end. */
+static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, int k) {
+    unsigned short t = p->tcount > 0 ? p->ttitle[0] : 0;
+    int j;
+    for (j = 1; j < p->tcount; ++j) {
+        if (p->toff[j] < pages->src_end[k]) {
+            t = p->ttitle[j];
+        }
+    }
+    return t;
+}
+
 static void cg_layout_from(const ce_adapter *a, int game, int from, int after_question) {
     static cg_pager w;
     static cg_pages pages;
     static char real[CG_PAGE_BYTES];
+    static char widest[CE_TITLE_BYTES + 64];
     const cg_history *h = &cg.path;
     int fresh = after_question && from > 0 && cg_fresh_after(h->node[from - 1], cg.answers);
     ce_layout first = after_question && !fresh ? ce_result_layout(a) : cg_notice_layout(a);
@@ -3264,13 +3566,16 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
     ce_layout q = ce_question_layout(a);
     int p, k, i, jobs = cg.jobs_used;
     q.check_title = 0;
+    cg_group_in_question = after_question && from > 0 && !fresh;
     cg_group(game, h, from);
+    cg_group_in_question = 0;
     for (p = 0; p < cg_pop_count; ++p) {
         int question = cg_pops[p].question >= 0;
         w.a = a;
         w.first = question ? &q : (p == 0 ? &first : &rest);
         w.rest = question ? &q : &rest;
-        w.title = cg.title;
+        cg_widest_title(&cg_pops[p], w.first, widest, sizeof widest);
+        w.title = widest;
         w.reserve = cg_pops[p].effects ? 2 : 0;
         if (question) {
             w.reserve += cg_answer_room(cg_pops[p].question, &q);
@@ -3294,6 +3599,8 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
                 return;
             }
             cg.display_node[d] = (short)(kind == CGD_QUESTION ? cg_pops[p].question : -1);
+            /* 14: a page shown in the question's own popup keeps that popup's title. */
+            cg.display_title[d] = kind == CGD_RESULT ? cg_pops[p].ttitle[0] : cg_page_title(&cg_pops[p], &pages, k);
             cg.job_first[d] = (short)jobs;
             for (i = from; i < h->nodes; ++i) {
                 const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
@@ -3367,6 +3674,7 @@ typedef int (__stdcall *cg_log_begin_fn)(int game);
 typedef int (__stdcall *cg_log_end_fn)(int game, char *out, int cap);
 typedef int (__stdcall *cg_log_write_fn)(int game, int key, const char *text, int disk, int final);
 static int cg_logged;                  /* the game whose last popup was this run's (asked once by the log) */
+static char cg_shown_title[CE_TITLE_BYTES];   /* the title of the run's popup shown last (14: a node's may differ) */
 
 #ifdef VVFP_TEST
 static int test_graph_log;             /* stands in for the companion: each page's lines "  page <k>" */
@@ -3482,7 +3790,7 @@ __declspec(dllexport) int __stdcall VvfpStoryGraphLogged(int game, const char *t
     if (cg_logged == 0 || cg_logged != game) {
         return 0;
     }
-    if (title != NULL && title[0] != '\0' && lstrcmpA(title, cg.title) != 0) {
+    if (title != NULL && title[0] != '\0' && lstrcmpA(title, cg.title) != 0 && lstrcmpA(title, cg_shown_title) != 0) {
         return 0;                      /* another event's popup */
     }
     cg_logged = 0;
@@ -3532,7 +3840,9 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
         }
     }
     cg_logged = game;                  /* the game's own bracket around this popup is not a record of its own */
-    cg_compose(&l, cg.title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
+    cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on this page */
+    lstrcpynA(ce_armed_event.title, cg_shown_title, sizeof ce_armed_event.title);   /* the later games draw it */
+    cg_compose(&l, cg_shown_title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
     cg.display_next = k + 1;
 }
 
@@ -3541,6 +3851,7 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
 static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     static cg_pager w;
     static char raw[CG_RAW_BYTES];
+    static char title[CE_TITLE_BYTES];
     ce_layout q = ce_question_layout(a);
     memset(cg_visited, 0, sizeof cg_visited);
     cg_visit(cg_g.start);
@@ -3549,7 +3860,8 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.a = a;
     w.first = &q;
     w.rest = &q;
-    w.title = cg.title;
+    cg_title_text(cg_node_title(cg_g.start), title, sizeof title);   /* 14: the start question's own */
+    w.title = title;
     w.reserve = cg_answer_room(cg_g.start, &q);
     w.pages = pages;
     w.scroll = cg_scrolls();
@@ -3589,7 +3901,13 @@ static int cg_arm(int game, int due) {
     int notice = cg.phase != CG_QUEUED && !question;
     memset(&cg_stub, 0, sizeof cg_stub);
     cg_stub.game = game;
-    lstrcpynA(cg_stub.title, cg.title, sizeof cg_stub.title);
+    /* 14: the title in force on the display armed (a run not laid out yet: its start's, else the event's; the
+       first page's own is put in place as it is delivered, cg_show). */
+    if (cg.phase == CG_QUEUED) {
+        cg_title_text(cg_node_title(cg_g.start), cg_stub.title, sizeof cg_stub.title);
+    } else {
+        cg_display_title(cg.phase == CG_ASKED ? cg.asking : cg.display_next, cg_stub.title, sizeof cg_stub.title);
+    }
     if (question) {
         int b, node = cg_question_node();
         if (node < 0 || node >= cg_g.n_node) {
@@ -3795,7 +4113,9 @@ static void cg_begin_question(int game, char *text, int size) {
     }
     q = ce_question_layout(a);
     q.check_title = 0;
-    cg_compose(&q, cg.title, cg_display(k), NULL, text, size);
+    cg_display_title(k, cg_shown_title, sizeof cg_shown_title);   /* 14: the title in force on the question */
+    lstrcpynA(ce_asked_title, cg_shown_title, sizeof ce_asked_title);
+    cg_compose(&q, cg_shown_title, cg_display(k), NULL, text, size);
     cg_walk_answers(a, game, k);
     {
         unsigned char map[CG_MAX_ANSWERS];
@@ -3804,7 +4124,7 @@ static void cg_begin_question(int game, char *text, int size) {
             real[0] = '\0';
             if (b < shown) {
                 const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + map[b]);
-                cg_expand(cg_s(&cg_g, cg_u16(c + 8)), real, CG_LABEL_V6, CG_EXPAND_REAL, a->name_room, -1, 0);
+                cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), real);
             }
             lstrcpynA(cg_labels[b], real, CG_LABEL_V6);
             if (b < 2) {
@@ -3862,7 +4182,7 @@ static int cg_resolve(int game, int button, char *text, int size) {
     {
         const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + choice);
         char line[CG_LABEL_V6 + 16];
-        cg_expand(cg_s(&cg_g, cg_u16(c + 8)), label, CG_LABEL_V6, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_label_text(a, cg_s(&cg_g, cg_u16(c + 8)), label);
         cg.q_entry[qi] = cg.entry_len;
         if (cg.entry_head == 0) {
             cg_entry_start(label);     /* the title and the start question's answer */
@@ -3902,6 +4222,7 @@ static int cg_resolve(int game, int button, char *text, int size) {
    villager's effect.  (Laid out and set aside: nothing is made, the run stays asked.) */
 static int cg_tallest(int game, int button, char *out, int size) {
     static cg_history keep_path;
+    static char shown[CE_TITLE_BYTES];
     const ce_adapter *a = ce_adapter_for(game);
     ce_layout first;
     ce_result most;
@@ -3928,7 +4249,8 @@ static int cg_tallest(int game, int button, char *out, int size) {
             first = ce_result_layout(a);
             memset(&most, 0, sizeof most);
             most.refused = 999;
-            cg_compose(&first, cg.title, cg_display(k), cg.display_villager[k] && cg.job_count[k] > 0 ? &most : NULL,
+            cg_display_title(k, shown, sizeof shown);
+            cg_compose(&first, shown, cg_display(k), cg.display_villager[k] && cg.job_count[k] > 0 ? &most : NULL,
                        out, size);
             lines = ce_text_lines(out);
         }
@@ -5126,6 +5448,16 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphSent(char *out, int cap, 
 /* Display `k`'s text, or NULL. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphDisplay(int k) {
     return k >= 0 && k < cg.display_count ? cg_display(k) : NULL;
+}
+
+/* Display `k`'s popup title (cie-v6-binary.md 14), or NULL. */
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphTitle(int k) {
+    static char title[CE_TITLE_BYTES + 64];
+    if (k < 0 || k >= cg.display_count) {
+        return NULL;
+    }
+    cg_display_title(k, title, sizeof title);
+    return title;
 }
 
 /* What "VVFP Cause of Death.dll" / "VVFP Faith Notice.dll" were told, entry `k`: its kind (1 killed, 2 vanished, 3

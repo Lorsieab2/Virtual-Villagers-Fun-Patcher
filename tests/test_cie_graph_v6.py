@@ -156,6 +156,59 @@ NO_ROLES = {
     },
 }
 
+TITLES = {
+    # Per-node popup titles (cie-v6-binary.md 14): the opening picks the title (V24); the answer's first page,
+    # shown in the question's own popup, keeps the question's title; the next popup takes the answer's.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Revolution", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "start": "b",
+    "nodes": {
+        "b": {"type": "branch", "children": [{"next": "inv"}, {"next": "dis"}]},
+        "inv": {"title": "The Revolutionary Invention", "text": "(Name) builds a wondrous machine.",
+                "children": [{"next": "q"}]},
+        "dis": {"title": "The Revolutionary Discovery", "text": "(Name) finds a wondrous cave.",
+                "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "Show the elders?", "choices": [
+            {"label": "Show them", "next": "y"}, {"label": "Keep it quiet", "next": "n"}]},
+        "y": {"title": "The Elders Decide", "text": "The elders gather around (him/her).",
+              "children": [{"next": "y2"}]},
+        "y2": {"text": "They decide to let (him/her) carry on."},
+        "n": {"text": "(Name) keeps the secret."},
+    },
+}
+
+
+LABELS = {
+    # Button labels too wide with the names show pronouns (cie-v6-binary.md 15): the object form by default, the
+    # hint's form, in the case written.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Far Reef", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}, "friend": {"kind": "villager"}},
+    "start": "q",
+    "nodes": {
+        "q": {"type": "question", "text": "(Name) and (friend.name) look out to sea.", "choices": [
+            {"label": "TELL (NAME1) AND (FRIEND|HE/SHE) TO SAIL OUT TO THE FAR REEF AT DAWN", "next": "a"},
+            {"label": "Keep (name1) home", "next": "b"}]},
+        "a": {"text": "They sail at dawn."},
+        "b": {"text": "(Name) stays home."},
+    },
+}
+
+
+VISITOR = {
+    # A named stranger (cie-v6-binary.md 16): VV5's offscreen Isolan.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Visitor", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}, "visitor": {"kind": "stranger", "sex": "female", "named": True}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Visitor) arrives by canoe. (Name) greets (visitor.him/her); (VISITOR) LAUGHS.",
+              "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "What does (name) offer?", "choices": [
+            {"label": "Share a meal with (Visitor)", "next": "a"}, {"label": "Send (visitor.him/her) away", "next": "b"}]},
+        "a": {"text": "(Visitor) and (name) eat together."},
+        "b": {"text": "(Visitor) paddles away."},
+    },
+}
+
 
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
@@ -201,6 +254,22 @@ def vector_cases() -> list[dict]:
          "answers": [0], "facts": None},
         {"name": "no_roles_vv5", "graph": NO_ROLES, "game": 5, "unicode": False, "rolls": [3, 1, 4, 1, 5],
          "bindings": {}, "answers": [1], "facts": None},
+        {"name": "node_titles_vv2", "graph": TITLES, "game": 2, "unicode": False, "rolls": [0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [0], "facts": None},
+        {"name": "node_titles_vv4", "graph": TITLES, "game": 4, "unicode": False, "rolls": [1],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None},
+        {"name": "label_pronouns_vv3", "graph": LABELS, "game": 3, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
+         "answers": [0], "facts": None},
+        {"name": "label_names_vv5", "graph": LABELS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
+         "answers": [1], "facts": None},
+        {"name": "named_stranger_vv5", "graph": VISITOR, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aipi", "sex": "f"}},
+         "answers": [0], "facts": None},
+        {"name": "named_stranger_vv1", "graph": VISITOR, "game": 1, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aika", "sex": "f"}},
+         "answers": [1], "facts": None},
     ]
 
 
@@ -844,10 +913,12 @@ class TitlesCapsAndNoRoles(unittest.TestCase):
         self.assertEqual(cg.worst_v6("(HIS/HER) (NAME)", g, cg.GAMES[3], None), "HIS " + "W" * 23)
         for scrolling in (False, True):
             self.assertEqual(cg.validate(CAPS, scrolling)[1], [])
-        # The fit is kept: an all-caps NAME in that label runs off the screen with the longest name, so the content
-        # uses the all-caps pronoun there.
+        # An all-caps NAME in that label runs off the screen with the longest name; since cie-v6-binary.md 15 the
+        # engine then shows the pronoun (TELL HIM / HER ...), so the label passes; with no room even for that, not.
         d = copy.deepcopy(CAPS)
         d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."
+        self.assertEqual(t.problems_of(d, True), [])
+        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT BY THE MACHINE IT BUILT."
         self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
 
     def test_no_roles(self):
@@ -891,6 +962,138 @@ class Fit(unittest.TestCase):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
         d["nodes"]["p"]["text"] = "{X.1} {X.2}"
         self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, True)))
+
+
+class NodeTitles(unittest.TestCase):
+    """Per-node popup titles (cie-v6-binary.md 14)."""
+
+    def test_valid_round_trip_and_record(self):
+        g = cg.load(copy.deepcopy(TITLES))
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        names = list(cg.lower(g)["nodes"])
+        o_node = struct.unpack_from("<I", blob, 48)[0]
+        for i, nid in enumerate(names):
+            title = struct.unpack_from("<H", blob, o_node + 28 * i + 26)[0]
+            self.assertEqual(title == cg.NONE, "title" not in g["nodes"][nid], nid)
+
+    def test_refusals(self):
+        d = copy.deepcopy(TITLES)
+        d["nodes"]["b"]["title"] = "A Branch"
+        self.assertTrue(any("a branch shows no text" in p for p in t.problems_of(d)))
+        d = copy.deepcopy(TITLES)
+        d["nodes"]["inv"]["title"] = "W" * 40
+        self.assertTrue(any("node inv: its popup title is" in p and "pixels wide" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "x" * 48
+        self.assertTrue(any("longer than 47" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "Bad (Name)"
+        self.assertTrue(any("node inv: its popup title has no placeholders" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "Semi;colon"
+        self.assertTrue(any("cannot show" in p for p in t.problems_of(d)))
+        old = t.four_doors(5)
+        next(iter(old["nodes"].values()))["title"] = "Older"
+        self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
+
+    def test_simulate_titles(self):
+        g = cg.load(copy.deepcopy(TITLES))
+        r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
+        self.assertEqual(r["titles"], ["The Revolutionary Invention"] * 3 + ["The Elders Decide"])
+        r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [1])
+        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 3)
+
+    def test_the_fit_pages_with_the_widest_title(self):
+        # A New Home leads each page with its title: a node's two-line title takes one more line than the event's.
+        d = copy.deepcopy(TITLES)
+        d["games"] = [1]
+        g = cg.load(d)
+        ctx = cg.contexts(g, [1])[0]
+        pops = [p for h in cg.walk(g, ctx) for p in h.popups if "y" in p.nodes]
+        self.assertEqual(pops[0].titles, ["The Revolutionary Invention", "The Elders Decide"])
+        layout = cg.Layout(10, 14, True)
+        self.assertEqual(cg.widest_title(g, ["", "Short", "Threeline Titleline Hereline"], layout, cg.GAMES[1]),
+                         "Threeline Titleline Hereline")
+        self.assertEqual(cg.widest_title(g, ["", "Short"], layout, cg.GAMES[1]), "The Revolution")
+
+
+class NamedStrangers(unittest.TestCase):
+    """A named stranger (cie-v6-binary.md 16)."""
+
+    def test_the_lists_are_the_games_own(self):
+        names = json.loads(cg.VILLAGER_NAMES.read_text(encoding="utf-8"))["games"]
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+                5: "New Believers"}
+        for game, title in exes.items():
+            d = names[str(game)]
+            male, female = cg.villager_names(game)
+            self.assertGreater(len(male), 60)
+            self.assertEqual((d["male_bytes"], d["female_bytes"]),
+                             (len(",".join(male)) + 1, len(",".join(female)) + 1))
+            exe = stock / f"Virtual Villagers - {title}.exe"
+            if not exe.is_file():
+                continue
+            import pefile
+            pe = pefile.PE(str(exe), fast_load=True)
+            data = exe.read_bytes()
+            for va, names_ in ((d["male_va"], male), (d["female_va"], female)):
+                with self.subTest(game=game, va=hex(va)):
+                    off = pe.get_offset_from_rva(va - pe.OPTIONAL_HEADER.ImageBase)
+                    want = (",".join(names_) + ",").encode()
+                    self.assertEqual(data[off:off + len(want)], want, "the list at its address in the stock game")
+        self.assertEqual([cg.stranger_name_room(g) for g in range(1, 6)], [6, 7, 8, 8, 8])
+
+    def test_format(self):
+        g = cg.load(copy.deepcopy(VISITOR))
+        self.assertTrue(g["roles"]["visitor"]["named"])
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_role = struct.unpack_from("<I", blob, 44)[0]
+        self.assertEqual(blob[o_role + 16 + 1], 1, "the stranger's flags: named")
+        d = copy.deepcopy(VISITOR)
+        del d["roles"]["visitor"]["named"]
+        self.assertTrue(any("a stranger has no name" in p for p in t.problems_of(d)))
+        d["roles"]["visitor"]["named"] = "yes"
+        self.assertTrue(any("named is true or false" in p for p in t.problems_of(d)))
+        lg = cg.lower(g)
+        self.assertEqual(cg.worst_v6("(Visitor)!", lg, cg.GAMES[2], None), "WWWWWWW!")
+        r = cg.simulate(g, 5, [], {"subject": cg.Binding("Ana", "f"), "visitor": cg.Binding("Aipi", "f")}, [0])
+        self.assertEqual(r["popups"][0], "Aipi arrives by canoe. Ana greets her; AIPI LAUGHS.")
+
+
+class LabelPronouns(unittest.TestCase):
+    """Button labels too wide with the names show pronouns (cie-v6-binary.md 15)."""
+
+    def test_the_fit_takes_the_fallback(self):
+        self.assertEqual(t.problems_of(copy.deepcopy(LABELS)), [])
+        d = copy.deepcopy(LABELS)
+        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO SAIL OUT TO THE VERY FAR REEF AT DAWN WITH EVERY " \
+                                                  "BOAT THE VILLAGE OWNS"
+        self.assertTrue(any("the label 'TELL (NAME1) TO SAIL" in p for p in t.problems_of(d)),
+                        "too wide even as pronouns")
+
+    def test_the_hint_is_only_for_labels(self):
+        d = copy.deepcopy(LABELS)
+        d["nodes"]["a"]["text"] = "(Name|he/she) sails."
+        self.assertTrue(any("a pronoun hint is only for button labels" in p for p in t.problems_of(d)))
+        d["nodes"]["a"]["text"] = "They sail."
+        d["nodes"]["q"]["choices"][1]["label"] = "Keep (name1|they/them) home"
+        self.assertTrue(any("is not a placeholder" in p for p in t.problems_of(d)))
+        d["nodes"]["q"]["choices"][1]["label"] = "Keep (him/her|he/she) home"
+        self.assertTrue(any("is not a placeholder" in p for p in t.problems_of(d)), "a hint only on a name")
+
+    def test_the_label_shown(self):
+        g = cg.load(copy.deepcopy(LABELS))
+        lg = cg.lower(g)
+        b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
+        wide = lg["nodes"]["q"]["choices"][0]["label"]
+        self.assertEqual(cg.label_shown(wide, lg, b, 3), "TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN")
+        self.assertEqual(cg.label_shown(wide, lg, b, 5),
+                         "TELL ROSALIND AND BARTHOLOMEW TO SAIL OUT TO THE FAR REEF AT DAWN")
+        self.assertEqual(cg.label_shown("Ask (Name1) and (friend.Name)" + " now" * 40, lg, b, 3),
+                         "Ask Her and Him" + " now" * 40, "capitalised: the object form, capitalised")
+        r = cg.simulate(g, 3, [], b, [0])
+        self.assertEqual(r["labels"], [["TELL HER AND HE TO SAIL OUT TO THE FAR REEF AT DAWN", "Keep Rosalind home"]])
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g)), cg.without_names(g))
 
 
 if __name__ == "__main__":
