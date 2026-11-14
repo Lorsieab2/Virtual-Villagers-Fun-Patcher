@@ -68277,7 +68277,7 @@
   },
   {
    "stem": "vvfp.story/story_collection.sc_pick_buy.s0",
-   "english": "%.300s can not happen right now: %.600s No tech points have been deducted.",
+   "english": "%s can not happen right now: %s No tech points have been deducted.",
    "games": [
     "vv1",
     "vv2",
@@ -68291,7 +68291,7 @@
   },
   {
    "stem": "vvfp.story/story_collection.sc_library_add.s0",
-   "english": "Isola Grand Event Collection: %.80s",
+   "english": "Isola Grand Event Collection: %s",
    "games": [
     "vv1",
     "vv2",
@@ -68669,7 +68669,7 @@
   },
   {
    "stem": "vvfp.story/story_more_events.sm_refusal_of.s0",
-   "english": "%.300s can not happen right now: %.600s",
+   "english": "%s can not happen right now: %s",
    "games": [
     "vv1",
     "vv2",

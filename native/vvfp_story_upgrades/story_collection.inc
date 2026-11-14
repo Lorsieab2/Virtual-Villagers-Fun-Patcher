@@ -753,7 +753,7 @@ static int sc_pick_buy(int game, HWND owner, int i) {
     if (sc_check(game, i, why, sizeof why) != NULL || !sc_load_entry(i, &size)
         || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK, CG_CAST_STRICT)) {
         wsprintfA(message, vvfp_tr("vvfp.story/story_collection.sc_pick_buy.s0",
-                                   "%.300s can not happen right now: %.600s No tech points have been deducted.", 200),
+                                   "%s can not happen right now: %s No tech points have been deducted.", 200),
                   sc_list[i].title, cg_queue_refusal()[0] != '\0' ? cg_queue_refusal() : why);
         vvfp_message_box(owner, message, "Pick Island Event", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -789,7 +789,7 @@ static void sc_library_add(int game) {
             continue;                  /* a folder the ANSI path cannot name: left out of the library only */
         }
         wsprintfA(cg_lib.label[cg_lib.count],
-                  vvfp_tr("vvfp.story/story_collection.sc_library_add.s0", "Isola Grand Event Collection: %.80s", 100),
+                  vvfp_tr("vvfp.story/story_collection.sc_library_add.s0", "Isola Grand Event Collection: %s", 100),
                   sc_list[i].title);
         ++cg_lib.count;
     }

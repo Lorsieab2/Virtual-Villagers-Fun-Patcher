@@ -96,8 +96,10 @@ static void sm_refusal(const char *title, const char *needs, char *out, int cap)
 /* The plain refusal of list entry `m` chosen while it can not happen. */
 static void sm_refusal_of(int m, char *out, int cap) {
     if (sm_list.k[m] >= SM_COLL_BASE) {
-        wsprintfA(out, vvfp_tr("vvfp.story/story_more_events.sm_refusal_of.s0", "%.300s can not happen right now: %.600s",
-                               200), sm_list.title[m], sm_list.needs[m]);
+        char text[SM_TEXT * 2 + 200];  /* wsprintfA writes at most 1024 bytes: the title and the needs fit */
+        wsprintfA(text, vvfp_tr("vvfp.story/story_more_events.sm_refusal_of.s0", "%s can not happen right now: %s",
+                                200), sm_list.title[m], sm_list.needs[m]);
+        lstrcpynA(out, text, cap);
         return;
     }
     sm_refusal(sm_list.title[m], sm_list.needs[m], out, cap);
