@@ -494,6 +494,36 @@ def label_px(game: int, text: str) -> int:
     return total + t["spacing"] * (len(text) - 1)
 
 
+# ---- Titles in The Secret City, The Tree of Life and New Believers (version 6) ---------------------------------
+#
+# Their island-event dialog draws the title as a string of its own, on ONE line, centred: the body draw (VV3
+# 0x418510, VV4 0x416EC0, VV5 0x417660) calls the centred text draw (0x40A070 / 0x409BE0 / 0x409EB0) with the title
+# [dialog+0x54], at x = [+0x848] (half the panel) and y = [+0x84C], in the dialog's font [+0x82C] -- the font the
+# constructor (0x4192F0 / 0x417790 / 0x418020) copies from the text manager, the one its body text uses
+# (tests/scrolling_popups_emulation.py: ldwarialbold).  Nothing wraps or cuts it.  A version 6 title is therefore
+# checked by its pixels in that font (data/font_glyph_tables.json), against the width the body text gets (the panel
+# less 0x28 at each side: 0x1B0 in VV3 / VV4, 0x270 in VV5), so it stands inside the panel with the text's margins;
+# tests/test_cie_graph_v6.py pins the measure against the emulated stock dialog.  Versions 1-5 keep their
+# 30-character rule; A New Home and The Lost Children wrap the title into the text (title_width).
+
+FONT_TABLES = Path(__file__).resolve().parents[1] / "data" / "font_glyph_tables.json"
+TITLE_FONT = "ldwarialbold"
+TITLE_BOX_PX = {3: 0x200 - 0x50, 4: 0x200 - 0x50, 5: 0x2C0 - 0x50}
+_TITLE_TABLE: dict = {}
+
+
+def title_px(game: int, text: str) -> int:
+    """`text` as the later games' dialog draws its title: each glyph's box (a character the font lacks as "A") plus
+    the font's spacing between them."""
+    if game not in _TITLE_TABLE:
+        font = json.loads(FONT_TABLES.read_text(encoding="utf-8"))["games"][f"vv{game}"]["fonts"][TITLE_FONT]
+        _TITLE_TABLE[game] = ({e[0]: e[3] - e[1] for e in font["entries"]}, font["spacing"])
+    widths, spacing = _TITLE_TABLE[game]
+    if not text:
+        return 0
+    return sum(widths.get(ord(c), widths[ord("A")]) for c in text) + spacing * (len(text) - 1)
+
+
 def label_max_px(game: int) -> int:
     """The widest label the game's screen shows whole, centred."""
     return _label_table(game)["max_px"]
@@ -861,7 +891,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
 
     roles_in = data.get("roles")
     roles: dict[str, dict] = {}
-    if not isinstance(roles_in, dict) or not roles_in:
+    if not isinstance(roles_in, dict) or (not roles_in and not (v6 and roles_in == {})):   # v6: no roles at all
         problems.append("roles is missing")
         roles_in = {}
     kinds = ("villager", "stranger", "alias", "other") if v6 else ("villager", "stranger")
@@ -1397,6 +1427,7 @@ class Placeholder:
     role: str | None      # None for award / award_unit
     what: str             # "name", a PRONOUNS key, "award", "award_unit"
     capital: bool
+    upper: bool = False   # version 6: written in capitals, (NAME1) (HE/SHE): the word in capitals
 
 
 def parse_placeholder(token: str) -> Placeholder | None:
@@ -1466,28 +1497,33 @@ def worst_case(text: str, game: Game, award: tuple[str, int, bool] | None) -> st
 
 def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
     """A version 6 placeholder's inside: v5's, the four new pronouns, and the role shorthand (gardener1) /
-    (Gardener1) -- that role's name, the id matched ignoring capitals.  A keyword always wins."""
+    (Gardener1) -- that role's name, the id matched ignoring capitals.  A keyword always wins.  All in capitals
+    ((NAME1), (HIM/HER), (FRIEND.HE/SHE), (GARDENER1)): the same word in capitals, the role prefix matched ignoring
+    capitals."""
     role, dot, word = token.rpartition(".")
     if dot and not role:
         return None
     low = word.lower()
     if not word:
         return None
+    upper = sum(c.isalpha() for c in token) >= 2 and not any(c.islower() for c in token)
+    if upper and role and role not in roles:
+        role = next((r for r in roles if r.lower() == role.lower()), role)
     if low in ("award", "award_unit"):
-        return None if role else Placeholder(None, low, False)
+        return None if role else Placeholder(None, low, False, upper)
     if low in _NAME_ALIASES:
         target = _NAME_ALIASES[low]
-        return None if role or target not in roles else Placeholder(target, "name", word[0].isupper())
+        return None if role or target not in roles else Placeholder(target, "name", word[0].isupper(), upper)
     if low == "name" or low in PRONOUNS_V6:
         if word[0].isupper() != (word.split("/")[0][0].isupper()):
             return None
         rid = role or default_role_of(roles)
-        return Placeholder(rid, low, word[0].isupper()) if rid in roles else None
+        return Placeholder(rid, low, word[0].isupper(), upper) if rid in roles else None
     if role:
         return None
     for rid in roles:
         if rid.lower() == low:
-            return Placeholder(rid, "name", word[0].isupper())
+            return Placeholder(rid, "name", word[0].isupper(), upper)
     return None
 
 
@@ -1517,11 +1553,12 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 out.append(str(award[1]) if award else "")
                 continue
             if p.what == "award_unit":
-                out.append(UNITS[award[0]] if award else "")
+                unit = UNITS[award[0]] if award else ""
+                out.append(unit.upper() if p.upper else unit)
                 continue
             b = bindings[aliases.get(p.role, p.role)]
             word = b.name if p.what == "name" else PRONOUNS_V6[p.what][0 if b.sex == "m" else 1]
-            out.append(word[0].upper() + word[1:] if p.capital and word else word)
+            out.append(word.upper() if p.upper else word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
@@ -1558,11 +1595,13 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                     widest = max(abs(x) for x in award[1]) if isinstance(award[1], tuple) else abs(award[1])
                     out.append("9" * (AWARD_WIDEST if award[2] else len(str(widest))))
             elif p.what == "award_unit":
-                out.append(UNITS[award[0]] if award else UNITS["tech"])
+                unit = UNITS[award[0]] if award else UNITS["tech"]
+                out.append(unit.upper() if p.upper else unit)
             elif p.what == "name":
                 out.append("W" * game.name_room)
             else:
-                out.append(max(PRONOUNS_V6[p.what], key=len))
+                word = max(PRONOUNS_V6[p.what], key=len)
+                out.append(word.upper() if p.upper else word)
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
@@ -2579,7 +2618,11 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
         problems.append("the title has characters the game cannot show")
     for gn in g["games"]:
         game = GAMES[gn]
-        if len(title) > game.title_width:
+        if v6 and gn in TITLE_BOX_PX:
+            if title_px(gn, title) > TITLE_BOX_PX[gn]:
+                problems.append(f"{game.name}: the title is {title_px(gn, title)} pixels wide; its popup shows "
+                                f"{TITLE_BOX_PX[gn]}")
+        elif len(title) > game.title_width:
             problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
         for nid, n in nodes.items():
             for c in n["choices"]:
