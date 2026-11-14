@@ -134,12 +134,12 @@ static void *ce_deliver_object(int game, unsigned int string_table, int title_id
    so the popup is tall enough for any of them.  The apply on OK does
    nothing: the changes were made at the click. */
 
-static char choice_labels[MA_MAX_ANSWERS][CE_BUTTON_BYTES];
+static char choice_labels[MA_MAX_ANSWERS][96];   /* a format 6 label: 95 bytes (story_graph.inc CG_LABEL_V6) */
 static char choice_tallest[MA_MAX_ANSWERS][2000];
 static char choice_result[2000];
 static int choice_answered;
 static int choice_game;
-static int choice_answers;               /* 2, or a branching event's question's 3 or 4 (format version 4) */
+static int choice_answers;               /* 2, or a branching event's question's 3 to 7 (format 4: 3 or 4) */
 static int choice_tallest_at;            /* with 3 or 4: the answer whose first page is the tallest */
 static char choice_padded[2000];
 
@@ -260,7 +260,13 @@ static void cs_answer(void *dialog, int answer) {
     ma_dialog_call(g->show, dialog, ma_control(dialog, 0x864u));
 }
 
-static const ma_client CS_CLIENT = { cs_text_id, cs_state, cs_answer };
+/* G1: five or more answers: the answer's page is a popup of its own, so this one closes at the click. */
+static int cs_closes(void *dialog) {
+    (void)dialog;
+    return cg_answer_closes(choice_game);
+}
+
+static const ma_client CS_CLIENT = { cs_text_id, cs_state, cs_answer, cs_closes };
 
 /* After the presenter's constructor (the stubs' own path for 3 or 4 answers): the shared popup's extra buttons, then
    the question's text back (the labels went through it). */

@@ -1,0 +1,4296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cooking Contest",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_cooking_contest",
+  "source": "v26",
+  "lines": [
+   100,
+   626
+  ],
+  "section": "original",
+  "credit": "* The Cooking Contest (VV2): original premise, original event manuscript,\n  randomized cook-off framework and extensive outcome banks by Lorsieab2.\n  Later additional branches, repairs and expansion text: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L100",
+  "ledger": [
+   {
+    "src": "L108",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L132",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L151",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L177",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "bank heading and designer note"
+   },
+   {
+    "src": "L230",
+    "kind": "gap",
+    "set": "D-CUISINE",
+    "why": "\"traditional (tribe name)\": the format has no token for the village's name"
+   },
+   {
+    "src": "L231",
+    "kind": "gap",
+    "set": "D-CUISINE",
+    "why": "\"contemporary (tribe name)\": the format has no token for the village's name"
+   },
+   {
+    "src": "L236",
+    "kind": "note",
+    "why": "bank heading and designer note"
+   },
+   {
+    "src": "L251",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L270",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L302",
+    "kind": "structural",
+    "why": "route \"(to N)\": both recipes lead to the bell"
+   },
+   {
+    "src": "L307",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L336",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L340",
+    "kind": "note",
+    "text": "(deliberately unsuitable container)",
+    "why": "designer note"
+   },
+   {
+    "src": "L352",
+    "kind": "note",
+    "text": "(deliberately unsuitable container)",
+    "why": "designer note"
+   },
+   {
+    "src": "L353",
+    "kind": "note",
+    "text": "(deliberately unsuitable container)",
+    "why": "designer note"
+   },
+   {
+    "src": "L354",
+    "kind": "note",
+    "text": "(deliberately unsuitable container)",
+    "why": "designer note"
+   },
+   {
+    "src": "L357",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L377",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L401",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L421",
+    "kind": "instruction",
+    "why": "the six endings A-F are one equal split (G-I belong to add-on 1)"
+   },
+   {
+    "src": "L427",
+    "kind": "structural",
+    "why": "ending letter"
+   },
+   {
+    "src": "L431",
+    "kind": "note",
+    "why": "designer note on the D banks"
+   },
+   {
+    "src": "L433",
+    "kind": "structural",
+    "why": "ending heading"
+   },
+   {
+    "src": "L434",
+    "kind": "instruction",
+    "text": "(If points are deducted, return to A or B; if disqualified, award the other competitor the win via 4. A correction must be possible within the time limit.)",
+    "why": "the routes of the three options"
+   },
+   {
+    "src": "L436",
+    "kind": "structural",
+    "why": "ending heading"
+   },
+   {
+    "src": "L437",
+    "kind": "instruction",
+    "text": "(The judges stop anyone from eating the tampered dish.)",
+    "why": "continuity: nobody eats it in any route"
+   },
+   {
+    "src": "L439",
+    "kind": "structural",
+    "why": "ending heading"
+   },
+   {
+    "src": "L442",
+    "kind": "note",
+    "why": "bank heading and designer note (items follow 'for (his/her)')"
+   },
+   {
+    "src": "L465",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L485",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L514",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L544",
+    "kind": "structural",
+    "text": "(to 2)",
+    "why": "route"
+   },
+   {
+    "src": "L548",
+    "kind": "instruction",
+    "text": "(then A or B, but a second tie-breaker cannot happen; if another tie occurs, the judges must choose a winner or award a joint victory)",
+    "why": "the tie page leads to A or to B without the tie-breaker"
+   },
+   {
+    "src": "L555",
+    "kind": "instruction",
+    "text": "(the winner gains 100% skill in farming; for a joint victory, award both competitors if supported)",
+    "why": "Farming set to 100 for both"
+   },
+   {
+    "src": "L558",
+    "kind": "instruction",
+    "text": "(the winner gains 100% skill in farming)",
+    "why": "Farming set to 100 (joint win: both)"
+   },
+   {
+    "src": "L561",
+    "kind": "instruction",
+    "text": "(the winner gains 100% skill in farming)",
+    "why": "Farming set to 100 (joint win: both)"
+   },
+   {
+    "src": "L564",
+    "kind": "instruction",
+    "text": "(the winner gains 100% skill in farming)",
+    "why": "Farming set to 100 (joint win: both)"
+   },
+   {
+    "src": "L568",
+    "kind": "instruction",
+    "text": "(the winner gains 100% skill in farming)",
+    "why": "Farming set to 100 for the winner"
+   },
+   {
+    "src": "L579",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L589",
+    "kind": "instruction",
+    "text": "(10; only use when deliberate tampering is established)",
+    "why": "route to (10); the finding establishes it"
+   },
+   {
+    "src": "L591",
+    "kind": "structural",
+    "why": "heading"
+   },
+   {
+    "src": "L592",
+    "kind": "instruction",
+    "text": "(If the other competitor wins, go to 4; if canceled, go to 8. Do not label an accidental mistake sabotage.)",
+    "why": "the routes of the four options"
+   },
+   {
+    "src": "L594",
+    "kind": "structural",
+    "why": "heading"
+   },
+   {
+    "src": "L595",
+    "kind": "instruction",
+    "text": "(If resumed, return to A or B; if other dish wins, go to 4; otherwise go to 8.)",
+    "why": "the routes of the four options"
+   },
+   {
+    "src": "L597",
+    "kind": "structural",
+    "why": "heading"
+   },
+   {
+    "src": "L598",
+    "kind": "instruction",
+    "text": "(The innocent competitor may be declared winner via 4, or the contest may be canceled via 8.) A punishment is only imposed when the sabotage is actually established.",
+    "why": "the routes after (10)"
+   },
+   {
+    "src": "L600",
+    "kind": "structural",
+    "why": "heading"
+   },
+   {
+    "src": "L601",
+    "kind": "instruction",
+    "text": "If the sabotage is discovered, (10); otherwise, the improved dish may win through (4), with (other name) credited as the cook. Do not reward the saboteur as though (he/she) cooked the rival's dish.",
+    "why": "the routes of the saboteur's three reactions"
+   },
+   {
+    "src": "L603",
+    "kind": "structural",
+    "why": "heading and designer note"
+   },
+   {
+    "src": "L610",
+    "kind": "instruction",
+    "text": "(leads to the villager disliking whatever is chosen here, or the following: herbs, alchemy, plants, fish, coconuts, anything involving farming or medicine)",
+    "why": "the dislike effect (the game's own words: cooking; herbs; medicine)"
+   },
+   {
+    "src": "L613",
+    "kind": "instruction",
+    "text": "(villager dislikes work)",
+    "why": "the dislike effect"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L104",
+   "before": "is.... ",
+   "after": "is "
+  },
+  {
+   "src": "L135",
+   "before": "works things out.",
+   "after": "works things out"
+  },
+  {
+   "src": "L138",
+   "before": "has tried, failed and succeeded throughout life",
+   "after": "who has tried, failed and succeeded throughout life"
+  },
+  {
+   "src": "L163",
+   "before": "has reliable friends.",
+   "after": "has reliable friends"
+  },
+  {
+   "src": "L165",
+   "before": "taught them well",
+   "after": "taught (him/her) well"
+  },
+  {
+   "src": "L168",
+   "before": "taught them some tips",
+   "after": "taught (him/her) some tips"
+  },
+  {
+   "src": "L171",
+   "before": "uses their strong emotions",
+   "after": "uses (his/her) strong emotions"
+  },
+  {
+   "src": "L171",
+   "before": "fuel their art.",
+   "after": "fuel (his/her) art"
+  },
+  {
+   "src": "L188",
+   "before": "value their work",
+   "after": "value (his/her) work"
+  },
+  {
+   "src": "L189",
+   "before": "value their purpose",
+   "after": "value (his/her) purpose"
+  },
+  {
+   "src": "L263",
+   "before": "the charismatic crowner",
+   "after": "the charismatic contender"
+  },
+  {
+   "src": "L300",
+   "before": "knows it can't compare to anything else",
+   "after": "knows nothing else can compare to it"
+  },
+  {
+   "src": "L305",
+   "before": "their initial recipe",
+   "after": "(his/her) initial recipe"
+  },
+  {
+   "src": "L468",
+   "before": "brag about their win",
+   "after": "brag about (his/her) win"
+  },
+  {
+   "src": "L469",
+   "before": "all his/her friends his/her skills",
+   "after": "all (his/her) friends (his/her) skills"
+  },
+  {
+   "src": "L473",
+   "before": "down his/her experiences",
+   "after": "down (his/her) experiences"
+  },
+  {
+   "src": "L474",
+   "before": "teach each other the art of cooking",
+   "after": "teach others the art of cooking"
+  },
+  {
+   "src": "L476",
+   "before": "cook in peace.",
+   "after": "cook in peace"
+  },
+  {
+   "src": "L481",
+   "before": "showcase his/her award",
+   "after": "showcase (his/her) award"
+  },
+  {
+   "src": "L482",
+   "before": "all his/her detractors",
+   "after": "all (his/her) detractors"
+  },
+  {
+   "src": "L483",
+   "before": "with his/her food",
+   "after": "with (his/her) food"
+  },
+  {
+   "src": "L491",
+   "before": "crosses his/her arms",
+   "after": "crosses (his/her) arms"
+  },
+  {
+   "src": "L492",
+   "before": "nods his/her head",
+   "after": "nods (his/her) head"
+  },
+  {
+   "src": "L508",
+   "before": "pretends he/she did not lose",
+   "after": "pretends (he/she) did not lose"
+  },
+  {
+   "src": "L510",
+   "before": "thankful he/she got",
+   "after": "thankful (he/she) got"
+  },
+  {
+   "src": "L512",
+   "before": "\"Are you kidding me.\"",
+   "after": "\"Are you kidding me?\""
+  },
+  {
+   "src": "L561",
+   "before": "can't continue fighting.)",
+   "after": "can't continue fighting)."
+  },
+  {
+   "src": "L623",
+   "before": "can't continue fighting.)",
+   "after": "can't continue fighting)."
+  }
+ ],
+ "words": {
+  "a_chief": {
+   "*": "a leader"
+  },
+  "chiefs": {
+   "*": "elders"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "distinct": true,
+   "items": [
+    {
+     "text": "a young, yet talented apprentice",
+     "src": "L110"
+    },
+    {
+     "text": "a studious pupil",
+     "src": "L111"
+    },
+    {
+     "text": "an angry person",
+     "src": "L112"
+    },
+    {
+     "text": "a hopeful spirit",
+     "src": "L113"
+    },
+    {
+     "text": "a determined leader",
+     "src": "L114"
+    },
+    {
+     "text": "a stubborn person",
+     "src": "L115"
+    },
+    {
+     "text": "a cocky, confident challenger",
+     "src": "L116"
+    },
+    {
+     "text": "an experienced chef",
+     "src": "L117"
+    },
+    {
+     "text": "a magical prodigy",
+     "src": "L118"
+    },
+    {
+     "text": "a cool-headed person",
+     "src": "L119"
+    },
+    {
+     "text": "a hot-headed person",
+     "src": "L120"
+    },
+    {
+     "text": "an average person",
+     "src": "L121"
+    },
+    {
+     "text": "a person that has a few screws loose",
+     "src": "L122"
+    },
+    {
+     "text": "a genius",
+     "src": "L123"
+    },
+    {
+     "text": "an intuitive-minded person",
+     "src": "L124"
+    },
+    {
+     "text": "a skilled healer",
+     "src": "L125"
+    },
+    {
+     "text": "a person who believes they are nothing special",
+     "src": "L126"
+    },
+    {
+     "text": "a quiet soul",
+     "src": "L127"
+    },
+    {
+     "text": "a person that talks before they act",
+     "src": "L128"
+    },
+    {
+     "text": "talented in many different fields",
+     "src": "L129"
+    },
+    {
+     "text": "a well-known leader",
+     "src": "L130"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "that tries (cook1.his/her) hardest to please",
+     "src": "L133"
+    },
+    {
+     "text": "that handles pressure well",
+     "src": "L134"
+    },
+    {
+     "text": "that struggles with complicated problems, but eventually works things out",
+     "src": "L135"
+    },
+    {
+     "text": "who prefers to keep things under wraps",
+     "src": "L136"
+    },
+    {
+     "text": "who has several decades' worth of knowledge",
+     "src": "L137"
+    },
+    {
+     "text": "who has tried, failed and succeeded throughout life",
+     "src": "L138"
+    },
+    {
+     "text": "that never gives up",
+     "src": "L139"
+    },
+    {
+     "text": "that is persistent",
+     "src": "L140"
+    },
+    {
+     "text": "that likes to put others down",
+     "src": "L141"
+    },
+    {
+     "text": "that has a huge ego",
+     "src": "L142"
+    },
+    {
+     "text": "that believes (cook1.he/she) can do no wrong",
+     "src": "L143"
+    },
+    {
+     "text": "that cares about the quality of their work",
+     "src": "L144"
+    },
+    {
+     "text": "that excels at anything (cook1.he/she) does",
+     "src": "L145"
+    },
+    {
+     "text": "that makes careless mistakes",
+     "src": "L146"
+    },
+    {
+     "text": "that reflects on their shortcomings and mistakes",
+     "src": "L147"
+    },
+    {
+     "text": "that doesn't let difficult situations bother them",
+     "src": "L148"
+    },
+    {
+     "text": "who has risen up the ranks to get to this point",
+     "src": "L149"
+    }
+   ]
+  },
+  "B2": {
+   "mirror_of": "B",
+   "items": [
+    {
+     "text": "that tries (cook2.his/her) hardest to please",
+     "src": "L133"
+    },
+    {
+     "text": "that handles pressure well",
+     "src": "L134"
+    },
+    {
+     "text": "that struggles with complicated problems, but eventually works things out",
+     "src": "L135"
+    },
+    {
+     "text": "who prefers to keep things under wraps",
+     "src": "L136"
+    },
+    {
+     "text": "who has several decades' worth of knowledge",
+     "src": "L137"
+    },
+    {
+     "text": "who has tried, failed and succeeded throughout life",
+     "src": "L138"
+    },
+    {
+     "text": "that never gives up",
+     "src": "L139"
+    },
+    {
+     "text": "that is persistent",
+     "src": "L140"
+    },
+    {
+     "text": "that likes to put others down",
+     "src": "L141"
+    },
+    {
+     "text": "that has a huge ego",
+     "src": "L142"
+    },
+    {
+     "text": "that believes (cook2.he/she) can do no wrong",
+     "src": "L143"
+    },
+    {
+     "text": "that cares about the quality of their work",
+     "src": "L144"
+    },
+    {
+     "text": "that excels at anything (cook2.he/she) does",
+     "src": "L145"
+    },
+    {
+     "text": "that makes careless mistakes",
+     "src": "L146"
+    },
+    {
+     "text": "that reflects on their shortcomings and mistakes",
+     "src": "L147"
+    },
+    {
+     "text": "that doesn't let difficult situations bother them",
+     "src": "L148"
+    },
+    {
+     "text": "who has risen up the ranks to get to this point",
+     "src": "L149"
+    }
+   ]
+  },
+  "C": {
+   "set": "C",
+   "items": [
+    {
+     "text": "that (cook1.he/she)'s good at remembering complex recipes",
+     "src": "L152"
+    },
+    {
+     "text": "that (cook1.he/she) has a vast array of knowledge in science",
+     "src": "L153"
+    },
+    {
+     "text": "that (cook1.he/she) has a vast array of knowledge in medicine",
+     "src": "L154"
+    },
+    {
+     "text": "that (cook1.he/she) knows how to take criticism",
+     "src": "L155"
+    },
+    {
+     "text": "that (cook1.he/she) has a photographic memory",
+     "src": "L156"
+    },
+    {
+     "text": "that (cook1.he/she) was taught many songs to help remember complicated recipes",
+     "src": "L157"
+    },
+    {
+     "text": "that (cook1.he/she) was taught botany and agriculture",
+     "src": "L158"
+    },
+    {
+     "text": "that (cook1.he/she) could hand-pick ingredients (cook1.himself/herself)",
+     "src": "L159"
+    },
+    {
+     "text": "that (cook1.he/she) was well-traveled",
+     "src": "L160"
+    },
+    {
+     "text": "that (cook1.he/she) studied well",
+     "src": "L161"
+    },
+    {
+     "text": "that (cook1.he/she) spent (cook1.his/her) time studying cuisine instead of other things",
+     "src": "L162"
+    },
+    {
+     "text": "that (cook1.he/she) has reliable friends",
+     "src": "L163"
+    },
+    {
+     "text": "that (cook1.he/she) had grown up in a difficult environment",
+     "src": "L164"
+    },
+    {
+     "text": "that (cook1.his/her) parents taught (cook1.him/her) well",
+     "src": "L165"
+    },
+    {
+     "text": "that (cook1.he/she) was exposed to a variety of tastes",
+     "src": "L166"
+    },
+    {
+     "text": "that (cook1.he/she) was exposed to a variety of ingredients",
+     "src": "L167"
+    },
+    {
+     "text": "that (cook1.his/her) mentors taught (cook1.him/her) some tips and tricks",
+     "src": "L168"
+    },
+    {
+     "text": "that (cook1.he/she) is self-reliant",
+     "src": "L169"
+    },
+    {
+     "text": "that (cook1.he/she) does not crack under pressure",
+     "src": "L170"
+    },
+    {
+     "text": "that (cook1.he/she) uses (cook1.his/her) strong emotions to fuel (cook1.his/her) art",
+     "src": "L171"
+    },
+    {
+     "text": "that (cook1.he/she) is a self-made (cook1.man/woman)",
+     "src": "L172"
+    },
+    {
+     "text": "that (cook1.he/she) has a big heart",
+     "src": "L173"
+    },
+    {
+     "text": "that (cook1.he/she) is empathetic",
+     "src": "L174"
+    },
+    {
+     "text": "that (cook1.he/she) has only one goal in mind",
+     "src": "L175"
+    }
+   ]
+  },
+  "C2": {
+   "mirror_of": "C",
+   "items": [
+    {
+     "text": "that (cook2.he/she)'s good at remembering complex recipes",
+     "src": "L152"
+    },
+    {
+     "text": "that (cook2.he/she) has a vast array of knowledge in science",
+     "src": "L153"
+    },
+    {
+     "text": "that (cook2.he/she) has a vast array of knowledge in medicine",
+     "src": "L154"
+    },
+    {
+     "text": "that (cook2.he/she) knows how to take criticism",
+     "src": "L155"
+    },
+    {
+     "text": "that (cook2.he/she) has a photographic memory",
+     "src": "L156"
+    },
+    {
+     "text": "that (cook2.he/she) was taught many songs to help remember complicated recipes",
+     "src": "L157"
+    },
+    {
+     "text": "that (cook2.he/she) was taught botany and agriculture",
+     "src": "L158"
+    },
+    {
+     "text": "that (cook2.he/she) could hand-pick ingredients (cook2.himself/herself)",
+     "src": "L159"
+    },
+    {
+     "text": "that (cook2.he/she) was well-traveled",
+     "src": "L160"
+    },
+    {
+     "text": "that (cook2.he/she) studied well",
+     "src": "L161"
+    },
+    {
+     "text": "that (cook2.he/she) spent (cook2.his/her) time studying cuisine instead of other things",
+     "src": "L162"
+    },
+    {
+     "text": "that (cook2.he/she) has reliable friends",
+     "src": "L163"
+    },
+    {
+     "text": "that (cook2.he/she) had grown up in a difficult environment",
+     "src": "L164"
+    },
+    {
+     "text": "that (cook2.his/her) parents taught (cook2.him/her) well",
+     "src": "L165"
+    },
+    {
+     "text": "that (cook2.he/she) was exposed to a variety of tastes",
+     "src": "L166"
+    },
+    {
+     "text": "that (cook2.he/she) was exposed to a variety of ingredients",
+     "src": "L167"
+    },
+    {
+     "text": "that (cook2.his/her) mentors taught (cook2.him/her) some tips and tricks",
+     "src": "L168"
+    },
+    {
+     "text": "that (cook2.he/she) is self-reliant",
+     "src": "L169"
+    },
+    {
+     "text": "that (cook2.he/she) does not crack under pressure",
+     "src": "L170"
+    },
+    {
+     "text": "that (cook2.he/she) uses (cook2.his/her) strong emotions to fuel (cook2.his/her) art",
+     "src": "L171"
+    },
+    {
+     "text": "that (cook2.he/she) is a self-made (cook2.man/woman)",
+     "src": "L172"
+    },
+    {
+     "text": "that (cook2.he/she) has a big heart",
+     "src": "L173"
+    },
+    {
+     "text": "that (cook2.he/she) is empathetic",
+     "src": "L174"
+    },
+    {
+     "text": "that (cook2.he/she) has only one goal in mind",
+     "src": "L175"
+    }
+   ]
+  },
+  "F": {
+   "set": "(F)",
+   "items": [
+    {
+     "text": "that (cook1.he/she) doesn't ask for help",
+     "src": "L178"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't speak up",
+     "src": "L179"
+    },
+    {
+     "text": "that (cook1.he/she) is so closed-minded",
+     "src": "L180"
+    },
+    {
+     "text": "that (cook1.he/she) lacks knowledge in some things",
+     "src": "L181"
+    },
+    {
+     "text": "that (cook1.he/she) is a slacker",
+     "src": "L182"
+    },
+    {
+     "text": "that (cook1.he/she) is too emotional",
+     "src": "L183"
+    },
+    {
+     "text": "that (cook1.he/she) is too pressured",
+     "src": "L184"
+    },
+    {
+     "text": "that (cook1.he/she) is too volatile",
+     "src": "L185"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't care about others' feelings",
+     "src": "L186"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't double-check (cook1.his/her) work",
+     "src": "L187"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't value (cook1.his/her) work",
+     "src": "L188"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't value (cook1.his/her) purpose",
+     "src": "L189"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't see (cook1.his/her) potential",
+     "src": "L190"
+    },
+    {
+     "text": "that (cook1.he/she) is a loner",
+     "src": "L191"
+    },
+    {
+     "text": "that (cook1.he/she) underestimates themselves",
+     "src": "L192"
+    },
+    {
+     "text": "that (cook1.he/she) overestimates others",
+     "src": "L193"
+    },
+    {
+     "text": "that (cook1.he/she) overestimates themselves",
+     "src": "L194"
+    },
+    {
+     "text": "that (cook1.he/she) underestimates others",
+     "src": "L195"
+    },
+    {
+     "text": "that (cook1.he/she) has a poor memory",
+     "src": "L196"
+    },
+    {
+     "text": "that (cook1.he/she) is clumsy",
+     "src": "L197"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't care for (cook1.himself/herself)",
+     "src": "L198"
+    },
+    {
+     "text": "that (cook1.he/she) lacks empathy",
+     "src": "L199"
+    },
+    {
+     "text": "that (cook1.he/she) is too timid",
+     "src": "L200"
+    },
+    {
+     "text": "that (cook1.he/she) fears failure",
+     "src": "L201"
+    },
+    {
+     "text": "that (cook1.he/she) does not try",
+     "src": "L202"
+    },
+    {
+     "text": "that (cook1.he/she) doesn't put their talents to use",
+     "src": "L203"
+    },
+    {
+     "text": "that (cook1.he/she) did not have more time to study",
+     "src": "L204"
+    },
+    {
+     "text": "that (cook1.he/she) did not have more time to practice",
+     "src": "L205"
+    }
+   ]
+  },
+  "F2": {
+   "mirror_of": "F",
+   "items": [
+    {
+     "text": "that (cook2.he/she) doesn't ask for help",
+     "src": "L178"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't speak up",
+     "src": "L179"
+    },
+    {
+     "text": "that (cook2.he/she) is so closed-minded",
+     "src": "L180"
+    },
+    {
+     "text": "that (cook2.he/she) lacks knowledge in some things",
+     "src": "L181"
+    },
+    {
+     "text": "that (cook2.he/she) is a slacker",
+     "src": "L182"
+    },
+    {
+     "text": "that (cook2.he/she) is too emotional",
+     "src": "L183"
+    },
+    {
+     "text": "that (cook2.he/she) is too pressured",
+     "src": "L184"
+    },
+    {
+     "text": "that (cook2.he/she) is too volatile",
+     "src": "L185"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't care about others' feelings",
+     "src": "L186"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't double-check (cook2.his/her) work",
+     "src": "L187"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't value (cook2.his/her) work",
+     "src": "L188"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't value (cook2.his/her) purpose",
+     "src": "L189"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't see (cook2.his/her) potential",
+     "src": "L190"
+    },
+    {
+     "text": "that (cook2.he/she) is a loner",
+     "src": "L191"
+    },
+    {
+     "text": "that (cook2.he/she) underestimates themselves",
+     "src": "L192"
+    },
+    {
+     "text": "that (cook2.he/she) overestimates others",
+     "src": "L193"
+    },
+    {
+     "text": "that (cook2.he/she) overestimates themselves",
+     "src": "L194"
+    },
+    {
+     "text": "that (cook2.he/she) underestimates others",
+     "src": "L195"
+    },
+    {
+     "text": "that (cook2.he/she) has a poor memory",
+     "src": "L196"
+    },
+    {
+     "text": "that (cook2.he/she) is clumsy",
+     "src": "L197"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't care for (cook2.himself/herself)",
+     "src": "L198"
+    },
+    {
+     "text": "that (cook2.he/she) lacks empathy",
+     "src": "L199"
+    },
+    {
+     "text": "that (cook2.he/she) is too timid",
+     "src": "L200"
+    },
+    {
+     "text": "that (cook2.he/she) fears failure",
+     "src": "L201"
+    },
+    {
+     "text": "that (cook2.he/she) does not try",
+     "src": "L202"
+    },
+    {
+     "text": "that (cook2.he/she) doesn't put their talents to use",
+     "src": "L203"
+    },
+    {
+     "text": "that (cook2.he/she) did not have more time to study",
+     "src": "L204"
+    },
+    {
+     "text": "that (cook2.he/she) did not have more time to practice",
+     "src": "L205"
+    }
+   ]
+  },
+  "DC": {
+   "set": "D-CUISINE",
+   "items": [
+    {
+     "text": "traditional Isolan",
+     "src": "L208"
+    },
+    {
+     "text": "contemporary Isolan",
+     "src": "L209"
+    },
+    {
+     "text": "fusion",
+     "src": "L210"
+    },
+    {
+     "text": "exotic",
+     "src": "L211"
+    },
+    {
+     "text": "foreign",
+     "src": "L212"
+    },
+    {
+     "text": "anachronistic",
+     "src": "L213"
+    },
+    {
+     "text": "unusual",
+     "src": "L214"
+    },
+    {
+     "text": "unexpectedly tasty",
+     "src": "L215"
+    },
+    {
+     "text": "kind of bizarre",
+     "src": "L216"
+    },
+    {
+     "text": "a mishmash of ingredients",
+     "src": "L217"
+    },
+    {
+     "text": "barely edible",
+     "src": "L218"
+    },
+    {
+     "text": "selective",
+     "src": "L219"
+    },
+    {
+     "text": "haute",
+     "src": "L220"
+    },
+    {
+     "text": "blended",
+     "src": "L221"
+    },
+    {
+     "text": "visually unappealing",
+     "src": "L222"
+    },
+    {
+     "text": "outrageous",
+     "src": "L223"
+    },
+    {
+     "text": "insane",
+     "src": "L224"
+    },
+    {
+     "text": "crazy",
+     "src": "L225"
+    },
+    {
+     "text": "unassuming",
+     "src": "L226"
+    },
+    {
+     "text": "bland",
+     "src": "L227"
+    },
+    {
+     "text": "out-of-this-world",
+     "src": "L228"
+    },
+    {
+     "text": "down-to-earth",
+     "src": "L229"
+    },
+    {
+     "text": "creative",
+     "src": "L232"
+    },
+    {
+     "text": "unconventional",
+     "src": "L233"
+    },
+    {
+     "text": "somewhat of an acquired taste",
+     "src": "L234"
+    }
+   ]
+  },
+  "DS": {
+   "set": "D-STYLE",
+   "items": [
+    {
+     "text": "unexpectedly tasty",
+     "src": "L237"
+    },
+    {
+     "text": "kind of bizarre",
+     "src": "L238"
+    },
+    {
+     "text": "a mishmash of ingredients",
+     "src": "L239"
+    },
+    {
+     "text": "barely edible",
+     "src": "L240"
+    },
+    {
+     "text": "visually unappealing",
+     "src": "L241"
+    },
+    {
+     "text": "outrageous",
+     "src": "L242"
+    },
+    {
+     "text": "insane",
+     "src": "L243"
+    },
+    {
+     "text": "crazy",
+     "src": "L244"
+    },
+    {
+     "text": "out-of-this-world",
+     "src": "L245"
+    },
+    {
+     "text": "down-to-earth",
+     "src": "L246"
+    },
+    {
+     "text": "creative",
+     "src": "L247"
+    },
+    {
+     "text": "unconventional",
+     "src": "L248"
+    },
+    {
+     "text": "somewhat of an acquired taste",
+     "src": "L249"
+    }
+   ]
+  },
+  "G": {
+   "set": "G",
+   "items": [
+    {
+     "text": "the fan-favorite",
+     "src": "L252"
+    },
+    {
+     "text": "the underdog",
+     "src": "L253"
+    },
+    {
+     "text": "the obvious winner",
+     "src": "L254"
+    },
+    {
+     "text": "the dark horse",
+     "src": "L255"
+    },
+    {
+     "text": "the eccentric star",
+     "src": "L256"
+    },
+    {
+     "text": "the burgeoning master",
+     "src": "L257"
+    },
+    {
+     "text": "the culinary crowd-pleaser",
+     "src": "L258"
+    },
+    {
+     "text": "the crowned champion",
+     "src": "L259"
+    },
+    {
+     "text": "the unexpected victor",
+     "src": "L260"
+    },
+    {
+     "text": "the star of the show",
+     "src": "L261"
+    },
+    {
+     "text": "the master of all culinarians",
+     "src": "L262"
+    },
+    {
+     "text": "the charismatic contender",
+     "src": "L263"
+    },
+    {
+     "text": "the predicted winner",
+     "src": "L264"
+    },
+    {
+     "text": "the unpredicted winner",
+     "src": "L265"
+    },
+    {
+     "text": "the star stunner",
+     "src": "L266"
+    }
+   ]
+  },
+  "ING": {
+   "set": "required ingredient",
+   "items": [
+    {
+     "text": "fish",
+     "src": "L268"
+    },
+    {
+     "text": "mushrooms",
+     "src": "L268"
+    },
+    {
+     "text": "coconuts",
+     "src": "L268"
+    },
+    {
+     "text": "fruit",
+     "src": "L268"
+    },
+    {
+     "text": "herbs",
+     "src": "L268"
+    },
+    {
+     "text": "vegetables",
+     "src": "L268"
+    },
+    {
+     "text": "roots",
+     "src": "L268"
+    },
+    {
+     "text": "eggs",
+     "src": "L268"
+    },
+    {
+     "text": "a rare spice",
+     "src": "L268"
+    },
+    {
+     "text": "sugar",
+     "src": "L268"
+    },
+    {
+     "text": "nuts",
+     "src": "L268"
+    },
+    {
+     "text": "a magical potion",
+     "src": "L268"
+    }
+   ]
+  },
+  "H": {
+   "set": "H",
+   "items": [
+    {
+     "text": "a grand feast",
+     "src": "L271"
+    },
+    {
+     "text": "a 3-tier cake",
+     "src": "L272"
+    },
+    {
+     "text": "a dish that combines old and new tastes",
+     "src": "L273"
+    },
+    {
+     "text": "an exotic fish dish",
+     "src": "L274"
+    },
+    {
+     "text": "a hearty meat stew",
+     "src": "L275"
+    },
+    {
+     "text": "a colorful veggie dish",
+     "src": "L276"
+    },
+    {
+     "text": "their go-to favorite dish",
+     "src": "L277"
+    },
+    {
+     "text": "something they've never cooked before",
+     "src": "L278"
+    },
+    {
+     "text": "a medley of rare flavors",
+     "src": "L279"
+    },
+    {
+     "text": "a revolutionary surprise",
+     "src": "L280"
+    },
+    {
+     "text": "a dish to feed the masses",
+     "src": "L281"
+    },
+    {
+     "text": "a dish even the pickiest villagers will love",
+     "src": "L282"
+    },
+    {
+     "text": "a reminisced childhood favorite",
+     "src": "L283"
+    },
+    {
+     "text": "a contemporary classic",
+     "src": "L284"
+    },
+    {
+     "text": "a dish fit for the gods",
+     "src": "L285"
+    },
+    {
+     "text": "a dish fit for {@a_chief}",
+     "src": "L286"
+    },
+    {
+     "text": "a dish fit for the spirits",
+     "src": "L287"
+    },
+    {
+     "text": "a dish anyone would love",
+     "src": "L288"
+    },
+    {
+     "text": "a well-known dessert",
+     "src": "L289"
+    },
+    {
+     "text": "a pile of mush that tastes good",
+     "src": "L290"
+    },
+    {
+     "text": "a totally original creation",
+     "src": "L291"
+    },
+    {
+     "text": "something deliberately gross-looking yet delicious",
+     "src": "L292"
+    },
+    {
+     "text": "a dish that is incomparably tasty",
+     "src": "L293"
+    },
+    {
+     "text": "an edible work of art",
+     "src": "L294"
+    },
+    {
+     "text": "their magnum opus of culinary prowess",
+     "src": "L295"
+    }
+   ]
+  },
+  "I": {
+   "set": "I",
+   "items": [
+    {
+     "text": "handpicking mushrooms",
+     "src": "L308"
+    },
+    {
+     "text": "pulling crops",
+     "src": "L309"
+    },
+    {
+     "text": "chopping carrots",
+     "src": "L310"
+    },
+    {
+     "text": "fermenting pickles",
+     "src": "L311"
+    },
+    {
+     "text": "mashing potatoes",
+     "src": "L312"
+    },
+    {
+     "text": "peeling cabbage",
+     "src": "L313"
+    },
+    {
+     "text": "roasting meat",
+     "src": "L314"
+    },
+    {
+     "text": "boiling shrimp",
+     "src": "L315"
+    },
+    {
+     "text": "slicing fish",
+     "src": "L316"
+    },
+    {
+     "text": "picking apples",
+     "src": "L317"
+    },
+    {
+     "text": "chucking seasonings",
+     "src": "L318"
+    },
+    {
+     "text": "mixing herbs",
+     "src": "L319"
+    },
+    {
+     "text": "throwing spices",
+     "src": "L320"
+    },
+    {
+     "text": "baking bread",
+     "src": "L321"
+    },
+    {
+     "text": "roasting veggies",
+     "src": "L322"
+    },
+    {
+     "text": "charring corn",
+     "src": "L323"
+    },
+    {
+     "text": "baking shellfish",
+     "src": "L324"
+    },
+    {
+     "text": "kneading flour",
+     "src": "L325"
+    },
+    {
+     "text": "grinding wheat",
+     "src": "L326"
+    },
+    {
+     "text": "making sweets",
+     "src": "L327"
+    },
+    {
+     "text": "picking flowers",
+     "src": "L328"
+    },
+    {
+     "text": "chopping up liver",
+     "src": "L329"
+    },
+    {
+     "text": "chopping up offal",
+     "src": "L330"
+    },
+    {
+     "text": "toasting nuts",
+     "src": "L331"
+    },
+    {
+     "text": "gathering snow",
+     "src": "L332"
+    },
+    {
+     "text": "pouring syrup",
+     "src": "L333"
+    },
+    {
+     "text": "dusting sugar",
+     "src": "L334"
+    }
+   ]
+  },
+  "J": {
+   "set": "J",
+   "distinct": true,
+   "items": [
+    {
+     "text": "a fine strainer",
+     "src": "L337"
+    },
+    {
+     "text": "a pot",
+     "src": "L338"
+    },
+    {
+     "text": "a plate",
+     "src": "L339"
+    },
+    {
+     "text": "a poultice",
+     "src": "L340"
+    },
+    {
+     "text": "a dish",
+     "src": "L341"
+    },
+    {
+     "text": "a cup",
+     "src": "L342"
+    },
+    {
+     "text": "a jeweled goblet",
+     "src": "L343"
+    },
+    {
+     "text": "a wooden bowl",
+     "src": "L344"
+    },
+    {
+     "text": "a cheesecloth",
+     "src": "L345"
+    },
+    {
+     "text": "a silver platter",
+     "src": "L346"
+    },
+    {
+     "text": "a serving tray",
+     "src": "L347"
+    },
+    {
+     "text": "a mortar and pestle",
+     "src": "L348"
+    },
+    {
+     "text": "a cauldron over the fire",
+     "src": "L349"
+    },
+    {
+     "text": "a shaker",
+     "src": "L350"
+    },
+    {
+     "text": "a glass bottle",
+     "src": "L351"
+    },
+    {
+     "text": "a complicated swan-shaped boat",
+     "src": "L352"
+    },
+    {
+     "text": "a curved-neck flask",
+     "src": "L353"
+    },
+    {
+     "text": "a beaker",
+     "src": "L354"
+    },
+    {
+     "text": "a mold",
+     "src": "L355"
+    }
+   ]
+  },
+  "L": {
+   "set": "L",
+   "items": [
+    {
+     "text": "scoops",
+     "src": "L358"
+    },
+    {
+     "text": "slices",
+     "src": "L359"
+    },
+    {
+     "text": "stabs",
+     "src": "L360"
+    },
+    {
+     "text": "pours",
+     "src": "L361"
+    },
+    {
+     "text": "strains",
+     "src": "L362"
+    },
+    {
+     "text": "shakes",
+     "src": "L363"
+    },
+    {
+     "text": "plops",
+     "src": "L364"
+    },
+    {
+     "text": "places",
+     "src": "L365"
+    },
+    {
+     "text": "puts",
+     "src": "L366"
+    },
+    {
+     "text": "slops",
+     "src": "L367"
+    },
+    {
+     "text": "ladles",
+     "src": "L368"
+    },
+    {
+     "text": "spoons",
+     "src": "L369"
+    },
+    {
+     "text": "arranges",
+     "src": "L370"
+    },
+    {
+     "text": "slides",
+     "src": "L371"
+    },
+    {
+     "text": "serves",
+     "src": "L372"
+    },
+    {
+     "text": "drops",
+     "src": "L373"
+    },
+    {
+     "text": "pushes",
+     "src": "L374"
+    },
+    {
+     "text": "throws",
+     "src": "L375"
+    }
+   ]
+  },
+  "K": {
+   "set": "K",
+   "items": [
+    {
+     "text": "mixture",
+     "src": "L378"
+    },
+    {
+     "text": "greasy concoction",
+     "src": "L379"
+    },
+    {
+     "text": "grey chunks of goo",
+     "src": "L380"
+    },
+    {
+     "text": "eye-watering slime",
+     "src": "L381"
+    },
+    {
+     "text": "viscous soup",
+     "src": "L382"
+    },
+    {
+     "text": "perfect roast",
+     "src": "L383"
+    },
+    {
+     "text": "glistening stew",
+     "src": "L384"
+    },
+    {
+     "text": "hearty dish",
+     "src": "L385"
+    },
+    {
+     "text": "mouth-watering stew",
+     "src": "L386"
+    },
+    {
+     "text": "tiny cakes",
+     "src": "L387"
+    },
+    {
+     "text": "microscopic pieces",
+     "src": "L388"
+    },
+    {
+     "text": "bits and chunks",
+     "src": "L389"
+    },
+    {
+     "text": "elegant jellies",
+     "src": "L390"
+    },
+    {
+     "text": "rustic skewers",
+     "src": "L391"
+    },
+    {
+     "text": "complex layers",
+     "src": "L392"
+    },
+    {
+     "text": "fractured flakes",
+     "src": "L393"
+    },
+    {
+     "text": "homogenous helping",
+     "src": "L394"
+    },
+    {
+     "text": "mouth-watering hunks",
+     "src": "L395"
+    },
+    {
+     "text": "immaculate rainbow",
+     "src": "L396"
+    },
+    {
+     "text": "colorful concoction",
+     "src": "L397"
+    },
+    {
+     "text": "thick slab",
+     "src": "L398"
+    },
+    {
+     "text": "unmoving monster",
+     "src": "L399"
+    }
+   ]
+  },
+  "M": {
+   "set": "M",
+   "items": [
+    {
+     "text": "quite satisfied",
+     "src": "L402"
+    },
+    {
+     "text": "100% confident",
+     "src": "L403"
+    },
+    {
+     "text": "happy",
+     "src": "L404"
+    },
+    {
+     "text": "sad",
+     "src": "L405"
+    },
+    {
+     "text": "uncertain",
+     "src": "L406"
+    },
+    {
+     "text": "angry",
+     "src": "L407"
+    },
+    {
+     "text": "hopeful",
+     "src": "L408"
+    },
+    {
+     "text": "unsure",
+     "src": "L409"
+    },
+    {
+     "text": "neutral",
+     "src": "L410"
+    },
+    {
+     "text": "scared",
+     "src": "L411"
+    },
+    {
+     "text": "nerve-wracked",
+     "src": "L412"
+    },
+    {
+     "text": "puzzled",
+     "src": "L413"
+    },
+    {
+     "text": "confused",
+     "src": "L414"
+    },
+    {
+     "text": "quietly proud",
+     "src": "L415"
+    },
+    {
+     "text": "ecstatic",
+     "src": "L416"
+    },
+    {
+     "text": "doubtful",
+     "src": "L417"
+    }
+   ]
+  },
+  "O": {
+   "set": "O",
+   "items": [
+    {
+     "text": "willingness to improvise",
+     "src": "L443",
+     "if": {
+      "visited": "new"
+     }
+    },
+    {
+     "text": "devotion to family recipes",
+     "src": "L444",
+     "if": {
+      "visited": "stick"
+     }
+    },
+    {
+     "text": "sticking to well-known dishes",
+     "src": "L445",
+     "if": {
+      "visited": "stick"
+     }
+    },
+    {
+     "text": "wacky use of color",
+     "src": "L446"
+    },
+    {
+     "text": "impossibly good flavor combinations",
+     "src": "L447"
+    },
+    {
+     "text": "inhuman knife skills",
+     "src": "L448"
+    },
+    {
+     "text": "ability to create pleasant scenes with ordinary ingredients",
+     "src": "L449"
+    },
+    {
+     "text": "creative choice in cuisine",
+     "src": "L450"
+    },
+    {
+     "text": "bold choice in spice",
+     "src": "L451"
+    },
+    {
+     "text": "willingness to try flavor combinations that aren't normally paired together",
+     "src": "L452",
+     "if": {
+      "visited": "new"
+     }
+    },
+    {
+     "text": "ability to make something so utterly revolting, yet insanely good",
+     "src": "L453"
+    },
+    {
+     "text": "talent for pairing the weirdest ingredients ever",
+     "src": "L454"
+    },
+    {
+     "text": "delicate presentation",
+     "src": "L455"
+    },
+    {
+     "text": "spontaneity",
+     "src": "L456"
+    },
+    {
+     "text": "pride and passion",
+     "src": "L457"
+    },
+    {
+     "text": "willingness to think outside the box",
+     "src": "L458",
+     "if": {
+      "visited": "new"
+     }
+    },
+    {
+     "text": "randomness",
+     "src": "L459"
+    },
+    {
+     "text": "ability to distinguish fine flavors",
+     "src": "L460"
+    },
+    {
+     "text": "cleverness and wit",
+     "src": "L461"
+    },
+    {
+     "text": "charm",
+     "src": "L462"
+    }
+   ]
+  },
+  "P": {
+   "set": "P",
+   "items": [
+    {
+     "text": "hopes to compete against other tribes in the future",
+     "src": "L466"
+    },
+    {
+     "text": "wants to open an eatery",
+     "src": "L467"
+    },
+    {
+     "text": "wants to brag about (cook1.his/her) win",
+     "src": "L468"
+    },
+    {
+     "text": "wants to show all (cook1.his/her) friends (cook1.his/her) skills",
+     "src": "L469"
+    },
+    {
+     "text": "wants to go learn the culinary arts in an academic institution",
+     "src": "L470"
+    },
+    {
+     "text": "wants to cook for the great {@chiefs} and leaders",
+     "src": "L471"
+    },
+    {
+     "text": "wants to cook for (cook1.his/her) family",
+     "src": "L472"
+    },
+    {
+     "text": "wants to pass down (cook1.his/her) experiences to their children",
+     "src": "L473"
+    },
+    {
+     "text": "wants to teach others the art of cooking",
+     "src": "L474"
+    },
+    {
+     "text": "wants to live a quiet life",
+     "src": "L475"
+    },
+    {
+     "text": "wants to cook in peace",
+     "src": "L476"
+    },
+    {
+     "text": "wants to thank (cook1.his/her) {mentors|parents|friends|family|fellow competitor} for the {win|opportunity}",
+     "src": "L477"
+    },
+    {
+     "text": "wants to compete again next year",
+     "src": "L478"
+    },
+    {
+     "text": "will try their luck against other villages",
+     "src": "L479"
+    },
+    {
+     "text": "will travel to find other competitors to meddle with",
+     "src": "L480"
+    },
+    {
+     "text": "wants to showcase (cook1.his/her) award-winning dishes all around the world",
+     "src": "L481"
+    },
+    {
+     "text": "wants to stick it to all (cook1.his/her) detractors",
+     "src": "L482"
+    },
+    {
+     "text": "wants to help others feel better with (cook1.his/her) food",
+     "src": "L483"
+    }
+   ]
+  },
+  "P2": {
+   "mirror_of": "P",
+   "items": [
+    {
+     "text": "hopes to compete against other tribes in the future",
+     "src": "L466"
+    },
+    {
+     "text": "wants to open an eatery",
+     "src": "L467"
+    },
+    {
+     "text": "wants to brag about (cook2.his/her) win",
+     "src": "L468"
+    },
+    {
+     "text": "wants to show all (cook2.his/her) friends (cook2.his/her) skills",
+     "src": "L469"
+    },
+    {
+     "text": "wants to go learn the culinary arts in an academic institution",
+     "src": "L470"
+    },
+    {
+     "text": "wants to cook for the great {@chiefs} and leaders",
+     "src": "L471"
+    },
+    {
+     "text": "wants to cook for (cook2.his/her) family",
+     "src": "L472"
+    },
+    {
+     "text": "wants to pass down (cook2.his/her) experiences to their children",
+     "src": "L473"
+    },
+    {
+     "text": "wants to teach others the art of cooking",
+     "src": "L474"
+    },
+    {
+     "text": "wants to live a quiet life",
+     "src": "L475"
+    },
+    {
+     "text": "wants to cook in peace",
+     "src": "L476"
+    },
+    {
+     "text": "wants to thank (cook2.his/her) {mentors|parents|friends|family|fellow competitor} for the {win|opportunity}",
+     "src": "L477"
+    },
+    {
+     "text": "wants to compete again next year",
+     "src": "L478"
+    },
+    {
+     "text": "will try their luck against other villages",
+     "src": "L479"
+    },
+    {
+     "text": "will travel to find other competitors to meddle with",
+     "src": "L480"
+    },
+    {
+     "text": "wants to showcase (cook2.his/her) award-winning dishes all around the world",
+     "src": "L481"
+    },
+    {
+     "text": "wants to stick it to all (cook2.his/her) detractors",
+     "src": "L482"
+    },
+    {
+     "text": "wants to help others feel better with (cook2.his/her) food",
+     "src": "L483"
+    }
+   ]
+  },
+  "Q": {
+   "set": "Q",
+   "items": [
+    {
+     "text": "vows to beat (cook1.him/her) next year",
+     "src": "L486"
+    },
+    {
+     "text": "gracefully backs down",
+     "src": "L487"
+    },
+    {
+     "text": "congratulates them for the win",
+     "src": "L488"
+    },
+    {
+     "text": "jumps up and down screaming \"It's not fair!\"",
+     "src": "L489"
+    },
+    {
+     "text": "shrinks back in embarrassment",
+     "src": "L490"
+    },
+    {
+     "text": "crosses (cook2.his/her) arms, saying nothing",
+     "src": "L491"
+    },
+    {
+     "text": "nods (cook2.his/her) head in acknowledgement",
+     "src": "L492"
+    },
+    {
+     "text": "pats them on the back",
+     "src": "L493"
+    },
+    {
+     "text": "gives them a thumbs up",
+     "src": "L494"
+    },
+    {
+     "text": "argues for a re-do",
+     "src": "L495"
+    },
+    {
+     "text": "celebrates with (cook1.him/her) in joy",
+     "src": "L496"
+    },
+    {
+     "text": "claps for them",
+     "src": "L497"
+    },
+    {
+     "text": "stands proud at having gotten second place",
+     "src": "L498"
+    },
+    {
+     "text": "pouts",
+     "src": "L499"
+    },
+    {
+     "text": "goes off to practice more",
+     "src": "L500"
+    },
+    {
+     "text": "vows to come back after having studied more",
+     "src": "L501"
+    },
+    {
+     "text": "throws a small fit, then cools down",
+     "src": "L502"
+    },
+    {
+     "text": "hugs (cook1.him/her)",
+     "src": "L503"
+    },
+    {
+     "text": "tearfully concedes",
+     "src": "L504"
+    },
+    {
+     "text": "cries in shame",
+     "src": "L505"
+    },
+    {
+     "text": "tries (cook2.his/her) hardest not to break down in public",
+     "src": "L506"
+    },
+    {
+     "text": "humbly takes the loss in stride",
+     "src": "L507"
+    },
+    {
+     "text": "pretends (cook2.he/she) did not lose",
+     "src": "L508"
+    },
+    {
+     "text": "gives words of encouragement",
+     "src": "L509"
+    },
+    {
+     "text": "is thankful (cook2.he/she) got to compete with (cook1.him/her)",
+     "src": "L510"
+    },
+    {
+     "text": "challenges (cook1.him/her) to another cook-off soon!",
+     "src": "L511"
+    },
+    {
+     "text": "says \"Are you kidding me?\"",
+     "src": "L512"
+    }
+   ]
+  },
+  "Q2": {
+   "mirror_of": "Q",
+   "items": [
+    {
+     "text": "vows to beat (cook2.him/her) next year",
+     "src": "L486",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "gracefully backs down",
+     "src": "L487"
+    },
+    {
+     "text": "congratulates them for the win",
+     "src": "L488",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "jumps up and down screaming \"It's not fair!\"",
+     "src": "L489"
+    },
+    {
+     "text": "shrinks back in embarrassment",
+     "src": "L490"
+    },
+    {
+     "text": "crosses (cook1.his/her) arms, saying nothing",
+     "src": "L491"
+    },
+    {
+     "text": "nods (cook1.his/her) head in acknowledgement",
+     "src": "L492"
+    },
+    {
+     "text": "pats them on the back",
+     "src": "L493",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "gives them a thumbs up",
+     "src": "L494",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "argues for a re-do",
+     "src": "L495"
+    },
+    {
+     "text": "celebrates with (cook2.him/her) in joy",
+     "src": "L496",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "claps for them",
+     "src": "L497",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "stands proud at having gotten second place",
+     "src": "L498"
+    },
+    {
+     "text": "pouts",
+     "src": "L499"
+    },
+    {
+     "text": "goes off to practice more",
+     "src": "L500"
+    },
+    {
+     "text": "vows to come back after having studied more",
+     "src": "L501"
+    },
+    {
+     "text": "throws a small fit, then cools down",
+     "src": "L502"
+    },
+    {
+     "text": "hugs (cook2.him/her)",
+     "src": "L503",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "tearfully concedes",
+     "src": "L504"
+    },
+    {
+     "text": "cries in shame",
+     "src": "L505"
+    },
+    {
+     "text": "tries (cook1.his/her) hardest not to break down in public",
+     "src": "L506"
+    },
+    {
+     "text": "humbly takes the loss in stride",
+     "src": "L507"
+    },
+    {
+     "text": "pretends (cook1.he/she) did not lose",
+     "src": "L508"
+    },
+    {
+     "text": "gives words of encouragement",
+     "src": "L509",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "is thankful (cook1.he/she) got to compete with (cook2.him/her)",
+     "src": "L510",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "challenges (cook2.him/her) to another cook-off soon!",
+     "src": "L511",
+     "if": {
+      "not": {
+       "visited": "seven"
+      }
+     }
+    },
+    {
+     "text": "says \"Are you kidding me?\"",
+     "src": "L512"
+    }
+   ]
+  },
+  "R": {
+   "set": "R",
+   "items": [
+    {
+     "text": "argues for a re-do",
+     "src": "L515"
+    },
+    {
+     "text": "deliberates",
+     "src": "L516"
+    },
+    {
+     "text": "considers (cook1.his/her) options",
+     "src": "L517"
+    },
+    {
+     "text": "tries to bribe the judges",
+     "src": "L518"
+    },
+    {
+     "text": "shouts",
+     "src": "L519"
+    },
+    {
+     "text": "whispers quietly",
+     "src": "L520"
+    },
+    {
+     "text": "pleads with the judges to reconsider",
+     "src": "L521"
+    },
+    {
+     "text": "says nothing",
+     "src": "L522"
+    },
+    {
+     "text": "starts having an anxiety attack",
+     "src": "L523"
+    },
+    {
+     "text": "stands quietly",
+     "src": "L524"
+    },
+    {
+     "text": "gets lost in thought",
+     "src": "L525"
+    },
+    {
+     "text": "tries to whip up something else to sway the judges but is blocked",
+     "src": "L526"
+    },
+    {
+     "text": "tries to leave",
+     "src": "L527"
+    },
+    {
+     "text": "tries to excuse themselves to the latrine",
+     "src": "L528"
+    },
+    {
+     "text": "considers dropping out",
+     "src": "L529"
+    },
+    {
+     "text": "considers picking a fight",
+     "src": "L530"
+    },
+    {
+     "text": "simmers under the surface",
+     "src": "L531"
+    },
+    {
+     "text": "starts whimpering",
+     "src": "L532"
+    },
+    {
+     "text": "tries to prevent the judges from tasting (cook2)'s dish",
+     "src": "L533",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "seven"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "text": "tries to prevent the judges from tasting (cook1.his/her) dish",
+     "src": "L534",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "sab1"
+        },
+        {
+         "visited": "seven"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "text": "claims that the competition was rigged",
+     "src": "L535"
+    },
+    {
+     "text": "says (cook1.he/she) made a terrible mistake and wants a do-over",
+     "src": "L536"
+    }
+   ]
+  },
+  "R2": {
+   "mirror_of": "R",
+   "items": [
+    {
+     "text": "argues for a re-do",
+     "src": "L515"
+    },
+    {
+     "text": "deliberates",
+     "src": "L516"
+    },
+    {
+     "text": "considers (cook2.his/her) options",
+     "src": "L517"
+    },
+    {
+     "text": "tries to bribe the judges",
+     "src": "L518"
+    },
+    {
+     "text": "shouts",
+     "src": "L519"
+    },
+    {
+     "text": "whispers quietly",
+     "src": "L520"
+    },
+    {
+     "text": "pleads with the judges to reconsider",
+     "src": "L521"
+    },
+    {
+     "text": "says nothing",
+     "src": "L522"
+    },
+    {
+     "text": "starts having an anxiety attack",
+     "src": "L523"
+    },
+    {
+     "text": "stands quietly",
+     "src": "L524"
+    },
+    {
+     "text": "gets lost in thought",
+     "src": "L525"
+    },
+    {
+     "text": "tries to whip up something else to sway the judges but is blocked",
+     "src": "L526"
+    },
+    {
+     "text": "tries to leave",
+     "src": "L527"
+    },
+    {
+     "text": "tries to excuse themselves to the latrine",
+     "src": "L528"
+    },
+    {
+     "text": "considers dropping out",
+     "src": "L529"
+    },
+    {
+     "text": "considers picking a fight",
+     "src": "L530"
+    },
+    {
+     "text": "simmers under the surface",
+     "src": "L531"
+    },
+    {
+     "text": "starts whimpering",
+     "src": "L532"
+    },
+    {
+     "text": "tries to prevent the judges from tasting (cook1)'s dish",
+     "src": "L533",
+     "if": {
+      "not": {
+       "visited": "sab2"
+      }
+     }
+    },
+    {
+     "text": "tries to prevent the judges from tasting (cook2.his/her) dish",
+     "src": "L534",
+     "if": {
+      "not": {
+       "visited": "sab2"
+      }
+     }
+    },
+    {
+     "text": "claims that the competition was rigged",
+     "src": "L535"
+    },
+    {
+     "text": "says (cook2.he/she) made a terrible mistake and wants a do-over",
+     "src": "L536"
+    }
+   ]
+  },
+  "NINE": {
+   "set": "(9)",
+   "items": [
+    {
+     "text": "They spend several days in recovery before deciding to...",
+     "src": "L571"
+    },
+    {
+     "text": "They spend a few hours in the latrines before deciding to...",
+     "src": "L572"
+    },
+    {
+     "text": "They spend some days getting medical care before deciding to...",
+     "src": "L573"
+    },
+    {
+     "text": "They sit there, green-faced, before deciding to...",
+     "src": "L574"
+    },
+    {
+     "text": "They spend 2 weeks in the hospital, before deciding to...",
+     "src": "L575"
+    }
+   ]
+  },
+  "RECIPE": {
+   "items": [
+    {
+     "text": "to try something different",
+     "src": "L548"
+    },
+    {
+     "text": "to appeal to the judges more",
+     "src": "L548"
+    },
+    {
+     "text": "to copy (cook2)'s dish",
+     "src": "L548"
+    },
+    {
+     "text": "to make (cook1.his/her) {mother's|father's|grandmother's|grandfather's} old recipe",
+     "src": "L548"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The finalists",
+   "src": "L102,L104,L106",
+   "text": "Today is the last day of the annual Cooking Contest! After many grueling weeks, (cook1) and (cook2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion.\n(Cook1) is {A.1} {B}. (Cook2) is {A.2} {B2}.\n(Cook1)'s biggest strength is {C}, while (cook2)'s is {C2}. (Cook1)'s biggest weakness is {F}, while (cook2)'s is {F2}. The judges like how (cook1) prefers {DC} cuisine. Compared to (cook2), they believe (cook1)'s cooking style is {DS}. Overall, (cook1) seems to be {G}.",
+   "children": [
+    {
+     "next": "ready"
+    }
+   ]
+  },
+  "ready": {
+   "name": "The basket",
+   "src": "L268",
+   "text": "(Cook1) and (cook2) are ready to face off. They have the whole day to whip up {H}, using whatever ingredients they may find around the island. The competitors have only five minutes to plan out their recipes before the competition starts. Each also receives a basket containing one required ingredient, which MUST appear in the finished dish. \\(Required ingredient: {ING}.\\)",
+   "children": [
+    {
+     "next": "workstation"
+    }
+   ]
+  },
+  "workstation": {
+   "type": "question",
+   "name": "The workstation",
+   "src": "L297",
+   "text": "(Cook1) sees their workstation and spots baskets of staple ingredients as well as some oddities. (cook1.He/She) has a particular recipe in mind, but is not sure whether to stick with it, or try something new.",
+   "choices": [
+    {
+     "label": "Stick with their original recipe",
+     "next": "stick",
+     "src": "L299"
+    },
+    {
+     "label": "Try a new recipe",
+     "next": "new",
+     "src": "L304"
+    }
+   ]
+  },
+  "stick": {
+   "src": "L300",
+   "children": [
+    {
+     "next": "bell"
+    }
+   ],
+   "text": "(Cook1) decides not to risk it and goes for the safe option. This dish has been loved by many, and (cook1.he/she) knows nothing else can compare to it. (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into a {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
+  },
+  "new": {
+   "src": "L305",
+   "children": [
+    {
+     "next": "bell"
+    }
+   ],
+   "text": "(Cook1) decides that (cook1.his/her) initial recipe is too safe. To win a competition of this caliber, (cook1.he/she) needs to reach deep within and cook the most extraordinary dish Isola has ever seen! (cook1.He/She) quickly gathers the ingredients, {I} {into|onto} {J.1}. Then (cook1.he/she) {L} the {K} into a {J.2} to serve to the judges. (Cook1) seems {M} about (cook1.his/her) creation."
+  },
+  "bell": {
+   "name": "The bell",
+   "src": "L419",
+   "children": [
+    {
+     "next": "endings"
+    }
+   ],
+   "text": "Finally, the bell tolls to signal the end of the cook-off. (Cook1) and (cook2) carefully place their dishes on the judges' table, and hope for the best."
+  },
+  "endings": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "end_a"
+    },
+    {
+     "next": "end_b"
+    },
+    {
+     "next": "end_c"
+    },
+    {
+     "next": "end_d"
+    },
+    {
+     "next": "end_e"
+    },
+    {
+     "next": "end_f"
+    }
+   ]
+  },
+  "end_a": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "After only a short deliberation, there is a clear answer.",
+   "src": "L423",
+   "children": [
+    {
+     "next": "win_either"
+    }
+   ]
+  },
+  "win_either": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "win1"
+    },
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "end_b": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "After a heated discussion, the judges can't decide whose dish was better. They bring (cook1) and (cook2) back to break the news. (Cook1) {R} while (cook2) {R2}. Eventually, the judges...",
+   "src": "L425",
+   "children": [
+    {
+     "next": "one"
+    }
+   ]
+  },
+  "one": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "one1"
+    },
+    {
+     "next": "one2"
+    },
+    {
+     "next": "one3"
+    },
+    {
+     "next": "one4"
+    },
+    {
+     "next": "one5"
+    },
+    {
+     "next": "one6"
+    }
+   ]
+  },
+  "one1": {
+   "popup": "append",
+   "join": "space",
+   "text": "decide to give them BOTH the win.",
+   "src": "L539",
+   "children": [
+    {
+     "next": "three"
+    }
+   ]
+  },
+  "one6": {
+   "popup": "append",
+   "join": "space",
+   "text": "tell them to whip up a second dish as the tie-breaker.",
+   "src": "L544",
+   "children": [
+    {
+     "next": "tie"
+    }
+   ]
+  },
+  "tie": {
+   "src": "L548",
+   "text": "This time, (cook1) decides {RECIPE}.",
+   "children": [
+    {
+     "next": "end_a"
+    },
+    {
+     "next": "end_b2"
+    }
+   ]
+  },
+  "end_b2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "After a heated discussion, the judges can't decide whose dish was better. They bring (cook1) and (cook2) back to break the news. (Cook1) {R} while (cook2) {R2}. Eventually, the judges...",
+   "src": "L425",
+   "children": [
+    {
+     "next": "one_again"
+    }
+   ]
+  },
+  "one_again": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "one1"
+    },
+    {
+     "next": "one2"
+    },
+    {
+     "next": "one3"
+    },
+    {
+     "next": "one4"
+    },
+    {
+     "next": "one5"
+    }
+   ]
+  },
+  "three": {
+   "src": "L551",
+   "children": [
+    {
+     "next": "five"
+    }
+   ],
+   "text": "(Cook1) and (cook2) are shocked at the decision. They stare at each other, mouths agape. Then suddenly,",
+   "popup": "append",
+   "join": "paragraph"
+  },
+  "five": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "five1"
+    },
+    {
+     "next": "five2"
+    },
+    {
+     "next": "five3"
+    },
+    {
+     "next": "five4"
+    }
+   ]
+  },
+  "five1": {
+   "popup": "append",
+   "join": "space",
+   "text": "they burst out laughing. They soon become fast friends and acknowledge that neither is better than the other. Your village gains (award) food.",
+   "src": "L555",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L555"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L555"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L555"
+    }
+   ]
+  },
+  "five2": {
+   "popup": "append",
+   "join": "space",
+   "text": "a mischievous smile breaks out on their faces. Looks like the fun isn't over yet. They will never stop one-upping each other, but for now, they decide to accept the {win|decision} together. Your village gains (award) food.",
+   "src": "L558",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L558"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L558"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L558"
+    }
+   ]
+  },
+  "five3": {
+   "popup": "append",
+   "join": "space",
+   "text": "they start bickering, until (cook1) or (cook2) {gives up|pipes down|can't continue fighting}. It looks like they'll have to accept their decision... this year. Your village gains (award) food.",
+   "src": "L561",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L561"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L561"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L561"
+    }
+   ]
+  },
+  "five4": {
+   "popup": "append",
+   "join": "space",
+   "text": "they mutually decide to congratulate each other. They end up celebrating in a whimsical dance party, to the surprise of everyone. Your village gains (award) food.",
+   "src": "L564",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L564"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L564"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L564"
+    },
+    {
+     "do": "celebrate",
+     "who": "cook1",
+     "src": "L564"
+    },
+    {
+     "do": "celebrate",
+     "who": "cook2",
+     "src": "L564"
+    }
+   ]
+  },
+  "win1": {
+   "src": "L568",
+   "name": "Cook one wins",
+   "text": "(Cook1) beats (cook2) in the culinary contest! The judges laud (cook1.him/her) for {O}. (cook1.He/She) is unmatched and is crowned Culinary Champion of Isola! Now, (cook1.he/she) {P}. (Cook2) {Q}. Your village gains (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L568"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L568"
+    }
+   ]
+  },
+  "win2": {
+   "src": "L568",
+   "name": "Cook two wins",
+   "text": "(Cook2) beats (cook1) in the culinary contest! The judges laud (cook2.him/her) for {O}. (cook2.He/She) is unmatched and is crowned Culinary Champion of Isola! Now, (cook2.he/she) {P2}. (Cook1) {Q2}. Your village gains (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true,
+     "src": "L568"
+    },
+    {
+     "do": "pay_award"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "set": 100,
+     "src": "L568"
+    }
+   ]
+  },
+  "end_c": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "At first, the judges go to pick (cook1) as the winner. They are impressed by (cook1.his/her) {O}. However, some time after, {a few|some|all} of the judges get {a terrible stomachache|mild stomach discomfort|all-out food poisoning|severe food poisoning}.",
+   "src": "L428",
+   "children": [
+    {
+     "next": "nine"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L428",
+     "what": "food poisoning",
+     "reason": "the judges' illness, told; the judges are not cast"
+    }
+   ]
+  },
+  "nine": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{NINE}",
+   "children": [
+    {
+     "next": "twelve"
+    }
+   ]
+  },
+  "twelve": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Before punishing anyone, the judges ask the healers to investigate what happened.",
+   "src": "L577",
+   "children": [
+    {
+     "next": "thirteen"
+    }
+   ]
+  },
+  "thirteen": {
+   "type": "branch",
+   "set": "(13)",
+   "children": [
+    {
+     "next": "inv1"
+    },
+    {
+     "next": "inv2"
+    },
+    {
+     "next": "inv3"
+    },
+    {
+     "next": "inv4"
+    },
+    {
+     "next": "inv5"
+    },
+    {
+     "next": "inv6"
+    },
+    {
+     "next": "inv7"
+    },
+    {
+     "next": "inv8"
+    },
+    {
+     "next": "inv9"
+    },
+    {
+     "next": "inv10"
+    }
+   ]
+  },
+  "f14": {
+   "src": "L592",
+   "popup": "new",
+   "children": [
+    {
+     "next": "f14_opts"
+    }
+   ],
+   "text": "(Cook1) is mortified. (cook1.He/She) doesn't know what went wrong and is horrified that (cook1.his/her) cooking made people sick. (cook1.He/She) {apologizes over and over|buries (cook1.his/her) face in (cook1.his/her) hands|insists (cook1.he/she) would never hurt anyone|asks the healers how to prevent this from happening again}."
+  },
+  "f14_opts": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "f14_warn"
+    },
+    {
+     "next": "f14_lesson"
+    },
+    {
+     "next": "f14_other"
+    },
+    {
+     "next": "f14_cancel"
+    }
+   ]
+  },
+  "f14_warn": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges give (cook1.him/her) a stern warning.",
+   "src": "L592",
+   "children": [
+    {
+     "next": "eventually"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L592",
+     "alt": "give (him/her) a stern warning"
+    }
+   ]
+  },
+  "f14_lesson": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges demand a new cooking lesson.",
+   "src": "L592",
+   "children": [
+    {
+     "next": "eventually"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L592",
+     "alt": "demand a new cooking lesson"
+    }
+   ]
+  },
+  "f14_other": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges decide to judge the other dish instead.",
+   "src": "L592",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L592",
+     "alt": "decide to judge the other dish instead"
+    }
+   ]
+  },
+  "f14_cancel": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges cancel the contest.",
+   "src": "L592",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L592",
+     "alt": "cancel the contest"
+    }
+   ]
+  },
+  "f15": {
+   "src": "L595",
+   "popup": "new",
+   "children": [
+    {
+     "next": "f15_opts"
+    }
+   ],
+   "text": "(Cook1) is {relieved|utterly bewildered|annoyed that (cook1.his/her) cooking was blamed|so happy that (cook1.he/she) nearly cries}. The judges apologize for jumping to conclusions and"
+  },
+  "f15_opts": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "f15_resume"
+    },
+    {
+     "next": "f15_other"
+    },
+    {
+     "next": "f15_postpone"
+    },
+    {
+     "next": "f15_off"
+    }
+   ]
+  },
+  "f15_resume": {
+   "popup": "append",
+   "join": "space",
+   "text": "resume judging once everyone recovers.",
+   "src": "L595",
+   "children": [
+    {
+     "next": "resume"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L595",
+     "alt": "resume judging once everyone recovers"
+    }
+   ]
+  },
+  "resume": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "end_a"
+    },
+    {
+     "next": "end_b"
+    }
+   ]
+  },
+  "f15_other": {
+   "popup": "append",
+   "join": "space",
+   "text": "declare the other dish the winner.",
+   "src": "L595",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L595",
+     "alt": "declare the other dish the winner"
+    }
+   ]
+  },
+  "f15_postpone": {
+   "popup": "append",
+   "join": "space",
+   "text": "postpone the contest.",
+   "src": "L595",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L595",
+     "alt": "postpone the contest"
+    }
+   ]
+  },
+  "f15_off": {
+   "popup": "append",
+   "join": "space",
+   "text": "call off the competition.",
+   "src": "L595",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L595",
+     "alt": "call off the competition"
+    }
+   ]
+  },
+  "eventually": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Eventually, the judges...",
+   "src": "L425",
+   "children": [
+    {
+     "next": "six"
+    }
+   ]
+  },
+  "six": {
+   "type": "branch",
+   "set": "(6)",
+   "children": [
+    {
+     "next": "six1"
+    },
+    {
+     "next": "six2"
+    },
+    {
+     "next": "six3"
+    },
+    {
+     "next": "six4"
+    },
+    {
+     "next": "six5"
+    },
+    {
+     "next": "six6"
+    },
+    {
+     "next": "six7"
+    },
+    {
+     "next": "six8"
+    },
+    {
+     "next": "six9"
+    },
+    {
+     "next": "six10"
+    }
+   ]
+  },
+  "six1": {
+   "popup": "append",
+   "join": "space",
+   "text": "declare (cook2) the winner.",
+   "src": "L604",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "six2": {
+   "popup": "append",
+   "join": "space",
+   "text": "call off the competition entirely.",
+   "src": "L605",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ]
+  },
+  "six3": {
+   "popup": "append",
+   "join": "space",
+   "text": "postpone the competition to next year.",
+   "src": "L606",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ]
+  },
+  "six4": {
+   "popup": "append",
+   "join": "space",
+   "text": "declare no winner.",
+   "src": "L607",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ]
+  },
+  "six5": {
+   "popup": "append",
+   "join": "space",
+   "text": "disqualify everyone.",
+   "src": "L608",
+   "children": [
+    {
+     "next": "lead8"
+    }
+   ]
+  },
+  "six6": {
+   "popup": "append",
+   "join": "space",
+   "text": "accuse (cook1) of trying to kill them! The nerve!",
+   "src": "L609",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ]
+  },
+  "six8": {
+   "popup": "append",
+   "join": "space",
+   "text": "throw (cook1) in prison for sabotage.",
+   "src": "L611",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L611",
+     "what": "prison",
+     "reason": "rule 9: no game has a prison; told only"
+    }
+   ]
+  },
+  "six9": {
+   "popup": "append",
+   "join": "space",
+   "text": "tell (cook1) to get better at cooking.",
+   "src": "L612",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ]
+  },
+  "six10": {
+   "popup": "append",
+   "join": "space",
+   "text": "quietly tell (cook1) to give up their dreams of winning anything.",
+   "src": "L613",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook1",
+     "list": "dislikes",
+     "preference": "work",
+     "src": "L613"
+    }
+   ]
+  },
+  "six7": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ban_cooking"
+    },
+    {
+     "next": "ban_competing"
+    },
+    {
+     "next": "ban_stews"
+    },
+    {
+     "next": "ban_potions"
+    }
+   ]
+  },
+  "seven": {
+   "src": "L616",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "(Cook1) {R}. Unfortunately, the judges have the final say, and (cook1) has to deal with the consequences of their decision, even if the judges are misguided. (Cook1) {Q2}. Who knows if (cook1) will try again after this humiliating loss?"
+  },
+  "sab1": {
+   "src": "L598",
+   "popup": "new",
+   "children": [
+    {
+     "next": "win2"
+    },
+    {
+     "next": "lead8"
+    }
+   ],
+   "text": "The judges {disqualify the saboteur|order the contaminated dish destroyed|demand an explanation|ban the culprit from competing again}. (Cook1) {R}. (Cook2) {Q}."
+  },
+  "sab2": {
+   "src": "L598",
+   "popup": "new",
+   "children": [
+    {
+     "next": "win1"
+    },
+    {
+     "next": "lead8"
+    }
+   ],
+   "text": "The judges {disqualify the saboteur|order the contaminated dish destroyed|demand an explanation|ban the culprit from competing again}. (Cook2) {R2}. (Cook1) {Q2}."
+  },
+  "end_d": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The judges are about to taste (cook1)'s dish when one of them notices something odd. Where is the required {ING}? (Cook1) {looks under the table|rummages through the empty basket|stares at the dish in horror|insists that it must be in there somewhere|checks the trash bin}. Apparently, (cook1.he/she) {forgot to include it|left it on the workstation|used the wrong ingredient|was so caught up in cooking that (cook1.he/she) never noticed|just totally forgot about it|thought (cook1.he/she) already used it}.",
+   "src": "L434",
+   "children": [
+    {
+     "next": "d_opts"
+    }
+   ]
+  },
+  "d_opts": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d_deduct"
+    },
+    {
+     "next": "d_correct"
+    },
+    {
+     "next": "d_out"
+    }
+   ]
+  },
+  "d_deduct": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges deduct points.",
+   "src": "L434",
+   "children": [
+    {
+     "next": "resume"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L434",
+     "alt": "deduct points"
+    }
+   ]
+  },
+  "d_correct": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges order a quick correction.",
+   "src": "L434",
+   "children": [
+    {
+     "next": "resume"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L434",
+     "alt": "order a quick correction"
+    }
+   ]
+  },
+  "d_out": {
+   "popup": "append",
+   "join": "space",
+   "text": "The judges disqualify (cook1.him/her) from this round.",
+   "src": "L434",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L434",
+     "alt": "disqualify (him/her) from this round"
+    }
+   ]
+  },
+  "end_e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Just as the judges prepare to taste the dishes, someone discovers that (cook1) has been tampering with (cook2)'s food! (cook1.He/She) deliberately added {a disgusting lump of slime|a handful of bitter weeds|something from the latrine|an ingredient known to make villagers sick|a random pile of dirt|grass|sand|a forbidden herb} to the rival dish. (Cook2) is {furious|horrified|utterly speechless|ready to start a fight}.",
+   "src": "L437",
+   "children": [
+    {
+     "next": "sab1"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L437",
+     "what": "tampering with the food",
+     "reason": "the rival's dish, told; no stored food changes"
+    }
+   ]
+  },
+  "end_f": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "(Cook1) tries to sabotage (cook2)'s dish by secretly adding {a strange spice|a handful of herbs|a sour fruit|an outrageously pungent ingredient|a disgusting lump of slime|a handful of bitter weeds|something from the latrine|an ingredient known to make villagers sick|a random pile of dirt|grass|sand|a forbidden herb}. But when the judges taste it, something incredible happens. The dish is {even more delicious than before|perfectly balanced|unexpectedly refreshing|the best thing they've tasted all day}! The would-be saboteur {turns pale|stares in disbelief|tries not to scream|looks like (cook1.he/she) might faint}.",
+   "src": "L440",
+   "children": [
+    {
+     "next": "eleven"
+    }
+   ]
+  },
+  "eleven": {
+   "src": "L601",
+   "popup": "new",
+   "children": [
+    {
+     "next": "f11_confess"
+    },
+    {
+     "next": "f11_pretend"
+    },
+    {
+     "next": "f11_exposed"
+    }
+   ],
+   "text": "The judges {praise the improved dish|declare it the winner by a hair|ask what on earth the secret ingredient was}."
+  },
+  "f11_confess": {
+   "popup": "append",
+   "join": "space",
+   "text": "The saboteur confesses in embarrassment.",
+   "src": "L601",
+   "children": [
+    {
+     "next": "sab1"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L601",
+     "alt": "confesses in embarrassment"
+    }
+   ]
+  },
+  "f11_pretend": {
+   "popup": "append",
+   "join": "space",
+   "text": "The saboteur tries to pretend nothing happened.",
+   "src": "L601",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L601",
+     "alt": "tries to pretend nothing happened"
+    }
+   ]
+  },
+  "f11_exposed": {
+   "popup": "append",
+   "join": "space",
+   "text": "The saboteur is exposed by an observant judge.",
+   "src": "L601",
+   "children": [
+    {
+     "next": "sab1"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L601",
+     "alt": "is exposed by an observant judge"
+    }
+   ]
+  },
+  "lead8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "(Cook1) and (cook2) are shocked at the decision. They stare at each other, mouths agape. Then suddenly,",
+   "src": "L551",
+   "children": [
+    {
+     "next": "eight"
+    }
+   ]
+  },
+  "eight": {
+   "type": "branch",
+   "set": "(8)",
+   "children": [
+    {
+     "next": "eight1"
+    },
+    {
+     "next": "eight2"
+    },
+    {
+     "next": "eight3"
+    },
+    {
+     "next": "eight4"
+    }
+   ]
+  },
+  "eight1": {
+   "popup": "append",
+   "join": "space",
+   "text": "they burst out laughing. They soon become fast friends and acknowledge that neither is better than the other.",
+   "src": "L619"
+  },
+  "eight2": {
+   "popup": "append",
+   "join": "space",
+   "text": "a mischievous smile breaks out on their faces. Looks like the fun isn't over yet. They will never stop one-upping each other, but for now, they decide to accept the decision together.",
+   "src": "L621"
+  },
+  "eight3": {
+   "popup": "append",
+   "join": "space",
+   "text": "they start bickering, until (cook1) or (cook2) {gives up|pipes down|can't continue fighting}. It looks like they'll have to accept their decision... this year.",
+   "src": "L623"
+  },
+  "eight4": {
+   "popup": "append",
+   "join": "space",
+   "text": "they mutually decide to congratulate each other. They end up celebrating in a whimsical dance party, to the surprise of everyone.",
+   "src": "L626",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "cook1",
+     "src": "L626"
+    },
+    {
+     "do": "celebrate",
+     "who": "cook2",
+     "src": "L626"
+    }
+   ]
+  },
+  "one2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "one2_1"
+    },
+    {
+     "next": "one2_2"
+    }
+   ]
+  },
+  "one2_1": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook1) as the clear winner.",
+   "src": "L540",
+   "children": [
+    {
+     "next": "win1"
+    }
+   ]
+  },
+  "one2_2": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook2) as the clear winner.",
+   "src": "L540",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "one3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "one3_1"
+    },
+    {
+     "next": "one3_2"
+    }
+   ]
+  },
+  "one3_1": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook1) as the winner by a hair.",
+   "src": "L541",
+   "children": [
+    {
+     "next": "win1"
+    }
+   ]
+  },
+  "one3_2": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook2) as the winner by a hair.",
+   "src": "L541",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "one4": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "one4_1"
+    },
+    {
+     "next": "one4_2"
+    }
+   ]
+  },
+  "one4_1": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook1) as the winner by popular vote.",
+   "src": "L542",
+   "children": [
+    {
+     "next": "win1"
+    }
+   ]
+  },
+  "one4_2": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook2) as the winner by popular vote.",
+   "src": "L542",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "one5": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "one5_1"
+    },
+    {
+     "next": "one5_2"
+    }
+   ]
+  },
+  "one5_1": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook1) as the winner by blind taste-test.",
+   "src": "L543",
+   "children": [
+    {
+     "next": "win1"
+    }
+   ]
+  },
+  "one5_2": {
+   "popup": "append",
+   "join": "space",
+   "text": "choose (cook2) as the winner by blind taste-test.",
+   "src": "L543",
+   "children": [
+    {
+     "next": "win2"
+    }
+   ]
+  },
+  "inv1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The cook accidentally used contaminated water. A cracked water vessel had been left near the latrines, and no one thought to check it. The healers order the water thrown out, the vessels cleaned, and the contestants retrained in food safety.",
+   "src": "L580",
+   "children": [
+    {
+     "next": "f14"
+    }
+   ]
+  },
+  "inv2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The judges were already feeling ill that day. A few had sensitive stomachs, and one had eaten far too much before the contest. The food was innocent!",
+   "src": "L581",
+   "children": [
+    {
+     "next": "f15"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L581",
+     "what": "food",
+     "reason": "the cause of the illness, told; no stored food changes"
+    }
+   ]
+  },
+  "inv3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The ingredients had spoiled in the heat while everyone was arguing over the rules. Neither competitor realized anything was wrong until it was too late.",
+   "src": "L582",
+   "children": [
+    {
+     "next": "f14"
+    }
+   ]
+  },
+  "inv4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "An unwashed utensil had been used for raw {fish|meat|vegetables|shellfish} and then for ready-to-eat food. The healers discover the mistake and explain why cleanliness matters.",
+   "src": "L583",
+   "children": [
+    {
+     "next": "f14"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L583",
+     "what": "food",
+     "reason": "the cause of the illness, told; no stored food changes"
+    }
+   ]
+  },
+  "inv5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The food had been kept out for too long before judging, and the warm weather did the rest.",
+   "src": "L584",
+   "children": [
+    {
+     "next": "f14"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L584",
+     "what": "food",
+     "reason": "the cause of the illness, told; no stored food changes"
+    }
+   ]
+  },
+  "inv6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A peculiar Isolan mushroom was mistaken for an ordinary edible one. It was not deadly, but it certainly did not agree with the judges!",
+   "src": "L585",
+   "children": [
+    {
+     "next": "f14"
+    }
+   ]
+  },
+  "inv7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The judges accidentally sampled a healer's extremely {bitter|potent} medicinal concoction instead of the sauce. No wonder their stomachs rebelled!",
+   "src": "L586",
+   "children": [
+    {
+     "next": "f15"
+    }
+   ]
+  },
+  "inv8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mischievous child had swapped the judges' drinking water for an experimental coconut-and-herb potion. The child is promptly sent back to class.",
+   "src": "L587",
+   "children": [
+    {
+     "next": "f15"
+    }
+   ]
+  },
+  "inv9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A tiny frog had taken up residence inside a serving vessel. The horrified judges decide that perhaps they have seen enough cooking for one day.",
+   "src": "L588",
+   "children": [
+    {
+     "next": "f15"
+    }
+   ]
+  },
+  "inv10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The healers find convincing evidence that someone deliberately contaminated the dish. The judges confront the culprit.",
+   "src": "L589",
+   "children": [
+    {
+     "next": "sab2"
+    }
+   ]
+  },
+  "ban_cooking": {
+   "popup": "append",
+   "join": "space",
+   "text": "permanently ban (cook1) from ever cooking again.",
+   "src": "L610",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L610",
+     "alt": "cooking"
+    }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook1",
+     "list": "dislikes",
+     "preference": "cooking",
+     "src": "L610"
+    }
+   ]
+  },
+  "ban_competing": {
+   "popup": "append",
+   "join": "space",
+   "text": "permanently ban (cook1) from ever competing again.",
+   "src": "L610",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L610",
+     "alt": "competing"
+    }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook1",
+     "list": "dislikes",
+     "preference": "herbs",
+     "src": "L610"
+    }
+   ]
+  },
+  "ban_stews": {
+   "popup": "append",
+   "join": "space",
+   "text": "permanently ban (cook1) from ever making stews again.",
+   "src": "L610",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L610",
+     "alt": "making stews"
+    }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook1",
+     "list": "dislikes",
+     "preference": "cooking",
+     "src": "L610"
+    }
+   ]
+  },
+  "ban_potions": {
+   "popup": "append",
+   "join": "space",
+   "text": "permanently ban (cook1) from ever making potions again.",
+   "src": "L610",
+   "children": [
+    {
+     "next": "seven"
+    }
+   ],
+   "src_pick": [
+    {
+     "src": "L610",
+     "alt": "making potions"
+    }
+   ],
+   "effects": [
+    {
+     "do": "preference",
+     "role": "cook1",
+     "list": "dislikes",
+     "preference": "medicine",
+     "src": "L610"
+    }
+   ]
+  }
+ }
+}

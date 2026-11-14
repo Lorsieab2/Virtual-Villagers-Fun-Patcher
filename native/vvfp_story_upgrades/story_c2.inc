@@ -1109,7 +1109,12 @@ static void cs12_resolve(void *dialog) {
     }
 }
 
-static const mb_client CS12_CLIENT = { cs12_state, cs12_answers, cs12_label, cs12_resolve };
+static int cs12_closes(void *dialog) {
+    (void)dialog;
+    return cg_answer_closes(cs12_game());   /* G1: five or more answers: the answer's page is a popup of its own */
+}
+
+static const mb_client CS12_CLIENT = { cs12_state, cs12_answers, cs12_label, cs12_resolve, cs12_closes };
 
 /* For Scrolling Popups: the game's own virtual table of A New Home's / The Lost Children's encounter dialog when it
    carries our copy (three or four answers, vvfp_multi_answer_12.h), and in *room the room its question was padded

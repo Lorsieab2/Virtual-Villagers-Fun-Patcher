@@ -580,6 +580,10 @@ FILES = [
     "src/vv_cie_graph.py",
     "data/cie_graphs/the_aspiring_adventurer.json",
     "data/cie_graphs/the_cave_explorers.json",
+    # ... the label widths its checks measure labels with, and each game's villager actions (version 6 effects).
+    "data/cie_label_widths.json",
+    "data/cie_actions.json",
+    "data/cie_villager_names.json",      # each game's first-name lists (named strangers, cie-v6-binary.md 16)
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

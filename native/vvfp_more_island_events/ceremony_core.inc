@@ -29,6 +29,8 @@
              damaged one loses 10 + rand(91) percent of its building work (cr_game.damage: only states the game's own
              construction passes through; 100% is the game's new-village state).  No one is hurt, nobody leaves. */
 
+#include "../shared/structure_damage.h"   /* The Rumblings' structures (shared with the Story DLL's "damage") */
+
 #define CR_REMEMBRANCE 0
 #define CR_RUMBLINGS 1
 #define CR_EVENTS 2
