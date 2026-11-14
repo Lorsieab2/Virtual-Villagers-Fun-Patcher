@@ -48,9 +48,6 @@ then fail their checks until they follow the source again.
 | L3136 | `Cook1 wins for flavor; Cook2 accepts` | `(Cook1) wins for flavor; (cook2) accepts` | The Breadfruit Breakdown | Placeholders without parentheses would show the words "Cook1" / "Cook2" |
 | L3137 | `Cook2 wins for texture; Cook1 requests` | `(Cook2) wins for texture; (cook1) requests` | The Breadfruit Breakdown | As above |
 | L4976 | `ARBOR-DAY` | `ARBOR DAY` | The Arbor-Day Festival | Spelling of the title (inventory part 2 also suggests a rename; that is the owner's call) |
-| L6986 | `the other contestant for the attempted bribe.` | `the other finalist, who had no part in the bribe.` | V13-A The Judge Who Feared No Dish | As written it says the innocent finalist is not punished "for the attempted bribe" they did not make |
-| L7183 | `not a proven resurrection` | `not a proven creation of life` | V13-C "It's Alive!" | Nothing was ever dead, so nothing was resurrected |
-| L7684 | `for (him/her): he made it possible to learn` | `for (him/her); he made it possible for (him/her) to learn` | V14-05 The Lesson Nobody Expected | Run-on with a missing object |
 | L8206 | `The Children are asked` | `The children are asked` | V17-B The Children's Jury | Stray capital |
 | L8589 | `The judges present one question:` | `The judges present one of these questions:` | V18-03 The Great Question | Four questions follow; one is drawn |
 | L9434 | `The subject recognizes` | `(Name2), the subject, recognizes` | V21 C2 The Statue That Divided the Village | "(himself/herself)" needs a named villager |
@@ -79,8 +76,27 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 
 ### Part 3a (lines 6837-8489: V13, V14, the game-exclusive events, V17)
 
-No glaring grammar mistake was found in this range, so no fix is applied. The inventory's two suggestions for it
-(L6985-6986 "the other contestant"; L7183 "not a proven resurrection") are wording, not grammar, and are listed below.
+Outcome pages and drawn bank items that would show as fragments: a missing full stop, a missing article, or a drawn
+word with no sentence around it (review r2, M8, M18, M19). L8206 (above) is also applied.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L7660 | `the same subject` | `the same subject, (subject),` | V14-02 The World's Simplest Explanation | The drawn subject is named inside the source's sentence instead of as a bare word |
+| L7739 | `something the adults overlooked.` | `something the adults overlooked: (discovery).` | V14-13 The Curious Little Explorer | The drawn discovery is named inside the source's sentence |
+| L7740 | `unusual beetle` | `an unusual beetle` | V14-13 | The list's items are shown one at a time; each needs its article |
+| L7740 | `patterned fungus` | `a patterned fungus` | V14-13 | As above |
+| L7740 | `unfamiliar mushroom` | `an unfamiliar mushroom` | V14-13 | As above |
+| L7740 | `mushroom, hidden` | `mushroom, a hidden` | V14-13 | As above ("a hidden clearing") |
+| L7741 | `odd stone` | `an odd stone` | V14-13 | As above |
+| L7741 | `animal track` | `an animal track` | V14-13 | As above |
+| L8417 | `honest coincidence,` | `honest coincidence.` | V17-E Who Owns a Discovery? | Each ending is a page of its own; it ends with a full stop |
+| L8418 | `misremembered teaching,` | `misremembered teaching.` | V17-E Who Owns a Discovery? | As above |
+| L8418 | `proved by evidence,` | `proved by evidence.` | V17-E Who Owns a Discovery? | As above |
+| L8429 | `rejected or redesigned;` | `rejected or redesigned.` | V17-E The Two Faces of Isola | The designer rule after the semicolon is never shown; the sentence ends here |
+| L8441 | `festival legend,` | `festival legend.` | V17-E Who Gets to Tell Isola's History? | As above: the designer rule after the comma is never shown |
+| L8459 | `joint celebration;` | `joint celebration.` | V17-E The Children's Peace, the Adults' Quarrel | Each outcome is a page of its own; it ends with a full stop |
+| L8459 | `sincere apology;` | `sincere apology.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
+| L8460 | `adult disagreement;` | `adult disagreement.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
@@ -104,6 +120,7 @@ These stay as the owner wrote them. Some are handled another way; the rest are l
 | L6522-6523 | `none of which have occurred` | Both forms are accepted English |
 | L6985-6986 | `the judges do not punish the other contestant for the attempted bribe` | Reads correctly (the innocent finalist is not punished); wording only |
 | L7183 | `not a proven resurrection` | Word choice ("creation of life" was suggested), not grammar |
+| L7684 | `for (him/her): he made it possible to learn` | The colon is correct and "possible to learn" needs no object: not a glaring mistake |
 | L7851 | `the villager finds a priceless treasure chest!` | An unlabelled fragment: owner question Q10. Shipped as a fifth "Investigate" outcome of The Secret Behind the Waterfall (its first letter capitalised, which the rules allow), told only |
 | L8709, L8715 | living or deceased composer | Content: owner question |
 | L8747 | the Chief's title in an all-games event | The game-word rule (`{@chief}`) handles it |

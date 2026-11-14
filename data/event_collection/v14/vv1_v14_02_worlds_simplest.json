@@ -43,6 +43,13 @@
    }
   ]
  },
+ "grammar_fixes": [
+  {
+   "src": "L7660",
+   "before": "the same subject",
+   "after": "the same subject, (subject),"
+  }
+ ],
  "requirement": {
   "min_eligible": 1
  },
@@ -58,47 +65,47 @@
    "set": "subject",
    "items": [
     {
-     "text": "Mathematics",
+     "text": "mathematics",
      "src": "L7662"
     },
     {
-     "text": "Motion",
+     "text": "motion",
      "src": "L7662"
     },
     {
-     "text": "Geography",
+     "text": "geography",
      "src": "L7662"
     },
     {
-     "text": "History",
+     "text": "history",
      "src": "L7662"
     },
     {
-     "text": "Philosophy",
+     "text": "philosophy",
      "src": "L7662"
     },
     {
-     "text": "Medicine",
+     "text": "medicine",
      "src": "L7662"
     },
     {
-     "text": "Farming",
+     "text": "farming",
      "src": "L7662"
     },
     {
-     "text": "Plants",
+     "text": "plants",
      "src": "L7663"
     },
     {
-     "text": "Stars",
+     "text": "stars",
      "src": "L7663"
     },
     {
-     "text": "Building",
+     "text": "building",
      "src": "L7663"
     },
     {
-     "text": "The island's mysteries",
+     "text": "the island's mysteries",
      "src": "L7663"
     }
    ]
@@ -109,7 +116,7 @@
   "scene": {
    "name": "The World's Simplest Explanation",
    "src": "L7659-7661",
-   "text": "A teacher loses the younger children during a difficult lesson. The Golden Child lays out leaves, sticks and stones, turning the same subject into a game. Soon even the smallest child understands.\n{subject}",
+   "text": "A teacher loses the younger children during a difficult lesson. The Golden Child lays out leaves, sticks and stones, turning the same subject, {subject}, into a game. Soon even the smallest child understands.",
    "effects": [
     {
      "do": "tech",

@@ -43,6 +43,43 @@
    }
   ]
  },
+ "grammar_fixes": [
+  {
+   "src": "L7739",
+   "before": "something the adults overlooked.",
+   "after": "something the adults overlooked: (discovery)."
+  },
+  {
+   "src": "L7740",
+   "before": "unusual beetle",
+   "after": "an unusual beetle"
+  },
+  {
+   "src": "L7740",
+   "before": "patterned fungus",
+   "after": "a patterned fungus"
+  },
+  {
+   "src": "L7740",
+   "before": "unfamiliar mushroom",
+   "after": "an unfamiliar mushroom"
+  },
+  {
+   "src": "L7740",
+   "before": "mushroom, hidden",
+   "after": "mushroom, a hidden"
+  },
+  {
+   "src": "L7741",
+   "before": "odd stone",
+   "after": "an odd stone"
+  },
+  {
+   "src": "L7741",
+   "before": "animal track",
+   "after": "an animal track"
+  }
+ ],
  "requirement": {
   "min_eligible": 1
  },
@@ -58,31 +95,31 @@
    "set": "discovery",
    "items": [
     {
-     "text": "A tiny flower",
+     "text": "a tiny flower",
      "src": "L7739-7740"
     },
     {
-     "text": "Unusual beetle",
+     "text": "an unusual beetle",
      "src": "L7740"
     },
     {
-     "text": "Patterned fungus",
+     "text": "a patterned fungus",
      "src": "L7740"
     },
     {
-     "text": "Unfamiliar mushroom",
+     "text": "an unfamiliar mushroom",
      "src": "L7740"
     },
     {
-     "text": "Hidden clearing",
+     "text": "a hidden clearing",
      "src": "L7740-7741"
     },
     {
-     "text": "Odd stone",
+     "text": "an odd stone",
      "src": "L7741"
     },
     {
-     "text": "Animal track",
+     "text": "an animal track",
      "src": "L7741"
     }
    ]
@@ -93,7 +130,7 @@
   "scene": {
    "name": "The Curious Little Explorer",
    "src": "L7738-7742",
-   "text": "The Golden Child leads his playmates into a familiar part of the jungle and notices something the adults overlooked.\n{discovery}\nThe children carefully show a researcher.",
+   "text": "The Golden Child leads his playmates into a familiar part of the jungle and notices something the adults overlooked: {discovery}.\nThe children carefully show a researcher.",
    "effects": [
     {
      "do": "tech",
