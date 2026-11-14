@@ -278,6 +278,8 @@ holds only `per_game`.
 `ceil(2.5 x (n - 1) - 3)` (7, 10, 12: `CG_ANSWER_LINES`), and from five answers never more than the layout's lines
 less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the question layout.
 
+**With Scrolling Popups installed, section 18 replaces everything below in this section (no pages, no button room, no G1).** Without it:
+
 **G1: the answer's page.** With 2 to 4 buttons shown, the answer's first page is shown in the question's popup,
 keeping the same room (unchanged). With **5 or more buttons shown**, the answer's first page starts a FRESH popup:
 the NOTICE layout -- the plain popup's, which is the popup it is shown through (`story_graph.inc
@@ -400,3 +402,61 @@ Bad Day`.
   (the case written: `(He/She)` -> `He or she`, `(HE/SHE)` -> `HE OR SHE`). The result is cut to 47 bytes. E.g.
   "Someone's No Good, Very Bad Day". The library's file name is made from this form.
 - `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
+
+## 18. One popup per island event (with Scrolling Popups)
+
+The owner, 2026-11-14 (after The Parent's Lesson, live in A New Home, showed its title, the top of the villager's
+picture and seven buttons, and no question text): every new island event (More Island Events, the Isola Grand Event
+Collection, Custom Island Events; the games' own events stay as they are) appears in ONE popup.
+
+- **The texts.** With Scrolling Popups (`cg_one_popup` = `cg_scrolls`), the run's text from the start, or from an
+  answer, up to and including the next question, or the ending, is ONE text (`cg_group`; Python `one_popup`): what
+  were popups of their own (a node with `popup: new`, the question) join after a blank line (`"\n\n"`,
+  `ONE_POPUP_JOIN`), appended nodes as before (a space or a line break). A text is never split into pages; it is
+  laid out as one page (only a text longer than the popup holds would be split, and the checks refuse one: below).
+- **The choices** sit at the END of the text, INSIDE the scrolled content: Scrolling Popups draws them as rows after
+  the text (each the game's own answer-button picture with the label in the body text's font, as shown: sentence
+  case, section 19) and hit-tests them at their scrolled place (`native/shared/one_popup.h`, `VvfpOnePopupRows` /
+  `VvfpOnePopupPick`). The keys 1 to 7 pick them. The game's own two answer buttons are never shown; its OK only
+  while no choice is asked.
+- **An answer** shows its text (up to the next question, or the ending) in the SAME popup, scrolled to its top; a
+  question there puts its choices at its end again (`cg_resolve`). The game's OK ends the event (`cg_op_ok` returns
+  0). One window from start to finish.
+- **Arming.** The run is armed ONCE: as a question when its start can reach a question through pages and branches
+  (`cg_start_may_ask`), so its popup is the game's question popup (A New Home's and The Lost Children's encounter
+  dialog, the later games' two-choice dialog), else as a plain event (one text, OK). Nothing waits for another
+  island-event trigger between its texts: the owner's live A New Home bug (a picked event's question waited for the
+  next trigger after its intro page and the village's opening event took it) cannot happen.
+- **Effects** are made when the text that tells them is shown (an answer's at its click, with its text); the Island
+  Events log keeps ONE entry (a "Choice:" line for each answer). Island Events Seen counts the event once.
+- **Bytes.** A text may hold at most 1990 bytes at its widest (the later games' popup holds 2,000), 8000 in A New
+  Home and The Lost Children (their dialog holds 9,999; `CG_TEXT_MAX_12`, `ONE_POPUP_TEXT_MAX_12`). Lines do not
+  count: the popup scrolls.
+- **The popup's size**: the constructor's own, for its first text, with the rows and the room OK keeps below them
+  (5/2 of OK's height) instead of the room for the game's buttons, capped to the screen; later texts scroll in it.
+- Without Scrolling Popups everything is as before (pages, button room, G1).
+
+## 19. Sentence case
+
+The owner, 2026-11-14: the entire event text is shown in sentence case, the choices too ("Honesty", not
+"HONESTY"). The source writes some labels and lines in capitals; the data is never changed: the rule is applied to
+what is shown, by the same code shape in Python (`sentence_case`, `title_case`) and in the engine
+(`cg_sentence_case`, `cg_title_case`), pinned equal on every collection text by `tests/test_sentence_case.py`. It
+is applied to a version 6 text as shown (`cg_expand` REAL and WORST, not the award pass; a popup's whole text, a
+label), before anything is filled in:
+
+- a WORD is a run of letters (A-Z, a-z, Latin-1 0xC0-0xFF but 0xD7 and 0xF7), an apostrophe between two letters
+  inside it; it is in CAPITALS when it has no lower-case letter;
+- a RUN is, within one line, a run of words in capitals with no word holding a lower-case letter between them;
+  placeholders `(...)`, picks `{...}` and escapes `\x` sit between words and break nothing;
+- a run is shown in sentence case when it holds two or more words of two or more letters, or one such word on a
+  line with no word holding a lower-case letter ("HONESTY", "STOP!"); one word in capitals inside ordinary text
+  ("it was HUGE", "OK") stays as written;
+- in such a run every letter, and every placeholder's letter, is made lower case -- so `(NAME1)` shows the name in
+  its own case and `(HE)` "he" -- then the first letter of a word or placeholder that starts a sentence (the text's
+  or a line's start, or after `.` `!` `?`, past spaces and quotes) is made a capital, and the word "I" (also in
+  "I'm", "I'll", "I've", "I'd") stays a capital. Names keep their own capitals (they are filled in afterwards);
+- a pool's item is cased on its own the same way, its start not a sentence's start;
+- a TITLE written in capitals (no lower-case letter, a word of two or more letters) is shown in title case: each
+  word's first letter a capital, the rest lower case, a placeholder's name as written (`"(NAME)'S BIG DAY"` ->
+  `"(Name)'s Big Day"`); any other title as written. The readable title (17) is made from it.
