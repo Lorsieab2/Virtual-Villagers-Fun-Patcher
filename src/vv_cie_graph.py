@@ -2055,7 +2055,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 shown = [i for i, c in enumerate(node["choices"]) if cond_holds(c.get("if"), ctx, path)]
                 if len(shown) < MIN_ANSWERS:
                     say(f"node {nid} ({where}): only {len(shown)} of its answers are shown; at least {MIN_ANSWERS}")
-                room = answer_room(len(shown), game.question.lines)
+                # The question popup keeps at least three text lines under its title (A New Home and The Lost
+                # Children put the title and four line breaks in the text).
+                room = answer_room(len(shown), game.question.lines - (5 if game.question.with_title else 0))
             else:
                 room = answer_room(len(node["choices"]))
             popups.append(Popup("question", text, nodes=[nid], room=room))

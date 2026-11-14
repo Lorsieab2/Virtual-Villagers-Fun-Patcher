@@ -59,12 +59,12 @@ INTRO = ("Write your own island events with choices and chances. Each event is k
          "Events in the game.")
 HELP_TEXT = (
     "How an event is built\n"
-    "An event starts with its first part: a popup, or a question with two to four buttons. Any part can be a "
-    "question: choose \"A question (2 to 4 buttons)\" as its kind, write each button's words on the Next tab and "
-    "point each button at the part it leads to (\"Add a button\" gives a question a third and a fourth; \"Remove "
+    "An event starts with its first part: a popup, or a question with two to seven buttons. Any part can be a "
+    "question: choose \"A question (2 to 7 buttons)\" as its kind, write each button's words on the Next tab and "
+    "point each button at the part it leads to (\"Add a button\" gives a question up to seven; \"Remove "
     "the last button\" takes one away, down to two); ask as many questions as you like, between popups, chances "
-    "and changes. The game shows the buttons one above the other in its own question popup, and the keys 1 to 4 "
-    "pick them. After "
+    "and changes. The game shows the buttons one above the other in its own question popup, and the keys 1 to 7 "
+    "pick them. A button can be shown only in some games, with some patches, or when a role takes part. After "
     "each answer the game first shows a popup of the answer's own, so a button leads to a popup (or a split that "
     "reaches one) before the next question or the end, and a question itself changes nothing. Each part can lead on to "
     "other parts; when a part has several ways on, the game picks one at random, a way with a bigger weight "
@@ -74,7 +74,13 @@ HELP_TEXT = (
     "Use the Insert menu for names and words that change: (Name) is the villager's name (the full name, first "
     "and last, when the Last Names patch is on), (he/she) and the others follow the villager's sex, and "
     "(award) is the amount actually given (a fixed amount; the Island Events Scale patches can scale it). Only "
-    "letters, digits, spaces and . , ! ? : - ' \" can be shown.\n\n"
+    "letters, digits, spaces and . , ! ? : - ' \" can be shown (with lists or game words also ; / & % and "
+    "\\( \\) for a parenthesis; A New Home and The Lost Children show ; as , and ( ) as -).\n\n"
+    "Lists and game words\n"
+    "On the Lists tab, a list's items are picked at random each time the event happens: {Name} shows one item, "
+    "{Name.2} a second pick (with \"different each time\" never the same item twice). {this|that} picks between "
+    "words written in place ({3:this|1:that} picks the first three times as often). A game word, {@word}, shows "
+    "each game's own words.\n\n"
     "Roles\n"
     "The main villager, and any others the event uses. If no villager fits a role the event needs, the game "
     "refuses to queue the event and says so.\n\n"
@@ -106,8 +112,15 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
                5: "Virtual Villagers - New Believers"}
 
 # Changes, in the order the Add menu offers them, with their plain names.
-EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill")
+EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
+                "celebrate", "action", "mood", "health_change", "damage")
+NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage")     # these make the event version 6
 EFFECT_NAMES = {
+    "celebrate": "Villagers celebrate",
+    "action": "A villager does something (an action of the game's own)",
+    "mood": "A villager looks pleased or upset",
+    "health_change": "Raise or lower a villager's health",
+    "damage": "A finished building loses some of its work",
     "food": "Add or take food",
     "tech": "Add or take tech points",
     "pay_award": "Give the award kept earlier",
@@ -129,12 +142,24 @@ CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown ca
 OWN_WORDS = "In my own words:"
 PER_GAME_WORDS = "Different amounts per game (a game left unticked uses the amount above)"
 TYPE_WORDS = {"popup": "A popup with text", "branch": "A silent split (no popup)",
-              "question": "A question (2 to 4 buttons)"}
+              "question": "A question (2 to 7 buttons)"}
 POPUP_WORDS = {"new": "Opens a new popup", "append": "Continues the popup already open"}
 JOIN_WORDS = {"space": "on the same line", "paragraph": "as a new paragraph"}
 VILLAGER_SEX = {"any": "Anyone", "male": "A man", "female": "A woman"}
 STRANGER_SEX = {"random": "Man or woman, at random", "male": "A man", "female": "A woman"}
 KIND_WORDS = {"villager": "A villager", "stranger": "A stranger (no record, only a sex)"}
+ALIAS_WORDS = "One of the other villagers, picked at random"
+SPECIAL_WORDS = {None: "(anyone)", "golden_child": "Must be the Golden Child", "tribal_chief": "Must be the tribal chief",
+                 "nursing_parent": "Must be a mother or father nursing a baby"}
+PROTECTED_WORDS = {"auto": "Kept out only when this role can be harmed",
+                   "exclude": "Always kept out",
+                   "allow": "May take part (even when harmed: your own risk)"}
+PROTECTED_WHO = ("Protected villagers (nursing mothers and fathers, the Golden Child, the tribal chief, the "
+                 "totems, and anyone the game's own island events never pick):")
+PREFER_NOTE = ("Played as a Custom Island Event you buy, the game prefers villagers who fit these and uses anyone "
+               "else when none does; the natural roll and Pick Island Event need them.")
+NO_SKILL = "(no skill needed)"
+MOOD_WORDS = {"good": "pleased", "bad": "upset"}
 
 
 # ---- Plain words ---------------------------------------------------------------------------------------------------
@@ -176,6 +201,14 @@ def describe_cond(c, g: dict | None = None) -> str:
         return "in " + game_words(arg)
     if op == "patch":
         return f"with {patch_words(arg)} on"
+    if op == "harmable":
+        return f"{role_words(arg)} can be harmed now"
+    if op == "special_present":
+        return "the " + ("Golden Child" if arg == "golden_child" else "tribal chief") + " is in the village"
+    if op == "min_population":
+        return f"at least {arg} villagers live in the village"
+    if op == "min_children":
+        return f"at least {arg} children live in the village"
     if op == "not":
         (iop, iarg), = arg.items()
         if iop == "role":
@@ -195,10 +228,17 @@ def capital(words: str) -> str:
     return words[:1].upper() + words[1:]
 
 
-def cond_options(g: dict, keep=None) -> list[tuple[str, object]]:
+def cond_options(g: dict, keep=None, static: bool = False) -> list[tuple[str, object]]:
     """The conditions a way on or a variant can be given, as (plain words, condition); `keep` (one already set that
-    the list does not offer, e.g. from an imported file) is listed first so it is never lost."""
+    the list does not offer, e.g. from an imported file) is listed first so it is never lost.  `static`: only those
+    a button can be shown by (no "after a part")."""
     out: list[tuple[str, object]] = [("Always", None)]
+    if g.get("version", 1) >= cg.VERSION_V6:
+        for kind in ("golden_child", "tribal_chief"):
+            if any(n in cg.SPECIAL_GAMES[kind] for n in g.get("games", [])):
+                c = {"special_present": kind}
+                out.append((capital(describe_cond(c)), c))
+                out.append(("Not: " + describe_cond(c), {"not": c}))
     for r, role in g.get("roles", {}).items():
         if role.get("optional"):
             out.append((capital(describe_cond({"role": r})), {"role": r}))
@@ -209,7 +249,7 @@ def cond_options(g: dict, keep=None) -> list[tuple[str, object]]:
     for p in g.get("patches", []):
         out.append((capital(describe_cond({"patch": p})), {"patch": p}))
         out.append((capital(describe_cond({"not": {"patch": p}})), {"not": {"patch": p}}))
-    for nid in g.get("nodes", {}):
+    for nid in g.get("nodes", {}) if not static else ():
         out.append((capital(describe_cond({"visited": nid}, g)), {"visited": nid}))
         out.append((capital(describe_cond({"not": {"visited": nid}}, g)), {"not": {"visited": nid}}))
     if keep is not None and all(c != keep for _w, c in out):
@@ -252,9 +292,28 @@ def describe_effect(e: dict) -> str:
         return f"{who} {verb} {e.get('preference')}"
     if do == "skill":
         skills = ", ".join(e.get("skills") or [])
-        return f"{who} gains {e.get('min')} to {e.get('max')} in one of: {skills}"
+        if "set" in e:
+            return f"{who}'s skill becomes {e.get('set')} in one of: {skills}"
+        lo, hi = e.get("min"), e.get("max")
+        if isinstance(lo, int) and isinstance(hi, int) and hi < 0:
+            return f"{who} loses {-hi} to {-lo} in one of: {skills}"
+        return f"{who} gains {lo} to {hi} in one of: {skills}"
     if do == "sick":
         return f"{who} falls sick"
+    if do == "celebrate":
+        who_all = e.get("who", "all")
+        return "Everyone celebrates" if who_all == "all" else f"{capital(role_words(who_all))} celebrates"
+    if do == "action":
+        return f"{who}: {e.get('action')}"
+    if do == "mood":
+        return f"{who} looks {MOOD_WORDS.get(e.get('mood'), e.get('mood'))}"
+    if do == "health_change":
+        lo, hi = e.get("min"), e.get("max")
+        return f"{who}'s health changes by {lo} to {hi} (never below 1)"
+    if do == "damage":
+        st = e.get("structures")
+        where = "a finished building" if st == cg.DAMAGE_ANY else "one of: " + ", ".join(st or [])
+        return f"{capital(where)} loses {e.get('min')} to {e.get('max')} percent of its work"
     return str(do)
 
 
@@ -292,8 +351,11 @@ def example_event(path: Path = EXAMPLE) -> dict:
     return cg.normalize(json.loads(path.read_text(encoding="utf-8")))[0]
 
 
-def new_role() -> dict:
-    """A villager role the event can do without (the format's defaults)."""
+def new_role(g: dict | None = None) -> dict:
+    """A villager role the event can do without (the format's defaults; version 6's shape for a version 6 `g`)."""
+    if g is not None and g.get("version", 1) >= cg.VERSION_V6:
+        return {"kind": "villager", "optional": True, "sex": "any", "min_age": 14, "max_age": None, "skill": None,
+                "special": None, "protected": "auto", "believers_only": True}
     return {"kind": "villager", "optional": True, "sex": "any", "min_age": 14, "exclude_nursing": True,
             "exclude_special": True, "believers_only": True}
 
@@ -512,7 +574,48 @@ def new_effect(kind: str, games, role: str = "subject") -> dict:
     elif kind == "skill":
         skills = common(games, "skills")
         e.update(skills=skills[:1], min=1, max=10)
+    elif kind == "celebrate":
+        return {"do": "celebrate", "who": "all"}
+    elif kind == "action":
+        e["action"] = "Dancing" if all("Dancing" in cg.actions(n) for n in games) else \
+            next(iter(common_actions(games)), "")
+    elif kind == "mood":
+        e["mood"] = "good"
+    elif kind == "health_change":
+        e.update(min=10, max=20)
+    elif kind == "damage":
+        return {"do": "damage", "structures": cg.DAMAGE_ANY, "min": 10, "max": 30}
     return e
+
+
+def common_actions(games) -> list[str]:
+    """The villager actions every game in `games` has, by their own words."""
+    games = [n for n in games if n in cg.GAMES] or sorted(cg.GAMES)
+    first = list(cg.actions(games[0]))
+    return [a for a in first if all(a in cg.actions(n) for n in games)]
+
+
+def to_v6(g: dict) -> None:
+    """Make an event format version 6 in place (lists, game words, role requirements, up to seven buttons and the
+    new changes): each villager role's two "never" boxes become its protected villagers' setting."""
+    if g.get("version", 1) >= cg.VERSION_V6:
+        return
+    g["version"] = cg.VERSION_V6
+    for r, role in g.get("roles", {}).items():
+        if role.get("kind") != "villager":
+            continue
+        nursing, special = role.pop("exclude_nursing", True), role.pop("exclude_special", True)
+        allow = nursing is False or special is False
+        g["roles"][r] = {"kind": "villager", "optional": role.get("optional", False), "sex": role.get("sex", "any"),
+                         "min_age": role.get("min_age", 14), "max_age": None, "skill": None, "special": None,
+                         "protected": "allow" if allow else "auto",
+                         "believers_only": role.get("believers_only", True),
+                         **({"max_age_gap": role["max_age_gap"]} if role.get("max_age_gap") else {})}
+    for n in g.get("nodes", {}).values():
+        for c in n.get("choices", []):
+            c.setdefault("if", None)
+    g.setdefault("words", {})
+    g.setdefault("pools", {})
 
 
 # ---- The fit meter -------------------------------------------------------------------------------------------------
@@ -722,6 +825,7 @@ class Library:
         self._tab_next()
         self._tab_effects()
         self._tab_roles()
+        self._tab_lists()
         self._tab_check()
         window.protocol("WM_DELETE_WINDOW", self.close)
 
@@ -841,6 +945,9 @@ class Library:
         self.puzzle_list.bind("<<ListboxSelect>>", lambda _e: self._puzzles_changed())
         self.puzzle_note = ttk.Label(page, justify="left", wraplength=500, text="")
         self.puzzle_note.grid(row=11, column=0, columnspan=3, sticky="w")
+        # An Isola Grand Event Collection event says where it comes from (read-only).
+        self.collection_label = ttk.Label(page, justify="left", wraplength=500, text="")
+        self.collection_label.grid(row=12, column=0, columnspan=3, sticky="w", pady=(12, 0))
         page.columnconfigure(0, weight=1)
 
     def _tab_text(self) -> None:
@@ -963,8 +1070,9 @@ class Library:
         self.choice_frame = ttk.Frame(page)
         self.choice_vars: list[tuple[tk.StringVar, ttk.Combobox]] = []
         self.choice_rows: list[list[tk.Widget]] = []
+        self.choice_ifs: list[ttk.Combobox] = []
         for i in range(cg.MAX_ANSWERS):
-            words = ttk.Label(self.choice_frame, text=f"Button {'ABCD'[i]}:")
+            words = ttk.Label(self.choice_frame, text=f"Button {cg.answer_letter(i)}:")
             words.grid(row=i, column=0, sticky="w", pady=2)
             label = tk.StringVar(master=self.window)
             entry = ttk.Entry(self.choice_frame, textvariable=label, width=30)
@@ -973,12 +1081,18 @@ class Library:
             goes.grid(row=i, column=2, sticky="w")
             box = ttk.Combobox(self.choice_frame, state="readonly", width=20)
             box.grid(row=i, column=3, sticky="w", padx=4)
+            shown = ttk.Combobox(self.choice_frame, state="readonly", width=24)
+            shown.grid(row=i, column=4, sticky="w", padx=4)
             label.trace_add("write", lambda *_a, i=i: self._choice_set(i, "label"))
             box.bind("<<ComboboxSelected>>", lambda _e, i=i: self._choice_set(i, "next"))
+            shown.bind("<<ComboboxSelected>>", lambda _e, i=i: self._choice_if(i))
             self.choice_vars.append((label, box))
-            self.choice_rows.append([words, entry, goes, box])
+            self.choice_ifs.append(shown)
+            self.choice_rows.append([words, entry, goes, box, shown])
+        ttk.Label(self.choice_frame, text="(the last box: when the button is shown)").grid(
+            row=cg.MAX_ANSWERS, column=3, columnspan=2, sticky="w")
         answer_actions = ttk.Frame(self.choice_frame)
-        answer_actions.grid(row=cg.MAX_ANSWERS, column=0, columnspan=4, sticky="w", pady=(4, 0))
+        answer_actions.grid(row=cg.MAX_ANSWERS + 1, column=0, columnspan=5, sticky="w", pady=(4, 0))
         self.add_answer_button = ttk.Button(answer_actions, text="Add a button", command=self.add_answer)
         self.add_answer_button.pack(side="left")
         self.remove_answer_button = ttk.Button(answer_actions, text="Remove the last button",
@@ -1058,6 +1172,261 @@ class Library:
         self.role_form = ttk.Frame(page)
         self.role_form.pack(fill="x", pady=(8, 0))
 
+    def _tab_lists(self) -> None:
+        """Version 6: lists of words picked at random ({Name}, {Name.2}), and each game's own words ({@word})."""
+        page = ScrollingTab(self.tabs, "Lists")
+        self.lists_page = page
+        ttk.Label(page, justify="left", wraplength=500, text=(
+            "Lists of words picked at random each time the event happens. Insert one in a text with {Name}; "
+            "{Name.2} is a second pick. A bigger weight is picked more often; an item can be kept for some games "
+            "or patches.")).pack(anchor="w")
+        top = ttk.Frame(page)
+        top.pack(fill="x", pady=(6, 0))
+        ttk.Label(top, text="List:").pack(side="left")
+        self.pool_box = ttk.Combobox(top, state="readonly", width=24)
+        self.pool_box.pack(side="left", padx=(4, 8))
+        self.pool_box.bind("<<ComboboxSelected>>", lambda _e: self._pool_picked())
+        ttk.Button(top, text="Add a list...", command=self.add_pool).pack(side="left")
+        ttk.Button(top, text="Remove this list", command=self.remove_pool).pack(side="left", padx=(6, 0))
+        self.distinct_var = tk.BooleanVar(master=self.window)
+        ttk.Checkbutton(page, text="Different each time (a second pick is never the same item)",
+                        variable=self.distinct_var, command=self._distinct_changed).pack(anchor="w", pady=(4, 0))
+        holder = ttk.Frame(page)
+        holder.pack(fill="x", pady=(4, 0))
+        self.items_table = ttk.Treeview(holder, columns=("text", "weight", "if"), show="headings", height=6,
+                                        selectmode="browse", style="CIE.Treeview")
+        for col, words, width in (("text", "Item", 260), ("weight", "Weight", 60), ("if", "Only if", 160)):
+            self.items_table.heading(col, text=words)
+            self.items_table.column(col, width=width, stretch=col == "text")
+        bar = ttk.Scrollbar(holder, orient="vertical", command=self.items_table.yview)
+        self.items_table.configure(yscrollcommand=bar.set)
+        bar.pack(side="right", fill="y")
+        self.items_table.pack(side="left", fill="x", expand=True)
+        self.items_table.bind("<<TreeviewSelect>>", self._item_selected)
+        form = ttk.Frame(page)
+        form.pack(fill="x", pady=(4, 0))
+        ttk.Label(form, text="Item:").grid(row=0, column=0, sticky="w")
+        self.item_text = tk.StringVar(master=self.window)
+        ttk.Entry(form, textvariable=self.item_text, width=50).grid(row=0, column=1, columnspan=3, sticky="we")
+        self.item_text.trace_add("write", lambda *_: self._item_set("text", self.item_text.get()))
+        ttk.Label(form, text="Weight:").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.item_weight = tk.StringVar(master=self.window)
+        ttk.Spinbox(form, from_=1, to=cg.MAX_WEIGHT, textvariable=self.item_weight, width=7).grid(
+            row=1, column=1, sticky="w", pady=(4, 0))
+        self.item_weight.trace_add("write", lambda *_: self._item_weight_changed())
+        ttk.Label(form, text="Only if:").grid(row=1, column=2, sticky="w", padx=(8, 0), pady=(4, 0))
+        self.item_if = ttk.Combobox(form, state="readonly", width=34)
+        self.item_if.grid(row=1, column=3, sticky="w", pady=(4, 0))
+        self.item_if.bind("<<ComboboxSelected>>", lambda _e: self._item_if_changed())
+        actions = ttk.Frame(page)
+        actions.pack(fill="x", pady=(4, 0))
+        ttk.Button(actions, text="Add an item", command=self.add_item).pack(side="left")
+        ttk.Button(actions, text="Remove this item", command=self.remove_item).pack(side="left", padx=(6, 0))
+
+        ttk.Label(page, text="Game words", font=self.fonts["label"]).pack(anchor="w", pady=(14, 2))
+        ttk.Label(page, justify="left", wraplength=500, text=(
+            "Words each game says its own way, e.g. \"the Chief\" in The Secret City and \"the elders\" "
+            "elsewhere. Insert one with {@word}.")).pack(anchor="w")
+        wtop = ttk.Frame(page)
+        wtop.pack(fill="x", pady=(4, 0))
+        ttk.Label(wtop, text="Word:").pack(side="left")
+        self.word_box = ttk.Combobox(wtop, state="readonly", width=24)
+        self.word_box.pack(side="left", padx=(4, 8))
+        self.word_box.bind("<<ComboboxSelected>>", lambda _e: self.show_words())
+        ttk.Button(wtop, text="Add a game word...", command=self.add_word).pack(side="left")
+        ttk.Button(wtop, text="Remove this word", command=self.remove_word).pack(side="left", padx=(6, 0))
+        self.word_rows = ttk.Frame(page)
+        self.word_rows.pack(fill="x", pady=(4, 0))
+        self.pool_name: str | None = None
+        self.item_index: int | None = None
+
+    def show_lists(self) -> None:
+        pools = self.g.get("pools", {})
+        self.pool_box.configure(values=list(pools))
+        if self.pool_name not in pools:
+            self.pool_name = next(iter(pools), None)
+            self.item_index = None
+        self.pool_box.set(self.pool_name or "")
+        table = self.items_table
+        table.delete(*table.get_children())
+        pool = pools.get(self.pool_name)
+        self._loading = True
+        try:
+            self.distinct_var.set(bool(pool and pool["distinct"]))
+            for i, it in enumerate(pool["items"] if pool else []):
+                table.insert("", "end", iid=str(i), values=(it["text"], it["weight"],
+                                                            capital(describe_cond(it["if"], self.g))))
+            if pool and self.item_index is not None and self.item_index < len(pool["items"]):
+                it = pool["items"][self.item_index]
+                table.selection_set(str(self.item_index))
+                if self.item_text.get() != it["text"]:
+                    self.item_text.set(it["text"])
+                self.item_weight.set(str(it["weight"]))
+                options = cond_options(self.g, it["if"])
+                self.item_if.configure(values=[w for w, _c in options])
+                self.item_if.set(next(w for w, c in options if c == it["if"]))
+            else:
+                self.item_index = None
+                self.item_text.set("")
+                self.item_weight.set("")
+                self.item_if.set("")
+        finally:
+            self._loading = False
+        self.show_words()
+
+    def _pool(self) -> dict | None:
+        return self.g.get("pools", {}).get(self.pool_name)
+
+    def _pool_picked(self) -> None:
+        self.pool_name = self.pool_box.get() or None
+        self.item_index = None
+        self.show_lists()
+
+    def add_pool(self, name: str | None = None) -> None:
+        name = name or ASK_STRING(TITLE, "A short name for the new list (letters, digits or _; e.g. DISH):",
+                                  parent=self.window)
+        if not name:
+            return
+        name = name.strip()
+        if not cg.POOL_RE.match(name) or name in self.g.get("pools", {}):
+            SHOW_ERROR(TITLE, "A list's name is 1 to 32 letters, digits or _ (starting with a letter or digit), "
+                              "and not one already used.", parent=self.window)
+            return
+        to_v6(self.g)
+        self.g["pools"][name] = {"items": [{"text": "something", "weight": 1, "if": None}], "distinct": False}
+        self.pool_name, self.item_index = name, 0
+        self.changed()
+        self.show_lists()
+        self._build_insert_menu()
+
+    def remove_pool(self) -> None:
+        if self._pool() is None or not ASK_YES_NO(TITLE, f"Remove the list {self.pool_name}? Texts that use it "
+                                                         "will show as problems.", parent=self.window):
+            return
+        del self.g["pools"][self.pool_name]
+        self.pool_name = None
+        self.changed()
+        self.show_lists()
+        self._build_insert_menu()
+
+    def _distinct_changed(self) -> None:
+        pool = self._pool()
+        if self._loading or pool is None:
+            return
+        pool["distinct"] = bool(self.distinct_var.get())
+        self.changed()
+
+    def _item_selected(self, _event=None) -> None:
+        if self._loading:
+            return
+        picked = self.items_table.selection()
+        if picked:
+            self.item_index = int(picked[0])
+            self.show_lists()
+
+    def _item_set(self, key: str, value) -> None:
+        pool = self._pool()
+        if self._loading or pool is None or self.item_index is None or self.item_index >= len(pool["items"]):
+            return
+        pool["items"][self.item_index][key] = value
+        self.changed()
+        it = pool["items"][self.item_index]
+        if self.items_table.exists(str(self.item_index)):
+            self.items_table.item(str(self.item_index), values=(it["text"], it["weight"],
+                                                                capital(describe_cond(it["if"], self.g))))
+
+    def _item_weight_changed(self) -> None:
+        try:
+            value = int(self.item_weight.get().strip())
+        except ValueError:
+            return
+        self._item_set("weight", value)
+
+    def _item_if_changed(self) -> None:
+        pool = self._pool()
+        if pool is None or self.item_index is None:
+            return
+        options = dict(cond_options(self.g, pool["items"][self.item_index]["if"]))
+        self._item_set("if", options.get(self.item_if.get()))
+        self.show_lists()
+
+    def add_item(self) -> None:
+        pool = self._pool()
+        if pool is None:
+            return
+        pool["items"].append({"text": "something else", "weight": 1, "if": None})
+        self.item_index = len(pool["items"]) - 1
+        self.changed()
+        self.show_lists()
+
+    def remove_item(self) -> None:
+        pool = self._pool()
+        if pool is None or self.item_index is None or len(pool["items"]) <= 1:
+            return
+        del pool["items"][self.item_index]
+        self.item_index = None
+        self.changed()
+        self.show_lists()
+
+    def show_words(self) -> None:
+        words = self.g.get("words", {})
+        self.word_box.configure(values=list(words))
+        if self.word_box.get() not in words:
+            self.word_box.set(next(iter(words), ""))
+        for child in self.word_rows.winfo_children():
+            child.destroy()
+        word = self.word_box.get()
+        if word not in words:
+            return
+        for i, n in enumerate(self.g["games"]):
+            ttk.Label(self.word_rows, text=cg.GAMES[n].name, width=18).grid(row=i, column=0, sticky="w", pady=1)
+            var = tk.StringVar(master=self.window, value=words[word].get(str(n), ""))
+            ttk.Entry(self.word_rows, textvariable=var, width=36).grid(row=i, column=1, sticky="w")
+
+            def write(*_a, n=n, var=var, word=word):
+                self.g["words"][word][str(n)] = var.get()
+                self.changed()
+            var.trace_add("write", write)
+
+    def add_word(self, name: str | None = None) -> None:
+        name = name or ASK_STRING(TITLE, "The new game word (letters, digits or _; e.g. chief):",
+                                  parent=self.window)
+        if not name:
+            return
+        name = name.strip()
+        if not cg.ID_RE.match(name) or name in self.g.get("words", {}):
+            SHOW_ERROR(TITLE, "A game word is 1 to 32 letters, digits or _, and not one already used.",
+                       parent=self.window)
+            return
+        to_v6(self.g)
+        self.g["words"][name] = {str(n): name for n in self.g["games"]}
+        self.word_box.set(name)
+        self.changed()
+        self.show_words()
+        self._build_insert_menu()
+
+    def remove_word(self) -> None:
+        word = self.word_box.get()
+        if word not in self.g.get("words", {}):
+            return
+        del self.g["words"][word]
+        self.changed()
+        self.show_words()
+        self._build_insert_menu()
+
+    def show_collection(self) -> None:
+        """An Isola Grand Event Collection event: where it comes from, read-only (the owner's text stays the
+        owner's: saving keeps a copy, never the original)."""
+        col = self.g.get("collection")
+        if not col:
+            self.collection_label.configure(text="")
+            return
+        lines = col.get("lines") or ["?", "?"]
+        self.collection_label.configure(text=(
+            f"From the Isola Grand Event Collection ({col.get('source', '')}, lines {lines[0]} to {lines[1]}"
+            + (f", {col['section']}" if col.get("section") else "") + f"): {col.get('id')}. Credit: "
+            f"{col.get('credit', '')}\nThis part is kept as it is; Save keeps a copy in your library."))
+
     def _tab_check(self) -> None:
         page = ScrollingTab(self.tabs, "Check")
         self.check_page = page
@@ -1120,6 +1489,9 @@ class Library:
         self.refresh_now()
         self.show_node()
         self.show_roles()
+        self.pool_name, self.item_index = None, None
+        self.show_lists()
+        self.show_collection()
 
     def node(self) -> dict | None:
         return self.g["nodes"].get(self.nid)
@@ -1309,12 +1681,14 @@ class Library:
     def _build_insert_menu(self) -> None:
         menu = self.insert_menu
         menu.delete(0, "end")
+        v6 = self.g.get("version", 1) >= cg.VERSION_V6
+        first = cg.default_role_of(self.g["roles"])
         for r, role in self.g["roles"].items():
             sub = tk.Menu(menu, tearoff=False)
-            prefix = "" if r == "subject" else f"{r}."
-            if role["kind"] == "villager":
+            prefix = "" if r == first else f"{r}."
+            if role["kind"] in ("villager", "alias"):
                 sub.add_command(label="Name", command=lambda t=f"({prefix}Name)": self.insert(t))
-            for key in cg.PRONOUNS:
+            for key in (cg.PRONOUNS_V6 if v6 else cg.PRONOUNS):
                 big = "/".join(w.capitalize() for w in key.split("/"))
                 sub.add_command(label=f"{big.replace('/', ' or ')} (starting a sentence)",
                                 command=lambda t=f"({prefix}{big})": self.insert(t))
@@ -1323,6 +1697,18 @@ class Library:
         menu.add_separator()
         menu.add_command(label="The award's amount", command=lambda: self.insert("(award)"))
         menu.add_command(label="The award's kind (food or tech points)", command=lambda: self.insert("(award_unit)"))
+        if not v6:
+            return
+        menu.add_separator()
+        for name in self.g.get("pools", {}):
+            menu.add_command(label=f"A pick from the list {name}", command=lambda t=f"{{{name}}}": self.insert(t))
+            menu.add_command(label=f"A second pick from the list {name}",
+                             command=lambda t=f"{{{name}.2}}": self.insert(t))
+        for word in self.g.get("words", {}):
+            menu.add_command(label=f"The game word {word}", command=lambda t=f"{{@{word}}}": self.insert(t))
+        menu.add_command(label="A pick between words written here", command=lambda: self.insert("{this|that}"))
+        menu.add_command(label="A parenthesis, opening", command=lambda: self.insert("\\("))
+        menu.add_command(label="A parenthesis, closing", command=lambda: self.insert("\\)"))
 
     def insert(self, token: str) -> None:
         if str(self.text_box.cget("state")) == "disabled":
@@ -1514,6 +1900,9 @@ class Library:
                         label.set(c["label"])
                     box.configure(values=names)
                     box.set(self.part(c["next"]) if c["next"] else "")
+                    options = cond_options(self.g, c.get("if"), static=True)
+                    self.choice_ifs[i].configure(values=[w for w, _c in options])
+                    self.choice_ifs[i].set(next(w for w, cond in options if cond == c.get("if")))
                     for widget in self.choice_rows[i]:
                         if i < shown:
                             widget.grid()
@@ -1647,14 +2036,16 @@ class Library:
         self.show_children_table()
 
     def add_answer(self) -> None:
-        """A third or fourth button: the event becomes format version 4 (questions with up to four answers)."""
+        """A third or fourth button makes the event format version 4; a fifth to seventh, version 6."""
         n = self.node()
         if n is None or n["type"] != "question" or len(n["choices"]) >= cg.MAX_ANSWERS:
             return
         while len(n["choices"]) < cg.MIN_ANSWERS:
-            n["choices"].append({"label": "", "next": ""})
-        n["choices"].append({"label": f"Answer {len(n['choices']) + 1}", "next": ""})
+            n["choices"].append(self._blank_choice())
+        n["choices"].append(dict(self._blank_choice(), label=f"Answer {len(n['choices']) + 1}"))
         self.g["version"] = max(self.g.get("version", 1), cg.VERSION_ANSWERS)
+        if len(n["choices"]) > cg.MAX_ANSWERS_V4:
+            to_v6(self.g)
         self.changed()
         self.show_children_table()
 
@@ -1672,10 +2063,28 @@ class Library:
         if self._loading or n is None or n["type"] != "question":
             return
         while len(n["choices"]) <= index:
-            n["choices"].append({"label": "", "next": ""})
+            n["choices"].append(self._blank_choice())
         label, box = self.choice_vars[index]
         n["choices"][index][key] = label.get() if key == "label" else self.id_of(box.get())
         self.changed()
+
+    def _blank_choice(self) -> dict:
+        return {"label": "", "next": "", "if": None} if self.g.get("version", 1) >= cg.VERSION_V6 else \
+            {"label": "", "next": ""}
+
+    def _choice_if(self, index: int) -> None:
+        """When a button is shown (version 6): the game, a patch, a role taking part or a special villager."""
+        n = self.node()
+        if self._loading or n is None or n["type"] != "question" or index >= len(n["choices"]):
+            return
+        options = dict(cond_options(self.g, n["choices"][index].get("if"), static=True))
+        cond = options.get(self.choice_ifs[index].get())
+        if cond is not None:
+            to_v6(self.g)
+        if "if" in n["choices"][index] or cond is not None:
+            n["choices"][index]["if"] = cond
+        self.changed()
+        self.show_children_table()
 
     # ---- parts ----
 
@@ -1774,7 +2183,9 @@ class Library:
         n = self.node()
         if n is None:
             return
-        n["effects"].append(new_effect(kind, self.g["games"]))
+        if kind in NEW_KINDS:
+            to_v6(self.g)
+        n["effects"].append(new_effect(kind, self.g["games"], cg.default_role_of(self.g["roles"])))
         self.effect_index = len(n["effects"]) - 1
         self.changed()
         self.show_effects()
@@ -1926,8 +2337,38 @@ class Library:
             ttk.Label(form, text="Gives the award kept earlier on the way to this part.").grid(row=0, column=0,
                                                                                               sticky="w")
             row = 1
+        elif do == "celebrate":
+            people = ["all"] + [r for r, role in self.g["roles"].items() if role["kind"] in ("villager", "alias")]
+            ttk.Label(form, text="Who:").grid(row=row, column=0, sticky="w", pady=2)
+            who = ttk.Combobox(form, state="readonly", width=24,
+                               values=["Everyone in the village" if p == "all" else capital(role_words(p))
+                                       for p in people])
+            who.grid(row=row, column=1, sticky="w")
+            who.current(people.index(e["who"]) if e.get("who") in people else 0)
+
+            def pick_celebrant(_e=None):
+                e["who"] = people[who.current()]
+                self._effect_changed()
+            who.bind("<<ComboboxSelected>>", pick_celebrant)
+            row += 1
+        elif do == "damage":
+            ttk.Label(form, text="Which buildings (empty: any finished one; else names, separated by commas):").grid(
+                row=row, column=0, columnspan=3, sticky="w", pady=2)
+            row += 1
+            names = var_of("" if e.get("structures") == cg.DAMAGE_ANY else ", ".join(e.get("structures") or []))
+            ttk.Entry(form, textvariable=names, width=48).grid(row=row, column=0, columnspan=3, sticky="w")
+
+            def write_names(*_a):
+                words = [x.strip() for x in names.get().split(",") if x.strip()]
+                e["structures"] = words or cg.DAMAGE_ANY
+                self._effect_changed()
+            names.trace_add("write", write_names)
+            row += 1
+            integer("min", 1, 100, "Loses from (percent of its work):")
+            integer("max", 1, 100, "to:")
         else:
-            villagers = [r for r, role in self.g["roles"].items() if role["kind"] == "villager"]
+            villagers = [r for r, role in self.g["roles"].items()
+                         if role["kind"] == "villager" or (role["kind"] == "alias" and do in cg.VILLAGER_EFFECTS_V6)]
             ttk.Label(form, text="Who:").grid(row=row, column=0, sticky="w", pady=2)
             who = ttk.Combobox(form, state="readonly", width=24, values=[capital(role_words(r)) for r in villagers])
             who.grid(row=row, column=1, sticky="w")
@@ -2006,21 +2447,72 @@ class Library:
                         self._effect_changed()
                     ttk.Checkbutton(boxes, text=skill, variable=var, command=write_skill).grid(
                         row=0, column=i, sticky="w", padx=(0, 8))
-                integer("min", 1, cg.SKILL_ADD_MAX, "Gains from:")
-                integer("max", 1, cg.SKILL_ADD_MAX, "to:")
+                setting = var_of("set" in e, tk.BooleanVar)
+
+                def write_setting():
+                    if setting.get():
+                        to_v6(self.g)
+                        e.pop("min", None)
+                        e.pop("max", None)
+                        e["set"] = 100
+                    else:
+                        e.pop("set", None)
+                        e.update(min=1, max=10)
+                    self._effect_changed()
+                    self._effect_form()
+                ttk.Checkbutton(form, text="Set the skill to a value instead (100: masters it)", variable=setting,
+                                command=write_setting).grid(row=row, column=0, columnspan=3, sticky="w", pady=2)
+                row += 1
+                if "set" in e:
+                    integer("set", 0, cg.SKILL_ADD_MAX, "Becomes:")
+                else:
+                    low = -cg.SKILL_ADD_MAX if self.g.get("version", 1) >= cg.VERSION_V6 else 1
+                    integer("min", low, cg.SKILL_ADD_MAX, "Gains from (below 0 loses):" if low < 0 else "Gains from:")
+                    integer("max", low, cg.SKILL_ADD_MAX, "to:")
+            elif do == "action":
+                ttk.Label(form, text="Does (the game's own words):").grid(row=row, column=0, sticky="w", pady=2)
+                acts = common_actions(self.g["games"])
+                act = ttk.Combobox(form, state="readonly", width=44, values=acts)
+                act.grid(row=row, column=1, columnspan=2, sticky="w")
+                act.set(e.get("action") or "")
+
+                def write_action(_e=None):
+                    e["action"] = act.get()
+                    self._effect_changed()
+                act.bind("<<ComboboxSelected>>", write_action)
+                row += 1
+            elif do == "mood":
+                ttk.Label(form, text="Looks:").grid(row=row, column=0, sticky="w", pady=2)
+                mood = ttk.Combobox(form, state="readonly", width=12, values=list(MOOD_WORDS.values()))
+                mood.grid(row=row, column=1, sticky="w")
+                mood.set(MOOD_WORDS.get(e.get("mood"), ""))
+
+                def write_mood(_e=None):
+                    e["mood"] = next(k for k, v in MOOD_WORDS.items() if v == mood.get())
+                    self._effect_changed()
+                mood.bind("<<ComboboxSelected>>", write_mood)
+                row += 1
+            elif do == "health_change":
+                integer("min", -99, 99, "Health changes by (below 0 lowers it; never below 1) from:")
+                integer("max", -99, 99, "to:")
 
     # ---- roles ----
+
+    def _role_row(self, r: str) -> tuple:
+        role = self.g["roles"][r]
+        if role["kind"] == "alias":
+            return (capital(role_words(r)), "One of: " + ", ".join(role_words(m) for m in role["of"]), "-", "-", "-")
+        villager = role["kind"] == "villager"
+        sex = (VILLAGER_SEX if villager else STRANGER_SEX).get(role["sex"], role["sex"])
+        return (capital(role_words(r)), KIND_WORDS[role["kind"]].split(" (")[0],
+                ("No" if role.get("optional") else "Yes") if villager else "-", sex,
+                role.get("min_age", "-") if villager else "-")
 
     def show_roles(self) -> None:
         table = self.roles_table
         table.delete(*table.get_children())
-        for r, role in self.g["roles"].items():
-            villager = role["kind"] == "villager"
-            sex = (VILLAGER_SEX if villager else STRANGER_SEX).get(role["sex"], role["sex"])
-            table.insert("", "end", iid=r, values=(
-                capital(role_words(r)), KIND_WORDS[role["kind"]].split(" (")[0],
-                ("No" if role.get("optional") else "Yes") if villager else "-", sex,
-                role.get("min_age", "-") if villager else "-"))
+        for r in self.g["roles"]:
+            table.insert("", "end", iid=r, values=self._role_row(r))
         if self.role_id in self.g["roles"]:
             table.selection_set(self.role_id)
         self._role_form()
@@ -2034,13 +2526,15 @@ class Library:
     def _role_changed(self) -> None:
         self.changed()
         self._build_insert_menu()
-        r = self.role_id
-        role = self.g["roles"][r]
-        villager = role["kind"] == "villager"
-        sex = (VILLAGER_SEX if villager else STRANGER_SEX).get(role["sex"], role["sex"])
-        self.roles_table.item(r, values=(capital(role_words(r)), KIND_WORDS[role["kind"]].split(" (")[0],
-                                         ("No" if role.get("optional") else "Yes") if villager else "-", sex,
-                                         role.get("min_age", "-") if villager else "-"))
+        if self.roles_table.exists(self.role_id):
+            self.roles_table.item(self.role_id, values=self._role_row(self.role_id))
+
+    def _upgrade(self) -> None:
+        """Make the event version 6 (a version 6 field was set): the roles take their new shape."""
+        if self.g.get("version", 1) < cg.VERSION_V6:
+            to_v6(self.g)
+            self.changed()
+            self.show_roles()
 
     def _role_form(self) -> None:
         form = self.role_form
@@ -2050,24 +2544,46 @@ class Library:
         if r not in self.g["roles"]:
             return
         role = self.g["roles"][r]
+        v6 = self.g.get("version", 1) >= cg.VERSION_V6
+        first = next(iter(self.g["roles"]))
         ttk.Label(form, text=capital(role_words(r)), font=self.fonts["label"]).grid(row=0, column=0, sticky="w")
         ttk.Label(form, text="Who:").grid(row=1, column=0, sticky="w", pady=2)
-        kind = ttk.Combobox(form, state="disabled" if r == "subject" else "readonly", width=36,
-                            values=list(KIND_WORDS.values()))
+        kinds = dict(KIND_WORDS, alias=ALIAS_WORDS)
+        kind = ttk.Combobox(form, state="disabled" if r in ("subject", first) else "readonly", width=40,
+                            values=list(kinds.values()))
         kind.grid(row=1, column=1, sticky="w")
-        kind.set(KIND_WORDS[role["kind"]])
+        kind.set(kinds[role["kind"]])
 
         def set_kind(_e=None):
-            new = next(k for k, v in KIND_WORDS.items() if v == kind.get())
+            new = next(k for k, v in kinds.items() if v == kind.get())
             if new == role["kind"]:
                 return
-            self.g["roles"][r] = ({"kind": "stranger", "sex": "random"} if new == "stranger" else new_role())
+            if new == "alias":
+                to_v6(self.g)
+                self.g["roles"][r] = {"kind": "alias", "of": []}
+            elif new == "stranger":
+                self.g["roles"][r] = {"kind": "stranger", "sex": "random"}
+            else:
+                self.g["roles"][r] = new_role(self.g)
+            self.show_roles()
             self._role_changed()
-            self._role_form()
         kind.bind("<<ComboboxSelected>>", set_kind)
+        if role["kind"] == "alias":
+            ttk.Label(form, text="Picked at random, when the event starts, from:").grid(
+                row=2, column=0, columnspan=2, sticky="w", pady=(6, 2))
+            for i, m in enumerate(q for q, v in self.g["roles"].items() if v["kind"] == "villager"):
+                var = tk.BooleanVar(master=self.window, value=m in role["of"])
+
+                def write_member(m=m, v=var):
+                    members = [x for x in role["of"] if x != m] + ([m] if v.get() else [])
+                    role["of"] = [q for q in self.g["roles"] if q in members]
+                    self._role_changed()
+                ttk.Checkbutton(form, text=capital(role_words(m)), variable=var, command=write_member).grid(
+                    row=3 + i, column=0, columnspan=2, sticky="w")
+            return
         sexes = VILLAGER_SEX if role["kind"] == "villager" else STRANGER_SEX
         ttk.Label(form, text="Man or woman:").grid(row=2, column=0, sticky="w", pady=2)
-        sex = ttk.Combobox(form, state="readonly", width=36, values=list(sexes.values()))
+        sex = ttk.Combobox(form, state="readonly", width=40, values=list(sexes.values()))
         sex.grid(row=2, column=1, sticky="w")
         sex.set(sexes.get(role["sex"], ""))
 
@@ -2088,12 +2604,89 @@ class Library:
                 return
             self._role_changed()
         age.trace_add("write", set_age)
-        special = "; ".join(f"{g.name}: {g.special}" for n, g in cg.GAMES.items() if n in self.g["games"])
-        flags = [("optional", "The event can happen without this villager (leave the box empty if it is needed)",
-                  r != "subject"),
-                 ("exclude_nursing", "Never a mother or father nursing a baby", True),
-                 ("exclude_special", f"Never a special villager ({special})", True),
-                 ("believers_only", "New Believers: believers only (never a Heathen)", True)]
+        row = 4
+        if v6:
+            oldest = tk.StringVar(master=self.window, value=str(role.get("max_age") or ""))
+            ttk.Label(form, text="Oldest age (years; empty: any):").grid(row=row, column=0, sticky="w", pady=2)
+            ttk.Spinbox(form, from_=1, to=80, textvariable=oldest, width=6).grid(row=row, column=1, sticky="w")
+
+            def set_oldest(*_a):
+                text = oldest.get().strip()
+                try:
+                    role["max_age"] = int(text) if text else None
+                except ValueError:
+                    return
+                self._role_changed()
+            oldest.trace_add("write", set_oldest)
+            row += 1
+            # The skill needed: one skill (of the event's games), its least value, and "the most skilled".
+            skills = sorted({s for n in self.g["games"] for s in cg.GAMES[n].skills})
+            have = role.get("skill") or {}
+            ttk.Label(form, text="Skill needed:").grid(row=row, column=0, sticky="w", pady=2)
+            line = ttk.Frame(form)
+            line.grid(row=row, column=1, sticky="w")
+            skill = ttk.Combobox(line, state="readonly", width=14, values=[NO_SKILL] + skills)
+            skill.pack(side="left")
+            skill.set((have.get("names") or [NO_SKILL])[0])
+            ttk.Label(line, text="at least").pack(side="left", padx=4)
+            least = tk.StringVar(master=self.window, value=str(have.get("min", 1)))
+            ttk.Spinbox(line, from_=0, to=100, textvariable=least, width=5).pack(side="left")
+            most = tk.BooleanVar(master=self.window, value=have.get("pick") == "highest")
+
+            def set_skill(*_a):
+                if skill.get() in ("", NO_SKILL):
+                    role["skill"] = None
+                else:
+                    try:
+                        n = int(least.get())
+                    except ValueError:
+                        return
+                    role["skill"] = {"names": [skill.get()], "min": n, "pick": "highest" if most.get() else "random"}
+                self._role_changed()
+            skill.bind("<<ComboboxSelected>>", set_skill)
+            least.trace_add("write", set_skill)
+            ttk.Checkbutton(line, text="the most skilled", variable=most, command=set_skill).pack(side="left",
+                                                                                                  padx=(8, 0))
+            row += 1
+            ttk.Label(form, text="Special villager:").grid(row=row, column=0, sticky="w", pady=2)
+            specials = [None] + [k for k, gs in cg.SPECIAL_GAMES.items() if all(n in gs for n in self.g["games"])]
+            special = ttk.Combobox(form, state="readonly", width=40, values=[SPECIAL_WORDS[k] for k in specials])
+            special.grid(row=row, column=1, sticky="w")
+            special.set(SPECIAL_WORDS.get(role.get("special"), str(role.get("special"))))
+
+            def set_special(_e=None):
+                role["special"] = specials[special.current()]
+                self._role_changed()
+            special.bind("<<ComboboxSelected>>", set_special)
+            row += 1
+            ttk.Label(form, text=PROTECTED_WHO, wraplength=480, justify="left").grid(
+                row=row, column=0, columnspan=2, sticky="w", pady=(6, 0))
+            row += 1
+            harmed = r in cg.harm_capable(self.g)
+            protect = ttk.Combobox(form, state="readonly", width=48, values=list(PROTECTED_WORDS.values()))
+            protect.grid(row=row, column=0, columnspan=2, sticky="w")
+            protect.set(PROTECTED_WORDS.get(role.get("protected"), ""))
+
+            def set_protect(_e=None):
+                role["protected"] = next(k for k, v in PROTECTED_WORDS.items() if v == protect.get())
+                self._role_changed()
+            protect.bind("<<ComboboxSelected>>", set_protect)
+            row += 1
+            ttk.Label(form, text=("This role can be harmed in this event." if harmed else
+                                  "Nothing in this event harms this role."), foreground=RED if harmed else "").grid(
+                row=row, column=0, columnspan=2, sticky="w")
+            row += 1
+            flags = [("optional", "The event can happen without this villager (leave the box empty if it is needed)",
+                      r != first),
+                     ("believers_only", "New Believers: believers only (never a Heathen)", True)]
+        else:
+            # Before version 6: the two "never" boxes; any requirement below makes the event version 6.
+            special = "; ".join(f"{g.name}: {g.special}" for n, g in cg.GAMES.items() if n in self.g["games"])
+            flags = [("optional", "The event can happen without this villager (leave the box empty if it is needed)",
+                      r != "subject"),
+                     ("exclude_nursing", "Never a mother or father nursing a baby", True),
+                     ("exclude_special", f"Never a special villager ({special})", True),
+                     ("believers_only", "New Believers: believers only (never a Heathen)", True)]
         for i, (key, words, enabled) in enumerate(flags):
             var = tk.BooleanVar(master=self.window, value=bool(role.get(key)))
 
@@ -2102,12 +2695,13 @@ class Library:
                 self._role_changed()
             box = ttk.Checkbutton(form, text=words, variable=var, command=write,
                                   state="normal" if enabled else "disabled")
-            box.grid(row=4 + i, column=0, columnspan=2, sticky="w", pady=2)
+            box.grid(row=row + i, column=0, columnspan=2, sticky="w", pady=2)
+        row += len(flags)
         # At most N years apart from another villager role (the owner, 2026-11-13).
         others = [q for q, v in self.g["roles"].items() if q != r and v["kind"] == "villager"]
         gap = role.get("max_age_gap") or {}
         line = ttk.Frame(form)
-        line.grid(row=4 + len(flags), column=0, columnspan=2, sticky="w", pady=(6, 2))
+        line.grid(row=row, column=0, columnspan=2, sticky="w", pady=(6, 2))
         ttk.Label(line, text="At most").pack(side="left")
         years = tk.StringVar(master=self.window, value=str(gap.get("years", 5)))
         ttk.Spinbox(line, from_=0, to=cg.MAX_AGE_GAP, textvariable=years, width=4).pack(side="left", padx=4)
@@ -2131,6 +2725,13 @@ class Library:
             self._role_changed()
         partner.bind("<<ComboboxSelected>>", write_gap)
         years.trace_add("write", write_gap)
+        row += 1
+        if v6:
+            ttk.Label(form, text=PREFER_NOTE, wraplength=480, justify="left").grid(
+                row=row, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        else:
+            ttk.Button(form, text="Add an oldest age, a skill or a special villager...",
+                       command=self._upgrade).grid(row=row, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
     def add_role(self) -> None:
         name = ASK_STRING(TITLE, "A short name for the new role (letters, digits or _; e.g. rival):",
@@ -2142,7 +2743,7 @@ class Library:
             SHOW_ERROR(TITLE, "A role's name is 1 to 32 letters, digits or _, and not one already used.",
                        parent=self.window)
             return
-        self.g["roles"][name] = new_role()
+        self.g["roles"][name] = new_role(self.g)
         self.role_id = name
         self.changed()
         self.show_roles()
@@ -2150,14 +2751,14 @@ class Library:
 
     def remove_role(self) -> None:
         r = self.role_id
-        if r is None or r == "subject":
+        if r is None or r == "subject" or r == next(iter(self.g["roles"]), None):
             SHOW_INFO(TITLE, "The main villager is always part of the event.", parent=self.window)
             return
         if not ASK_YES_NO(TITLE, f"Remove the role {r}? Text and changes that name it will show as problems.",
                           parent=self.window):
             return
         del self.g["roles"][r]
-        self.role_id = "subject"
+        self.role_id = next(iter(self.g["roles"]), None)
         self.changed()
         self.show_roles()
         self._build_insert_menu()
@@ -2341,10 +2942,15 @@ class Library:
             return self.save_as()
         return self._write(self.stem)
 
+    def copy_stem(self) -> str:
+        """The name a new save gets: the title, and " copy" for a collection event (its file is never replaced)."""
+        stem = cg.library_stem(self.g["title"])
+        return cg.library_stem(stem[:59] + " copy") if self.g.get("collection") else stem
+
     def save_as(self, name: str | None = None) -> Saved | None:
         if name is None:
             name = ASK_STRING(TITLE, "Save the event in the library as:", parent=self.window,
-                              initialvalue=self.stem or cg.library_stem(self.g["title"]))
+                              initialvalue=self.stem or self.copy_stem())
         if not name:
             return None
         stem = cg.library_stem(name)
@@ -2400,11 +3006,13 @@ class Library:
             SHOW_ERROR(TITLE, f"That file is not a Custom Island Event: {exc}", parent=self.window)
             return
         self.load_event(g, None, dirty=True)
-        self.status.configure(text="Imported: Save keeps it in this game's library.", foreground="")
+        self.status.configure(text=("An Isola Grand Event Collection event: Save keeps a copy in this game's "
+                                    "library." if g.get("collection") else
+                                    "Imported: Save keeps it in this game's library."), foreground="")
 
     def export_event(self) -> Path | None:
         path = ASK_SAVE(parent=self.window, title="Export this Custom Island Event", defaultextension=".json",
-                        initialfile=(self.stem or cg.library_stem(self.g["title"])) + ".json",
+                        initialfile=(self.stem or self.copy_stem()) + ".json",
                         filetypes=[("Custom Island Events", "*.json")])
         if not path:
             return None
