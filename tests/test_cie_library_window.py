@@ -381,6 +381,19 @@ lib.refresh_now()
 out["pool"] = lib.g["pools"]["DISH"]
 out["pool_problems"] = lib.problems
 out["pool_rows"] = len(lib.items_table.get_children())
+lib.add_pool("DRINK")
+lib.distinct_from_var.set("DISH")
+out["distinct_from"] = lib.g["pools"]["DRINK"].get("distinct_from")
+lib.g["roles"]["cook"] = w.new_role(lib.g)
+lib.g["roles"]["either"] = {"kind": "alias", "of": ["subject", "cook"]}
+lib.g["roles"]["rest"] = {"kind": "other", "of": "either"}
+lib.role_id = "rest"
+lib.show_roles()
+out["other_row"] = list(lib.roles_table.item("rest", "values"))
+out["other_form"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
+for r in ("rest", "either", "cook"):
+    del lib.g["roles"][r]
+del lib.g["pools"]["DRINK"]
 lib.role_id = "subject"
 lib.show_roles()
 role = lib.g["roles"]["subject"]
@@ -399,6 +412,13 @@ lib.g["nodes"][ends[0]]["effects"][-1]["set"] = 100
 lib.show_effects()
 lib.refresh_now()
 out["effects_listed"] = list(lib.effect_list.get(0, "end"))
+lib.effect_index = [e["do"] for e in lib.g["nodes"][ends[0]]["effects"]].index("damage")
+lib._effect_form()
+size_box = [c for c in lib.effect_form.winfo_children() if "combobox" in str(c)][0]
+size_box.current(3)
+size_box.event_generate("<<ComboboxSelected>>")
+window.update()
+out["damage_size"] = [e for e in lib.g["nodes"][ends[0]]["effects"] if e["do"] == "damage"][0]
 out["v6_problems"] = lib.problems
 saved = lib.save_as("Seven Ways")
 back = cg.decompile_graph(saved.cieg.read_bytes())
@@ -560,6 +580,12 @@ class Window(unittest.TestCase):
                                             "distinct": True})
         self.assertEqual(self.out["pool_problems"], [])
         self.assertEqual(self.out["pool_rows"], 2)
+        self.assertEqual(self.out["distinct_from"], ["DISH"])
+
+    def test_the_other_role_and_damage_sizes(self):
+        self.assertIn("The other one of the either", self.out["other_row"][1])
+        self.assertIn("The one not picked by:", self.out["other_form"])
+        self.assertEqual((self.out["damage_size"]["min"], self.out["damage_size"]["max"]), (75, 100))
 
     def test_role_requirements_and_new_changes(self) -> None:
         words = " ".join(self.out["role_widgets"])

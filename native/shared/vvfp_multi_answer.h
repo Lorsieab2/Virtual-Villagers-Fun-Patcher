@@ -70,6 +70,9 @@ typedef struct {
     int (*text_id)(const char *text);
     int (*state)(void *dialog);
     void (*answer)(void *dialog, int answer);     /* answer 2 to 6 clicked (or typed): its first page, OK up */
+    /* Optional (NULL: never): 1 when the answer just given shows its page in a popup of its own, so this one closes
+       at once, as OK would close it (five or more answers: the Isola Grand Event Collection's G1). */
+    int (*closes)(void *dialog);
 } ma_client;
 
 typedef struct {
@@ -232,9 +235,13 @@ static char __fastcall ma_message(void *dialog, void *unused, int message, int i
     __try {
         state = dialog == g_ma.dialog && g_ma.c != NULL ? g_ma.c->state(dialog) : MA_NOT_OURS;
         if (message == 8 && id >= 4 && id < 2 + g_ma.count && state == MA_ASKING) {
+            const ma_client *c = g_ma.c;
             ma_show(dialog, 0);
             *(int *)((unsigned char *)dialog + 0x830) = id - 2;
-            g_ma.c->answer(dialog, id - 2);
+            c->answer(dialog, id - 2);
+            if (c->closes != NULL && c->closes(dialog)) {
+                return ma_message(dialog, NULL, 8, 1);   /* its page comes as a popup of its own: OK now */
+            }
             return 0;                                  /* as the game's own answer: the dialog stays */
         }
         if (message == 8 && id == 1 && state == MA_ANSWERED) {
@@ -247,6 +254,9 @@ static char __fastcall ma_message(void *dialog, void *unused, int message, int i
         if (message == 8 && (id == 2 || id == 3) && dialog == g_ma.dialog && g_ma.shown
             && g_ma.c->state(dialog) == MA_ANSWERED) {
             ma_show(dialog, 0);                        /* the game hid its two: ours go too */
+            if (g_ma.c->closes != NULL && g_ma.c->closes(dialog)) {
+                handled = ma_message(dialog, NULL, 8, 1);   /* its page comes as a popup of its own: OK now */
+            }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }

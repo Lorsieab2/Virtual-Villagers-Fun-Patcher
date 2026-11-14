@@ -92,6 +92,37 @@ GUARD = {
 }
 
 
+GAPS = {
+    # G1-G9 (collection_gaps_spec.md): the other member of an alias, distinct_from, a one-option brace, a game word
+    # inside a pick, {@tribe}, a stranger first, a quoted title, damage and skill sizes, five buttons.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The \"Twin\" Cooks", "games": [1, 3],
+    "words": {"chief": {"3": "the Chief", "*": "the elders"}},
+    "roles": {
+        "judge": {"kind": "stranger", "sex": "female"},
+        "cook1": {"kind": "villager"}, "cook2": {"kind": "villager"},
+        "winner": {"kind": "alias", "of": ["cook1", "cook2"]},
+        "loser": {"kind": "other", "of": "winner"},
+    },
+    "pools": {
+        "LIKE": {"items": ["soup", "stew", "cake"]},
+        "HATE": {"items": ["soup", "stew", "cake"], "distinct_from": ["LIKE"]},
+    },
+    "start": "p",
+    "nodes": {
+        "p": {"text": "{@Tribe} gathers. The judge likes {LIKE} and hates {HATE}. {a quiet} morning for "
+                      "{the {@chief}|2:{@tribe}}.", "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "Who wins?", "choices": [
+            {"label": "One", "next": "a"}, {"label": "Two", "next": "a"}, {"label": "Three", "next": "a"},
+            {"label": "Four", "next": "a"}, {"label": "Five", "next": "b"}]},
+        "a": {"text": "(Winner) wins; (loser) sulks and (loser.his/her) hut shakes.",
+              "effects": [{"do": "skill", "role": "winner", "skills": ["Farming"], "size": "large"},
+                          {"do": "mood", "role": "loser", "mood": "bad"},
+                          {"do": "damage", "size": "small"}]},
+        "b": {"text": "A tie: (cook1) and (cook2) share it."},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -125,6 +156,12 @@ def vector_cases() -> list[dict]:
          "bindings": {"climber": {"name": "Dee", "sex": "f"}}, "answers": [], "facts": ["harmable:climber"]},
         {"name": "guard_protected_now", "graph": GUARD, "game": 3, "unicode": False, "rolls": [0, 0],
          "bindings": {"climber": {"name": "Dee", "sex": "f"}}, "answers": [], "facts": []},
+        {"name": "gaps_vv1_tribe", "graph": GAPS, "game": 1, "unicode": False, "rolls": [1, 0, 0, 2, 5, 3, 1, 7, 4, 9, 2, 8, 6, 3, 5, 1, 0, 7, 2, 4],
+         "bindings": {"judge": {"name": "", "sex": "f"}, "cook1": {"name": "Ana", "sex": "f"},
+                      "cook2": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None, "tribe": "Kalahuna"},
+        {"name": "gaps_vv3_no_tribe", "graph": GAPS, "game": 3, "unicode": False, "rolls": [0, 1, 1, 0, 9, 4, 2, 6, 8, 3, 7, 1, 5, 2, 0, 6, 4, 9, 3, 8],
+         "bindings": {"judge": {"name": "", "sex": "f"}, "cook1": {"name": "Ana", "sex": "f"},
+                      "cook2": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None, "tribe": None},
     ]
 
 
@@ -132,7 +169,7 @@ def run_case(case: dict) -> dict:
     g = cg.load(case["graph"], True)
     facts = None if case["facts"] is None else frozenset(case["facts"])
     r = cg.simulate(g, case["game"], case["rolls"], binding(case["bindings"]), case["answers"],
-                    facts=facts, unicode=case["unicode"])
+                    facts=facts, unicode=case["unicode"], tribe=case.get("tribe"))
     r["cieg_sha256"] = sha(cg.compile_graph(g))
     return r
 
@@ -263,7 +300,13 @@ class Tokens(unittest.TestCase):
 class Pools(unittest.TestCase):
     def test_pool_rules(self):
         self.assertEqual(t.problems_of(v6()), [])
-        self.assertTrue(any("names no pool" in p for p in t.problems_of(v6(nodes={"k": {"text": "{Y}"}}))))
+        # G4: a one-option brace that cannot be a name is its text; an identifier-shaped one must name a list.
+        self.assertEqual(cg.load(v6(nodes={"k": {"text": "{X} or {two words} or {quiet!}"}}))["nodes"]["k"]["text"],
+                         "{X} or two words or quiet!")
+        for typo in ("{Y}", "{Y.2}", "{Dish_2}"):
+            self.assertTrue(any(f"unknown list {typo[1:-1].split('.')[0]}" in p
+                                for p in t.problems_of(v6(nodes={"k": {"text": f"(Hero) keeps {typo}."}}))), typo)
+        self.assertTrue(any("names no game word" in p for p in t.problems_of(v6(nodes={"k": {"text": "{@nope}"}}))))
         d = v6(pools={"X": {"distinct": True, "items": ["a"]}})
         self.assertTrue(any("2 different items are used; it has 1" in p for p in t.problems_of(d)))
         d = v6(pools={"X": {"items": ["{X}"]}})
@@ -622,6 +665,103 @@ class Binary(unittest.TestCase):
         a = cg.compile_graph(cg.load(read(KITCHEN), True))
         b = cg.compile_graph(cg.load(copy.deepcopy(read(KITCHEN)), True))
         self.assertEqual(a, b)
+
+
+class FormatGaps(unittest.TestCase):
+    """G1-G9 (the lead's collection_gaps_spec.md), as docs/event-collection/cie-v6-binary.md writes them."""
+
+    def test_gaps_graph_passes_and_round_trips(self):
+        for scrolling in (False, True):
+            self.assertEqual(cg.validate(GAPS, scrolling)[1], [], scrolling)
+        g = cg.load(GAPS)
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
+
+    def test_g1_a_fresh_popup_after_five_buttons(self):
+        d = copy.deepcopy(GAPS)
+        g = cg.load(d)
+        page = [p for h in cg.walk(g, cg.contexts(g, [1])[0]) for p in h.popups if p.nodes == ["a"]][0]
+        self.assertEqual(page.room, 0, "after five buttons: a fresh popup, no room")
+        d["nodes"]["q"]["choices"] = d["nodes"]["q"]["choices"][:3] + d["nodes"]["q"]["choices"][4:]
+        # (In A New Home the shared popup leaves no line for this page without Scrolling Popups: as the engine.)
+        self.assertTrue(any("A New Home: the popup of a runs off" in p for p in t.problems_of(d)))
+        g = cg.load(d, True)
+        page = [p for h in cg.walk(g, cg.contexts(g, [3])[0]) for p in h.popups if p.nodes == ["a"]][0]
+        self.assertEqual(page.room, 6, "two to four buttons: the answer shares the question's popup")
+
+    def test_g2_the_other_member(self):
+        g = cg.load(GAPS)
+        self.assertEqual(sorted(cg.harm_capable(g)), ["cook1", "cook2", "loser"])
+        blob = cg.compile_graph(g)
+        roles = struct.unpack_from("<I", blob, 44)[0]
+        loser = struct.unpack_from("<BBBBHBBBBHBBH", blob, roles + 4 * 16)
+        self.assertEqual((loser[0], loser[12]), (3, 1 << 3))          # kind 3, the alias at index 3
+        bad = copy.deepcopy(GAPS)
+        bad["roles"]["winner"]["of"] = ["cook1"]
+        self.assertTrue(any("exactly two" in p for p in t.problems_of(bad)))
+
+    def test_g3_distinct_from(self):
+        d = copy.deepcopy(GAPS)
+        d["pools"]["HATE"]["distinct_from"] = ["NOPE"]
+        self.assertTrue(any("distinct_from names no pool" in p for p in t.problems_of(d)))
+        g = cg.load(GAPS)
+        b = binding({"judge": {"name": "", "sex": "f"}, "cook1": {"name": "Ana", "sex": "f"},
+                     "cook2": {"name": "Bo", "sex": "m"}})
+        for first in range(3):
+            r = cg.simulate(g, 3, [0, first, 0] + [0] * 20, b, [4])
+            picks = {p[0]: p[2] for p in r["picks"]}
+            self.assertNotEqual(picks["LIKE"], picks["HATE"])        # the same texts: never the same one
+
+    def test_g4_inline_picks(self):
+        g = cg.load(GAPS)
+        self.assertIn("a quiet morning", g["nodes"]["p"]["text"])
+        lg = cg.lower(g)
+        self.assertEqual([it["text"] for it in lg["pools"]["_i1"]["items"]], ["the {@chief}", "{@tribe}"])
+        d = v6(nodes={"k": {"text": "{a|{b|c}}"}})
+        self.assertTrue(t.problems_of(d))                               # nested picks: refused
+        d = v6(nodes={"k": {"text": "{a|{X}}"}})
+        self.assertTrue(t.problems_of(d))                               # a list inside a pick: refused
+
+    def test_g5_tribe(self):
+        lg = cg.lower(cg.load(GAPS))
+        self.assertNotIn("@tribe", lg["pools"])
+        self.assertEqual(cg.expand_v6("{@Tribe} and {@tribe}", lg, {}, tribe="kalahuna"), "Kalahuna and kalahuna")
+        self.assertEqual(cg.expand_v6("{@Tribe} and {@tribe}", lg, {}), "The village and the village")
+        self.assertEqual(cg.worst_v6("{@tribe}", lg, cg.GAMES[1], None), "W" * 31)
+        self.assertEqual(cg.worst_v6("{@tribe}", lg, cg.GAMES[4], None), "W" * 19)
+        self.assertTrue(any("built in" in p for p in t.problems_of(v6(words={"tribe": {"*": "x"}}))))
+
+    def test_g6_g7_title_and_first_role(self):
+        self.assertEqual(t.problems_of(v6(title='The "Big" Day')), [])
+        self.assertTrue(t.problems_of(dict(t.tiny(), title='The "Big" Day')))    # still refused before version 6
+        self.assertEqual(next(iter(cg.load(GAPS)["roles"])), "judge")
+
+    def test_g9_and_skill_sizes(self):
+        sizes = {}
+        for size in ("small", "normal", "large", "huge"):
+            g = cg.load(v6(nodes={"k": {"text": "(Hero) keeps them.", "effects": [
+                {"do": "damage", "size": size}, {"do": "skill", "role": "hero", "skills": ["Farming"], "size": size},
+                {"do": "skill", "role": "pal", "skills": ["Farming"], "size": size, "loss": True}]}}))
+            e = g["nodes"]["k"]["effects"]
+            sizes[size] = ((e[0]["min"], e[0]["max"]), (e[1]["min"], e[1]["max"]), (e[2]["min"], e[2]["max"]))
+        self.assertEqual(sizes, {"small": ((10, 30), (5, 10), (-10, -5)), "normal": ((25, 50), (10, 20), (-20, -10)),
+                                 "large": ((50, 75), (20, 40), (-40, -20)), "huge": ((75, 100), (30, 60), (-60, -30))})
+
+    def test_the_pilots_pass_both_ways(self):
+        """Track D's pilot files (data/event_collection), through their own loader, with and without Scrolling
+        Popups -- Between Life and Death and The Parent's Lesson included (G1)."""
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import collection_check as cc
+        shared = {"pools": cc.shared_pools()}
+        files = sorted(p for p in (ROOT / "data" / "event_collection").rglob("*.json")
+                       if p.name not in ("manifest.json", "shared_pools.json"))
+        self.assertGreaterEqual(len(files), 10)
+        for p in files:
+            g = cc.graph_for_engine(read(p))
+            for scrolling in (False, True):
+                with self.subTest(p.name, scrolling=scrolling):
+                    self.assertEqual(cg.validate(g, scrolling, shared)[1], [])
 
 
 class Fit(unittest.TestCase):

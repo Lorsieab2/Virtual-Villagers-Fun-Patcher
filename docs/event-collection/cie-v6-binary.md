@@ -93,8 +93,10 @@ strings. The engine must use the offsets, not the order.
 - Inline picks `{a|b}` / `{3:a|1:b}` never reach the binary: each becomes its own pool `_iN` and the text holds
   `{_iN}`. An alternative may hold a game word (`{the {@chief}|the elders}`, G4): the `_iN` item then holds
   `{@chief}`. Nested inline picks are refused.
-- A one-option brace `{x}` (G4) that names no pool and no game word is just the text `x`: `normalize` removes the
-  braces, so it never reaches the binary.
+- A one-option brace `{x}` (G4) whose `x` cannot be a pool or game-word name (it holds a space, or a character
+  outside `[A-Za-z0-9_]` and the `.k` instance) is just the text `x`: `normalize` removes the braces, so it never
+  reaches the binary. An identifier-shaped `{x}` must name a defined pool (or `{@x}` a game word); otherwise it is
+  a validation error ("unknown list x"), so a misspelt list never ships as visible text.
 - **`{@tribe}` and `{@Tribe}` (G5)** are built in: no pool is written for them and authors cannot define them. The
   engine fills them AT RUN TIME with the player's tribe or village name from the save (the per-game read The
   Troubling Signs uses, `native/vvfp_more_island_events/troubling_*.inc`), the capital form with its first letter
@@ -223,7 +225,9 @@ less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the
 
 **G1: the answer's page.** With 2 to 4 buttons shown, the answer's first page is shown in the question's popup,
 keeping the same room (unchanged). With **5 or more buttons shown**, the answer's first page starts a FRESH popup:
-the result layout with no room for buttons (only the refusal lines when it makes changes). It counts as one more
+the NOTICE layout -- the plain popup's, which is the popup it is shown through (`story_graph.inc
+cg_notice_layout`; New Believers 14 lines, not the result's 17) -- with no room for buttons (only the refusal lines
+when it makes changes). It counts as one more
 popup on the history. `tests/test_cie_graph_v6.py` pins Python and the engine's source together for
 n = 2..7 in all five games. Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
 the popup's inner width in pixels is UNCONFIRMED.

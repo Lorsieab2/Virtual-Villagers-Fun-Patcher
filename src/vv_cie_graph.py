@@ -677,7 +677,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             who = "all"
         out["who"] = who
     elif do == "damage":
-        known |= {"structures", "min", "max"}
+        known |= {"structures", "min", "max", "size"}
+        if "size" in e:
+            # G9: a size word, expanded to its percent range.
+            if e["size"] not in DAMAGE_SIZES or "min" in e or "max" in e:
+                problems.append(f"{where}: damage size is one of {', '.join(DAMAGE_SIZES)} (and no min or max)")
+            e = dict(e, min=DAMAGE_SIZES.get(e["size"], (10, 30))[0], max=DAMAGE_SIZES.get(e["size"], (10, 30))[1])
         st = e.get("structures", DAMAGE_ANY)
         if st != DAMAGE_ANY and (not isinstance(st, list) or not st or any(
                 not isinstance(x, str) or not x or not x.isascii() or "," in x for x in st)
@@ -747,6 +752,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             out.update(list=e.get("list"), preference=e.get("preference"))
         elif do == "skill" and "set" not in out:
             known |= {"skills", "min", "max"}
+            if v6 and "size" in e:
+                # A size word: small 5-10, normal 10-20, large 20-40, huge 30-60 ("loss": the same, taken away).
+                known |= {"size", "loss"}
+                lo, hi = SKILL_SIZES.get(e["size"], (5, 10))
+                if e["size"] not in SKILL_SIZES or "min" in e or "max" in e or not isinstance(e.get("loss", False), bool):
+                    problems.append(f"{where}: skill size is one of {', '.join(SKILL_SIZES)} (and no min or max)")
+                e = dict(e, min=-hi if e.get("loss") else lo, max=-lo if e.get("loss") else hi)
             skills = e.get("skills")
             if not isinstance(skills, list) or not skills or not all(isinstance(s, str) for s in skills) \
                     or len(set(skills)) != len(skills):
@@ -852,18 +864,24 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
     if not isinstance(roles_in, dict) or not roles_in:
         problems.append("roles is missing")
         roles_in = {}
-    kinds = ("villager", "stranger", "alias") if v6 else ("villager", "stranger")
+    kinds = ("villager", "stranger", "alias", "other") if v6 else ("villager", "stranger")
     for rid, r in roles_in.items():
         where = f"role {rid}"
         if not ID_RE.match(rid):
             problems.append(f"{where}: an id is 1..32 letters, digits or _")
         if not isinstance(r, dict) or r.get("kind") not in kinds:
-            problems.append(f"{where}: kind is villager, stranger or alias" if v6
+            problems.append(f"{where}: kind is villager, stranger, alias or other" if v6
                             else f"{where}: kind is villager or stranger")
             continue
         if v6 and rid.lower() in KEYWORDS:
             problems.append(f"{where}: a role id cannot be {rid.lower()} (a placeholder word)")
-        if r["kind"] == "alias":
+        if r["kind"] == "other":
+            # G2: the member of a two-member alias that the alias did not draw.
+            extra = set(r) - {"kind", "of"}
+            if not isinstance(r.get("of"), str):
+                problems.append(f"{where}: an other role is \"of\": the alias role it follows")
+            roles[rid] = {"kind": "other", "of": r.get("of") if isinstance(r.get("of"), str) else ""}
+        elif r["kind"] == "alias":
             # Version 6: one of the listed villager roles, drawn at the start of the run.
             extra = set(r) - {"kind", "of"}
             of = r.get("of")
@@ -909,11 +927,11 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         if extra:
             problems.append(f"{where}: unknown fields {', '.join(sorted(extra))}")
     if v6:
-        # Version 6: any id; the first role is a villager the event needs (an unprefixed placeholder names
-        # "subject" when there is one, else the first role, as the companion's cg_parse_ph does).
+        # Version 6: any id; the first role is a villager the event needs or a stranger (G7; an unprefixed
+        # placeholder names "subject" when there is one, else the first role, as the companion's cg_parse_ph does).
         first = next(iter(roles.values()), None)
-        if first is not None and (first["kind"] != "villager" or first["optional"]):
-            problems.append("the first role is a villager the event needs (not optional)")
+        if first is not None and first["kind"] != "stranger" and (first["kind"] != "villager" or first["optional"]):
+            problems.append("the first role is a villager the event needs (not optional) or a stranger")
         lower = [r.lower() for r in roles]
         if len(set(lower)) != len(lower):
             problems.append("two role ids differ only in capitals")
@@ -924,6 +942,10 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                         problems.append(f"role {rid}: an alias's members are other villager roles ({m!r} is not)")
                 # Members in role order: the .cieg keeps them as a mask, and the draw takes them in that order.
                 r["of"] = [m for m in roles if m in r["of"]] + [m for m in r["of"] if m not in roles]
+            elif r["kind"] == "other":
+                alias = roles.get(r["of"])
+                if alias is None or alias["kind"] != "alias" or len(alias["of"]) != 2:
+                    problems.append(f"role {rid}: an other role follows an alias of exactly two villager roles")
             elif r["kind"] == "villager" and r.get("special") and \
                     any(gn not in SPECIAL_GAMES[r["special"]] for gn in g["games"]):
                 problems.append(f"role {rid}: {r['special']} is only in "
@@ -931,7 +953,8 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
     else:
         if roles and next(iter(roles)) != "subject":
             problems.append("the first role is subject")
-    if "subject" in roles and (roles["subject"]["kind"] != "villager" or roles["subject"].get("optional")):
+    if "subject" in roles and (roles["subject"]["kind"] != "villager" or roles["subject"].get("optional")) \
+            and not (v6 and roles["subject"]["kind"] == "stranger"):
         problems.append("subject is a villager the event needs (not optional)")
     if len(roles) > 16:
         problems.append("at most 16 roles")
@@ -957,7 +980,8 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
                  "outcome", "name"} | ({"src", "text_only_reason"} if v6 else set())
-    canon = _canon_text if v6 else (lambda s: s)
+    pool_names = pool_names_of(data) if v6 else set()
+    canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
     for nid, n in nodes_in.items():
         where = f"node {nid}"
@@ -1019,7 +1043,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 problems.append(f"{where} choice {i + 1}: a choice is {{\"label\": \"...\", \"next\": id}}"
                                 + (" (and \"if\")" if v6 else ""))
                 continue
-            choices.append({"label": c["label"], "next": c["next"]})
+            choices.append({"label": canon(c["label"]), "next": c["next"]})
             if v6:
                 # Version 6: a choice shown only when its (static) condition holds.
                 cif = _norm_cond(c.get("if"), f"{where} choice {i + 1}", problems, version)
@@ -1139,7 +1163,12 @@ def _norm_role_v6(r: dict, where: str, problems: list[str], sex: str, min_age: A
 
 
 _INLINE_WEIGHT = re.compile(r"^(\d+):(.*)$", re.S)
-_TOKEN_V6 = re.compile(r"\\.|\([^()\n]*\)|\{[^{}\n]*\}")
+_TOKEN_V6 = re.compile(r"\\.|\([^()\n]*\)|\{(?:[^{}\n]|\{@[A-Za-z0-9_]+\})*\}")   # a game word may sit in a pick
+TRIBE_WORDS = ("tribe", "Tribe")          # G5: built-in game words, filled at run time with the save's tribe name
+TRIBE_ROOM = {1: 31, 2: 31, 3: 19, 4: 19, 5: 19}   # the longest tribe name each game makes (src/vv_tribe_rename.py)
+NO_TRIBE = {"tribe": "the village", "Tribe": "The village"}
+DAMAGE_SIZES = {"small": (10, 30), "normal": (25, 50), "large": (50, 75), "huge": (75, 100)}    # G9
+SKILL_SIZES = {"small": (5, 10), "normal": (10, 20), "large": (20, 40), "huge": (30, 60)}
 _POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
 
 
@@ -1162,14 +1191,24 @@ def inline_text(alts: list[tuple[int, str]]) -> str:
     return "{" + "|".join(f"{w}:{t}" for w, t in alts) + "}"
 
 
-def _canon_text(text: str) -> str:
-    """Version 6 text with each inline pick in its canonical form (nothing else changes)."""
+def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
+    """Version 6 text with each inline pick in its canonical form.  With `pools` (the event's pool names), a
+    one-option brace {x} whose x cannot be a list or game-word name (a space, or a character outside a name) is
+    just its text (G4); an identifier-shaped {x} stays, and the checks refuse it unless it names a list."""
+    names = set(pools) if pools is not None else None
+
     def one(m: re.Match) -> str:
         raw = m.group(0)
         if raw[0] != "{":
             return raw
-        alts = parse_inline(raw[1:-1])
-        return raw if alts is None else inline_text(alts)
+        inner = raw[1:-1]
+        alts = parse_inline(inner)
+        if alts is not None:
+            return inline_text(alts)
+        if names is None or inner.startswith("@"):
+            return raw
+        tok = _POOL_TOKEN.match(inner)
+        return raw if tok else inner          # identifier-shaped: a list (checked), never text (G4)
     return _TOKEN_V6.sub(one, text) if isinstance(text, str) else text
 
 
@@ -1217,9 +1256,17 @@ def _load_shared_pools(shared_pools: Any) -> tuple[dict, str | None]:
     return data.get("pools", {}) if isinstance(data, dict) else {}, None
 
 
-def _norm_pool(name: str, p: Any, where: str, problems: list[str], version: int) -> dict:
-    if not isinstance(p, dict) or set(p) - {"items", "distinct", "src"} or not isinstance(p.get("items"), list) \
-            or not p["items"]:
+def pool_names_of(data: dict) -> set[str]:
+    """The pool names a version 6 graph's text may name: its own pools and the shared ones it includes."""
+    names = set(data.get("pools") or {}) if isinstance(data.get("pools"), dict) else set()
+    include = data.get("include_pools") or []
+    return names | ({x for x in include if isinstance(x, str)} if isinstance(include, list) else set())
+
+
+def _norm_pool(name: str, p: Any, where: str, problems: list[str], version: int,
+               names: set[str] | None = None) -> dict:
+    if not isinstance(p, dict) or set(p) - {"items", "distinct", "src", "distinct_from"} \
+            or not isinstance(p.get("items"), list) or not p["items"]:
         problems.append(f"{where}: a pool is {{\"items\": [text or {{\"text\", \"weight\", \"if\"}}, ...], "
                         "\"distinct\": bool}")
         return {"items": [], "distinct": False}
@@ -1234,11 +1281,19 @@ def _norm_pool(name: str, p: Any, where: str, problems: list[str], version: int)
         w = it.get("weight", 1)
         if not _int_in(w, 1, MAX_WEIGHT):
             problems.append(f"{iw}: weight is a whole number 1..{MAX_WEIGHT}")
-        item = {"text": _canon_text(it["text"]), "weight": w, "if": _norm_cond(it.get("if"), iw, problems, version)}
+        item = {"text": _canon_text(it["text"], names), "weight": w,
+                "if": _norm_cond(it.get("if"), iw, problems, version)}
         if "src" in it:
             item["src"] = it["src"]
         items.append(item)
     out = {"items": items, "distinct": bool(p.get("distinct", False))}
+    frm = p.get("distinct_from")
+    if frm is not None:
+        # G3: never an item whose text another listed pool's instance has already drawn.
+        if not isinstance(frm, list) or any(not isinstance(x, str) for x in frm) or len(set(frm)) != len(frm):
+            problems.append(f"{where}: distinct_from is a list of pool names")
+        elif frm:
+            out["distinct_from"] = list(frm)
     if "src" in p:
         out["src"] = p["src"]
     return out
@@ -1247,6 +1302,7 @@ def _norm_pool(name: str, p: Any, where: str, problems: list[str], version: int)
 def _normalize_v6_extras(data: dict, g: dict, problems: list[str], shared_pools: Any) -> None:
     """words, pools (and include_pools), collection and grammar_fixes of a version 6 graph, into `g`."""
     version = g["version"]
+    names = pool_names_of(data)
     words_in = data.get("words", {})
     words: dict[str, dict[str, str]] = {}
     if not isinstance(words_in, dict):
@@ -1254,6 +1310,9 @@ def _normalize_v6_extras(data: dict, g: dict, problems: list[str], shared_pools:
         words_in = {}
     for key, per in words_in.items():
         where = f"word {key}"
+        if key in TRIBE_WORDS:
+            problems.append(f"{where}: {{@{key}}} is built in (the save's tribe name); choose another word")
+            continue
         if not ID_RE.match(str(key)) or not isinstance(per, dict) or not per \
                 or any(not isinstance(v, str) for v in per.values()):
             problems.append(f"{where}: a game word is {{\"<game>\" or \"*\": \"text\"}}")
@@ -1280,7 +1339,7 @@ def _normalize_v6_extras(data: dict, g: dict, problems: list[str], shared_pools:
         if not POOL_RE.match(str(name)):
             problems.append(f"pool {name}: a pool name is 1..32 letters, digits or _, starting with a letter or digit")
             continue
-        pools[name] = _norm_pool(name, p, f"pool {name}", problems, version)
+        pools[name] = _norm_pool(name, p, f"pool {name}", problems, version, names)
     include = data.get("include_pools", [])
     if include:
         if not isinstance(include, list) or any(not isinstance(x, str) for x in include):
@@ -1297,7 +1356,7 @@ def _normalize_v6_extras(data: dict, g: dict, problems: list[str], shared_pools:
             elif not POOL_RE.match(name):
                 problems.append(f"include_pools: {name} is not a pool name")
             else:
-                pools[name] = _norm_pool(name, shared[name], f"shared pool {name}", problems, version)
+                pools[name] = _norm_pool(name, shared[name], f"shared pool {name}", problems, version, names)
     g["pools"] = pools
 
     col = data.get("collection")
@@ -1438,9 +1497,10 @@ def _role_of_ph(p: Placeholder, roles: dict) -> dict | None:
 
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
-              aliases: dict[str, str] | None = None, _depth: int = 0) -> str:
+              aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
-    the item drawn; `aliases` maps an alias role to the member drawn.  The glyph fallback is applied last."""
+    the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
+    ({@tribe}; None: "the village").  The glyph fallback is applied last."""
     picks = picks or {}
     aliases = aliases or {}
     out = []
@@ -1464,12 +1524,17 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             out.append(word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "word" and tok[1] in TRIBE_WORDS:
+                # G5: the save's tribe name, filled at run time.
+                name = tribe if tribe else NO_TRIBE[tok[1]]
+                out.append(name[0].upper() + name[1:] if tok[1] == "Tribe" and tribe else name)
+                continue
             name, k = ("@" + tok[1], 1) if tok[0] == "word" else (tok[1], tok[2])
             idx = picks.get((name, k))
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
             out.append(expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                                 aliases, _depth + 1))
+                                 aliases, _depth + 1, tribe))
     text = "".join(out)
     return text if _depth or game is None else glyph_fallback(text, game, unicode)
 
@@ -1500,6 +1565,9 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 out.append(max(PRONOUNS_V6[p.what], key=len))
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "word" and tok[1] in TRIBE_WORDS:
+                out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
+                continue
             name = "@" + tok[1] if tok[0] == "word" else tok[1] if tok[0] == "pool" else None
             pool = g["pools"].get(name) if name else None
             if pool is None or _depth >= MAX_POOL_DEPTH:
@@ -1586,9 +1654,18 @@ def harm_capable(g: dict) -> set[str]:
             if r is None or r not in roles or not _harmful(e, g["games"]):
                 continue
             out.add(r)
-            if roles[r]["kind"] == "alias":
-                out.update(roles[r]["of"])
+            out.update(members_of(roles, r))
     return out
+
+
+def members_of(roles: dict, rid: str) -> list[str]:
+    """The villager roles an alias, or an other role (G2: its alias's), can stand for; [] for the rest."""
+    r = roles.get(rid, {})
+    if r.get("kind") == "alias":
+        return list(r["of"])
+    if r.get("kind") == "other":
+        return list(roles.get(r["of"], {}).get("of", []))
+    return []
 
 
 def protect_excluded(g: dict, rid: str, harm: set[str] | None = None) -> bool:
@@ -1609,8 +1686,8 @@ def _guard_for(g: dict, node: dict, harm: set[str]) -> Any:
         if r is None or r not in g["roles"] or not _harmful(e, g["games"]):
             continue
         role = g["roles"][r]
-        guarded = any(protect_excluded(g, m, harm) for m in role["of"]) if role["kind"] == "alias" \
-            else protect_excluded(g, r, harm)
+        guarded = any(protect_excluded(g, m, harm) for m in members_of(g["roles"], r)) \
+            if role["kind"] in ("alias", "other") else protect_excluded(g, r, harm)
         if guarded and r not in rs:
             rs.append(r)
     if not rs:
@@ -1626,7 +1703,8 @@ def lower(g: dict) -> dict:
     pools: dict[str, dict] = {}
     for name, p in out.get("pools", {}).items():
         pools[name] = {"items": [{"text": it["text"], "weight": it["weight"], "if": it["if"]} for it in p["items"]],
-                       "distinct": p["distinct"]}
+                       "distinct": p["distinct"], **({"distinct_from": list(p["distinct_from"])}
+                                                     if p.get("distinct_from") else {})}
     for word, per in out.get("words", {}).items():
         texts: dict[str, list[int]] = {}
         for gn, text in per.items():
@@ -1826,10 +1904,25 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     return any(cond_holds(x, ctx, visited) for x in arg)
 
 
+def with_aliases(g: dict, bound: Iterable[str]) -> frozenset[str]:
+    """`bound` (villager and stranger roles) with each alias bound when one of its members is, and each other role
+    (G2) when both of its alias's members are."""
+    rset = {r for r in bound if g["roles"].get(r, {}).get("kind") not in ("alias", "other")}
+    out = set(rset)
+    for a, v in g["roles"].items():
+        if v["kind"] == "alias" and any(m in rset for m in v["of"]):
+            out.add(a)
+        elif v["kind"] == "other":
+            ms = members_of(g["roles"], a)
+            if ms and all(m in rset for m in ms):
+                out.add(a)
+    return frozenset(out)
+
+
 def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
     """Every game x every patch on or off x every optional role bound or not."""
     optional = [r for r, v in g["roles"].items() if v.get("optional")]
-    always = frozenset(r for r in g["roles"] if r not in optional and g["roles"][r]["kind"] != "alias")
+    always = frozenset(r for r in g["roles"] if r not in optional and g["roles"][r]["kind"] not in ("alias", "other"))
     v6 = g.get("version", 1) >= VERSION_V6
     out = []
     for game in (games if games is not None else g["games"]):
@@ -1840,8 +1933,7 @@ def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
                 if not v6:
                     out.append(Context(game, pset, frozenset(rset)))
                     continue
-                rset = rset | {a for a, v in g["roles"].items()
-                               if v["kind"] == "alias" and any(m in rset for m in v["of"])}
+                rset = with_aliases(g, rset)
                 for facts in _fact_sets(g, rset):
                     out.append(Context(game, pset, frozenset(rset), facts))
     return out
@@ -2013,7 +2105,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 if r is not None:
                     kind = g["roles"].get(r, {}).get("kind")
                     member = dict(ctx.aliases).get(r, r)
-                    if kind not in ("villager", "alias"):
+                    if kind not in ("villager", "alias", "other"):
                         say(f"node {nid}: {do} acts on {r!r}, which is not a villager role")
                     elif r not in ctx.roles:
                         say(f"node {nid} ({where}): {do} acts on {r}, who may not be bound here")
@@ -2079,13 +2171,21 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 last.text = last.text + sep + text if last.text else text
                 last.nodes.append(nid)
             else:
-                # An answer's first page is shown in the question's own popup: room for its buttons, capped (version
-                # 6) in the result's layout as story_graph.inc cg_layout_from caps it.
+                # An answer's first page is shown in the question's own popup, keeping room for its buttons (two to
+                # four).  G1: after five or more buttons it starts a fresh popup -- the island-event notice the
+                # engine shows it through, whose layout is the plain popup's (story_graph.inc cg_notice_layout:
+                # New Believers 14 lines, not the result's 17), with no room for buttons.
                 after = popups and popups[-1].layout == "question"
                 room = 0
+                kind = "plain" if not popups else "result"
                 if after:
-                    room = answer_room(popups[-1].answers, game.result) if v6 else popups[-1].room
-                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid], room=room))
+                    if not v6:
+                        room = popups[-1].room
+                    elif popups[-1].answers <= MAX_ANSWERS_V4:
+                        room = answer_room(popups[-1].answers, game.result)
+                    else:
+                        kind = "plain"
+                popups.append(Popup(kind, text, nodes=[nid], room=room))
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
                           [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
@@ -2153,9 +2253,23 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
     aliases = [(a, ms) for a, ms in aliases if ms]
     combos = list(product(*[ms for _a, ms in aliases])) if aliases else [()]
     for combo in combos:
-        ctx = replace(ctx0, aliases=frozenset((a, m) for (a, _ms), m in zip(aliases, combo)))
+        drawn = dict((a, m) for (a, _ms), m in zip(aliases, combo))
+        drawn.update(others_drawn(g["roles"], drawn, ctx0.roles))
+        ctx = replace(ctx0, aliases=frozenset(drawn.items()))
         visit(g["start"], None, (), Fraction(1, len(combos)), [], None, False, frozenset(), [])
     return found
+
+
+def others_drawn(roles: dict, drawn: dict[str, str], bound: Iterable[str]) -> dict[str, str]:
+    """G2: each other role -> its alias's member the alias did not draw (bound only)."""
+    bound = set(bound)
+    out = {}
+    for o, v in roles.items():
+        if v["kind"] == "other" and v["of"] in drawn:
+            rest = [m for m in members_of(roles, o) if m != drawn[v["of"]] and m in bound]
+            if rest:
+                out[o] = rest[0]
+    return out
 
 
 def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, award, where: str, say,
@@ -2249,13 +2363,13 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
             if tok[0] == "bad":
                 problems.append(f"{where}: {raw}: {tok[1]}")
             elif tok[0] == "word":
-                if tok[1] not in g.get("words", {}):
+                if tok[1] not in g.get("words", {}) and tok[1] not in TRIBE_WORDS:
                     problems.append(f"{where}: {raw} names no game word")
             elif label:
                 problems.append(f"{where}: a label shows game words only, not {raw}")
             elif tok[0] == "pool":
                 if tok[1] not in g.get("pools", {}):
-                    problems.append(f"{where}: {raw} names no pool")
+                    problems.append(f"{where}: {raw}: unknown list {tok[1]} (names no pool)")
                 elif uses is not None:
                     uses[tok[1]] = max(uses.get(tok[1], 0), tok[2])
             else:
@@ -2268,6 +2382,11 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
                         bad |= {c for c in alt_raw if not text_char_ok(c, VERSION_V6) or c in "(){}\\|@\n"}
                     elif alt_kind == "ph" and parse_placeholder_v6(alt_raw[1:-1], g["roles"]) is None:
                         problems.append(f"{where}: {alt_raw} is not a placeholder")
+                    elif alt_kind == "brace":
+                        inner = parse_brace(alt_raw[1:-1])
+                        if inner[0] != "word" or (inner[1] not in g.get("words", {}) and inner[1] not in TRIBE_WORDS):
+                            problems.append(f"{where}: {raw}: inside a pick only a game word may stand ({alt_raw}); "
+                                            "use a named list")
     if bad:
         problems.append(f"{where}: characters the game cannot show: {' '.join(repr(c) for c in sorted(bad))} "
                         "(letters, digits, space and . , ! ? : - ' \" ; / & % only; markup ( ) { } | @ \\ only "
@@ -2307,6 +2426,10 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if _pool_depth(g, name) > MAX_POOL_DEPTH:
             problems.append(f"pool {name}: its items nest pools more than {MAX_POOL_DEPTH} deep, or name "
                             "themselves")
+    for name, p in g["pools"].items():
+        for other in p.get("distinct_from", []):
+            if other not in g["pools"] and other != name:
+                problems.append(f"pool {name}: distinct_from names no pool ({other})")
     for name, k in uses.items():
         p = g["pools"].get(name)
         if p is not None and p["distinct"] and k > len(p["items"]):
@@ -2340,7 +2463,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"
             if e["do"] == "celebrate" and e["who"] != "all" and \
-                    g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias"):
+                    g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
             if e["do"] == "action" and isinstance(e["action"], str) and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
@@ -2452,7 +2575,7 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
         problems.append(f"the title is longer than {TITLE_BYTES} characters")
     if PLACEHOLDER_RE.search(title):
         problems.append("the title has no placeholders")
-    if not all(text_char_ok(c) and c != "\n" for c in title):
+    if not all((text_char_ok(c) or (v6 and c == "\"")) and c != "\n" for c in title):
         problems.append("the title has characters the game cannot show")
     for gn in g["games"]:
         game = GAMES[gn]
@@ -2522,9 +2645,9 @@ assert _EFFECT.size == 16 and _COND.size == 8 and _VARIANT.size == 4
 
 _HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH I")
 _ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
-_POOL = struct.Struct("<HHHBB")
+_POOL = struct.Struct("<HHHBBHH")       # G3: + the distinct_from string, + 0
 _ITEM = struct.Struct("<HHHH")
-assert _HEADER6.size == HEADER_BYTES_V6 and _ROLE6.size == 16 and _POOL.size == 8 and _ITEM.size == 8
+assert _HEADER6.size == HEADER_BYTES_V6 and _ROLE6.size == 16 and _POOL.size == 12 and _ITEM.size == 8
 ROLE_FLAG_SAID_EXCLUDE = 64   # the author wrote protected "exclude" (decompiling only; the engine reads 32)
 ROLE_FLAG_SAID_ALLOW = 128    # the author wrote protected "allow"
 
@@ -2592,6 +2715,9 @@ def _compile_v6(g: dict) -> bytes:
         elif v["kind"] == "alias":
             mask = sum(1 << ridx[m] for m in v["of"])
             roles += _ROLE6.pack(2, ROLE_FLAG_HARM if r in harm else 0, 0, 0, s(r), 0, 0, 0, 0, NONE, 0, 0, mask)
+        elif v["kind"] == "other":
+            roles += _ROLE6.pack(3, ROLE_FLAG_HARM if r in harm else 0, 0, 0, s(r), 0, 0, 0, 0, NONE, 0, 0,
+                                 1 << ridx[v["of"]])
         else:
             protect = protect_excluded(g, r, harm)
             flags = (1 if v["optional"] else 0) | (6 if protect else 0) | (8 if v["believers_only"] else 0) \
@@ -2660,7 +2786,8 @@ def _compile_v6(g: dict) -> bytes:
     pools = items = b""
     n_item = 0
     for name, p in lg["pools"].items():
-        pools += _POOL.pack(s(name), n_item, len(p["items"]), 1 if p["distinct"] else 0, 0)
+        pools += _POOL.pack(s(name), n_item, len(p["items"]), 1 if p["distinct"] else 0, 0,
+                            s(",".join(p.get("distinct_from") or [])), 0)
         for it in p["items"]:
             items += _ITEM.pack(s(it["text"]), it["weight"], cond(it["if"]), 0)
             n_item += 1
@@ -2762,6 +2889,8 @@ def _decompile_v6(data: bytes) -> dict:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
         elif kind == 2:
             roles[rid] = {"kind": "alias", "of": [role_ids[k] for k in range(n_role) if mask & (1 << k)]}
+        elif kind == 3:
+            roles[rid] = {"kind": "other", "of": next(role_ids[k] for k in range(n_role) if mask & (1 << k))}
         else:
             said = "exclude" if flags & ROLE_FLAG_SAID_EXCLUDE else "allow" if flags & ROLE_FLAG_SAID_ALLOW \
                 else "auto"
@@ -2846,12 +2975,14 @@ def _decompile_v6(data: bytes) -> dict:
             requirement["if"] = req_if
     pools: dict[str, dict] = {}
     for i in range(n_pool):
-        name, first, count, pflags, _ = _POOL.unpack_from(data, o_pool + i * _POOL.size)
+        name, first, count, pflags, _, frm, _z = _POOL.unpack_from(data, o_pool + i * _POOL.size)
         its = []
         for k in range(count):
             it, w, c, _ = _ITEM.unpack_from(data, o_item + (first + k) * _ITEM.size)
             its.append({"text": s(it), "weight": w, "if": cond(c)})
         pools[s(name)] = {"items": its, "distinct": bool(pflags & 1)}
+        if frm != NONE:
+            pools[s(name)]["distinct_from"] = s(frm).split(",")
     lg = {"format": FORMAT, "version": version, "title": s(title),
           "games": [x for x in range(1, 6) if games_mask & (1 << (x - 1))], "patches": patches,
           "requirement": requirement, "roles": roles, "start": node_ids[start], "nodes": nodes, "pools": pools}
@@ -3141,7 +3272,8 @@ def decompile_graph(data: bytes) -> dict:
 
 
 def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
-             patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False) -> dict:
+             patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False,
+             tribe: str | None = None) -> dict:
     """One run of a version 6 graph as the companion makes it, given the random stream `rolls` (each roll taken
     `% n`; none is taken for n <= 1, as ce_random_below), the villagers bound (`bindings`: role -> Binding; a
     villager role not listed is unbound; a stranger's Binding gives its sex) and the answer clicked at each
@@ -3180,6 +3312,9 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if ms:
                 aliases[a] = ms[below(len(ms))]
                 bound.add(a)
+    others = others_drawn(roles, aliases, bound)
+    aliases.update(others)
+    bound |= set(others)
     ctx = Context(game, frozenset(patches), frozenset(bound),
                   default_facts(g, bound) if facts is None else frozenset(facts),
                   frozenset(aliases.items()))
@@ -3212,9 +3347,16 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 continue
             pool = lg["pools"][name]
             eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], ctx, visited)]
+            left = eligible
             if pool["distinct"]:
                 taken = {p[2] for p in picks if p[0] == name}
-                eligible = [i for i in eligible if i not in taken] or eligible
+                left = [i for i in left if i not in taken]
+            if pool.get("distinct_from"):
+                # G3: never a text an instance of a listed pool has already drawn.
+                seen = {lg["pools"][p[0]]["items"][p[2]]["text"] for p in picks
+                        if p[0] in pool["distinct_from"] and p[2] is not None}
+                left = [i for i in left if pool["items"][i]["text"] not in seen]
+            eligible = left or eligible
             if not eligible:
                 picks.append([name, k, None])
                 continue
@@ -3301,7 +3443,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         else:
             texts.append(t)
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases) for t in texts]
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
     return {"nodes": path, "fx": fx, "picks": picks, "aliases": aliases, "popups": popups, "rolls_used": used[0]}
 
 
@@ -3345,8 +3487,7 @@ def chances(g: dict, game: int, patches: Iterable[str] = (), roles: Iterable[str
     bound = frozenset(roles) if roles is not None else frozenset(g["roles"])
     ctx = Context(game, frozenset(patches), bound)
     if g.get("version", 1) >= VERSION_V6:
-        bound = frozenset(r for r in bound if g["roles"][r]["kind"] != "alias") | {
-            a for a, v in g["roles"].items() if v["kind"] == "alias" and any(m in bound for m in v["of"])}
+        bound = with_aliases(g, bound)
         ctx = Context(game, frozenset(patches), bound, default_facts(g, bound) if facts is None else facts)
     out: dict[int | None, dict[str, list[Row]]] = {}
     ends: dict[int | None, dict[str, Row]] = {}
