@@ -382,7 +382,7 @@ R("all_v23_5_false_alarm", "The False Alarm", ALL, 10077, 10093, "event", "v23",
 R("all_v23_6_prank_war", "The Prank War", ALL, 10095, 10110, "event", "v23", "v23", 3, {}, ["celebrate"])
 N("notes_v23_seeds_and_notes", "V23 short-title seeds, cross-game notes and parenting language", 10112, 10137, "v23",
   "v23")
-R("all_v24_revolutionary_invention", "The Revolutionary Invention / The Revolutionary Discovery", ALL, 10139, 10430,
+R("all_v24_revolutionary", "The Revolutionary Invention / The Revolutionary Discovery", ALL, 10139, 10430,
   "event", "v24", "v24", 5, {"subject": (32, None)}, ["skill", "tech", "food"])
 R("bank_v26_materials", "V26 - The Materials of Isola", ALL, 10432, 10571, "bank", "v26", "v26", 0)
 

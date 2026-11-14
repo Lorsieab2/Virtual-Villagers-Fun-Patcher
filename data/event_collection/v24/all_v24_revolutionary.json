@@ -1,0 +1,998 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Revolutionary Invention",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v24_revolutionary",
+  "source": "v26",
+  "lines": [
+   10139,
+   10430
+  ],
+  "section": "v24",
+  "credit": "CREDITS\nOriginal premise, example discoveries, randomized social/physical consequences,\nand context-sensitive title direction: Lorsieab2.\nEvent dialogue, additional examples, choice trees, sequel mechanics and prose:\nChatGPT. Preserve all preceding credits.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10167",
+  "ledger": [
+   {
+    "src": "L10139-10166",
+    "kind": "note",
+    "why": "credits, the title rule and the setting guide, never displayed"
+   },
+   {
+    "src": "L10187",
+    "kind": "structural",
+    "why": "subject table heading"
+   },
+   {
+    "src": "L10189,L10217,L10236,L10258,L10271",
+    "kind": "structural",
+    "why": "subject category headings"
+   },
+   {
+    "src": "L10291",
+    "kind": "structural",
+    "why": "choices heading"
+   },
+   {
+    "src": "L10365",
+    "kind": "instruction",
+    "why": "one reaction after each outcome it fits (the outcomes each item names in its condition)"
+   },
+   {
+    "src": "L10381-10398",
+    "kind": "note",
+    "why": "rare long-term follow-ups L1-L8 need state kept across events (rule 9); not shipped"
+   },
+   {
+    "src": "L10400-10411",
+    "kind": "note",
+    "why": "game-specific guidance for authors ('may'), never displayed"
+   },
+   {
+    "src": "L10413-10430",
+    "kind": "note",
+    "why": "mechanics and continuity notes, never displayed"
+   },
+   {
+    "src": "L10178-10185",
+    "kind": "note",
+    "why": "GAP: the Discovery opening needs its own title per run (format gap; lead to decide)"
+   },
+   {
+    "src": "L10228",
+    "kind": "note",
+    "text": "; do not automatically claim it cures every illness",
+    "why": "designer note inside the subject, never displayed"
+   },
+   {
+    "src": "L10244",
+    "kind": "note",
+    "text": "It is deliberately anachronistic",
+    "why": "designer note inside the subject, never displayed"
+   },
+   {
+    "src": "L10245",
+    "kind": "note",
+    "text": "or supernatural, not ordinary village technology.",
+    "why": "designer note inside the subject, never displayed"
+   },
+   {
+    "src": "L10193",
+    "kind": "note",
+    "text": "(Hamburger-like.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10196",
+    "kind": "note",
+    "text": "(Salad-like.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10199",
+    "kind": "note",
+    "text": "(Pancake/tortilla-like.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10202",
+    "kind": "note",
+    "text": "(Taco-like.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10205",
+    "kind": "note",
+    "text": "(Soda-like; use fictional harmless preparation.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10208",
+    "kind": "note",
+    "text": "(Sashimi-like.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10212",
+    "kind": "note",
+    "text": "(Sorbet/ice-cream-like; ordinary tropical Isola has no casual snow.)",
+    "why": "the real-world dish, for the author only"
+   },
+   {
+    "src": "L10372",
+    "kind": "note",
+    "text": ", if",
+    "why": "designer note on R6"
+   },
+   {
+    "src": "L10373",
+    "kind": "note",
+    "text": "appropriate to the game; this is an academic distinction, not",
+    "why": "designer note on R6"
+   },
+   {
+    "src": "L10374",
+    "kind": "note",
+    "text": "an automatic claim to VV3's Tribal Chief position.",
+    "why": "designer note on R6"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "inv",
+ "nodes": {
+  "inv": {
+   "name": "The invention",
+   "text": "For days, (Inventor) has been experimenting with a peculiar idea. Now (inventor.he/she) has summoned the villagers to witness the result. A woven mat covers the work, and a nervous apprentice stands nearby holding a gourd of water in case something goes wrong.\n\"This,\" announces (Inventor), \"may change everything.\"\nAn elder asks whether it will at least be useful. (Inventor) hesitates. \"That remains to be seen.\"",
+   "src": "L10168-10171,L10173,L10175-10176",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The subject",
+   "text": "{SUBJECT}",
+   "choices": [
+    {
+     "label": "PRESENT IT TO THE WHOLE VILLAGE",
+     "next": "set_a",
+     "src": "L10293"
+    },
+    {
+     "label": "SUBMIT IT TO THE RESEARCHERS",
+     "next": "set_b",
+     "src": "L10308"
+    },
+    {
+     "label": "TRY TO IMPROVE OR REPEAT IT",
+     "next": "set_c",
+     "src": "L10322"
+    },
+    {
+     "label": "KEEP IT SECRET OR SHARE IT WITH ONE PERSON",
+     "next": "set_d",
+     "src": "L10339"
+    },
+    {
+     "label": "OFFER IT TO THE ELDERS FOR A VILLAGE DECISION",
+     "next": "set_e",
+     "src": "L10353"
+    }
+   ]
+  },
+  "a1": {
+   "text": "THE SENSATION: The crowd erupts in cheers. Within days nearly everyone adopts the invention or celebrates the discovery. (Inventor) gains a celebrated reputation and relevant skill.",
+   "src": "L10294-10296",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building",
+      "Farming",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10296"
+    },
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10295"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a2": {
+   "text": "THE LAUGHINGSTOCK: The demonstration fails hilariously. (Inventor) is mocked, then receives an apology if later vindicated.",
+   "src": "L10297-10298",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a3": {
+   "text": "THE SHRUG: Nobody is particularly interested. The crowd disperses and the invention is forgotten for now.",
+   "src": "L10299-10300",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a4": {
+   "text": "THE HERO: The innovation solves a longstanding village problem. (Inventor) receives an honor and substantial relevant skill gains.",
+   "src": "L10301-10302",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building",
+      "Farming",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10302"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a5": {
+   "text": "THE OUTRAGE: Villagers denounce the novelty as ridiculous, improper, wasteful, or alarming. A public debate follows.",
+   "src": "L10303-10304",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "a6": {
+   "text": "THE NEW FAD: Everyone imitates it enthusiastically, but the enthusiasm may disappear after a few days.",
+   "src": "L10305-10306",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10306",
+     "what": "disappear",
+     "reason": "narrative: 'disappear' is part of the story, not a change the event makes"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a5"
+    },
+    {
+     "next": "a6"
+    }
+   ]
+  },
+  "b1": {
+   "text": "THE MASTER SCHOLAR: The idea withstands scrutiny; (Inventor) is invited to become one of the island's leading scholars.",
+   "src": "L10309-10310",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b2": {
+   "text": "THE UNEXPECTED FLAW: An apprentice spots a serious problem. The invention is revised, or the discovery is reinterpreted.",
+   "src": "L10311-10312"
+  },
+  "b3": {
+   "text": "THE SCHOLARLY FEUD: Two researchers claim credit for the breakthrough. The elders must settle the dispute.",
+   "src": "L10313-10314",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b4": {
+   "text": "THE IMPOSSIBLE RESULT: Repeated tests confirm something that seems to defy ordinary explanation. A rare mystery begins.",
+   "src": "L10315-10316",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b5": {
+   "text": "THE FALSE DISCOVERY: A careful experiment disproves the claim. (Inventor) is disappointed but gains knowledge from the attempt.",
+   "src": "L10317-10318",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "b6": {
+   "text": "THE ACCIDENTAL ADVANCE: The original idea is useless, but the failed experiment reveals something genuinely valuable.",
+   "src": "L10319-10320",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L10320"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    },
+    {
+     "next": "b5"
+    },
+    {
+     "next": "b6"
+    }
+   ]
+  },
+  "c1": {
+   "text": "THE PERFECTED DESIGN: A flaw is corrected; the invention becomes reliable or the discovery becomes reproducible.",
+   "src": "L10323-10324",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c2": {
+   "text": "THE SHATTERING: A brittle model cracks into countless pieces. The inventor survives, embarrassed and covered in fragments.",
+   "src": "L10325-10326",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c3": {
+   "text": "THE EXPLOSION: A rare fictional experimental mishap produces a startling bang and destroys the demonstration apparatus. Nearby villagers retreat; damaged equipment must be replaced.",
+   "src": "L10327-10329"
+  },
+  "c4": {
+   "text": "THE DISAPPEARANCE: The object or phenomenon vanishes before the scholars can document it. Nobody believes the witnesses.",
+   "src": "L10330-10331",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10330",
+     "what": "vanishes",
+     "reason": "narrative: the object or the idea vanishes, not a villager"
+    }
+   ]
+  },
+  "c5": {
+   "text": "THE DISINTEGRATION: An exceptionally rare impossible device crumbles into dust, leaving no usable remains.",
+   "src": "L10332-10333",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c6": {
+   "text": "THE SECOND MIRACLE: Repetition works even better than the first attempt. The village celebrates a genuine breakthrough.",
+   "src": "L10334-10335",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10335"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L10335"
+    }
+   ],
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "c7": {
+   "text": "THE SMALL IMPROVEMENT: The second version is less spectacular but more useful. (Inventor) learns the value of patient work.",
+   "src": "L10336-10337"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 20
+    },
+    {
+     "next": "c3",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "c4",
+     "weight": 20
+    },
+    {
+     "next": "c5",
+     "weight": 1,
+     "rarity": "exceptionally_rare"
+    },
+    {
+     "next": "c6",
+     "weight": 20
+    },
+    {
+     "next": "c7",
+     "weight": 20
+    }
+   ]
+  },
+  "d1": {
+   "text": "THE HIDDEN GENIUS: The invention quietly improves the lives of a few villagers before the rest learn of it.",
+   "src": "L10340-10341",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "d2": {
+   "text": "THE STOLEN CREDIT: A rival unveils the same idea first. A witness or notebook may eventually establish the truth.",
+   "src": "L10342-10343",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "d3": {
+   "text": "THE TRUSTED APPRENTICE: A young learner improves the design; both are credited and gain relevant skill.",
+   "src": "L10344-10345",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research",
+      "Building",
+      "Farming",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L10345"
+    }
+   ]
+  },
+  "d4": {
+   "text": "THE LOST IDEA: The only record is damaged or misplaced. The innovation vanishes from village memory.",
+   "src": "L10346-10347",
+   "children": [
+    {
+     "next": "react"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10347",
+     "what": "vanishes",
+     "reason": "narrative: the object or the idea vanishes, not a villager"
+    }
+   ]
+  },
+  "d5": {
+   "text": "THE RELUCTANT CELEBRITY: The secret leaks and (Inventor) becomes famous despite desperately wishing to be left alone.",
+   "src": "L10348-10349"
+  },
+  "d6": {
+   "text": "THE DANGEROUS RUMOR: Villagers mistake secrecy for evidence of sorcery or dealings with outsiders. An elder investigates.",
+   "src": "L10350-10351",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    },
+    {
+     "next": "d5"
+    },
+    {
+     "next": "d6"
+    }
+   ]
+  },
+  "e1": {
+   "text": "OFFICIAL ADOPTION: The elders approve practical use, training, or preservation of the discovery in the village records.",
+   "src": "L10354-10355",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "e2": {
+   "text": "THE PROHIBITION: The elders ban it, fearing waste, conflict, or harm. Some villagers continue debating the decision.",
+   "src": "L10356-10357",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "e3": {
+   "text": "THE LONG DEBATE: The council argues until sunset and reaches no conclusion. (Inventor) falls asleep during the final speech.",
+   "src": "L10358-10359",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "e4": {
+   "text": "THE PUBLIC TEST: A fair demonstration settles the question, though the outcome may be triumph, embarrassment, or mystery.",
+   "src": "L10360-10361"
+  },
+  "e5": {
+   "text": "THE COMPROMISE: Limited use is permitted while researchers continue investigating; reputations remain divided.",
+   "src": "L10362-10363"
+  },
+  "set_e": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    },
+    {
+     "next": "e5"
+    }
+   ]
+  },
+  "react": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{REACT}"
+  }
+ },
+ "pools": {
+  "SUBJECT": {
+   "set": "subject",
+   "items": [
+    {
+     "text": "TWO LAYERS OF BREAD WITH A COOKED MEAT FILLING - A flat round of seasoned meat between two soft pieces of bread, with leaves or relish if available. The villagers debate whether it is a meal or merely an improperly assembled loaf.",
+     "src": "L10190-10193"
+    },
+    {
+     "text": "THINLY CUT GARDEN LEAVES AND VEGETABLES IN A TANGY DRESSING - The cook claims raw plants can be an entire dish. Some are delighted; others demand to know when the actual food will arrive.",
+     "src": "L10194-10196"
+    },
+    {
+     "text": "FLAT ROUND CAKES - A cook presses dough into circles and cooks it on a heated stone. It may be soft, crisp, thick, thin, sweet, or folded around other food.",
+     "src": "L10197-10199"
+    },
+    {
+     "text": "CRUNCHY FOLDED SHELLS - Thin cooked cakes are bent while warm and filled with meat, beans, fish, or vegetables. The first taster cracks the shell and showers the ground with dinner.",
+     "src": "L10200-10202"
+    },
+    {
+     "text": "THE BUBBLING DRINK - A sealed or naturally effervescent drink releases startling bubbles. A child declares that the drink is trying to escape.",
+     "src": "L10203-10205"
+    },
+    {
+     "text": "THE DELICATE FISH PLATE - Exceptionally fresh fish is cut into elegant thin pieces and arranged with painstaking care. A hungry villager asks why the cook has forgotten the fire.",
+     "src": "L10206-10208"
+    },
+    {
+     "text": "SWEETENED SNOW OR ICE - Rare ice or snow obtained by a fantastic accident, a high mountain, or magical intervention is mixed with fruit or sweetness. It melts before half the judges can taste it.",
+     "src": "L10209-10212"
+    },
+    {
+     "text": "A NEW BREADFRUIT PREPARATION - The fruit is roasted, pounded, steamed, or shaped in an unprecedented way. Some call it genius; others say it is still just breadfruit.",
+     "src": "L10213-10215"
+    },
+    {
+     "text": "A COLOR-CHANGING LIQUID - A flower extract shifts color when mixed with different substances. Scholars investigate what the change signifies; a prankster wants to color everyone's soup.",
+     "src": "L10218-10220"
+    },
+    {
+     "text": "A GAS THAT MAKES A STRANGE SOUND - A sealed vessel produces a peculiar hiss when opened. The inventor is more impressed than the villagers, who insist the vessel is simply rude.",
+     "src": "L10221-10223"
+    },
+    {
+     "text": "AN UNUSUAL CRYSTAL - A transparent mineral bends light in an unexpected way, leading to optical experiments and wild rumors.",
+     "src": "L10224-10225"
+    },
+    {
+     "text": "A NEW HEALING PREPARATION - A healer proposes an unfamiliar remedy. Responsible tests may show promise, no benefit, or harmful effects.",
+     "src": "L10226-10228"
+    },
+    {
+     "text": "A NEW RULE OF NATURE - (Inventor) identifies a repeatable pattern in water, falling fruit, shadows, plants, or tides. It is a discovery even if nothing physical has been manufactured.",
+     "src": "L10229-10231"
+    },
+    {
+     "text": "A FLOATING BALL OF LIGHT - A rare, explicitly impossible or magical phenomenon appears over a bowl of water or carved stone. Scholars cannot decide whether to study it or run away.",
+     "src": "L10232-10234"
+    },
+    {
+     "text": "THE STAR-TRACKING GEARS - Interlocking carved wheels and markers model the movement of stars or planets. The mechanism may help with calendars or navigation, or jam during its unveiling.",
+     "src": "L10237-10239"
+    },
+    {
+     "text": "THE COUNTING WHEELS - A system of pebbles, notches, cords, or rotating disks helps perform arithmetic. A master scholar praises it; a child computes the answer faster in (child.his/her) head.",
+     "src": "L10240-10242"
+    },
+    {
+     "text": "THE MEMORY STONE - A strangely responsive slab seems to hold symbols, sounds, or recollections. Some fear it contains a spirit; others call it the greatest archive imaginable.",
+     "src": "L10243-10246"
+    },
+    {
+     "text": "THE WATER-LIFTING MACHINE - A wooden and woven-fiber mechanism raises water from a lower pool to a garden. It may work beautifully or soak its inventor and everyone watching.",
+     "src": "L10247-10249"
+    },
+    {
+     "text": "THE UNLIKELY BRIDGE - An unusual arrangement of timber, vines, and stone supports surprising weight, until an overlooked knot becomes the most important detail in the village.",
+     "src": "L10250-10252"
+    },
+    {
+     "text": "THE NEW GEOMETRY - A researcher proves a surprising relationship among shapes using shells, cords, and marks in the sand.",
+     "src": "L10253-10254"
+    },
+    {
+     "text": "THE BETTER CALENDAR - A villager finds a more reliable way to anticipate seasons, tides, or astronomical events.",
+     "src": "L10255-10256"
+    },
+    {
+     "text": "THE SHELL ACCOUNTING SYSTEM - A new method records exchanges, debts, food shares, and communal supplies with shells or knots. Merchants rejoice; others complain that every coconut now has paperwork, though no paper is involved.",
+     "src": "L10259-10262"
+    },
+    {
+     "text": "THE FAIR EXCHANGE RULE - A villager proposes a new principle for barter. It may reduce arguments or start the longest argument yet.",
+     "src": "L10263-10264"
+    },
+    {
+     "text": "THE IMPOSSIBLE PROOF - A philosopher offers a startling argument that overturns a familiar assumption. The village debates it for days; the fisherman keeps fishing.",
+     "src": "L10265-10267"
+    },
+    {
+     "text": "THE SHARED WORK PLAN - A new arrangement of tasks makes building and harvesting more efficient, unless nobody agrees who starts.",
+     "src": "L10268-10269"
+    },
+    {
+     "text": "THE NEW DANCE - (Inventor) invents a peculiar sequence of steps, turns, and claps. Within days, everyone may be doing it, including elders who insist they disapprove.",
+     "src": "L10272-10274"
+    },
+    {
+     "text": "THE NEW CLOTHING STYLE - A fresh way to weave, dye, tie, or drape island fabrics catches attention. Some adore it; others say it looks like someone got tangled in a fishing net.",
+     "src": "L10275-10277"
+    },
+    {
+     "text": "THE NEW HAIRSTYLE - A striking braid, ornament, or arrangement becomes a fashion sensation - or a brief embarrassment.",
+     "src": "L10278-10279"
+    },
+    {
+     "text": "THE NEW MUSIC - A rhythmic pattern, song form, or unfamiliar instrument captures the village's imagination.",
+     "src": "L10280-10281"
+    },
+    {
+     "text": "THE NEW GAME - (Inventor) invents a contest using shells, stones, sticks, or woven balls. The rules become more controversial than the game itself.",
+     "src": "L10282-10284"
+    },
+    {
+     "text": "THE NEW GREETING - A greeting gesture or phrase spreads rapidly, then causes confusion when visitors do not recognize it.",
+     "src": "L10285-10286"
+    },
+    {
+     "text": "THE FAD OF THE WEEK - An absurd but harmless habit takes over the village: matching shell necklaces, balancing coconuts, dramatic bows, or elaborate names for ordinary chores.",
+     "src": "L10287-10289"
+    }
+   ]
+  },
+  "REACT": {
+   "items": [
+    {
+     "text": "EVERYONE ADOPTS IT: The innovation becomes part of village life.",
+     "src": "L10366",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "a6"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c6"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "text": "EVERYONE SHUNS IT: The idea becomes a cautionary tale.",
+     "src": "L10367",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a5"
+       },
+       {
+        "visited": "e2"
+       }
+      ]
+     }
+    },
+    {
+     "text": "THE INVENTOR IS CALLED MAD: The villagers dismiss (Inventor), possibly until a later event proves (inventor.him/her) right.",
+     "src": "L10368-10369",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a5"
+       },
+       {
+        "visited": "b5"
+       },
+       {
+        "visited": "d6"
+       },
+       {
+        "visited": "e3"
+       }
+      ]
+     }
+    },
+    {
+     "text": "COMPLETE INDIFFERENCE: Villagers resume their daily chores.",
+     "src": "L10370",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e3"
+       }
+      ]
+     }
+    },
+    {
+     "text": "HERO'S WELCOME: A celebration honors (Inventor).",
+     "src": "L10371",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c6"
+       }
+      ]
+     }
+    },
+    {
+     "text": "CHIEF SCHOLAR: (Inventor) gains a high scholarly reputation",
+     "src": "L10372-10374",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "text": "IMITATION CRAZE: Copycat inventions appear everywhere.",
+     "src": "L10375",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a6"
+       },
+       {
+        "visited": "d1"
+       }
+      ]
+     }
+    },
+    {
+     "text": "ACCUSATION OF TRICKERY: A hearing clears or censures (Inventor).",
+     "src": "L10376",
+     "if": {
+      "any": [
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d6"
+       }
+      ]
+     }
+    },
+    {
+     "text": "RIVALRY: A second inventor attempts to outdo the first.",
+     "src": "L10377",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "text": "GENERATIONAL LEGACY: A later villager studies the surviving plans, memories, or records and builds on the idea.",
+     "src": "L10378-10379",
+     "if": {
+      "any": [
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c5"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e2"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ }
+}
