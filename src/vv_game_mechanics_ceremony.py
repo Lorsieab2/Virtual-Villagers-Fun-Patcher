@@ -10,22 +10,16 @@ from __future__ import annotations
 
 import vv_remembrance_ceremony as rc
 import vv_the_rumblings as rb
+from vv_game_mechanics_adventurer import rare
 from vv_game_mechanics_events import Event
 
 PATCH = "vv{}_more_island_events"
-SCHEDULE = ("when the game draws an island event on its own schedule (the wall clock, real-life hours; paused time "
-            "does not count)")
 DRAW = {
-    1: "one more island event (the no-choice kind), with its own case in that draw: each case whose condition holds "
-       "is equally likely, this one included",
-    2: "one more single-result island event, with its own case in that draw (each of its up to ten draws is 1 in 28 "
-       "plus one for each of the patcher's events that can happen, for every event, this one included)",
-    3: "one more island event, listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed: it has its own place in the draw)",
-    4: "one more island event, listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed: it has its own place in the draw)",
-    5: "one more island event, listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed: it has its own place in the draw)",
+    1: "an island event of the no-choice kind when it comes; " + rare(1),
+    2: "a single-result island event when it comes; " + rare(2),
+    3: "an island event when it comes; " + rare(3),
+    4: "an island event when it comes; " + rare(4),
+    5: "an island event when it comes; " + rare(5),
 }
 GRAVES = {
     1: "at least one grave (the game's own count of its graves)",
@@ -71,7 +65,7 @@ def remembrance_event(game: int) -> Event:
     ]
     return Event(
         rc.TITLE,
-        f"needs {GRAVES[game]}; {DRAW[game]}, {SCHEDULE}; added by \"More Island Events\" (without it the event does "
+        f"needs {GRAVES[game]}; {DRAW[game]}; added by \"More Island Events\" (without it the event does "
         "not exist)",
         tuple(subs),
         only_with=PATCH.format(game),
@@ -113,7 +107,7 @@ def rumblings_event(game: int) -> Event:
     return Event(
         rb.TITLE,
         f"needs every puzzle solved ({rb.PUZZLES[game]}, the Puzzles screen's) and at least one finished structure "
-        f"it can damage; {DRAW[game]}, {SCHEDULE}; added by \"More Island Events\" (without it the event does not "
+        f"it can damage; {DRAW[game]}; added by \"More Island Events\" (without it the event does not "
         "exist)",
         tuple(subs),
         only_with=PATCH.format(game),

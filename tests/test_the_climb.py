@@ -204,9 +204,14 @@ class TheMechanicsPage(unittest.TestCase):
                       "not an Esteemed Elder's totem statue", "one such villager is enough", "Go with the plan",
                       "Follow the scientists' advice", "the fall 50%", "the summit 50%", "1,000 to 6,000 tech points",
                       "Research becomes 100", "celebrat", "+10 to 20 Research", "a grave", "Distinguished Scientist",
-                      "1 in 23", "its own slot", "when the page"):
+                      "never takes a share of the game's own draw", "separate rare roll comes up 25%",
+                      "Pick Island Event", "when the page"):
             with self.subTest(words=words):
                 self.assertIn(words, text)
+        # The stock draw is never widened (the owner, 2026-11-14): no "1 in 23", no slot of its own in it.
+        for stale in ("1 in 23", "its own slot"):
+            with self.subTest(stale=stale):
+                self.assertNotIn(stale, text)
         for game in (1, 3, 4, 5):
             catalog = __import__(f"vv_game_mechanics_events_vv{game}")
             self.assertFalse(any(e.title == climb.TITLE for e in catalog.EVENTS), game)

@@ -270,5 +270,40 @@ class TheSingleResultChoosers(unittest.TestCase):
                 self.assertEqual(v.cr_state()[6], 0)
 
 
+class TheMechanicsPages(unittest.TestCase):
+    """The Game Mechanics pages say what the companion does: More Island Events' events never take a share of the
+    game's own draw (no "1 in 23", no place of their own in it), and the rare roll's chance is the C table's.
+    Needs no emulator: it reads the pages' own catalogs."""
+
+    STALE = ("1 in 23", "1 in m + ", "its own slot", "own place in the draw", "own case in that draw",
+             "drawn like them", "1 in 28 plus")
+
+    def test_no_event_claims_a_share_of_the_stock_draw(self) -> None:
+        sys.path.insert(0, str(ROOT / "src"))
+        for game in range(1, 6):
+            catalog = __import__(f"vv_game_mechanics_events_vv{game}")
+            ours = [e for e in catalog.EVENTS if e.only_with == f"vv{game}_more_island_events"]
+            self.assertTrue(ours, game)
+            for event in ours:
+                text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
+                with self.subTest(game=game, event=event.title):
+                    self.assertIn("never takes a share of the game's own draw", text)
+                    for stale in self.STALE:
+                        self.assertNotIn(stale, text)
+            rules = " ".join(line.text for line in getattr(catalog, "RULES", ()))
+            for stale in self.STALE:
+                with self.subTest(game=game, rules=stale):
+                    self.assertNotIn(stale, rules)
+
+    def test_the_rare_roll_chance_is_the_companions(self) -> None:
+        import re
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_game_mechanics_adventurer as gm
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_collection.inc").read_text(encoding="utf-8")
+        table = re.search(r"SC_P_PERCENT\[6\] = \{ 0, (\d+), (\d+), (\d+), (\d+), (\d+) \}", source)
+        self.assertIsNotNone(table)
+        self.assertEqual(gm.RARE_ROLL_PERCENT, {g: int(table.group(g)) for g in range(1, 6)})
+
+
 if __name__ == "__main__":
     unittest.main()
