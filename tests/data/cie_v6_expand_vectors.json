@@ -3609,6 +3609,208 @@
     "rolls_used": 0,
     "cieg_sha256": "8c33f78eb4b60a166ed1f75818b2db38e4a93b6402d1f3ee9309a8b033e36a0b"
    }
+  },
+  {
+   "name": "named_stranger_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Visitor",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     },
+     "visitor": {
+      "kind": "stranger",
+      "sex": "female",
+      "named": true
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Visitor) arrives by canoe. (Name) greets (visitor.him/her); (VISITOR) LAUGHS.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "What does (name) offer?",
+      "choices": [
+       {
+        "label": "Share a meal with (Visitor)",
+        "next": "a"
+       },
+       {
+        "label": "Send (visitor.him/her) away",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "(Visitor) and (name) eat together."
+     },
+     "b": {
+      "text": "(Visitor) paddles away."
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "visitor": {
+     "name": "Aipi",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "a"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Aipi arrives by canoe. Ana greets her; AIPI LAUGHS.",
+     "What does Ana offer?",
+     "Aipi and Ana eat together."
+    ],
+    "titles": [
+     "The Visitor",
+     "The Visitor",
+     "The Visitor"
+    ],
+    "labels": [
+     [
+      "Share a meal with Aipi",
+      "Send her away"
+     ]
+    ],
+    "rolls_used": 0,
+    "cieg_sha256": "dbe88d1940321e4e22b53d089965ffd6e7939c68b0fcb59baea8806855449109"
+   }
+  },
+  {
+   "name": "named_stranger_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Visitor",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     },
+     "visitor": {
+      "kind": "stranger",
+      "sex": "female",
+      "named": true
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Visitor) arrives by canoe. (Name) greets (visitor.him/her); (VISITOR) LAUGHS.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "What does (name) offer?",
+      "choices": [
+       {
+        "label": "Share a meal with (Visitor)",
+        "next": "a"
+       },
+       {
+        "label": "Send (visitor.him/her) away",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "(Visitor) and (name) eat together."
+     },
+     "b": {
+      "text": "(Visitor) paddles away."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "visitor": {
+     "name": "Aika",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    1
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "b"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Aika arrives by canoe. Ana greets her, AIKA LAUGHS.",
+     "What does Ana offer?",
+     "Aika paddles away."
+    ],
+    "titles": [
+     "The Visitor",
+     "The Visitor",
+     "The Visitor"
+    ],
+    "labels": [
+     [
+      "Share a meal with Aika",
+      "Send her away"
+     ]
+    ],
+    "rolls_used": 0,
+    "cieg_sha256": "dbe88d1940321e4e22b53d089965ffd6e7939c68b0fcb59baea8806855449109"
+   }
   }
  ]
 }

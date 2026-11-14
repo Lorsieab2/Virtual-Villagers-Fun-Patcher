@@ -168,6 +168,7 @@ import sys
 import zlib
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
+from functools import lru_cache
 from itertools import product
 from pathlib import Path
 from typing import Any, Iterable
@@ -529,6 +530,22 @@ def title_px(game: int, text: str) -> int:
 def label_max_px(game: int) -> int:
     """The widest label the game's screen shows whole, centred."""
     return _label_table(game)["max_px"]
+
+
+VILLAGER_NAMES = Path(__file__).resolve().parents[1] / "data" / "cie_villager_names.json"
+
+
+@lru_cache(maxsize=None)
+def villager_names(game: int) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """The game's own first-name lists, male then female (scripts/build_cie_villager_names.py): a named stranger's
+    name is drawn from them (cie-v6-binary.md 16)."""
+    d = json.loads(VILLAGER_NAMES.read_text(encoding="utf-8"))["games"][str(game)]
+    return tuple(d["male"]), tuple(d["female"])
+
+
+def stranger_name_room(game: int) -> int:
+    """The longest name in the game's lists: a named stranger's worst case."""
+    return max(len(n) for names in villager_names(game) for n in names)
 
 
 def label_fits(game: int, text: str) -> bool:
@@ -938,11 +955,17 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 of = []
             roles[rid] = {"kind": "alias", "of": list(of)}
         elif r["kind"] == "stranger":
-            extra = set(r) - {"kind", "sex"}
+            extra = set(r) - {"kind", "sex"} - ({"named"} if v6 else set())
             sex = r.get("sex", "random")
             if sex not in ("random", "male", "female"):
                 problems.append(f"{where}: a stranger's sex is random, male or female")
             roles[rid] = {"kind": "stranger", "sex": sex}
+            if v6 and r.get("named") is not None:
+                # Section 16: a first name from the game's own lists, drawn at bind time.
+                if not isinstance(r["named"], bool):
+                    problems.append(f"{where}: named is true or false")
+                elif r["named"]:
+                    roles[rid]["named"] = True
         else:
             extra = set(r) - {"kind", "optional", "sex", "min_age", "exclude_nursing", "exclude_special",
                               "believers_only", "max_age_gap"}
@@ -1638,6 +1661,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             elif p.what == "name" and pronoun_names:      # section 15: the label's pronoun fallback
                 word = max(PRONOUNS_V6[p.hint or HINT_DEFAULT], key=len)
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
+            elif p.what == "name" and g["roles"].get(p.role, {}).get("kind") == "stranger":
+                out.append("W" * stranger_name_room(game.number))     # 16: the longest name in the game's lists
             elif p.what == "name":
                 out.append("W" * game.name_room)
             else:
@@ -2381,7 +2406,7 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                 role = roles.get(p.role)
                 if role is None:
                     say(f"node {nid}: {raw} names no role")
-                elif p.what == "name" and role["kind"] == "stranger":
+                elif p.what == "name" and role["kind"] == "stranger" and not role.get("named"):
                     say(f"node {nid}: {raw}: a stranger has no name")
                 elif p.role not in ctx.roles:
                     say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
@@ -2839,7 +2864,8 @@ def _compile_v6(g: dict) -> bytes:
     for r in role_ids:
         v = lg["roles"][r]
         if v["kind"] == "stranger":
-            roles += _ROLE6.pack(1, 0, SEX_CODES[v["sex"]], 0, s(r), 0, 0, 0, 0, NONE, 0, 0, 0)
+            roles += _ROLE6.pack(1, 1 if v.get("named") else 0, SEX_CODES[v["sex"]], 0, s(r), 0, 0, 0, 0, NONE, 0,
+                                 0, 0)
         elif v["kind"] == "alias":
             mask = sum(1 << ridx[m] for m in v["of"])
             roles += _ROLE6.pack(2, ROLE_FLAG_HARM if r in harm else 0, 0, 0, s(r), 0, 0, 0, 0, NONE, 0, 0, mask)
@@ -3015,6 +3041,8 @@ def _decompile_v6(data: bytes) -> dict:
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
+            if flags & 1:
+                roles[rid]["named"] = True
         elif kind == 2:
             roles[rid] = {"kind": "alias", "of": [role_ids[k] for k in range(n_role) if mask & (1 << k)]}
         elif kind == 3:

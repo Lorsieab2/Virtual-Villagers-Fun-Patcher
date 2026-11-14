@@ -246,7 +246,8 @@ def vector_village(case: dict):
 # Rolls the binding takes that the patcher's walk does not model, and where they come in the stream (a start
 # question's own words are drawn at the purchase, before the binding): (after this many rolls, [the rolls]).
 BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
-              "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0])}
+              "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0]),
+              "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1])}   # the stranger's name (16)
 
 
 @emulated
@@ -650,6 +651,30 @@ class NodeTitles(unittest.TestCase):
         why = r.queue6(bytes(data))
         self.assertIsNotNone(why)
         self.assertIn("popup title", why)
+
+
+@emulated
+class NamedStrangers(unittest.TestCase):
+    """A named stranger draws a name from the game's own list, never a living villager's (cie-v6-binary.md 16)."""
+
+    def test_a_name_from_the_games_list_no_villager_has(self):
+        from test_cie_graph_v6 import VISITOR
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            female = cg.villager_names(int(game[2]))[1]
+            with self.subTest(game=game):
+                # A villager already called by the list's first and second names (any case): the stranger skips
+                # them, so roll 0 gives the third.
+                people = [(0, "f", 30, female[0], 0, False), (1, "m", 30, female[1].upper(), 0, False)]
+                r = V6(game, people)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(VISITOR)))
+                shown = r.walk_through([1])
+                who = female[2]
+                self.assertTrue(r.displays()[0].startswith(f"{who} arrives by canoe."), r.displays()[0])
+                self.assertIn(f"{who.upper()} LAUGHS.", r.displays()[0])
+                self.assertIn(f"Send her away", shown[1][2][1] if shown[1][0] == "question" else str(shown))
 
 
 @emulated

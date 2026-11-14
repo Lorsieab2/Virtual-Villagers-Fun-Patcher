@@ -391,7 +391,14 @@ lib.role_id = "rest"
 lib.show_roles()
 out["other_row"] = list(lib.roles_table.item("rest", "values"))
 out["other_form"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
-for r in ("rest", "either", "cook"):
+lib.g["roles"]["visitor"] = {"kind": "stranger", "sex": "female"}
+lib.role_id = "visitor"
+lib.show_roles()
+[c for c in lib.role_form.winfo_children() if "checkbutton" in str(c)][0].invoke()
+out["stranger_named"] = lib.g["roles"]["visitor"].get("named")
+[c for c in lib.role_form.winfo_children() if "checkbutton" in str(c)][0].invoke()
+out["stranger_unnamed"] = "named" not in lib.g["roles"]["visitor"]
+for r in ("rest", "either", "cook", "visitor"):
     del lib.g["roles"][r]
 del lib.g["pools"]["DRINK"]
 lib.role_id = "subject"
@@ -594,6 +601,10 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["pool_rows"], 2)
         self.assertEqual(self.out["distinct_from"], ["DISH"])
 
+    def test_a_named_stranger(self):
+        self.assertTrue(self.out["stranger_named"])
+        self.assertTrue(self.out["stranger_unnamed"])
+
     def test_a_parts_popup_title(self):
         self.assertEqual(self.out["node_title"], "A Title From Here")
         self.assertEqual(self.out["node_title_problems"], [])
@@ -653,7 +664,7 @@ class Wiring(unittest.TestCase):
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         for path in ("src/vv_cie_library_window.py", "src/vv_cie_graph.py",
                      "data/cie_graphs/the_aspiring_adventurer.json", "data/cie_graphs/the_cave_explorers.json",
-                     "data/cie_label_widths.json", "data/cie_actions.json"):
+                     "data/cie_label_widths.json", "data/cie_actions.json", "data/cie_villager_names.json"):
             self.assertIn(f'"{path}"', release)
 
     def test_translation_coverage(self) -> None:
