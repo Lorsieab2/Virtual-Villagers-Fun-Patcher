@@ -1,0 +1,353 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Arbor-Day Festival",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_arbor_day_festival",
+  "source": "v26",
+  "lines": [
+   4975,
+   5032
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4976",
+  "ledger": [
+   {
+    "src": "L4975",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4977",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4978",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4997",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5003",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5010",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5017",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5024",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_materials",
+  "v9_r17",
+  "v9_r22"
+ ],
+ "pools": {
+  "SORT": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The villagers salvage a wonderful meal from ordinary ingredients.",
+     "src": "L4998"
+    },
+    {
+     "text": "The unsafe dish is discarded; the inventor is upset but accepts it.",
+     "src": "L4999"
+    },
+    {
+     "text": "An elder identifies the creation as an excellent fertilizer display, provided it is kept far from food.",
+     "src": "L5000-5001"
+    }
+   ]
+  },
+  "JUDGE": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "A builder wins with a surprisingly strong plaster.",
+     "src": "L5004"
+    },
+    {
+     "text": "A child wins with a sculpture of the inventor looking horrified.",
+     "src": "L5005"
+    },
+    {
+     "text": "The judge refuses to handle the slug-slime exhibit.",
+     "src": "L5006"
+    },
+    {
+     "text": "A Master Farmer wins for turning guano into a clearly labeled, safely handled fertilizer exhibit, not food.",
+     "src": "L5007-5008"
+    }
+   ]
+  },
+  "EXPLAIN": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The inventor intended a mosaic, and someone placed it on the food table.",
+     "src": "L5011"
+    },
+    {
+     "text": "The inventor admits (inventor.he/she) hoped to shock the judges.",
+     "src": "L5012"
+    },
+    {
+     "text": "The inventor thought a spectacular failure would make people laugh.",
+     "src": "L5013"
+    },
+    {
+     "text": "The inventor wanted to honor an elder's odd old recipe but misunderstood the instructions. They make something safe together instead.",
+     "src": "L5014-5015"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The festival is saved. The inventor is given a separate table labeled 'NOT FOR EATING. SERIOUSLY.'",
+     "src": "L5025-5026"
+    },
+    {
+     "text": "The inventor is humiliated, but an elder quietly praises the effort while explaining why the execution failed.",
+     "src": "L5027-5028"
+    },
+    {
+     "text": "The entire village laughs together, with the inventor's consent.",
+     "src": "L5029"
+    },
+    {
+     "text": "Two old rivals cooperate on next year's exhibit and deny enjoying it.",
+     "src": "L5030"
+    },
+    {
+     "text": "A parent with a sleeping infant finally gets to eat a normal meal.",
+     "src": "L5031"
+    },
+    {
+     "text": "The child keeps the wooden snail sculpture for years.",
+     "src": "L5032",
+     "if": {
+      "visited": "pa3"
+     }
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The festival",
+   "src": "L4980-4987",
+   "text": "The villagers organize a festival celebrating the Tree of Life. The organizers ask everyone to contribute something beautiful, useful, or delicious. Unfortunately, one enthusiastic participant interprets this as permission to use ANYTHING.\nOn the central table sits a creation made from {v9_materials}, {v9_materials.2}, and a garnish of {v9_materials.3}. It {glitters|oozes|smokes harmlessly|smells dreadful|looks unexpectedly majestic}.",
+   "text_only": [
+    {
+     "src": "L4980",
+     "what": "a festival celebrating the Tree of Life",
+     "reason": "the setting of the story; the source asks for no celebration"
+    }
+   ],
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Is that food?",
+   "src": "L4989-4990",
+   "text": "A child says, 'Is that food?' The inventor says, 'That depends on how adventurous you are.' The healer says, 'IT IS NOT FOOD.'",
+   "text_only": [
+    {
+     "src": "L4989-4990",
+     "what": "food",
+     "reason": "spoken words; no food changes"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Separate safe food from art and building experiments.",
+     "next": "sort",
+     "src": "L4992"
+    },
+    {
+     "label": "Hold a judged competition for nonedible inventions.",
+     "next": "judge",
+     "src": "L4993"
+    },
+    {
+     "label": "Ask the inventor to explain the purpose.",
+     "next": "explain",
+     "src": "L4994"
+    },
+    {
+     "label": "Let the children organize a harmless absurdity parade.",
+     "next": "parade",
+     "src": "L4995"
+    }
+   ]
+  },
+  "sort": {
+   "text": "{SORT}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "judge": {
+   "text": "{JUDGE}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "explain": {
+   "text": "{EXPLAIN}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "parade": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pa1"
+    },
+    {
+     "next": "pa2"
+    },
+    {
+     "next": "pa3"
+    },
+    {
+     "next": "pa4"
+    }
+   ],
+   "set": "(4)"
+  },
+  "pa1": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5018",
+   "text": "Children parade with painted bark crowns and harmless wooden sculptures."
+  },
+  "pa2": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5019",
+   "text": "A child names a rotten-wood statue 'THE GREAT STINKING LEADER.'"
+  },
+  "pa3": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5020",
+   "text": "An elder enters a sculpture of a snail and wins the crowd's affection."
+  },
+  "pa4": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5021-5022",
+   "text": "The adults become so competitive that the children have to remind them the parade is supposed to be fun."
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_r17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r17}"
+  },
+  "coda_r22": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r22}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r17"
+    },
+    {
+     "next": "coda_r22"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

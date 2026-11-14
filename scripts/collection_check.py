@@ -647,6 +647,15 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
             collect_cond_roles(c.get("if"), used_roles)
         for c in n.get("children", []) or []:
             collect_cond_roles(c.get("if"), used_roles)
+    # an included shared pool's items (a coda's "(coda1.he/she)", "(Name1)") use the event's roles too
+    for name in doc.get("include_pools", []) or []:
+        for it in (shared.get(name) or {}).get("items", []):
+            for inner in placeholders_in(it.get("text", "") if isinstance(it, dict) else it):
+                r = inner.split(".", 1)[0] if "." in inner else inner
+                if r.lower() in ids:
+                    used_roles.add(ids[r.lower()])
+                elif "." in inner:
+                    rep.add("d TOKENS", f"shared pool {name}: ({inner}) names no role of this event")
     for rid, r in roles.items():
         for m in r.get("of", []) or []:
             used_roles.add(m)

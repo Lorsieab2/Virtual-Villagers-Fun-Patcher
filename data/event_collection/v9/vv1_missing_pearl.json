@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Pearl",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_missing_pearl",
+  "source": "v26",
+  "lines": [
+   4694,
+   4731
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4695",
+  "ledger": [
+   {
+    "src": "L4694",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4696",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4697",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4709",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4716",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4722",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4728",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_r5",
+  "v9_r24"
+ ],
+ "pools": {
+  "NOTHEFT": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The child learns that feelings are not evidence of wrongdoing.",
+     "src": "L4723"
+    },
+    {
+     "text": "The adult apologizes for a false confession that confused the inquiry.",
+     "src": "L4724"
+    },
+    {
+     "text": "The apprentice cries with relief; the elder offers a cup of water.",
+     "src": "L4725"
+    },
+    {
+     "text": "The elder says, 'Next time, everyone stop confessing before breakfast.'",
+     "src": "L4726"
+    }
+   ]
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "Three confessions",
+   "src": "L4699-4704",
+   "text": "A polished pearl vanishes from an elder's keepsake box. Three villagers immediately confess: an anxious apprentice, a proud adult, and a child.\nThe apprentice says, 'I moved the box.' The adult says, 'I broke it.' The child says, 'I wished it would disappear, so it's my fault.'\nThe elder looks at all three. 'None of you has explained where it went.'",
+   "choices": [
+    {
+     "label": "Examine the box and the room.",
+     "next": "search",
+     "src": "L4706"
+    },
+    {
+     "label": "Ask each person privately what they actually did.",
+     "next": "testimony",
+     "src": "L4707"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L4699",
+     "what": "a pearl vanishes",
+     "reason": "an object goes missing, not a villager"
+    },
+    {
+     "src": "L4703",
+     "what": "wished it would disappear",
+     "reason": "the child speaks of the pearl, not a villager"
+    }
+   ]
+  },
+  "search": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L4710",
+   "text": "The pearl is under a folded blanket. Nobody stole it.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L4711-4712",
+   "text": "A bird carried the shiny pearl to a nearby nest; it is retrieved without harming the animal.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L4713",
+   "text": "The pearl was moved by the elder and forgotten.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "s4": {
+   "src": "L4714",
+   "text": "A different adult took it without permission and admits it.",
+   "children": [
+    {
+     "next": "theft"
+    }
+   ]
+  },
+  "testimony": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L4717",
+   "text": "The apprentice feared being blamed for carelessness.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L4718",
+   "text": "The adult tried to protect the child from punishment.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L4719",
+   "text": "The child thought wishing for something bad made it happen.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L4720",
+   "text": "The elder admits the pearl was never missing; it was in a second box.",
+   "children": [
+    {
+     "next": "notheft"
+    }
+   ]
+  },
+  "notheft": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{NOTHEFT}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "theft": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4729-4731",
+   "text": "The adult returns the pearl, explains why it was taken, and faces proportionate restitution. A confession does not erase the harm. The elder may forgive, delay forgiveness, or decline it.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r5}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r5"
+    },
+    {
+     "next": "coda_r24",
+     "if": {
+      "visited": "theft"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

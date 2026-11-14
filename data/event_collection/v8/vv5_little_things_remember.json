@@ -1,0 +1,354 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Things They Remember",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_little_things_remember",
+  "source": "v26",
+  "lines": [
+   4276,
+   4329
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4277",
+  "ledger": [
+   {
+    "src": "L4276",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4278",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4279",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4288",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4301",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4314",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4328",
+    "kind": "note",
+    "text": "No conversion changes. No death/disappearance.",
+    "why": "designer note: no conversion, death or disappearance"
+   },
+   {
+    "src": "L4328",
+    "kind": "instruction",
+    "text": "Narrative-only",
+    "why": "the small Devotion effect on the ending page"
+   },
+   {
+    "src": "L4329",
+    "kind": "instruction",
+    "why": "the small Devotion effect on the ending page"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "optional": true,
+   "special": "nursing_parent"
+  }
+ },
+ "include_pools": [
+  "v8_c7",
+  "v8_c10"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "the villager now carries a baby",
+     "src": "L4289",
+     "if": {
+      "visited": "intro_parent"
+     }
+    },
+    {
+     "text": "the villager has gray in (villager.his/her) hair",
+     "src": "L4290"
+    },
+    {
+     "text": "the villager has become a skilled healer",
+     "src": "L4291"
+    },
+    {
+     "text": "the villager has a child who looks just like (villager.him/her)",
+     "src": "L4292"
+    },
+    {
+     "text": "the villager walks with a little more care than before",
+     "src": "L4293"
+    },
+    {
+     "text": "the villager wears a small keepsake from an earlier home",
+     "src": "L4294"
+    },
+    {
+     "text": "the villager has learned to carve beautiful wooden toys",
+     "src": "L4295"
+    }
+   ]
+  },
+  "MEMORY": {
+   "items": [
+    {
+     "text": "They recall a foolish childhood argument about who could climb the tallest tree.",
+     "src": "L4302-4303"
+    },
+    {
+     "text": "They remember an old teacher who was far stricter than either of them thought necessary.",
+     "src": "L4304-4305"
+    },
+    {
+     "text": "They laugh about a terrible meal they once prepared together.",
+     "src": "L4306"
+    },
+    {
+     "text": "They remember a difficult season, and someone who helped them survive it.",
+     "src": "L4307-4308"
+    },
+    {
+     "text": "They speak of a friend who is no longer there. For a while, neither knows what to say.",
+     "src": "L4309-4310"
+    },
+    {
+     "text": "They realize they remember the same event differently. Neither insists on having the final word.",
+     "src": "L4311-4312"
+    }
+   ]
+  },
+  "END": {
+   "items": [
+    {
+     "text": "The visitor asks to meet the villager's family. They spend a pleasant afternoon together.",
+     "src": "L4315-4316"
+    },
+    {
+     "text": "The two exchange a few stories, then go their separate ways. It is enough.",
+     "src": "L4317-4318"
+    },
+    {
+     "text": "A child interrupts with an extremely personal question. Both adults laugh, grateful for the interruption.",
+     "src": "L4319-4320"
+    },
+    {
+     "text": "The villager offers a small keepsake. The visitor accepts it with both hands.",
+     "src": "L4321-4322"
+    },
+    {
+     "text": "\"I thought you had forgotten me,\" the visitor admits. \"Never,\" says the villager.",
+     "src": "L4323-4324"
+    },
+    {
+     "text": "They part without resolving every difference between them. The next meeting will be easier.",
+     "src": "L4325-4326"
+    }
+   ]
+  },
+  "AP": {
+   "items": [
+    {
+     "text": "the villager now carries a baby",
+     "src": "L4289",
+     "if": {
+      "visited": "intro_parent"
+     }
+    },
+    {
+     "text": "the villager has gray in (parent.his/her) hair",
+     "src": "L4290"
+    },
+    {
+     "text": "the villager has become a skilled healer",
+     "src": "L4291"
+    },
+    {
+     "text": "the villager has a child who looks just like (parent.him/her)",
+     "src": "L4292"
+    },
+    {
+     "text": "the villager walks with a little more care than before",
+     "src": "L4293"
+    },
+    {
+     "text": "the villager wears a small keepsake from an earlier home",
+     "src": "L4294"
+    },
+    {
+     "text": "the villager has learned to carve beautiful wooden toys",
+     "src": "L4295"
+    }
+   ],
+   "mirror_of": "A"
+  }
+ },
+ "start": "start",
+ "nodes": {
+  "start": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro_parent",
+     "if": {
+      "role": "parent"
+     },
+     "else": "intro"
+    },
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "intro": {
+   "name": "An old face",
+   "src": "L4281-4299",
+   "text": "A former Heathen-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {A}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "intro_parent": {
+   "name": "An old face",
+   "src": "L4281-4299",
+   "text": "A former Heathen-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {AP}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "memory": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{MEMORY}",
+   "children": [
+    {
+     "next": "end_parent",
+     "if": {
+      "visited": "intro_parent"
+     },
+     "else": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4329"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "end_parent": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4329"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c7"
+    },
+    {
+     "next": "coda_c10"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

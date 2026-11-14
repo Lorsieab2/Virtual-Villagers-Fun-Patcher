@@ -1,0 +1,335 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Master's Small Apprentice",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_masters_small_apprentice",
+  "source": "v26",
+  "lines": [
+   3687,
+   3759
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3688",
+  "ledger": [
+   {
+    "src": "L3687",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3689",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L3690",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3714",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3725",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3735",
+    "kind": "structural",
+    "why": "bank heading; (3) has no route onward in the source, so it leads to (4), the only bank left"
+   },
+   {
+    "src": "L3745",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3758-3759",
+    "kind": "instruction",
+    "why": "the Building effect on the ending page; the child's learning is text only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "include_pools": [
+  "v8_c2_builder_child",
+  "v8_c10",
+  "v8_c12_builder_child",
+  "v8_c16_elder"
+ ],
+ "pools": {
+  "TURN1": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The child's idea works! The builder looks surprised, then proud.",
+     "src": "L3715"
+    },
+    {
+     "text": "The child's idea fails harmlessly. The builder helps (child.him/her) understand why, and they try a better method together.",
+     "src": "L3716-3717"
+    },
+    {
+     "text": "The child hammers the wrong piece. The elder laughs so hard that (elder.he/she) nearly falls off the old bench.",
+     "src": "L3718-3719"
+    },
+    {
+     "text": "The child gets frustrated and declares that building is stupid. The builder admits that (builder.he/she) has felt that way too.",
+     "src": "L3720-3721"
+    },
+    {
+     "text": "The child carefully measures the wood and discovers the builder was about to cut the wrong length. The builder goes very quiet.",
+     "src": "L3722-3723"
+    }
+   ]
+  },
+  "TURN2": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The builder repairs the bench neatly, then lets the child practice on spare wood. The child beams.",
+     "src": "L3726-3727"
+    },
+    {
+     "text": "The builder works too quickly to explain. The child wanders away, disappointed. The elder gently points this out.",
+     "src": "L3728-3729"
+    },
+    {
+     "text": "The builder tries to demonstrate a perfect joint and accidentally glues (builder.his/her) own fingers together.",
+     "src": "L3730-3731"
+    },
+    {
+     "text": "The builder finishes, then admits that the child's question exposed a flaw in the original design.",
+     "src": "L3732-3733"
+    }
+   ]
+  },
+  "ELDER": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "\"You can teach a child to hold a tool,\" the elder says. \"The harder part is teaching (child.him/her) not to fear mistakes.\"",
+     "src": "L3736-3737"
+    },
+    {
+     "text": "\"When I was young, my teacher shouted whenever I got something wrong. I remember the shouting better than the lessons.\"",
+     "src": "L3738-3739"
+    },
+    {
+     "text": "\"I once built a whole hut backward,\" the elder confesses. \"Nobody noticed until we tried to put the door in.\"",
+     "src": "L3740-3741"
+    },
+    {
+     "text": "\"That bench will outlast the argument,\" the elder says. The builder hopes this is true.",
+     "src": "L3742-3743"
+    }
+   ]
+  },
+  "ENDING": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "The child proudly sits on the finished bench. It holds. For the moment, that is enough.",
+     "src": "L3746-3747"
+    },
+    {
+     "text": "The builder asks the child to help again tomorrow. The child replies, \"Only if you answer my questions.\"",
+     "src": "L3748-3749"
+    },
+    {
+     "text": "The elder leaves a tiny carved wooden bird on the bench. Nobody knows when (elder.he/she) made it.",
+     "src": "L3750-3751"
+    },
+    {
+     "text": "The bench collapses under a basket of coconuts. Nobody is injured. The builder stares at the wreckage and sighs, \"Well. That's a useful test.\"",
+     "src": "L3752-3754"
+    },
+    {
+     "text": "The child falls asleep on the newly repaired bench. The builder quietly gathers the tools and lets (child.him/her) rest.",
+     "src": "L3755-3756"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The bench",
+   "src": "L3692-3704",
+   "text": "A respected Master Builder, (Builder), has been asked to repair a small wooden bench outside the school. The job is simple enough that (builder.he/she) expects to finish before lunch.\nUnfortunately, (Child) has decided to help.\n\"Why are you doing it like that?\" asks (Child). \"Because it works.\" \"But why?\" \"Because - \" The builder pauses. \"Because it works.\"\nAn elderly villager, (Elder), watches from a nearby seat, looking far too entertained.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The child's idea",
+   "src": "L3706-3709",
+   "text": "The child notices that the bench has {a wobbling leg|a loose joint|a splintered edge|a crooked support} and proposes {a ridiculous solution|a clever fix|a solution copied from something (child.he/she) saw the builder do earlier}.",
+   "choices": [
+    {
+     "label": "LET THE CHILD TRY WITH SUPERVISION.",
+     "next": "turn1",
+     "src": "L3711"
+    },
+    {
+     "label": "FINISH THE REPAIR, THEN EXPLAIN IT.",
+     "next": "turn2",
+     "src": "L3712"
+    }
+   ]
+  },
+  "turn1": {
+   "name": "The apprentice's turn",
+   "text": "{TURN1}",
+   "children": [
+    {
+     "next": "elder"
+    }
+   ]
+  },
+  "turn2": {
+   "name": "The builder's turn",
+   "text": "{TURN2}",
+   "children": [
+    {
+     "next": "elder"
+    }
+   ]
+  },
+  "elder": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{ELDER}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "name": "Ending",
+   "text": "{ENDING}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3758"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3759",
+     "what": "small learning experience for the child",
+     "reason": "rule 8: 'learning' is not a skill any game has (the source adds 'if supported')"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c2_builder_child}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c12": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c12_builder_child}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16_elder}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c2",
+     "if": {
+      "visited": "turn2"
+     }
+    },
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c12",
+     "if": {
+      "visited": "turn1"
+     }
+    },
+    {
+     "next": "coda_c16"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

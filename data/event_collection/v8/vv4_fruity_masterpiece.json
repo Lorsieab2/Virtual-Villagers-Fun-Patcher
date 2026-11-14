@@ -1,0 +1,361 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fruity Masterpiece",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_fruity_masterpiece",
+  "source": "v26",
+  "lines": [
+   4080,
+   4147
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4081",
+  "ledger": [
+   {
+    "src": "L4080",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4082",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4083",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4101",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4108",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4116",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4126",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4135",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4147",
+    "kind": "instruction",
+    "why": "the food and Farming effects on the ending page"
+   }
+  ]
+ },
+ "words": {
+  "breadfruit_chief": {
+   "*": "the Chief"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c4_elder",
+  "v8_c5",
+  "v8_c10"
+ ],
+ "pools": {
+  "OLD": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The dish is comforting and delicious. The elder looks pleased.",
+     "src": "L4102"
+    },
+    {
+     "text": "The cook discovers that the elder has been omitting a crucial ingredient for years. They laugh about it.",
+     "src": "L4103-4104"
+    },
+    {
+     "text": "The dish is plain but nourishing. The parent thanks the cooks and finally gets to eat.",
+     "src": "L4105-4106"
+    }
+   ]
+  },
+  "EXPERIMENT": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The cook invents a delicious new dish.",
+     "src": "L4109"
+    },
+    {
+     "text": "The dish is spectacularly ugly but tastes wonderful.",
+     "src": "L4110"
+    },
+    {
+     "text": "The cook uses too much spice. Everyone drinks water and politely avoids a second helping.",
+     "src": "L4111-4112"
+    },
+    {
+     "text": "The experiment fails. The cook salvages a simpler meal rather than wasting the whole harvest.",
+     "src": "L4113-4114"
+    }
+   ]
+  },
+  "ART": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The child creates beautiful decorations from leaves.",
+     "src": "L4117"
+    },
+    {
+     "text": "The child carves a tiny face into a spare piece of cooked breadfruit. The elder calls it disrespectful. The parent calls it adorable.",
+     "src": "L4118-4120"
+    },
+    {
+     "text": "The child makes a breadfruit crown and insists {@breadfruit_chief} of Breadfruit must be addressed properly.",
+     "src": "L4121-4122"
+    },
+    {
+     "text": "The decorations are accidentally served as garnish. The cooks remove the inedible pieces before anyone eats.",
+     "src": "L4123-4124"
+    }
+   ]
+  },
+  "TASTING": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "Both recipes are delicious. The villagers enjoy the variety.",
+     "src": "L4127"
+    },
+    {
+     "text": "The elder's recipe wins narrowly. The cook requests the exact measurements for next time.",
+     "src": "L4128-4129"
+    },
+    {
+     "text": "The new recipe wins. The elder is disappointed but asks for a small portion to take home.",
+     "src": "L4130-4131"
+    },
+    {
+     "text": "A child prefers plain breadfruit and refuses to participate in the judging.",
+     "src": "L4132-4133"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The feast is a success. Everyone gets enough to eat.",
+     "src": "L4136"
+    },
+    {
+     "text": "The cook and elder exchange recipes, with a few affectionate complaints about each other's methods.",
+     "src": "L4137-4138"
+    },
+    {
+     "text": "The parent finally sits down with the baby and a warm meal. The entire village is ordered not to interrupt for five minutes.",
+     "src": "L4139-4141"
+    },
+    {
+     "text": "The breadfruit sculpture is displayed for one afternoon, then eaten because it is, after all, food.",
+     "src": "L4142-4143",
+     "if": {
+      "visited": "art"
+     }
+    },
+    {
+     "text": "The cook admits that a meal doesn't have to be impressive to be worth sharing.",
+     "src": "L4144-4145"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The breadfruit",
+   "src": "L4085-4089",
+   "text": "The village has harvested a particularly impressive breadfruit. It is so large that three villagers insist on measuring it.\nA talented cook, (Cook), announces that (cook.he/she) will prepare a dish worthy of the Tree of Life itself.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Too many cooks",
+   "src": "L4091-4094",
+   "text": "An elder, (Elder), insists the fruit should be cooked the old way. A child, (Child), wants to turn it into a sculpture. A parent carrying an infant would simply like everyone to stop arguing so the family can eat.",
+   "choices": [
+    {
+     "label": "FOLLOW THE ELDER'S RECIPE.",
+     "next": "old",
+     "src": "L4096"
+    },
+    {
+     "label": "LET THE COOK EXPERIMENT.",
+     "next": "experiment",
+     "src": "L4097"
+    },
+    {
+     "label": "LET THE CHILD DECORATE THE SERVING AREA.",
+     "next": "art",
+     "src": "L4098"
+    },
+    {
+     "label": "MAKE TWO SMALLER DISHES AND COMPARE THEM.",
+     "next": "tasting",
+     "src": "L4099"
+    }
+   ]
+  },
+  "old": {
+   "text": "{OLD}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "experiment": {
+   "text": "{EXPERIMENT}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "art": {
+   "text": "{ART}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "tasting": {
+   "text": "{TASTING}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L4147"
+    },
+    {
+     "do": "skill",
+     "role": "cook",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4147"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c4_elder}"
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c4",
+     "if": {
+      "visited": "old"
+     }
+    },
+    {
+     "next": "coda_c5"
+    },
+    {
+     "next": "coda_c10"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

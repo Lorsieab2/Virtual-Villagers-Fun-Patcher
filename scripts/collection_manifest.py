@@ -160,7 +160,7 @@ R("vv4_quiet_gardener", "The Quiet Gardener", [4], 4149, 4197, "event", "v8", "v
   {"(1)": 4, "(2)": 4, "(3)": 5}, ["skill:Farming|Building"])
 R("vv5_gift_or_insult", "Gift or Insult?", [5], 4199, 4274, "event", "v8", "v6v8", 4,
   {"A": 7, "(1)": 4, "(2)": 3, "(3)": 4, "(4)": 4, "(5)": 5}, ["skill:Building|Devotion"])
-R("vv5_little_things_they_remember", "The Little Things They Remember", [5], 4276, 4329, "event", "v8", "v6v8", 0,
+R("vv5_little_things_remember", "The Little Things They Remember", [5], 4276, 4329, "event", "v8", "v6v8", 0,
   {"A": 7}, ["skill:Devotion"])
 R("bank_v8_codas", "Rare emotional codas C1-C16", ALL, 4331, 4439, "bank", "v8", "v6v8", 0, {"C": (16, r"^C\d+\b")})
 N("notes_v8_safety_filter", "Strict target safety and continuity filter", 4441, 4490, "v8", "v6v8")
@@ -176,7 +176,7 @@ R("vv2_stolen_spoon", "The Stolen Spoon", [2], 4796, 4872, "event", "v9", "v9", 
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(8)": 3})
 R("vv3_chief_and_the_pearl", "The Chief and the Pearl", [3], 4874, 4934, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 3})
-R("vv3_duel_of_the_terrible_inventors", "The Duel of the Terrible Inventors", [3], 4936, 4973, "event", "v9", "v9", 2,
+R("vv3_duel_terrible_inventors", "The Duel of the Terrible Inventors", [3], 4936, 4973, "event", "v9", "v9", 2,
   {"(1)": 4, "(2)": 4, "(3)": 5})
 R("vv4_arbor_day_festival", "The Arbor-Day Festival", [4], 4975, 5032, "event", "v9", "v9", 4,
   {"(1)": 3, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 6})
@@ -184,7 +184,7 @@ R("vv4_rotten_structure", "The Rotten Structure", [4], 5034, 5078, "event", "v9"
   {"(1)": 4, "(2)": 4, "(3)": 3, "(5)": 3}, ["damage"])
 R("vv5_slug_race", "The Slug Race", [5], 5080, 5141, "event", "v9", "v9", 4,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(7)": 5})
-R("vv5_trial_of_the_shattered_pearls", "The Trial of the Shattered Pearls", [5], 5143, 5222, "event", "v9", "v9", 5,
+R("vv5_trial_shattered_pearls", "The Trial of the Shattered Pearls", [5], 5143, 5222, "event", "v9", "v9", 5,
   {"(1)": 4, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 4, "(7)": 4})
 R("bank_v9_coda_bank", "Universal coda bank R1-R26", ALL, 5224, 5317, "bank", "v9", "v9", 0, {"R": (26, r"^R\d+\b")})
 N("notes_v9_editorial", "V9 editorial / implementation note", 5319, 5336, "v9", "v9")
@@ -192,14 +192,14 @@ N("notes_v10_canon_and_reputations", "V10 canon gate and reputation states", 533
 R("all_no_good_very_bad_day", "(Name1)'s No Good, Very Bad Day", ALL, 5385, 5522, "event", "v10", "v10", 4,
   {"A": 8, "(1)": 3, "(2)": 4, "(3)": 3, "(4)": 3, "(5)": 3, "(6)": 3, "(7)": 3, "(8)": 3, "(9)": 5, "(10)": 4,
    "(11)": 5, "(12)": 4, "(13)": 4})
-R("all_village_idiot_and_the_impossible_invention", "The Village Idiot and the Impossible Invention", ALL, 5524, 5605,
+R("all_impossible_invention", "The Village Idiot and the Impossible Invention", ALL, 5524, 5605,
   "event", "v10", "v10", 2, {"(1)": 5, "(2)": 4, "(3)": 4, "(4)": 5, "(5)": 5})
 R("all_unlikely_advisor", "The Unlikely Advisor", ALL, 5607, 5681, "event", "v10", "v10", 4,
   {"A": 6, "(1)": 3, "(2)": 3, "(3)": 3, "(4)": 3, "(5)": 4, "(6)": 5})
 R("all_teacher_who_failed", "The Teacher Who Failed", ALL, 5683, 5728, "event", "v10", "v10", 0, {})
 R("all_great_appointment_scandal", "The Great Appointment Scandal", ALL, 5730, 5848, "event", "v10", "v10", 4,
   {"A": 9, "(1)": 3, "(2)": 4, "(3)": 4, "(4)": 4, "(5)": 4, "(6)": 3, "(7)": 3, "(8)": 5, "(9)": 5})
-R("vv345_magician_and_the_naturalist", "The Magician and the Naturalist", [3, 4, 5], 5850, 5926, "event", "v10",
+R("vv345_magician_naturalist", "The Magician and the Naturalist", [3, 4, 5], 5850, 5926, "event", "v10",
   "v10", 4, {"A": 6, "(1)": 3, "(2)": 3, "(3)": 3, "(4)": 3, "(5)": 7})
 R("bank_v10_outcome_bank", "Additional outcome bank O1-O30", ALL, 5928, 6097, "bank", "v10", "v10", 0,
   {"O": (30, r"^O\d+\b")})
