@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Builder's Last Climb",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk042_builder_climb",
+  "source": "companion",
+  "lines": [
+   5869,
+   5876
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5869",
+  "ledger": [
+   {
+    "src": "L5875",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5876",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "An elder builder wonders whether climbing high scaffolds is still wise.",
+  "cast_only": [
+   "climber"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 55,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "climber": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elder builder wonders whether climbing high scaffolds is still wise.",
+   "src": "L5870",
+   "choices": [
+    {
+     "label": "Accept a safer supervisory role.",
+     "next": "outcome",
+     "src": "L5871"
+    },
+    {
+     "label": "Train a younger climber.",
+     "next": "outcome",
+     "src": "L5872"
+    },
+    {
+     "label": "Attempt one last climb despite warnings.",
+     "next": "outcome",
+     "src": "L5873"
+    },
+    {
+     "label": "Invent a safer method that helps everyone.",
+     "next": "outcome_d",
+     "src": "L5874"
+    }
+   ]
+  },
+  "outcome_d": {
+   "name": "Ending (D)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5875",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5875"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5875"
+  }
+ }
+}

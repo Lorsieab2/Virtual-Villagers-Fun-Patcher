@@ -22,3 +22,18 @@ Chief.
 - SSS 053's baby scene casts a nursing parent harmlessly (no effect).
 - SSS 065 The Nursing Mother's Loss: the infant has already died, as part of the premise (the lead, 2026-11-14), so
   the mother is an adult woman who need not be nursing, and the baby is text only. Nothing is harmed.
+
+## Companion K7
+
+Range: The Four Ways of Knowing 001-060 (`companion/fwk/fwk001`-`fwk060`), 60 events. Line numbers are the companion
+source's. Generator: `scripts/companion/gen_k7.py`.
+
+| Event | Outcome | Villager | Exact text | Why |
+|---|---|---|---|---|
+| `fwk053_nursing_mother` The Nursing Mother's Impossible Day | choice C (L5972) | `mother`, a nursing parent (female), `protected: "allow"`: `sick` | "Overextend herself and become ill." | The event is about a nursing mother; the player's own choice says she becomes ill. Illness, not injury or death; the baby is untouched. |
+
+- The other harm-capable roles keep the default `auto` protection: FWK 046's apprentice (choice C "Find them injured
+  in an isolated place.": a minor injury, health_change -30..-10; choice D "Face an unresolved disappearance.":
+  vanish, missing with no grave) and FWK 055's craftsperson (choice C "Give up and develop a dislike of the craft.":
+  a dislike of work).
+- Part I (001-040) has no harm at all.

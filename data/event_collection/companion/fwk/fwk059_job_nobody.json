@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Job Nobody Wants",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk059_job_nobody",
+  "source": "companion",
+  "lines": [
+   6022,
+   6029
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6022",
+  "ledger": [
+   {
+    "src": "L6028",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L6029",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "An unpleasant but necessary village task keeps being ignored.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An unpleasant but necessary village task is repeatedly ignored.",
+   "src": "L6023",
+   "choices": [
+    {
+     "label": "Rotate responsibility fairly.",
+     "next": "outcome",
+     "src": "L6024"
+    },
+    {
+     "label": "Offer incentives and training.",
+     "next": "outcome",
+     "src": "L6025"
+    },
+    {
+     "label": "Let resentment grow into conflict.",
+     "next": "outcome",
+     "src": "L6026"
+    },
+    {
+     "label": "Invent a tool that makes the work easier.",
+     "next": "outcome",
+     "src": "L6027"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L6028"
+  }
+ }
+}

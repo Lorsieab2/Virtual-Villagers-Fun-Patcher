@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Wants to Help",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk052_child_wants",
+  "source": "companion",
+  "lines": [
+   5959,
+   5966
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5959",
+  "ledger": [
+   {
+    "src": "L5965",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5966",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A child begs to help with an adult task beyond their experience.",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child begs to assist with an adult task beyond their experience.",
+   "src": "L5960",
+   "choices": [
+    {
+     "label": "Offer a safe age-appropriate role.",
+     "next": "outcome",
+     "src": "L5961"
+    },
+    {
+     "label": "Assign a mentor and a small challenge.",
+     "next": "outcome",
+     "src": "L5962"
+    },
+    {
+     "label": "Refuse harshly and damage confidence.",
+     "next": "outcome",
+     "src": "L5963"
+    },
+    {
+     "label": "Allow too much responsibility and cause an accident.",
+     "next": "outcome",
+     "src": "L5964"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "experience",
+     "reason": "the child's lack of experience, not a skill change",
+     "src": "L5960"
+    },
+    {
+     "what": "cause an accident",
+     "reason": "the text names nobody hurt in the accident: text only",
+     "src": "L5960"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5965"
+  }
+ }
+}

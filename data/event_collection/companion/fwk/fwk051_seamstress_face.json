@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seamstress's New Face",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk051_seamstress_face",
+  "source": "companion",
+  "lines": [
+   5950,
+   5957
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5950",
+  "ledger": [
+   {
+    "src": "L5956",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5957",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A tailor proposes a striking new style of clothing and hair for the village.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A tailor proposes a striking new style of clothing and hair for the village.",
+   "src": "L5951",
+   "choices": [
+    {
+     "label": "Try the look and gain a new preference.",
+     "next": "outcome_a",
+     "src": "L5952"
+    },
+    {
+     "label": "Reject it after an embarrassing mishap.",
+     "next": "outcome",
+     "src": "L5953"
+    },
+    {
+     "label": "Start a popular fashion trend.",
+     "next": "outcome",
+     "src": "L5954"
+    },
+    {
+     "label": "Learn to respect villagers who dislike the style.",
+     "next": "outcome",
+     "src": "L5955"
+    }
+   ]
+  },
+  "outcome_a": {
+   "name": "Ending (A)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5956",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L5956"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "gain a new preference",
+     "reason": "the text names no like (gap C1): text only",
+     "src": "L5956"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5956"
+  }
+ }
+}

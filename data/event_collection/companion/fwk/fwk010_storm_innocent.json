@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storm and the Innocent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk010_storm_innocent",
+  "source": "companion",
+  "lines": [
+   5516,
+   5525
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5516",
+  "ledger": [
+   {
+    "src": "L5522",
+    "kind": "note",
+    "text": "Possible resolution 1 (mundane):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5523",
+    "kind": "note",
+    "text": "Possible resolution 2 (ambiguous):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5524",
+    "kind": "note",
+    "text": "Possible resolution 3 (social):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5523",
+    "kind": "instruction",
+    "text": "; no school is confirmed or mocked",
+    "why": "the designer's instruction to the writer (L5408: no lens is confirmed or mocked)"
+   },
+   {
+    "src": "L5525",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A storm wrecks a generous family's home but spares an unkind neighbor's hut.",
+  "cast_only": [
+   "survivor",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "survivor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A storm destroys the home of a generous family while leaving an unkind neighbor's hut intact.",
+   "src": "L5517",
+   "choices": [
+    {
+     "label": "MAGIC-ALIGNED",
+     "next": "a",
+     "src": "L5518"
+    },
+    {
+     "label": "NATURE-ALIGNED",
+     "next": "b",
+     "src": "L5519"
+    },
+    {
+     "label": "SPIRITUAL-ALIGNED",
+     "next": "c",
+     "src": "L5520"
+    },
+    {
+     "label": "SCIENTIFIC-ALIGNED",
+     "next": "d",
+     "src": "L5521"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A survivor refuses to let the storm define their worth.",
+   "src": "L5518",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Wind direction and construction differences shaped the damage.",
+   "src": "L5519",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A mourner questions the fairness of the gods without abandoning faith.",
+   "src": "L5520",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A survey finds no evidence that goodness predicts storm damage.",
+   "src": "L5521",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "r1": {
+   "name": "Resolution 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
+   "src": "L5522",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
+     "src": "L5522"
+    }
+   ]
+  },
+  "r2": {
+   "name": "Resolution 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A second witness or unexpected detail complicates the simplest explanation.",
+   "src": "L5523"
+  },
+  "r3": {
+   "name": "Resolution 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
+   "src": "L5524"
+  }
+ }
+}

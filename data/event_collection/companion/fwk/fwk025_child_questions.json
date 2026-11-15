@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Questioned Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk025_child_questions",
+  "source": "companion",
+  "lines": [
+   5681,
+   5690
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5681",
+  "ledger": [
+   {
+    "src": "L5687",
+    "kind": "note",
+    "text": "Possible resolution 1 (mundane):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5688",
+    "kind": "note",
+    "text": "Possible resolution 2 (ambiguous):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5689",
+    "kind": "note",
+    "text": "Possible resolution 3 (social):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5688",
+    "kind": "instruction",
+    "text": "; no school is confirmed or mocked",
+    "why": "the designer's instruction to the writer (L5408: no lens is confirmed or mocked)"
+   },
+   {
+    "src": "L5690",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A child asks why adults call some events miracles and others accidents.",
+  "cast_only": [
+   "child",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child asks why adults call some events miracles and others accidents.",
+   "src": "L5682",
+   "choices": [
+    {
+     "label": "MAGIC-ALIGNED",
+     "next": "a",
+     "src": "L5683"
+    },
+    {
+     "label": "NATURE-ALIGNED",
+     "next": "b",
+     "src": "L5684"
+    },
+    {
+     "label": "SPIRITUAL-ALIGNED",
+     "next": "c",
+     "src": "L5685"
+    },
+    {
+     "label": "SCIENTIFIC-ALIGNED",
+     "next": "d",
+     "src": "L5686"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A mentor encourages the child to imagine new possibilities.",
+   "src": "L5683",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A naturalist describes how remarkable events can still have causes.",
+   "src": "L5684",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "An elder says wonder and gratitude need not end inquiry.",
+   "src": "L5685",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A scientist helps the child devise a fair test.",
+   "src": "L5686",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "r1": {
+   "name": "Resolution 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
+   "src": "L5687",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
+     "src": "L5687"
+    }
+   ]
+  },
+  "r2": {
+   "name": "Resolution 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A second witness or unexpected detail complicates the simplest explanation.",
+   "src": "L5688"
+  },
+  "r3": {
+   "name": "Resolution 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
+   "src": "L5689"
+  }
+ }
+}

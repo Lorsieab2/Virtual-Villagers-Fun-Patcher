@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reckless Explorer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk050_explorer_risk",
+  "source": "companion",
+  "lines": [
+   5941,
+   5948
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5941",
+  "ledger": [
+   {
+    "src": "L5947",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5948",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "An explorer ignores a safety signal and puts a companion in danger.",
+  "cast_only": [
+   "explorer",
+   "companion"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An explorer disregards a safety signal and endangers a companion.",
+   "src": "L5942",
+   "choices": [
+    {
+     "label": "Own the mistake and lose standing temporarily.",
+     "next": "outcome",
+     "src": "L5943"
+    },
+    {
+     "label": "Help the companion and rebuild trust.",
+     "next": "outcome",
+     "src": "L5944"
+    },
+    {
+     "label": "Dismiss the warning and face worse consequences.",
+     "next": "outcome",
+     "src": "L5945"
+    },
+    {
+     "label": "Develop a new expedition safety rule.",
+     "next": "outcome",
+     "src": "L5946"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5947"
+  }
+ }
+}

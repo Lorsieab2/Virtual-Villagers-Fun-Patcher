@@ -1827,6 +1827,249 @@
    "harm": [],
    "section": "cat"
   },
+  "fwk001_feeling_being": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk002_island_breathes": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk003_same_day_twice": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk004_doorway_dream": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk005_knows_my_name": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk006_path_moved": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk007_forest_memory": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk008_stone_hummed": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk009_unanswered_pray": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk010_storm_innocent": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk011_isola_alone": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk012_paradise_prison": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk013_kindness_gods": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk014_price_miracle": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk015_silent_reef": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk016_moon_followed": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk017_broken_omen": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk018_unlucky_child": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk019_reflection": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk020_fire_not_catch": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk021_answer_rain": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk022_sacred_useful": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk023_river_claim": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk024_voice_volcano": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk025_child_questions": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk026_elder_changed": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk027_island_heart": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk028_map_edge": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk029_price_knowing": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk030_festival_signs": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk031_owns_wind": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk032_garden_grew": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk033_light_beneath": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk034_forgotten_name": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk035_two_stories": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk036_unfair_harvest": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk037_visitor_knew": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk038_shore_gives": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk039_no_one_answers": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk040_last_candle": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk041_trembling_hands": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk042_builder_climb": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk043_hates_research": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk044_fisher_fears": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk045_wrong_medicine": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk046_lost_apprentice": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "fwk"
+  },
+  "fwk047_scholar_error": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk048_farmer_wants": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk049_quiet_leader": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk050_explorer_risk": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk051_seamstress_face": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk052_child_wants": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk053_nursing_mother": {
+   "allow": true,
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk054_rival_invite": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk055_skill_fading": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk056_dream_costs": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk057_broken_bridge": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk058_surpassed": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk059_job_nobody": {
+   "harm": [],
+   "section": "fwk"
+  },
+  "fwk060_last_voyage": {
+   "harm": [],
+   "section": "fwk"
+  },
   "sss001_cartographer": {
    "harm": [],
    "section": "sss"

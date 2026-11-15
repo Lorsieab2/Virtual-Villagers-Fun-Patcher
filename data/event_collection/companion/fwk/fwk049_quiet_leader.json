@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Leader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk049_quiet_leader",
+  "source": "companion",
+  "lines": [
+   5932,
+   5939
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5932",
+  "ledger": [
+   {
+    "src": "L5938",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5939",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A soft-spoken villager is nominated to lead a loud, argumentative group.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A soft-spoken villager is nominated to lead a loud and argumentative group.",
+   "src": "L5933",
+   "choices": [
+    {
+     "label": "Use written plans and careful listening.",
+     "next": "outcome",
+     "src": "L5934"
+    },
+    {
+     "label": "Decline and support another candidate.",
+     "next": "outcome",
+     "src": "L5935"
+    },
+    {
+     "label": "Try to imitate a louder leader and burn out.",
+     "next": "outcome",
+     "src": "L5936"
+    },
+    {
+     "label": "Build a team that complements their style.",
+     "next": "outcome",
+     "src": "L5937"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5938"
+  }
+ }
+}

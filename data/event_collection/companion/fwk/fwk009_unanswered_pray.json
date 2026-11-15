@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unanswered Prayer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk009_unanswered_pray",
+  "source": "companion",
+  "lines": [
+   5505,
+   5514
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5505",
+  "ledger": [
+   {
+    "src": "L5511",
+    "kind": "note",
+    "text": "Possible resolution 1 (mundane):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5512",
+    "kind": "note",
+    "text": "Possible resolution 2 (ambiguous):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5513",
+    "kind": "note",
+    "text": "Possible resolution 3 (social):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5512",
+    "kind": "instruction",
+    "text": "; no school is confirmed or mocked",
+    "why": "the designer's instruction to the writer (L5408: no lens is confirmed or mocked)"
+   },
+   {
+    "src": "L5514",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A villager prays for a sick friend, but the illness worsens.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager prays for a sick friend, but the illness worsens.",
+   "src": "L5506",
+   "choices": [
+    {
+     "label": "MAGIC-ALIGNED",
+     "next": "a",
+     "src": "L5507"
+    },
+    {
+     "label": "NATURE-ALIGNED",
+     "next": "b",
+     "src": "L5508"
+    },
+    {
+     "label": "SPIRITUAL-ALIGNED",
+     "next": "c",
+     "src": "L5509"
+    },
+    {
+     "label": "SCIENTIFIC-ALIGNED",
+     "next": "d",
+     "src": "L5510"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They wonder whether determination can help them act despite despair.",
+   "src": "L5507",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They organize food, clean water, and practical care.",
+   "src": "L5508",
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "food and care given to the friend; the village's food does not change",
+     "src": "L5508"
+    }
+   ],
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They find meaning in the act of accompanying the sick friend.",
+   "src": "L5509",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "They review what treatments were attempted and what remains unknown.",
+   "src": "L5510",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "r1": {
+   "name": "Resolution 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
+   "src": "L5511",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
+     "src": "L5511"
+    }
+   ]
+  },
+  "r2": {
+   "name": "Resolution 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A second witness or unexpected detail complicates the simplest explanation.",
+   "src": "L5512"
+  },
+  "r3": {
+   "name": "Resolution 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
+   "src": "L5513"
+  }
+ }
+}

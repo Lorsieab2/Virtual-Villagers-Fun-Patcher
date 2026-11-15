@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Secret of the Broken Bridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk057_broken_bridge",
+  "source": "companion",
+  "lines": [
+   6004,
+   6011
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6004",
+  "ledger": [
+   {
+    "src": "L6010",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L6011",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A builder learns that a shortcut they approved weakened a bridge.",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A builder discovers that a shortcut they approved weakened a bridge.",
+   "src": "L6005",
+   "choices": [
+    {
+     "label": "Close the bridge and confess.",
+     "next": "outcome",
+     "src": "L6006"
+    },
+    {
+     "label": "Repair it with help and accept consequences.",
+     "next": "outcome",
+     "src": "L6007"
+    },
+    {
+     "label": "Hide the flaw until an accident exposes it.",
+     "next": "outcome",
+     "src": "L6008"
+    },
+    {
+     "label": "Turn the failure into a village-wide inspection.",
+     "next": "outcome",
+     "src": "L6009"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an accident",
+     "reason": "the text names nobody hurt and no structure lost: text only",
+     "src": "L6005"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L6010"
+  }
+ }
+}

@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream That Costs Too Much",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk056_dream_costs",
+  "source": "companion",
+  "lines": [
+   5995,
+   6002
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5995",
+  "ledger": [
+   {
+    "src": "L6001",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L6002",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A villager wants to chase a risky ambition while their family depends on them.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager wants to pursue a risky ambition while their family depends on them.",
+   "src": "L5996",
+   "choices": [
+    {
+     "label": "Negotiate a realistic trial period.",
+     "next": "outcome",
+     "src": "L5997"
+    },
+    {
+     "label": "Delay the dream and feel conflicted.",
+     "next": "outcome",
+     "src": "L5998"
+    },
+    {
+     "label": "Leave impulsively and strain relationships.",
+     "next": "outcome",
+     "src": "L5999"
+    },
+    {
+     "label": "Find a way to share responsibilities.",
+     "next": "outcome",
+     "src": "L6000"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L6001"
+  }
+ }
+}
