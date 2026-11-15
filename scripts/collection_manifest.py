@@ -603,6 +603,10 @@ COMPANION_IDS: dict[str, str] = {
     "sss062": "sss062_shortcut",
 }
 
+# Companion events limited to some games (the lead, 2026-11-14): an event where a magician acts is VV3-VV5 only
+# (magic is VV3-VV5 lore); a magician mentioned in passing keeps every game.
+COMPANION_GAMES: dict[str, list[int]] = {"sss032": [3, 4, 5], "sss043": [3, 4, 5], "sss045": [3, 4, 5]}
+
 
 def companion_subject(title: str) -> str:
     """The words an id names: the species of a Living Catalogue template, else the title."""
@@ -688,7 +692,7 @@ def _companion_rows() -> None:
                 extra = {"choice_re": c_re} if c_re else {}
                 subject = companion_subject(COMPANION_TITLES.get(eid, src_title))
                 R(COMPANION_IDS.get(eid) or f"{eid}_{companion_slug(subject, VV1_ID_MAX - len(eid) - 1)}",
-                  title, ALL, starts[i], e,
+                  title, COMPANION_GAMES.get(eid, ALL), starts[i], e,
                   "event", section, cr, c_want(text) if callable(c_want) else c_want, series=series, source=COMP,
                   **extra)
 

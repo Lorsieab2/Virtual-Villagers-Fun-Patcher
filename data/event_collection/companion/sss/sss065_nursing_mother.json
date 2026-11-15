@@ -28,7 +28,10 @@
     "why": "Context and callbacks: the designer's tags and notes, never shown"
    }
   ],
-  "description": "A nursing mother loses her infant, and the village struggles to support her."
+  "description": "A nursing mother loses her infant, and the village struggles to support her.",
+  "cast_only": [
+   "mother"
+  ]
  },
  "requirement": {
   "min_eligible": 1
@@ -36,10 +39,8 @@
  "roles": {
   "mother": {
    "kind": "villager",
-   "min_age": 14,
-   "sex": "female",
-   "special": "nursing_parent",
-   "protected": "allow"
+   "min_age": 18,
+   "sex": "female"
   }
  },
  "start": "premise",
@@ -70,38 +71,17 @@
   "a": {
    "name": "Answer A",
    "text": "She asks for privacy and practical help; friends honor both.",
-   "src": "L6732",
-   "effects": [
-    {
-     "do": "baby_lost",
-     "role": "mother",
-     "src": "L6732"
-    }
-   ]
+   "src": "L6732"
   },
   "b": {
    "name": "Answer B",
    "text": "She chooses whether and when to participate, and the baby's name is spoken with care.",
-   "src": "L6734",
-   "effects": [
-    {
-     "do": "baby_lost",
-     "role": "mother",
-     "src": "L6734"
-    }
-   ]
+   "src": "L6734"
   },
   "c": {
    "name": "Answer C",
    "text": "Trusted caregivers handle chores and meals; the mother's grief is neither hurried nor treated as a moral failing.",
-   "src": "L6736",
-   "effects": [
-    {
-     "do": "baby_lost",
-     "role": "mother",
-     "src": "L6736"
-    }
-   ]
+   "src": "L6736"
   }
  }
 }

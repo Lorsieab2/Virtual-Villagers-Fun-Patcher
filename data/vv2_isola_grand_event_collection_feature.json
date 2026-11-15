@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 432 events in this game in this build. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 429 events in this game in this build. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv2_story_cheat_upgrades",
@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv2/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "85159E22CA0DFB89DA1C210C407BA4F93B02061CE900E91385A21D0084F17562"
+      "sha256": "4CCC82348FA538291F3FA6B37BE1085726852054C4D39995EC3261B8A178EFE1"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -1932,11 +1932,6 @@
       "sha256": "EA8EBD06AF1D5416DF681489301F52A307A0621CDAB2205EFD1EDEBFACFE11D2"
     },
     {
-      "source": "assets/event_collection/sss032_tracks_biggles.cieg",
-      "destination": "Island Event Collection/sss032_tracks_biggles.cieg",
-      "sha256": "8E0E6B08C355B86B392E8DDFD0A49CF377F33D2AA0DFC1490DC4730161520EF1"
-    },
-    {
       "source": "assets/event_collection/sss033_biggles_mask.cieg",
       "destination": "Island Event Collection/sss033_biggles_mask.cieg",
       "sha256": "35BF84D70526EBB53A2510063ED323773D5E39A5EE13F884CF7CDF4E7A3D7B2D"
@@ -1987,19 +1982,9 @@
       "sha256": "8C66506F3AA93694FE31C75C41DF8356326FF4835AE123699F55B83A37973B9C"
     },
     {
-      "source": "assets/event_collection/sss043_spell_worked.cieg",
-      "destination": "Island Event Collection/sss043_spell_worked.cieg",
-      "sha256": "BF82F6C860F697A0AF1F3EE777ADDBBFA27F6698A3A59B45537F32F5B8125EA2"
-    },
-    {
       "source": "assets/event_collection/sss044_limit_power.cieg",
       "destination": "Island Event Collection/sss044_limit_power.cieg",
       "sha256": "131BD262193CEE3D9E07790B7D59818924B6CAB599C0C8D8174A02993495CE06"
-    },
-    {
-      "source": "assets/event_collection/sss045_stone_hums.cieg",
-      "destination": "Island Event Collection/sss045_stone_hums.cieg",
-      "sha256": "FC63E9DB5321C88AAB03A13DE1E3438115CDF4F981A624D9A974BBCFEFE3B17A"
     },
     {
       "source": "assets/event_collection/sss046_village_without.cieg",
@@ -2099,7 +2084,7 @@
     {
       "source": "assets/event_collection/sss065_nursing_mother.cieg",
       "destination": "Island Event Collection/sss065_nursing_mother.cieg",
-      "sha256": "EA9DADA7E212477BB71EEBCF69B0C16711340146D5A3B3B37A76E1700F39DCA2"
+      "sha256": "F7FB5B33BF0C46EC35B4B740522028A842823141AAD027CD8D616B1B4A56545B"
     },
     {
       "source": "assets/event_collection/sss066_missing_teen.cieg",

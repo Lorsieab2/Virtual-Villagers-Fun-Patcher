@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv4/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "3EA75BC77418E500CDD792AE9B06DE3584DEAD79843F18D4C357A23B5CCD67B1"
+      "sha256": "1C97D2B4441F4A555C75BD4E9D825F4157D69960768B5893F7AEE29718B1F720"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -1934,7 +1934,7 @@
     {
       "source": "assets/event_collection/sss032_tracks_biggles.cieg",
       "destination": "Island Event Collection/sss032_tracks_biggles.cieg",
-      "sha256": "8E0E6B08C355B86B392E8DDFD0A49CF377F33D2AA0DFC1490DC4730161520EF1"
+      "sha256": "B0286795A3C5AFFF2783B6ED3AD1E38FFB38FD526D16FA0020C412C437BB3DB2"
     },
     {
       "source": "assets/event_collection/sss033_biggles_mask.cieg",
@@ -1989,7 +1989,7 @@
     {
       "source": "assets/event_collection/sss043_spell_worked.cieg",
       "destination": "Island Event Collection/sss043_spell_worked.cieg",
-      "sha256": "BF82F6C860F697A0AF1F3EE777ADDBBFA27F6698A3A59B45537F32F5B8125EA2"
+      "sha256": "34F7B3F542907A6DF91BD7E35DF9004C9CFF2E229FAA761A66307D75CF075098"
     },
     {
       "source": "assets/event_collection/sss044_limit_power.cieg",
@@ -1999,7 +1999,7 @@
     {
       "source": "assets/event_collection/sss045_stone_hums.cieg",
       "destination": "Island Event Collection/sss045_stone_hums.cieg",
-      "sha256": "FC63E9DB5321C88AAB03A13DE1E3438115CDF4F981A624D9A974BBCFEFE3B17A"
+      "sha256": "A374EA262812BCF62D7910378D2FC2916914A180A7B22C083DCDF1A055DA03DF"
     },
     {
       "source": "assets/event_collection/sss046_village_without.cieg",
@@ -2099,7 +2099,7 @@
     {
       "source": "assets/event_collection/sss065_nursing_mother.cieg",
       "destination": "Island Event Collection/sss065_nursing_mother.cieg",
-      "sha256": "EA9DADA7E212477BB71EEBCF69B0C16711340146D5A3B3B37A76E1700F39DCA2"
+      "sha256": "F7FB5B33BF0C46EC35B4B740522028A842823141AAD027CD8D616B1B4A56545B"
     },
     {
       "source": "assets/event_collection/sss066_missing_teen.cieg",

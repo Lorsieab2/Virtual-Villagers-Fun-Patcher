@@ -21,7 +21,9 @@ CASTING (the lead's decisions, 2026-11-14):
 - Non-binary or gender-diverse villagers (006, 015, 052): text, a villager of either sex; the text uses no he/she
   token for them.
 - Disability and difference (001-005, 010-012): text only, no cure and no harm from it.
-- Outsiders, castaways, visitors and Biggles are text; a magician is a text figure in every game; ocean voyages
+- A magician is a text figure; an event where a magician acts (032, 043, 045) is VV3-VV5 only, as magic is VV3-VV5
+  lore (the lead, 2026-11-14; collection_manifest.COMPANION_GAMES).
+- Outsiders, castaways, visitors and Biggles are text; ocean voyages
   beyond Isola are text (028 keeps to a nearshore trial).  An event whose people are all text casts one harmless
   villager the scene needs (gap G7).
 - A deceased loved one in a premise stays generic text (gap C3: 041, 061, 064).
@@ -38,9 +40,8 @@ EFFECTS (V28 consequence rules: only where the outcome's own text clearly suppor
 - Harm: 018 C "may injure or kill an involved worker": the outcome's own alternatives, split by weight -- unhurt
   (20), a serious injury (rare, 5: health_change -60..-40) or a death (very rare, 2: kill, Unknown causes); the
   worker keeps protected "auto".  020 C "Several workers cough": the worker falls sick (sick).
-- 065 The Nursing Mother's Loss: the premise has the baby die during the event, so the mother is a cast nursing
-  parent (special nursing_parent, female, protected "allow") and every answer page carries baby_lost (a question node
-  makes no effects; whichever answer is chosen, the baby is lost).  Listed in retrofit-harm-review.md, "Companion K8".
+- 065 The Nursing Mother's Loss (the lead, 2026-11-14): the infant has ALREADY died, as part of the premise, so the
+  mother is an adult woman who need not be nursing (no special, no allow) and the baby is text only.  No harm.
 - Words the effects table reads that change nothing get text_only with the reason (011 "injured workers", 015 "A
   village celebration", 018 "collapse", 032 "The fruit disappears", 037 "vanished", 040 "badly injured animal", 042
   "an old injury", 062 "may cause injury", 066 "vanished").
@@ -69,8 +70,8 @@ WOMAN = c.sexed(G, "female")
 MAN = c.sexed(G, "male")
 OLD_WOMAN = c.sexed(EL, "female")
 NURSING = {"kind": "villager", "min_age": 14, "sex": "female", "special": "nursing_parent"}
-NURSING_HARMED = dict(NURSING, protected="allow")                  # 065 only: retrofit-harm-review.md
 
+MAGIC = [3, 4, 5]                                                  # a magician acts: magic is VV3-VV5 lore (lead)
 T = c.text_only
 HEAD = r"^EVENT \d{3}:\s+"
 
@@ -148,7 +149,7 @@ D = {
     30: ({"villager": V}, "A visitor speaks unfamiliar words over a meal, and a villager wonders what they mean.", {}),
     31: ({"child": CH}, "A rescued child sings a lullaby nobody recognizes.", {}),
     32: ({"hunter": V, "child": CH}, "Odd footprints circle a hut overnight, and villagers disagree about Biggles.",
-         {"to": {"c": [T("the fruit disappears", "an offering of fruit; no villager disappears")]}}),
+         {"games": MAGIC, "to": {"c": [T("the fruit disappears", "an offering of fruit; no villager disappears")]}}),
     33: ({"teen": TEEN}, "A teen's Biggles prank mask meets sightings the prank cannot explain.", {}),
     34: ({"villager": V}, "Three homes report identical knocks at the same moment on a windless night.", {}),
     35: ({"child": CH}, "A child who got lost in the woods says Biggles pointed the way home.", {}),
@@ -167,10 +168,11 @@ D = {
          "A dead sea turtle washes ashore: a naturalist wants to learn, a child wants a burial.",
          {"eff": {"a": [sk("naturalist", "Research")]},
           "to": {"a": [T("an old injury", "the dead turtle's; no villager is hurt")]}}),
-    43: ({"farmer": FARMER}, "A magician claims credit for an astonishing harvest; farmers point to irrigation.", {}),
+    43: ({"farmer": FARMER}, "A magician claims credit for an astonishing harvest; farmers point to irrigation.",
+         {"games": MAGIC}),
     44: ({"leader": G}, "A gifted leader wants authority to make emergency decisions without consultation.", {}),
     45: ({"researcher": SCHOLAR}, "A cave stone seems to vibrate when villagers sing nearby.",
-         {"eff": {"a": [sk("researcher", "Research")]},
+         {"games": MAGIC, "eff": {"a": [sk("researcher", "Research")]},
           "to": {"c": [T("the experience", "a ceremony's experience, not a skill's: nothing is gained")]}}),
     46: ({"teen": TEEN, "elder": EL},
          "A thoughtful teen asks whether people can live good lives without believing in gods or spirits.", {}),
@@ -209,8 +211,7 @@ D = {
          {}),
     64: ({"villager": V, "relative": V},
          "A family disagrees about a memorial for someone who disappeared at sea.", {}),
-    65: ({"mother": NURSING_HARMED}, "A nursing mother loses her infant, and the village struggles to support her.",
-         {"eff": {k: [{"do": "baby_lost", "role": "mother"}] for k in "abc"}}),
+    65: ({"mother": WOMAN}, "A nursing mother loses her infant, and the village struggles to support her.", {}),
     66: ({"teen": TEEN}, "A teenager missing on a coastal outing returns exhausted after two nights.",
          {"to": {0: [T("a teenager who vanished", "the teen has returned: nobody vanishes now")]}}),
     67: ({"baker": V}, "Nothing remarkable happens in the village today.", {}),
@@ -267,7 +268,7 @@ def build(row: dict) -> dict:
     cast_only = [r for r in roles if r not in used_roles(nodes)]
     if cast_only:
         col["cast_only"] = cast_only
-    return {"format": "vvfp-cie-graph", "version": 6, "title": title, "games": c.ALL, "collection": col,
+    return {"format": "vvfp-cie-graph", "version": 6, "title": title, "games": opts.get("games", c.ALL), "collection": col,
             "requirement": {"min_eligible": len(roles)}, "roles": roles, "start": "premise", "nodes": nodes}
 
 

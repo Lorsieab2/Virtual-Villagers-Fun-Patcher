@@ -1692,10 +1692,7 @@
    "section": "sss"
   },
   "sss065_nursing_mother": {
-   "allow": true,
-   "harm": [
-    "baby_lost"
-   ],
+   "harm": [],
    "section": "sss"
   },
   "sss066_missing_teen": {
