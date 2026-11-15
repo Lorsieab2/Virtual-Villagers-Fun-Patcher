@@ -22,6 +22,14 @@ reload, a rename in play and a sex change, and is read back from the per-save fi
 slot; all or none; another game installs nothing; no other read of the field is in those routines (stock and
 rendered), and no patch moves a read out of them.
 
+THE BIRTH SEX AND CONCEPTION (the owner, 2026-11-15): only villagers born female carry.  The first sex change keeps
+the birth sex with the villager (VvfpBornFemale); each game's conception routine (A New Home 0x43BBC0, The Lost
+Children 0x44B980, The Secret City 0x455AB0 at their room check; The Tree of Life 0x45E7B0, New Believers 0x465E00
+at their entry) is run here: a carrier born male is refused when the game's own code calls it -- the room check
+answers "no room" without being asked (VV1-VV3), the routine returns at once with nothing written (VV4, VV5) --
+while one born female (now female, or now male and still carrying) conceives as before, and a call from outside the
+executable (the Custom Island Event's pregnancy with a chosen partner) is never refused.
+
 The live effect in a running game is NOT verified here.
 """
 from __future__ import annotations
@@ -334,6 +342,152 @@ class _Draws:
                 self.assertEqual(g.set(5, 1), 1)
                 stock = Game(self.GAME, exe, start=False, dll=False)
                 self._same_as_stock(g, stock, 5, g.female)
+
+
+# Each game's conception routine and its spliced site (vvfp_gender_presentation.c CONCEPTION).
+CONCEPTION = {1: (0x43BBC0, 0x43BBC3, 0x43A1A0, 0x3D8), 2: (0x44B980, 0x44B983, 0x44B310, 0xE48C),
+              3: (0x455AB0, 0x455AB8, 0x45FE30, 0), 4: (0x45E7B0, 0x45E7B0, 0, 0), 5: (0x465E00, 0x465E00, 0, 0)}
+GAME_CALLER = 0x401000          # a return address inside the executable: the game's own call
+OUTSIDE_CALLER = 0x0D000000     # outside it: the Custom Island Event (story_emulator.RETURN)
+
+
+class _Conception:
+    GAME = 0
+
+    def game(self, exe: bytes | None = None, **kw) -> Game:
+        return Game(self.GAME, exe if exe is not None else stock_exe(self.GAME), **kw)
+
+    def born_male_now_female(self, g: Game, i: int) -> int:
+        r = g.villager(i, "Lani", female=True)
+        before = g.p.alloc(g.g["stride"])
+        g.p.write(before, g.p.read(r, g.g["stride"]))
+        g.p.put32(before + g.g["sex"], g.male)
+        g.later()
+        g.p.export("VvfpVillagerSexChanged", self.GAME, 1, r, before)
+        return r
+
+    def conceives(self, g: Game, carrier: int, index: int, caller: int) -> bool:
+        """Run the game's conception up to its decision: True when it goes on to conceive."""
+        routine, site, room, stride = CONCEPTION[self.GAME]
+        p = g.p
+        esp = 0x0FF00000 - 0x4000
+        g.later()
+        if room:
+            asked = []
+            p.stub(room, lambda q: (asked.append(1) or 1, 0))      # the room check: "room"
+            try:
+                # As at the site: the register the routine pushed, its return, its first argument (the index).
+                p.write(esp, struct.pack("<III", 0x77, caller, index))
+                p.set_reg("esp", esp)
+                if stride:
+                    p.set_reg("edi", g.g["records"])
+                    p.set_reg("ecx", g.g["records"])
+                else:
+                    p.set_reg("esi", carrier)
+                    p.set_reg("ecx", 0x12345)
+                p.set_reg("eax", 0x55)
+                p.mu.emu_start(site, site + 5, count=5_000_000)
+            finally:
+                p.stubs.pop(room, None)
+            self.assertEqual(p.reg("eip"), site + 5)
+            self.assertEqual(p.reg("esp"), esp)
+            return bool(asked) and (p.reg("eax") & 0xFF) == 1
+        p.write(esp, struct.pack("<I", caller) + bytes(0x1C))
+        p.set_reg("esp", esp)
+        p.set_reg("ecx", carrier)
+        stop = (routine + 5, caller)
+        from unicorn import UC_HOOK_CODE
+        seen = []
+        hooks = [p.mu.hook_add(UC_HOOK_CODE, lambda mu, a, sz, d: (seen.append(a), mu.emu_stop()), begin=a, end=a)
+                 for a in stop]
+        try:
+            p.mu.emu_start(routine, 0, count=5_000_000)
+        finally:
+            for h in hooks:
+                p.mu.hook_del(h)
+        self.assertEqual(len(seen), 1, seen)
+        if seen[0] == caller:
+            self.assertEqual(p.reg("esp"), esp + 4 + 0x1C, "ret 0x1C: the arguments popped")
+            return False
+        return True
+
+    def test_installed(self):
+        g = self.game()
+        self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", self.GAME), 1)
+        self.assertIn(g.p.read(CONCEPTION[self.GAME][1], 1), (b"\xE8", b"\xE9"))
+
+    def test_born_male_never_conceives_on_their_own(self):
+        g = self.game()
+        g.villager(0, "Ana", female=True)
+        r = self.born_male_now_female(g, 1)
+        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r), 0)
+        before = g.p.read(r, g.g["stride"])
+        self.assertFalse(self.conceives(g, r, 1, GAME_CALLER), "the game's own conception: refused")
+        self.assertEqual(g.p.read(r, g.g["stride"]), before, "nothing written to the carrier")
+
+    def test_a_custom_island_event_may_still_give_them_a_baby(self):
+        g = self.game()
+        g.villager(0, "Ana", female=True)
+        r = self.born_male_now_female(g, 1)
+        self.assertTrue(self.conceives(g, r, 1, OUTSIDE_CALLER), "called from outside the executable: not refused")
+
+    def test_born_female_conceives_as_before(self):
+        g = self.game()
+        r = g.villager(0, "Ana", female=True)
+        g.villager(1, "Bea", female=True)
+        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r), 1)
+        self.assertTrue(self.conceives(g, r, 0, GAME_CALLER))
+        # Born female, now male: still carries.
+        r2 = g.villager(2, "Kai")
+        before = g.p.alloc(g.g["stride"])
+        g.p.write(before, g.p.read(r2, g.g["stride"]))
+        g.p.put32(before + g.g["sex"], g.female)
+        g.later()
+        g.p.export("VvfpVillagerSexChanged", self.GAME, 1, r2, before)
+        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r2), 1)
+        self.assertTrue(self.conceives(g, r2, 2, GAME_CALLER))
+
+    def test_the_birth_sex_follows_a_reload(self):
+        g = self.game()
+        g.villager(0, "Ana", female=True)
+        self.born_male_now_female(g, 1)
+        later = self.game()
+        later.disk.files = dict(g.disk.files)
+        later.disk.folders = set(g.disk.folders)
+        later.p.write(later.record(0), g.p.read(g.record(0), 2 * g.g["stride"]))
+        self.assertEqual(later.p.export("VvfpBornFemale", self.GAME, later.record(1)), 0)
+        self.assertEqual(later.get(1), 0, "the birth sex is not a presentation")
+
+    def test_every_mode_with_every_patch(self):
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                g = self.game(rendered(self.GAME, mode))
+                self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", self.GAME), 1)
+
+
+@_skip(1)
+class ConceptionANewHome(_Conception, unittest.TestCase):
+    GAME = 1
+
+
+@_skip(2)
+class ConceptionTheLostChildren(_Conception, unittest.TestCase):
+    GAME = 2
+
+
+@_skip(3)
+class ConceptionTheSecretCity(_Conception, unittest.TestCase):
+    GAME = 3
+
+
+@_skip(4)
+class ConceptionTheTreeOfLife(_Conception, unittest.TestCase):
+    GAME = 4
+
+
+@_skip(5)
+class ConceptionNewBelievers(_Conception, unittest.TestCase):
+    GAME = 5
 
 
 @_skip(1)

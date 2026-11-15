@@ -6,3 +6,5 @@ EXPORTS
     VvfpGenderPresentationSet=_VvfpGenderPresentationSet@12
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
+    VvfpConceptionGuardInstalled=_VvfpConceptionGuardInstalled@4
+    VvfpBornFemale=_VvfpBornFemale@8

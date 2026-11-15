@@ -1519,6 +1519,44 @@ static int cg_sex_change_role(int role) {
     return 0;
 }
 
+/* Is `role` a carrier: a nursing_parent role, or the one a baby_lost effect names (cie-v6-binary.md 22)?  Only a
+   villager born female is cast for it (the owner, 2026-11-15; cg_born_female). */
+static int cg_carrier_role(int role) {
+    const unsigned char *spec = cg_role_at(&cg_g, role);
+    int i;
+    if (cg_g.version >= 6 && spec[9] == 3) {
+        return 1;
+    }
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_BABY_LOST && (int)e[1] == role) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+#ifdef VVFP_TEST
+/* The birth sex as the test build sees it: -1 the real rule; else bit i set: record i was born male. */
+static int test_graph_born_male = -1;
+#endif
+
+/* Was the villager in record `r` (record index `index`) born female?  "VVFP Gender Presentation.dll" keeps the birth
+   sex (VvfpBornFemale); without it the save's Sex Changes log tells (native/shared/sex_change.h). */
+static int cg_born_female(int game, const unsigned char *r, int index) {
+    HMODULE dll;
+    vvfp_gp_born_female_fn born;
+#ifdef VVFP_TEST
+    if (test_graph_born_male >= 0) {
+        return index < 0 || index >= 31 || !(test_graph_born_male & (1 << index));
+    }
+#endif
+    (void)index;
+    dll = GetModuleHandleA(VVFP_GP_DLL);
+    born = dll != NULL ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, "VvfpBornFemale") : NULL;
+    return born != NULL ? born(game, r) == 1 : vv_sex_born_female_by_log(game, r);
+}
+
 /* Is `role` the one a presentation effect names (cie-v6-binary.md 29)?  Such a role never casts the Golden Child,
    The Secret City's Tribal Chief or stand-in, or New Believers' story villagers (native/shared/sex_change.h
    vv_sex_change_refusal); an alias's member drawn as one of them is refused when the effect is made. */
@@ -1563,6 +1601,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (cg_presentation_role(role) && vv_sex_change_refusal(game, r, index) != VV_SEX_OK) {
         return 0;                      /* nor any special villager for a gender presentation */
+    }
+    if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
+        return 0;                      /* only a villager born female is cast as a carrier */
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
         return 0;
@@ -7226,6 +7267,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
         out[2 * i + 1] = test_graph_head_look_set[i][1];
     }
     return test_graph_head_looks;
+}
+
+/* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
+    test_graph_born_male = born_male;
 }
 
 /* "VVFP Gender Presentation.dll" as the test build sees it (29): `mode` -1 the real one, 0 none, 1 installed (and the

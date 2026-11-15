@@ -214,6 +214,55 @@ static int vv_sex_log_names(const char *log, const char *name) {
     return 0;
 }
 
+/* THE SEX A VILLAGER WAS BORN WITH (the owner, 2026-11-15: only villagers born female carry; one born female who
+   changed to male goes on carrying; one born male never conceives in the game on their own, even as female -- a
+   Custom Island Event may still give them a baby with a partner the player chooses).
+
+   By the slot's log: the OLD sex of the first line naming the villager (their name now); their sex now when no
+   line does (never changed, or renamed since -- "VVFP Gender Presentation.dll" keeps the birth sex by identity
+   too, through renames: VvfpBornFemale, gender_presentation.h).  1 when born female.  The log is read again at
+   most every 500 ms. */
+static int vv_sex_born_female_by_log(int game, const unsigned char *record) {
+    static char log[VV_SEX_LOG_MAX];
+    static int have, for_slot;
+    static DWORD read_at;
+    char name[64];
+    const char *line;
+    int slot;
+    size_t n;
+    if (!vv_sex_game_ok(game) || record == NULL) {
+        return 0;
+    }
+    slot = vv_game_save_slot(game);
+    if (slot <= 0) {
+        return vv_sex_female(game, record);
+    }
+    if (for_slot != slot || (DWORD)(GetTickCount() - read_at) >= 500u) {
+        have = vv_sex_log_read(slot, log, sizeof log);
+        for_slot = slot;
+        read_at = GetTickCount();
+    }
+    vv_sex_name(game, record, name);
+    n = strlen(name);
+    for (line = have ? log : NULL; line != NULL && *line != 0 && n > 0;) {
+        const char *t1 = strchr(line, '\t');
+        const char *t2 = t1 != NULL ? strchr(t1 + 1, '\t') : NULL;
+        const char *end = strchr(line, '\n');
+        const char *stop = end != NULL ? end : line + strlen(line);
+        if (t2 != NULL && t2 < stop) {
+            const char *s = t2 + 1, *e = stop;
+            if (e > s && e[-1] == '\r') {
+                --e;
+            }
+            if ((size_t)(e - s) == n && memcmp(s, name, n) == 0) {
+                return line[0] == 'F';
+            }
+        }
+        line = end != NULL ? end + 1 : NULL;
+    }
+    return vv_sex_female(game, record);
+}
+
 /* The pairs the slot's log gives an owner as it reads its own file: for each living record (`slots` of them,
    through record(i) / present(r)) whose name a line names and no other living record has, from[] = its identity
    with the OTHER sex, to[] = its identity now.  At most `cap`.  Returns how many. */

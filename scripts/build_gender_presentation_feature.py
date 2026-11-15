@@ -27,6 +27,15 @@ DLL = ROOT / "assets" / "gender_presentation" / DLL_NAME
 SOURCE = ROOT / "native" / "vvfp_gender_presentation" / "vvfp_gender_presentation.c"
 GAMES = (1, 2, 3, 4, 5)
 
+# Each game's conception routine and the site the companion splices in it (vvfp_gender_presentation.c CONCEPTION).
+CONCEPTION = {
+    1: (0x43BBC3, "E8D8E5FFFF", "the room check of the conception routine 0x43BBC0"),
+    2: (0x44B983, "E888F9FFFF", "the room check of the conception routine 0x44B980"),
+    3: (0x455AB8, "E873A30000", "the room check of the conception routine 0x455AB0"),
+    4: (0x45E7B0, "538A5C2420", "the entry of the conception routine 0x45E7B0"),
+    5: (0x465E00, "538A5C2420", "the entry of the conception routine 0x465E00"),
+}
+
 # The draw routines each game's sites are in (the DLL's SITES comments; tests/test_gender_presentation.py).
 ROUTINES = {
     1: "the Villager Details portrait 0x437340, a dialog's figure 0x4375F0, the village 0x437790 and the map 0x4388E0",
@@ -47,6 +56,9 @@ DESCRIPTION = (
     "Golden Child, and story villagers keep the game's own look. The choice is kept in the save's own Gender "
     "Presentation file and follows each villager (through deaths, reloads, renames and a sex change); Back Up Saves "
     "copies it and Start Over clears it. Custom Island Events can set or clear it too (the \"presentation\" change). "
+    "**Only villagers born female carry:** one born female who changed to male goes on carrying; one born male never "
+    "conceives on their own, even after changing to female (Change sex says so), but a Custom Island Event can still "
+    "give them a baby with a partner you choose. "
     "**On in Owner's Defaults; off in the normal defaults and in Select All.** Change Appearance is in the Origins "
     "upgrades: " + ORIGINS_BASE_SENTENCE + " **Works the same with every other patch and in every population mode.** "
     "**Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \""
@@ -89,6 +101,12 @@ def row(game: int, dll_sha: str) -> dict:
             "magic 'VGP1'), following each villager; Start Over deletes it (native/shared/save_reset.c).",
             "The Custom Island Event's \"presentation\" change (code 23, docs/event-collection/cie-v6-binary.md 29) "
             "sets or clears it through the same companion.",
+            "The birth sex: the first sex change keeps the sex the villager was born with in the same file "
+            "(VvfpBornFemale; else the save's Sex Changes log). " + CONCEPTION[game][2][0].upper()
+            + CONCEPTION[game][2][1:] + " is spliced: when the game's own code makes a villager born male conceive, "
+            "the conception does not happen, exactly as when the village has no room (a call from outside the "
+            "executable -- the Custom Island Event's pregnancy with a partner the player chooses -- is never "
+            "refused). Island events and puzzles that write a pregnancy themselves are not covered.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the reads at run time, only after verifying every "
@@ -110,6 +128,9 @@ def row(game: int, dll_sha: str) -> dict:
              "routine": "a read of the villager sex field in a villager draw routine",
              "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
             for va, stock in sites(game)
+        ] + [
+            {"va": f"0x{CONCEPTION[game][0]:06X}", "stock_bytes": CONCEPTION[game][1], "routine": CONCEPTION[game][2],
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
         ],
     }
 

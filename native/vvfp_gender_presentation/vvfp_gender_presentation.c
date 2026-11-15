@@ -28,9 +28,25 @@
    Everything else that reads the sex -- breeding, names, pronouns, sounds, the statistics, every companion -- reads
    the record as before.
 
+   THE BIRTH SEX (the owner, 2026-11-15): only villagers born female carry.  The kept value's bits 1 and 2 say the
+   villager was born male / female -- written the first time their sex is changed (VvfpVillagerSexChanged: the sex
+   of the record `before` it), following them like the presentation (bit 0).  VvfpBornFemale answers from it, else
+   from the save's Sex Changes log (sex_change.h vv_sex_born_female_by_log), else the sex now.
+
+   NO CONCEPTION ON THEIR OWN FOR A VILLAGER BORN MALE.  Each game's conception routine is spliced (CONCEPTION
+   below): A New Home 0x43BBC0, The Lost Children 0x44B980 and The Secret City 0x455AB0 at their room check (the
+   call whose "no room" answer makes the routine return having changed nothing), The Tree of Life 0x45E7B0 and New
+   Believers 0x465E00 at their entry (their forced callers pass the room check by).  When the carrier was born male
+   the game's own conception does not happen -- the room check answers "no room" (VV1-VV3), or the routine
+   returns at once (VV4, VV5), exactly as a full village makes it -- UNLESS the routine was called from outside the
+   game's executable: the Custom Island Event's pregnancy with a partner the player chooses (Story / Cheat Upgrades
+   calls the routines of The Tree of Life and New Believers; in the other three it writes the fields itself and
+   never reaches them), so a player may still give them a baby.
+
    INSTALLING.  VvfpStartup(game, shipped), on the game's own thread before the title screen: every site must hold its
    stock bytes, then all are written through the shared all-or-none writer (native/shared/install_sites.h), or none;
-   then the Change Appearance windows do not offer the checkbox (VvfpGenderPresentationInstalled 0). */
+   then the Change Appearance windows do not offer the checkbox (VvfpGenderPresentationInstalled 0).  The conception
+   sites are installed the same way, on their own (all or none): VvfpConceptionGuardInstalled. */
 #include <windows.h>
 #include <string.h>
 #include "../shared/sidecar_io.h"
@@ -177,7 +193,7 @@ static int hl_slot_now(void) {
 #define HL_MAGIC 0x31504756u            /* 'VGP1' */
 #define HL_MAGIC_V1 0u
 #define HL_READS_V1 0
-#define HL_LOOK_MAX 1                   /* 0 the game's own look, 1 the other sex's */
+#define HL_LOOK_MAX 5                   /* bit 0 the other sex's look; bit 1 born male, bit 2 born female */
 #define HL_KIND "Gender Presentation"
 #define HL_FILE_NAME "Gender Presentation - Save 0.dat"
 #define HL_FILE_SLOT_AT (sizeof "Gender Presentation - Save " - 1)
@@ -198,11 +214,35 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
                       LAYOUT[game].name_bytes);
 }
 
+#define GP_ON 1
+#define GP_BORN_MALE 2
+#define GP_BORN_FEMALE 4
+
 int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    int carried, v;
     if (game < 1 || game > 5 || game != g_game || record == NULL || before == NULL) {
         return 0;
     }
-    return hl_sex_changed(slot, (const unsigned char *)record, (const unsigned char *)before);
+    carried = hl_sex_changed(slot, (const unsigned char *)record, (const unsigned char *)before);
+    /* The first change keeps the sex they were born with (the record before it). */
+    v = hl_get((const unsigned char *)record);
+    if ((v & (GP_BORN_MALE | GP_BORN_FEMALE)) == 0) {
+        (void)hl_set((const unsigned char *)record,
+                     v | (vv_sex_female(game, (const unsigned char *)before) ? GP_BORN_FEMALE : GP_BORN_MALE));
+    }
+    return carried;
+}
+
+/* 1 when the villager in `record` was born female. */
+static int gp_born_female(const unsigned char *record) {
+    int v = hl_get(record);
+    if (v & GP_BORN_MALE) {
+        return 0;
+    }
+    if (v & GP_BORN_FEMALE) {
+        return 1;
+    }
+    return vv_sex_born_female_by_log(g_game, record);
 }
 
 /* ---- the draws ------------------------------------------------------------------------------------------- */
@@ -306,7 +346,7 @@ static int gp_drawn_sex(const gp_site *s, const unsigned int *frame) {
         || gp_special((const unsigned char *)(UINT_PTR)rec)) {
         return sex;
     }
-    if (hl_get((const unsigned char *)(UINT_PTR)rec) != 1) {
+    if ((hl_get((const unsigned char *)(UINT_PTR)rec) & GP_ON) == 0) {
         return sex;
     }
     return sex == male ? female : male;
@@ -387,6 +427,149 @@ static void gp_install(const gp_site *sites, int count) {
     g_installed = vvfp_install_sites(w, count);
 }
 
+/* ---- CONCEPTION --------------------------------------------------------------------------------------------- */
+
+/* Each game's conception routine, its site and how its carrier is found:
+     VV1 0x43BBC0  thiscall on the records (edi = ecx), the carrier's index the first argument; the room check
+                   `call 0x43A1A0` at 0x43BBC3 (after `push edi`).
+     VV2 0x44B980  the same shape: `call 0x44B310` at 0x44B983.
+     VV3 0x455AB0  thiscall on the carrier (esi = ecx); `call 0x45FE30` at 0x455AB8 (after `push esi`).
+     VV4 0x45E7B0  thiscall on the carrier, ret 0x1C; its entry `push ebx / mov bl, [esp+0x20]` (5 bytes).
+     VV5 0x465E00  the same. */
+typedef struct {
+    unsigned int va;
+    unsigned char stock[5];
+    unsigned int target;            /* the room check (VV1-VV3), 0: an entry site */
+    unsigned int stride;            /* VV1, VV2: the records' stride (the carrier = edi + index * stride) */
+} gp_conception;
+
+static const gp_conception CONCEPTION[6] = {
+    { 0 },
+    { 0x43BBC3u, { 0xE8, 0xD8, 0xE5, 0xFF, 0xFF }, 0x43A1A0u, 0x3D8u },
+    { 0x44B983u, { 0xE8, 0x88, 0xF9, 0xFF, 0xFF }, 0x44B310u, 0xE48Cu },
+    { 0x455AB8u, { 0xE8, 0x73, 0xA3, 0x00, 0x00 }, 0x45FE30u, 0u },
+    { 0x45E7B0u, { 0x53, 0x8A, 0x5C, 0x24, 0x20 }, 0u, 0u },
+    { 0x465E00u, { 0x53, 0x8A, 0x5C, 0x24, 0x20 }, 0u, 0u },
+};
+
+static int g_guard_installed;
+static unsigned int g_guard_target;     /* VV1-VV3: the room check; VV4, VV5: the entry's next instruction */
+static unsigned int g_image_end;        /* the executable's image: 0x400000 .. here */
+
+/* A caller inside the game's own executable: the game's conception, not the Custom Island Event's. */
+static int gp_from_game(unsigned int return_address) {
+    return return_address >= 0x400000u && return_address < g_image_end;
+}
+
+/* 1 when the conception must not happen: a carrier born male, the game's own call. */
+static int gp_conception_refused(const unsigned char *carrier, unsigned int routine_return) {
+    if (!gp_from_game(routine_return) || carrier == NULL) {
+        return 0;
+    }
+    hl_locate();
+    if (g_records == 0 || (unsigned int)(UINT_PTR)carrier < g_records
+        || ((unsigned int)(UINT_PTR)carrier - g_records) % LAYOUT[g_game].stride != 0
+        || ((unsigned int)(UINT_PTR)carrier - g_records) / LAYOUT[g_game].stride >= (unsigned int)g_count) {
+        return 0;
+    }
+    return !gp_born_female(carrier);
+}
+
+/* The room check (VV1-VV3): `frame` [0..7] pushad, [8] the return into the routine, [9] the register the routine
+   pushed, [10] the routine's return, [11] its first argument.  Returns the room check to go to, or 0: "no room". */
+static unsigned int __cdecl gp_room_decide(unsigned int *frame) {
+    const gp_conception *c = &CONCEPTION[g_game];
+    const unsigned char *carrier = c->stride != 0
+        ? (const unsigned char *)(UINT_PTR)(frame[7 - R_EDI] + frame[11] * c->stride)
+        : (const unsigned char *)(UINT_PTR)frame[7 - R_ESI];
+    if (gp_conception_refused(carrier, frame[10])) {
+        frame[7 - R_EAX] = 0;
+        return 0;
+    }
+    return g_guard_target;
+}
+
+static void __cdecl gp_room_frame(unsigned int *regs, unsigned int *ret_at);
+
+static __declspec(naked) void gp_room_stub(void) {
+    __asm {
+        push 0                              ; the room check to go to (0: none)
+        pushad
+        lea eax, [esp + 0x24]               ; the return into the routine
+        push eax
+        lea eax, [esp + 4]
+        push eax
+        call gp_room_frame
+        add esp, 8
+        popad
+        cmp dword ptr [esp], 0
+        je refused
+        ret                                 ; to the room check, which returns into the routine
+    refused:
+        add esp, 4
+        ret                                 ; "no room": al = 0
+    }
+}
+
+/* `regs` pushad, `ret_at` the return into the routine (the frame above it). */
+static void __cdecl gp_room_frame(unsigned int *regs, unsigned int *ret_at) {
+    unsigned int frame[12];
+    int k;
+    for (k = 0; k < 8; ++k) {
+        frame[k] = regs[k];
+    }
+    frame[8] = ret_at[0];
+    frame[9] = ret_at[1];
+    frame[10] = ret_at[2];
+    frame[11] = ret_at[3];
+    regs[8] = gp_room_decide(frame);        /* the slot pushed first */
+    regs[7 - R_EAX] = frame[7 - R_EAX];
+}
+
+/* The entry (VV4, VV5): `regs` pushad, `ret_at` the routine's return.  1 when refused. */
+static int __cdecl gp_entry_frame(unsigned int *regs, unsigned int *ret_at) {
+    return gp_conception_refused((const unsigned char *)(UINT_PTR)regs[7 - R_ECX], ret_at[0]);
+}
+
+static __declspec(naked) void gp_entry_stub(void) {
+    __asm {
+        pushad
+        lea eax, [esp + 0x20]               ; the routine's return
+        push eax
+        lea eax, [esp + 4]
+        push eax
+        call gp_entry_frame
+        add esp, 8
+        test eax, eax
+        popad
+        jne refused
+        push ebx                            ; the displaced entry
+        mov bl, byte ptr [esp + 0x20]
+        jmp dword ptr [g_guard_target]
+    refused:
+        ret 0x1C                            ; returns at once, nothing written (as when there is no room)
+    }
+}
+
+static void gp_guard_install(void) {
+    const gp_conception *c = &CONCEPTION[g_game];
+    vvfp_site_write w[1];
+    const IMAGE_DOS_HEADER *dos = (const IMAGE_DOS_HEADER *)(UINT_PTR)0x400000u;
+    const IMAGE_NT_HEADERS32 *nt = (const IMAGE_NT_HEADERS32 *)(UINT_PTR)(0x400000u + (unsigned int)dos->e_lfanew);
+    if (c->va == 0) {
+        return;
+    }
+    g_image_end = 0x400000u + nt->OptionalHeader.SizeOfImage;
+    if (c->target != 0) {
+        g_guard_target = c->target;
+        vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE8, (const void *)gp_room_stub);
+    } else {
+        g_guard_target = c->va + 5;
+        vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE9, (const void *)gp_entry_stub);
+    }
+    g_guard_installed = vvfp_install_sites(w, 1);
+}
+
 /* ---- exports ---------------------------------------------------------------------------------------------- */
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
@@ -403,6 +586,18 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     case 5: gp_install(VV5_SITES, (int)GP_N(VV5_SITES)); break;
     default: break;
     }
+    gp_guard_install();
+}
+
+int __stdcall VvfpConceptionGuardInstalled(int game) {
+    return g_game != 0 && game == g_game && g_guard_installed;
+}
+
+int __stdcall VvfpBornFemale(int game, const void *record) {
+    if (game != g_game || g_game == 0 || record == NULL) {
+        return vv_sex_game_ok(game) && record != NULL ? vv_sex_born_female_by_log(game, record) : 0;
+    }
+    return gp_born_female((const unsigned char *)record);
 }
 
 int __stdcall VvfpGenderPresentationInstalled(int game) {
@@ -413,7 +608,7 @@ int __stdcall VvfpGenderPresentationGet(int game, const void *record) {
     if (game != g_game || g_game == 0 || record == NULL) {
         return 0;
     }
-    return hl_get((const unsigned char *)record) == 1;
+    return (hl_get((const unsigned char *)record) & GP_ON) != 0;
 }
 
 int __stdcall VvfpGenderPresentationSet(int game, const void *record, int on) {
@@ -421,7 +616,7 @@ int __stdcall VvfpGenderPresentationSet(int game, const void *record, int on) {
         || gp_special((const unsigned char *)record)) {
         return 0;
     }
-    return hl_set((const unsigned char *)record, on);
+    return hl_set((const unsigned char *)record, (hl_get((const unsigned char *)record) & ~GP_ON) | on);
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

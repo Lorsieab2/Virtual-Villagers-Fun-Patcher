@@ -389,6 +389,23 @@ static void h_gp_tests(void) {
         h_check(h_gp_boxes == 1 && strstr(h_gp_box_text, "could not be written") != NULL && h_gp_on == 0,
                 "a failed write: told, nothing kept");
     }
+    {
+        /* Born male, changing to female: told they will not conceive on their own (the owner, 2026-11-15). */
+        static const UINT press[] = { VVFP_AX_CHANGE_SEX, IDCANCEL };
+        h_gp_reset();
+        h_gp_born_female = 0;
+        h_villager(l->male);
+        memcpy(h_record + l->name, "Kai", 4);
+        h_answer = IDNO;
+        h_window(press, 2);
+        h_check(strstr(h_box_text, "Kai was born male, so Kai will not conceive on their own. A Custom Island Event can still give Kai a baby with a partner you choose.") != NULL && strstr(h_box_text, "able to carry") == NULL,
+                "born male: the warning says they will not conceive on their own, a Custom Island Event can");
+        h_gp_reset();
+        h_villager(l->male);
+        h_window(press, 2);
+        h_check(strstr(h_box_text, "will not conceive") == NULL, "born female: no such sentence");
+        h_answer = IDYES;
+    }
 #if HARNESS_GAME == 3 || HARNESS_GAME == 5
     {
         static const UINT press[] = { VVFP_AX_PRESENTATION, IDOK };

@@ -93,7 +93,22 @@ static void vvfp_gp_refused_text(char *out, const char *name, int special) {
        once; OK keeps it (free, like Change sex: an OK with nothing else changed is no change to charge); Cancel and
        Undo changes put it back.  A story villager (sex_change.h) is told why and the box stays as it was.
    Without the row both are hidden (the checkbox row stays empty). */
+/* int __stdcall VvfpBornFemale(int game, const void *record): 1 when the villager was born female -- the birth sex
+   the DLL keeps by identity (written at each sex change, following renames), else the Sex Changes log's, else the
+   sex now. */
+#define VVFP_GP_BORN_FEMALE "VvfpBornFemale"
+typedef int (__stdcall *vvfp_gp_born_female_fn)(int game, const void *record);
+
 #ifdef VV_SEX_CHANGE_H
+/* Was the villager in `record` born female?  The DLL's answer when it is in the game; the log's otherwise
+   (native/shared/sex_change.h vv_sex_born_female_by_log). */
+static int vvfp_born_female(int game, const unsigned char *record) {
+    HMODULE dll = GetModuleHandleA(VVFP_GP_DLL);
+    vvfp_gp_born_female_fn born = dll != NULL
+        ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, VVFP_GP_BORN_FEMALE) : NULL;
+    return born != NULL ? born(game, record) == 1 : vv_sex_born_female_by_log(game, record);
+}
+
 typedef struct {
     vvfp_gp_api api;
     int offered;                 /* the checkbox is shown */

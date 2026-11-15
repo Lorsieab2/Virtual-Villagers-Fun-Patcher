@@ -814,6 +814,12 @@ stay as recorded.
 - **Parent words:** the role-sex word pairs of section 5 (`(parent.mother/father)`, `(parent.mom/dad)`, add `'s` for
   the possessive) give the word of the role's sex as cast, so an event about a carrying father says "father" with no
   other change. Text written with the plain word "mother" stays as written (an owner's sentence is never rewritten).
+- **Only villagers born female carry** (the owner, 2026-11-15): a nursing_parent role, and the role a baby_lost
+  effect names, cast only a villager born female (`cg_carrier_role`, `cg_born_female`: "VVFP Gender Presentation.dll"
+  keeps the birth sex at the first change, else the save's Sex Changes log's first line for them, else the sex now).
+  One born female who changed to male goes on carrying and may be cast; one born male is never cast as a carrier,
+  even if a Custom Island Event gave them a baby. In the game a villager born male never conceives on their own
+  (that companion's conception guard); the Custom Island Event's pregnancy with a chosen partner still can.
 - **A cross-sex body look** keeping the sex field is section 29 (code 23): the gender presentation.
 
 ## 29. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)

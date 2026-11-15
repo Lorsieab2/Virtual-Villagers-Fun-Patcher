@@ -19,6 +19,7 @@ static const void *h_gp_record;       /* the villager whose choice is kept */
 static int h_gp_on;                   /* ...and what is kept */
 static int h_gp_sets;                 /* Set calls */
 static int h_gp_box;                  /* the checkbox, when no window is on screen */
+static int h_gp_born_female = 1;      /* VvfpBornFemale's answer */
 
 static int __stdcall h_gp_installed(int game) {
     return h_gp_draws && game == HARNESS_GAME;
@@ -27,6 +28,12 @@ static int __stdcall h_gp_installed(int game) {
 static int __stdcall h_gp_get(int game, const void *record) {
     (void)game;
     return record != NULL && record == h_gp_record ? h_gp_on : 0;
+}
+
+static int __stdcall h_gp_born(int game, const void *record) {
+    (void)game;
+    (void)record;
+    return h_gp_born_female;
 }
 
 static int __stdcall h_gp_set(int game, const void *record, int on) {
@@ -49,6 +56,7 @@ static void h_gp_reset(void) {
     h_gp_on = 0;
     h_gp_sets = 0;
     h_gp_box = 0;
+    h_gp_born_female = 1;
 }
 
 /* GetModuleHandleA for the DLL's name: the stand-in module while the row is on; NULL otherwise.  Other names: -1. */
@@ -61,6 +69,7 @@ static FARPROC h_gp_proc(LPCSTR name) {
     if (lstrcmpA(name, "VvfpGenderPresentationInstalled") == 0) return (FARPROC)(void *)h_gp_installed;
     if (lstrcmpA(name, "VvfpGenderPresentationGet") == 0) return (FARPROC)(void *)h_gp_get;
     if (lstrcmpA(name, "VvfpGenderPresentationSet") == 0) return (FARPROC)(void *)h_gp_set;
+    if (lstrcmpA(name, "VvfpBornFemale") == 0) return (FARPROC)(void *)h_gp_born;
     return NULL;
 }
 
