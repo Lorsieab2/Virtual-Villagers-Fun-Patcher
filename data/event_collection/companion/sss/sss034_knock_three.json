@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knock at Three Doors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss034_knock_three",
+  "source": "companion",
+  "lines": [
+   6411,
+   6419
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6411",
+  "ledger": [
+   {
+    "src": "L6419",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Three homes report identical knocks at the same moment on a windless night.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Three homes report identical knocks at the same moment during a windless night.",
+   "src": "L6412",
+   "choices": [
+    {
+     "label": "Inspect the houses",
+     "next": "a",
+     "src": "L6413"
+    },
+    {
+     "label": "Ask witnesses separately",
+     "next": "b",
+     "src": "L6415"
+    },
+    {
+     "label": "Hold a storytelling evening",
+     "next": "c",
+     "src": "L6417"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Loose wooden joints explain one noise, not the others.",
+   "src": "L6414"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Accounts disagree in small but interesting ways.",
+   "src": "L6416"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The incident becomes folklore; no narrator confirms a supernatural cause.",
+   "src": "L6418"
+  }
+ }
+}

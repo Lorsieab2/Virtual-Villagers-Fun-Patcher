@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Biggles Mask",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss033_biggles_mask",
+  "source": "companion",
+  "lines": [
+   6401,
+   6409
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6401",
+  "ledger": [
+   {
+    "src": "L6409",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teen's Biggles prank mask meets sightings the prank cannot explain.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teenager makes a terrifying mask to impersonate Biggles, then discovers that several earlier sightings cannot be explained by their prank.",
+   "src": "L6402",
+   "choices": [
+    {
+     "label": "Confess",
+     "next": "a",
+     "src": "L6403"
+    },
+    {
+     "label": "Retire the mask",
+     "next": "b",
+     "src": "L6405"
+    },
+    {
+     "label": "Turn the story into theater",
+     "next": "c",
+     "src": "L6407"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The village laughs, scolds, and continues arguing about the other sightings.",
+   "src": "L6404"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The teen hangs it in a hut; someone later claims to see it moving.",
+   "src": "L6406"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A festival performance makes Biggles less frightening to some children, though others remain wary.",
+   "src": "L6408"
+  }
+ }
+}

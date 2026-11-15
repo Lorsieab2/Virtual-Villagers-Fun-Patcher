@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Stopped Coming",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss009_friend_stopped",
+  "source": "companion",
+  "lines": [
+   6153,
+   6161
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6153",
+  "ledger": [
+   {
+    "src": "L6161",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A sociable villager has missed several gatherings, and a friend worries.",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A formerly sociable villager has missed several gatherings. Their friend worries, but the villager says they simply need time alone.",
+   "src": "L6154",
+   "choices": [
+    {
+     "label": "Leave a thoughtful invitation",
+     "next": "a",
+     "src": "L6155"
+    },
+    {
+     "label": "Offer a quiet shared task",
+     "next": "b",
+     "src": "L6157"
+    },
+    {
+     "label": "Ask directly how things are going",
+     "next": "c",
+     "src": "L6159"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The friend brings a small meal and makes clear there is no obligation to visit.",
+   "src": "L6156"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They repair fishing nets in comfortable silence and slowly resume conversation.",
+   "src": "L6158"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The villager admits feeling lonely despite avoiding crowds; together they plan one manageable visit.",
+   "src": "L6160"
+  }
+ }
+}

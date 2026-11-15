@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dangerous Cure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss049_dangerous_cure",
+  "source": "companion",
+  "lines": [
+   6565,
+   6573
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6565",
+  "ledger": [
+   {
+    "src": "L6573",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A researcher finds a substance that may treat illness but might also harm patients.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A researcher discovers a substance that may treat illness but might also harm patients.",
+   "src": "L6566",
+   "choices": [
+    {
+     "label": "Study it cautiously",
+     "next": "a",
+     "src": "L6567"
+    },
+    {
+     "label": "Ask patients for informed participation",
+     "next": "b",
+     "src": "L6569"
+    },
+    {
+     "label": "Delay use",
+     "next": "c",
+     "src": "L6571"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Early observations reveal both promise and risk.",
+   "src": "L6568",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6568"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Some consent and others decline; both choices are respected.",
+   "src": "L6570"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The healer saves resources for established care, even as others worry about missed opportunities.",
+   "src": "L6572"
+  }
+ }
+}

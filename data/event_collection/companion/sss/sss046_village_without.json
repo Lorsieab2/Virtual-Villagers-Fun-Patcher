@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Without Gods",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss046_village_without",
+  "source": "companion",
+  "lines": [
+   6535,
+   6543
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6535",
+  "ledger": [
+   {
+    "src": "L6543",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A thoughtful teen asks whether people can live good lives without believing in gods or spirits.",
+  "cast_only": [
+   "teen",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A thoughtful teen asks whether people can live good lives without believing in gods or spirits.",
+   "src": "L6536",
+   "choices": [
+    {
+     "label": "Discuss kindness and responsibility",
+     "next": "a",
+     "src": "L6537"
+    },
+    {
+     "label": "Invite different elders to answer",
+     "next": "b",
+     "src": "L6539"
+    },
+    {
+     "label": "Let the question remain open",
+     "next": "c",
+     "src": "L6541"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The teen hears examples of ethical action rooted in many beliefs.",
+   "src": "L6538"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Their explanations disagree, but all affirm the teen's place in the village.",
+   "src": "L6540"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The teen decides that uncertainty itself can be honest.",
+   "src": "L6542"
+  }
+ }
+}

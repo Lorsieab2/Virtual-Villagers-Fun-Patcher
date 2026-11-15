@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day Nobody Was Special",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss067_nobody_special",
+  "source": "companion",
+  "lines": [
+   6749,
+   6757
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6749",
+  "ledger": [
+   {
+    "src": "L6757",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Nothing remarkable happens in the village today.",
+  "cast_only": [
+   "baker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "baker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Nothing remarkable happens. A baker burns one loaf, a child loses a sandal, two friends argue over a song, and an elder naps through lunch.",
+   "src": "L6750",
+   "choices": [
+    {
+     "label": "Let the day be ordinary",
+     "next": "a",
+     "src": "L6751"
+    },
+    {
+     "label": "Hold a small gathering",
+     "next": "b",
+     "src": "L6753"
+    },
+    {
+     "label": "Write it in the village record",
+     "next": "c",
+     "src": "L6755"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The village ends the day fed, tired, and mostly content.",
+   "src": "L6752"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Someone tells a ridiculous story and everybody remembers it.",
+   "src": "L6754"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A historian notes that ordinary days are most of a community's life.",
+   "src": "L6756"
+  }
+ }
+}

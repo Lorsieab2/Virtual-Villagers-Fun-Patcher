@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Miner Retires",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss027_miner_retires",
+  "source": "companion",
+  "lines": [
+   6337,
+   6345
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6337",
+  "ledger": [
+   {
+    "src": "L6345",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A miner with aching joints wonders whether to keep working underground.",
+  "cast_only": [
+   "miner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "miner": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A miner with aching joints wonders whether continuing underground is bravery or stubbornness.",
+   "src": "L6338",
+   "choices": [
+    {
+     "label": "Train a successor",
+     "next": "a",
+     "src": "L6339"
+    },
+    {
+     "label": "Take a less strenuous role",
+     "next": "b",
+     "src": "L6341"
+    },
+    {
+     "label": "Keep working with safeguards",
+     "next": "c",
+     "src": "L6343"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The miner becomes an admired instructor, though they miss the tunnels.",
+   "src": "L6340"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They become a surface prospector and discover a talent for teaching geology.",
+   "src": "L6342"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They remain productive for a time, but must periodically reassess their limits.",
+   "src": "L6344"
+  }
+ }
+}

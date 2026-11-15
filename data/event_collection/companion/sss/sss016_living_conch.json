@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Living Conch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss016_living_conch",
+  "source": "companion",
+  "lines": [
+   6223,
+   6235
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6227",
+  "ledger": [
+   {
+    "src": "L6224",
+    "kind": "structural",
+    "why": "the group heading '02  -  RARE RESOURCES, MINES, AND JEWELERS'"
+   },
+   {
+    "src": "L6235",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A jeweler wants the shell of the season's only living conch for a horn.",
+  "cast_only": [
+   "jeweler",
+   "diver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "diver": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A jeweler wants the shell of a rare living conch for a ceremonial horn; divers have seen only one this season.",
+   "src": "L6228",
+   "choices": [
+    {
+     "label": "Leave it alive",
+     "next": "a",
+     "src": "L6229"
+    },
+    {
+     "label": "Survey the population first",
+     "next": "b",
+     "src": "L6231"
+    },
+    {
+     "label": "Seek an alternative material",
+     "next": "c",
+     "src": "L6233"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The jeweler uses a weathered empty shell and discovers its rough edges make a distinctive sound.",
+   "src": "L6230"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Divers find several juveniles but no evidence the population can withstand harvesting; the decision is delayed.",
+   "src": "L6232"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A clay-and-shell instrument sounds different but becomes its own tradition.",
+   "src": "L6234"
+  }
+ }
+}

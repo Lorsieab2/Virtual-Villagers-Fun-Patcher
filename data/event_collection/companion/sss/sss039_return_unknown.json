@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Return of the Unknown Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss039_return_unknown",
+  "source": "companion",
+  "lines": [
+   6461,
+   6469
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6461",
+  "ledger": [
+   {
+    "src": "L6469",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A tiny unmanned boat washes ashore with unfamiliar knots and a flower tied to its bow.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A tiny unmanned boat washes ashore with unfamiliar knots and a flower tied to its bow.",
+   "src": "L6462",
+   "choices": [
+    {
+     "label": "Study its construction",
+     "next": "a",
+     "src": "L6463"
+    },
+    {
+     "label": "Keep it as a memorial",
+     "next": "b",
+     "src": "L6465"
+    },
+    {
+     "label": "Send it back to sea",
+     "next": "c",
+     "src": "L6467"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Craftspeople learn a new knot, but cannot identify the builder.",
+   "src": "L6464"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Families imagine whom it might have belonged to.",
+   "src": "L6466"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Some find the gesture hopeful; others call it wasteful.",
+   "src": "L6468"
+  }
+ }
+}

@@ -93,3 +93,18 @@ protection, so nursing parents, the Golden Child and the Tribal Chief are never 
 | The Bottomless Pool (`lbl073_bottomless_pool`, L4753-4767) | 2 | `explorer` | "A dangerous dive causes injury." | `health_change` -30..-10 | 20 of 45 |
 | The Bottomless Pool | 3 | `explorer` | "The explorer disappears and an uncertain search begins." | `vanish` (missing is not dead: no grave) | rare: 5 of 45 |
 | The Dangerous Proof (`lbl082_dangerous_proof`, L4874-4884) | 3 | `teen` | "They are injured and must confront their recklessness." | `health_change` -30..-10 | 1 in 3 |
+
+## Companion K8
+
+Range: Stone, Spirit, Strangers & Ordinary Lives 001-067 (`companion/sss/sss001`-`sss067`), 67 events. Line numbers
+are the companion source's. Generator: `scripts/companion/gen_k8.py`.
+
+**No entries.** K8 adds no `protected: "allow"` and no harm to a nursing parent, a baby, the Golden Child or the VV3
+Chief.
+
+- The harm-capable roles keep the default `auto` protection, so nursing parents, the Golden Child and the Tribal
+  Chief are never cast in them: SSS 018's worker (a serious injury or a death in the collapse) and SSS 020's worker
+  (sick from the mineral dust).
+- SSS 053's baby scene casts a nursing parent harmlessly (no effect).
+- SSS 065 The Nursing Mother's Loss: the infant has already died, as part of the premise (the lead, 2026-11-14), so
+  the mother is an adult woman who need not be nursing, and the baby is text only. Nothing is harmed.
