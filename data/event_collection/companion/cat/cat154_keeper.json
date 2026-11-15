@@ -26,6 +26,20 @@
     "src": "L8955",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   },
+   {
+    "src": "L8949",
+    "kind": "sensitivity",
+    "before": "Publish with",
+    "after": "Share with",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+   },
+   {
+    "src": "L8952",
+    "kind": "sensitivity",
+    "before": "monograph",
+    "after": "record",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "An elderly scientist with hundreds of uncertain sketches fears dying before the catalogue is done.",
@@ -66,7 +80,7 @@
      "src": "L8947"
     },
     {
-     "label": "Publish with uncertainty labels",
+     "label": "Share with uncertainty labels",
      "next": "b",
      "src": "L8949"
     },
@@ -106,7 +120,7 @@
   },
   "c": {
    "name": "Answer C",
-   "text": "The elder completes a careful monograph and finds peace with what remains unknown.",
+   "text": "The elder completes a careful record and finds peace with what remains unknown.",
    "src": "L8952"
   },
   "d": {

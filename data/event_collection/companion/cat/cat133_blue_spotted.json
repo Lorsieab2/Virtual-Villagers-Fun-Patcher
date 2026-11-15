@@ -26,6 +26,13 @@
     "src": "L8703",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   },
+   {
+    "src": "L8694",
+    "kind": "sensitivity",
+    "before": "aquarium",
+    "after": "fish ponds",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "An apprentice wants to add a Blue-Spotted Stingray to the creature catalogue, but its habits are little known.",
@@ -51,7 +58,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "A Blue-Spotted Stingray is seen near the island's aquarium or coastal waters. An apprentice wants to add it to the creature catalogue, but its habits are not well understood.",
+   "text": "A Blue-Spotted Stingray is seen near the island's fish ponds or coastal waters. An apprentice wants to add it to the creature catalogue, but its habits are not well understood.",
    "src": "L8694",
    "choices": [
     {

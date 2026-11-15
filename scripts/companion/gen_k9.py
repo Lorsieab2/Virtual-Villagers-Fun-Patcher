@@ -128,6 +128,20 @@ SSS = {
 
 # ---- The Living Catalogue, 117-154 ----------------------------------------------------------------------------------
 CAT_HEAD = r"^EVENT \d{3}\s+-\s+"          # "EVENT 117 — " after the source's typography is normalised
+# The owner's content rules (2026-11-14), rule 3: a modern-day thing is named in the words of people who never saw
+# one.  The smallest piece changes; each is a "sensitivity" ledger entry for the owner's review.
+MODERN = "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+SENS = {**{n: [("aquarium", "fish ponds")] for n in (8658, 8670, 8682, 8694, 8706)},     # 130-134 premises
+        **{n: [("tanks", "ponds")] for n in (8505, 8517, 8529, 8541, 8553, 8565, 8577)},  # 117-123 choice B
+        8772: [("laboratory facts", "proven facts")],                                   # 139 C
+        8846: [("aquaria", "fish ponds")],                                              # 145 D
+        8861: [("Aquarium", "Fish Pond")],                                              # 147 title
+        8862: [("an aquarium", "a fish pond")],                                         # 147 premise
+        8870: [("teleportation", "magical travel")],                                    # 147 D
+        8893: [("synthetic", "mixed")],                                                 # 149 D
+        8949: [("Publish with", "Share with")],                                         # 154 B
+        8952: [("monograph", "record")]}                                                # 154 C
+
 FIX = {8538: [("a Oriental", "an Oriental")], 8550: [("a Orange", "an Orange")],
        8574: [("the The Golden Guppy", "the Golden Guppy")], 8622: [("a Aureus", "an Aureus")]}
 
@@ -158,7 +172,7 @@ CAT = {
     145: ({"scholar": SCHOLAR}, "A scholar proposes cataloguing every living thing on Isola, a task that seems impossible.",
           {"eff": {"a": [sk("scholar", "Research")]}}),
     146: ({"artist": V}, "A renowned artist paints a Greenfin Spotanus with the wrong fin and the wrong name.", {}),
-    147: ({"keeper": V}, "A keeper finds an aquarium empty after a storm, with no dead fish in sight.", {}),
+    147: ({"keeper": V}, "A keeper finds a fish pond empty after a storm, with no dead fish in sight.", {}),
     148: ({"botanist": GARDENER}, "A more experienced botanist says a Painted Tigerfern was named wrongly.",
           {"eff": {"b": [sk("botanist", "Farming")]}}),
     149: ({"perfumer": V}, "A rare Fourpetal Maple's scent draws night pollinators, and perfumers want its flowers.",
@@ -218,7 +232,7 @@ def cat_plan(num: int, premise: str):
 
 def shown(n: int) -> str:
     with lib.use_source(lib.COMPANION_ID):
-        p = cc.processed_line(n, {}, FIX)
+        p = cc.processed_line(n, {}, {k: FIX.get(k, []) + SENS.get(k, []) for k in (n,)})
     return p[:1].upper() + p[1:]
 
 
@@ -231,9 +245,13 @@ def build_cat(row: dict) -> dict:
     roles, desc, opts = cat_plan(num, shown(premise))
     assert c.description_ok(desc), (row["id"], desc, len(desc))
     title = re.split(CAT_HEAD, c.line(h), maxsplit=1)[1].strip()
+    for b, a in SENS.get(h, []):
+        title = title.replace(b, a)
     ledger = c.group_heading_ledger(row, h)
     ledger.append({"src": c.L(note), "kind": "note",
                    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"})
+    ledger += [{"src": c.L(n), "kind": "sensitivity", "before": b, "after": a, "why": MODERN}
+               for n in range(row["lines"][0], row["lines"][1] + 1) for b, a in SENS.get(n, [])]
     eff, tonly, split = opts.get("eff", {}), opts.get("to", {}), opts.get("split", {})
     choices, nodes = [], {}
     for i, k in enumerate("abcd"):

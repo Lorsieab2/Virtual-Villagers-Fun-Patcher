@@ -24,6 +24,13 @@
     "src": "L8571",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   },
+   {
+    "src": "L8565",
+    "kind": "sensitivity",
+    "before": "tanks",
+    "after": "ponds",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "A keeper records an unfamiliar pattern in its offspring near a Wasp Grouper, tied in stories to the Magic Fish of Mutation."
@@ -55,7 +62,7 @@
      "src": "L8563"
     },
     {
-     "label": "Compare tanks and conditions",
+     "label": "Compare ponds and conditions",
      "next": "b",
      "src": "L8565"
     },

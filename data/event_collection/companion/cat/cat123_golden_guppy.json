@@ -24,6 +24,13 @@
     "src": "L8583",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   },
+   {
+    "src": "L8577",
+    "kind": "sensitivity",
+    "before": "tanks",
+    "after": "ponds",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "A keeper records a golden glimmer appearing at dusk near a Canary Fire-Arrow, tied in stories to the Golden Guppy."
@@ -55,7 +62,7 @@
      "src": "L8575"
     },
     {
-     "label": "Compare tanks and conditions",
+     "label": "Compare ponds and conditions",
      "next": "b",
      "src": "L8577"
     },

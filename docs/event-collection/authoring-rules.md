@@ -109,6 +109,13 @@ matched by some text or taken out. A line is consumed by a `src` of a text field
 - `bank_ref`: a line that only names another bank ("use the coda bank").
 - `gap`: a bank item the format cannot express yet. Give its `set` so the bank size still matches. List every gap in
   your report.
+- `sensitivity`: the owner's content rules (2026-11-14: no unfortunate implications; bad things implied, never
+  explicit; modern-day things in the words of people who never saw them; outsiders and found-object origins only
+  speculated; past harm never shown as inflicted on purpose; nobody stigmatized). Where the owner's text breaks one,
+  change the smallest piece: `{"src": "L8862", "kind": "sensitivity", "before": "an aquarium", "after": "a fish
+  pond", "why": "rule 3 ..."}`. `before` must be on that one line; `after` replaces it in every text and in the title
+  (like a grammar fix), and the line must still be consumed. `--report` lists every edit; each is for the owner's
+  review.
 - Without `text` the entry consumes the whole line(s). With `text` it cuts exactly that text from one line (the
   rest of the line must still be consumed by a text). A cut before a full stop leaves no space before it.
 
