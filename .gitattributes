@@ -126,6 +126,9 @@ assets/island_events_scale/*.txt -text
 # collection JSON masters are compared byte for byte after a round trip.
 /docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt -text
 /docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt -text
+# The Living Event Engine's frozen source is pinned by SHA-256 (data/living_events/SOURCE.sha256).
+/docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt -text
+/data/living_events/** text eol=lf
 /data/event_collection/** text eol=lf
 # The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
 assets/event_collection/** -text
