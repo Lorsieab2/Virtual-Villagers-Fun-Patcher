@@ -509,7 +509,19 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L826",
-   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work."
+   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L826"
+    }
+   ]
   },
   "g3": {
    "popup": "append",

@@ -194,7 +194,19 @@
     }
    ],
    "src": "L3787-3788",
-   "text": "The baby wakes and begins crying. The parent hums the melody, and the baby gradually settles."
+   "text": "The baby wakes and begins crying. The parent hums the melody, and the baby gradually settles.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3787-3788"
+    }
+   ]
   },
   "dev5": {
    "popup": "append",

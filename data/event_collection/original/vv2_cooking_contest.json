@@ -1023,6 +1023,141 @@
     "text": "Use the original contest's tie-breaker branches.",
     "why": "route into the core (win2, the tie-breaker)",
     "v13a": true
+   },
+   {
+    "src": "L701",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L704",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L707",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L1037",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L1047",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L1058",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6895",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6903",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6910",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6922",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6930",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6937",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6944",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6950",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6956",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6961",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6966",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6971",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6977",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6982",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6988",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L6994",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L7000",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L7004",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L7009",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L7013",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
+   },
+   {
+    "src": "L7018",
+    "kind": "structural",
+    "why": "in-text subroute heading removed (the owner, 2026-11-14: \"events should have a single event title. no need for subroute headings\")"
    }
   ],
   "addons": [
@@ -6795,24 +6930,24 @@
    ]
   },
   "a1_r1": {
-   "src": "L701-702",
+   "src": "L702",
    "name": "Round one",
    "children": [
     {
      "next": "a1_r2"
     }
    ],
-   "text": "ROUND ONE - THE IMPOSSIBLE INGREDIENT:\nEach competitor must prepare something using {a basket of mismatched ingredients|an ingredient neither has cooked before|a bizarre collection of roots, fruit, and fish|the same single ingredient in three different ways}. (Cook1) {works with frightening speed|keeps muttering a recipe under (cook1.his/her) breath|looks utterly confident}, while (cook2) {improvises wildly|takes a painstakingly careful approach|tries to distract (cook1) with a smug grin}. The judges {award the first round to (cook1)|award the first round to (cook2)|declare the first round a tie}."
+   "text": "Each competitor must prepare something using {a basket of mismatched ingredients|an ingredient neither has cooked before|a bizarre collection of roots, fruit, and fish|the same single ingredient in three different ways}. (Cook1) {works with frightening speed|keeps muttering a recipe under (cook1.his/her) breath|looks utterly confident}, while (cook2) {improvises wildly|takes a painstakingly careful approach|tries to distract (cook1) with a smug grin}. The judges {award the first round to (cook1)|award the first round to (cook2)|declare the first round a tie}."
   },
   "a1_r2": {
-   "src": "L704-705",
+   "src": "L705",
    "name": "Round two",
    "children": [
     {
      "next": "a1_r3"
     }
    ],
-   "text": "ROUND TWO - THE DISASTER ROUND:\nJust as the cooking reaches its peak, {the fire goes out|a pot boils over|a sudden gust sends herbs flying|a serving vessel collapses|a curious child runs off with a key ingredient}. (Cook1) {recovers brilliantly|loses precious time|starts shouting instructions}, while (cook2) {turns the disaster into an advantage|struggles to save the dish|helps (cook1) despite their rivalry}. The judges {give the second round to (cook1)|give the second round to (cook2)|declare another tie}.",
+   "text": "Just as the cooking reaches its peak, {the fire goes out|a pot boils over|a sudden gust sends herbs flying|a serving vessel collapses|a curious child runs off with a key ingredient}. (Cook1) {recovers brilliantly|loses precious time|starts shouting instructions}, while (cook2) {turns the disaster into an advantage|struggles to save the dish|helps (cook1) despite their rivalry}. The judges {give the second round to (cook1)|give the second round to (cook2)|declare another tie}.",
    "text_only": [
     {
      "src": "L705",
@@ -6822,14 +6957,14 @@
    ]
   },
   "a1_r3": {
-   "src": "L707-708",
+   "src": "L708",
    "name": "The final round",
    "children": [
     {
      "next": "a1_29"
     }
    ],
-   "text": "FINAL ROUND - THEIR MAGNUM OPUS:\nFor the final round, the competitors may cook anything they want, provided it is safe to serve. (Cook1) prepares {a breathtaking masterpiece|an outrageous pile of edible nonsense|a dish inspired by (cook1.his/her) childhood|a humble family recipe}, while (cook2) presents {a feast of impossible flavors|a deceptively simple dish|an edible work of art|a recipe no one has ever seen before}. The judges take their first bites. Everyone holds their breath."
+   "text": "For the final round, the competitors may cook anything they want, provided it is safe to serve. (Cook1) prepares {a breathtaking masterpiece|an outrageous pile of edible nonsense|a dish inspired by (cook1.his/her) childhood|a humble family recipe}, while (cook2) presents {a feast of impossible flavors|a deceptively simple dish|an edible work of art|a recipe no one has ever seen before}. The judges take their first bites. Everyone holds their breath."
   },
   "a1_29_1": {
    "type": "branch",
@@ -7614,41 +7749,34 @@
    ]
   },
   "a2_r1": {
-   "src": "L1037-1045",
+   "src": "L1038-1045",
    "name": "Round one",
    "children": [
     {
      "next": "a2_r2"
     }
    ],
-   "text": "ROUND ONE - THE TEST OF SKILL\nThe competitors must {prepare an entire meal using only five ingredients|make a dish without using fire|reproduce a recipe after hearing it only once|prepare a feast for the village's pickiest eaters}.\n(Cook1) {finishes early|works carefully and methodically|forgets where (cook1.he/she) put the salt|accidentally makes a brilliant substitution}. (Cook2) {makes an elegant masterpiece|creates an alarming mountain of mush|works with extraordinary speed|has to start over}.",
-   "text_only": [
-    {
-     "src": "L1037",
-     "what": "the test of skill",
-     "reason": "the round's name, not a skill gain"
-    }
-   ]
+   "text": "The competitors must {prepare an entire meal using only five ingredients|make a dish without using fire|reproduce a recipe after hearing it only once|prepare a feast for the village's pickiest eaters}.\n(Cook1) {finishes early|works carefully and methodically|forgets where (cook1.he/she) put the salt|accidentally makes a brilliant substitution}. (Cook2) {makes an elegant masterpiece|creates an alarming mountain of mush|works with extraordinary speed|has to start over}."
   },
   "a2_r2": {
-   "src": "L1047-1056",
+   "src": "L1048-1056",
    "name": "Round two",
    "children": [
     {
      "next": "a2_r3"
     }
    ],
-   "text": "ROUND TWO - THE TEST OF IMPROVISATION\nA surprise basket is revealed. Inside are {mushrooms, coconuts, and a very angry crab|three roots and an unfamiliar spice|a fish, some fruit, and a single flower|an enormous pile of perfectly ordinary vegetables}.\nThe competitors must make something edible. Preferably.\nOne contestant {makes a remarkable recovery|produces something suspiciously alive|accidentally invents a new delicacy|creates a dish that looks like it is staring back at the judges}."
+   "text": "A surprise basket is revealed. Inside are {mushrooms, coconuts, and a very angry crab|three roots and an unfamiliar spice|a fish, some fruit, and a single flower|an enormous pile of perfectly ordinary vegetables}.\nThe competitors must make something edible. Preferably.\nOne contestant {makes a remarkable recovery|produces something suspiciously alive|accidentally invents a new delicacy|creates a dish that looks like it is staring back at the judges}."
   },
   "a2_r3": {
-   "src": "L1058-1067",
+   "src": "L1059-1067",
    "name": "The final plate",
    "children": [
     {
      "next": "a2_28"
     }
    ],
-   "text": "ROUND THREE - THE FINAL PLATE\nAt last, the judges ask each competitor to cook the one dish that best represents who (a2one.he/she) is.\n(Cook1) chooses {a beloved childhood meal|an ambitious original recipe|a humble bowl of stew|a dish inspired by (cook1.his/her) rival}. (Cook2) chooses {an old family recipe|an impossibly elaborate dessert|a simple dish made with great care|a dish inspired by the island itself}.\nThe judges taste both creations. After a long silence,"
+   "text": "At last, the judges ask each competitor to cook the one dish that best represents who (a2one.he/she) is.\n(Cook1) chooses {a beloved childhood meal|an ambitious original recipe|a humble bowl of stew|a dish inspired by (cook1.his/her) rival}. (Cook2) chooses {an old family recipe|an impossibly elaborate dessert|a simple dish made with great care|a dish inspired by the island itself}.\nThe judges taste both creations. After a long silence,"
   },
   "a2_28_1": {
    "popup": "append",
@@ -7995,8 +8123,8 @@
    ]
   },
   "v13a_a1": {
-   "src": "L6895-6900",
-   "text": "THE THUNDERCLAP:\n(judge) takes one mouthful of (cook1)'s stew, sets down the spoon, and asks whether the cook is trying to feed the villagers or punish them. (cook1) protests that it is an ancient family recipe. \"Then your ancestors deserve an apology!\" The crowd roars. Later, the judge privately explains exactly what went wrong and offers another lesson.",
+   "src": "L6896-6900",
+   "text": "(judge) takes one mouthful of (cook1)'s stew, sets down the spoon, and asks whether the cook is trying to feed the villagers or punish them. (cook1) protests that it is an ancient family recipe. \"Then your ancestors deserve an apology!\" The crowd roars. Later, the judge privately explains exactly what went wrong and offers another lesson.",
    "text_only": [
     {
      "src": "L6901",
@@ -8011,8 +8139,8 @@
    ]
   },
   "v13a_a2": {
-   "src": "L6903-6907",
-   "text": "THE PERFECT DISH:\n(judge) tastes (cook2)'s dish. The hall falls silent. (judge.He/She) tastes it again, then a third time. \"Well,\" (judge.he/she) mutters, \"that's infuriating.\" Asked what is wrong, (judge) replies, \"Nothing.\" (cook2) wins the judge's praise.",
+   "src": "L6904-6907",
+   "text": "(judge) tastes (cook2)'s dish. The hall falls silent. (judge.He/She) tastes it again, then a third time. \"Well,\" (judge.he/she) mutters, \"that's infuriating.\" Asked what is wrong, (judge) replies, \"Nothing.\" (cook2) wins the judge's praise.",
    "children": [
     {
      "next": "win2"
@@ -8020,8 +8148,8 @@
    ]
   },
   "v13a_a3": {
-   "src": "L6910-6918",
-   "text": "THE DISASTER THAT EVACUATED THE VILLAGE:\nThe lid is lifted from (cook1)'s covered pot. A thick, eye-watering cloud rolls across the judging table. The judge staggers backward. \"CLOSE IT! CLOSE THE WRETCHED THING!\" The cooks flee, the spectators scatter, and the entire village retreats to higher ground until the smell disperses. The dish consists of fermented fish, old cabbage, slug slime and a seasoning that (cook1) refuses to identify. The food is discarded. The judges postpone the competition. Nobody is harmed, but the village speaks of THE GREAT STENCH for generations.",
+   "src": "L6911-6918",
+   "text": "The lid is lifted from (cook1)'s covered pot. A thick, eye-watering cloud rolls across the judging table. The judge staggers backward. \"CLOSE IT! CLOSE THE WRETCHED THING!\" The cooks flee, the spectators scatter, and the entire village retreats to higher ground until the smell disperses. The dish consists of fermented fish, old cabbage, slug slime and a seasoning that (cook1) refuses to identify. The food is discarded. The judges postpone the competition. Nobody is harmed, but the village speaks of THE GREAT STENCH for generations.",
    "text_only": [
     {
      "src": "L6919-6920",
@@ -8041,8 +8169,8 @@
    ]
   },
   "v13a_a4": {
-   "src": "L6922-6927",
-   "text": "THE REVOLTING MASTERPIECE:\n(cook2) presents a grey, quivering mound covered in dark green sauce. (judge) closes (judge.his/her) eyes in despair, then tastes a tiny portion. The expression changes. \"It's... delicious.\" The audience gasps. \"I hate everything about looking at it,\" says (judge), \"but I would gladly eat another bowl.\"",
+   "src": "L6923-6927",
+   "text": "(cook2) presents a grey, quivering mound covered in dark green sauce. (judge) closes (judge.his/her) eyes in despair, then tastes a tiny portion. The expression changes. \"It's... delicious.\" The audience gasps. \"I hate everything about looking at it,\" says (judge), \"but I would gladly eat another bowl.\"",
    "text_only": [
     {
      "src": "L6927-6928",
@@ -8057,8 +8185,8 @@
    ]
   },
   "v13a_a5": {
-   "src": "L6930-6934",
-   "text": "THE JUDGE IS WRONG:\n(judge) loudly condemns a dish for containing a bitter herb. A quiet healer points out that the herb was carefully prepared and is a traditional delicacy. The judge tastes it properly, pauses, and apologizes before everyone. \"Even I can be wrong. Remember that.\"",
+   "src": "L6931-6934",
+   "text": "(judge) loudly condemns a dish for containing a bitter herb. A quiet healer points out that the herb was carefully prepared and is a traditional delicacy. The judge tastes it properly, pauses, and apologizes before everyone. \"Even I can be wrong. Remember that.\"",
    "text_only": [
     {
      "src": "L6935",
@@ -8073,8 +8201,8 @@
    ]
   },
   "v13a_a6": {
-   "src": "L6937-6940",
-   "text": "THE FURIOUS APPRENTICE:\n(cook1) finally snaps. \"If you know so much, why don't YOU cook?\" (judge) calmly accepts. (judge.He/She) prepares a modest dish from the remaining ingredients, explaining every step. It is exquisite.",
+   "src": "L6938-6940",
+   "text": "(cook1) finally snaps. \"If you know so much, why don't YOU cook?\" (judge) calmly accepts. (judge.He/She) prepares a modest dish from the remaining ingredients, explaining every step. It is exquisite.",
    "text_only": [
     {
      "src": "L6942",
@@ -8086,20 +8214,54 @@
     {
      "next": "v13a_bell"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6939-6940"
+    }
    ]
   },
   "v13a_b1": {
-   "src": "L6944-6948",
-   "text": "THE LESSON:\n(judge) has the cooks prepare a simple broth. The boastful finalist tries to hide an elaborate garnish in it. \"NO!\" bellows the judge. \"First learn to feed someone. Then learn to impress them.\" Both improve, and the competition resumes.",
+   "src": "L6945-6948",
+   "text": "(judge) has the cooks prepare a simple broth. The boastful finalist tries to hide an elaborate garnish in it. \"NO!\" bellows the judge. \"First learn to feed someone. Then learn to impress them.\" Both improve, and the competition resumes.",
    "children": [
     {
      "next": "v13a_bell"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6948"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6948"
+    }
    ]
   },
   "v13a_b2": {
-   "src": "L6950-6954",
-   "text": "THE KINDNESS BENEATH THE RAGE:\nA nervous apprentice drops a spoon. (judge) kneels to retrieve it and says quietly, \"A mistake is not a disgrace. Refusing to learn is.\" When a senior cook laughs, the judge turns on (senior.him/her): \"And what exactly have YOU taught anyone today?\" The room falls silent.",
+   "src": "L6951-6954",
+   "text": "A nervous apprentice drops a spoon. (judge) kneels to retrieve it and says quietly, \"A mistake is not a disgrace. Refusing to learn is.\" When a senior cook laughs, the judge turns on (senior.him/her): \"And what exactly have YOU taught anyone today?\" The room falls silent.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8107,8 +8269,8 @@
    ]
   },
   "v13a_b3": {
-   "src": "L6956-6959",
-   "text": "THE USELESS LESSON:\n(judge) explains how to judge a stew by scent. Unfortunately, a nearby cauldron of spoiled shellfish overwhelms every nose in the hall. \"My lesson,\" says the judge grimly, \"has been defeated.\"",
+   "src": "L6957-6959",
+   "text": "(judge) explains how to judge a stew by scent. Unfortunately, a nearby cauldron of spoiled shellfish overwhelms every nose in the hall. \"My lesson,\" says the judge grimly, \"has been defeated.\"",
    "children": [
     {
      "next": "v13a_bell"
@@ -8116,8 +8278,8 @@
    ]
   },
   "v13a_b4": {
-   "src": "L6961-6964",
-   "text": "THE TEACHER IS TESTED:\nA child asks why the judge shouts at people. (judge) pauses, admits that shouting is not always helpful, and conducts the next lesson without raising (judge.his/her) voice. Everyone finds this more frightening.",
+   "src": "L6962-6964",
+   "text": "A child asks why the judge shouts at people. (judge) pauses, admits that shouting is not always helpful, and conducts the next lesson without raising (judge.his/her) voice. Everyone finds this more frightening.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8125,8 +8287,8 @@
    ]
   },
   "v13a_b5": {
-   "src": "L6966-6968",
-   "text": "THE OLD RECIPE:\nAn elderly villager shares a simple family recipe. (judge) listens, tastes, and asks for the method to be recorded so it is not lost.",
+   "src": "L6967-6968",
+   "text": "An elderly villager shares a simple family recipe. (judge) listens, tastes, and asks for the method to be recorded so it is not lost.",
    "effects": [
     {
      "do": "skill",
@@ -8153,8 +8315,8 @@
    ]
   },
   "v13a_c1": {
-   "src": "L6971-6975",
-   "text": "THE CHALLENGE:\n(cook1) accuses the judge of valuing reputation over flavor. The judge orders a blind tasting and agrees to be bound by the result. (cook1)'s dish wins. \"You were right,\" the judge says. \"Don't become insufferable about it.\" (cook1) immediately becomes insufferable.",
+   "src": "L6972-6975",
+   "text": "(cook1) accuses the judge of valuing reputation over flavor. The judge orders a blind tasting and agrees to be bound by the result. (cook1)'s dish wins. \"You were right,\" the judge says. \"Don't become insufferable about it.\" (cook1) immediately becomes insufferable.",
    "children": [
     {
      "next": "win1"
@@ -8162,8 +8324,8 @@
    ]
   },
   "v13a_c2": {
-   "src": "L6977-6980",
-   "text": "THE OUTBURST:\n(cook2) screams that the judge is a tyrant. The judge replies, \"Perhaps. But the stew is still burnt.\" The organizers separate the pair, allow both to cool down, and resume fairly.",
+   "src": "L6978-6980",
+   "text": "(cook2) screams that the judge is a tyrant. The judge replies, \"Perhaps. But the stew is still burnt.\" The organizers separate the pair, allow both to cool down, and resume fairly.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8171,8 +8333,8 @@
    ]
   },
   "v13a_c3": {
-   "src": "L6982-6986",
-   "text": "THE BRIBE:\nA finalist attempts to slip the judge a polished pearl. (judge) raises it for the whole crowd to see. \"Is this supposed to improve the taste?\" A fair investigation follows; the judges do not punish the other contestant for the attempted bribe.",
+   "src": "L6983-6986",
+   "text": "A finalist attempts to slip the judge a polished pearl. (judge) raises it for the whole crowd to see. \"Is this supposed to improve the taste?\" A fair investigation follows; the judges do not punish the other contestant for the attempted bribe.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8180,8 +8342,8 @@
    ]
   },
   "v13a_c4": {
-   "src": "L6988-6992",
-   "text": "THE BET:\nThe finalists challenge the judge to identify ingredients while blindfolded. (judge.He/She) identifies every herb, then confidently calls one ingredient \"river mud.\" It is actually mashed beans. The villagers never let (judge.him/her) forget it.",
+   "src": "L6989-6992",
+   "text": "The finalists challenge the judge to identify ingredients while blindfolded. (judge.He/She) identifies every herb, then confidently calls one ingredient \"river mud.\" It is actually mashed beans. The villagers never let (judge.him/her) forget it.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8189,8 +8351,8 @@
    ]
   },
   "v13a_c5": {
-   "src": "L6994-6998",
-   "text": "THE CRITIC'S CRITIC:\nA visiting elder politely reviews the judge's review, identifying three unsupported claims and two excellent observations. The judge is speechless. The elder offers to teach (judge.him/her) how to accept criticism.",
+   "src": "L6995-6998",
+   "text": "A visiting elder politely reviews the judge's review, identifying three unsupported claims and two excellent observations. The judge is speechless. The elder offers to teach (judge.him/her) how to accept criticism.",
    "text_only": [
     {
      "src": "L6998",
@@ -8205,8 +8367,8 @@
    ]
   },
   "v13a_d1": {
-   "src": "L7000-7002",
-   "text": "THE SURPRISE:\nThe judge praises the dish of a cook (judge.he/she) had publicly dismissed. When the identity is revealed, (judge) congratulates the cook openly.",
+   "src": "L7001-7002",
+   "text": "The judge praises the dish of a cook (judge.he/she) had publicly dismissed. When the identity is revealed, (judge) congratulates the cook openly.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8214,8 +8376,8 @@
    ]
   },
   "v13a_d2": {
-   "src": "L7004-7007",
-   "text": "THE FAVORITE LOSES:\nThe village's celebrated cook loses to an unassuming apprentice. (judge) says, \"The spoon does not care about your title.\" The apprentice nearly drops the trophy.",
+   "src": "L7005-7007",
+   "text": "The village's celebrated cook loses to an unassuming apprentice. (judge) says, \"The spoon does not care about your title.\" The apprentice nearly drops the trophy.",
    "text_only": [
     {
      "src": "L7005",
@@ -8230,8 +8392,8 @@
    ]
   },
   "v13a_d3": {
-   "src": "L7009-7011",
-   "text": "THE DRAW:\nThe judge cannot separate the two dishes and calls for a second blind tasting.",
+   "src": "L7010-7011",
+   "text": "The judge cannot separate the two dishes and calls for a second blind tasting.",
    "children": [
     {
      "next": "tie"
@@ -8239,8 +8401,8 @@
    ]
   },
   "v13a_d4": {
-   "src": "L7013-7016",
-   "text": "THE FATAL FLAW IN THE PLAN:\nBoth cooks have made exactly the same dish after secretly borrowing the same recipe. The judge suspects collusion; a hearing establishes that both were independently taught by the same grandmother.",
+   "src": "L7014-7016",
+   "text": "Both cooks have made exactly the same dish after secretly borrowing the same recipe. The judge suspects collusion; a hearing establishes that both were independently taught by the same grandmother.",
    "children": [
     {
      "next": "v13a_bell"
@@ -8248,8 +8410,8 @@
    ]
   },
   "v13a_d5": {
-   "src": "L7018-7022",
-   "text": "THE GREAT CRITIC'S HUMILIATION:\nThe judge mistakenly praises a bowl of plain boiled roots as the most imaginative dish in the contest. The roots were intended as a side dish. The audience erupts. \"At least,\" says the judge, \"someone here knows when to leave a good ingredient alone.\"",
+   "src": "L7019-7022",
+   "text": "The judge mistakenly praises a bowl of plain boiled roots as the most imaginative dish in the contest. The roots were intended as a side dish. The audience erupts. \"At least,\" says the judge, \"someone here knows when to leave a good ingredient alone.\"",
    "children": [
     {
      "next": "v13a_bell"

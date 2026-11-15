@@ -44,7 +44,7 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "EB3A319E85D624BE8D845F8069BDE5FBCD8715BA3E40AF7CFBE87AFE62B617D8"
+      "sha256": "A9B1052B1109A65D0CE3FAFB5E92D17077F4A6E2BCDAABDDCFBFE537D879CF1D"
     },
     {
       "source": "assets/event_collection/all_everybodys_winner.cieg",
@@ -184,7 +184,7 @@
     {
       "source": "assets/event_collection/all_v20_between_life.cieg",
       "destination": "Island Event Collection/all_v20_between_life.cieg",
-      "sha256": "FA93B43C12FEA7968A3692BF7DC6D595A883AD417453342B19BA1A283DF6B197"
+      "sha256": "F0544D835AA9828927A9FDEF3E1CBF68CDD130BF18AEDAC5E8A2AA51B1DE926C"
     },
     {
       "source": "assets/event_collection/all_v20_d10_child.cieg",
@@ -194,27 +194,27 @@
     {
       "source": "assets/event_collection/all_v20_d11_ancient.cieg",
       "destination": "Island Event Collection/all_v20_d11_ancient.cieg",
-      "sha256": "72FFA8350154BC63831F69178818F8E4AFFB84BB97489BA00E4B1B8847E68D33"
+      "sha256": "9E46458834B5DBFA216B9ACDE5AF0B03D2213A6B99D12D78FE434ED2B837C7DD"
     },
     {
       "source": "assets/event_collection/all_v20_d12_cannot.cieg",
       "destination": "Island Event Collection/all_v20_d12_cannot.cieg",
-      "sha256": "7DF2A4F9709C819F99F432869BF253C945F3CE700325088575582095009CCB3A"
+      "sha256": "FFF69BCE7861D1903A2216A013DAD0A97C3D18CE2E9A5D5A9A57AD81DB4D1C0E"
     },
     {
       "source": "assets/event_collection/all_v20_d1_two_lives.cieg",
       "destination": "Island Event Collection/all_v20_d1_two_lives.cieg",
-      "sha256": "1FED67751998A19F74B5D07CEC39ACA4A0729BE8FAC8EDC5D7A1E5B6DDD93600"
+      "sha256": "40E9081DC941C827A79288E5D420F7E4FB89905C78B94B17EE7F1B8BBBF2720B"
     },
     {
       "source": "assets/event_collection/all_v20_d2_no_such.cieg",
       "destination": "Island Event Collection/all_v20_d2_no_such.cieg",
-      "sha256": "333C1780EC58FD8C173246F56064567A57FD31388BDED30FAF7203172CD203E7"
+      "sha256": "80552CA5DE5AFD1B8767955A93365C4C47FD85E90E517772853937048AE74F6D"
     },
     {
       "source": "assets/event_collection/all_v20_d3_cure.cieg",
       "destination": "Island Event Collection/all_v20_d3_cure.cieg",
-      "sha256": "8F4964710CF6E4A4F6D62F7F5F8639ECD5604B3FCF2650E62BD480DC8E67E40E"
+      "sha256": "6F36CD9EFAA111B82D4383895BD2DA15A13D4AB7850979BA468128B4D529154C"
     },
     {
       "source": "assets/event_collection/all_v20_d4_half.cieg",
@@ -224,12 +224,12 @@
     {
       "source": "assets/event_collection/all_v20_d5_last_dose.cieg",
       "destination": "Island Event Collection/all_v20_d5_last_dose.cieg",
-      "sha256": "A7049472EC323220DF056A1A3C66C008FEE384AB7D89E4006623946E92454E5D"
+      "sha256": "9A3FA54A8714E7E59E5459116A801FFABB0232A45633635C2370B11B3A57A4EB"
     },
     {
       "source": "assets/event_collection/all_v20_d6_physician.cieg",
       "destination": "Island Event Collection/all_v20_d6_physician.cieg",
-      "sha256": "D3304168F457B9319843766A864B8EB8BB33201E0E262479F2E26946F84F1B9C"
+      "sha256": "70F9DD7F46FA17D9A84BCBB3ACF40FEE1E42D6928D667CB2EE82B81CB8A2944E"
     },
     {
       "source": "assets/event_collection/all_v20_d7_patient.cieg",
@@ -254,7 +254,7 @@
     {
       "source": "assets/event_collection/all_v20_r2_relic_trial.cieg",
       "destination": "Island Event Collection/all_v20_r2_relic_trial.cieg",
-      "sha256": "E9C41693C501844EC08EE5688214A0C526D36B36E682C4540508FF3FC5D86C27"
+      "sha256": "CE48465B2004570DDA3BD01FCE85DB586EA43269A7E260EC6402B714CF9A4D22"
     },
     {
       "source": "assets/event_collection/all_v20_r3_isola.cieg",
