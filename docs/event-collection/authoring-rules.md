@@ -103,6 +103,12 @@ matched by some text or taken out. A line is consumed by a `src` of a text field
 ```
 
 - `structural`: headings, bank labels (`A — APPROACH:`, `(1) SHARED GARDEN — choose one:`), routes like `(to 2)`.
+  **Subroute headings are never shown** (the owner, 2026-11-14: "events should have a single event title. no need for
+  subroute headings"): a paragraph-leading heading such as `THE TINY TYRANT:` or `The Forest's Mercy:` is cut with a
+  text entry, `{"src": "L7884", "kind": "structural", "text": "THE TINY TYRANT:", "why": "subroute heading
+  removed ..."}`, and the text starts with the words after it. A heading that holds a placeholder is cut as the
+  source writes it (`MASTER STONEWRIGHT (NAME3):`). A shared pool item drops it with no entry (its item is matched
+  inside its lines).
 - `note`: designer notes and rules never shown (`(deliberately unsuitable container)`, "IMPLEMENTATION NOTES").
 - `instruction`: a mechanical instruction (`(earn tech points)`, `Parenting skill: SIGNIFICANT GAIN`); the matching
   effect or `text_only` entry carries the same line in its `src`.
