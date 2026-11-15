@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Same-Sex Crush",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel04_same_sex_crush",
+  "source": "anthology",
+  "lines": [
+   27062,
+   27075
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27062",
+  "ledger": [
+   {
+    "src": "L27062",
+    "kind": "note",
+    "why": "same-sex casting: the engine cannot require \"the same sex as the other role\", so the pair is cast as two women (REL-26 casts two men)"
+   },
+   {
+    "src": "L27063",
+    "kind": "sensitivity",
+    "before": "An adult villager",
+    "after": "(villager), an adult villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27063",
+    "kind": "sensitivity",
+    "before": "a friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27065",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27066",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27071",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27072",
+    "kind": "sensitivity",
+    "before": "The relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27074",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27075",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An adult villager realizes they have romantic feelings for a friend of the same sex.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "max_age_gap": {
+    "role": "villager",
+    "years": 15
+   }
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), an adult villager, realizes they have romantic feelings for (friend) of the same sex.",
+   "src": "L27063",
+   "choices": [
+    {
+     "label": "Tell the Friend",
+     "next": "a",
+     "src": "L27064"
+    },
+    {
+     "label": "Spend More Time Together",
+     "next": "b",
+     "src": "L27067"
+    },
+    {
+     "label": "Speak with a Trusted Relative",
+     "next": "c",
+     "src": "L27070"
+    },
+    {
+     "label": "Reflect Before Acting",
+     "next": "d",
+     "src": "L27073"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(friend) returns the affection, and they begin courting.",
+   "src": "L27065"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(friend) does not share the feelings but responds warmly.",
+   "src": "L27066"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their connection grows into romance.",
+   "src": "L27068"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They discover their bond feels more like family.",
+   "src": "L27069"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(relative) offers encouragement without making assumptions.",
+   "src": "L27071"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(relative) listens thoughtfully and asks what support would help.",
+   "src": "L27072"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) becomes more certain of their feelings.",
+   "src": "L27074"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) decides no confession is needed to value the friendship.",
+   "src": "L27075"
+  }
+ }
+}

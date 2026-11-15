@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feather in the Weaving",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau06_feather",
+  "source": "anthology",
+  "lines": [
+   32528,
+   32542
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32528",
+  "ledger": [
+   {
+    "src": "L32529",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32530",
+    "kind": "sensitivity",
+    "before": "A craftsperson",
+    "after": "(crafts), a craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32539",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32541",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A craftsperson finds a fallen feather with striking colors.",
+  "label_case": "title",
+  "cast_only": [
+   "crafts",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(crafts), a craftsperson, finds a fallen feather with striking colors.",
+   "src": "L32530",
+   "choices": [
+    {
+     "label": "Weave a Decoration",
+     "next": "a",
+     "src": "L32531"
+    },
+    {
+     "label": "Identify Its Owner",
+     "next": "b",
+     "src": "L32534"
+    },
+    {
+     "label": "Leave It Outdoors",
+     "next": "c",
+     "src": "L32537"
+    },
+    {
+     "label": "Paint Its Pattern",
+     "next": "d",
+     "src": "L32540"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A small ornament honors the bird.",
+   "src": "L32532"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The feather proves too fragile.",
+   "src": "L32533"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Birdwatchers narrow down the species.",
+   "src": "L32535"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several local birds remain plausible.",
+   "src": "L32536"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The feather becomes part of a nest.",
+   "src": "L32538"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) regrets losing a beautiful find.",
+   "src": "L32539"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(crafts) creates a vivid design.",
+   "src": "L32541"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The colors are harder to copy than expected.",
+   "src": "L32542"
+  }
+ }
+}

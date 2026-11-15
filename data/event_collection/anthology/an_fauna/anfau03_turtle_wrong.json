@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Turtle in the Wrong Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau03_turtle_wrong",
+  "source": "anthology",
+  "lines": [
+   32477,
+   32491
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32477",
+  "ledger": [
+   {
+    "src": "L32478",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32482",
+    "kind": "sensitivity",
+    "before": "an impatient worker",
+    "after": "(adult), an impatient worker",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32484",
+    "kind": "sensitivity",
+    "before": "The observer",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32490",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A turtle is found crossing a frequently used path.",
+  "label_case": "title",
+  "cast_only": [
+   "adult",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A turtle is found crossing a frequently used path.",
+   "src": "L32479",
+   "choices": [
+    {
+     "label": "Give It Space",
+     "next": "a",
+     "src": "L32480"
+    },
+    {
+     "label": "Ask an Experienced Observer",
+     "next": "b",
+     "src": "L32483"
+    },
+    {
+     "label": "Redirect Foot Traffic",
+     "next": "c",
+     "src": "L32486"
+    },
+    {
+     "label": "Watch for Danger",
+     "next": "d",
+     "src": "L32489"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "It crosses safely on its own.",
+   "src": "L32481"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The crossing delays (adult), an impatient worker.",
+   "src": "L32482"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(adult) identifies a likely destination.",
+   "src": "L32484"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nobody knows whether it is nesting.",
+   "src": "L32485"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers protect the animal from trampling.",
+   "src": "L32487"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A new route inconveniences the market.",
+   "src": "L32488"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) warns others of a cart.",
+   "src": "L32490"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The turtle retreats into its shell until the path quiets.",
+   "src": "L32491"
+  }
+ }
+}

@@ -1,0 +1,321 @@
+# EVENT-EXPRESSION-001..074: Self-Expression, Art, Sport, Ecology, Governance, Belief and the Human Spectrum.  The
+# ELIGIBILITY tag is the casting.  A person the text keeps anonymous (an unsigned artist, a critic who will not be
+# named, "the offender") stays unnamed.
+EXP-001
+R child 3-13 : child
+R elder 55+ @D1,D2 : elder
+E S: "and one child refuses" => "and [child] refuses"
+
+EXP-002
+R child 3-13 @B1 : child
+
+EXP-003
+R builder 14+ @A1,A2,C2 : artist | builder
+E A2: "embarrasses a builder who wanted anonymity" => "embarrasses [builder], a builder who wanted anonymity"
+
+EXP-004
+R villager 14+ : villager | giver
+R recipient 14+ : recipient
+
+EXP-005
+R child 3-13 @A1,A2,B2,D2 : artist
+R elder 55+ @C1,C2 : elder
+
+EXP-006
+R crafter 14+ : patient crafter | repairer
+R child 3-13 @A1 : child
+R elder 55+ @A2 : elder
+R newcomer 14+ @C1 : newcomer
+
+EXP-007
+R child 3-13 @B1 : child
+R elder 55+ @B2 : elder
+R villager 14+ @A2,C2,D1,D2 : experienced player | competitive villager | spectator | injured player
+
+EXP-008
+R teen 14-17 @B1 : nervous teen
+R veteran 18+ @B2 : veteran
+
+EXP-009
+R adult 18+ @A1 : adult
+R teen 14-17 @B2 : impatient teen
+R child 3-13 @D2 : disappointed child
+
+EXP-010
+R villager1 14+ :
+R villager2 14+ :
+R crafts 18+ @C1 : craftsperson
+E S: "Two villagers both claim" => "[villager1] and [villager2] both claim"
+
+EXP-011
+R child 3-13 @A2,C1 : child | clever child
+R adult 18+ @C1 : adult
+
+EXP-012
+R singer 18+ @S,A2,D2 : caregiver | singer
+R elder 55+ @D1 : elder
+
+EXP-013
+R villager 14+ : villager | wearer
+R helper 14+ @A1,A2,B1,B2,D2 : owner | maker | relative
+R teen 14-17 @C1 : teen
+
+EXP-014
+R man 14+/m @A1 : shy man
+R woman 30+/f @A2 : older woman
+R child 3-13 @D1 : child
+R villager 14+ @D2 : villager
+
+EXP-015
+R villager 14+ @S,C2,D1 : villager | wearer | hesitant villager
+R adult 18+ @A1 : adult
+R teen 14-17 @A2 : teen
+R practitioner 18+ @B1,B2 : skilled practitioner | practitioner
+R family 14+ @D2 : family member
+
+EXP-016
+R adult 18+ : adult | villager
+R relative 14+ @D1 : relative
+
+EXP-017
+R visitor stranger : visitor
+R artist 14+ @A1,C2 : artist | performer
+R child 3-13 @D1 : child
+
+EXP-018
+R villager 14+ : villager
+R elder 55+ @C2 : elder
+R owner 14+ @D1,D2 : owner
+
+EXP-019
+R elder 55+ @B1 : elder
+R teen 14-17 @B2 : teen
+R musician 14+ @C2 : musician
+R child 3-13 @D2 : child
+
+EXP-020
+R friend1 14+ :
+R friend2 14+ :
+R elder 55+ @C1 : elder
+E S: "Two friends disagree" => "[friend1] and [friend2], two friends, disagree"
+
+EXP-021
+R villager 14+ @A2,B1,D2 : storyteller | maker | villager
+R child 3-13 @C1 : frightened child
+R elder 55+ @C2 : elder
+
+EXP-022
+R elder 55+ @B1 : elder
+R teen 14-17 @B2 : teen
+R child 3-13 @C2 : curious child
+R adult 18+ @D2 : skeptical adult
+
+EXP-023
+R cousin 18+ : cousin
+
+EXP-024
+R crafts 18+ @B1 : quiet craftsperson
+R elder 55+ @C2 : elder
+R young 14+ @D2 : young observer
+
+EXP-025
+R villager 18+ @C1,D1 : responsible villager | villager
+
+EXP-026
+R villager 14+ @A1,B2 : shy villager | villager
+
+EXP-027
+R child 3-13 @B1 : child
+R elder 55+ @B2 : elder
+
+EXP-028
+R newcomer 14+ : newcomer
+R villager 14+ @C2 : villager
+R child 3-13 @D2 : child
+
+EXP-029
+R elder 55+ @A2 : elder
+R child 3-13 @B1 : child
+R teen 14-17 @B2 : teen
+R conservator 18+ @C2 : conservator
+
+EXP-030
+R villager 18+ @D1 : science-minded villager
+
+EXP-031
+R teen 14-17 : teen
+R elder 55+ @B1 : elder
+
+EXP-032
+R crafts 18+ : skilled craftsperson | craftsperson | villager
+R helper 14+ @B1,C2,D1 : partner | neighbor | friend
+
+EXP-033
+R apprentice 14+ : apprentice
+R mentor 18+ @C2 : mentor
+
+EXP-034
+R villager 14+ : insulted villager | villager
+R adult 18+ @C2 : trusted adult
+
+EXP-035
+R elder 55+ @A2 : elder
+R survivor 18+ @B2 : survivor
+
+EXP-036
+R host 14+ : villager | host
+R guest 14+ @A2,B2 : guest
+R child 3-13 @C2 : child
+
+EXP-037
+R friend 14+ @C2 : friend
+R elder 55+ @D1 : elder
+
+EXP-038
+R boy 3-13/m : boy
+R critic 3-13 : critic
+R elder 55+ @A2 : elder
+R girl 3-13/f @D2 : girl
+E S: "but another child calls" => "but [critic], another child, calls"
+
+EXP-039
+R elder 55+ : elder
+R young 14+ @C1 : younger villager
+
+EXP-040
+R mother 18+/f/nursing : nursing mother | mother
+
+EXP-041
+R critic 14+ @C1 : critic
+R villager 14+ @B2 : villager
+
+EXP-042
+R organizer 14+ @D2 : young organizer
+
+EXP-043
+R descendant 14+ @C2 : descendant
+
+EXP-044
+R villager 14+ : quiet villager | singer | performer
+R friend 14+ @C1 : friend
+
+EXP-045
+R giver 14+ : giver | maker
+R recipient 14+ : recipient
+
+EXP-046
+R child 3-13 : child | maker
+R elder 55+ @B1 : elder
+R friend 3-13 @D2 : friend
+
+EXP-047
+R sculptor 18+ : sculptor | artist
+R relative 14+ @B2 : relative
+R crafts 18+ @C1 : second craftsperson
+
+EXP-048
+R villager 14+ @C1 :
+R teen 14-17 @D2 : teen
+E C1: "A villager with limited mobility helps" => "[villager], a villager with limited mobility, helps"
+
+EXP-049
+
+EXP-050
+
+EXP-051
+R critic 18+ @C2 : critic
+
+EXP-052
+R elder 55+ @A2 : elder
+R child 3-13 @C2 : child
+
+EXP-053
+R musician 14+ @C2 : musician
+R friend 14+ @D2 : friend
+
+EXP-054
+R apprentice 14+ @B1 : shy apprentice
+R villager 14+ @C2 : villager
+R child 3-13 @D2 : child
+
+EXP-055
+R villager 14+ : villager | offender | critic
+R hurt 14+ : hurt villager | recipient
+E S: "A villager who mocked another person's handmade clothing wants" => "[villager], who mocked [hurt]'s handmade clothing, wants"
+
+EXP-056
+R villager 14+ : villager | dreamer
+R elder 55+ @C1 : spiritual elder
+R friend 14+ @C2 : science-minded friend
+
+EXP-057
+R athlete 10-17 : stronger athlete | champion | older athlete
+R child 3-13 @B1 : younger child
+R rival 10-17 @C2 : rival
+
+EXP-058
+R villager 18+ : villager
+E S: "A villager with old scars is" => "[villager], a villager with old scars, is"
+R friend 14+ @A2 : friend
+R young 14+ @C2 : young villager
+
+EXP-059
+R child 3-13 : child
+R caregiver 18+ @B1,C2 : caregiver
+
+EXP-060
+
+EXP-061
+R child 3-13 @B1 : child
+R elder 55+ @B2 : elder
+R owner 14+ @C2 : owner
+
+EXP-062
+
+EXP-063
+R watcher 14+ @A2 : watcher
+R elder 55+ @C1 : elder
+R villager 14+ @C2 : science-minded villager
+
+EXP-064
+R child 3-13 : child | pretend hero
+R teen 14-17 @B2 : teen
+R child2 3-13 @C1 : shy child
+
+EXP-065
+R elder 55+ : elder
+R child 3-13 @A2 : child
+
+EXP-066
+R child 3-13 @D2 : child
+
+EXP-067
+R child 3-13 @B1 : child
+R elder 55+ @B2 : elder
+
+EXP-068
+R storyteller 14+ : storyteller
+R elder 55+ @B2 : elder
+
+EXP-069
+
+EXP-070
+R teen 14-17 : teenager | teen
+R elder 55+ @A2 : elder
+R family 14+ @C2 : family member
+
+EXP-071
+R gardener 14+ @D2 : gardener
+
+EXP-072
+R child 3-13 : child
+E S: "a child wearing a handmade crown announces" => "[child], wearing a handmade crown, announces"
+R adult 18+ @A2 : adult
+R elder 55+ @D1 : elder
+
+EXP-073
+R musician 14+ : musician
+R child 3-13 @C2 : child
+
+EXP-074
+R elder 55+ : elder

@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moonlit Story Exchange",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy35_moonlit_story",
+  "source": "anthology",
+  "lines": [
+   29193,
+   29206
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29193",
+  "ledger": [
+   {
+    "src": "L29200",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two communities meet in an inland grove to share legends.",
+  "label_case": "title",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two communities meet in an inland grove to share legends.",
+   "src": "L29194",
+   "choices": [
+    {
+     "label": "Tell the Oldest Stories",
+     "next": "a",
+     "src": "L29195"
+    },
+    {
+     "label": "Invite Humorous Stories",
+     "next": "b",
+     "src": "L29198"
+    },
+    {
+     "label": "Let Young People Perform",
+     "next": "c",
+     "src": "L29201"
+    },
+    {
+     "label": "Respect Stories Not Meant for Sharing",
+     "next": "d",
+     "src": "L29204"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Listeners notice familiar themes in different legends.",
+   "src": "L29196"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The storytellers disagree on how one tale ends.",
+   "src": "L29197"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An absurd ancestor tale delights the crowd.",
+   "src": "L29199"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) insists the supposedly silly story was serious.",
+   "src": "L29200"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The performers create a lively retelling.",
+   "src": "L29202"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They forget their lines and the audience helps.",
+   "src": "L29203"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The guests choose other tales freely.",
+   "src": "L29205"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The gathering becomes a discussion of cultural boundaries.",
+   "src": "L29206"
+  }
+ }
+}

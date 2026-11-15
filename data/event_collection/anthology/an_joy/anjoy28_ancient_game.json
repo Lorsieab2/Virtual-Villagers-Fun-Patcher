@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancient Game Pieces",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy28_ancient_game",
+  "source": "anthology",
+  "lines": [
+   29088,
+   29101
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29088",
+  "ledger": [],
+  "description": "Carved tokens are found in a dry cave.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Carved tokens are found in a dry cave.",
+   "src": "L29089",
+   "choices": [
+    {
+     "label": "Reconstruct the Rules",
+     "next": "a",
+     "src": "L29090"
+    },
+    {
+     "label": "Ask Children to Improvise",
+     "next": "b",
+     "src": "L29093"
+    },
+    {
+     "label": "Study the Markings",
+     "next": "c",
+     "src": "L29096"
+    },
+    {
+     "label": "Preserve the Tokens",
+     "next": "d",
+     "src": "L29099"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The players invent a surprisingly enjoyable game.",
+   "src": "L29091"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The proposed rules produce an endless tie.",
+   "src": "L29092"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children create several wildly different games.",
+   "src": "L29094"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They lose interest and use the pieces as counting aids.",
+   "src": "L29095"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Researchers notice repeated number patterns.",
+   "src": "L29097"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The marks could be decoration or scores.",
+   "src": "L29098"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The pieces are safely catalogued.",
+   "src": "L29100"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Villagers make harmless replicas for play.",
+   "src": "L29101"
+  }
+ }
+}

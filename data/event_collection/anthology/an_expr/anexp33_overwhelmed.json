@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Overwhelmed Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp33_overwhelmed",
+  "source": "anthology",
+  "lines": [
+   31760,
+   31774
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31760",
+  "ledger": [
+   {
+    "src": "L31761",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31762",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31764",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31768",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31771",
+    "kind": "sensitivity",
+    "before": "A mentor",
+    "after": "(mentor), a mentor,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31773",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An apprentice freezes during a crowded demonstration and later fears being judged.",
+  "label_case": "title",
+  "cast_only": [
+   "apprentice",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(apprentice), an apprentice, freezes during a crowded demonstration and later fears being judged.",
+   "src": "L31762",
+   "choices": [
+    {
+     "label": "Offer a Quieter Setting",
+     "next": "a",
+     "src": "L31763"
+    },
+    {
+     "label": "Ask What Support Helps",
+     "next": "b",
+     "src": "L31766"
+    },
+    {
+     "label": "Avoid Labels",
+     "next": "c",
+     "src": "L31769"
+    },
+    {
+     "label": "Let Them Choose",
+     "next": "d",
+     "src": "L31772"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(apprentice) completes the skill calmly.",
+   "src": "L31764",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31764"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They ask to try another day.",
+   "src": "L31765"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Clear written steps make the task manageable.",
+   "src": "L31767"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(apprentice) requests a different teacher.",
+   "src": "L31768"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group stops guessing at a diagnosis.",
+   "src": "L31770"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(mentor), a mentor, admits they mistook distress for laziness.",
+   "src": "L31771"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(apprentice) returns to the demonstration.",
+   "src": "L31773"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decide the trade is not for them.",
+   "src": "L31774"
+  }
+ }
+}

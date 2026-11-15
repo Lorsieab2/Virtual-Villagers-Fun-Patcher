@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Different Ways of Knowing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs16_ways_knowing",
+  "source": "anthology",
+  "lines": [
+   29665,
+   29678
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29665",
+  "ledger": [
+   {
+    "src": "L29666",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(young), a young villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29669",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29677",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29678",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A young villager asks a scientist, a spiritual guide, and a Magic practitioner where humanity began.",
+  "label_case": "title",
+  "cast_only": [
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "young": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(young), a young villager, asks a scientist, a spiritual guide, and a Magic practitioner where humanity began.",
+   "src": "L29666",
+   "choices": [
+    {
+     "label": "Compare Evidence and Stories",
+     "next": "a",
+     "src": "L29667"
+    },
+    {
+     "label": "Ask Each Person What They Do Not Know",
+     "next": "b",
+     "src": "L29670"
+    },
+    {
+     "label": "Explore the Island for Clues",
+     "next": "c",
+     "src": "L29673"
+    },
+    {
+     "label": "Let the Child Form Their Own Questions",
+     "next": "d",
+     "src": "L29676"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The scientist discusses ancestry while others share cultural meanings.",
+   "src": "L29668"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(young) notices that a story can matter without serving as scientific evidence.",
+   "src": "L29669"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "All three acknowledge unanswered questions.",
+   "src": "L29671"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One speaker struggles to admit uncertainty and later returns with a more careful answer.",
+   "src": "L29672"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Old tools inspire questions about earlier generations.",
+   "src": "L29674"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A shell fragment proves nothing about humanity's origins but starts a new investigation.",
+   "src": "L29675"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(young) fills a page with wonderfully difficult questions.",
+   "src": "L29677"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(young) decides the most urgent mystery is who invented naps.",
+   "src": "L29678"
+  }
+ }
+}

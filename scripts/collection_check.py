@@ -77,7 +77,8 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
             "rm") \
     + tuple(v[2] for v in lib.DRAFTS_B.values()) \
-    + tuple(v[2] for v in lib.DRAFTS_C.values())  # the approved drafts, groups B and C (drafts_b/, drafts_c/)
+    + tuple(v[2] for v in lib.DRAFTS_C.values()) \
+    + tuple(lib.ANTHOLOGY_SECTIONS)  # the approved drafts, groups B and C; the Animals anthology (anthology/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case")
@@ -623,7 +624,9 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                                       f"{span.text[:160]!r}")
                 continue
             # (a label with a placeholder -- "Let (name1.him/her) Sleep" -- is compared as written: its own title case)
-            if titled and para.strip() != lib.title_case_label(m.group(0) if "(" not in para else para.strip()):
+            # (a game word "{@Chief}" is compared as the source word it stands for, in the case it is written)
+            as_words = re.sub(r"\{@(\w+)\}", lambda w: w.group(1), para.strip())
+            if titled and as_words != lib.title_case_label(m.group(0) if "(" not in para else as_words):
                 # collection_lib.title_case_label: the owner's words, only their case changed
                 rep.add("b FIDELITY", f"{f.where}: {para.strip()!r} is not the title case of the source's "
                                       f"{m.group(0)!r} ({lib.title_case_label(m.group(0))!r})")
@@ -1366,7 +1369,7 @@ def collection_files() -> list[Path]:
     return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_B_DIR.glob("*/*.json"))
-                  + list(lib.DRAFTS_C_DIR.glob("*/*.json")))
+                  + list(lib.DRAFTS_C_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

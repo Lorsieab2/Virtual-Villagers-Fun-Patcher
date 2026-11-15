@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memorial Orchard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy23_memorial",
+  "source": "anthology",
+  "lines": [
+   29013,
+   29026
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29013",
+  "ledger": [
+   {
+    "src": "L29023",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Families gather to remember loved ones beneath fruit trees.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Families gather to remember loved ones beneath fruit trees.",
+   "src": "L29014",
+   "choices": [
+    {
+     "label": "Share Stories",
+     "next": "a",
+     "src": "L29015"
+    },
+    {
+     "label": "Plant New Seedlings",
+     "next": "b",
+     "src": "L29018"
+    },
+    {
+     "label": "Invite Children's Questions",
+     "next": "c",
+     "src": "L29021"
+    },
+    {
+     "label": "Keep the Gathering Private",
+     "next": "d",
+     "src": "L29024"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Laughter and tears mingle in affectionate memories.",
+   "src": "L29016"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One family chooses silence and is respected.",
+   "src": "L29017"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The grove gains young trees for future generations.",
+   "src": "L29019"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The families decide to care for existing trees instead.",
+   "src": "L29020"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Adults offer gentle explanations of remembrance.",
+   "src": "L29022"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) asks something nobody knows how to answer.",
+   "src": "L29023"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Families remember in their own ways.",
+   "src": "L29025"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Several families plan a shared remembrance next season.",
+   "src": "L29026"
+  }
+ }
+}

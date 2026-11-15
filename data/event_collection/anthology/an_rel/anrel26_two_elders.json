@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Elders at the Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel26_two_elders",
+  "source": "anthology",
+  "lines": [
+   27392,
+   27405
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27392",
+  "ledger": [
+   {
+    "src": "L27392",
+    "kind": "note",
+    "why": "same-sex casting: the engine cannot require \"the same sex as the other role\", so the pair is cast as two men (REL-04 casts two women)"
+   },
+   {
+    "src": "L27393",
+    "kind": "sensitivity",
+    "before": "Two elders of the same sex begin",
+    "after": "(elder1) and (elder2), two elders of the same sex, begin",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two elders of the same sex begin spending long afternoons together and wonder if they want romance.",
+  "label_case": "title",
+  "cast_only": [
+   "elder1",
+   "elder2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder1": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "male"
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder1) and (elder2), two elders of the same sex, begin spending long afternoons together and wonder if they want romance.",
+   "src": "L27393",
+   "choices": [
+    {
+     "label": "Speak Openly",
+     "next": "a",
+     "src": "L27394"
+    },
+    {
+     "label": "Share a Favorite Memory",
+     "next": "b",
+     "src": "L27397"
+    },
+    {
+     "label": "Invite Each Other to a Celebration",
+     "next": "c",
+     "src": "L27400"
+    },
+    {
+     "label": "Give the Bond Time",
+     "next": "d",
+     "src": "L27403"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27393"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One prefers friendship, and the other respects it.",
+   "src": "L27396"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They enjoy remembering the past without changing their relationship.",
+   "src": "L27399"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They decide a quiet afternoon suits them better.",
+   "src": "L27402"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their relationship gradually becomes romantic.",
+   "src": "L27404"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They cherish companionship without needing a label.",
+   "src": "L27405"
+  }
+ }
+}

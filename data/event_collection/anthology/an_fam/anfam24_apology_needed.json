@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apology That Needed Time",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam24_apology_needed",
+  "source": "anthology",
+  "lines": [
+   28645,
+   28658
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28645",
+  "ledger": [
+   {
+    "src": "L28646",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28646",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28648",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28649",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28651",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28652",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28652",
+    "kind": "sensitivity",
+    "before": "the parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28654",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28654",
+    "kind": "sensitivity",
+    "before": "the parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28655",
+    "kind": "sensitivity",
+    "before": "The parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28657",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28658",
+    "kind": "sensitivity",
+    "before": "The parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A parent wants immediate forgiveness after unfairly scolding a child.",
+  "label_case": "title",
+  "cast_only": [
+   "parent",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(parent) wants immediate forgiveness after unfairly scolding (child).",
+   "src": "L28646",
+   "choices": [
+    {
+     "label": "Apologize and Allow the Child Time",
+     "next": "a",
+     "src": "L28647"
+    },
+    {
+     "label": "Ask What Would Help Repair the Hurt",
+     "next": "b",
+     "src": "L28650"
+    },
+    {
+     "label": "Demonstrate Change Through Gentler Behavior",
+     "next": "c",
+     "src": "L28653"
+    },
+    {
+     "label": "Avoid Asking the Child to Comfort the Parent",
+     "next": "d",
+     "src": "L28656"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) accepts the apology later that evening.",
+   "src": "L28648"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) needs several days before feeling ready to talk.",
+   "src": "L28649"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) asks to be listened to before being corrected.",
+   "src": "L28651"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) cannot yet say what would help, and (parent) waits.",
+   "src": "L28652"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) notices (parent) responding more patiently.",
+   "src": "L28654"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(parent) slips once, recognizes it, and apologizes again.",
+   "src": "L28655"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved that forgiveness is not demanded.",
+   "src": "L28657"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(parent) learns to manage their own disappointment privately.",
+   "src": "L28658"
+  }
+ }
+}

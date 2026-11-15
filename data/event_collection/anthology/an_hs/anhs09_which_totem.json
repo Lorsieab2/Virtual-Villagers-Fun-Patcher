@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Which Totem Is Frightening?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs09_which_totem",
+  "source": "anthology",
+  "lines": [
+   29560,
+   29573
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29560",
+  "ledger": [
+   {
+    "src": "L29561",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29563",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29566",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29567",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager calls a neighboring tribe's carved totem frightening while praising a similarly imposing carving at home.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) calls a neighboring tribe's carved totem frightening while praising a similarly imposing carving at home.",
+   "src": "L29561",
+   "choices": [
+    {
+     "label": "Ask What Makes the Carvings Different",
+     "next": "a",
+     "src": "L29562"
+    },
+    {
+     "label": "Invite a Neighbor to Explain Theirs",
+     "next": "b",
+     "src": "L29565"
+    },
+    {
+     "label": "Compare the Craftsmanship",
+     "next": "c",
+     "src": "L29568"
+    },
+    {
+     "label": "Let the Villager Reconsider Privately",
+     "next": "d",
+     "src": "L29571"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) realizes familiarity influences their reaction.",
+   "src": "L29563"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They explain that a childhood story, rather than the carving itself, shaped their fear.",
+   "src": "L29564"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(visitor) describes a protective meaning the village never knew.",
+   "src": "L29566"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(visitor) says meanings differ among families and cannot be reduced to one answer.",
+   "src": "L29567"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both groups admire the careful carving and share techniques.",
+   "src": "L29569"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An argument over aesthetics turns into good-natured teasing.",
+   "src": "L29570"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They eventually admit the contradiction without being pressured.",
+   "src": "L29572"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They retain their preference while agreeing that dislike is not evidence of danger.",
+   "src": "L29573",
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29573"
+    }
+   ]
+  }
+ }
+}

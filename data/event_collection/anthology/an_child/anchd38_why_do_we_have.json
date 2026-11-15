@@ -1,0 +1,222 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do We Have Different Opinions?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd38_why_do_we_have",
+  "source": "anthology",
+  "lines": [
+   28127,
+   28140
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28127",
+  "ledger": [
+   {
+    "src": "L28128",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28130",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28131",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28133",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28134",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28136",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(adult), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28137",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28139",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child is confused when two respected teachers disagree about a strange light.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) is confused when two respected teachers disagree about a strange light.",
+   "src": "L28128",
+   "choices": [
+    {
+     "label": "Compare Evidence.",
+     "next": "a",
+     "src": "L28129"
+    },
+    {
+     "label": "Hear Both Explanations.",
+     "next": "b",
+     "src": "L28132"
+    },
+    {
+     "label": "Discuss Respectful Disagreement.",
+     "next": "c",
+     "src": "L28135"
+    },
+    {
+     "label": "Try an Observation.",
+     "next": "d",
+     "src": "L28138"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) learns to ask what each teacher actually observed.",
+   "src": "L28130"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) notices that neither teacher has enough evidence yet.",
+   "src": "L28131"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) finds parts of each account interesting.",
+   "src": "L28133"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) decides to wait before choosing an explanation.",
+   "src": "L28134"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult), a caregiver, shows how to question an idea without insulting a person.",
+   "src": "L28136"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) practices saying they are unsure.",
+   "src": "L28137"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) watches the sky on another evening.",
+   "src": "L28139"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Nothing unusual appears, leaving the mystery open.",
+   "src": "L28140"
+  }
+ }
+}

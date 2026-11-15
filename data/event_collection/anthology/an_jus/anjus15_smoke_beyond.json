@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Smoke Beyond the Ridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus15_smoke_beyond",
+  "source": "anthology",
+  "lines": [
+   30943,
+   30957
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30943",
+  "ledger": [
+   {
+    "src": "L30944",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30954",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30956",
+    "kind": "sensitivity",
+    "before": "A skeptic",
+    "after": "(villager), a skeptic,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Smoke rises from a volcanic slope, and rumors outrun the scouts' observations.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Smoke rises from a volcanic slope, and rumors outrun the scouts' observations.",
+   "src": "L30945",
+   "choices": [
+    {
+     "label": "Verify What Is Known",
+     "next": "a",
+     "src": "L30946"
+    },
+    {
+     "label": "Prepare Calmly",
+     "next": "b",
+     "src": "L30949"
+    },
+    {
+     "label": "Support Those with Limited Mobility",
+     "next": "c",
+     "src": "L30952"
+    },
+    {
+     "label": "Respond to Disagreement",
+     "next": "d",
+     "src": "L30955"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Scouts report visible changes without predicting an eruption.",
+   "src": "L30947"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The council distinguishes observations from frightening guesses.",
+   "src": "L30948"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Families identify routes and essential supplies.",
+   "src": "L30950"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Children practice leaving with trusted adults.",
+   "src": "L30951"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Neighbors arrange assistance with consent.",
+   "src": "L30953"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) suggests a safer route that avoids steep steps.",
+   "src": "L30954"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager), a skeptic, joins preparations without being shamed.",
+   "src": "L30956"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} changes a plan after hearing a credible concern.",
+   "src": "L30957"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

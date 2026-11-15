@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Market of Repairs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp61_market_repairs",
+  "source": "anthology",
+  "lines": [
+   32208,
+   32222
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32208",
+  "ledger": [
+   {
+    "src": "L32209",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32215",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32216",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32219",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(owner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Instead of selling new goods, villagers host a day devoted to fixing old ones.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder",
+   "owner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "owner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Instead of selling new goods, villagers host a day devoted to fixing old ones.",
+   "src": "L32210",
+   "choices": [
+    {
+     "label": "Repair Tools",
+     "next": "a",
+     "src": "L32211"
+    },
+    {
+     "label": "Mend Clothes",
+     "next": "b",
+     "src": "L32214"
+    },
+    {
+     "label": "Restore Keepsakes",
+     "next": "c",
+     "src": "L32217"
+    },
+    {
+     "label": "Teach Maintenance",
+     "next": "d",
+     "src": "L32220"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Several handles are saved.",
+   "src": "L32212"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One damaged blade is retired for safety.",
+   "src": "L32213"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) learns to patch a tear.",
+   "src": "L32215"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) transforms scraps into a new sash.",
+   "src": "L32216"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A cracked frame is stabilized.",
+   "src": "L32218"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(owner) decides some marks should remain.",
+   "src": "L32219"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers learn how to prevent wear.",
+   "src": "L32221"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The day ends with fewer discarded objects.",
+   "src": "L32222"
+  }
+ }
+}

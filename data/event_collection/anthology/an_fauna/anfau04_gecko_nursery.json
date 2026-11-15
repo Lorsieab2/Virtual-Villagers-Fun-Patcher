@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gecko in the Nursery",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau04_gecko_nursery",
+  "source": "anthology",
+  "lines": [
+   32494,
+   32508
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32494",
+  "ledger": [
+   {
+    "src": "L32495",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / NURSING PARENTS / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32499",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(caregiver), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A tiny gecko appears on a nursery wall during a quiet afternoon.",
+  "label_case": "title",
+  "cast_only": [
+   "caregiver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tiny gecko appears on a nursery wall during a quiet afternoon.",
+   "src": "L32496",
+   "choices": [
+    {
+     "label": "Let It Remain",
+     "next": "a",
+     "src": "L32497"
+    },
+    {
+     "label": "Guide It Outdoors",
+     "next": "b",
+     "src": "L32500"
+    },
+    {
+     "label": "Make Up a Nickname",
+     "next": "c",
+     "src": "L32503"
+    },
+    {
+     "label": "Discuss Hygiene",
+     "next": "d",
+     "src": "L32506"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "It eats insects near the window.",
+   "src": "L32498"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(caregiver), a caregiver, prefers to keep sleeping areas animal-free.",
+   "src": "L32499"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "It slips safely into a garden.",
+   "src": "L32501"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "It escapes before anyone can help.",
+   "src": "L32502"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children call it the Moon-Climber.",
+   "src": "L32504"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Several children argue over naming rights.",
+   "src": "L32505"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Food and bedding are kept protected.",
+   "src": "L32507",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32507"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The villagers learn not every visitor belongs indoors.",
+   "src": "L32508"
+  }
+ }
+}

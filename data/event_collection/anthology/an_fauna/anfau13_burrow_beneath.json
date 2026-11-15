@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Burrow Beneath the Hammock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau13_burrow_beneath",
+  "source": "anthology",
+  "lines": [
+   32647,
+   32661
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32647",
+  "ledger": [
+   {
+    "src": "L32648",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32652",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(owner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An animal has dug a burrow beneath a favorite hammock tree.",
+  "label_case": "title",
+  "cast_only": [
+   "owner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "owner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An animal has dug a burrow beneath a favorite hammock tree.",
+   "src": "L32649",
+   "choices": [
+    {
+     "label": "Move the Hammock",
+     "next": "a",
+     "src": "L32650"
+    },
+    {
+     "label": "Study the Burrow",
+     "next": "b",
+     "src": "L32653"
+    },
+    {
+     "label": "Protect the Roots",
+     "next": "c",
+     "src": "L32656"
+    },
+    {
+     "label": "Ask Children for Ideas",
+     "next": "d",
+     "src": "L32659"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The burrow remains safe.",
+   "src": "L32651"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(owner) misses their favorite shade.",
+   "src": "L32652"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Observers discover a family using it.",
+   "src": "L32654"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nobody can confirm the occupants.",
+   "src": "L32655"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The tree and burrow are monitored.",
+   "src": "L32657"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The solution takes longer than hoped.",
+   "src": "L32658"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They suggest a nearby resting place.",
+   "src": "L32660"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Their first design is wonderfully impractical.",
+   "src": "L32661"
+  }
+ }
+}

@@ -246,6 +246,51 @@ class FrozenDraftsC(unittest.TestCase):
         self.assertEqual(vv5_only, {"blf26", "blf27"})
 
 
+class FrozenAnthology(unittest.TestCase):
+    """The owner's all-in-one Animals anthology (2026-11-15), frozen byte for byte: only its newest volumes are rows,
+    one series each, built by scripts/anthology_new/gen_anthology.py."""
+
+    WANT = {"an_mom": 8, "an_rel": 36, "an_child": 47, "an_fam": 24, "an_joy": 38, "an_hs": 42, "an_age": 36,
+            "an_jus": 32, "an_expr": 74, "an_fauna": 24}
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        sid = lib.ANTHOLOGY_ID
+        self.assertEqual(lib.recorded_sha256(sid), "95172b7948bc94afe35013d3ceb28092fc78790b8ba3bf67e5ac228aacbe4de2")
+        self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+        rel = lib.ANTHOLOGY_HASH_FILE.read_text(encoding="ascii").split(None, 1)[1].strip()
+        self.assertEqual(ROOT / rel, lib.ANTHOLOGY)
+        self.assertEqual(lib.ANTHOLOGY.read_bytes().count(b"\n"), lib.ANTHOLOGY_LINES)
+        with lib.use_source(sid):
+            self.assertTrue(lib.line(59).startswith("[MOM-01]"))
+        self.assertEqual(data[sid]["uncovered_lines"], [])
+        self.assertEqual(data[sid]["overlaps"], [])
+        self.assertEqual(data[sid]["counts"]["series"], self.WANT)
+        rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+        self.assertEqual(len(rows), sum(self.WANT.values()))
+        for r in rows:
+            self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+            self.assertEqual(r["games"], [1, 2, 3, 4, 5])
+            self.assertEqual(r["series"], r["section"])
+        files = [p for p in cc.collection_files() if lib.ANTHOLOGY_DIR in p.parents]
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+        effects = {}
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+            for c in doc["nodes"]["setup"]["choices"]:
+                self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
+                    "Chief", "{@Chief}"), p.name)
+            for nd in doc["nodes"].values():
+                for e in nd.get("effects", []):
+                    effects[e["do"]] = effects.get(e["do"], 0) + 1
+            for r in doc["roles"].values():
+                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
+                    self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
+        # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
+        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

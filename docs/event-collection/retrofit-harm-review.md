@@ -372,3 +372,13 @@ The rest is small and good: food gains (ADV-33 both outcomes, BLF-25, DIV-09, NA
 small tech gains (BLF-20, BLF-39, DIV-17, NAT-31, HIS-37), small skill gains (HEA-23 and ADV-40 Healing, HEA-39
 Healing for the child, ADV-20 Building, DIV-27 Research), health gains (HEA-24, HEA-49, DIV-26 both outcomes) and
 celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners, DIV-30). LIF has no effect at all.
+
+## The Animals anthology's newest volumes (ANTHOLOGY)
+
+Range: MOM, REL, CHILD, FAM, JOY, EVENT-HS/AGE/JUSTICE/EXPRESSION/FAUNA of the owner's all-in-one Animals file
+(`anthology/an_<x>`), 361 events. Generator: `scripts/anthology_new/gen_anthology.py`. No harmful effect anywhere: no
+death, disappearance, health loss, sickness or food loss; no `protected: "allow"`. Injuries, illnesses and deaths the
+volumes tell (HS-024..030, JUSTICE-011..013, 019, the animals) are the premise or story text. The effects are hair dye
+(the random head look: MOM-06 A1/A2, REL-30 A1/B1/C1), REL-15 B1's sex change (code 22; refused for a carrying or
+nursing villager, a special villager, or with a sex-keeping companion in the game) and REL-05 A1 / JOY-18 A1's couple
+celebrating.

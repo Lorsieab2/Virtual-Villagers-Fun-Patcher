@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance Nobody Knew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy13_dance_nobody",
+  "source": "anthology",
+  "lines": [
+   28863,
+   28876
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28863",
+  "ledger": [],
+  "description": "Visitors teach an unfamiliar dance at a village gathering.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visitors teach an unfamiliar dance at a village gathering.",
+   "src": "L28864",
+   "choices": [
+    {
+     "label": "Try the Steps",
+     "next": "a",
+     "src": "L28865"
+    },
+    {
+     "label": "Watch First",
+     "next": "b",
+     "src": "L28868"
+    },
+    {
+     "label": "Trade Dance Lessons",
+     "next": "c",
+     "src": "L28871"
+    },
+    {
+     "label": "Make a New Dance Together",
+     "next": "d",
+     "src": "L28874"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The dancers stumble and laugh together.",
+   "src": "L28866"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One villager masters the rhythm surprisingly quickly.",
+   "src": "L28867"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The observers appreciate the performance.",
+   "src": "L28869"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitors invite the watchers to join when ready.",
+   "src": "L28870"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both groups discover shared movements.",
+   "src": "L28872"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The lessons turn into a playful argument about tempo.",
+   "src": "L28873"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A new tradition begins in the clearing.",
+   "src": "L28875"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The mixed dance is too complicated, so everyone simplifies it.",
+   "src": "L28876"
+  }
+ }
+}

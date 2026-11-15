@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendly Divorce",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy20_friendly",
+  "source": "anthology",
+  "lines": [
+   28968,
+   28981
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28968",
+  "ledger": [
+   {
+    "src": "L28969",
+    "kind": "sensitivity",
+    "before": "Former spouses discuss",
+    "after": "(spouse1) and (spouse2), former spouses, discuss",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Former spouses discuss how to remain part of one another's community.",
+  "label_case": "title",
+  "cast_only": [
+   "spouse1",
+   "spouse2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "spouse1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "spouse2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(spouse1) and (spouse2), former spouses, discuss how to remain part of one another's community.",
+   "src": "L28969",
+   "choices": [
+    {
+     "label": "Stay Close Friends",
+     "next": "a",
+     "src": "L28970"
+    },
+    {
+     "label": "Take Time Apart",
+     "next": "b",
+     "src": "L28973"
+    },
+    {
+     "label": "Discuss Practical Responsibilities",
+     "next": "c",
+     "src": "L28976"
+    },
+    {
+     "label": "Let Each Choose Future Relationships",
+     "next": "d",
+     "src": "L28979"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They enjoy a relaxed shared gathering.",
+   "src": "L28971"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They discover they need firmer boundaries first.",
+   "src": "L28972"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The distance helps both find peace.",
+   "src": "L28974"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Mutual friends feel unsure how to include them.",
+   "src": "L28975"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They agree on fair arrangements.",
+   "src": "L28977"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A difficult conversation requires another meeting.",
+   "src": "L28978"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Both feel free to move forward.",
+   "src": "L28980"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One needs longer to adjust and is given space.",
+   "src": "L28981"
+  }
+ }
+}

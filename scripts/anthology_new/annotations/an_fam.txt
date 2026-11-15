@@ -1,0 +1,118 @@
+# FAM-01..24: Family Friction, Everyday Boundaries, Separation and Reconciliation.  A parent with "a child" of the
+# family, siblings and cousins are recorded relations (cie-v6-binary.md 21).
+FAM-01
+R child 3-13 : child
+R adult 18+ : adult
+
+FAM-02
+R child 3-13 : child
+R cook 18+ : cook
+
+FAM-03
+R child 3-13 : frightened child | child
+R sibling 3-17 : sibling
+R parent 18+ @A2 : parent
+R adult 18+ @C2 : adult
+REL sibling sibling_of child
+E S: "One child accidentally breaks a sibling's" => "[child] accidentally breaks [sibling]'s"
+
+FAM-04
+R child 3-13 : child
+R sibling 3-17 : sibling
+REL sibling sibling_of child
+
+FAM-05
+R parent 18+ : exhausted parent | parent
+R child 3-13 : child
+REL parent parent_of child
+E S: "to a child who spilled water" => "to [child], who spilled water"
+
+FAM-06
+R adult 18+ : adult
+R child 3-13 : child
+
+FAM-07
+R villager 14+ : villager
+R friend 14+ : close friend- | old friend | friend
+
+FAM-08
+R partner1 18+ :
+R partner2 18+ :
+R elder 55+ @D1 : elder
+E S: "Two adult partners realize" => "[partner1] and [partner2], two adult partners, realize"
+
+FAM-09
+R elder1 55+ :
+R elder2 55+ :
+R relative 18+ @A2,D1 : younger relative | relative
+E S: "Two elders enjoy" => "[elder1] and [elder2], two elders, enjoy"
+
+FAM-10
+R cousin1 3-17 :
+R cousin2 3-17 :
+REL cousin2 cousin_of cousin1
+E S: "Two cousins turn" => "[cousin1] and [cousin2], two cousins, turn"
+
+FAM-11
+R friend 14+ @C1,C2 : friend
+
+FAM-12
+R master 18+ : master
+R apprentice 14+ : apprentice
+
+FAM-13
+R villager 14+ : villager | joker
+R friend 14+ : friend
+
+FAM-14
+R child 3-13 : child
+R relative 18+ : visiting relative | relative
+R adult 18+ @A2 : trusted adult
+
+FAM-15
+R sibling1 3+ :
+R sibling2 3+ :
+REL sibling2 sibling_of sibling1
+E S: "Two siblings have" => "[sibling1] and [sibling2], two siblings, have"
+
+FAM-16
+R relative 18+ @C2 : relative
+
+FAM-17
+R singer 14+ : singer
+R neighbor 14+ : neighbor
+R fisher 14+ @B2 : fisher
+E S: "A villager's cheerful singing disturbs a neighbor who wants quiet" => "[singer]'s cheerful singing disturbs [neighbor], who wants quiet"
+
+FAM-18
+R forgetter 14+ @S : friend
+R villager 14+ @A1,A2,B1,B2,C1,C2,D1,D2 : forgotten friend | friend
+E S: "another villager's" => "[villager]'s"
+
+FAM-19
+R parent 18+ : parent
+R child 3-13 : child
+REL parent parent_of child
+
+FAM-20
+R friend1 14+ :
+R friend2 14+ :
+E S: "Two friends who drifted apart meet" => "[friend1] and [friend2], two friends who drifted apart, meet"
+
+FAM-21
+R child 3-13 : child
+R adult 18+ @D2 : adult
+
+FAM-22
+R younger 3-9 : younger child
+R older 10-17 : older sibling
+REL older sibling_of younger
+E S: "A younger child repeatedly interrupts an older sibling's quiet time" => "[younger], a younger child, repeatedly interrupts the quiet time of [older], an older sibling"
+
+FAM-23
+R relative 18+ : well-meaning relative | relative
+
+FAM-24
+R parent 18+ : parent
+R child 3-13 : child
+REL parent parent_of child

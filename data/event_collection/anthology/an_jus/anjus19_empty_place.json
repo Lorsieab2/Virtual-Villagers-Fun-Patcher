@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Place at the Table",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus19_empty_place",
+  "source": "anthology",
+  "lines": [
+   31007,
+   31021
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31007",
+  "ledger": [
+   {
+    "src": "L31008",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31014",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31015",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A family gathers after the death of a child, unsure whether to leave their usual place empty.",
+  "label_case": "title",
+  "cast_only": [
+   "adult",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family gathers after the death of a child, unsure whether to leave their usual place empty.",
+   "src": "L31009",
+   "choices": [
+    {
+     "label": "Ask the Family What Feels Right",
+     "next": "a",
+     "src": "L31010"
+    },
+    {
+     "label": "Answer Children Honestly",
+     "next": "b",
+     "src": "L31013"
+    },
+    {
+     "label": "Offer Practical Support",
+     "next": "c",
+     "src": "L31016"
+    },
+    {
+     "label": "Remember Without Prescribing Grief",
+     "next": "d",
+     "src": "L31019"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"death\"",
+     "reason": "a death only talked about (the premise or the word's everyday sense); nobody dies -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31009"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They leave a small flower at the place.",
+   "src": "L31011"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They set the table normally and share a memory afterward.",
+   "src": "L31012"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(adult) explains death simply without frightening details.",
+   "src": "L31014",
+   "text_only": [
+    {
+     "what": "\"death\"",
+     "reason": "a death only talked about (the premise or the word's everyday sense); nobody dies -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31014"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) asks why people die and hears that some questions have no easy answer.",
+   "src": "L31015",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (the premise or the word's everyday sense); nobody dies -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31015"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Neighbors prepare food and handle chores.",
+   "src": "L31017",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31017"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The family asks for fewer visitors and that boundary is honored.",
+   "src": "L31018"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A sibling tells a funny story.",
+   "src": "L31020"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family spends the evening quietly together.",
+   "src": "L31021"
+  }
+ }
+}
