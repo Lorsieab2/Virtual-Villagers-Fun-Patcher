@@ -164,7 +164,8 @@ GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
 
 def full_entry(picker: Picker, row: list[str], cieg: bytes) -> tuple[str, str, str, str]:
     """(title, description, needs, refusal) of the list's only entry, from the manifest's WHOLE line `row`."""
-    picker.p.write(picker.text, ("\t".join(row) + "\n").encode("cp1252") + b"\0")
+    # The shipped manifest's own bytes (UTF-8): a credit may hold any character (Role Models' heading has an emoji).
+    picker.p.write(picker.text, ("\t".join(row) + "\n").encode("utf-8") + b"\0")
     picker.p.write(picker.blob, cieg)
     picker.p.export("VvfpStoryProbeCollectionManifest", picker.text, 0, 0)
     picker.p.export("VvfpStoryProbeCollectionCieg", picker.blob, len(cieg))
@@ -214,8 +215,10 @@ class TheDescriptions(unittest.TestCase):
         if "vv5" not in GAMES:
             self.skipTest("needs New Believers' stock executable")
         rows = manifest_rows(5)
+        # The Homesick Convert, and the living volumes' events that say Heathen (LV-B PEOPLES, UNSEEN ...).
         varied = [r for r in rows if r[7] or r[8]]
-        self.assertEqual(sorted(r[0] for r in varied), ["vv5_convert_who_missed_home"])
+        self.assertIn("vv5_convert_who_missed_home", [r[0] for r in varied])
+        varied = [r for r in varied if r[0] == "vv5_convert_who_missed_home"]
         for guardians in (False, True):
             for adults in (4, 1):
                 picker = Picker("vv5", adults)
