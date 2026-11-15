@@ -20,7 +20,7 @@ ASCII.
   | Field | Value |
   |---|---|
   | id | `living_le_<cat>_<nn>` (Living Engine seed, e.g. `living_le_per_01`, `living_le_bel_10`) or `living_mc_<cat>_<nn>` (MC situation, e.g. `living_mc_isl_01`, `living_mc_bel_15`); `<cat>` is the category code in lower case, `<nn>` the seed's number in it, two digits. At most 16 characters (VV1's 22-character id cap holds) |
-  | title | the category's heading in title case (`title_case(heading)`, e.g. "Personal Expression"; MC "Island Businesses & Markets") |
+  | title | the category's heading in title case (the bank's `title`, e.g. "Personal Expression"; MC "Island Businesses and Markets": no game's title can show `&`, grammar fix `living-title-ampersand`) |
   | games | the games whose pack holds at least one variant of the seed |
   | draw weight | 1 |
   | series | **one series per category** (owner, 2026-11-14): `living_le_<cat>` (12 series) and `living_mc_<cat>` (6 series). The collection's draw counts a series as one event, so each category is one entry of the rare roll and its seeds share it equally |
