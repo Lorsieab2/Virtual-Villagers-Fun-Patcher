@@ -350,7 +350,7 @@ Pairs in the expanded table: seed_approach 398, seed_choice 58, seed_archetype 4
 
 ### The owner's MIX examples that break a rule
 
-These are the owner's own text and stay as written until the owner decides (keep the MIX as variant 0, or drop the outcome or cast it pairs badly with). The generator never makes such a combination itself.
+These are the owner's own text. Lead decision (2026-11-14): each is its seed's variant 0 with only the offending piece swapped for the nearest compatible one; every change is in the table below ("Variant 0"). The generator never makes such a combination itself.
 
 | MIX | Seed | Conflict |
 |---|---|---|
@@ -369,6 +369,80 @@ These are the owner's own text and stay as written until the owner decides (keep
 | MIX-050 | ART-02 | role "a child" x archetype "A rushed choice wastes scarce supplies."; role "a confident novice" x personality "confident" |
 | MIX-053 | OTH-06 | role "an elderly villager" x archetype "A small success comes with an unexpected embarrassment."; role "an elderly villager" x personality "forgetful" |
 | MIX-054 | CEL-06 | role "a skeptical observer" x personality "skeptical" |
+
+<!-- living-mixer: begin (written by python src/vv_living_mixer.py --write-docs) -->
+### The sensitivity rules the mixer adds (owner, 2026-11-14)
+
+The bank's rules above are extended with these; every variant obeys them (`scripts/living_check.py`).
+
+| Rule | What is never combined |
+|---|---|
+| S1 | A villager whom a harmful outcome of the variant can reach, and both villagers when a blame outcome is possible, never get a personality that can read as an insult or an age stereotype (insecure, tired, forgetful, blunt, superstitious): the bad outcome would read as that trait's fault. |
+| S2 | A mocking or comedic choice never leads to an outcome that hurts someone (an injury, a harm, someone excluded, leaving, a death, a friendship ending): the joke would read as the cause. |
+| S3 | A trial (an experiment, a new tool, magic, animal help, a small-scale or cautious trial) never leads to an injury or a death: never harm shown as inflicted by the trial. |
+| S4 | A confrontational choice (speaking candidly, a firm boundary, disagreeing, declining, the established custom, the chief deciding) never leads to someone leaving, a friendship ending, someone excluded or an injury: the choice would read as having driven someone away or hurt them. |
+| S5 | Belief and spirit seeds never call a villager superstitious (a stigma on believers). |
+| S6 | Asking an elder to explain the tradition never leads to an elder's death. |
+| S7 | A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a child, a teenager or anyone younger than 18 in any role. |
+| S8 | An injury or exhaustion never lands on a child or a teenager (child labour would be implied). |
+| S9 | Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied). |
+
+### Variant 0: the MIX examples as shipped, with every change
+
+Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offending piece swapped for the nearest compatible one, and the doubled-word grammar fix. Changes marked "sensitivity edit" follow the owner's content rules (S1-S9) and are listed for the owner's review. The MIX anchor test (`tests/test_living_fidelity.py`) reproduces each MIX from the source with exactly these changes.
+
+| MIX | What | Before | After | Why |
+|---|---|---|---|---|
+| MIX-001 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_teenager x archetype le_arc_bad_03 |
+| MIX-001 | choice D outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | role le_role_teenager x archetype le_arc_bad_06 |
+| MIX-002 | first villager's role | a teenager | an adult villager | seed x role le_role_teenager |
+| MIX-005 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
+| MIX-005 | second villager's personality (sensitivity edit) | forgetful | thoughtful | S1 |
+| MIX-006 | choice D outcome 1 | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | seed x archetype le_arc_good_06 |
+| MIX-007 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
+| MIX-007 | second villager's personality (sensitivity edit) | blunt | stubborn | S1 |
+| MIX-008 | first villager's personality (sensitivity edit) | tired | thoughtful | S1 |
+| MIX-008 | second villager's personality (sensitivity edit) | insecure | cautious | S1 |
+| MIX-009 | choice A outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-010 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
+| MIX-016 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | seed x archetype le_arc_bad_03 |
+| MIX-016 | choice B outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-016 | choice D outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
+| MIX-020 | choice C outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_child x archetype le_arc_bad_03 |
+| MIX-021 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
+| MIX-022 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
+| MIX-023 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
+| MIX-027 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
+| MIX-027 | second villager's role | a chief | a council member | no game has both roles (the chief is VV3 only, the practitioners VV5 only) |
+| MIX-029 | choice C outcome 1 | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | seed x archetype le_arc_good_06 |
+| MIX-030 | choice C outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | seed x archetype le_arc_bad_03 |
+| MIX-030 | choice D outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-031 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_teenager x archetype le_arc_bad_03 |
+| MIX-031 | choice B outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S4 |
+| MIX-031 | choice D outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | role le_role_teenager x archetype le_arc_bad_06 |
+| MIX-032 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S8 |
+| MIX-033 | second villager's personality (sensitivity edit) | superstitious | devout | S5 |
+| MIX-035 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
+| MIX-037 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
+| MIX-038 | first villager's personality (sensitivity edit) | superstitious | devout | S1 |
+| MIX-042 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
+| MIX-042 | choice D outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | seed x archetype le_arc_mixed_08 |
+| MIX-045 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
+| MIX-047 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
+| MIX-050 | choice C outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_child x archetype le_arc_bad_03 |
+| MIX-050 | first villager (doubled word, grammar fix) | a confident a confident novice | a confident novice | role le_role_confident_novice x personality le_pers_confident |
+| MIX-051 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
+| MIX-052 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S2 |
+| MIX-052 | first villager's personality (sensitivity edit) | blunt | stubborn | S1 |
+| MIX-053 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
+| MIX-053 | second villager's personality | forgetful | thoughtful | role le_role_elderly_villager x personality le_pers_forgetful |
+| MIX-054 | first villager (doubled word, grammar fix) | a skeptical a skeptical observer | a skeptical observer | role le_role_skeptical_observer x personality le_pers_skeptical |
+| MIX-055 | second villager's personality (sensitivity edit) | blunt | stubborn | S1 |
+| MIX-056 | first villager's personality (sensitivity edit) | tired | thoughtful | S1 |
+| MIX-056 | second villager's personality (sensitivity edit) | insecure | cautious | S1 |
+| MIX-057 | second villager's personality (sensitivity edit) | superstitious | devout | S1 |
+| MIX-057 | second villager's role | a chief | a council member | no game has both roles (the chief is VV3 only, the practitioners VV5 only) |
+<!-- living-mixer: end -->
 
 ## 8. The MC bank (95 situations, 760 outcomes)
 

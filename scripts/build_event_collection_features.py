@@ -37,6 +37,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cie  # noqa: E402
+import vv_living_mixer as living  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
@@ -58,6 +59,12 @@ CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collectio
 NAME = "Isola Grand Event Collection"
 GAMES = (1, 2, 3, 4, 5)
 NOT_EVENTS = {"manifest.json", "shared_pools.json"}
+# The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
+# "Island Event Collection\\living.pak", and its seeds are manifest rows (id living_..., one series per category).
+LIVING_NAME = "living.pak"
+LIVING_SOURCE = ROOT / "docs" / "more-island-events" / "Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt"
+LIVING_SHA256 = (ROOT / "data" / "living_events" / "SOURCE.sha256").read_text(encoding="ascii").split()[0].upper()
+LIVING_CREDIT_LINE = 23815
 
 # The source's own credit texts, by line (1-based, inclusive): the ledger, then each section's credit block.
 LEDGER = (1, 91)
@@ -184,17 +191,35 @@ def manifest_line(game: int, e: dict) -> str:
                       e["credit"], description] + extra)
 
 
-def manifest_text(game: int, events: list[dict]) -> str:
+def living_line(r: dict) -> str:
+    """A Living Event Engine seed's row: its event is in living.pak (the id's living_ prefix says so)."""
+    return "\t".join([r["id"], r["title"], ",".join(str(n) for n in r["games"]), str(r["weight"]), r["series"],
+                      one_line(r["credit"]), one_line(r["description"]), "", ""])
+
+
+def manifest_text(game: int, events: list[dict], living_rows: list[dict] | None = None) -> str:
     rows = ["# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.",
             "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
     for e in events:
         if game in e["games"]:
             rows.append(manifest_line(game, e))
+    for r in living_rows or []:
+        rows.append(living_line(r))
     return "\n".join(rows) + "\n"
 
 
-def credits_text(events: list[dict], lines: list[str] | None = None) -> str:
-    """The credits: the ledger and each section's credit block verbatim, then each event's own credit."""
+def living_source_line(n: int) -> str:
+    """Line n of the frozen Living Event Engine source, after checking its SHA-256."""
+    raw = LIVING_SOURCE.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest().upper()
+    if digest != LIVING_SHA256:
+        raise SystemExit(f"{LIVING_SOURCE.name}: SHA-256 {digest}, expected {LIVING_SHA256}")
+    return raw.decode("utf-8").split("\n")[n - 1].rstrip("\r")
+
+
+def credits_text(events: list[dict], lines: list[str] | None = None, living_on: bool = False) -> str:
+    """The credits: the ledger and each section's credit block verbatim, then each event's own credit (and, with the
+    Living Event Engine, its source's credit line verbatim)."""
     lines = lines if lines is not None else source_lines()
     out = ["ISOLA GRAND EVENT COLLECTION - CREDITS\n",
            "\n",
@@ -221,6 +246,16 @@ def credits_text(events: list[dict], lines: list[str] | None = None) -> str:
         which = "companion source lines" if e.get("source") == "companion" else "source lines"
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
+    if living_on:
+        out += ["\n",
+                f"THE LIVING EVENT ENGINE (source: {LIVING_SOURCE.name}, SHA-256 {LIVING_SHA256}, line "
+                f"{LIVING_CREDIT_LINE}, verbatim)\n",
+                "\n",
+                living_source_line(LIVING_CREDIT_LINE) + "\n",
+                "\n",
+                "Its situation seeds, roles, personalities, approaches and outcomes (the Living Engine bank, lines "
+                "23812-25133) and its authored situations and outcomes (MC, lines 25134-26616) are combined by the "
+                "patcher into the events in " + LIVING_NAME + "; the same credit covers both.\n"]
     return "".join(out)
 
 
@@ -228,7 +263,7 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
-def description(game: int, count: int) -> str:
+def description(game: int, count: int, living_count: int = 0) -> str:
     return (
         "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; "
         "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"), as rare, separate events: "
@@ -240,6 +275,9 @@ def description(game: int, count: int) -> str:
         "(never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event "
         "lists them (with what each needs), and the Custom Island Event library has them in its own \"" + NAME
         + "\" group. " + (f"{count} events in this game in this build. " if count else "")
+        + (f"The Living Event Engine adds {living_count} situations, each shown as one of its owner-written "
+           "variants with the villagers' names (each category counts as one event in the rare roll). "
+           if living_count else "")
         + "Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. "
         "**Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** "
         "**Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** "
@@ -247,7 +285,7 @@ def description(game: int, count: int) -> str:
     )
 
 
-def row(game: int, files: list[tuple[str, str, bytes]], count: int) -> dict:
+def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count: int = 0) -> dict:
     return {
         "id": f"vv{game}_isola_grand_event_collection",
         "enabled": True,
@@ -255,7 +293,7 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int) -> dict:
         "catalog_hidden": False,
         "game_id": f"vv{game}",
         "name": NAME,
-        "description": description(game, count),
+        "description": description(game, count, living_count),
         "output_tag": "Isola Grand Event Collection",
         "dependencies": [f"vv{game}_story_cheat_upgrades", f"vv{game}_scrolling_popups"],
         "behavior_changes": [
@@ -290,27 +328,46 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int) -> dict:
     }
 
 
+_LIVING_CACHE: dict = {}
+
+
+def living_build() -> tuple[list, dict[int, bytes]]:
+    """The Living Event Engine's variants and packs (built once per process: about half a minute)."""
+    if "built" not in _LIVING_CACHE:
+        _LIVING_CACHE["built"] = living.build()
+    return _LIVING_CACHE["built"]
+
+
 def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data", docs: Path = CREDITS_MD,
-          write: bool = True) -> dict[int, dict]:
-    """Compile, write the files and the five rows; returns them by game."""
+          write: bool = True, living_on: bool | None = None) -> dict[int, dict]:
+    """Compile, write the files and the five rows; returns them by game.  The Living Event Engine's packs and rows
+    come with the shipped collection (`living_on` None: when `src` is the shipped data)."""
+    if living_on is None:
+        living_on = Path(src) == DATA
     lines = source_lines()
     events = compile_events(src)
-    credits = credits_text(events, lines)
+    credits = credits_text(events, lines, living_on)
+    variants, packs = living_build() if living_on else ([], {})
     rows = {}
     planned: dict[Path, bytes] = {}
     for e in events:
         planned[assets / f"{e['id']}.cieg"] = e["cieg"]
     planned[assets / CREDITS_NAME] = credits.encode("utf-8")
     for game in GAMES:
-        manifest = manifest_text(game, events).encode("utf-8")
+        living_rows = living.manifest_rows(game, variants) if living_on else []
+        manifest = manifest_text(game, events, living_rows).encode("utf-8")
         planned[assets / f"vv{game}" / "manifest.txt"] = manifest
         files = [(f"{assets.relative_to(ROOT).as_posix()}/vv{game}/manifest.txt", f"{FOLDER}/manifest.txt", manifest),
                  (f"{assets.relative_to(ROOT).as_posix()}/{CREDITS_NAME}", f"{FOLDER}/{CREDITS_NAME}",
                   credits.encode("utf-8"))]
+        if living_on:
+            planned[assets / f"vv{game}" / LIVING_NAME] = packs[game]
+            files.append((f"{assets.relative_to(ROOT).as_posix()}/vv{game}/{LIVING_NAME}", f"{FOLDER}/{LIVING_NAME}",
+                          packs[game]))
         mine = [e for e in events if game in e["games"]]
         files += [(f"{assets.relative_to(ROOT).as_posix()}/{e['id']}.cieg", f"{FOLDER}/{e['id']}.cieg", e["cieg"])
                   for e in mine]
-        rows[game] = row(game, files, len(mine))
+        rows[game] = row(game, files, len(mine), len(living_rows))
     if write:
         for path, data in planned.items():
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -328,7 +385,7 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
 def main() -> None:
     rows = build()
     for game, record in rows.items():
-        print(f"vv{game}: {len(record['companion_files']) - 2} events -> "
+        print(f"vv{game}: {len(record['companion_files']) - 3} events and living.pak -> "
               f"data/vv{game}_isola_grand_event_collection_feature.json")
 
 
