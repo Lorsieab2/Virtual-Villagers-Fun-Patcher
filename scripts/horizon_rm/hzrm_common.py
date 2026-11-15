@@ -103,7 +103,8 @@ def _doc(row: dict, roles: dict, desc: str, ledger: list[dict], q_text: str, q_s
     assert not unknown, (row["id"], unknown)
     choices, nodes = [], {}
     for k in letters:
-        choices.append({"label": labels[k], "next": k, "src": srcs[k]})
+        # the owner (2026-11-15): choice options are always title case (collection_lib.title_case_label)
+        choices.append({"label": lib.title_case_label(labels[k]), "next": k, "src": srcs[k]})
         kids = []
         for j in (1, 2):
             key = f"{k}{j}"
@@ -126,7 +127,8 @@ def _doc(row: dict, roles: dict, desc: str, ledger: list[dict], q_text: str, q_s
     nodes = {"setup": q, **nodes}
     nodes = {key: nodes[key] for key in order}
     used = {e.get("role") for n in nodes.values() for e in n.get("effects", [])} - {None, "all"}
-    col = {"id": row["id"], "title_src": L(row["lines"][0]), "ledger": ledger, "description": desc}
+    col = {"id": row["id"], "title_src": L(row["lines"][0]), "ledger": ledger, "description": desc,
+           "label_case": "title"}
     cast_only = [r for r in roles if r not in used]
     if cast_only:
         col["cast_only"] = cast_only

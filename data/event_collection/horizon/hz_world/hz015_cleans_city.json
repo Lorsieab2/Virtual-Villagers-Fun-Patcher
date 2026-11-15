@@ -23,6 +23,7 @@
   "title_src": "L196",
   "ledger": [],
   "description": "A sanitation worker asks how an imagined city of thousands could keep its water and streets clean.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L197",
    "choices": [
     {
-     "label": "Design water channels.",
+     "label": "Design Water Channels.",
      "next": "a",
      "src": "L198"
     },
     {
-     "label": "Imagine an organized cleaning service.",
+     "label": "Imagine an Organized Cleaning Service.",
      "next": "b",
      "src": "L201"
     },
     {
-     "label": "Imagine neglect.",
+     "label": "Imagine Neglect.",
      "next": "c",
      "src": "L204"
     }

@@ -29,6 +29,7 @@
    }
   ],
   "description": "A council member wonders whether distant communities select leaders by ancestry, skill, election, chance, or force.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L339",
    "choices": [
     {
-     "label": "Imagine a public vote.",
+     "label": "Imagine a Public Vote.",
      "next": "a",
      "src": "L340"
     },
     {
-     "label": "Imagine hereditary leadership.",
+     "label": "Imagine Hereditary Leadership.",
      "next": "b",
      "src": "L343"
     },
     {
-     "label": "Imagine no single leader.",
+     "label": "Imagine No Single Leader.",
      "next": "c",
      "src": "L346"
     }
@@ -69,7 +70,7 @@
    "text_only": [
     {
      "what": "\"skill\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L339"
     }
    ]

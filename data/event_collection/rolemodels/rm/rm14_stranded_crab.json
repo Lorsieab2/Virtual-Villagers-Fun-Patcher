@@ -30,6 +30,7 @@
    }
   ],
   "description": "Two children find a small crab trapped beneath a fallen basket near the shore.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L31",
    "choices": [
     {
-     "label": "Lift the basket carefully.",
+     "label": "Lift the Basket Carefully.",
      "next": "a",
      "src": "L31"
     },
     {
-     "label": "Ask an older villager for help.",
+     "label": "Ask an Older Villager for Help.",
      "next": "b",
      "src": "L31"
     },
     {
-     "label": "Clear nearby debris without touching the crab.",
+     "label": "Clear Nearby Debris Without Touching the Crab.",
      "next": "c",
      "src": "L31"
     },
     {
-     "label": "Observe quietly before acting.",
+     "label": "Observe Quietly Before Acting.",
      "next": "d",
      "src": "L31"
     }

@@ -30,6 +30,7 @@
    }
   ],
   "description": "An older sibling promised to help a younger child finish a woven bracelet but has been assigned an unexpected chore.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L9",
    "choices": [
     {
-     "label": "Explain the delay and arrange another time.",
+     "label": "Explain the Delay and Arrange Another Time.",
      "next": "a",
      "src": "L9"
     },
     {
-     "label": "Ask another family member to help with the chore.",
+     "label": "Ask Another Family Member to Help with the Chore.",
      "next": "b",
      "src": "L9"
     },
     {
-     "label": "Work on the bracelet for a few minutes first.",
+     "label": "Work on the Bracelet for a Few Minutes First.",
      "next": "c",
      "src": "L9"
     },
     {
-     "label": "Invite the child to help with an age-appropriate part of the chore.",
+     "label": "Invite the Child to Help with an Age-Appropriate Part of the Chore.",
      "next": "d",
      "src": "L9"
     }

@@ -23,6 +23,7 @@
   "title_src": "L59",
   "ledger": [],
   "description": "After two neighbors dispute a borrowed basket, a mediator asks whether faraway people quarrel over ordinary things.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L60",
    "choices": [
     {
-     "label": "Imagine the same disagreement.",
+     "label": "Imagine the Same Disagreement.",
      "next": "a",
      "src": "L61"
     },
     {
-     "label": "Imagine enormous disputes.",
+     "label": "Imagine Enormous Disputes.",
      "next": "b",
      "src": "L64"
     },
     {
-     "label": "Imagine reconciliation.",
+     "label": "Imagine Reconciliation.",
      "next": "c",
      "src": "L67"
     }

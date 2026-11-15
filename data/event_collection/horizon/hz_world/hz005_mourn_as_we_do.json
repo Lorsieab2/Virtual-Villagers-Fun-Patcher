@@ -29,6 +29,7 @@
    }
   ],
   "description": "A young villager wonders whether distant peoples remember their dead with songs, silence, flowers or stories.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L72",
    "choices": [
     {
-     "label": "Imagine familiar ceremonies.",
+     "label": "Imagine Familiar Ceremonies.",
      "next": "a",
      "src": "L73"
     },
     {
-     "label": "Imagine unfamiliar customs.",
+     "label": "Imagine Unfamiliar Customs.",
      "next": "b",
      "src": "L76"
     },
     {
-     "label": "Ask what grief shares.",
+     "label": "Ask What Grief Shares.",
      "next": "c",
      "src": "L79"
     }
@@ -135,7 +136,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L81"
     }
    ]

@@ -23,6 +23,7 @@
   "title_src": "L224",
   "ledger": [],
   "description": "A musician wonders whether distant people could speak with loved ones too far away to hear a shout.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L225",
    "choices": [
     {
-     "label": "Imagine a chain of messengers.",
+     "label": "Imagine a Chain of Messengers.",
      "next": "a",
      "src": "L226"
     },
     {
-     "label": "Imagine a speaking device.",
+     "label": "Imagine a Speaking Device.",
      "next": "b",
      "src": "L229"
     },
     {
-     "label": "Ask what they would say.",
+     "label": "Ask What They Would Say.",
      "next": "c",
      "src": "L232"
     }

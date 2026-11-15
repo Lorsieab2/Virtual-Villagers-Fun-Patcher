@@ -23,6 +23,7 @@
   "title_src": "L887",
   "ledger": [],
   "description": "An elder wonders whether distant peoples choose leaders, inherit authority, or settle decisions in ways Isola has never tried.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L888",
    "choices": [
     {
-     "label": "Imagine voting.",
+     "label": "Imagine Voting.",
      "next": "a",
      "src": "L889"
     },
     {
-     "label": "Imagine councils.",
+     "label": "Imagine Councils.",
      "next": "b",
      "src": "L892"
     },
     {
-     "label": "Imagine dissent.",
+     "label": "Imagine Dissent.",
      "next": "c",
      "src": "L895"
     }

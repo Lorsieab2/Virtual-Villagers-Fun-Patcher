@@ -23,6 +23,7 @@
   "title_src": "L96",
   "ledger": [],
   "description": "Watching an elder mend a net, an apprentice asks whether people in distant lands also grow old.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L97",
    "choices": [
     {
-     "label": "Imagine elders surrounded by family.",
+     "label": "Imagine Elders Surrounded by Family.",
      "next": "a",
      "src": "L98"
     },
     {
-     "label": "Imagine distant methods of care.",
+     "label": "Imagine Distant Methods of Care.",
      "next": "b",
      "src": "L101"
     },
     {
-     "label": "Ask the elder directly.",
+     "label": "Ask the Elder Directly.",
      "next": "c",
      "src": "L104"
     }
@@ -63,7 +64,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L97"
     }
    ]

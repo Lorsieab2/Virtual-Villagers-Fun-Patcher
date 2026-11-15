@@ -30,6 +30,7 @@
    }
   ],
   "description": "During a busy repair, a young apprentice notices that an experienced craftsperson has become unusually tired and unsteady.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L79",
    "choices": [
     {
-     "label": "Quietly ask whether the craftsperson needs a rest.",
+     "label": "Quietly Ask Whether the Craftsperson Needs a Rest.",
      "next": "a",
      "src": "L79"
     },
     {
-     "label": "Offer to take over a suitable part of the task.",
+     "label": "Offer to Take Over a Suitable Part of the Task.",
      "next": "b",
      "src": "L79"
     },
     {
-     "label": "Bring water and suggest moving into the shade.",
+     "label": "Bring Water and Suggest Moving into the Shade.",
      "next": "c",
      "src": "L79"
     },
     {
-     "label": "Inform the work leader discreetly.",
+     "label": "Inform the Work Leader Discreetly.",
      "next": "d",
      "src": "L79"
     }

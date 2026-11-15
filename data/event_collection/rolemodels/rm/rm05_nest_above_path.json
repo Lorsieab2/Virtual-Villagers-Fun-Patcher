@@ -30,6 +30,7 @@
    }
   ],
   "description": "A gardener discovers that a pair of birds has built a nest in branches over a frequently used path.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L13",
    "choices": [
     {
-     "label": "Ask villagers to use another route temporarily.",
+     "label": "Ask Villagers to Use Another Route Temporarily.",
      "next": "a",
      "src": "L13"
     },
     {
-     "label": "Observe the nest from a respectful distance.",
+     "label": "Observe the Nest from a Respectful Distance.",
      "next": "b",
      "src": "L13"
     },
     {
-     "label": "Delay pruning the nearby branches.",
+     "label": "Delay Pruning the Nearby Branches.",
      "next": "c",
      "src": "L13"
     },
     {
-     "label": "Consult an experienced bird watcher.",
+     "label": "Consult an Experienced Bird Watcher.",
      "next": "d",
      "src": "L13"
     }

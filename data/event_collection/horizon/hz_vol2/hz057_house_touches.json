@@ -23,6 +23,7 @@
   "title_src": "L779",
   "ledger": [],
   "description": "A mason speculates that distant people might stack homes so high that hundreds of families live above one another.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L780",
    "choices": [
     {
-     "label": "Study the structure.",
+     "label": "Study the Structure.",
      "next": "a",
      "src": "L781"
     },
     {
-     "label": "Study the neighbors.",
+     "label": "Study the Neighbors.",
      "next": "b",
      "src": "L784"
     },
     {
-     "label": "Study access.",
+     "label": "Study Access.",
      "next": "c",
      "src": "L787"
     }

@@ -30,6 +30,7 @@
    }
   ],
   "description": "Two young scholars disagree about an unusual mark found on a stone, and their classmates expect one to be declared correct.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L33",
    "choices": [
     {
-     "label": "Compare the evidence for both explanations.",
+     "label": "Compare the Evidence for Both Explanations.",
      "next": "a",
      "src": "L33"
     },
     {
-     "label": "Record both interpretations.",
+     "label": "Record Both Interpretations.",
      "next": "b",
      "src": "L33"
     },
     {
-     "label": "Ask a third scholar to examine the stone independently.",
+     "label": "Ask a Third Scholar to Examine the Stone Independently.",
      "next": "c",
      "src": "L33"
     },
     {
-     "label": "Set the stone aside until better evidence appears.",
+     "label": "Set the Stone Aside Until Better Evidence Appears.",
      "next": "d",
      "src": "L33"
     }

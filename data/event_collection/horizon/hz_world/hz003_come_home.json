@@ -23,6 +23,7 @@
   "title_src": "L47",
   "ledger": [],
   "description": "Two villagers wonder whether distant people hurry home to spouses, friends, relatives, pets, or simply a peaceful room.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L48",
    "choices": [
     {
-     "label": "Picture a bustling household.",
+     "label": "Picture a Bustling Household.",
      "next": "a",
      "src": "L49"
     },
     {
-     "label": "Picture someone living alone.",
+     "label": "Picture Someone Living Alone.",
      "next": "b",
      "src": "L52"
     },
     {
-     "label": "Discuss what makes a home.",
+     "label": "Discuss What Makes a Home.",
      "next": "c",
      "src": "L55"
     }

@@ -23,6 +23,7 @@
   "title_src": "L767",
   "ledger": [],
   "description": "A night watchkeeper imagines streets lit after sunset by a power other than fire.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L768",
    "choices": [
     {
-     "label": "Welcome the light.",
+     "label": "Welcome the Light.",
      "next": "a",
      "src": "L769"
     },
     {
-     "label": "Ask where power comes from.",
+     "label": "Ask Where Power Comes From.",
      "next": "b",
      "src": "L772"
     },
     {
-     "label": "Keep a dark place.",
+     "label": "Keep a Dark Place.",
      "next": "c",
      "src": "L775"
     }

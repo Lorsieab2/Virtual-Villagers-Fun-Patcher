@@ -23,6 +23,7 @@
   "title_src": "L148",
   "ledger": [],
   "description": "A trader imagines a distant marketplace where buyers can choose from more goods than anyone could carry.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L149",
    "choices": [
     {
-     "label": "Imagine abundant choices.",
+     "label": "Imagine Abundant Choices.",
      "next": "a",
      "src": "L150"
     },
     {
-     "label": "Ask how trade works.",
+     "label": "Ask How Trade Works.",
      "next": "b",
      "src": "L153"
     },
     {
-     "label": "Ask what happens to leftovers.",
+     "label": "Ask What Happens to Leftovers.",
      "next": "c",
      "src": "L156"
     }

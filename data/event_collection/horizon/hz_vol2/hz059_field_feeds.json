@@ -23,6 +23,7 @@
   "title_src": "L803",
   "ledger": [],
   "description": "A farmer imagines distant farms covering more land than a person could walk in a day.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L804",
    "choices": [
     {
-     "label": "Celebrate the harvest.",
+     "label": "Celebrate the Harvest.",
      "next": "a",
      "src": "L805"
     },
     {
-     "label": "Examine the soil.",
+     "label": "Examine the Soil.",
      "next": "b",
      "src": "L808"
     },
     {
-     "label": "Examine the workers.",
+     "label": "Examine the Workers.",
      "next": "c",
      "src": "L811"
     }

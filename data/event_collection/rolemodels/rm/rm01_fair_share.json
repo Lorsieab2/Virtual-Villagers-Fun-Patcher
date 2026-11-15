@@ -30,6 +30,7 @@
    }
   ],
   "description": "After a difficult harvest, a farmer notices that the food portions are uneven, and several families are still waiting.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L5",
    "choices": [
     {
-     "label": "Divide the remaining food into equal portions.",
+     "label": "Divide the Remaining Food into Equal Portions.",
      "next": "a",
      "src": "L5"
     },
     {
-     "label": "Ask each household what it needs.",
+     "label": "Ask Each Household What It Needs.",
      "next": "b",
      "src": "L5"
     },
     {
-     "label": "Give the largest portion to the household that worked hardest.",
+     "label": "Give the Largest Portion to the Household That Worked Hardest.",
      "next": "c",
      "src": "L5"
     },
     {
-     "label": "Invite another farmer to check the distribution.",
+     "label": "Invite Another Farmer to Check the Distribution.",
      "next": "d",
      "src": "L5"
     }

@@ -23,6 +23,7 @@
   "title_src": "L911",
   "ledger": [],
   "description": "A storyteller wonders whether enormous civilizations could still quarrel over land, power, belief, and resources.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L912",
    "choices": [
     {
-     "label": "Imagine terrible weapons.",
+     "label": "Imagine Terrible Weapons.",
      "next": "a",
      "src": "L913"
     },
     {
-     "label": "Imagine peacekeeping.",
+     "label": "Imagine Peacekeeping.",
      "next": "b",
      "src": "L916"
     },
     {
-     "label": "Remember ordinary people.",
+     "label": "Remember Ordinary People.",
      "next": "c",
      "src": "L919"
     }

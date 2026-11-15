@@ -29,7 +29,8 @@
     "why": "an instruction inside the outcome, never shown: the node's skill effect"
    }
   ],
-  "description": "A scholar imagines a way to consult the writings of countless distant people without traveling to their homes."
+  "description": "A scholar imagines a way to consult the writings of countless distant people without traveling to their homes.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -55,17 +56,17 @@
    "src": "L237",
    "choices": [
     {
-     "label": "Imagine linked archives.",
+     "label": "Imagine Linked Archives.",
      "next": "a",
      "src": "L238"
     },
     {
-     "label": "Imagine a magical-looking device.",
+     "label": "Imagine a Magical-Looking Device.",
      "next": "b",
      "src": "L241"
     },
     {
-     "label": "Ask who gets access.",
+     "label": "Ask Who Gets Access.",
      "next": "c",
      "src": "L244"
     }

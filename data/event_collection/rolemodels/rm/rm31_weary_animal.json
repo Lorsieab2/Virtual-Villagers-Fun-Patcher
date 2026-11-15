@@ -30,6 +30,7 @@
    }
   ],
   "description": "A farmer notices that an animal helping carry supplies has become tired during the afternoon's work.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L65",
    "choices": [
     {
-     "label": "Stop and allow the animal to rest.",
+     "label": "Stop and Allow the Animal to Rest.",
      "next": "a",
      "src": "L65"
     },
     {
-     "label": "Reduce the load.",
+     "label": "Reduce the Load.",
      "next": "b",
      "src": "L65"
     },
     {
-     "label": "Examine the animal for discomfort.",
+     "label": "Examine the Animal for Discomfort.",
      "next": "c",
      "src": "L65"
     },
     {
-     "label": "Ask other workers to share the remaining supplies.",
+     "label": "Ask Other Workers to Share the Remaining Supplies.",
      "next": "d",
      "src": "L65"
     }

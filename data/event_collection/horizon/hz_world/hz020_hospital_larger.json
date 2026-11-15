@@ -29,6 +29,7 @@
    }
   ],
   "description": "An apprentice imagines a distant building where many healers treat different illnesses under one roof.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L261",
    "choices": [
     {
-     "label": "Imagine specialists.",
+     "label": "Imagine Specialists.",
      "next": "a",
      "src": "L262"
     },
     {
-     "label": "Imagine advanced equipment.",
+     "label": "Imagine Advanced Equipment.",
      "next": "b",
      "src": "L265"
     },
     {
-     "label": "Imagine the patients.",
+     "label": "Imagine the Patients.",
      "next": "c",
      "src": "L268"
     }

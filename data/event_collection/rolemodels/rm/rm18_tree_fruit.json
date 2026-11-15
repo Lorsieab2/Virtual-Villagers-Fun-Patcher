@@ -30,6 +30,7 @@
    }
   ],
   "description": "A family finds a tree heavy with ripe fruit, while several branches also shelter feeding birds.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L39",
    "choices": [
     {
-     "label": "Gather only the fruit within easy reach.",
+     "label": "Gather Only the Fruit Within Easy Reach.",
      "next": "a",
      "src": "L39"
     },
     {
-     "label": "Collect fallen fruit that is still sound.",
+     "label": "Collect Fallen Fruit That Is Still Sound.",
      "next": "b",
      "src": "L39"
     },
     {
-     "label": "Ask an experienced gatherer how much to take.",
+     "label": "Ask an Experienced Gatherer How Much to Take.",
      "next": "c",
      "src": "L39"
     },
     {
-     "label": "Share the harvest with neighboring households.",
+     "label": "Share the Harvest with Neighboring Households.",
      "next": "d",
      "src": "L39"
     }

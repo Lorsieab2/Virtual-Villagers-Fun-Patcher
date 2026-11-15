@@ -23,6 +23,7 @@
   "title_src": "L959",
   "ledger": [],
   "description": "A builder imagines distant people creating indoor environments that control temperature, light, and moisture.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L960",
    "choices": [
     {
-     "label": "Imagine protection.",
+     "label": "Imagine Protection.",
      "next": "a",
      "src": "L961"
     },
     {
-     "label": "Imagine dependence.",
+     "label": "Imagine Dependence.",
      "next": "b",
      "src": "L964"
     },
     {
-     "label": "Compare homes.",
+     "label": "Compare Homes.",
      "next": "c",
      "src": "L967"
     }

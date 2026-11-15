@@ -29,6 +29,7 @@
    }
   ],
   "description": "A child asks whether distant people have enough food, shelter, medicine, and clothing for everyone.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L490",
    "choices": [
     {
-     "label": "Imagine abundance.",
+     "label": "Imagine Abundance.",
      "next": "a",
      "src": "L491"
     },
     {
-     "label": "Imagine scarcity.",
+     "label": "Imagine Scarcity.",
      "next": "b",
      "src": "L494"
     },
     {
-     "label": "Imagine cooperation.",
+     "label": "Imagine Cooperation.",
      "next": "c",
      "src": "L497"
     }

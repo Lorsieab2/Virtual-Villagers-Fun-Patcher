@@ -23,6 +23,7 @@
   "title_src": "L827",
   "ledger": [],
   "description": "A teacher speculates that distant children might learn through toys, pictures, games, and devices unlike anything on Isola.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L828",
    "choices": [
     {
-     "label": "Imagine playful learning.",
+     "label": "Imagine Playful Learning.",
      "next": "a",
      "src": "L829"
     },
     {
-     "label": "Imagine pressure.",
+     "label": "Imagine Pressure.",
      "next": "b",
      "src": "L832"
     },
     {
-     "label": "Imagine access.",
+     "label": "Imagine Access.",
      "next": "c",
      "src": "L835"
     }

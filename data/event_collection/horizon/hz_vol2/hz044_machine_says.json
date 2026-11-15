@@ -23,6 +23,7 @@
   "title_src": "L623",
   "ledger": [],
   "description": "A potter imagines an artificial helper ordered to destroy a family's treasured bowl, and asks whether it could refuse.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L624",
    "choices": [
     {
-     "label": "Praise the refusal.",
+     "label": "Praise the Refusal.",
      "next": "a",
      "src": "L625"
     },
     {
-     "label": "Investigate its instructions.",
+     "label": "Investigate Its Instructions.",
      "next": "b",
      "src": "L628"
     },
     {
-     "label": "Consider the owner's authority.",
+     "label": "Consider the Owner's Authority.",
      "next": "c",
      "src": "L631"
     }

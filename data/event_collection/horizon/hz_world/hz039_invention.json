@@ -23,6 +23,7 @@
   "title_src": "L502",
   "ledger": [],
   "description": "A researcher asks whether distant inventions make life easier while creating problems no one expected.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L503",
    "choices": [
     {
-     "label": "Imagine a medical breakthrough.",
+     "label": "Imagine a Medical Breakthrough.",
      "next": "a",
      "src": "L504"
     },
     {
-     "label": "Imagine a labor-saving machine.",
+     "label": "Imagine a Labor-Saving Machine.",
      "next": "b",
      "src": "L507"
     },
     {
-     "label": "Imagine a communication breakthrough.",
+     "label": "Imagine a Communication Breakthrough.",
      "next": "c",
      "src": "L510"
     }

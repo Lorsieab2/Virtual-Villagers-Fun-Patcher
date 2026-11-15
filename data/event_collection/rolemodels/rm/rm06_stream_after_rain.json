@@ -30,6 +30,7 @@
    }
   ],
   "description": "Heavy rain washes scraps of cloth, broken cord, and discarded containers into a stream used by the village.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L15",
    "choices": [
     {
-     "label": "Organize a careful cleanup along the bank.",
+     "label": "Organize a Careful Cleanup Along the Bank.",
      "next": "a",
      "src": "L15"
     },
     {
-     "label": "Trace where the discarded materials came from.",
+     "label": "Trace Where the Discarded Materials Came From.",
      "next": "b",
      "src": "L15"
     },
     {
-     "label": "Ask the children to help from dry ground.",
+     "label": "Ask the Children to Help from Dry Ground.",
      "next": "c",
      "src": "L15"
     },
     {
-     "label": "Discuss ways to prevent another accumulation.",
+     "label": "Discuss Ways to Prevent Another Accumulation.",
      "next": "d",
      "src": "L15"
     }

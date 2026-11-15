@@ -23,6 +23,7 @@
   "title_src": "L465",
   "ledger": [],
   "description": "A storyteller wonders whether distant societies can spread one song, rumor, or picture to thousands of people at once.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L466",
    "choices": [
     {
-     "label": "Imagine a shared performance.",
+     "label": "Imagine a Shared Performance.",
      "next": "a",
      "src": "L467"
     },
     {
-     "label": "Imagine instant news.",
+     "label": "Imagine Instant News.",
      "next": "b",
      "src": "L470"
     },
     {
-     "label": "Ask who controls the story.",
+     "label": "Ask Who Controls the Story.",
      "next": "c",
      "src": "L473"
     }

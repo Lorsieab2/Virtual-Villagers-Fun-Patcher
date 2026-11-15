@@ -29,6 +29,7 @@
    }
   ],
   "description": "A healer asks whether distant communities might protect people from certain illnesses before symptoms begin.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L274",
    "choices": [
     {
-     "label": "Imagine prevention through observation.",
+     "label": "Imagine Prevention Through Observation.",
      "next": "a",
      "src": "L275"
     },
     {
-     "label": "Imagine carefully prepared treatments.",
+     "label": "Imagine Carefully Prepared Treatments.",
      "next": "b",
      "src": "L278"
     },
     {
-     "label": "Imagine uneven access.",
+     "label": "Imagine Uneven Access.",
      "next": "c",
      "src": "L281"
     }

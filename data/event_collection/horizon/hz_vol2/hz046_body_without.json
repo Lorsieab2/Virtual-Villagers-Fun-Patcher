@@ -23,6 +23,7 @@
   "title_src": "L647",
   "ledger": [],
   "description": "An artisan wonders whether distant people could make an animal-shaped automaton that moves without breathing or eating.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L648",
    "choices": [
     {
-     "label": "Study motion.",
+     "label": "Study Motion.",
      "next": "a",
      "src": "L649"
     },
     {
-     "label": "Study life.",
+     "label": "Study Life.",
      "next": "b",
      "src": "L652"
     },
     {
-     "label": "Imagine a companion.",
+     "label": "Imagine a Companion.",
      "next": "c",
      "src": "L655"
     }

@@ -30,6 +30,7 @@
    }
   ],
   "description": "A recently arrived villager stands apart during a communal meal, unsure where to sit.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L35",
    "choices": [
     {
-     "label": "Offer an invitation without insisting.",
+     "label": "Offer an Invitation Without Insisting.",
      "next": "a",
      "src": "L35"
     },
     {
-     "label": "Introduce the newcomer to someone with a shared interest.",
+     "label": "Introduce the Newcomer to Someone with a Shared Interest.",
      "next": "b",
      "src": "L35"
     },
     {
-     "label": "Explain how the meal is organized.",
+     "label": "Explain How the Meal Is Organized.",
      "next": "c",
      "src": "L35"
     },
     {
-     "label": "Sit nearby and begin an ordinary conversation.",
+     "label": "Sit Nearby and Begin an Ordinary Conversation.",
      "next": "d",
      "src": "L35"
     }

@@ -23,6 +23,7 @@
   "title_src": "L791",
   "ledger": [],
   "description": "A navigator asks whether distant lands might be joined by immense roads, bridges, tunnels, and moving vehicles.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L792",
    "choices": [
     {
-     "label": "Imagine journeys.",
+     "label": "Imagine Journeys.",
      "next": "a",
      "src": "L793"
     },
     {
-     "label": "Imagine accidents.",
+     "label": "Imagine Accidents.",
      "next": "b",
      "src": "L796"
     },
     {
-     "label": "Imagine who is left out.",
+     "label": "Imagine Who Is Left Out.",
      "next": "c",
      "src": "L799"
     }

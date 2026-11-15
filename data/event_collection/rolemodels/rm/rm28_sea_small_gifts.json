@@ -30,6 +30,7 @@
    }
   ],
   "description": "A young gatherer discovers a rocky shore crowded with shells, living creatures, and unusual stones.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L59",
    "choices": [
     {
-     "label": "Collect only empty shells.",
+     "label": "Collect Only Empty Shells.",
      "next": "a",
      "src": "L59"
     },
     {
-     "label": "Observe the creatures without collecting them.",
+     "label": "Observe the Creatures Without Collecting Them.",
      "next": "b",
      "src": "L59"
     },
     {
-     "label": "Teach a younger villager how to recognize occupied shells.",
+     "label": "Teach a Younger Villager How to Recognize Occupied Shells.",
      "next": "c",
      "src": "L59"
     },
     {
-     "label": "Ask whether the village actually needs more shells.",
+     "label": "Ask Whether the Village Actually Needs More Shells.",
      "next": "d",
      "src": "L59"
     }

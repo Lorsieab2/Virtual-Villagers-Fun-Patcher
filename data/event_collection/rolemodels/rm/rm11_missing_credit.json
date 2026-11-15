@@ -29,7 +29,8 @@
     "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
    }
   ],
-  "description": "A builder receives praise for repairing a difficult roof, although a quiet apprentice devised the most useful solution."
+  "description": "A builder receives praise for repairing a difficult roof, although a quiet apprentice devised the most useful solution.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -49,22 +50,22 @@
    "src": "L25",
    "choices": [
     {
-     "label": "Explain the apprentice's contribution.",
+     "label": "Explain the Apprentice's Contribution.",
      "next": "a",
      "src": "L25"
     },
     {
-     "label": "Invite the apprentice to describe the repair.",
+     "label": "Invite the Apprentice to Describe the Repair.",
      "next": "b",
      "src": "L25"
     },
     {
-     "label": "Thank the apprentice privately.",
+     "label": "Thank the Apprentice Privately.",
      "next": "c",
      "src": "L25"
     },
     {
-     "label": "Suggest that future repairs record everyone's contributions.",
+     "label": "Suggest That Future Repairs Record Everyone's Contributions.",
      "next": "d",
      "src": "L25"
     }

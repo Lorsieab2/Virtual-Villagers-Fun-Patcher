@@ -23,6 +23,7 @@
   "title_src": "L995",
   "ledger": [],
   "description": "A parent wonders whether distant people raise children in households of many shapes.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L996",
    "choices": [
     {
-     "label": "Imagine shared care.",
+     "label": "Imagine Shared Care.",
      "next": "a",
      "src": "L997"
     },
     {
-     "label": "Imagine small households.",
+     "label": "Imagine Small Households.",
      "next": "b",
      "src": "L1000"
     },
     {
-     "label": "Ask what matters.",
+     "label": "Ask What Matters.",
      "next": "c",
      "src": "L1003"
     }

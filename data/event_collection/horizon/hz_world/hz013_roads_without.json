@@ -23,6 +23,7 @@
   "title_src": "L172",
   "ledger": [],
   "description": "A navigator wonders whether distant peoples travel over land in vessels pulled by animals - or moved by some unknown force.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L173",
    "choices": [
     {
-     "label": "Imagine swift vehicles.",
+     "label": "Imagine Swift Vehicles.",
      "next": "a",
      "src": "L174"
     },
     {
-     "label": "Imagine public transport.",
+     "label": "Imagine Public Transport.",
      "next": "b",
      "src": "L177"
     },
     {
-     "label": "Imagine walking instead.",
+     "label": "Imagine Walking Instead.",
      "next": "c",
      "src": "L180"
     }

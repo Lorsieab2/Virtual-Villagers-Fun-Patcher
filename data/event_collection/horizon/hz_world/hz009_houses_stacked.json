@@ -29,7 +29,8 @@
     "why": "an instruction inside the outcome, never shown: the node's skill effect"
    }
   ],
-  "description": "A builder asks whether distant people might live in dwellings built above one another."
+  "description": "A builder asks whether distant people might live in dwellings built above one another.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -55,17 +56,17 @@
    "src": "L125",
    "choices": [
     {
-     "label": "Test the idea with models.",
+     "label": "Test the Idea with Models.",
      "next": "a",
      "src": "L126"
     },
     {
-     "label": "Imagine the residents.",
+     "label": "Imagine the Residents.",
      "next": "b",
      "src": "L129"
     },
     {
-     "label": "Compare with island homes.",
+     "label": "Compare with Island Homes.",
      "next": "c",
      "src": "L132"
     }

@@ -23,6 +23,7 @@
   "title_src": "L731",
   "ledger": [],
   "description": "A craftsperson imagines workshops where enormous mechanisms make hundreds of identical baskets, garments, or tools.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L732",
    "choices": [
     {
-     "label": "Celebrate abundance.",
+     "label": "Celebrate Abundance.",
      "next": "a",
      "src": "L733"
     },
     {
-     "label": "Study the workers.",
+     "label": "Study the Workers.",
      "next": "b",
      "src": "L736"
     },
     {
-     "label": "Ask about waste.",
+     "label": "Ask About Waste.",
      "next": "c",
      "src": "L739"
     }

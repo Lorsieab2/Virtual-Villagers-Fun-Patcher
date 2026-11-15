@@ -23,6 +23,7 @@
   "title_src": "L441",
   "ledger": [],
   "description": "A naturalist wonders whether distant lands contain creatures as unfamiliar to Isolans as island animals might be to outsiders.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L442",
    "choices": [
     {
-     "label": "Imagine great land animals.",
+     "label": "Imagine Great Land Animals.",
      "next": "a",
      "src": "L443"
     },
     {
-     "label": "Imagine tiny creatures.",
+     "label": "Imagine Tiny Creatures.",
      "next": "b",
      "src": "L446"
     },
     {
-     "label": "Imagine shared species.",
+     "label": "Imagine Shared Species.",
      "next": "c",
      "src": "L449"
     }

@@ -23,6 +23,7 @@
   "title_src": "L935",
   "ledger": [],
   "description": "An astronomer imagines distant people placing crafted objects high above the clouds.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L936",
    "choices": [
     {
-     "label": "Imagine observation.",
+     "label": "Imagine Observation.",
      "next": "a",
      "src": "L937"
     },
     {
-     "label": "Imagine communication.",
+     "label": "Imagine Communication.",
      "next": "b",
      "src": "L940"
     },
     {
-     "label": "Imagine consequences.",
+     "label": "Imagine Consequences.",
      "next": "c",
      "src": "L943"
     }

@@ -29,6 +29,7 @@
    }
   ],
   "description": "A traveler wonders whether distant lands have borders that people cannot cross without permission.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L352",
    "choices": [
     {
-     "label": "Imagine protective borders.",
+     "label": "Imagine Protective Borders.",
      "next": "a",
      "src": "L353"
     },
     {
-     "label": "Imagine open passage.",
+     "label": "Imagine Open Passage.",
      "next": "b",
      "src": "L356"
     },
     {
-     "label": "Imagine people forced to leave home.",
+     "label": "Imagine People Forced to Leave Home.",
      "next": "c",
      "src": "L359"
     }

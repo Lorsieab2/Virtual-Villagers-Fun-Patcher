@@ -30,6 +30,7 @@
    }
   ],
   "description": "A teenager discovers that a friend has accidentally counted several food baskets twice in the harvest record.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L71",
    "choices": [
     {
-     "label": "Explain the mistake privately.",
+     "label": "Explain the Mistake Privately.",
      "next": "a",
      "src": "L71"
     },
     {
-     "label": "Check the entire record together.",
+     "label": "Check the Entire Record Together.",
      "next": "b",
      "src": "L71"
     },
     {
-     "label": "Inform the harvest keeper without assigning blame.",
+     "label": "Inform the Harvest Keeper Without Assigning Blame.",
      "next": "c",
      "src": "L71"
     },
     {
-     "label": "Encourage the friend to report the mistake personally.",
+     "label": "Encourage the Friend to Report the Mistake Personally.",
      "next": "d",
      "src": "L71"
     }

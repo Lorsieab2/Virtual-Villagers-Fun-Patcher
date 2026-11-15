@@ -30,6 +30,7 @@
    }
   ],
   "description": "Several friends once agreed to keep a favorite stretch of beach clean, but their visits have become less frequent.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L81",
    "choices": [
     {
-     "label": "Gather the friends and renew the agreement.",
+     "label": "Gather the Friends and Renew the Agreement.",
      "next": "a",
      "src": "L81"
     },
     {
-     "label": "Begin caring for the beach independently.",
+     "label": "Begin Caring for the Beach Independently.",
      "next": "b",
      "src": "L81"
     },
     {
-     "label": "Discuss why the original promise became difficult to keep.",
+     "label": "Discuss Why the Original Promise Became Difficult to Keep.",
      "next": "c",
      "src": "L81"
     },
     {
-     "label": "Invite other villagers to share responsibility.",
+     "label": "Invite Other Villagers to Share Responsibility.",
      "next": "d",
      "src": "L81"
     }

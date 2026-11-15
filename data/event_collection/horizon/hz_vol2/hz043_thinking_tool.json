@@ -23,6 +23,7 @@
   "title_src": "L611",
   "ledger": [],
   "description": "A healer asks whether a hypothetical device that learns names and remembers conversations would count as a living creature.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L612",
    "choices": [
     {
-     "label": "Compare it with animals.",
+     "label": "Compare It with Animals.",
      "next": "a",
      "src": "L613"
     },
     {
-     "label": "Compare it with plants.",
+     "label": "Compare It with Plants.",
      "next": "b",
      "src": "L616"
     },
     {
-     "label": "Ask the device a question.",
+     "label": "Ask the Device a Question.",
      "next": "c",
      "src": "L619"
     }

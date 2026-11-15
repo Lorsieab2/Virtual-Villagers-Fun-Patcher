@@ -29,6 +29,7 @@
    }
   ],
   "description": "A villager wonders whether distant communities welcome people with different appearances, abilities, beliefs, and ways of living.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -51,17 +52,17 @@
    "src": "L377",
    "choices": [
     {
-     "label": "Imagine a welcoming place.",
+     "label": "Imagine a Welcoming Place.",
      "next": "a",
      "src": "L378"
     },
     {
-     "label": "Imagine prejudice.",
+     "label": "Imagine Prejudice.",
      "next": "b",
      "src": "L381"
     },
     {
-     "label": "Ask whether difference needs explanation.",
+     "label": "Ask Whether Difference Needs Explanation.",
      "next": "c",
      "src": "L384"
     }

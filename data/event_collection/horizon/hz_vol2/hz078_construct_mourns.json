@@ -23,6 +23,7 @@
   "title_src": "L1031",
   "ledger": [],
   "description": "A storyteller imagines an artificial companion continuing to speak of a person who has died.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L1032",
    "choices": [
     {
-     "label": "Interpret its grief as real.",
+     "label": "Interpret Its Grief as Real.",
      "next": "a",
      "src": "L1033"
     },
     {
-     "label": "Interpret it as memory.",
+     "label": "Interpret It as Memory.",
      "next": "b",
      "src": "L1036"
     },
     {
-     "label": "Ask what comfort requires.",
+     "label": "Ask What Comfort Requires.",
      "next": "c",
      "src": "L1039"
     }

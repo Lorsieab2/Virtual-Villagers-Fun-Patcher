@@ -23,6 +23,7 @@
   "title_src": "L413",
   "ledger": [],
   "description": "A tired weaver asks whether distant societies give workers time to rest, or demand more labor than a person can bear.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L414",
    "choices": [
     {
-     "label": "Imagine generous rest.",
+     "label": "Imagine Generous Rest.",
      "next": "a",
      "src": "L415"
     },
     {
-     "label": "Imagine relentless work.",
+     "label": "Imagine Relentless Work.",
      "next": "b",
      "src": "L418"
     },
     {
-     "label": "Ask what work is for.",
+     "label": "Ask What Work Is For.",
      "next": "c",
      "src": "L421"
     }

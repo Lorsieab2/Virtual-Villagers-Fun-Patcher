@@ -29,7 +29,8 @@
     "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
    }
   ],
-  "description": "Two parents are preparing supper after a tiring day while their children want to help with the household chores."
+  "description": "Two parents are preparing supper after a tiring day while their children want to help with the household chores.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -49,22 +50,22 @@
    "src": "L75",
    "choices": [
     {
-     "label": "Give the older children safe, manageable tasks.",
+     "label": "Give the Older Children Safe, Manageable Tasks.",
      "next": "a",
      "src": "L75"
     },
     {
-     "label": "Invite everyone to help according to their abilities.",
+     "label": "Invite Everyone to Help According to Their Abilities.",
      "next": "b",
      "src": "L75"
     },
     {
-     "label": "Finish the most difficult work before involving the children.",
+     "label": "Finish the Most Difficult Work Before Involving the Children.",
      "next": "c",
      "src": "L75"
     },
     {
-     "label": "Simplify the meal and rest together.",
+     "label": "Simplify the Meal and Rest Together.",
      "next": "d",
      "src": "L75"
     }

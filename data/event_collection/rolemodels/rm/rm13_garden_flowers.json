@@ -30,6 +30,7 @@
    }
   ],
   "description": "A child wants to gather flowers for a celebration but finds only a few blooming near the village garden.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L29",
    "choices": [
     {
-     "label": "Pick a small number and leave the rest growing.",
+     "label": "Pick a Small Number and Leave the Rest Growing.",
      "next": "a",
      "src": "L29"
     },
     {
-     "label": "Collect fallen petals instead.",
+     "label": "Collect Fallen Petals Instead.",
      "next": "b",
      "src": "L29"
     },
     {
-     "label": "Ask the gardener which plants can be harvested.",
+     "label": "Ask the Gardener Which Plants Can Be Harvested.",
      "next": "c",
      "src": "L29"
     },
     {
-     "label": "Make a gift from leaves and shells.",
+     "label": "Make a Gift from Leaves and Shells.",
      "next": "d",
      "src": "L29"
     }

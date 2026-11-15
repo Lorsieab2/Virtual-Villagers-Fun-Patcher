@@ -23,6 +23,7 @@
   "title_src": "L322",
   "ledger": [],
   "description": "Watching the moon rise, a child asks whether distant peoples might someday send travelers beyond the sky.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L323",
    "choices": [
     {
-     "label": "Imagine a journey.",
+     "label": "Imagine a Journey.",
      "next": "a",
      "src": "L324"
     },
     {
-     "label": "Imagine studying from afar.",
+     "label": "Imagine Studying from Afar.",
      "next": "b",
      "src": "L327"
     },
     {
-     "label": "Ask why go.",
+     "label": "Ask Why Go.",
      "next": "c",
      "src": "L330"
     }

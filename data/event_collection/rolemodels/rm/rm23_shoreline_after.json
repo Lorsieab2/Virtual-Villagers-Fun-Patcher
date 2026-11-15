@@ -30,6 +30,7 @@
    }
   ],
   "description": "After a village celebration, a fisher notices scraps of food and discarded decorations scattered near the tide line.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L49",
    "choices": [
     {
-     "label": "Begin collecting the debris.",
+     "label": "Begin Collecting the Debris.",
      "next": "a",
      "src": "L49"
     },
     {
-     "label": "Invite the celebration organizers to help.",
+     "label": "Invite the Celebration Organizers to Help.",
      "next": "b",
      "src": "L49"
     },
     {
-     "label": "Separate reusable materials from waste.",
+     "label": "Separate Reusable Materials from Waste.",
      "next": "c",
      "src": "L49"
     },
     {
-     "label": "Suggest a cleanup plan for future celebrations.",
+     "label": "Suggest a Cleanup Plan for Future Celebrations.",
      "next": "d",
      "src": "L49"
     }

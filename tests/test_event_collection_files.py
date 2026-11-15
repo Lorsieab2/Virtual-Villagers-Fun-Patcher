@@ -159,6 +159,19 @@ class FrozenHorizonAndRoleModels(unittest.TestCase):
                 self.assertEqual(by, want)
                 files = [p for p in cc.collection_files() if folder in p.parents]
                 self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+        # the owner (2026-11-15): choice options always title case -- these sources' files say so and show it
+        self.assertEqual(lib.title_case_label("Divide the remaining food into equal portions."),
+                         "Divide the Remaining Food into Equal Portions.")
+        self.assertEqual(lib.title_case_label("Invite the child to help with an age-appropriate part of the chore."),
+                         "Invite the Child to Help with an Age-Appropriate Part of the Chore.")
+        self.assertEqual(lib.title_case_label("Leave the reef alone for the day."), "Leave the Reef Alone for the Day.")
+        self.assertEqual(lib.title_case_label("Ask what it is for."), "Ask What It Is For.")
+        for folder in (lib.HORIZON_DIR, lib.ROLEMODELS_DIR):
+            for p in folder.glob("*/*.json"):
+                doc = json.loads(p.read_text(encoding="utf-8"))
+                self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+                for c in doc["nodes"]["setup"]["choices"]:
+                    self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
         # one series per PART of volume I, and Expansion Volume II as one (each counts as one in the rare roll)
         self.assertEqual(data["horizon"]["counts"]["series"], {"hz_part1": 8, "hz_part2": 8, "hz_part3": 9,
                                                                "hz_part4": 7, "hz_part5": 8, "hz_vol2": 40})

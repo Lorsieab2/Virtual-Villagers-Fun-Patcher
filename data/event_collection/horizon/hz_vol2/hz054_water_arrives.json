@@ -23,6 +23,7 @@
   "title_src": "L743",
   "ledger": [],
   "description": "A child asks whether distant homes might have fresh water flowing through pipes without anyone carrying a gourd.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,12 +46,12 @@
    "src": "L744",
    "choices": [
     {
-     "label": "Imagine comfort.",
+     "label": "Imagine Comfort.",
      "next": "a",
      "src": "L745"
     },
     {
-     "label": "Imagine sanitation.",
+     "label": "Imagine Sanitation.",
      "next": "b",
      "src": "L748"
     },

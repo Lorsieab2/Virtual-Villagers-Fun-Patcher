@@ -30,6 +30,7 @@
    }
   ],
   "description": "An elder begins recounting an old village custom but admits that some details have been forgotten.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L73",
    "choices": [
     {
-     "label": "Record only what the elder remembers confidently.",
+     "label": "Record Only What the Elder Remembers Confidently.",
      "next": "a",
      "src": "L73"
     },
     {
-     "label": "Ask other elders what they remember.",
+     "label": "Ask Other Elders What They Remember.",
      "next": "b",
      "src": "L73"
     },
     {
-     "label": "Invite younger villagers to ask questions.",
+     "label": "Invite Younger Villagers to Ask Questions.",
      "next": "c",
      "src": "L73"
     },
     {
-     "label": "Preserve several versions of the story.",
+     "label": "Preserve Several Versions of the Story.",
      "next": "d",
      "src": "L73"
     }

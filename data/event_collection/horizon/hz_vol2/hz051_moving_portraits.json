@@ -23,6 +23,7 @@
   "title_src": "L707",
   "ledger": [],
   "description": "A painter asks whether distant people could capture images that move and voices that sound long after their owners depart.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L708",
    "choices": [
     {
-     "label": "Celebrate remembrance.",
+     "label": "Celebrate Remembrance.",
      "next": "a",
      "src": "L709"
     },
     {
-     "label": "Question the image.",
+     "label": "Question the Image.",
      "next": "b",
      "src": "L712"
     },
     {
-     "label": "Consider privacy.",
+     "label": "Consider Privacy.",
      "next": "c",
      "src": "L715"
     }

@@ -23,6 +23,7 @@
   "title_src": "L683",
   "ledger": [],
   "description": "A scientist speculates that outsiders might possess instruments that interpret stars, diagnose illness, or suggest decisions.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L684",
    "choices": [
     {
-     "label": "Trust its measurements.",
+     "label": "Trust Its Measurements.",
      "next": "a",
      "src": "L685"
     },
     {
-     "label": "Demand an explanation.",
+     "label": "Demand an Explanation.",
      "next": "b",
      "src": "L688"
     },
     {
-     "label": "Keep human judgment.",
+     "label": "Keep Human Judgment.",
      "next": "c",
      "src": "L691"
     }

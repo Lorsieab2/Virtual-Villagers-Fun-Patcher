@@ -30,6 +30,7 @@
    }
   ],
   "description": "A villager notices that an elderly neighbor's carrying basket is badly worn and quietly begins weaving a replacement.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L47",
    "choices": [
     {
-     "label": "Leave the finished basket as an anonymous gift.",
+     "label": "Leave the Finished Basket as an Anonymous Gift.",
      "next": "a",
      "src": "L47"
     },
     {
-     "label": "Offer the basket directly.",
+     "label": "Offer the Basket Directly.",
      "next": "b",
      "src": "L47"
     },
     {
-     "label": "Ask whether the neighbor would prefer a repair.",
+     "label": "Ask Whether the Neighbor Would Prefer a Repair.",
      "next": "c",
      "src": "L47"
     },
     {
-     "label": "Invite other villagers to contribute materials.",
+     "label": "Invite Other Villagers to Contribute Materials.",
      "next": "d",
      "src": "L47"
     }

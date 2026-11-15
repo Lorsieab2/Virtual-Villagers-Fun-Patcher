@@ -23,6 +23,7 @@
   "title_src": "L587",
   "ledger": [],
   "description": "A carver wonders whether distant craftspeople could assemble a figure that walks and obeys without a living body.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L588",
    "choices": [
     {
-     "label": "Treat it as a tool.",
+     "label": "Treat It as a Tool.",
      "next": "a",
      "src": "L589"
     },
     {
-     "label": "Treat it as a worker.",
+     "label": "Treat It as a Worker.",
      "next": "b",
      "src": "L592"
     },
     {
-     "label": "Ask whether it has a will.",
+     "label": "Ask Whether It Has a Will.",
      "next": "c",
      "src": "L595"
     }

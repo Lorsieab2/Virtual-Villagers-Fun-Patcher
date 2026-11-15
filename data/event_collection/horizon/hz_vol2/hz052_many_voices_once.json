@@ -23,6 +23,7 @@
   "title_src": "L719",
   "ledger": [],
   "description": "The council speculates that distant villages might exchange messages instantly across seas.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L720",
    "choices": [
     {
-     "label": "Imagine family ties.",
+     "label": "Imagine Family Ties.",
      "next": "a",
      "src": "L721"
     },
     {
-     "label": "Imagine rumors.",
+     "label": "Imagine Rumors.",
      "next": "b",
      "src": "L724"
     },
     {
-     "label": "Imagine solitude.",
+     "label": "Imagine Solitude.",
      "next": "c",
      "src": "L727"
     }

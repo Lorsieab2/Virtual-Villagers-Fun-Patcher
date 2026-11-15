@@ -30,6 +30,7 @@
    }
   ],
   "description": "A fisher finds a shallow pool crowded with small fish and realizes that taking them all would be easy.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L17",
    "choices": [
     {
-     "label": "Catch only enough for the household's meal.",
+     "label": "Catch Only Enough for the Household's Meal.",
      "next": "a",
      "src": "L17"
     },
     {
-     "label": "Examine whether the fish are mature.",
+     "label": "Examine Whether the Fish Are Mature.",
      "next": "b",
      "src": "L17"
     },
     {
-     "label": "Teach an apprentice how to choose a suitable catch.",
+     "label": "Teach an Apprentice How to Choose a Suitable Catch.",
      "next": "c",
      "src": "L17"
     },
     {
-     "label": "Share the discovery with other fishers.",
+     "label": "Share the Discovery with Other Fishers.",
      "next": "d",
      "src": "L17"
     }

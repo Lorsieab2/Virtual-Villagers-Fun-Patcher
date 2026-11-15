@@ -23,6 +23,7 @@
   "title_src": "L429",
   "ledger": [],
   "description": "A child asks whether some distant lands are covered in frozen water or have seasons unlike Isola's.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L430",
    "choices": [
     {
-     "label": "Imagine snow.",
+     "label": "Imagine Snow.",
      "next": "a",
      "src": "L431"
     },
     {
-     "label": "Imagine deserts.",
+     "label": "Imagine Deserts.",
      "next": "b",
      "src": "L434"
     },
     {
-     "label": "Compare environments.",
+     "label": "Compare Environments.",
      "next": "c",
      "src": "L437"
     }

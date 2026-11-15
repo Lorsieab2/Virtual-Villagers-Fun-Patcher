@@ -23,6 +23,7 @@
   "title_src": "L923",
   "ledger": [],
   "description": "A young villager wonders whether distant authorities or merchants could track where people go and what they say.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L924",
    "choices": [
     {
-     "label": "Imagine protection.",
+     "label": "Imagine Protection.",
      "next": "a",
      "src": "L925"
     },
     {
-     "label": "Imagine abuse.",
+     "label": "Imagine Abuse.",
      "next": "b",
      "src": "L928"
     },
     {
-     "label": "Set boundaries.",
+     "label": "Set Boundaries.",
      "next": "c",
      "src": "L931"
     }

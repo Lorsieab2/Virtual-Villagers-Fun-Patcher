@@ -23,6 +23,7 @@
   "title_src": "L755",
   "ledger": [],
   "description": "A builder asks how a settlement larger than any Isolan village could dispose of refuse without poisoning its surroundings.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L756",
    "choices": [
     {
-     "label": "Imagine sewers.",
+     "label": "Imagine Sewers.",
      "next": "a",
      "src": "L757"
     },
     {
-     "label": "Imagine reuse.",
+     "label": "Imagine Reuse.",
      "next": "b",
      "src": "L760"
     },
     {
-     "label": "Imagine neglect.",
+     "label": "Imagine Neglect.",
      "next": "c",
      "src": "L763"
     }

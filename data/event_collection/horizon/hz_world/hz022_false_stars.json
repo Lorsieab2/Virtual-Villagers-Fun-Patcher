@@ -23,6 +23,7 @@
   "title_src": "L286",
   "ledger": [],
   "description": "A stargazer imagines distant settlements bright enough to hide the night sky.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L287",
    "choices": [
     {
-     "label": "Imagine lights everywhere.",
+     "label": "Imagine Lights Everywhere.",
      "next": "a",
      "src": "L288"
     },
     {
-     "label": "Imagine power sources.",
+     "label": "Imagine Power Sources.",
      "next": "b",
      "src": "L291"
     },
     {
-     "label": "Imagine choosing darkness.",
+     "label": "Imagine Choosing Darkness.",
      "next": "c",
      "src": "L294"
     }

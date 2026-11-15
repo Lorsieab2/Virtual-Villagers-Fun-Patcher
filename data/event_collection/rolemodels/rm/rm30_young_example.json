@@ -30,6 +30,7 @@
    }
   ],
   "description": "A child notices that a communal drinking vessel has been left beside the path where someone might trip over it.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L63",
    "choices": [
     {
-     "label": "Move it carefully to its usual place.",
+     "label": "Move It Carefully to Its Usual Place.",
      "next": "a",
      "src": "L63"
     },
     {
-     "label": "Warn approaching villagers.",
+     "label": "Warn Approaching Villagers.",
      "next": "b",
      "src": "L63"
     },
     {
-     "label": "Ask who is responsible for the vessel.",
+     "label": "Ask Who Is Responsible for the Vessel.",
      "next": "c",
      "src": "L63"
     },
     {
-     "label": "Suggest keeping the path clear during busy hours.",
+     "label": "Suggest Keeping the Path Clear During Busy Hours.",
      "next": "d",
      "src": "L63"
     }

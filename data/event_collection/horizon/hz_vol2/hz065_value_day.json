@@ -23,6 +23,7 @@
   "title_src": "L875",
   "ledger": [],
   "description": "A fisher asks whether distant people count every hour of work and sell their time for tokens.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L876",
    "choices": [
     {
-     "label": "Imagine regular wages.",
+     "label": "Imagine Regular Wages.",
      "next": "a",
      "src": "L877"
     },
     {
-     "label": "Imagine unfairness.",
+     "label": "Imagine Unfairness.",
      "next": "b",
      "src": "L880"
     },
     {
-     "label": "Compare Isolan duties.",
+     "label": "Compare Isolan Duties.",
      "next": "c",
      "src": "L883"
     }

@@ -30,6 +30,7 @@
    }
   ],
   "description": "A child hears several friends dismiss a shy classmate's ideas during a group activity.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L11",
    "choices": [
     {
-     "label": "Ask everyone to hear the classmate's suggestion.",
+     "label": "Ask Everyone to Hear the Classmate's Suggestion.",
      "next": "a",
      "src": "L11"
     },
     {
-     "label": "Speak privately with the classmate.",
+     "label": "Speak Privately with the Classmate.",
      "next": "b",
      "src": "L11"
     },
     {
-     "label": "Suggest taking turns contributing.",
+     "label": "Suggest Taking Turns Contributing.",
      "next": "c",
      "src": "L11"
     },
     {
-     "label": "Ask the teacher for guidance without naming anyone publicly.",
+     "label": "Ask the Teacher for Guidance Without Naming Anyone Publicly.",
      "next": "d",
      "src": "L11"
     }

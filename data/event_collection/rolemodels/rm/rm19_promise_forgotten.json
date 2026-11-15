@@ -30,6 +30,7 @@
    }
   ],
   "description": "A teenager remembers too late that they promised to help an elder carry weaving materials earlier that morning.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L41",
    "choices": [
     {
-     "label": "Apologize and offer help now.",
+     "label": "Apologize and Offer Help Now.",
      "next": "a",
      "src": "L41"
     },
     {
-     "label": "Explain honestly why the promise was forgotten.",
+     "label": "Explain Honestly Why the Promise Was Forgotten.",
      "next": "b",
      "src": "L41"
     },
     {
-     "label": "Offer to help with tomorrow's work instead.",
+     "label": "Offer to Help with Tomorrow's Work Instead.",
      "next": "c",
      "src": "L41"
     },
     {
-     "label": "Ask how to make amends without assuming forgiveness.",
+     "label": "Ask How to Make Amends Without Assuming Forgiveness.",
      "next": "d",
      "src": "L41"
     }

@@ -29,7 +29,8 @@
     "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
    }
   ],
-  "description": "A skilled builder notices that an apprentice has been assigned a difficult repair without adequate guidance."
+  "description": "A skilled builder notices that an apprentice has been assigned a difficult repair without adequate guidance.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -49,22 +50,22 @@
    "src": "L53",
    "choices": [
     {
-     "label": "Demonstrate the safest method.",
+     "label": "Demonstrate the Safest Method.",
      "next": "a",
      "src": "L53"
     },
     {
-     "label": "Ask what the apprentice already understands.",
+     "label": "Ask What the Apprentice Already Understands.",
      "next": "b",
      "src": "L53"
     },
     {
-     "label": "Work beside the apprentice.",
+     "label": "Work Beside the Apprentice.",
      "next": "c",
      "src": "L53"
     },
     {
-     "label": "Reassign the task until proper instruction is available.",
+     "label": "Reassign the Task Until Proper Instruction Is Available.",
      "next": "d",
      "src": "L53"
     }

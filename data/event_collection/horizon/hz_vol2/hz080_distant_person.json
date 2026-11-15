@@ -23,6 +23,7 @@
   "title_src": "L1055",
   "ledger": [],
   "description": "After every theory of towers and machines, a child asks whether an unknown family might simply be cooking supper.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L1056",
    "choices": [
     {
-     "label": "Imagine likeness.",
+     "label": "Imagine Likeness.",
      "next": "a",
      "src": "L1057"
     },
     {
-     "label": "Imagine difference.",
+     "label": "Imagine Difference.",
      "next": "b",
      "src": "L1060"
     },
     {
-     "label": "Leave the horizon unanswered.",
+     "label": "Leave the Horizon Unanswered.",
      "next": "c",
      "src": "L1063"
     }

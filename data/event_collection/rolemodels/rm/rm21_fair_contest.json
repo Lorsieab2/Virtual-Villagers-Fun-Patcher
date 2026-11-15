@@ -30,6 +30,7 @@
    }
   ],
   "description": "Several children prepare for a running contest, but one child worries that the uneven ground gives some runners an advantage.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L45",
    "choices": [
     {
-     "label": "Inspect the course together.",
+     "label": "Inspect the Course Together.",
      "next": "a",
      "src": "L45"
     },
     {
-     "label": "Let the children decide on reasonable adjustments.",
+     "label": "Let the Children Decide on Reasonable Adjustments.",
      "next": "b",
      "src": "L45"
     },
     {
-     "label": "Ask a neutral adult to supervise.",
+     "label": "Ask a Neutral Adult to Supervise.",
      "next": "c",
      "src": "L45"
     },
     {
-     "label": "Offer several ways to participate.",
+     "label": "Offer Several Ways to Participate.",
      "next": "d",
      "src": "L45"
     }

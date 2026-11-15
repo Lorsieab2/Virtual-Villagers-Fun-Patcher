@@ -23,6 +23,7 @@
   "title_src": "L659",
   "ledger": [],
   "description": "The researchers imagine a tool that becomes better at weaving by observing a master instead of following a fixed sequence.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L660",
    "choices": [
     {
-     "label": "Teach it carefully.",
+     "label": "Teach It Carefully.",
      "next": "a",
      "src": "L661"
     },
     {
-     "label": "Let it experiment.",
+     "label": "Let It Experiment.",
      "next": "b",
      "src": "L664"
     },
     {
-     "label": "Ask what learning means.",
+     "label": "Ask What Learning Means.",
      "next": "c",
      "src": "L667"
     }
@@ -124,7 +125,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L668"
     }
    ]

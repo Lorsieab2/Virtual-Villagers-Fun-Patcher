@@ -23,6 +23,7 @@
   "title_src": "L160",
   "ledger": [],
   "description": "A fisher wonders whether distant people might spend their days doing work that produces nothing visible.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L161",
    "choices": [
     {
-     "label": "Imagine knowledge work.",
+     "label": "Imagine Knowledge Work.",
      "next": "a",
      "src": "L162"
     },
     {
-     "label": "Imagine caring professions.",
+     "label": "Imagine Caring Professions.",
      "next": "b",
      "src": "L165"
     },
     {
-     "label": "Imagine work chosen freely.",
+     "label": "Imagine Work Chosen Freely.",
      "next": "c",
      "src": "L168"
     }

@@ -23,6 +23,7 @@
   "title_src": "L851",
   "ledger": [],
   "description": "A builder wonders whether distant settlements deliberately design routes for people who cannot climb, see, hear, or walk easily.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L852",
    "choices": [
     {
-     "label": "Imagine accessible buildings.",
+     "label": "Imagine Accessible Buildings.",
      "next": "a",
      "src": "L853"
     },
     {
-     "label": "Imagine communication aids.",
+     "label": "Imagine Communication Aids.",
      "next": "b",
      "src": "L856"
     },
     {
-     "label": "Question who decides.",
+     "label": "Question Who Decides.",
      "next": "c",
      "src": "L859"
     }

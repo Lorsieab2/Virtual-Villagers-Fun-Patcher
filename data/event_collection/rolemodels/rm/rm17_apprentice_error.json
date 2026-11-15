@@ -29,7 +29,8 @@
     "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
    }
   ],
-  "description": "A healer's apprentice mixes up two storage labels before any medicine has been prepared."
+  "description": "A healer's apprentice mixes up two storage labels before any medicine has been prepared.",
+  "label_case": "title"
  },
  "requirement": {
   "min_eligible": 1
@@ -49,22 +50,22 @@
    "src": "L37",
    "choices": [
     {
-     "label": "Tell the supervising healer immediately.",
+     "label": "Tell the Supervising Healer Immediately.",
      "next": "a",
      "src": "L37"
     },
     {
-     "label": "Compare the containers with the written records.",
+     "label": "Compare the Containers with the Written Records.",
      "next": "b",
      "src": "L37"
     },
     {
-     "label": "Ask another apprentice to check the labels independently.",
+     "label": "Ask Another Apprentice to Check the Labels Independently.",
      "next": "c",
      "src": "L37"
     },
     {
-     "label": "Suggest a clearer labeling arrangement.",
+     "label": "Suggest a Clearer Labeling Arrangement.",
      "next": "d",
      "src": "L37"
     }

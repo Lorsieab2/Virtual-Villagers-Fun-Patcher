@@ -30,6 +30,7 @@
    }
   ],
   "description": "An elder is teaching several apprentices to tie strong knots, but one learner repeatedly loses track of the steps.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L21",
    "choices": [
     {
-     "label": "Demonstrate the knot slowly again.",
+     "label": "Demonstrate the Knot Slowly Again.",
      "next": "a",
      "src": "L21"
     },
     {
-     "label": "Let the apprentice practice with a wider cord.",
+     "label": "Let the Apprentice Practice with a Wider Cord.",
      "next": "b",
      "src": "L21"
     },
     {
-     "label": "Invite an experienced apprentice to assist.",
+     "label": "Invite an Experienced Apprentice to Assist.",
      "next": "c",
      "src": "L21"
     },
     {
-     "label": "Offer a rest before continuing.",
+     "label": "Offer a Rest Before Continuing.",
      "next": "d",
      "src": "L21"
     }

@@ -23,6 +23,7 @@
   "title_src": "L695",
   "ledger": [],
   "description": "A child wonders whether distant scholars could store countless stories in a single smooth object.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L696",
    "choices": [
     {
-     "label": "Imagine the convenience.",
+     "label": "Imagine the Convenience.",
      "next": "a",
      "src": "L697"
     },
     {
-     "label": "Imagine who controls it.",
+     "label": "Imagine Who Controls It.",
      "next": "b",
      "src": "L700"
     },
     {
-     "label": "Compare it with oral memory.",
+     "label": "Compare It with Oral Memory.",
      "next": "c",
      "src": "L703"
     }

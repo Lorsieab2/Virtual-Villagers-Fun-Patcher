@@ -23,6 +23,7 @@
   "title_src": "L389",
   "ledger": [],
   "description": "An elder asks whether people beyond the sea might look every imaginable way, or resemble Isolans closely.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L390",
    "choices": [
     {
-     "label": "Imagine familiar faces.",
+     "label": "Imagine Familiar Faces.",
      "next": "a",
      "src": "L391"
     },
     {
-     "label": "Imagine unfamiliar faces.",
+     "label": "Imagine Unfamiliar Faces.",
      "next": "b",
      "src": "L394"
     },
     {
-     "label": "Ask what matters in meeting someone.",
+     "label": "Ask What Matters in Meeting Someone.",
      "next": "c",
      "src": "L397"
     }

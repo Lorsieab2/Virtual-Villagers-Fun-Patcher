@@ -30,6 +30,7 @@
    }
   ],
   "description": "A builder preparing to repair a walkway discovers a small flowering plant growing directly beside the work area.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L69",
    "choices": [
     {
-     "label": "Adjust the repair to avoid the plant.",
+     "label": "Adjust the Repair to Avoid the Plant.",
      "next": "a",
      "src": "L69"
     },
     {
-     "label": "Ask a gardener whether the plant can be moved safely.",
+     "label": "Ask a Gardener Whether the Plant Can Be Moved Safely.",
      "next": "b",
      "src": "L69"
     },
     {
-     "label": "Delay the work briefly while inspecting the area.",
+     "label": "Delay the Work Briefly While Inspecting the Area.",
      "next": "c",
      "src": "L69"
     },
     {
-     "label": "Invite apprentices to suggest a solution.",
+     "label": "Invite Apprentices to Suggest a Solution.",
      "next": "d",
      "src": "L69"
     }

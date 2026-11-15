@@ -30,6 +30,7 @@
    }
   ],
   "description": "Two friends prepare for a remembrance gathering but discover that their families observe the occasion in different ways.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L61",
    "choices": [
     {
-     "label": "Make room for both customs.",
+     "label": "Make Room for Both Customs.",
      "next": "a",
      "src": "L61"
     },
     {
-     "label": "Ask what each custom means to the person observing it.",
+     "label": "Ask What Each Custom Means to the Person Observing It.",
      "next": "b",
      "src": "L61"
     },
     {
-     "label": "Hold a shared period of quiet reflection.",
+     "label": "Hold a Shared Period of Quiet Reflection.",
      "next": "c",
      "src": "L61"
     },
     {
-     "label": "Let each family observe the occasion independently.",
+     "label": "Let Each Family Observe the Occasion Independently.",
      "next": "d",
      "src": "L61"
     }

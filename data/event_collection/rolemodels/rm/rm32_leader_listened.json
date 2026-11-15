@@ -30,6 +30,7 @@
    }
   ],
   "description": "A village leader proposes changing the work schedule, but several villagers worry about their family responsibilities.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L67",
    "choices": [
     {
-     "label": "Invite those affected to explain their concerns.",
+     "label": "Invite Those Affected to Explain Their Concerns.",
      "next": "a",
      "src": "L67"
     },
     {
-     "label": "Try the schedule for a short period.",
+     "label": "Try the Schedule for a Short Period.",
      "next": "b",
      "src": "L67"
     },
     {
-     "label": "Ask workers to propose alternatives.",
+     "label": "Ask Workers to Propose Alternatives.",
      "next": "c",
      "src": "L67"
     },
     {
-     "label": "Keep the existing schedule until a better plan is ready.",
+     "label": "Keep the Existing Schedule Until a Better Plan Is Ready.",
      "next": "d",
      "src": "L67"
     }

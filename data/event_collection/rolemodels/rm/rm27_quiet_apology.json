@@ -30,6 +30,7 @@
    }
   ],
   "description": "A villager realizes that an impatient remark during morning work hurt a friend's feelings.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L57",
    "choices": [
     {
-     "label": "Apologize privately without making excuses.",
+     "label": "Apologize Privately Without Making Excuses.",
      "next": "a",
      "src": "L57"
     },
     {
-     "label": "Ask how to avoid repeating the mistake.",
+     "label": "Ask How to Avoid Repeating the Mistake.",
      "next": "b",
      "src": "L57"
     },
     {
-     "label": "Give the friend space before approaching.",
+     "label": "Give the Friend Space Before Approaching.",
      "next": "c",
      "src": "L57"
     },
     {
-     "label": "Change the behavior before expecting reconciliation.",
+     "label": "Change the Behavior Before Expecting Reconciliation.",
      "next": "d",
      "src": "L57"
     }

@@ -23,6 +23,7 @@
   "title_src": "L839",
   "ledger": [],
   "description": "A healer imagines instruments that reveal structures inside a living body without cutting it open.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L840",
    "choices": [
     {
-     "label": "Hope for diagnosis.",
+     "label": "Hope for Diagnosis.",
      "next": "a",
      "src": "L841"
     },
     {
-     "label": "Ask about risk.",
+     "label": "Ask About Risk.",
      "next": "b",
      "src": "L844"
     },
     {
-     "label": "Ask who gets care.",
+     "label": "Ask Who Gets Care.",
      "next": "c",
      "src": "L847"
     }

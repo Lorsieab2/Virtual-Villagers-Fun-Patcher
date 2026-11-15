@@ -23,6 +23,7 @@
   "title_src": "L23",
   "ledger": [],
   "description": "While sharing roasted fruit, a child asks whether families beyond the ocean wake up hungry and argue about breakfast too.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L24",
    "choices": [
     {
-     "label": "Imagine familiar meals.",
+     "label": "Imagine Familiar Meals.",
      "next": "a",
      "src": "L25"
     },
     {
-     "label": "Imagine unfamiliar foods.",
+     "label": "Imagine Unfamiliar Foods.",
      "next": "b",
      "src": "L28"
     },
     {
-     "label": "Ask what meals mean.",
+     "label": "Ask What Meals Mean.",
      "next": "c",
      "src": "L31"
     }

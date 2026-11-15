@@ -23,6 +23,7 @@
   "title_src": "L1019",
   "ledger": [],
   "description": "An artisan speculates that a distant artificial worker might paint, compose songs, or carve figures no human has imagined.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L1020",
    "choices": [
     {
-     "label": "Call it creative.",
+     "label": "Call It Creative.",
      "next": "a",
      "src": "L1021"
     },
     {
-     "label": "Call it an instrument.",
+     "label": "Call It an Instrument.",
      "next": "b",
      "src": "L1024"
     },
     {
-     "label": "Ask about ownership.",
+     "label": "Ask About Ownership.",
      "next": "c",
      "src": "L1027"
     }

@@ -23,6 +23,7 @@
   "title_src": "L514",
   "ledger": [],
   "description": "As the sun sets, a child asks whether someone on a distant shore might be wondering about the islanders.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L515",
    "choices": [
     {
-     "label": "Imagine their questions.",
+     "label": "Imagine Their Questions.",
      "next": "a",
      "src": "L516"
     },
     {
-     "label": "Imagine being misunderstood.",
+     "label": "Imagine Being Misunderstood.",
      "next": "b",
      "src": "L519"
     },
     {
-     "label": "Imagine a conversation.",
+     "label": "Imagine a Conversation.",
      "next": "c",
      "src": "L522"
     }

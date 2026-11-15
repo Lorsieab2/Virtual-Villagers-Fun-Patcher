@@ -354,6 +354,11 @@ its "Content note:" / "VV3:" lines are ledger notes. A Role Models event is ONE 
 that line (the fidelity check finds each page's text inside it), the heading "EVENT RM-nn - TITLE SETUP:" is a
 structural cut, and a node whose line carries an effect-table word from another page has a text_only entry saying
 so. Grammar fixes would be rows `| horizon L<line> |` / `| rolemodels L<line> |` in grammar-fixes.md (none yet).
+Titles and choice labels are title case (the owner, 2026-11-15: titles and choice options are always title case,
+small words lower case unless first or last). Titles use the pipeline's `title_case`; these two sources' files set
+`collection.label_case: "title"`, so each label is `collection_lib.title_case_label` of the owner's words (the
+fidelity check matches the label case-blind, then requires exactly that form). The older sources' labels switch after
+the merge.
 
 ## 15a. The Pick Island Event sentence
 

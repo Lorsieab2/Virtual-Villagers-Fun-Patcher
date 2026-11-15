@@ -30,6 +30,7 @@
    }
   ],
   "description": "A fisher notices that several villagers are gathering shellfish close to a delicate reef exposed by the low tide.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L77",
    "choices": [
     {
-     "label": "Suggest harvesting from a less sensitive area.",
+     "label": "Suggest Harvesting from a Less Sensitive Area.",
      "next": "a",
      "src": "L77"
     },
     {
-     "label": "Explain what the fisher has observed about the reef.",
+     "label": "Explain What the Fisher Has Observed About the Reef.",
      "next": "b",
      "src": "L77"
     },
     {
-     "label": "Ask experienced gatherers to compare their knowledge.",
+     "label": "Ask Experienced Gatherers to Compare Their Knowledge.",
      "next": "c",
      "src": "L77"
     },
     {
-     "label": "Leave the reef alone for the day.",
+     "label": "Leave the Reef Alone for the Day.",
      "next": "d",
      "src": "L77"
     }

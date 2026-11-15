@@ -23,6 +23,7 @@
   "title_src": "L899",
   "ledger": [],
   "description": "A navigator imagines borders drawn across land, with guards deciding who may pass.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L900",
    "choices": [
     {
-     "label": "Defend boundaries.",
+     "label": "Defend Boundaries.",
      "next": "a",
      "src": "L901"
     },
     {
-     "label": "Imagine migration.",
+     "label": "Imagine Migration.",
      "next": "b",
      "src": "L904"
     },
     {
-     "label": "Question the map.",
+     "label": "Question the Map.",
      "next": "c",
      "src": "L907"
     }

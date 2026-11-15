@@ -30,6 +30,7 @@
    }
   ],
   "description": "A young apprentice accidentally cracks a communal water jar while moving supplies, and nobody sees what happened.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L7",
    "choices": [
     {
-     "label": "Tell the keeper immediately.",
+     "label": "Tell the Keeper Immediately.",
      "next": "a",
      "src": "L7"
     },
     {
-     "label": "Quietly attempt a repair before reporting it.",
+     "label": "Quietly Attempt a Repair Before Reporting It.",
      "next": "b",
      "src": "L7"
     },
     {
-     "label": "Ask a friend for advice.",
+     "label": "Ask a Friend for Advice.",
      "next": "c",
      "src": "L7"
     },
     {
-     "label": "Leave a note beside the jar.",
+     "label": "Leave a Note Beside the Jar.",
      "next": "d",
      "src": "L7"
     }

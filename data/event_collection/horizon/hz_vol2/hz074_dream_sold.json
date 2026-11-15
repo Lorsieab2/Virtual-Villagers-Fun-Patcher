@@ -23,6 +23,7 @@
   "title_src": "L983",
   "ledger": [],
   "description": "A storyteller wonders whether distant people could earn a living by creating performances, stories, games, or images.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L984",
    "choices": [
     {
-     "label": "Celebrate artists.",
+     "label": "Celebrate Artists.",
      "next": "a",
      "src": "L985"
     },
     {
-     "label": "Question fame.",
+     "label": "Question Fame.",
      "next": "b",
      "src": "L988"
     },
     {
-     "label": "Discuss imitation.",
+     "label": "Discuss Imitation.",
      "next": "c",
      "src": "L991"
     }

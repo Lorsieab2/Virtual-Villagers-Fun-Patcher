@@ -23,6 +23,7 @@
   "title_src": "L108",
   "ledger": [],
   "description": "A musician wonders what distant people celebrate and whether their festivals also go wrong.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L109",
    "choices": [
     {
-     "label": "Imagine shared milestones.",
+     "label": "Imagine Shared Milestones.",
      "next": "a",
      "src": "L110"
     },
     {
-     "label": "Imagine unfamiliar festivals.",
+     "label": "Imagine Unfamiliar Festivals.",
      "next": "b",
      "src": "L113"
     },
     {
-     "label": "Imagine a festival disaster.",
+     "label": "Imagine a Festival Disaster.",
      "next": "c",
      "src": "L116"
     }

@@ -30,6 +30,7 @@
    }
   ],
   "description": "A quiet villager finds a damaged basket, scattered seeds and a loose stone beside a path after everyone has gone home.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L83",
    "choices": [
     {
-     "label": "Repair the basket and return it to storage.",
+     "label": "Repair the Basket and Return It to Storage.",
      "next": "a",
      "src": "L83"
     },
     {
-     "label": "Gather the spilled seeds.",
+     "label": "Gather the Spilled Seeds.",
      "next": "b",
      "src": "L83"
     },
     {
-     "label": "Move the loose stone away from the walking path.",
+     "label": "Move the Loose Stone Away from the Walking Path.",
      "next": "c",
      "src": "L83"
     },
     {
-     "label": "Leave a short note explaining what needs attention.",
+     "label": "Leave a Short Note Explaining What Needs Attention.",
      "next": "d",
      "src": "L83"
     }

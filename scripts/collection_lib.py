@@ -263,6 +263,31 @@ def strip_structural(text: str) -> str:
     return text
 
 
+# ---- Title-case choice labels (the owner, 2026-11-15: titles and choice options are always title case) -------------
+#
+# A file whose collection.label_case is "title" shows each choice label in title case: every word's first letter a
+# capital (each part of a hyphenated word too), except these small words when neither first nor last; a word that
+# already has capitals keeps them.  Used by the 2026-11-15 sources (Beyond the Horizon, Role Models); the older
+# sources switch after the merge.  The fidelity check compares such a label with the source words case-blind and
+# then requires exactly this form of them.
+
+LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
+                     "the", "to", "with"}
+
+
+def title_case_label(text: str) -> str:
+    words = text.split(" ")
+    idx = [i for i, w in enumerate(words) if re.search(r"[A-Za-z]", w)]
+    out = []
+    for i, w in enumerate(words):
+        core = re.sub(r"^[^A-Za-z]+|[^A-Za-z]+$", "", w)
+        if not core or (core.lower() in LABEL_SMALL_WORDS and i not in (idx[0], idx[-1]) and core == core.lower()):
+            out.append(w)
+            continue
+        out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
+    return " ".join(out)
+
+
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'\-]*[A-Za-z]|[A-Za-z]")
 
 

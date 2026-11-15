@@ -23,6 +23,7 @@
   "title_src": "L1043",
   "ledger": [],
   "description": "A fisher imagines distant people building mechanical guardians to watch reefs, count fish, or remove dangerous debris.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L1044",
    "choices": [
     {
-     "label": "Welcome its help.",
+     "label": "Welcome Its Help.",
      "next": "a",
      "src": "L1045"
     },
     {
-     "label": "Ask whose knowledge guides it.",
+     "label": "Ask Whose Knowledge Guides It.",
      "next": "b",
      "src": "L1048"
     },
     {
-     "label": "Consider unintended harm.",
+     "label": "Consider Unintended Harm.",
      "next": "c",
      "src": "L1051"
     }

@@ -23,6 +23,7 @@
   "title_src": "L635",
   "ledger": [],
   "description": "A child imagines a carved servant pleading not to be dismantled, and asks whether its words could describe real pain.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L636",
    "choices": [
     {
-     "label": "Believe its plea.",
+     "label": "Believe Its Plea.",
      "next": "a",
      "src": "L637"
     },
     {
-     "label": "Test its responses.",
+     "label": "Test Its Responses.",
      "next": "b",
      "src": "L640"
     },
     {
-     "label": "Leave the question open.",
+     "label": "Leave the Question Open.",
      "next": "c",
      "src": "L643"
     }
@@ -102,7 +103,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L641"
     }
    ]

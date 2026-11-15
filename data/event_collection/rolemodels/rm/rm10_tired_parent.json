@@ -30,6 +30,7 @@
    }
   ],
   "description": "A parent has spent the morning caring for a restless toddler and discovers that the family's cat has overturned its water bowl.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L23",
    "choices": [
     {
-     "label": "Refill the bowl before resting.",
+     "label": "Refill the Bowl Before Resting.",
      "next": "a",
      "src": "L23"
     },
     {
-     "label": "Ask a trusted family member to watch the toddler briefly.",
+     "label": "Ask a Trusted Family Member to Watch the Toddler Briefly.",
      "next": "b",
      "src": "L23"
     },
     {
-     "label": "Move the bowl to a more stable place.",
+     "label": "Move the Bowl to a More Stable Place.",
      "next": "c",
      "src": "L23"
     },
     {
-     "label": "Admit feeling exhausted and request a short break.",
+     "label": "Admit Feeling Exhausted and Request a Short Break.",
      "next": "d",
      "src": "L23"
     }

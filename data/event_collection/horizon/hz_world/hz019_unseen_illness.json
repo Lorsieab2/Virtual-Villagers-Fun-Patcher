@@ -23,6 +23,7 @@
   "title_src": "L248",
   "ledger": [],
   "description": "A healer asks whether distant physicians might have tools for observing things too small for the naked eye.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L249",
    "choices": [
     {
-     "label": "Imagine magnification.",
+     "label": "Imagine Magnification.",
      "next": "a",
      "src": "L250"
     },
     {
-     "label": "Imagine unseen causes.",
+     "label": "Imagine Unseen Causes.",
      "next": "b",
      "src": "L253"
     },
     {
-     "label": "Ask whether tools replace judgment.",
+     "label": "Ask Whether Tools Replace Judgment.",
      "next": "c",
      "src": "L256"
     }

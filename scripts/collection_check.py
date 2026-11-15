@@ -78,7 +78,7 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "rm")                                # Role Models and Good Examples (data/event_collection/rolemodels/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
-                 "description_variants", "cast_only")
+                 "description_variants", "cast_only", "label_case")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -612,11 +612,16 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
             if not "".join(s for k, s in scan(para) if k in ("lit", "esc")).strip():
                 continue   # a paragraph of tokens only ("{WRONG}"): its items carry their own src
             rx = text_regex(para.strip(), words, pools=pool_texts)
-            m = re.search(rx, span.text)
+            titled = f.kind == "label" and (doc.get("collection") or {}).get("label_case") == "title"
+            m = re.search(rx, span.text, re.IGNORECASE if titled else 0)
             if not m:
                 rep.add("b FIDELITY", f"{f.where} ({f.src}): {para.strip()[:90]!r} is not the source text "
                                       f"{span.text[:160]!r}")
                 continue
+            if titled and para.strip() != lib.title_case_label(m.group(0)):
+                # collection_lib.title_case_label: the owner's words, only their case changed
+                rep.add("b FIDELITY", f"{f.where}: {para.strip()!r} is not the title case of the source's "
+                                      f"{m.group(0)!r} ({lib.title_case_label(m.group(0))!r})")
             for n, (a, b) in span_lines(span, m.start(), m.end()).items():
                 mp = span.maps.get(n)
                 idx = {mp[k] for k in range(a, min(b, len(mp)))} if mp else set(range(a, b))

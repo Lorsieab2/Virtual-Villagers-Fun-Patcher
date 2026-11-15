@@ -23,6 +23,7 @@
   "title_src": "L84",
   "ledger": [],
   "description": "A child assumes life beyond Isola must be an endless adventure. A tired farmer doubts it.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L85",
    "choices": [
     {
-     "label": "Imagine an ordinary working day.",
+     "label": "Imagine an Ordinary Working Day.",
      "next": "a",
      "src": "L86"
     },
     {
-     "label": "Imagine a day of leisure.",
+     "label": "Imagine a Day of Leisure.",
      "next": "b",
      "src": "L89"
     },
     {
-     "label": "Ask whether ordinary days matter.",
+     "label": "Ask Whether Ordinary Days Matter.",
      "next": "c",
      "src": "L92"
     }

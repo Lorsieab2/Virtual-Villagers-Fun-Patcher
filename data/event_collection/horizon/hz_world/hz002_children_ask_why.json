@@ -23,6 +23,7 @@
   "title_src": "L35",
   "ledger": [],
   "description": "A teacher wonders whether distant children interrupt lessons, invent games, and ask questions adults cannot answer.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L36",
    "choices": [
     {
-     "label": "Imagine a classroom like ours.",
+     "label": "Imagine a Classroom Like Ours.",
      "next": "a",
      "src": "L37"
     },
     {
-     "label": "Imagine an immense school.",
+     "label": "Imagine an Immense School.",
      "next": "b",
      "src": "L40"
     },
     {
-     "label": "Ask the children themselves.",
+     "label": "Ask the Children Themselves.",
      "next": "c",
      "src": "L43"
     }

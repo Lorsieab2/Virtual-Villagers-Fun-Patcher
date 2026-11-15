@@ -23,6 +23,7 @@
   "title_src": "L184",
   "ledger": [],
   "description": "A child watches seabirds and asks whether people elsewhere might build machines to cross the sky.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L185",
    "choices": [
     {
-     "label": "Consider wings.",
+     "label": "Consider Wings.",
      "next": "a",
      "src": "L186"
     },
     {
-     "label": "Consider floating craft.",
+     "label": "Consider Floating Craft.",
      "next": "b",
      "src": "L189"
     },
     {
-     "label": "Ask why people would fly.",
+     "label": "Ask Why People Would Fly.",
      "next": "c",
      "src": "L192"
     }

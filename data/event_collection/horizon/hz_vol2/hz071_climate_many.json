@@ -23,6 +23,7 @@
   "title_src": "L947",
   "ledger": [],
   "description": "A gardener wonders whether distant societies could change forests, air and seas so much that the weather changes.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L948",
    "choices": [
     {
-     "label": "Investigate causes.",
+     "label": "Investigate Causes.",
      "next": "a",
      "src": "L949"
     },
     {
-     "label": "Imagine responsibility.",
+     "label": "Imagine Responsibility.",
      "next": "b",
      "src": "L952"
     },
     {
-     "label": "Imagine restoration.",
+     "label": "Imagine Restoration.",
      "next": "c",
      "src": "L955"
     }

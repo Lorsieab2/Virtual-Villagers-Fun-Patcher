@@ -23,6 +23,7 @@
   "title_src": "L863",
   "ledger": [],
   "description": "A trader imagines distant people exchanging goods without ever meeting the maker or seller.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L864",
    "choices": [
     {
-     "label": "Praise convenience.",
+     "label": "Praise Convenience.",
      "next": "a",
      "src": "L865"
     },
     {
-     "label": "Question trust.",
+     "label": "Question Trust.",
      "next": "b",
      "src": "L868"
     },
     {
-     "label": "Compare village trade.",
+     "label": "Compare Village Trade.",
      "next": "c",
      "src": "L871"
     }

@@ -23,6 +23,7 @@
   "title_src": "L599",
   "ledger": [],
   "description": "A storyteller proposes that a distant people might build a speaking figure and claim a spirit lives within it.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L600",
    "choices": [
     {
-     "label": "Invite the spiritual interpretation.",
+     "label": "Invite the Spiritual Interpretation.",
      "next": "a",
      "src": "L601"
     },
     {
-     "label": "Invite the scientific interpretation.",
+     "label": "Invite the Scientific Interpretation.",
      "next": "b",
      "src": "L604"
     },
     {
-     "label": "Allow both to remain possibilities.",
+     "label": "Allow Both to Remain Possibilities.",
      "next": "c",
      "src": "L607"
     }

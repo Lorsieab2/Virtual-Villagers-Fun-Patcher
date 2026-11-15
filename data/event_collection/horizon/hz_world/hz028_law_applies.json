@@ -23,6 +23,7 @@
   "title_src": "L364",
   "ledger": [],
   "description": "After a respected craftsperson breaks a village rule, a child asks whether powerful people obey their own laws.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L365",
    "choices": [
     {
-     "label": "Imagine equal rules.",
+     "label": "Imagine Equal Rules.",
      "next": "a",
      "src": "L366"
     },
     {
-     "label": "Imagine many courts.",
+     "label": "Imagine Many Courts.",
      "next": "b",
      "src": "L369"
     },
     {
-     "label": "Imagine mercy.",
+     "label": "Imagine Mercy.",
      "next": "c",
      "src": "L372"
     }

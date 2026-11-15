@@ -23,6 +23,7 @@
   "title_src": "L136",
   "ledger": [],
   "description": "A night watchkeeper wonders whether some distant settlements are so large that work and conversation continue all night.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L137",
    "choices": [
     {
-     "label": "Imagine the night workers.",
+     "label": "Imagine the Night Workers.",
      "next": "a",
      "src": "L138"
     },
     {
-     "label": "Imagine artificial daylight.",
+     "label": "Imagine Artificial Daylight.",
      "next": "b",
      "src": "L141"
     },
     {
-     "label": "Imagine complete silence.",
+     "label": "Imagine Complete Silence.",
      "next": "c",
      "src": "L144"
     }

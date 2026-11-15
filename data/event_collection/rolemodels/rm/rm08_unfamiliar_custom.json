@@ -30,6 +30,7 @@
    }
   ],
   "description": "A villager notices that a new neighbor observes a quiet personal custom before beginning the day's work.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L19",
    "choices": [
     {
-     "label": "Respect the neighbor's privacy.",
+     "label": "Respect the Neighbor's Privacy.",
      "next": "a",
      "src": "L19"
     },
     {
-     "label": "Ask politely whether the neighbor wishes to explain.",
+     "label": "Ask Politely Whether the Neighbor Wishes to Explain.",
      "next": "b",
      "src": "L19"
     },
     {
-     "label": "Offer a quiet place nearby.",
+     "label": "Offer a Quiet Place Nearby.",
      "next": "c",
      "src": "L19"
     },
     {
-     "label": "Discuss how different customs can fit into shared work.",
+     "label": "Discuss How Different Customs Can Fit into Shared Work.",
      "next": "d",
      "src": "L19"
     }

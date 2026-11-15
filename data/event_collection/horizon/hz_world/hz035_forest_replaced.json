@@ -23,6 +23,7 @@
   "title_src": "L453",
   "ledger": [],
   "description": "A gardener imagines distant settlements expanding until little natural habitat remains.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L454",
    "choices": [
     {
-     "label": "Imagine the benefits.",
+     "label": "Imagine the Benefits.",
      "next": "a",
      "src": "L455"
     },
     {
-     "label": "Imagine the losses.",
+     "label": "Imagine the Losses.",
      "next": "b",
      "src": "L458"
     },
     {
-     "label": "Imagine restoration.",
+     "label": "Imagine Restoration.",
      "next": "c",
      "src": "L461"
     }

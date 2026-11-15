@@ -23,6 +23,7 @@
   "title_src": "L1007",
   "ledger": [],
   "description": "A philosopher imagines a distant council deciding whether an artificial being deserves protection.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L1008",
    "choices": [
     {
-     "label": "Grant protections cautiously.",
+     "label": "Grant Protections Cautiously.",
      "next": "a",
      "src": "L1009"
     },
     {
-     "label": "Require evidence first.",
+     "label": "Require Evidence First.",
      "next": "b",
      "src": "L1012"
     },
     {
-     "label": "Ask the construct itself.",
+     "label": "Ask the Construct Itself.",
      "next": "c",
      "src": "L1015"
     }
@@ -102,7 +103,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L1013"
     }
    ]

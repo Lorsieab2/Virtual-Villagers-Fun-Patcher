@@ -23,6 +23,7 @@
   "title_src": "L298",
   "ledger": [],
   "description": "A philosopher asks whether distant people might construct devices that answer questions, imitate conversation, or make decisions.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L299",
    "choices": [
     {
-     "label": "Imagine a helpful adviser.",
+     "label": "Imagine a Helpful Adviser.",
      "next": "a",
      "src": "L300"
     },
     {
-     "label": "Imagine a fallible machine.",
+     "label": "Imagine a Fallible Machine.",
      "next": "b",
      "src": "L303"
     },
     {
-     "label": "Ask who is responsible.",
+     "label": "Ask Who Is Responsible.",
      "next": "c",
      "src": "L306"
     }

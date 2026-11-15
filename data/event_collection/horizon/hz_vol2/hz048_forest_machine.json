@@ -23,6 +23,7 @@
   "title_src": "L671",
   "ledger": [],
   "description": "A naturalist wonders whether the island itself is a vast system of interdependent parts, like an unimaginably intricate invention.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L672",
    "choices": [
     {
-     "label": "Follow the analogy.",
+     "label": "Follow the Analogy.",
      "next": "a",
      "src": "L673"
     },
     {
-     "label": "Reject the analogy.",
+     "label": "Reject the Analogy.",
      "next": "b",
      "src": "L676"
     },
     {
-     "label": "Imagine artificial ecosystems.",
+     "label": "Imagine Artificial Ecosystems.",
      "next": "c",
      "src": "L679"
     }

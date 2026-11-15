@@ -23,6 +23,7 @@
   "title_src": "L310",
   "ledger": [],
   "description": "A midwife wonders whether distant scholars might understand why children sometimes resemble parents and sometimes differ greatly.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L311",
    "choices": [
     {
-     "label": "Imagine inherited instructions.",
+     "label": "Imagine Inherited Instructions.",
      "next": "a",
      "src": "L312"
     },
     {
-     "label": "Imagine studying differences.",
+     "label": "Imagine Studying Differences.",
      "next": "b",
      "src": "L315"
     },
     {
-     "label": "Ask what makes a person.",
+     "label": "Ask What Makes a Person.",
      "next": "c",
      "src": "L318"
     }
@@ -124,7 +125,7 @@
    "text_only": [
     {
      "what": "\"experience\"",
-     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
      "src": "L319"
     }
    ]

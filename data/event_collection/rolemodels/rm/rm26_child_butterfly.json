@@ -30,6 +30,7 @@
    }
   ],
   "description": "A child catches a brightly colored butterfly in a soft net and notices that its wings are becoming tangled.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L55",
    "choices": [
     {
-     "label": "Lower the net and allow the butterfly to escape.",
+     "label": "Lower the Net and Allow the Butterfly to Escape.",
      "next": "a",
      "src": "L55"
     },
     {
-     "label": "Ask an experienced gardener for guidance.",
+     "label": "Ask an Experienced Gardener for Guidance.",
      "next": "b",
      "src": "L55"
     },
     {
-     "label": "Place the net gently on the ground and loosen the opening.",
+     "label": "Place the Net Gently on the Ground and Loosen the Opening.",
      "next": "c",
      "src": "L55"
     },
     {
-     "label": "Put the net away and draw butterflies instead.",
+     "label": "Put the Net Away and Draw Butterflies Instead.",
      "next": "d",
      "src": "L55"
     }

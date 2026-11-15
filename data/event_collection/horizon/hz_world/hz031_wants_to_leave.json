@@ -23,6 +23,7 @@
   "title_src": "L401",
   "ledger": [],
   "description": "A teenager wonders whether a distant city might offer opportunities unavailable on Isola.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L402",
    "choices": [
     {
-     "label": "Encourage exploration.",
+     "label": "Encourage Exploration.",
      "next": "a",
      "src": "L403"
     },
     {
-     "label": "Encourage roots.",
+     "label": "Encourage Roots.",
      "next": "b",
      "src": "L406"
     },
     {
-     "label": "Discuss both desires.",
+     "label": "Discuss Both Desires.",
      "next": "c",
      "src": "L409"
     }

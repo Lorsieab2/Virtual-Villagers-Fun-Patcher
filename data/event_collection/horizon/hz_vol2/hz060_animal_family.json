@@ -23,6 +23,7 @@
   "title_src": "L815",
   "ledger": [],
   "description": "A child wonders whether distant people keep creatures not for meat or work, but because they love their company.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L816",
    "choices": [
     {
-     "label": "Imagine companionship.",
+     "label": "Imagine Companionship.",
      "next": "a",
      "src": "L817"
     },
     {
-     "label": "Ask about freedom.",
+     "label": "Ask About Freedom.",
      "next": "b",
      "src": "L820"
     },
     {
-     "label": "Compare their customs.",
+     "label": "Compare Their Customs.",
      "next": "c",
      "src": "L823"
     }

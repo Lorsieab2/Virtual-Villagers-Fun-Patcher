@@ -30,6 +30,7 @@
    }
   ],
   "description": "A healer is asked whether an unfamiliar plant will certainly relieve a villager's persistent discomfort.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L51",
    "choices": [
     {
-     "label": "Explain what is known and what remains uncertain.",
+     "label": "Explain What Is Known and What Remains Uncertain.",
      "next": "a",
      "src": "L51"
     },
     {
-     "label": "Consult another experienced healer.",
+     "label": "Consult Another Experienced Healer.",
      "next": "b",
      "src": "L51"
     },
     {
-     "label": "Review earlier notes about the plant.",
+     "label": "Review Earlier Notes About the Plant.",
      "next": "c",
      "src": "L51"
     },
     {
-     "label": "Focus first on the villager's immediate comfort.",
+     "label": "Focus First on the Villager's Immediate Comfort.",
      "next": "d",
      "src": "L51"
     }

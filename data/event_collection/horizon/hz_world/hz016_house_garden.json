@@ -23,6 +23,7 @@
   "title_src": "L208",
   "ledger": [],
   "description": "A gardener wonders whether people in distant cities might live far from the soil that feeds them.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L209",
    "choices": [
     {
-     "label": "Imagine distant farms.",
+     "label": "Imagine Distant Farms.",
      "next": "a",
      "src": "L210"
     },
     {
-     "label": "Imagine gardens in strange places.",
+     "label": "Imagine Gardens in Strange Places.",
      "next": "b",
      "src": "L213"
     },
     {
-     "label": "Imagine no interest in farming.",
+     "label": "Imagine No Interest in Farming.",
      "next": "c",
      "src": "L216"
     }

@@ -23,6 +23,7 @@
   "title_src": "L971",
   "ledger": [],
   "description": "A dancer asks whether distant people gather in huge crowds to celebrate music, sport, belief, or shared history.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L972",
    "choices": [
     {
-     "label": "Imagine joy.",
+     "label": "Imagine Joy.",
      "next": "a",
      "src": "L973"
     },
     {
-     "label": "Imagine danger.",
+     "label": "Imagine Danger.",
      "next": "b",
      "src": "L976"
     },
     {
-     "label": "Compare rituals.",
+     "label": "Compare Rituals.",
      "next": "c",
      "src": "L979"
     }

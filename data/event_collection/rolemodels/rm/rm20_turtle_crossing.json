@@ -30,6 +30,7 @@
    }
   ],
   "description": "A turtle begins crossing a busy stretch of shore while villagers carry supplies toward the huts.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L43",
    "choices": [
     {
-     "label": "Ask everyone to slow down and give it space.",
+     "label": "Ask Everyone to Slow Down and Give It Space.",
      "next": "a",
      "src": "L43"
     },
     {
-     "label": "Place a visible marker near the crossing.",
+     "label": "Place a Visible Marker Near the Crossing.",
      "next": "b",
      "src": "L43"
     },
     {
-     "label": "Watch from a distance until the turtle moves on.",
+     "label": "Watch from a Distance Until the Turtle Moves On.",
      "next": "c",
      "src": "L43"
     },
     {
-     "label": "Ask an experienced villager whether intervention is necessary.",
+     "label": "Ask an Experienced Villager Whether Intervention Is Necessary.",
      "next": "d",
      "src": "L43"
     }

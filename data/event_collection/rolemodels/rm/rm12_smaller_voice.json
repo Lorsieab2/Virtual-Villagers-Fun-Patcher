@@ -30,6 +30,7 @@
    }
   ],
   "description": "During a village discussion, a young teenager notices that an elderly villager with a soft voice cannot make themselves heard.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -52,22 +53,22 @@
    "src": "L27",
    "choices": [
     {
-     "label": "Ask the group to pause and listen.",
+     "label": "Ask the Group to Pause and Listen.",
      "next": "a",
      "src": "L27"
     },
     {
-     "label": "Move closer and offer to repeat the elder's words.",
+     "label": "Move Closer and Offer to Repeat the Elder's Words.",
      "next": "b",
      "src": "L27"
     },
     {
-     "label": "Suggest speaking one at a time.",
+     "label": "Suggest Speaking One at a Time.",
      "next": "c",
      "src": "L27"
     },
     {
-     "label": "Speak with the elder afterward.",
+     "label": "Speak with the Elder Afterward.",
      "next": "d",
      "src": "L27"
     }

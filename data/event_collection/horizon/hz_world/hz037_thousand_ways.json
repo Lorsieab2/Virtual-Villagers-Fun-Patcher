@@ -23,6 +23,7 @@
   "title_src": "L477",
   "ledger": [],
   "description": "A drummer asks whether distant people make unimagined music, and whether they still sing to children at bedtime.",
+  "label_case": "title",
   "cast_only": [
    "villager"
   ]
@@ -45,17 +46,17 @@
    "src": "L478",
    "choices": [
     {
-     "label": "Imagine extraordinary instruments.",
+     "label": "Imagine Extraordinary Instruments.",
      "next": "a",
      "src": "L479"
     },
     {
-     "label": "Imagine familiar lullabies.",
+     "label": "Imagine Familiar Lullabies.",
      "next": "b",
      "src": "L482"
     },
     {
-     "label": "Imagine musical disagreements.",
+     "label": "Imagine Musical Disagreements.",
      "next": "c",
      "src": "L485"
     }
