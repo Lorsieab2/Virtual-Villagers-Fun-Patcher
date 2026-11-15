@@ -486,5 +486,46 @@ class PickAndLibrary(unittest.TestCase):
                 self.assertEqual((h["ring"], h["var"][vi]), ([seed], 1))
 
 
+@emulated
+class GuardiansOfIsola(unittest.TestCase):
+    """New Believers with and without Guardians of Isola Rewrite: no living text says "Heathen" or "convert" (so its
+    manifest rows carry no Guardians wording and its blobs no Guardians variants); the same seed arms the same
+    variant, and every page and title of the event is the same, with the patch on and off."""
+
+    WORDS = r"heathen|convert"
+
+    def test_new_believers_with_and_without_the_patch(self) -> None:
+        import re
+        from test_story_cie_graph_runtime_v6 import installed
+        if not have_stock("vv5"):
+            self.skipTest("needs New Believers' stock executable")
+        seen = {}
+        for guardians in (False, True):
+            run = Living("vv5")
+            if guardians:
+                installed(run, ["guardians_of_isola"])
+            run.rolls([0] * 64)
+            vi = run.arm("living_le_per_01")
+            self.assertGreaterEqual(vi, 0)
+            run.walk_through([0] * 4)
+            shown = run.displays() + run.titles()
+            for text in shown:
+                self.assertIsNone(re.search(self.WORDS, text, re.I), text)
+            seen[guardians] = (vi, shown)
+        self.assertEqual(seen[False], seen[True])
+
+    def test_no_living_text_needs_guardians_wording(self) -> None:
+        import re
+        for game in mx.GAMES:
+            p = mx.read_pack((ROOT / "assets" / "event_collection" / f"vv{game}" / "living.pak").read_bytes())
+            for v in p["variants"]:
+                self.assertIsNone(re.search(rb"(?i)heathen|convert", v["blob"]), (game, p["seeds"][v["seed"]]["id"]))
+            rows = [r.split("\t") for r in (ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt")
+                    .read_text(encoding="utf-8").splitlines() if r.startswith("living_")]
+            self.assertTrue(rows)
+            self.assertTrue(all(r[7] == "" and r[8] == "" for r in rows))
+            self.assertTrue(all(re.search(self.WORDS, r[1] + r[6], re.I) is None for r in rows))
+
+
 if __name__ == "__main__":
     unittest.main()

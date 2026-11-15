@@ -259,7 +259,7 @@ def check_quality(bank: mx.Bank, seed: dict, v: dict, d: dict, found: dict, game
                 out.append(f"{where}: S11: {ident} -> {x} rewards following an unjust custom")
             if bank.arc[x]["group"] != "rare" and not bank.arc[x]["effects"]:
                 free = True
-        if mx.no_mocking(seed) and "mocking" in mx.choice_classes(bank, kind, ident) and not v["flags"] & mx.FLAG_MIX:
+        if mx.no_mocking(seed, bank) and "mocking" in mx.choice_classes(bank, kind, ident) and not v["flags"] & mx.FLAG_MIX:
             out.append(f"{where}: S10-S12: the seed offers the mocking {ident}")
         if seed["id"] in mx.PREJUDICE_SEEDS and ident in mx.FALSE_EQUIVALENCE and not v["flags"] & mx.FLAG_MIX:
             out.append(f"{where}: S13: {ident} treats prejudice as one valid opinion")

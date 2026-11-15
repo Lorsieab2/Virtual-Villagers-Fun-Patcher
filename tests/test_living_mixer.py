@@ -260,6 +260,27 @@ class Moods(unittest.TestCase):
         self.assertEqual(h.mood_weights(moods), [1, 1, 1])           # one each: no bias
 
 
+class OutcomeCategories(unittest.TestCase):
+    def test_every_archetype_by_category(self) -> None:
+        cats = mx.outcome_categories(BANK)
+        self.assertEqual(len(cats), 38)
+        self.assertEqual(sorted(c["index"] for c in cats.values()), list(range(38)))
+        self.assertEqual(cats["le_arc_rare_02"]["effects"], ["kill"])
+        self.assertIn("injury", cats["le_arc_bad_05"]["tags"])
+        self.assertEqual(cats["le_arc_rare_02"]["filters"], ["F03", "F05", "F08"])
+        self.assertEqual(cats["le_arc_rare_01"]["filters"], ["F04", "F19"])
+        self.assertTrue(all(set(c["filters"]) <= set(mx.FILTERS) for c in cats.values()))
+
+    def test_every_mc_outcome_has_its_filters(self) -> None:
+        for sit in BANK.mc_sits:
+            for ap in sit["approaches"]:
+                for o in ap["outcomes"]:
+                    got = mx.mc_outcome_filters(BANK, sit, o)
+                    self.assertTrue(set(got) <= set(mx.FILTERS), got)
+                    if sit["category"] == "mc_cat_dis":
+                        self.assertIn("F21", got)
+
+
 class TheLenses(unittest.TestCase):
     def test_fifteen_plain_lenses(self) -> None:
         texts = [l["text"] for l in BANK.lenses]

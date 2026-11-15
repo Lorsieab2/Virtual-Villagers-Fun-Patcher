@@ -28,6 +28,11 @@ ASCII.
   | description | the seed's sentence (typography made plain), in this game's words: a seed that names the chief says "The village leader" / "the village leader's" / "A village leader" outside VV3 |
   | Guardians title / description | empty (no living text says "Heathen" or "convert") |
 
+- **Guardians of Isola (New Believers).** No living text says "Heathen", "convert" or "conversion" (the bank's
+  only such line is the MC safety contract, never shown), so the rows' Guardians cells are empty and the blobs carry
+  no Guardians variants: an event reads the same with the patch on and off. A future line that needs it takes the
+  collection's own Guardians variants (cie-v6-binary.md 18, guardians-wording.md);
+  `tests/test_living_runtime.py GuardiansOfIsola` fails the day one appears without them.
 - **The id prefix `living_`** tells the engine that the row's event is in `living.pak`, not in `<id>.cieg`. No
   `living_*.cieg` file ever ships. The manifest row's id equals the pack's seed id (2.2).
 - MJ (the 35 held seeds) has no rows and no variants until the owner's outcomes arrive.
@@ -196,6 +201,14 @@ division). Then, up to 12 times while variants are left: `r = random_below(sum o
 order of those left); variant i is next in the order and is taken out. The engine tries the variants in that order
 under STRICT casting; the first that casts is armed. None casts: the seed is not possible now (the draw moves on as
 for any collection entry that cannot be cast).
+
+### 4.2a The exclusion hook
+
+Every path that tries a variant (the rare roll, Pick Island Event, the library) first asks `lv_excluded(game, seed,
+variant)`. It excludes nothing yet: it is the one place for the owner's coming rules (answers of 2026-11-15: Q21
+serious-event cooldowns of 30 / 60 in-game days per villager and immediate family; Q29 subject filters), which can
+read the variant's outcome records (2.4) before it is chosen. The Python side lists every archetype's group, tags and
+effects (`vv_living_mixer.outcome_categories`) for the same filters.
 
 ### 4.3 Recording
 

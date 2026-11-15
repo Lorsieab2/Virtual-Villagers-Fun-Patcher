@@ -417,6 +417,28 @@ These are the owner's own text. Lead decision (2026-11-14): each is its seed's v
   as its way through; with C2 and C12 (no light or blame outcome there) no combination implies a past harm was the
   person's fault, insignificant, or resolved by forgiveness. Other bad outcomes keep their words: not every bad outcome
   implies wrongdoing.
+- **Nothing serious is a joke (S16).** The serious categories' seeds (Belief and Mystery, Governance and Fairness,
+  Emotions and Identity; Rest, Health, and Care) take no mocking or comedic choice; C1 already keeps them from every
+  grief, loss, illness and trauma seed, and the same holds for every seed about another community or culture
+  (transgenerational and collective trauma may sit behind them: never played lightly, never a culture shown as
+  lesser), with S13-S15 keeping blame, settling and shaming outcomes away. Checked as well (nothing to change): no outcome makes a child a carrying or
+  nursing parent (the one birth outcome, "An unexpected birth or reunion changes the day's priorities.", has no
+  effect and names nobody); nothing limits a couple's sexes; no outcome shows a parent neglecting a child; no seed
+  or outcome shows slavery or another historical harm as active or explicit; no bank line names a place outside
+  Isola.
+- **Love, family and being alone (S17).** The seeds about a love letter after years alone, a couple undecided about a
+  child, a family that dislikes a companion, dining alone and loneliness take no mocking choice, no approach where
+  someone else decides for them, no blaming outcome, and the couple's seed never ends in an unexpected birth. No
+  archetype line frames marriage or parenthood as a goal, and "A fragile friendship ends despite sincere attempts to
+  mend it" ends a relationship without blame.
+- **Care of the mind (S16).** Emotions and Identity, and Rest, Health, and Care never end in a light outcome in a
+  mixed variant (the owner's own examples keep their words). No seed, archetype, approach or choice in the bank
+  touches sexual assault, so no combination can produce it: the mixer only joins the owner's own lines.
+- **Advice (owner, 2026-11-15).** Following or declining advice never decides whether an outcome is good or bad:
+  every choice, a consult approach ("Ask a specialist for advice", "Ask an elder to explain the tradition", ...) or
+  any other, branches the same way (good 20, adverse 20, rare 2), and no archetype line says or implies "they
+  should have listened" (the one that judged a person's confidence, S15, is never mixed in). "The person most
+  affected feels heard and makes their own choice" and "Leave the choice unresolved" stay valid endings and choices.
 - **No shaming (S15; owner hard rule 28).** No mixed variant uses "The villagers discover that confidence was
   mistaken for competence." or "A small success comes with an unexpected embarrassment." (they judge a person's
   mistake or make it an embarrassment). **For the owner's review:** the owner's own examples that use them keep their
@@ -456,6 +478,8 @@ The bank's rules above are extended with these; every variant obeys them (`scrip
 | S12 | A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would read as a problem or a punchline. The owner's own examples (variant 0) keep their words. |
 | S13 | A seed with someone wronged in it (a prank's target, a villager accused of cheating, the outsiders an old rule shuts out) never ends in an outcome that blames (wasted supplies, confidence mistaken for competence, an embarrassment): the one wronged would read as deserving it. A seed about a rule meant only for outsiders never offers a compromise with it, neutrality, letting households differ, leaving it unresolved or inviting several disagreeing voices, and never ends in a compromise that satisfies neither side: prejudice would read as one valid opinion. |
 | S14 | A grief, loss, illness or trauma seed never ends in an outcome that corrects or settles it (a misunderstanding gently corrected, confidence found mistaken) and never offers apologizing and repairing as its way through: a past harm would read as the person's fault, insignificant, or resolved by forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies wrongdoing. |
+| S16 | Nothing serious is ever a joke: a seed of a serious category (Belief and Mystery, Governance and Fairness, Emotions and Identity; Rest, Health, and Care), a grief, loss, illness or trauma seed, or a seed about another community or culture (collective trauma may sit behind it; a culture is never shown as lesser) never takes a mocking or comedic choice; Emotions and Identity, and Rest, Health, and Care (care of the mind) never end in a light outcome. The owner's own examples keep their words. |
+| S17 | A seed about love, a couple, a family's view of a companion, or a villager who is alone (a love letter after years alone, a couple undecided about a child, a family that dislikes a companion, dining alone, loneliness) never takes a mocking choice, never an approach where someone else decides for them (the chief deciding, several voices, a trial), never an outcome that blames, and the couple's seed never ends in an unexpected birth: no choice obliges anyone to accept affection, marry or have children, and being single, childfree or alone is never lesser. |
 | S15 | No outcome shames anyone (owner hard rule 28): the archetypes "The villagers discover that confidence was mistaken for competence." and "A small success comes with an unexpected embarrassment." are never mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed for the owner's review. |
 
 ### Variant 0: the MIX examples as shipped, with every change
@@ -477,6 +501,7 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-009 | choice A outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
 | MIX-009 | choice C outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-010 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
+| MIX-015 | choice C outcome 2 (sensitivity edit) | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | S17 |
 | MIX-016 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | seed x archetype le_arc_bad_03 |
 | MIX-016 | choice B outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
 | MIX-016 | choice D outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |

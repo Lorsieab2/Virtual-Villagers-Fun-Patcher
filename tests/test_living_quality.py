@@ -158,6 +158,45 @@ class QualityD(unittest.TestCase):
                         self.assertNotIn("blame", BANK.arc[x]["tags"], (v.seed, v.k, x))
                         self.assertNotIn("light", BANK.arc[x]["tags"], (v.seed, v.k, x))
 
+    def test_nothing_serious_is_a_joke(self) -> None:
+        """S16 (owner, 2026-11-15): a serious category's seeds, and every grief, loss, illness or trauma seed, take
+        no mocking or comedic choice outside the owner's own examples."""
+        for v in LE:
+            seed = BANK.seed[v.seed]
+            serious = BANK.cat[seed["category"]]["mood"] == "serious" or mx.somber_seed(seed)                 or "other_community" in seed["tags"]
+            if not serious or v.flags & mx.FLAG_MIX:
+                continue
+            for kind, ident in v.plan["choices"]:
+                self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))
+                if kind == "approach":
+                    self.assertNotEqual(BANK.app[ident]["kind"], "comedic", (v.seed, v.k, ident))
+
+    def test_love_and_family_are_never_obliged_or_mocked(self) -> None:
+        """S17 (owner's relationship rules, 2026-11-15)."""
+        for v in LE:
+            if v.seed not in mx.RELATIONSHIP_SEEDS:
+                continue
+            for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
+                if not v.flags & mx.FLAG_MIX:
+                    self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))
+                    if kind == "approach":
+                        self.assertNotIn("consent_risk", BANK.app[ident]["tags"], (v.seed, v.k, ident))
+                for x in outs:
+                    if x:
+                        self.assertNotIn("blame", BANK.arc[x]["tags"], (v.seed, v.k, x))
+                        self.assertNotIn(x, mx.BIRTH_OVERRIDES.get(v.seed, set()), (v.seed, v.k, x))
+
+    def test_care_of_the_mind_never_ends_lightly(self) -> None:
+        """S16 (owner, 2026-11-15): no mixed variant of Emotions and Identity or Rest, Health, and Care ends in a
+        light outcome."""
+        for v in LE:
+            if BANK.seed[v.seed]["category"] not in mx.MIND_CATEGORIES or v.flags & mx.FLAG_MIX:
+                continue
+            for outs in v.plan["outcomes"]:
+                for x in outs:
+                    if x:
+                        self.assertNotIn("light", BANK.arc[x]["tags"], (v.seed, v.k, x))
+
     def test_no_shaming_outcome_is_mixed_in(self) -> None:
         """S15 (owner hard rule 28): no mixed variant ends in an outcome that shames a person's mistake."""
         mixed = [v for v in LE if not v.flags & mx.FLAG_MIX]

@@ -540,6 +540,18 @@ static unsigned int lv_ring_back(int k) {
 
 /* ---- Choosing ---------------------------------------------------------------------------------------------- */
 
+/* THE EXCLUSION HOOK: 1 when variant `v` of seed `s` may not be offered in `game` now.  Every path that tries a
+   variant asks it first (the rare roll, Pick Island Event, the library).  It excludes nothing yet; it is the one
+   place for the owner's coming rules (2026-11-15 answers: Q21 serious-event cooldowns of 30 / 60 in-game days per
+   villager and immediate family, Q29 subject filters), which can read the variant's outcome records (2.4: each
+   ending's group and archetype) before it is chosen. */
+static int lv_excluded(int game, int s, int v) {
+    (void)game;
+    (void)s;
+    (void)v;
+    return 0;
+}
+
 /* lv_order (living-pack.md 4.2; Python twin vv_living_mixer.lv_order): seed `s`'s variants in the order they are
    tried, into `order` (at most LV_TRIES).  The count. */
 static int lv_order(int game, int s, int *order) {
@@ -601,6 +613,9 @@ static int lv_arm_seed(int game, int s, int origin, int cast) {
     for (k = 0; k < n; ++k) {
         unsigned int size = 0;
         const unsigned char *blob = lv_blob(order[k], &size);
+        if (lv_excluded(game, s, order[k])) {
+            continue;
+        }
         if (cg_queue_origin(game, blob, size, origin, cast)) {
             lv_record_arm(s, order[k]);
             return order[k];
@@ -704,7 +719,11 @@ static const char *lv_check_entry(int game, int i) {
     first = (int)lv_u16(rec + 4);
     count = (int)lv_u16(rec + 6);
     for (v = first; v < first + count; ++v) {
-        const char *refusal = lv_refusal(game, v, CG_CAST_STRICT, CG_ORIGIN_PICK);
+        const char *refusal;
+        if (lv_excluded(game, lv_entry_seed[i], v)) {
+            continue;
+        }
+        refusal = lv_refusal(game, v, CG_CAST_STRICT, CG_ORIGIN_PICK);
         if (refusal == NULL) {
             return NULL;
         }
@@ -742,7 +761,11 @@ static int lv_library_load(int game, const char *path) {
     }
     n = lv_order(game, s, order);
     for (k = 0; k < n; ++k) {
-        const char *refusal = lv_refusal(game, order[k], CG_CAST_PREFER, CG_ORIGIN_PURCHASE);
+        const char *refusal;
+        if (lv_excluded(game, s, order[k])) {
+            continue;
+        }
+        refusal = lv_refusal(game, order[k], CG_CAST_PREFER, CG_ORIGIN_PURCHASE);
         if (refusal == NULL) {
             lv_pending_seed = s;
             lv_pending_variant = order[k];

@@ -144,6 +144,17 @@ SENSITIVITY_RULES = {
            "as its way through: a past harm would read as the person's fault, insignificant, or resolved by "
            "forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies "
            "wrongdoing.",
+    "S16": "Nothing serious is ever a joke: a seed of a serious category (Belief and Mystery, Governance and "
+           "Fairness, Emotions and Identity; Rest, Health, and Care), a grief, loss, illness or trauma seed, or a "
+           "seed about another community or culture (collective trauma may sit behind it; a culture is never shown "
+           "as lesser) never takes a mocking or comedic choice; Emotions and Identity, and Rest, Health, and Care "
+           "(care of the mind) never end in a light outcome. The owner's own examples keep their words.",
+    "S17": "A seed about love, a couple, a family's view of a companion, or a villager who is alone (a love letter "
+           "after years alone, a couple undecided about a child, a family that dislikes a companion, dining alone, "
+           "loneliness) never takes a mocking choice, never an approach where someone else decides for them (the "
+           "chief deciding, several voices, a trial), never an outcome that blames, and the couple's seed never ends "
+           "in an unexpected birth: no choice obliges anyone to accept affection, marry or have children, and being "
+           "single, childfree or alone is never lesser.",
     "S15": "No outcome shames anyone (owner hard rule 28): the archetypes \"The villagers discover that confidence "
            "was mistaken for competence.\" and \"A small success comes with an unexpected embarrassment.\" are never "
            "mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed "
@@ -157,10 +168,19 @@ SPLIT_THE_DIFFERENCE = {"le_arc_mixed_05"}                          # the compro
 # resolved by forgiveness.  A grief, loss, illness or trauma seed (tagged somber or medical) never ends in an outcome
 # that "corrects" or settles it, and never offers apologizing and repairing as its way through.
 REPAIR_APPROACHES = {"le_app_relate_07"}                            # Apologize and repair the relationship
+# Owner rules on relationships (2026-11-15): single, childfree and widowed villagers are never lesser or lonely by
+# default; marriage and parenthood are never a goal everyone must reach; no choice obliges anyone to accept
+# affection, marry or have children; relationships can end without blame; no family form is superior.
+RELATIONSHIP_SEEDS = {"le_fam_05", "le_fam_06", "le_fam_07", "le_foo_07", "le_emo_04"}
+BIRTH_OVERRIDES = {"le_fam_06": {"le_arc_rare_07"}}                # a couple undecided about a child: no birth page
 # Owner hard rule 28 (2026-11-15, emphatic): no shaming.  The two archetype lines that judge a person's mistake or
 # make it an embarrassment are never mixed in; the owner's own examples keep their words, flagged for review.
 SHAMING_ARCHETYPES = {"le_arc_bad_06", "le_arc_mixed_08"}          # confidence mistaken for competence; embarrassment
-KEPT_IN_OWNER_EXAMPLES = (None, "S12", "S15")                     # the rules variant 0 does not apply
+KEPT_IN_OWNER_EXAMPLES = (None, "S12", "S15", "S16")              # the rules variant 0 does not apply
+# Owner rule (2026-11-15): care of the mind (by healers, doctors, spiritual leaders or trusted villagers) is
+# voluntary and private, no miracle cure, never mocked: Emotions and Identity, and Rest, Health, and Care, never end
+# in a light outcome (a memorable day, a new song, an embarrassment).
+MIND_CATEGORIES = {"le_cat_emo", "le_cat_res"}
 
 
 def somber_seed(seed: dict) -> bool:
@@ -419,11 +439,21 @@ def seed_arc_rule(bank: Bank, seed: dict, arc: str) -> str | None:
         return "S14"
     if arc in SHAMING_ARCHETYPES:
         return "S15"
+    if seed["category"] in MIND_CATEGORIES and "light" in tags:
+        return "S16"
+    if seed["id"] in RELATIONSHIP_SEEDS and ("blame" in tags or arc in BIRTH_OVERRIDES.get(seed["id"], set())):
+        return "S17"
     return None
 
 
-def no_mocking(seed: dict) -> bool:
-    """S10-S12: a seed that never takes a mocking or comedic choice."""
+def no_mocking(seed: dict, bank: Bank | None = None) -> bool:
+    """S10-S12, S16: a seed that never takes a mocking or comedic choice (a serious category's too, given the bank)."""
+    if bank is not None and bank.cat[seed["category"]].get("mood") == "serious":
+        return True                                 # S16: nothing serious is ever a joke
+    if somber_seed(seed) or "other_community" in seed["tags"]:
+        return True                                 # S16: grief and trauma (also collective); another culture
+    if seed["id"] in RELATIONSHIP_SEEDS:
+        return True                                 # S17: love, family or solitude is never a punchline
     return belief_seed(seed) or seed["id"] in WRONG_ACT_SEEDS or seed["id"] in APPEARANCE_SEEDS
 
 
@@ -790,7 +820,7 @@ def possible_pair(bank: Bank, seed: dict, a: str, b: str) -> bool:
 def choice_set_choices(bank: Bank, seed: dict) -> list[tuple[str, str]]:
     cs = bank.choice_sets[bank.cat[seed["category"]]["choice_set"]]
     out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)
-           and not (no_mocking(seed) and "mocking" in choice_classes(bank, "choice", c))           # S10-S12
+           and not (no_mocking(seed, bank) and "mocking" in choice_classes(bank, "choice", c))     # S10-S12, S16
            and c not in ENDORSE_CHOICES.get(seed["id"], set())                                      # S11
            and not (seed["id"] in PREJUDICE_SEEDS and c in FALSE_EQUIVALENCE)]                      # S13
     if seed["consent_choice_required"] and not any("consent" in bank.choice[c]["tags"] or
@@ -814,12 +844,14 @@ def approach_allowed(bank: Bank, seed: dict, ident: str, a: str, b: str) -> bool
         return False
     if ident in ANIMAL_NO and animal_seed(seed):
         return False
-    if no_mocking(seed) and "mocking" in choice_classes(bank, "approach", ident):
+    if no_mocking(seed, bank) and "mocking" in choice_classes(bank, "approach", ident):
         return False                                # S10-S12
     if seed["id"] in PREJUDICE_SEEDS and ident in FALSE_EQUIVALENCE:
         return False                                # S13
     if somber_seed(seed) and ident in REPAIR_APPROACHES:
         return False                                # S14
+    if seed["id"] in RELATIONSHIP_SEEDS and "consent_risk" in bank.app[ident]["tags"]:
+        return False                                # S17: nobody else decides who they love or whether to have a child
     return True
 
 
@@ -1084,6 +1116,48 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
     for v in out:
         v.mood = mood_of(bank, v)
     return out
+
+
+# The content filters (lead's list F01-F27, 2026-11-15): which outcomes each would drop before selection.  A Living
+# Engine outcome is an archetype (by its words and effects); an MC outcome takes its category's subjects plus its
+# own effects.  The pack's outcome records give every ending's archetype index (living-pack.md 2.4).
+FILTERS = {"F01": "death_child", "F02": "pregnancy_loss", "F03": "death_any", "F04": "vanish", "F05": "bereavement",
+           "F06": "injury_serious", "F07": "scars_burns", "F08": "illness_serious", "F09": "contagion",
+           "F10": "birth_difficult", "F11": "distress", "F12": "hopelessness", "F13": "fear_eerie",
+           "F14": "abuse_past", "F15": "history_harm", "F16": "bullying", "F17": "prejudice",
+           "F18": "child_danger", "F19": "abandonment", "F20": "hunger", "F21": "disaster", "F22": "drowning",
+           "F23": "fire", "F24": "animal_harm", "F25": "hunting", "F26": "creatures", "F27": "lasting_effects"}
+ARCHETYPE_FILTERS = {
+    "le_arc_bad_03": ["F20"],                     # a rushed choice wastes scarce supplies (food lost)
+    "le_arc_mixed_03": ["F20"],                   # knowledge at the cost of time and materials (food spent)
+    "le_arc_rare_01": ["F04", "F19"],             # the central villager leaves, fate unknown
+    "le_arc_rare_02": ["F03", "F05", "F08"],      # a beloved elder dies after a long illness
+    "le_arc_rare_03": ["F13"],                    # a rare creature glimpsed, nobody agrees what it was
+}
+MC_CATEGORY_FILTERS = {"DIS": ["F21"], "AFT": ["F15"], "LOS": ["F19", "F22"], "TRA": ["F11", "F14"],
+                       "BEL": ["F16", "F17"], "ISL": []}
+EFFECT_FILTERS = {"kill": ["F03"], "vanish": ["F04"], "die_unrecovered": ["F03"], "baby_lost": ["F02"],
+                  "sick": ["F08"], "old_look": ["F27"]}
+
+
+def mc_outcome_filters(bank: Bank, sit: dict, outcome: dict) -> list[str]:
+    """An MC outcome's filters: its category's subjects and its effects'."""
+    out = set(MC_CATEGORY_FILTERS[bank.mc_cat[sit["category"]]["code"]])
+    for e in outcome["effects"]:
+        out.update(EFFECT_FILTERS.get(e["do"], []))
+    return sorted(out)
+
+
+def outcome_categories(bank: Bank | None = None) -> dict[str, dict]:
+    """Each Living Engine archetype's category for filtering before selection (owner answers 2026-11-15, Q29): its
+    group, tags and the effects it carries ("do" names).  The pack's outcome records (living-pack.md 2.4) give the
+    archetype index of every ending, so the engine can apply the same filter per variant (lv_excluded)."""
+    bank = bank or Bank()
+    return {a["id"]: {"index": bank.arc_index[a["id"]], "group": a["group"], "tags": list(a["tags"]),
+                      "effects": sorted({e["do"] for e in a["effects"]}),
+                      "filters": sorted(set(ARCHETYPE_FILTERS.get(a["id"], []))
+                                        | {f for e in a["effects"] for f in EFFECT_FILTERS.get(e["do"], [])})}
+            for a in bank.archetypes}
 
 
 def mood_of(bank: Bank, v: Variant) -> int:

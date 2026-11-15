@@ -160,19 +160,20 @@ class TextTest(unittest.TestCase):
         n = 0
         for path, d in walk(BANK):
             if "text" in d and "src" in d:
-                self.assertIn(d["text"], line(d["src"]), path)
+                # A sensitivity edit (living-events.md section 7) keeps the owner's words as source_text.
+                self.assertIn(d.get("source_text", d["text"]), line(d["src"]), path)
                 n += 1
         self.assertGreater(n, 120 + 30 + 24 + 15 + 34 + 38 + 28 + 95 + 380 + 760 + 35 + 140)
 
     def test_exact_line_shapes(self):
         for s in BANK["seeds"]:
-            self.assertEqual(line(s["src"]), f"  {s['code']}: {s['text']}")
+            self.assertEqual(line(s["src"]), f"  {s['code']}: {s.get('source_text', s['text'])}")
         for a in BANK["approaches"] + BANK["archetypes"]:
             self.assertEqual(line(a["src"]), f" - {a['text']}")
         for c in BANK["categories"]:
             self.assertEqual(line(c["src"]), c["heading"])
         for m in BANK["mc"]["situations"]:
-            self.assertEqual(line(m["src"]), f"[{m['code']}] SETUP: {m['text']}")
+            self.assertEqual(line(m["src"]), f"[{m['code']}] SETUP: {m.get('source_text', m['text'])}")
             self.assertEqual(line(m["outcomes_src"]), f"[{m['code']}]")
             for a in m["approaches"]:
                 self.assertEqual(line(a["src"]), f"  {a['letter']}. {a['text']}")
