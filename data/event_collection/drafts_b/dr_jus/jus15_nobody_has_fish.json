@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Nobody Has to Fish with You",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus15_nobody_has_fish",
+  "source": "draft_jus",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager stopped fishing with someone who told convenient stories, and that person says it is unfair: rule it, or ask more.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has stopped fishing with (friend). Over the last season, (friend) has told (subject.him/her) one too many convenient stories about who caught what, and where the good spots were. (friend) has gone to the council, saying (subject) is turning people against (friend.him/her), and that it isn't fair.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Rule That It's (subject)'s Choice",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Ask (subject) If (subject.he/she) Has Been Talking",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council says (subject) may choose whom (subject.he/she) fishes with, and needn't explain it. But (subject) mustn't stop others from fishing with (friend), or spread stories about (friend.him/her). (subject) agrees. (friend) is hurt, and says so, and finds other people to fish with. Whether the two of them ever fish together again is up to them.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) directly. (subject) admits (subject.he/she) told two friends why. The council asks (subject.him/her) to stop: (subject.his/her) boundaries are (subject.his/her) own, but they shouldn't become everyone's. (subject) agrees. (friend) is told, plainly, that if (friend.he/she) wants (subject)'s trust back, it will take time and straight stories. Some weeks later, (friend) tells a perfectly straight story about a small catch. (subject) notices.",
+   "src": "L185"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L185",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

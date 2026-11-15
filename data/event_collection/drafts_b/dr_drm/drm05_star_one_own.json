@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Star of One's Own",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm05_star_one_own",
+  "source": "draft_drm",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   }
+  ],
+  "description": "A child wants a star of their own and lies on the beach with a grown-up looking for one: help choose, or ask which star is theirs.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants a star. Not to keep, (subject.he/she) explains, just to be (subject.his/her) star. All the bright ones are probably taken. (subject.He/she) and (friend) are lying on their backs on the beach after dark, looking for a good one.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Help (subject.him/her) Choose",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Ask Which One Is (friend)'s",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They look for ages. (subject) finally picks a small, faint star just to the left of a bright one. \"That one. It's not showing off.\" (friend) agrees it's an excellent choice. After that, every clear night, (subject) checks that it's still there. It always is. (subject.He/she) finds this deeply reassuring.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Which one is yours?\" asks (subject). (friend) has never thought about it. (friend.He/she) points at a random bright one. (subject) frowns. \"That one's too busy.\" They spend the rest of the evening choosing a better star for (friend), one that is \"sensible but nice.\" (friend) is surprisingly pleased with it.",
+   "src": "L65"
+  }
+ }
+}

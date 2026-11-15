@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stew Nobody Watched",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon02_stew_nobody",
+  "source": "draft_hon",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L23",
+    "kind": "sensitivity",
+    "before": "Then a friend dropped by",
+    "after": "Then (caller), a friend, dropped by",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L29",
+    "kind": "sensitivity",
+    "before": "the friend with the interesting news",
+    "after": "(caller) and the interesting news",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager let the stew burn while chatting with a friend: own up at the door, or quickly start another pot.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "caller"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "caller": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) said (subject.he/she) would keep an eye on the stew while (friend) fetched more water. Then (caller), a friend, dropped by with some news, and the news was very interesting, and by the time (subject) remembers the stew, the bottom of the pot is black and the whole hut smells of smoke. (friend) is walking up the path with the water.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) at the Door",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Start Another Pot",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) meets (friend.him/her) in the doorway. \"I burned it. I'm sorry. I got talking.\" (friend) looks into the pot and sighs. \"The top half might be all right.\" It mostly is, though it tastes faintly of smoke. They eat it anyway, and (friend) says, not unkindly, that next time (subject) can fetch the water and (friend.he/she) will stir.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) quickly gets a new pot going. (friend) comes in, smells the smoke, sees the black pot outside the door and the new one on the fire, and says nothing. Dinner is late, but good. Afterward, (friend) starts scrubbing the black pot, and (subject) quietly takes over. Neither of them mentions (caller) and the interesting news.",
+   "src": "L29"
+  }
+ }
+}

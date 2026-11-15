@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Touching the Leaving Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep33_touching_leaving",
+  "source": "draft_dep",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult or elder)"
+   }
+  ],
+  "description": "A villager who has never been on a long journey stops at the stone travelers touch for luck: touch it anyway, or leave it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the path out of the village there is a smooth grey stone, and anyone setting out on a long journey touches it for luck. The top is polished shiny by generations of hands. (name1) has walked past it every day of (his/her) life and never touched it, because (he/she) has never been on a long journey. Today, walking past, (he/she) stops.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Touch It Anyway",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Leave It for Someone Who's Going",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) puts a hand on the stone. It's warm from the sun. Nothing happens. (He/she) isn't going anywhere. But it feels like joining something, all the same: everyone who ever left and everyone who came home. (He/she) walks on, a little lighter, to the gardens.",
+   "src": "L398"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) takes (his/her) hand back. That stone is for leaving. (He/she) isn't leaving. (He/she) likes it here. (He/she) walks on to the gardens and works all morning, and feels perfectly content, and doesn't think about the stone again until the next time (he/she) walks past it, which is tomorrow.",
+   "src": "L401"
+  }
+ }
+}

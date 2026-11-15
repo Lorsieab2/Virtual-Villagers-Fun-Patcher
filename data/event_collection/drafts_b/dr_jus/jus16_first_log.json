@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "First to the Log",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus16_first_log",
+  "source": "draft_jus",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers both marked the same fallen hardwood log at dawn: ask the elders, or toss a shell for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A great log of good hardwood came down in the storm at the edge of the forest: perfect for a canoe. (subject) found it at dawn and cut a mark into it. (friend) found it at dawn too, from the other side, and tied a cord round it. Both marks are there. Both of them claim it.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Ask the Elders",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Toss a Shell for It",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders walk round the log several times. Then they rule: one canoe, built by both of them, used by both in turns. (subject) and (friend) grumble, and agree. It's a very fine canoe. They argue about it every single day, and both of them keep it in perfect condition.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree to toss a shell: white side up for (subject), dark side for (friend). It lands dark side up. (subject) is disappointed and goes off to find another log. (subject.He/she) finds a smaller one. Later, (friend) offers to help carve it, since (friend.he/she) has the tools out anyway. Two canoes are built side by side that season.",
+   "src": "L197"
+  }
+ }
+}

@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Nobody Says",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep10_name_nobody_says",
+  "source": "draft_dep",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "A teen finds an old post with a forgotten mark and asks an elder about it: tell what you remember, or say you know too little.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has found an old carved post behind the storehouse, half buried in vines. It has a mark on it that no family in the village uses anymore. (friend.He/she) asks (subject) what it is. (subject) is quiet for a while. A long time ago, (subject.he/she) says, before (friend) was born, the council sent someone away. People still disagree about whether it was right.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Tell What You Remember",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Say You Don't Know Enough to Tell It",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells what (subject.he/she) knows, which isn't much. There was danger, real danger, and there were people who were frightened. There were also people who said the village should have found another way. The person was given a canoe and food and taken to another village that agreed to take them in. Nobody here knows what became of them. \"Was it fair?\" asks (friend). \"I've never decided,\" says (subject). They leave the post where it is.",
+   "src": "L122",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L122"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I was young,\" says (subject). \"I only know pieces, and pieces aren't the story. I'd rather not hand you half of something that matters.\" (friend) is disappointed, but nods. Before they go, (subject) pulls the vines away from the mark so it can be seen properly. \"Whatever happened,\" (subject.he/she) says, \"they were one of us. That part I'm sure of.\"",
+   "src": "L125"
+  }
+ }
+}

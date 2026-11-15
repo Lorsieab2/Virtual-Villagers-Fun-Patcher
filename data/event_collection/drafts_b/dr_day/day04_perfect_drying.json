@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Perfect Drying Wind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day04_perfect_drying",
+  "source": "draft_day",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager hangs out every mat and blanket in a perfect drying wind: help hang things, or just admire the wind.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning there is a wind that is exactly right: warm, steady and dry, coming off the hills. It's the kind of wind that dries things in no time. (subject) has noticed. (subject.He/she) has dragged out every mat, every blanket and every bit of cloth (subject.he/she) owns and hung them on every branch and line nearby. (friend) comes past and stares.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Help Hang Things",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Just Admire the Wind",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) runs home and gets (friend.his/her) own mats too. Soon half the village has the same idea, and every tree and bush is draped with blankets flapping like flags. It looks like a festival. By afternoon everything is dry and smells of sun and wind. It's the best (subject)'s sleeping mat has smelled in a year.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leaves (subject) to it. (subject) sits in the middle of (subject.his/her) flapping laundry with a drink and watches it all dry. It's one of the most satisfying afternoons (subject.he/she) has had. At sunset (subject.he/she) brings it all in, warm and crisp, and goes to bed in a cloud of clean blanket.",
+   "src": "L53"
+  }
+ }
+}

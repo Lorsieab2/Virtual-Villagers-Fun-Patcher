@@ -240,6 +240,24 @@ LV-B (PEOPLES-01..37, UNSEEN-01..39, WAYS-01..38, AUTH-01..30, living L21665-238
 WAYS' and UNSEEN's capitalised ways of knowing ("a Magic adept", "the Nature master", "the Science master", "Nature
 knowledge") keep the source's capitals, as MED-19.
 
+### The approved drafts, group B (each file its own source; rows `| draft_<x> L<line> |`)
+
+The format has no "his/hers" placeholder (it would show the words "his/hers"), so the drafts' nine `(his/hers)` become
+`(his/her) own` ("his own" / "her own"), and HON-25's "It wasn't (his/hers) to mention" becomes "(his/her) place",
+where "own" would not read. Nothing else is fixed.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| draft_hum L425 | `(his/hers)` | `(his/her) own` | HUM-35 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L59 | `(his/hers)` | `(his/her) own` | HON-05 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L158 | `(his/hers)` | `(his/her) own` | HON-13 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L209 | `(his/hers)` | `(his/her) own` | HON-17 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L17 | `(his/hers)` | `(his/her) own` | JUS-01 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L185 | `(his/hers)` | `(his/her) own` | JUS-15 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L239 | `(his/hers)` | `(his/her) own` | JUS-20 | no his/hers placeholder: "his own" / "her own" |
+| draft_jus L245 | `(his/hers)` | `(his/her) own` | JUS-20 | no his/hers placeholder: "his own" / "her own" |
+| draft_hon L305 | `(his/hers) to mention` | `(his/her) place to mention` | HON-25 | no his/hers placeholder; "his own to mention" would not read |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

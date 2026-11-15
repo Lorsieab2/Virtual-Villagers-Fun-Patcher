@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Riddle with No Answer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum18_riddle_answer",
+  "source": "draft_hum",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-12)"
+   },
+   {
+    "src": "L218",
+    "kind": "sensitivity",
+    "before": "One elder refuses to give up",
+    "after": "(elder), one of the elders, refuses to give up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L218",
+    "kind": "sensitivity",
+    "before": "(name1) tells that elder",
+    "after": "(name1) tells (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L218",
+    "kind": "sensitivity",
+    "before": "but only that elder.",
+    "after": "but only (elder.him/her).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks the elders a riddle that has them arguing for an hour: ask for the answer, or let them keep guessing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has asked the elders a riddle: \"What is bigger than the sea, smaller than a seed, and lives in a basket?\" The elders have been arguing about it for an hour. (subject) is sitting very still and very quietly, enjoying (subject.him/her)self enormously.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Ask for the Answer",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Let Them Keep Guessing",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At last the elders give up. \"Well? What is it?\" (subject) beams. \"I don't know. I made it up.\" There's a stunned silence. Then one elder laughs, and then all of them. (elder), one of the elders, refuses to give up and insists the answer is \"a dream,\" and argues it for weeks. (subject) tells (elder), \"That's right,\" but only (elder.him/her).",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The guesses go on. An egg? A thought? A sleeping lizard? The riddle spreads through the whole village, and for days people shout guesses at (subject) across the paths. (subject) just smiles. Nobody ever finds out that the riddle had no answer, or rather, that it now has about forty.",
+   "src": "L221"
+  }
+ }
+}

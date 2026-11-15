@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rock with a Face",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea15_rock_face",
+  "source": "draft_fea",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager has never liked a rock that looks like a face: mention it to a friend, or take the other path.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the path to the gardens there's a big rock that, if you look at it from one particular angle, has a face. Two dark hollows for eyes and a crack for a mouth. (subject) has walked past it for years and has never once liked it. Today the light is strange, and the face looks almost as if it's watching. (friend) is walking with (subject.him/her).",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Mention It",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Take the Other Path",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Does that rock look like it's watching us?\" asks (subject). (friend) stops and looks. \"Oh,\" (friend.he/she) says. \"Oh, I see it now. I wish I didn't.\" They both walk past a little faster. From now on, (friend) doesn't like the rock either. (subject) feels, unfairly, a bit better.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes the long way round, past the stream. It adds a few minutes. It's worth it. (subject.He/she) never tells anyone why. Years later (subject.he/she) discovers that at least four other villagers also take the long way, for no reason any of them will admit to.",
+   "src": "L185"
+  }
+ }
+}

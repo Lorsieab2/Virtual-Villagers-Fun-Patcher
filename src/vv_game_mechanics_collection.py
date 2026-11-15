@@ -56,6 +56,15 @@ SECTIONS = (
     ("da_il07", "Inner Life, Part VII"), ("da_il08", "Inner Life, Part VIII"), ("da_il09", "Inner Life, Part IX"),
     ("da_il10", "Inner Life, Part X"), ("da_wd", "What's That Doing Here?"),
     ("da_lo", "Luck, Omens and Lavastones"),
+    # The owner-approved draft event files, group B (data/event_collection/drafts_b/<section>/)
+    ("dr_hum", "New Events: Humor and Absurdity"),
+    ("dr_tt", "New Events: Tall Tales and Self-Interest"),
+    ("dr_hon", "New Events: Honesty and Accountability"),
+    ("dr_jus", "New Events: Justice and Consequences"),
+    ("dr_dep", "New Events: Departures and Exile"),
+    ("dr_drm", "New Events: Dreams and Ambitions"),
+    ("dr_fea", "New Events: Fears and Doubts"),
+    ("dr_day", "New Events: Good, Bad and Ordinary Days"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -112,7 +121,8 @@ def build_index(living_seeds=()) -> dict:
     for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
                          + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
                          + list((base / "rolemodels").glob("*/*.json"))
-                         + list((base / "drafts_a").glob("*/*.json"))):
+                         + list((base / "drafts_a").glob("*/*.json"))
+                         + list((base / "drafts_b").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

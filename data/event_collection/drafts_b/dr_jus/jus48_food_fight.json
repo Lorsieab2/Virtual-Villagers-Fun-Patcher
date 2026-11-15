@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Food Fight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus48_food_fight",
+  "source": "draft_jus",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens aged 14-17)"
+   },
+   {
+    "src": "L578",
+    "kind": "sensitivity",
+    "before": "until an elder coughs",
+    "after": "until (elder), an elder, coughs",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L581",
+    "kind": "sensitivity",
+    "before": "thrown by a small child, who",
+    "after": "thrown by (child), a small child, who",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "After the feast a taro fight broke out, and two teens each blame the other: everyone who threw cleans up, or find who started it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After the feast, a handful of teenagers started throwing leftover mashed taro at each other. It spread. It got onto the drums, onto the elders' mats, and onto one elder's head. Now it's dark, the feast ground is a mess, and the elders want to know who started it. (subject) says (friend) did. (friend) says (subject) did.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Everyone Who Threw Cleans Up",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Find Out Who Started It",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders decide it doesn't matter who started it: everyone who threw anything cleans up, tonight. Eight teenagers spend the evening scrubbing taro off drums by torchlight. (subject) and (friend) blame each other the whole time, then start laughing, then start flicking little bits of taro at each other again, until (elder), an elder, coughs very loudly.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders ask around. It turns out the very first lump of taro was thrown by (child), a small child, who is now fast asleep and can't be questioned. Everyone who threw anything cleans up anyway. (subject) and (friend) agree, with some relief, that neither of them started it, and work side by side until the drums are clean.",
+   "src": "L581"
+  }
+ }
+}

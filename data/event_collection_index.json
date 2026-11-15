@@ -2413,6 +2413,808 @@
    "harm": [],
    "section": "cat"
   },
+  "day01_everything": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day02_grumpy_reason": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day03_three_good": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day04_perfect_drying": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day05_sunburnt_nose": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day06_everywhere_goes": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day07_hut_self": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day08_song": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day09_goat_ate_lunch": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day10_just_time": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day11_brilliant_idea": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day12_everyone": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day13_nap_ate": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day14_sand_everything": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day15_best_stick": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day16_wall_fell_down": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day17_hello_hello": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day18_tired_perfect": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day19_everything": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day20_bird_door": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day21_catch_gull": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day22_wet_sandals": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day23_puddle_day": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day24_good_knees_today": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day25_harder_day": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day26_overslept": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day27_too_hot": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day28_cool_breeze": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day29_first_ripe_melon": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day30_lost_knife_found": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day31_praised_wrong": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day32_wrong_name_three": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day33_fire_wouldnt": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day34_feeling_splendid": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day35_jar_wont_open": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day36_watching_rain": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day37_small_kindnesses": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day38_kind_reason": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day39_mosquito_night": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day40_restless": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day41_leave_me_please": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day42_smell_fish_racks": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day43_cloud_shapes": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day44_misunderstanding": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day45_bad_person": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day46_bored_cross": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day47_best_mango_year": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day48_perfect_skipping": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day49_sun_comes_out": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "day50_how_your_day": {
+   "harm": [],
+   "section": "dr_day"
+  },
+  "dep01_night_hut": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep02_week_away": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep03_too_much_carry": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep04_goodbye_speech": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep05_empty_side_hut": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep06_more_bend_path": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep07_canoe_kept_going": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "dr_dep"
+  },
+  "dep08_sound_dogs_night": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep09_whoever_needs": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep10_name_nobody_says": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep11_traveler_edge": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep12_running_away_big": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep13_last_day_crew": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep14_hut_too_big_now": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep15_walk_far_beach": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep16_visitor_stayed": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep17_looking_back": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep18_one_place_canoe": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep19_seeds_somewhere": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep20_moving_day": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep21_home_already": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep22_teacher_goes": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep23_going_after_all": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep24_halfway_there": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep25_cracked_pot": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep26_will_you_go_away": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep27_too_big_canoe": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep28_leaving_fire": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep29_learning": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep30_little_island": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep31_shell_each_day": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep32_moving_back": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep33_touching_leaving": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep34_dog_wanted_come": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep35_nobody_noticed": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep36_saying_goodbye": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep37_your_own_hut": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep38_season_away": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep39_way_home_written": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep40_last_day_before": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep41_saying_goodbye": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep42_second_thoughts": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep43_first_sleepover": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep44_borrowing_hut": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep45_message_gourd": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep46_walk_far_beach": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep47_nothing_pack": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep48_bed_night": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep49_hill_where_you": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "dep50_still_here": {
+   "harm": [],
+   "section": "dr_dep"
+  },
+  "drm01_fish_bigger_me": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm02_everybody": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm03_hut_stilts": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm04_top_island": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm05_star_one_own": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm06_first_lesson": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm07_most_comfortable": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm08_song_outlast_me": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm09_leader_line": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm10_blue_garden": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm11_nose_flute": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm12_every_fruit": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm13_close_enough": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm14_lighting": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm15_canoe_own_making": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm16_window_faces": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm17_night_highest": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm18_fisher_story": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm19_famous_something": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm20_someday_family": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm21_island_never": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm22_leaf_wings": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm23_snort": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm24_sit_please": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm25_bridge_over": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm26_where_stream": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm27_book_leaves": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm28_nobody_needs": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm29_sunrise_sunset": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm30_dance": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm31_dream_quietly": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm32_two_friends_two": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm33_kite_carries": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm34_tree_later": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm35_two_fingers": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm36_pig_dreams": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm37_cook_burns": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm38_older_younger": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm39_sharing_basket": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm40_what_everyone": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm41_mat_whole": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm42_what_would_i_say": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm43_wish_jar": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm44_beetle_name": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm45_rock": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm46_everyone": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm47_carving_basket": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm48_master_last": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm49_making_rain": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "drm50_tomorrow_plan": {
+   "harm": [],
+   "section": "dr_drm"
+  },
+  "fea01_fisher_fears": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea02_small_fire_night": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea03_when_thunder": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea04_praise_doesnt": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea05_faces_names": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea06_chickens": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea07_left_out_game": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea08_knot_stomach": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea09_walls_roofs": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea10_something_stream": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea11_new_baby": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea12_ready": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea13_contest": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea14_which_seeds": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea15_rock_face": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea16_spider_corner": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea17_checking_fire": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea18_bitter_medicine": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea19_wrong_kind_hands": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea20_rumble": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea21_under_palms": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea22_going_sea_caves": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea23_goat_ledge": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea24_masks": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea25_will_remember": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea26_where_old_bench": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea27_falling_dream": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea28_new_fruit": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea29_too_small_see": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea30_what_will": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea31_jungle_dusk": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea32_water_remembers": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea33_seen_crying": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea34_rope_bridge": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea35_what_do_you_do": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea36_rain_rain": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea37_loose_tooth": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea38_under_canoe": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea39_new_hair": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea40_gift_might_wrong": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea41_words_welcome": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea42_calm_outside": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea43_too_good_last": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea44_nothing_say": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea45_sea_urchins": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea46_waiting_answer": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea47_empty_village": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea48_question_nobody": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea49_high_rock": {
+   "harm": [],
+   "section": "dr_fea"
+  },
+  "fea50_sure": {
+   "harm": [],
+   "section": "dr_fea"
+  },
   "fwk001_feeling_being": {
    "harm": [],
    "section": "fwk"
@@ -2655,6 +3457,406 @@
   "fwk060_last_voyage": {
    "harm": [],
    "section": "fwk"
+  },
+  "hon01_gate_left_open": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon02_stew_nobody": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon03_returned_blunter": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon04_i_absolutely": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon05_telling": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon06_two_missing": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon07_confidently": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon08_fibers_nobody": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon09_message_didnt": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon10_too_late_ask": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon11_somebody_else": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon12_patch_only": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon13_quite_cooked": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon14_wrong_basket": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon15_asleep_bird": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon16_five_fish": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon17_net_stayed_long": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon18_gourds_where": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon19_technically_true": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon20_step_meant_fix": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon21_cover_me": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon22_rain_drying": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon23_wrong_thing": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon24_excuse_got_out": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon25_what_overheard": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon26_canoe_small_leak": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon27_garden_didnt": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon28_moon_follows": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon29_too_much_basket": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon30_mice_didnt_do": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon31_one_more_cast": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon32_cup_nobody_turn": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon33_necklace_went": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon34_fire_went_out": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon35_do_i_snore": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon36_two_sets_muddy": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon37_plants_forgot": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon38_replacement_crab": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon39_lid": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon40_yes_yes_course": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon41_comb_comes_home": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon42_pretending_know": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon43_leaf_hair": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon44_pink_tunic": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon45_always_late": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon46_honey_tree": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon47_which_one_better": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon48_moved_stone": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon49_confession": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hon50_lie_became_true": {
+   "harm": [],
+   "section": "dr_hon"
+  },
+  "hum01_peel_three": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum02_puddle_deeper": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum03_stomach_joined": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum04_hammock_won": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum05_burp_came_back": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum06_battle_fishy": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum07_knock_knock_joke": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum08_wrong_hut": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum09_pot_wouldnt_come": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum10_promised_prank": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum11_piglet_escort": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum12_spin_kept_going": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum13_after_you_after": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum14_blame_pig": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum15_midnight": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum16_coconut_knew": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum17_freshly_dyed_mat": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum18_riddle_answer": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum19_tangled_blessing": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum20_echo_talked_back": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum21_catch_season": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum22_potion_made": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum23_charm_worked": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum24_slowest_sinking": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum25_sand_everything": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum26_snoring_duet": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum27_overripe_mango": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum28_purple_mouths": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum29_tallest": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum30_breadfruit_joke": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum31_coconut_nobody": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum32_biggest_splash": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum33_covered_burrs": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum34_guava_sleeve": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum35_inside_out": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum36_pins_needles": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum37_slapped_fish": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum38_hair_nest": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum39_log": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum40_rope_swing": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum41_frog_sang_along": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum42_sticky_fingers": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum43_tug_war_nobody": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum44_crab_longest": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum45_do_me_next": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum46_stilts": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum47_much_soap_root": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum48_grand_exit": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum49_fishing_their": {
+   "harm": [],
+   "section": "dr_hum"
+  },
+  "hum50_washing_day_wind": {
+   "harm": [],
+   "section": "dr_hum"
   },
   "hz001_other_breakfast": {
    "harm": [],
@@ -3775,6 +4977,206 @@
   "il200_long_evening": {
    "harm": [],
    "section": "da_il10"
+  },
+  "jus01_whose_fish": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus02_tree_line": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus03_drumming_after": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus04_child_made_pot": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus05_week_herb_garden": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus06_canoe_keeper": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus07_everyone_sandals": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus08_night_cool_down": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus09_back_sunset": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus10_pretty_sure": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus11_mend_say": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus12_prank_went_far": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus13_spawning_moon": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus14_fruit_over_fence": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus15_nobody_has_fish": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus16_first_log": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus17_upstream": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus18_council_got": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus19_fish_owes": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus20_finders_keepers": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus21_empty_spot_work": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus22_wait_your_turn": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus23_different_canoes": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus24_small_basket": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus25_buried_boundary": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus26_children_council": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus27_where_rain_goes": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus28_borrowing_cord": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus29_sentence": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus30_one_sent_away": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus31_paddle_storm": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus32_tree_nobody": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus33_setting_straight": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus34_longest_meeting": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus35_whose_pig_whose": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus36_fish_post": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus37_where_night": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus38_one_goes_hungry": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus39_trade_regrets": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus40_dry_season_rule": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus41_visitor": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus42_pig_vote": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus43_second_chance": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus44_running": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus45_whose_dog_took": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus46_matter_council": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus47_sleeping_judge": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus48_food_fight": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus49_all_fish_stream": {
+   "harm": [],
+   "section": "dr_jus"
+  },
+  "jus50_case_missing": {
+   "harm": [],
+   "section": "dr_jus"
   },
   "lbl001_unopened_letter": {
    "harm": [],
@@ -7384,6 +8786,206 @@
   "sss097_small_circle": {
    "harm": [],
    "section": "sss"
+  },
+  "tt01_scratch_became": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt02_climb": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt03_afraid_anything": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt04_i_knew": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt05_official_taster": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt06_keeping_warm": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt07_rock": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt08_wave": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt09_secret_ingredient": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt10_melon_didnt_grow": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt11_made_up_stars": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt12_farther_every": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt13_grand_entrance": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt14_tall_tale_contest": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt15_mango_both_them": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt16_stubbed_toe": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt17_accidental_hero": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt18_best_shade": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt19_crispy_bits": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt20_convenient_dream": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt21_seal_gave_rides": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt22_has_anyone": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt23_brand_song": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt24_when_i_young_i": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt25_i_saw_first": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt26_rarest_shell": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt27_let_me_show_you": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt28_race": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt29_heroic_carving": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt30_everybody_says_so": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt31_gift_misses": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt32_undefeated": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt33_dibs_first_fruit": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt34_rules_change": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt35_bigger_half": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt36_places_has_never": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt37_good_scary_story": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt38_applause": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt39_awake_all_night": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt40_fishing_spot": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt41_speech_about": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt42_other_winning": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt43_predictions": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt44_cleverest_pig": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt45_story_grew_way": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt46_sings_beans": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt47_best_three_best": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt48_row_baskets": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt49_glowing_fish_only": {
+   "harm": [],
+   "section": "dr_tt"
+  },
+  "tt50_clever_way_avoid": {
+   "harm": [],
+   "section": "dr_tt"
   },
   "vv1_child_of_legend": {
    "harm": [],

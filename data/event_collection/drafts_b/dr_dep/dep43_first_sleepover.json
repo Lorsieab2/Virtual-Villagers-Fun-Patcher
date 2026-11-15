@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Sleepover",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep43_first_sleepover",
+  "source": "draft_dep",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-9 and an adult)"
+   },
+   {
+    "src": "L515",
+    "kind": "sensitivity",
+    "before": "at a friend's hut",
+    "after": "at (child)'s hut",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L515",
+    "kind": "sensitivity",
+    "before": "the friend is asleep",
+    "after": "(child) is asleep",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L515",
+    "kind": "sensitivity",
+    "before": "(name2), the friend's grown-up",
+    "after": "(name2), (child)'s grown-up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L518",
+    "kind": "sensitivity",
+    "before": "runs back to the friend's hut",
+    "after": "runs back to (child)'s hut",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child on a first sleepover at a friend's hut sits awake in the dark: walk them home, or sit up and tell a story.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is spending (subject.his/her) first night ever at (child)'s hut, and it was the most exciting thing in the world all afternoon. Now it's dark, and (child) is asleep, and the hut smells different and the roof creaks in different places. (friend), (child)'s grown-up, finds (subject) sitting up in the dark, holding (subject.his/her) blanket very tightly.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Walk (subject.him/her) Home",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Sit Up and Tell a Story",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Would you like to go home?\" asks (friend) gently. (subject) nods, very small. They walk through the dark village together, hand in hand. At (subject.his/her) own hut, (subject) climbs into bed and is asleep instantly. In the morning (subject.he/she) runs back to (child)'s hut for breakfast as if nothing happened. Next time (subject.he/she) might stay. Or not.",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sits beside (subject.him/her) and tells a quiet story about a turtle who slept in a different shell every night and found every one of them a bit strange and a bit nice. Halfway through, (subject) lies down. By the end, (subject.he/she) is asleep. In the morning (subject.he/she) announces that (subject.he/she) wasn't scared at all.",
+   "src": "L521"
+  }
+ }
+}

@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Everyone Expected",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm40_what_everyone",
+  "source": "draft_drm",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L479",
+    "kind": "sensitivity",
+    "before": "Today an elder says",
+    "after": "Today (elder), an elder, says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L482",
+    "kind": "sensitivity",
+    "before": "The elder looks surprised",
+    "after": "(elder) looks surprised",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L482",
+    "kind": "sensitivity",
+    "before": "The elder, a few days later, asks",
+    "after": "(elder), a few days later, asks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L485",
+    "kind": "sensitivity",
+    "before": "The elder grumbles",
+    "after": "(elder) grumbles",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Everyone expected a villager to be a builder, but they love fishing: say you're happy fishing, or say you don't know yet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Everyone always expected (subject) to be a builder. (subject.He/she) is strong, careful, good with tools. When (subject.he/she) was young, people used to say, \"You'll be the best builder this village has ever had.\" Lately (subject) has been spending every spare moment out on the water, fishing, and loving it. Today (elder), an elder, says, \"When are you going back to building?\"",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Say You're Happy Fishing",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Say You Don't Know Yet",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm not, I think,\" says (subject). (elder) looks surprised, then a little disappointed. (subject) waits to feel guilty. It doesn't come. (subject.He/she) goes fishing that afternoon and catches nothing, and is perfectly happy. (elder), a few days later, asks how the fishing is going. That's something.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I don't know,\" says (subject). \"I like the water. I liked building too. Maybe both.\" (elder) grumbles that you can't do both. (subject) shrugs. (subject.He/she) spends the morning fixing a roof and the afternoon fishing, and is not entirely sure which part (subject.he/she) liked better. (subject.He/she) doesn't need to know yet.",
+   "src": "L485"
+  }
+ }
+}

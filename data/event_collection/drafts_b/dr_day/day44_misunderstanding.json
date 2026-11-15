@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Misunderstanding",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day44_misunderstanding",
+  "source": "draft_day",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager complimented a friend's basket and got an odd look in return: ask about it, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning (subject) said \"nice basket\" to (friend), meaning it. (friend) looked at (subject.him/her) oddly and walked off. Now (subject) is worried (subject.he/she) said it wrong, that it sounded sarcastic, or that the basket is a sore subject for some reason. (subject.He/she) has been thinking about it all day.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Ask About It",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At dinner (subject) says, \"Did I upset you this morning? About the basket?\" (friend) looks completely confused. \"What basket?\" (friend.He/she) doesn't remember it at all. (friend.He/she) was thinking about something else entirely. (subject) laughs, relieved. A whole day of worry about nothing. Still, it's good to know.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides not to bring it up. The next day, (friend) is perfectly friendly. Maybe (friend.he/she) was upset and got over it. Maybe (friend.he/she) never noticed. Maybe (friend.he/she) still thinks about it sometimes. (subject) never finds out, and over time (subject.he/she) stops wondering.",
+   "src": "L533"
+  }
+ }
+}

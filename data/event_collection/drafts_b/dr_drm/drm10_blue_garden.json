@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blue Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm10_blue_garden",
+  "source": "draft_drm",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager wants a garden of only blue flowers but has found very few: keep searching, or let a few other colors in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) wants a garden with only blue flowers. Every shade of blue there is, from almost white to almost black. The trouble is that on this part of the island there are only two kinds of blue flower, and one of them is mostly purple. (name1) is standing in (his/her) garden, looking at four small blue flowers and a great deal of bare earth.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Keep Searching",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Let a Few Other Colors In",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) starts searching further afield: along the stream, at the edge of the forest, in the rocks above the beach. Over the next few seasons (he/she) finds three more kinds of blue. The garden is still mostly bare earth. It is also, in the early morning, very beautiful in a sparse sort of way.",
+   "src": "L122"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "A yellow flower turns up in the blue garden all by itself. (name1) almost pulls it out, then doesn't. It looks rather good next to the blue. Within a season the garden is mostly blue with some yellow, and a little white, and one bright red thing nobody planted. (name1) still calls it the blue garden.",
+   "src": "L125"
+  }
+ }
+}

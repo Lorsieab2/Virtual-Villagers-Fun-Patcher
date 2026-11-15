@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "To Whoever Needs It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep09_whoever_needs",
+  "source": "draft_dep",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A messenger offers to carry a message for a villager who has nobody to write to: send one to nobody in particular, or send none.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A messenger has arrived, walking from village to village with a bundle of bark messages tied up in string, delivering them one by one. (name1) watches people open theirs, laughing, frowning, reading bits out loud. (name1) has never once received a message. (He/she) doesn't know anyone in the other villages to send one to, either. The messenger asks if (he/she) wants to send anything.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Send One to Nobody in Particular",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Send Nothing This Time",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) thinks for a long time, then writes: \"To whoever needs it. I hope your day is going well. If it isn't, I hope tomorrow is better. From somebody on the other side of the island.\" The messenger promises to give it to someone who looks like they need it. (name1) never finds out who. (He/she) likes not knowing.",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Not this time,\" says (name1). The messenger nods and moves on. That evening (name1) sits by the fire and thinks about who (he/she) might write to, one day, and what (he/she) would say. (He/she) doesn't come up with an answer. It is a pleasant thing to wonder about, all the same.",
+   "src": "L113"
+  }
+ }
+}

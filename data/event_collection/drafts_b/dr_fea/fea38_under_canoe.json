@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Under the Canoe Landing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea38_under_canoe",
+  "source": "draft_fea",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager freezes on the canoe landing, staring through the gaps at deep water: ask a friend to walk ahead, or look up.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the canoe landing, the water under the wooden boards is deep and dark, and the boards have gaps between them. (subject) has walked across them a thousand times. Today, for no reason at all, (subject.he/she) has frozen in the middle, looking down through a gap into the dark water, unable to move. (friend) is behind (subject.him/her) with a load of fish.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Ask (friend) to Walk Ahead",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Look Up Instead",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Go ahead of me,\" says (subject). \"I'll follow you.\" (friend) goes first, slowly, and (subject) keeps (subject.his/her) eyes on (friend)'s back instead of on the gaps. They reach the end. (subject) breathes out. (subject.He/she) doesn't know why today was different. Tomorrow it might not be.",
+   "src": "L458"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks up, away from the gaps, at the sky and the trees and the gulls. (subject.He/she) walks to the end without looking down. (friend) follows. \"You alright?\" \"Fine,\" says (subject). (subject.He/she) isn't, quite. (subject.He/she) is well enough to walk, and today that will do.",
+   "src": "L461"
+  }
+ }
+}

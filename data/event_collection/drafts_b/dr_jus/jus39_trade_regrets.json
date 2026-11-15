@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trade (name2) Regrets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus39_trade_regrets",
+  "source": "draft_jus",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager pressed a neighbor into trading their good spear, and now the neighbor wants it back: ask the elders, or talk it over.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a week, (subject) kept asking (friend) to trade (friend.his/her) good fishing spear for a basket of shells and a carved comb, a little more insistently every day. In the end (friend) said yes, just to make it stop. Now (friend.he/she) wants the spear back. (subject) says a trade is a trade.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Ask the Elders",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Talk to (subject)",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders ask (friend) whether (friend.he/she) wanted to trade. \"No. I wanted (subject.him/her) to stop asking.\" The elders say that a trade made only to end the asking isn't a fair trade, and ask them to swap back. (subject) is cross, and says (friend) should have said no. (friend) says (friend.he/she) did, six times. The elders agree with (friend).",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) finds (subject). \"I said yes to make you stop asking. That isn't the same as wanting to.\" (subject) is quiet for a moment. \"...I did ask a lot.\" (subject.He/she) gives back the spear, and (friend) gives back the shells and the comb. Things are a little awkward for a while. Then (subject) asks to borrow the spear, just once, and asks only once.",
+   "src": "L473"
+  }
+ }
+}

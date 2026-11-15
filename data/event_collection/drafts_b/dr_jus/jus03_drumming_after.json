@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Drumming After Dark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus03_drumming_after",
+  "source": "draft_jus",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L38",
+    "kind": "sensitivity",
+    "before": "Then an elder suggests",
+    "after": "Then (elder), an elder, suggests",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A neighbor has gone to the elders about a villager's late night drumming: set quiet hours, or ask them to agree.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is learning the drum, and practices every night, late, after work. (friend), who lives next door and goes to bed early, has asked politely three times for it to stop. It hasn't. Tonight (friend) has gone to the elders.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Set Quiet Hours",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Ask Them to Agree Between Themselves",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders listen to both of them and set an hour after which drums are for feasts only. (subject) grumbles: it's the only time (subject.he/she) has. Then (elder), an elder, suggests the flat ground by the far rocks, where nobody sleeps nearby. (subject) practices there. On still nights it can be heard faintly across the water, and (friend) admits that, from that far away, it's rather nice.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders send them off to agree on something. They argue. Then they agree: three nights a week, and only until the moon is over the big palm. It mostly works. On the quiet nights (friend) sleeps beautifully, and is surprised to find (friend.he/she) misses the drum a little.",
+   "src": "L41"
+  }
+ }
+}

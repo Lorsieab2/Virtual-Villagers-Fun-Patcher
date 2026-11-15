@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Water Remembers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea32_water_remembers",
+  "source": "draft_fea",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who has not swum in the sea since a frightening current is called in by a friend: paddle, or stay on the sand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Long ago, (subject) was caught by a strong current and pulled out past the rocks before someone reached (subject.him/her). (subject.He/she) was fine. (subject.He/she) hasn't swum in the sea since. Everyone knows, and nobody mentions it. Today it's hot, and everyone is swimming, and (friend) calls from the water, \"Come in! It's lovely!\"",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Paddle at the Edge",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Stay on the Sand",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) walks down to the edge and lets the water wash over (subject.his/her) feet. That's all. It's cool and nice. (subject.He/she) stays there, ankle-deep, for a long time. (friend) swims over and sits in the shallows next to (subject.him/her). They talk. (subject) doesn't go any further. (subject.He/she) doesn't need to.",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Not today,\" says (subject), and stays on the sand under a tree. (friend) waves and swims on. (subject) watches everyone splashing. Some part of (subject.him/her) misses it. Another part of (subject.him/her) is very glad to be on dry land. (subject.He/she) is allowed both. (subject.He/she) may swim again someday. Or not.",
+   "src": "L389"
+  }
+ }
+}

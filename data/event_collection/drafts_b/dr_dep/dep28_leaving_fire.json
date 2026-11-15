@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Leaving the Fire Early",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep28_leaving_fire",
+  "source": "draft_dep",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager always leaves the evening fire first, and a friend asks if something is wrong: explain, or just say goodnight.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every evening, (subject) leaves the fire first. (subject.He/she) eats, listens for a while, and then quietly gets up and goes to bed while everyone else is still talking. Tonight (friend) catches up with (subject.him/her) on the path. \"Is something wrong? Don't you like us?\"",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Just Say Goodnight",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I like you all very much,\" says (subject). \"I just run out of people by about this time. Then I need quiet.\" (friend) thinks about this. \"Like a fire running out of wood?\" \"Exactly like that.\" The next evening, when (subject) gets up to go, (friend) gives (subject.him/her) a small wave across the fire. Nobody asks again.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Nothing's wrong,\" says (subject). \"Goodnight.\" (friend) isn't quite satisfied, but lets (subject.him/her) go. A few days later (friend) leaves the fire early too, just to see what it's like. The quiet on the path is lovely. (friend.He/she) understands, a bit. (friend.He/she) still prefers the fire.",
+   "src": "L341"
+  }
+ }
+}

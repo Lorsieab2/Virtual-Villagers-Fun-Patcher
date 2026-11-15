@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Question Nobody Asked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea48_question_nobody",
+  "source": "draft_fea",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and an adult)"
+   }
+  ],
+  "description": "A young villager did not understand part of a lesson but fears the question is stupid: ask it, or ask afterwards.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is showing a group of young villagers how to set fish traps, and has just asked, \"Any questions?\" (subject) has one. (subject.He/she) didn't understand the middle part at all. But nobody else is asking anything, and everyone else seems to understand, and (subject) is afraid that the question is stupid.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Ask It",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Ask Afterwards, Privately",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) puts up (subject.his/her) hand. \"I didn't understand the middle part.\" There's a pause. Then two other people say, \"Me neither,\" and one says, \"Oh, thank goodness.\" (friend) explains it again, more slowly. (subject) understands it this time. So does everyone else, apparently, for the first time.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) waits until everyone has gone, then asks (friend) quietly. (friend) explains it again, and doesn't make (subject.him/her) feel stupid for asking. \"That bit's confusing,\" (friend.he/she) says. \"I should explain it better.\" (subject) goes home understanding. The next time (friend) teaches it, (friend.he/she) explains the middle part differently.",
+   "src": "L581"
+  }
+ }
+}

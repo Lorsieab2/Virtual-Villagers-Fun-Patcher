@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spider in the Corner",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea16_spider_corner",
+  "source": "draft_fea",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A big harmless spider in the hut keeps a villager awake: move it outside gently, or leave it and make peace.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There is a spider in the corner of (subject)'s hut. It is large. It has been there for three days. It is, by any sensible measure, harmless, and it eats the mosquitoes. (subject) has not slept properly since it arrived. Tonight (subject.he/she) asks (friend) for help.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Move It Outside Gently",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Leave It and Make Peace",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) coaxes the spider onto a leaf and carries it outside to a bush. (subject) watches from the far side of the hut with (subject.his/her) hands over (subject.his/her) mouth. The spider settles on the bush and starts a new web. (subject) sleeps beautifully. The mosquitoes, for one night, celebrate.",
+   "src": "L194",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L194"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's eating your mosquitoes,\" says (friend). \"It's on your side.\" (subject) considers this. (subject.He/she) decides to name the spider. It becomes Auntie Legs. It doesn't make (subject) less afraid of it, exactly, but it's harder to be terrified of something called Auntie Legs. (subject.He/she) sleeps with the blanket over (subject.his/her) head for a while.",
+   "src": "L197"
+  }
+ }
+}

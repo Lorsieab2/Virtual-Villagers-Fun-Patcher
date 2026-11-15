@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Small Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus24_small_basket",
+  "source": "draft_jus",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's trading basket turns out to hold less than everyone else's: ask them to explain, or ask the traders what they want.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) trades fruit with the rest of the village by the basketful. (friend) has noticed that (subject)'s \"full basket\" holds quite a lot less than everyone else's. (friend) has brought one of (subject)'s baskets and one ordinary basket to the elders and set them side by side. The difference is plain to see.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Ask (subject) to Explain",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Ask the Traders What They Want",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stares at the two baskets. \"I made that basket years ago,\" (subject.he/she) says slowly. \"I never held it up against anyone else's.\" The elders can't tell whether (subject.he/she) knew. Some people think (subject.he/she) did; some don't. The elders ask (subject) to trade with ordinary baskets from now on, and to make up the difference to anyone who asks. A few people ask. Most don't bother.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The villagers who traded with (subject) talk it over. Most just want ordinary baskets from now on. One wants the difference made up, and gets it. (subject) is plainly embarrassed, and says it was never on purpose. Whether everyone believes that is another matter. (subject) quietly unpicks the small basket and weaves it into a bigger one.",
+   "src": "L293"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Replacement Crab",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon38_replacement_crab",
+  "source": "draft_hon",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 4-9)"
+   }
+  ],
+  "description": "A villager lost a child's pet hermit crab while minding it: tell the truth, or find one that looks the same.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) asked (subject) to look after (friend.his/her) pet hermit crab while (friend.he/she) went to gather shells. (subject) put the crab in a bowl, turned away for a moment, and the crab was gone. (subject) has searched everywhere. (friend) is coming back up the path. There are plenty of other hermit crabs on the beach.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Tell (friend) the Truth",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Find One That Looks the Same",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) crouches down to (friend)'s height. \"I'm so sorry. I looked away and your crab walked off. I've looked everywhere.\" (friend)'s lip wobbles. They search together, and they don't find it. Then (friend) says, quietly, \"Maybe it wanted to go home.\" (subject) thinks that's very likely. They sit on the beach together for a while, watching all the crabs.",
+   "src": "L458"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) quickly finds a crab that looks almost exactly the same. (friend) picks it up and studies it very closely. \"This isn't my crab.\" (subject) admits everything. (friend) considers the new crab for a long time. \"...It can stay for a visit,\" (friend.he/she) decides, \"until mine comes back.\" The new crab seems happy to visit.",
+   "src": "L461"
+  }
+ }
+}

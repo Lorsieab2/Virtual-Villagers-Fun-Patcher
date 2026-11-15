@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Harder Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day25_harder_day",
+  "source": "draft_day",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's long-standing back pain is bad today: ask what would help, or leave them to rest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s back has troubled (subject.him/her) for years. Most days (subject.he/she) manages fine, with a few adjustments. Today is not one of those days. Everything hurts, getting up took ages, and (subject.he/she) has had to leave (subject.his/her) work half done. (friend) finds (subject.him/her) sitting outside the hut, very still.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Ask What Would Help",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Leave (subject.him/her) to Rest",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What would help?\" asks (friend). (subject) thinks. \"Honestly? Bringing me my water so I don't have to bend. And not making a fuss.\" (friend) brings the water and doesn't make a fuss. (friend.He/she) sits nearby for a while, talking about nothing. It doesn't fix the back. It makes the day easier to get through.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks if (subject) needs anything. (subject) says no, (subject.he/she) just needs to rest. (friend) believes (subject.him/her), and goes. (subject) rests all day. It's a bad day. That's all it is. Tomorrow might be better, or might not, and either way (subject) knows how to manage. (subject.He/she) has been doing it a long time.",
+   "src": "L305"
+  }
+ }
+}

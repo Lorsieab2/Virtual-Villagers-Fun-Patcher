@@ -1,0 +1,420 @@
+HUM-01
+DESC: A villager leaves a banana peel on the path as a friend rounds the corner: shout a warning, or dive for the peel.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 222
+O2: 11
+REVIEW: ok
+
+HUM-02
+DESC: A villager steps into a puddle that turns out to be knee deep: pretend it was on purpose, or fill the hole in.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+O2: 1
+REVIEW: FLAG casting line picks one adult, but O1 uses (name2) as an onlooker; cast name2 as 18+.
+
+HUM-03
+DESC: A villager's stomach growls at the scariest moment of an elder's story: own it, or clutch it and hope.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT S: "An elder is telling a spooky story" => "[e], an elder, is telling a spooky story"
+EDIT S: "Just as the elder whispers" => "Just as [e] whispers"
+EDIT O1: "The elder doesn't miss a beat" => "[e] doesn't miss a beat"
+EDIT O2: "The elder gives up and says" => "[e] gives up and says"
+S: 1
+O2: 1
+REVIEW: ok
+
+HUM-04
+DESC: A villager tries to climb gracefully into a new hammock and is tipped onto the sand: try again, or ask a friend for the trick.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 11
+O2: 1
+REVIEW: ok
+
+HUM-05
+DESC: A villager burps on the echo cliffs and the rocks send it back three times: try for a better one, or apologize to the cliffs.
+ROLES: name1=10+ name2=10+
+FIG: e=elder:55+
+EDIT O1: "an elder who was gathering shellfish down in the cove asks" => "[e], an elder who was gathering shellfish down in the cove, asks"
+S: 1
+O2: 2
+REVIEW: ok
+
+HUM-06
+DESC: Two villagers start trading fish jokes and neither will stop: keep going, or call a truce.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "An elder declares" => "[e], an elder, declares"
+S: 2
+REVIEW: ok
+
+HUM-07
+DESC: A child tells an adult a first knock-knock joke that makes no sense: laugh along, or help make it better.
+ROLES: name1=5-10 name2=18+
+S: 21
+O2: 1
+REVIEW: ok
+
+HUM-08
+DESC: A sleepy villager naps in a friend's hut by mistake: let the sleeper rest, or wake them gently.
+ROLES: name1=18+ name2=18+
+S: 12
+L1: 1
+O1: 111
+L2: 1
+O2: 1112
+REVIEW: ok
+
+HUM-09
+DESC: A villager puts a cooking pot on as a hat and it gets stuck: try a little fish oil, or carry on with the day.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 11111
+REVIEW: FLAG casting line picks one adult, but O1 uses (name2) to rub on the fish oil; cast name2 as 18+.
+
+HUM-10
+DESC: A villager has been promised a harmless prank sometime this month and is waiting: ask for a hint, or stop worrying about it.
+ROLES: name1=18+ name2=18+
+S: 122
+O1: 22
+O2: 22
+REVIEW: ok
+
+HUM-11
+DESC: A young pig decides a villager is its favorite person and follows everywhere: accept the escort, or try to lose it.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+O2: 1
+REVIEW: FLAG casting line picks one adult, but O1 uses (name2) for one line of dialogue; cast name2 as 18+.
+
+HUM-12
+DESC: A villager tries a big spin at the evening dance and cannot stop: commit to it, or grab onto something.
+ROLES: name1=18+ name2=18+
+FIG: d=drummer:18+
+EDIT O2: "until the drummer has to stop playing" => "until [d], the drummer, has to stop playing"
+S: 111
+O1: 1
+REVIEW: FLAG casting line picks one adult, but O2 uses (name2) as the person grabbed; cast name2 as 18+.
+
+HUM-13
+DESC: Two very polite villagers reach the latrine at the same urgent moment: insist on going second, or settle it fairly.
+ROLES: name1=18+ name2=18+
+O2: 12
+REVIEW: ok
+
+HUM-14
+DESC: Small suspicious noises follow the bean stew round the fire: blame the sleeping pig, or start a song, loudly.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HUM-15
+DESC: A villager talks in their sleep on turtle watch, haggling with a fish: join the negotiation, or tell them about it in the morning.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+L2: 1
+O2: 1
+REVIEW: ok
+
+HUM-16
+DESC: A coconut drops neatly into a villager's empty basket: stand still and wait for another, or tell everyone.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1
+O2: 12
+REVIEW: FLAG casting line picks one adult, but O2 uses (name2) as the second lucky villager; cast name2 as 18+.
+
+HUM-17
+DESC: A tired villager sits on a friend's freshly dyed mat: show the friend straight away, or walk carefully and hope.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 22
+O2: 112
+REVIEW: ok
+
+HUM-18
+DESC: A child asks the elders a riddle that has them arguing for an hour: ask for the answer, or let them keep guessing.
+ROLES: name1=6-12
+FIG: e=elder:55+
+EDIT O1: "One elder refuses to give up" => "[e], one of the elders, refuses to give up"
+EDIT O1: "(name1) tells that elder" => "(name1) tells [e]"
+EDIT O1: "but only that elder." => "but only [e:him/her]."
+S: 1
+REVIEW: ok
+
+HUM-19
+DESC: An elder tangles the words of the first catch blessing: laugh first, or start again with dignity.
+ROLES: name1=55+
+S: 11
+O1: 11
+O2: 111
+REVIEW: ok
+
+HUM-20
+DESC: A villager shouts into the valley and the echo starts talking back: keep talking to the echo, or go and find it.
+ROLES: name1=12+ name2=12+
+O1: 1
+REVIEW: ok
+
+HUM-21
+DESC: A villager fights a heavy catch from the rocks in front of a crowd: hold it up for the crowd, or say it got away.
+ROLES: name1=18+
+S: 11
+O1: 11
+REVIEW: ok
+
+HUM-22
+DESC: A villager tests a new drink and now everything tastes of fish: make the best of it, or ask a friend to try it too.
+ROLES: name1=18+ name2=18+
+FIG: f=fisher:55+
+EDIT O2: "except one old fisher, who says" => "except [f], an old fisher, who says"
+S: 111
+O1: 111
+REVIEW: FLAG casting line picks one adult, ideally a scientist, but L2 and O2 use (name2); cast name2 as 18+.
+
+HUM-23
+DESC: A villager's insect charm draws every butterfly in the garden instead: keep working, or take it back to the elder.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT S: "An elder gave (name1)" => "[e], an elder, gave (name1)"
+EDIT L2: "Take It Back to the Elder" => "Take It Back to [e]"
+EDIT O2: "The elder looks at (name1)" => "[e] looks at (name1)"
+S: 1111111
+O1: 11
+REVIEW: ok
+
+HUM-24
+DESC: A villager shows off a new canoe in the lagoon as it slowly sinks: keep smiling, or abandon ship.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 111
+O2: 1
+REVIEW: ok
+
+HUM-25
+DESC: A villager who rolled about asleep on the beach finds sand everywhere: go for a swim, or accept the sand.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 1111
+O2: 11111
+REVIEW: ok
+
+HUM-26
+DESC: Two elders doze off and snore in turns like a tune: let the children make a song of it, or wake them with applause.
+ROLES: name1=55+ name2=55+
+FIG: c=child:3-13
+EDIT O2: "a child explains" => "[c], a child, explains"
+REVIEW: ok
+
+HUM-27
+DESC: A villager squeezes an overripe mango and it bursts in a friend's face: apologize, laughing, or offer the friend the rest of it.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "A passing child declares" => "[c], a passing child, declares"
+S: 1
+O1: 2
+L2: 2
+REVIEW: ok
+
+HUM-28
+DESC: A villager cooked the stew in the berry dye pot and every mouth is purple: say something, or say nothing and hope it fades.
+ROLES: name1=18+ name2=18+
+FIG: h=healer:18+
+EDIT O2: "The healer examines everyone" => "[h], the healer, examines everyone"
+S: 1
+REVIEW: ok
+
+HUM-29
+DESC: A villager's festival headdress is too tall to fit through the door: crawl out backward, or take some feathers off.
+ROLES: name1=18+
+S: 11
+O1: 1
+REVIEW: ok
+
+HUM-30
+DESC: Two old friends laugh at a breadfruit joke neither can remember, and a child asks why: try to explain, or make up a new one.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT S: "Today a child who has seen this happen many times finally asks" => "Today [c], a child who has seen this happen many times, finally asks"
+EDIT O1: "The child waits patiently" => "[c] waits patiently"
+EDIT O1: "That evening the child is heard" => "That evening [c] is heard"
+EDIT O2: "The child doesn't laugh" => "[c] doesn't laugh"
+REVIEW: ok
+
+HUM-31
+DESC: A villager has spent all morning failing to open one coconut: let everyone have a turn, or declare it unopenable.
+ROLES: name1=18+
+FIG: b=builder:18+ f=fisher:18+ e=elder:55+ c=child:3-13
+EDIT O1: "A builder hits it" => "[b], a builder, hits it"
+EDIT O1: "A fisher throws it" => "[f], a fisher, throws it"
+EDIT O1: "An elder talks to it" => "[e], an elder, talks to it"
+EDIT O1: "Then a small child picks it up" => "Then [c], a small child, picks it up"
+EDIT O1: "The child drinks the milk" => "[c] drinks the milk"
+S: 1
+REVIEW: ok
+
+HUM-32
+DESC: An elder watches the children's biggest splash contest: enter the contest, or offer to judge instead.
+ROLES: name1=55+
+S: 1
+O1: 11
+O2: 1
+REVIEW: ok
+
+HUM-33
+DESC: A villager takes a shortcut and comes out covered in burrs: ask the children to help, or pick them off yourself.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O1: "Then a child finds one more" => "Then [c], a child, finds one more"
+S: 111
+O2: 1112
+REVIEW: ok
+
+HUM-34
+DESC: A hidden guava rolls out of a villager's sleeve across the elders' meeting: claim it, or stay perfectly still.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT S: "against the foot of the eldest elder" => "against the foot of [e], the eldest elder"
+EDIT O1: "The eldest elder picks up the guava" => "[e] picks up the guava"
+EDIT O1: "Then the elder takes" => "Then [e] takes"
+EDIT O2: "The eldest elder picks it up" => "[e] picks it up"
+EDIT O2: "The elder eats it" => "[e] eats it"
+EDIT O2: "when the elder gives" => "when [e] gives"
+S: 1
+O2: 1
+REVIEW: ok
+
+HUM-35
+DESC: A villager has worn a tunic inside out all day and a friend has just noticed: tell them, or turn your own inside out too.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "Then a child does it." => "Then [c], a child, does it."
+S: 1
+L1: 1
+O1: 11
+O2: 211
+REVIEW: ok
+
+HUM-36
+DESC: A villager's leg falls asleep during a long evening story: walk it off, or sit back down and wait.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 111
+O2: 11
+REVIEW: ok
+
+HUM-37
+DESC: A villager shows off a big fish and gets slapped by its tail: bow to the fish, or dive after it.
+ROLES: name1=18+
+FIG: f=fisher:18+
+EDIT O2: "One of the fishers hands" => "[f], one of the fishers, hands"
+S: 1
+O1: 11
+O2: 111
+REVIEW: ok
+
+HUM-38
+DESC: A determined bird keeps stealing a villager's hair for its nest: donate some hair, or wear a head wrap.
+ROLES: name1=18+
+O1: 111
+O2: 1
+REVIEW: ok
+
+HUM-39
+DESC: An elder's hollow log lets out a loud, unfortunate noise at sunset: explain, or say nothing.
+ROLES: name1=55+
+FIG: c=child:3-13
+EDIT O2: "a small child says, helpfully" => "[c], a small child, says, helpfully"
+S: 11
+O1: 1
+O2: 1
+REVIEW: ok
+
+HUM-40
+DESC: A villager tries the new rope swing and the rope is far too long: hold on, or let go.
+ROLES: name1=10+ name2=10+
+S: 11
+O1: 111
+REVIEW: ok
+
+HUM-41
+DESC: A villager practicing a song by the stream is joined by an off-key frog: sing a duet, or find a quieter spot.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 2
+O2: 11
+REVIEW: ok
+
+HUM-42
+DESC: A villager gets canoe gum on their hands and everything starts sticking: ask a friend for help, or carry on regardless.
+ROLES: name1=18+ name2=18+
+S: 1111111
+O2: 11
+REVIEW: ok
+
+HUM-43
+DESC: Two team leaders heave in the festival tug-of-war until the rope snaps: call it a draw, or demand a rematch.
+ROLES: name1=18+ name2=18+
+FIG: j=judge:18+
+EDIT O1: "The judge declares a draw" => "[j], the judge, declares a draw"
+EDIT O2: "The judge gives up" => "[j], the judge, gives up"
+REVIEW: ok
+
+HUM-44
+DESC: A child insists everyone use their hermit crab's very long name: say the whole name, or suggest a shorter one.
+ROLES: name1=4-9 name2=18+
+O1: 2
+O2: 11
+REVIEW: ok
+
+HUM-45
+DESC: A villager known for impressions is asked by a friend to do them next: do the impression, or ask the friend to go first.
+ROLES: name1=18+ name2=18+
+FIG: f=fisher:55+ b=builder:18+
+EDIT S: "the way the old fisher squints" => "the way [f], the old fisher, squints"
+EDIT S: "the way the builder hums" => "the way [b], the builder, hums"
+O1: 1222
+REVIEW: ok
+
+HUM-46
+DESC: An adult asks a child for a turn on homemade stilts: give the adult a turn, or ask for proper lessons.
+ROLES: name1=8-13 name2=18+
+O1: 22
+O2: 22
+REVIEW: ok
+
+HUM-47
+DESC: A villager uses six soap roots instead of one and foam spreads everywhere: let the children play, or try to contain it.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT S: "A small child has disappeared" => "[c], a small child, has disappeared"
+S: 1
+O2: 111
+REVIEW: ok
+
+HUM-48
+DESC: A villager loses at stones again, storms off grandly and walks into the doorpost: keep walking, or laugh at yourself.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 1
+REVIEW: ok
+
+HUM-49
+DESC: Two villagers fall asleep fishing and drift home in front of everyone: act as if they meant it, or admit everything.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HUM-50
+DESC: A sudden gust carries off the whole village's washing: lead the chase, or rescue your own and go home.
+ROLES: name1=18+
+FIG: f=fisher:18+
+EDIT O1: "The fisher paddles in" => "[f], the fisher, paddles in"
+EDIT O1: "It isn't the fisher's tunic" => "It isn't [f]'s tunic"
+EDIT O1: "The fisher keeps it on" => "[f] keeps it on"
+O2: 11
+REVIEW: ok

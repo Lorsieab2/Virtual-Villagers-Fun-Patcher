@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everyone Is Cheerful Except (name1)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day12_everyone",
+  "source": "draft_day",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The whole village is cheerful but one villager just feels flat: say you are not in the mood, or go somewhere quieter.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The whole village is in a wonderful mood today. People are singing at work, telling jokes, laughing at the fire. (subject) isn't sad, exactly. (subject.He/she) just feels flat, grey, like a day with no sun. All the cheerfulness around (subject.him/her) is making it worse, somehow. (friend) sits down nearby, humming happily.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Say You're Not in the Mood",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Go Somewhere Quieter",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm not feeling it today,\" says (subject). \"The cheerful thing.\" (friend) stops humming. \"Fair enough.\" (friend.He/she) stays, but quietly. They sit together, one cheerful and one flat, and that's fine. Nobody tries to make (subject) feel better. (subject) is grateful for that most of all.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) slips away to the end of the beach, where it's just the waves. It's better there. Nobody's cheerful at (subject.him/her). (subject.He/she) sits for a long while. The flat feeling stays. (subject.He/she) goes home at dark and sleeps. Tomorrow, maybe, it'll be different. It's allowed not to be.",
+   "src": "L149"
+  }
+ }
+}

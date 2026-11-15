@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teacher Goes Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep22_teacher_goes",
+  "source": "draft_dep",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L266",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill, only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A visiting healer who taught a villager about plants leaves tomorrow: ask one last question, or just say thank you.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a whole moon a healer from another village has been teaching (name1) about plants: which ones calm a cough, which ones soothe a burn, which ones you must never put anywhere near your mouth. Tomorrow the healer goes home. (name1) has a hundred questions left and one evening to ask them.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Ask One Last Question",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Say Thank You Instead",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) picks the one question that has been bothering (him/her) most: \"What do you do when nothing works?\" The healer is quiet for a while. Then they talk, honestly, until the fire burns down. It isn't an answer exactly. (name1) remembers all of it anyway.",
+   "src": "L266",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L266"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) puts the questions away and simply thanks the healer. They talk about ordinary things: food, weather, the healer's grumpy old dog back home. In the morning the healer leaves a bundle of dried leaves outside (name1)'s door, with a note: \"For the questions you didn't ask. Work them out. You'll be fine at it.\"",
+   "src": "L269",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L269"
+    }
+   ]
+  }
+ }
+}
