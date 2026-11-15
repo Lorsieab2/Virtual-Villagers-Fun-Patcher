@@ -410,5 +410,45 @@ class OneFrameAtATime(unittest.TestCase):
         self.assertEqual(p.export("VvfpStoryProbeCollectionFile", f), 0)   # its file deleted
 
 
+@NEEDS
+class LivingRows(unittest.TestCase):
+    """The Living Event Engine's rows in the draw (story_living.inc; tests/test_living_runtime.py has the rest)."""
+
+    def test_living_rows_without_their_pack_are_never_drawn(self) -> None:
+        import test_living_runtime as lr
+        run = lr.Living("vv4")
+        run.manifest()
+        run.p.export("VvfpStoryProbeLivingPack", 0, 0)
+        run.rolls([0] * 64)
+        self.assertEqual(run.choose(), (False, []))          # every living row left out before the draw
+
+    def test_a_living_category_is_one_series(self) -> None:
+        """Six living rows in five categories: five series of weight 1 (no history: no mood bias); roll 4 is the
+        TRA series, whose two rows are equally likely (the member roll 1: its second row)."""
+        import test_living_runtime as lr
+        run = lr.Living("vv4")
+        run.manifest()
+        run.rolls([4, 1] + [0] * 62)
+        armed, trace = run.choose()
+        self.assertTrue(armed)
+        self.assertEqual(trace, [5])                          # living_mc_tra_13
+        run.idle()
+        # Now a serious row was armed: warm and social weigh 2 (per, cel, art, odd), the TRA series 1 (its row
+        # left): 9 in all, and roll 5 is Art.
+        run.rolls([5] + [0] * 63)
+        armed, trace = run.choose()
+        self.assertEqual(trace[0], 2)
+
+    def test_a_series_whose_rows_cannot_be_cast_is_passed_over(self) -> None:
+        """Art, Knowledge, and Craft (row 2) has no variant four adults can play: the draw is made again."""
+        import test_living_runtime as lr
+        run = lr.Living("vv4")
+        run.manifest()
+        run.rolls([2, 0] + [0] * 62)
+        armed, trace = run.choose()
+        self.assertTrue(armed)
+        self.assertEqual(trace[:2], [2, 0])
+
+
 if __name__ == "__main__":
     unittest.main()

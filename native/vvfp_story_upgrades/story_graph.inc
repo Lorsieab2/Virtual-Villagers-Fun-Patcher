@@ -5597,6 +5597,7 @@ static int cg_slot_free(int game) {
    (cg_flush_file), so a crash before that save brings back exactly the pages whose effects the save lacks. */
 static void cg_finish(void) {
     int k;
+    lv_on_finish(cg.game);             /* a Living Event Engine variant: the archetype reached (story_living.inc) */
     cg_log_write(cg.game);             /* the Island Events log's one entry, now whole */
     if (cg.display_count > 0 && cg.entry_head > 0) {
         cg.sent_len[cg.display_count - 1] = cg.entry_len;
@@ -6934,7 +6935,8 @@ static void cg_village_reset(int game, int slot) {
 
 /* ---- The library (the in-game "From the library..." picker) ----------------------------------------------- */
 
-#define CG_LIBRARY_MAX 256              /* the player's library and the Isola Grand Event Collection's group */
+#define CG_LIBRARY_MAX 1024             /* the player's library and the Isola Grand Event Collection's group (its events and
+                                           its Living Event Engine rows: about 380 in a game) */
 enum { IDD_CE_LIBRARY = 312, IDC_LB_LIST = 3801, IDC_LB_NOTE = 3802 };
 
 static struct {
@@ -6942,7 +6944,7 @@ static struct {
     int count;
     int chosen;
     char path[CG_LIBRARY_MAX][MAX_PATH];
-    char label[CG_LIBRARY_MAX][CE_TITLE_BYTES + 80];
+    char label[CG_LIBRARY_MAX][320];    /* a living row's label carries its sentence */
     char problems[1600];
 } cg_lib;
 
@@ -7101,14 +7103,22 @@ static int cg_library_purchase(int game, HWND owner) {
     if (cg_lib.game != game || cg_lib.chosen < 0 || cg_lib.chosen >= cg_lib.count) {
         return 0;
     }
-    if (!cg_read_whole(cg_lib.path[cg_lib.chosen], cg_bytes, sizeof cg_bytes, &size)
+    if (lv_library_path(cg_lib.path[cg_lib.chosen])) {
+        /* A Living Event Engine seed: the variant the library's cast can cast, in cg_bytes (story_living.inc). */
+        if (!lv_library_load(game, cg_lib.path[cg_lib.chosen])) {
+            wsprintfA(prompt, "That event can not happen right now: %s. Nothing has been queued.", cg_why);
+            ui_message(owner, prompt);
+            return 0;
+        }
+    } else if (!cg_read_whole(cg_lib.path[cg_lib.chosen], cg_bytes, sizeof cg_bytes, &size)
         || !cg_load(&cg_g, cg_bytes, size)) {
         wsprintfA(prompt, "That event can not be used: %s. Nothing has been queued.", cg_why);
         ui_message(owner, prompt);
         cg_bytes_size = 0;
         return 0;
+    } else {
+        cg_bytes_size = size;
     }
-    cg_bytes_size = size;
     cg_cast_now = CG_CAST_PREFER;      /* bought: a requirement nobody meets is dropped, never the purchase */
     cg_origin_now = CG_ORIGIN_PURCHASE;
     refusal = cg_refusal(game, &planned);
@@ -7138,6 +7148,7 @@ static int cg_library_purchase(int game, HWND owner) {
                                           : "The event can not happen right now. No tech points have been deducted.");
         return 0;
     }
+    lv_library_armed(game);
     wsprintfA(prompt, "\"%s\" is on its way.", cg.title);
     ui_message(owner, prompt);
     return 1;

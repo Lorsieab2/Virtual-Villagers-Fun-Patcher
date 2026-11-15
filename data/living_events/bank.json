@@ -50,6 +50,15 @@
   "shipped_note": "Owner 2026-11-14: names are shown. (first) / (second) are the two cast villagers' names; {pa_art} is the personality's article (a / an); {word_a} is the role without its article. Later references use role pronoun tokens (first.he/she), or the name where a pronoun would be ambiguous. Grammar fix id: living-frame-article.",
   "grammar_fix": "living-frame-article"
  },
+ "moods": {
+  "order": [
+   "warm",
+   "social",
+   "serious"
+  ],
+  "src": "Isola_Complete_Anthology.txt L7-131 (Global Editorial Override, item 10)",
+  "note": "pack seed record byte +12: 0 warm, 1 social, 2 serious (living-pack.md 2.2, 4.1a)"
+ },
  "categories": [
   {
    "id": "le_cat_per",
@@ -57,6 +66,7 @@
    "heading": "PERSONAL EXPRESSION",
    "src": "L23836",
    "title": "Personal Expression",
+   "mood": "warm",
    "choice_set": "le_cs_art_per"
   },
   {
@@ -65,6 +75,7 @@
    "heading": "FAMILY AND FRIENDSHIP",
    "src": "L23848",
    "title": "Family and Friendship",
+   "mood": "social",
    "choice_set": "le_cs_emo_fam_res"
   },
   {
@@ -73,6 +84,7 @@
    "heading": "CELEBRATION AND PLAY",
    "src": "L23860",
    "title": "Celebration and Play",
+   "mood": "warm",
    "choice_set": "le_cs_cel_odd"
   },
   {
@@ -81,6 +93,7 @@
    "heading": "ART, KNOWLEDGE, AND CRAFT",
    "src": "L23872",
    "title": "Art, Knowledge, and Craft",
+   "mood": "social",
    "choice_set": "le_cs_art_per"
   },
   {
@@ -89,6 +102,7 @@
    "heading": "ANIMALS AND ECOLOGY",
    "src": "L23884",
    "title": "Animals and Ecology",
+   "mood": "social",
    "choice_set": "le_cs_ani"
   },
   {
@@ -97,6 +111,7 @@
    "heading": "BELIEF AND MYSTERY",
    "src": "L23896",
    "title": "Belief and Mystery",
+   "mood": "serious",
    "choice_set": "le_cs_bel"
   },
   {
@@ -105,6 +120,7 @@
    "heading": "GOVERNANCE AND FAIRNESS",
    "src": "L23908",
    "title": "Governance and Fairness",
+   "mood": "serious",
    "choice_set": "le_cs_gov_oth"
   },
   {
@@ -113,6 +129,7 @@
    "heading": "OTHER COMMUNITIES AND CULTURE",
    "src": "L23920",
    "title": "Other Communities and Culture",
+   "mood": "social",
    "choice_set": "le_cs_gov_oth"
   },
   {
@@ -121,6 +138,7 @@
    "heading": "FOOD AND DAILY LIFE",
    "src": "L23932",
    "title": "Food and Daily Life",
+   "mood": "warm",
    "choice_set": "le_cs_foo"
   },
   {
@@ -129,6 +147,7 @@
    "heading": "EMOTIONS AND IDENTITY",
    "src": "L23944",
    "title": "Emotions and Identity",
+   "mood": "serious",
    "choice_set": "le_cs_emo_fam_res"
   },
   {
@@ -137,6 +156,7 @@
    "heading": "REST, HEALTH, AND CARE",
    "src": "L23956",
    "title": "Rest, Health, and Care",
+   "mood": "serious",
    "choice_set": "le_cs_emo_fam_res"
   },
   {
@@ -145,6 +165,7 @@
    "heading": "ODDITIES AND COMEDY",
    "src": "L23968",
    "title": "Oddities and Comedy",
+   "mood": "warm",
    "choice_set": "le_cs_cel_odd"
   }
  ],
@@ -4189,8 +4210,8 @@
    "src": "L23824"
   },
   {
-   "id": "le_lens_uncertainty. A single seed can support several lenses",
-   "text": "uncertainty. A single seed can support several lenses",
+   "id": "le_lens_uncertainty",
+   "text": "uncertainty",
    "src": "L23824"
   }
  ],
@@ -12232,7 +12253,8 @@
     "src": "L25161",
     "count": 20,
     "strangers_are_stranger_roles": false,
-    "tags": []
+    "tags": [],
+    "mood": "social"
    },
    {
     "id": "mc_cat_dis",
@@ -12243,7 +12265,8 @@
     "strangers_are_stranger_roles": false,
     "tags": [
      "somber"
-    ]
+    ],
+    "mood": "serious"
    },
    {
     "id": "mc_cat_aft",
@@ -12254,7 +12277,8 @@
     "strangers_are_stranger_roles": false,
     "tags": [
      "somber"
-    ]
+    ],
+    "mood": "serious"
    },
    {
     "id": "mc_cat_los",
@@ -12265,7 +12289,8 @@
     "strangers_are_stranger_roles": true,
     "tags": [
      "somber"
-    ]
+    ],
+    "mood": "serious"
    },
    {
     "id": "mc_cat_tra",
@@ -12276,7 +12301,8 @@
     "strangers_are_stranger_roles": false,
     "tags": [
      "somber"
-    ]
+    ],
+    "mood": "serious"
    },
    {
     "id": "mc_cat_bel",
@@ -12285,7 +12311,8 @@
     "src": "L25571",
     "count": 15,
     "strangers_are_stranger_roles": false,
-    "tags": []
+    "tags": [],
+    "mood": "social"
    }
   ],
   "situations": [

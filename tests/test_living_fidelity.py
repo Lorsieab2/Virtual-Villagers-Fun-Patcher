@@ -51,10 +51,10 @@ class Exhaustive(unittest.TestCase):
 
     def test_bank_texts_are_on_their_source_lines(self) -> None:
         lines = lc.source_lines()
-        items = [(s["text"], s["src"]) for s in BANK.seeds] + [(a["text"], a["src"]) for a in BANK.archetypes] \
+        items = [(s.get("source_text", s["text"]), s["src"]) for s in BANK.seeds] + [(a["text"], a["src"]) for a in BANK.archetypes] \
             + [(a["text"], a["src"]) for a in BANK.approaches] + [(c["text"], c["src"]) for c in BANK.choice.values()]
         for sit in BANK.mc_sits:
-            items.append((sit["text"], sit["src"]))
+            items.append((sit.get("source_text", sit["text"]), sit["src"]))
             for ap in sit["approaches"]:
                 items.append((ap["text"], ap["src"]))
                 items += [(o["text"], o["src"]) for o in ap["outcomes"]]
@@ -62,6 +62,31 @@ class Exhaustive(unittest.TestCase):
             with self.subTest(src=src):
                 n = int(src[1:].split("-")[0].split(",")[0])
                 self.assertIn(text, lines[n - 1])
+
+    def test_sensitivity_edits_are_logged(self) -> None:
+        """Every owner line the bank changes (W1: a legendary creature named outright) is in living-events.md
+        section 7 with its before and after."""
+        doc = mx.DOC.read_text(encoding="utf-8")
+        edited = [s for s in BANK.seeds + BANK.mc_sits if "source_text" in s]
+        self.assertEqual(sorted(s["id"] for s in edited), [])          # the W1 edits were reverted (lead)
+        for s in edited:
+            self.assertIn(f"| {s['id']} | {mx.plain(s['source_text'])} | {mx.plain(s['text'])} | "
+                          f"{s['sensitivity_edit']} |", doc)
+
+    def test_no_legendary_being_named(self) -> None:
+        """W1: the shipped words never name a legendary creature, an afterlife place or ideas such as cannibals."""
+        # "cryptid" and "monsters" are kept as the owner wrote them (lead decision on the owner's precedent).
+        banned = re.compile(r"\b(mermaids?|aliens?|skinwalkers?|underworld|heaven|hell|"
+                            r"afterlife|cannibals?|headhunters?|angels?|demons?|ghosts?|vampires?|werewolf|werewolves|"
+                            r"dragons?|sea serpents?)\b", re.I)
+        texts = [s["text"] for s in BANK.seeds] + [a["text"] for a in BANK.archetypes] \
+            + [a["text"] for a in BANK.approaches] + [c["text"] for c in BANK.choice.values()]
+        for sit in BANK.mc_sits:
+            texts.append(sit["text"])
+            for ap in sit["approaches"]:
+                texts.append(ap["text"])
+                texts += [o["text"] for o in ap["outcomes"]]
+        self.assertEqual([x for x in texts if banned.search(x)], [])
 
     def test_credit_kept(self) -> None:
         credits = (ROOT / "assets" / "event_collection" / "Credits.txt").read_text(encoding="utf-8")

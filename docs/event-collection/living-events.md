@@ -370,6 +370,90 @@ These are the owner's own text. Lead decision (2026-11-14): each is its seed's v
 | MIX-053 | OTH-06 | role "an elderly villager" x archetype "A small success comes with an unexpected embarrassment."; role "an elderly villager" x personality "forgetful" |
 | MIX-054 | CEL-06 | role "a skeptical observer" x personality "skeptical" |
 
+### The owner's world rules (2026-11-15)
+
+- **Beliefs.** Some villagers believe and others do not; whether gods or spirits exist stays ambiguous; every belief
+  and every non-belief is valid and individual; nothing mocks, ranks or corrects a belief. The bank already keeps
+  "supernatural never resolves" and S5 (no "superstitious" villager in a belief seed). The mixer adds **S10** (below):
+  a belief or spirit seed never takes a mocking or comedic approach and never ends in an outcome that corrects or
+  settles something. Before S10, 43 belief-seed choices or outcomes in the generated variants did one or the other;
+  now none does (`scripts/living_check.py`, `tests/test_living_quality.py`). The run time only chooses among these
+  variants (ordering, casting, history and moods never change a word), so no runtime combination can break it.
+- **Legendary beings and the afterlife (W1).** Legendary creatures and afterlife ideas (mermaids, aliens,
+  skinwalkers, child-taking creatures, man-eating birds, monsters, cryptids, angels, demons, the underworld, heaven, a
+  place where souls are judged, ancestor worship, real-world tribe-specific beings or practices) and ideas such as
+  cannibals or headhunters are never named outright: only described or hinted at. Shooting stars, tide pools, sea
+  urchins and starfish may be named. The whole bank (Living Engine and MC text) was scanned; two owner lines use such
+  a word, "A supposed cryptid leaves tracks near the gardens." (le_bel_05) and "A popular legend portrays an old
+  enemy as monsters." (mc_aft_09). Lead decision (2026-11-15), on the owner's own precedent of keeping "Monster" and
+  "afterlife" as written and making minimal edits: both stay exactly as the owner wrote them. No bank line is
+  changed under W1 (`tests/test_living_fidelity.py` checks that no shipped line names any other such being).
+
+  Kept as they are (not a named being or afterlife place): "A child asks why the gods never visit Isola." (a child's
+  own question; whether there are gods stays open), "A villager dreams of an ancestor they never met." (a dream, no
+  worship), "An elder admits their ancestors benefited from another group's suffering." (history, no veneration).
+
+- **Wrong acts (S11).** Villagers never murder, kill in cold blood or abuse anyone or anything; any other wrong act is
+  acknowledged as wrong and has fitting consequences, never justified; no bigotry or unjust hatred anywhere. The
+  bank's seeds name no murder or abuse. Three seeds are a wrong act (a prank that embarrasses someone, cheating
+  alleged, a rule meant only for outsiders): they never take a mocking choice, a celebration or light outcome, or
+  one that keeps the unjust custom, and "Follow the established custom" is never offered for the outsiders' rule.
+  The owner's own example of that seed (MIX-040) keeps its choice; its good outcome becomes "The person most affected
+  feels heard and makes their own choice" (listed below). Test: `tests/test_living_quality.py`
+  (`test_a_wrong_act_is_never_rewarded_or_excused`).
+- **Victims and prejudice (S13; owner hard rules 12, 13, 20).** Where someone is wronged (a prank's target, a
+  villager accused of cheating, outsiders shut out by an old rule) no outcome blames: a random outcome never reads as
+  deserved. The outsiders' rule is never met with a compromise, neutrality, "households differ", leaving it
+  unresolved or several disagreeing voices, and never ends in a compromise that satisfies neither side. **For the
+  owner's review:** the owner's own example of that seed (MIX-040) offers "Negotiate a limited compromise"; its words
+  are kept (the hard rules: keep the original, flag the conflict) and its good outcome already acknowledges the people
+  affected (S11). Grief and medical seeds already never draw blame or light outcomes (bank rules C2, C12), and the
+  vulnerable roles never draw blame (R1). Stock island events are never touched by any of this.
+- **Past harm (S14; owner hard rule 27, "PG-13 presentation, not PG-13 reality").** A grief, loss, illness or trauma
+  seed never ends in an outcome that corrects or settles it and never offers "Apologize and repair the relationship"
+  as its way through; with C2 and C12 (no light or blame outcome there) no combination implies a past harm was the
+  person's fault, insignificant, or resolved by forgiveness. Other bad outcomes keep their words: not every bad outcome
+  implies wrongdoing.
+- **Nothing serious is a joke (S16).** The serious categories' seeds (Belief and Mystery, Governance and Fairness,
+  Emotions and Identity; Rest, Health, and Care) take no mocking or comedic choice; C1 already keeps them from every
+  grief, loss, illness and trauma seed, and the same holds for every seed about another community or culture
+  (transgenerational and collective trauma may sit behind them: never played lightly, never a culture shown as
+  lesser), with S13-S15 keeping blame, settling and shaming outcomes away. Checked as well (nothing to change): no outcome makes a child a carrying or
+  nursing parent (the one birth outcome, "An unexpected birth or reunion changes the day's priorities.", has no
+  effect and names nobody); nothing limits a couple's sexes; no outcome shows a parent neglecting a child; no seed
+  or outcome shows slavery or another historical harm as active or explicit; no bank line names a place outside
+  Isola.
+- **Love, family and being alone (S17).** The seeds about a love letter after years alone, a couple undecided about a
+  child, a family that dislikes a companion, dining alone and loneliness take no mocking choice, no approach where
+  someone else decides for them, no blaming outcome, and the couple's seed never ends in an unexpected birth. No
+  archetype line frames marriage or parenthood as a goal, and "A fragile friendship ends despite sincere attempts to
+  mend it" ends a relationship without blame.
+- **Care of the mind (S16).** Emotions and Identity, and Rest, Health, and Care never end in a light outcome in a
+  mixed variant (the owner's own examples keep their words). No seed, archetype, approach or choice in the bank
+  touches sexual assault, so no combination can produce it: the mixer only joins the owner's own lines.
+- **Advice (owner, 2026-11-15).** Following or declining advice never decides whether an outcome is good or bad:
+  every choice, a consult approach ("Ask a specialist for advice", "Ask an elder to explain the tradition", ...) or
+  any other, branches the same way (good 20, adverse 20, rare 2), and no archetype line says or implies "they
+  should have listened" (the one that judged a person's confidence, S15, is never mixed in). "The person most
+  affected feels heard and makes their own choice" and "Leave the choice unresolved" stay valid endings and choices.
+- **No shaming (S15; owner hard rule 28).** No mixed variant uses "The villagers discover that confidence was
+  mistaken for competence." or "A small success comes with an unexpected embarrassment." (they judge a person's
+  mistake or make it an embarrassment). **For the owner's review:** the owner's own examples that use them keep their
+  words (keep the original, flag the conflict); `python scripts/living_check.py` and the variant 0 table below show
+  which. "Someone feels excluded and withdraws" stays: it shows a hurt, it does not shame the one hurt, and S2 / S4
+  keep it away from a joke or a confrontation.
+- **Appearance, body and disability (S12; owner rules 15-18).** No combination may make a person's looks, body or
+  disability a problem, a lesson or a punchline: the seeds about hair, clothes, a mask, a portrait or matching
+  outfits take no mocking choice and no outcome that blames or embarrasses -- in the mixed variants only: the
+  owner's own examples (variant 0) keep their words (owner: keep owner text by default; never sanitize). Assistive
+  devices and disability words in the MC bank are the owner's and are kept.
+- **Injuries to children and teenagers (S8, owner 2026-11-15: "Allow it, rare").** Allowed at the rare tier only, like
+  any villager's rare harm, and never from a comedic or trial choice (S2, S3). The bank's only injury outcome ("The
+  effort causes minor injury or exhaustion") is an adverse one (weight 20 of 42), so it still never lands on a child
+  or a teenager. Serious injuries, a lost limb, eye, nose or ear, scars and burns (owner, 2026-11-15: very rare, story
+  text plus lasting effects, never graphic or comic, recovery afterward) need owner-written outcome lines: the
+  mixer writes no story text of its own, so none ships until they arrive.
+
 <!-- living-mixer: begin (written by python src/vv_living_mixer.py --write-docs) -->
 ### The sensitivity rules the mixer adds (owner, 2026-11-14)
 
@@ -384,8 +468,16 @@ The bank's rules above are extended with these; every variant obeys them (`scrip
 | S5 | Belief and spirit seeds never call a villager superstitious (a stigma on believers). |
 | S6 | Asking an elder to explain the tradition never leads to an elder's death. |
 | S7 | A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a child, a teenager or anyone younger than 18 in any role. |
-| S8 | An injury or exhaustion never lands on a child or a teenager (child labour would be implied). |
+| S8 | An injury may land on a child or a teenager only at the rare tier, like any villager's rare harm (owner, 2026-11-15: "Allow it, rare"); never from a comedic or a trial choice (S2, S3). The bank's only injury outcome (minor injury or exhaustion) is an adverse one (weight 20 of 42), so it never lands on a child or a teenager: a rare-tier injury line from the owner would be needed for one. |
 | S9 | Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied). |
+| S10 | Belief and spirit seeds never take a mocking or comedic approach (a friendly contest, a joke, celebrating the result) and never end in an outcome that corrects or settles something (a misunderstanding gently corrected, confidence found mistaken): a belief would read as mocked or corrected. |
+| S11 | A seed whose situation is a wrong act (a prank that embarrasses someone, cheating alleged, a rule meant only for outsiders) never takes a mocking or comedic choice, never ends in a celebration or a light outcome, and never in one that keeps an unjust custom (customs coexisting, the tradition preserved); following the unjust custom is never offered, and where the owner's example offers it, its good outcome is one that acknowledges the people affected. |
+| S12 | A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would read as a problem or a punchline. The owner's own examples (variant 0) keep their words. |
+| S13 | A seed with someone wronged in it (a prank's target, a villager accused of cheating, the outsiders an old rule shuts out) never ends in an outcome that blames (wasted supplies, confidence mistaken for competence, an embarrassment): the one wronged would read as deserving it. A seed about a rule meant only for outsiders never offers a compromise with it, neutrality, letting households differ, leaving it unresolved or inviting several disagreeing voices, and never ends in a compromise that satisfies neither side: prejudice would read as one valid opinion. |
+| S14 | A grief, loss, illness or trauma seed never ends in an outcome that corrects or settles it (a misunderstanding gently corrected, confidence found mistaken) and never offers apologizing and repairing as its way through: a past harm would read as the person's fault, insignificant, or resolved by forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies wrongdoing. |
+| S16 | Nothing serious is ever a joke: a seed of a serious category (Belief and Mystery, Governance and Fairness, Emotions and Identity; Rest, Health, and Care), a grief, loss, illness or trauma seed, or a seed about another community or culture (collective trauma may sit behind it; a culture is never shown as lesser) never takes a mocking or comedic choice; Emotions and Identity, and Rest, Health, and Care (care of the mind) never end in a light outcome. The owner's own examples keep their words. |
+| S17 | A seed about love, a couple, a family's view of a companion, or a villager who is alone (a love letter after years alone, a couple undecided about a child, a family that dislikes a companion, dining alone, loneliness) never takes a mocking choice, never an approach where someone else decides for them (the chief deciding, several voices, a trial), never an outcome that blames, and the couple's seed never ends in an unexpected birth: no choice obliges anyone to accept affection, marry or have children, and being single, childfree or alone is never lesser. |
+| S15 | No outcome shames anyone (owner hard rule 28): the archetypes "The villagers discover that confidence was mistaken for competence." and "A small success comes with an unexpected embarrassment." are never mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed for the owner's review. |
 
 ### Variant 0: the MIX examples as shipped, with every change
 
@@ -404,14 +496,18 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-008 | first villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-008 | second villager's personality (sensitivity edit) | insecure | cautious | S1 |
 | MIX-009 | choice A outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-009 | choice C outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-010 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
+| MIX-015 | choice C outcome 2 (sensitivity edit) | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | S17 |
 | MIX-016 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | seed x archetype le_arc_bad_03 |
 | MIX-016 | choice B outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-016 | choice D outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-016 | choice D outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
 | MIX-020 | choice C outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_child x archetype le_arc_bad_03 |
 | MIX-021 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
 | MIX-022 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
 | MIX-023 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
+| MIX-025 | choice A outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-027 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-027 | second villager's role | a chief | a council member | no game has both roles (the chief is VV3 only, the practitioners VV5 only) |
 | MIX-029 | choice C outcome 1 | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | seed x archetype le_arc_good_06 |
@@ -425,6 +521,9 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-035 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
 | MIX-037 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
 | MIX-038 | first villager's personality (sensitivity edit) | superstitious | devout | S1 |
+| MIX-040 | choice B outcome 1 (sensitivity edit) | A novice gains experience while a master gains perspective. | The person most affected feels heard and makes their own choice. | S11 |
+| MIX-040 | choice D outcome 1 (sensitivity edit) | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | S11 |
+| MIX-042 | choice B outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-042 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
 | MIX-042 | choice D outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | seed x archetype le_arc_mixed_08 |
 | MIX-045 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
@@ -433,7 +532,8 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-050 | first villager (doubled word, grammar fix) | a confident a confident novice | a confident novice | role le_role_confident_novice x personality le_pers_confident |
 | MIX-051 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-052 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S2 |
-| MIX-052 | first villager's personality (sensitivity edit) | blunt | stubborn | S1 |
+| MIX-052 | choice B outcome 2 (sensitivity edit) | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | S13 |
+| MIX-052 | choice C outcome 1 (sensitivity edit) | Two different customs coexist without either disappearing. | The person most affected feels heard and makes their own choice. | S11 |
 | MIX-053 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
 | MIX-053 | second villager's personality | forgetful | thoughtful | role le_role_elderly_villager x personality le_pers_forgetful |
 | MIX-054 | first villager (doubled word, grammar fix) | a skeptical a skeptical observer | a skeptical observer | role le_role_skeptical_observer x personality le_pers_skeptical |

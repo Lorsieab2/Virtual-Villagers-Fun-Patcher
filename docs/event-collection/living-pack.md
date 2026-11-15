@@ -28,6 +28,11 @@ ASCII.
   | description | the seed's sentence (typography made plain), in this game's words: a seed that names the chief says "The village leader" / "the village leader's" / "A village leader" outside VV3 |
   | Guardians title / description | empty (no living text says "Heathen" or "convert") |
 
+- **Guardians of Isola (New Believers).** No living text says "Heathen", "convert" or "conversion" (the bank's
+  only such line is the MC safety contract, never shown), so the rows' Guardians cells are empty and the blobs carry
+  no Guardians variants: an event reads the same with the patch on and off. A future line that needs it takes the
+  collection's own Guardians variants (cie-v6-binary.md 18, guardians-wording.md);
+  `tests/test_living_runtime.py GuardiansOfIsola` fails the day one appears without them.
 - **The id prefix `living_`** tells the engine that the row's event is in `living.pak`, not in `<id>.cieg`. No
   `living_*.cieg` file ever ships. The manifest row's id equals the pack's seed id (2.2).
 - MJ (the 35 held seeds) has no rows and no variants until the owner's outcomes arrive.
@@ -65,7 +70,9 @@ order. Every offset is from the start of the file.
 | 62 | `H` | 0 |
 
 The loader refuses a pack whose magic, version, header bytes, file bytes, crc or any offset / count does not fit
-the file.
+the file, or a seed's mood above 2. The engine's limits (static buffers, no heap): a pack of at most 8 MB, at most
+16,384 variants, 64 roles, 255 archetypes and 255 lenses (the packs hold about 1,250 variants, 30 roles, 38
+archetypes, 15 lenses).
 
 ### 2.2 Seed record (16 bytes, S of them)
 
@@ -78,7 +85,8 @@ the file.
 | 8 | `B` | bank: 0 Living Engine (LE), 1 MC |
 | 9 | `B` | category index within the bank (LE 0..11 in bank order PER, FAM, CEL, ART, ANI, BEL, GOV, OTH, FOO, EMO, RES, ODD; MC 0..5: ISL, DIS, AFT, LOS, TRA, BEL) |
 | 10 | `H` | the seed's index in the bank's own list (LE `seeds[]` 0..119, MC `mc.situations[]` 0..94) |
-| 12 | `I` | 0 |
+| 12 | `B` | mood: 0 warm, 1 social, 2 serious -- its category's (`bank.json` `categories[].mood`, `mc.categories[].mood`; section 4.1a) |
+| 13 | `3s` | 0 |
 
 Seeds are in manifest order (LE categories in bank order, then MC), each seed's variants consecutive, in `k` order.
 
@@ -132,7 +140,7 @@ each finish.
 | 8 | `I` | file bytes |
 | 12 | `I` | crc32 of the whole file with this field 0 |
 | 16 | `I` | the pack's crc32 (VLEP +12) these counts belong to |
-| 20 | `I` | roster signature (engine-defined, `lv_roster_sig`; Python never computes it) |
+| 20 | `I` | roster signature (`lv_roster_sig`, below; Python never computes it) |
 | 24 | `H` | ring used (0..64) |
 | 26 | `H` | ring head: the next slot written (0..63) |
 | 28 | `H` | seed count S (the pack's) |
@@ -146,11 +154,18 @@ each finish.
 | 48 | `H` x 64 | the ring: the seed index of each recent arm, `NONE` empty |
 | 176 | `H` x R*R | role-pair uses, key `min(a, b) * R + max(a, b)` |
 | +  | `H` x L | lens uses |
-| +  | `H` x 64 | family-set uses (by the family-set byte) |
+| +  | `H` x 128 | family-set uses (by the family-set byte: bits 0..6, so 128 values) |
 | +  | `H` x A | archetype uses (outcomes reached) |
 | +  | `H` x V | variant uses (by the pack's variant index) |
 
-Counts stop at 65535. File bytes = 176 + 2 (R*R + L + 64 + A + V).
+Counts stop at 65535. File bytes = 176 + 2 (R*R + L + 128 + A + V).
+
+**The roster signature** (`lv_roster_sig`, story_living.inc): the identity (`story_title_identity`, 0 read as 1) of
+the youngest villager among the village's records when the file is written -- the smallest identity among the
+youngest -- or 0 when there is nobody. A file is this village's when that villager is still among its records (a
+signature of 0 never matches). The youngest is the villager most likely to be there at the next event; one who has
+gone since only costs a fresh history. The file is per save slot, and Start Over or a deleted tribe deletes it
+(`VvfpStoryVillageReset`), so the signature only guards against a file that is not this village's at all.
 
 ## 4. Choosing at run time
 
@@ -159,6 +174,23 @@ Counts stop at 65535. File bytes = 176 + 2 (R*R + L + 64 + A + V).
 W = min(64, S_game / 3) (integer division), where S_game is the number of living rows this game lists. A seed whose
 index is among the last W ring entries (newest first, from ring head - 1 backwards) is left out of the draw
 (`left[i] = 0`). Then the collection's draw runs as for every row (a series counts once).
+
+### 4.1a Moods (the owner's Global Editorial Override)
+
+The override (2026-11-14) asks for roughly one third warm / funny / ordinary, one third curious / social / mixed and
+one third serious / solemn / mysterious, with no clusters of one mood. Each category has a mood (the seed record's
+byte 12):
+
+| Mood | Living Engine categories | MC categories |
+|---|---|---|
+| warm (0) | PER, CEL, FOO, ODD | -- |
+| social (1) | FAM, ART, ANI, OTH | ISL, BEL |
+| serious (2) | BEL, GOV, EMO, RES | DIS, AFT, LOS, TRA |
+
+Before the draw, the moods of the seeds in the ring (every entry used, up to 64) are counted. When the three counts
+are not all equal, every living series whose mood has the fewest weighs `LV_MOOD_BOOST` = 2 in the draw instead of 1
+(a series is one category, so all its rows share the mood); every other series, and every other collection event,
+keeps its weight. Python twin: `History.mood_weights` (vv_living_mixer.py).
 
 ### 4.2 Ordering a seed's variants (`lv_order`; Python twin `vv_living_mixer.lv_order`)
 
@@ -170,6 +202,14 @@ order of those left); variant i is next in the order and is taken out. The engin
 under STRICT casting; the first that casts is armed. None casts: the seed is not possible now (the draw moves on as
 for any collection entry that cannot be cast).
 
+### 4.2a The exclusion hook
+
+Every path that tries a variant (the rare roll, Pick Island Event, the library) first asks `lv_excluded(game, seed,
+variant)`. It excludes nothing yet: it is the one place for the owner's coming rules (answers of 2026-11-15: Q21
+serious-event cooldowns of 30 / 60 in-game days per villager and immediate family; Q29 subject filters), which can
+read the variant's outcome records (2.4) before it is chosen. The Python side lists every archetype's group, tags and
+effects (`vv_living_mixer.outcome_categories`) for the same filters.
+
 ### 4.3 Recording
 
 - **Armed:** the seed index goes into the ring at the head (head = (head + 1) % 64, used = min(64, used + 1)); pair,
@@ -179,12 +219,16 @@ for any collection entry that cannot be cast).
 ### 4.4 Pick Island Event and the library
 
 A living row is possible when any of its variants for this game casts (strict casting for Pick, the library's own
-casting for a purchase). The variant used is chosen by 4.2 as well.
+casting for a purchase). The variant used is chosen by 4.2 as well. In the library a living row's entry is named
+"Isola Grand Event Collection: <title>: <its sentence>" (the seeds of a category share a title); its internal path
+is `?living:<id>`, which no file can have. The library holds up to 1,024 entries (`CG_LIBRARY_MAX`).
 
 ## 5. Variants (what the mixer writes)
 
-- **K = 10 variants per active seed** (LE 120, MC 95), numbered k = 0..9, the same numbers in every game's pack; a
-  variant whose cast or seed some game cannot show is left out of that game's pack only.
+- **K = 10 variants per Living Engine seed** (120), numbered k = 0..9, the same numbers in every game's pack; a
+  variant whose cast or seed some game cannot show is left out of that game's pack only. **An MC situation ships one
+  variant (MC_K = 1, lead 2026-11-14)**: its other variants only reordered its four approaches (near duplicates, about
+  2 MB a pack).
 - **k = 0 of a seed with a MIX example is that MIX** (flags bit 0), with the documented changes for the 15 MIX that
   break the compatibility rules (living-events.md section 7).
 - **LE variant shape:** the start is a question: the seed sentence and the frame (living-events.md section 1), with
@@ -192,6 +236,6 @@ casting for a purchase). The variant used is chosen by 4.2 as well.
   fixed only for a MIX) and 3 to 5 choices (the category's choice set, or approaches from different families). Each
   choice is a branch to a GOOD (weight 20), an adverse MIXED or BAD (20) and a RARE (2) archetype page. Archetype
   pages are shared nodes, carrying their effects, with automatic lines (`auto_text`) when they have any.
-- **MC variant shape:** the situation's setup, its four approaches (k = 0 in the source order; k = 1..9 the other
-  orders, each a distinct ordering) and each approach's two authored outcomes, equally likely.
+- **MC variant shape:** the situation's setup, its four approaches in the source order (k = 0; `mc_orders` can
+  still give other orders when asked) and each approach's two authored outcomes, equally likely.
 - Ordering, casting and history never change a variant's text: everything shown is in the blob.
