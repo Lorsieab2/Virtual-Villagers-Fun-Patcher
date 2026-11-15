@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Ordinary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif25_ordinary",
+  "source": "draft_lif",
+  "lines": [
+   290,
+   293
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L290",
+  "ledger": [
+   {
+    "src": "L291",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 45 or older; a single popup, no choice)"
+   }
+  ],
+  "description": "A villager who was never the best at anything shells beans in the evening sun and finds an ordinary life holds a lot.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) has never been the best at anything. Not the best fisher, not the best builder, not the best cook, not the best singer. There are no songs about (him/her) and no carvings. When (he/she) was young, that bothered (him/her) a great deal. Today, sitting on (his/her) doorstep shelling beans in the evening sun, with neighbors calling hello as they pass, a child asleep on the mat nearby after being read the same story four times, and a pot of something (he/she) made bubbling gently on the fire, (name1) realizes (he/she) hasn't thought about being the best at anything for years. (He/she) has been too busy living. (He/she) shells another bean, and another, and finds that a very ordinary life, looked at closely, has a lot in it.",
+   "src": "L293"
+  }
+ }
+}

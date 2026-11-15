@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gecko's Tail",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat41_gecko_tail",
+  "source": "draft_nat",
+  "lines": [
+   482,
+   491
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L482",
+  "ledger": [
+   {
+    "src": "L483",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 3-10 and an adult)"
+   }
+  ],
+  "description": "A small child grabbed a gecko by the tail and the tail came off: explain about geckos, or help the child make it right.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) tried to catch a gecko on the wall, and grabbed it by the tail, and the tail came off in (subject.his/her) hand. The gecko ran away. The tail is still wiggling. (subject) is horrified and has started crying, sure (subject.he/she) has hurt it terribly. (friend) comes over to see what's wrong.",
+   "src": "L485",
+   "choices": [
+    {
+     "label": "Explain About Geckos",
+     "next": "o1",
+     "src": "L487"
+    },
+    {
+     "label": "Help (subject.him/her) Make It Right",
+     "next": "o2",
+     "src": "L490"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) crouches down and explains that geckos can drop their tails on purpose when something grabs them, so they can get away. It's what tails are for, partly. It will grow another one, though it won't be quite the same. (subject) sniffs. \"Did it hurt?\" \"It got away,\" says (friend). \"That's what it wanted.\" (subject) decides never to grab a gecko again. A week later (subject.he/she) sees one with a short new tail and is very relieved.",
+   "src": "L488"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) wants to do something. (friend) suggests leaving a little bowl of water under the eaves for the gecko, wherever it went. (subject) does, very carefully, and checks it every morning. Whether the gecko drinks from it, nobody knows. A week later (subject) spots a gecko with a stumpy tail and is certain it's the same one, and that it has forgiven (subject.him/her).",
+   "src": "L491"
+  }
+ }
+}

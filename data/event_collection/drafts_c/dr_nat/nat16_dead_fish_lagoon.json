@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Dead Fish in the Lagoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat16_dead_fish_lagoon",
+  "source": "draft_nat",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a scientist or an elder)"
+   }
+  ],
+  "description": "After hot, still days, dead fish are floating in the lagoon: look into it, or keep everyone away and wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a long stretch of hot, still days, the village wakes up to find dead fish floating in the shallow lagoon. Not many. Enough. Some people are frightened that the water has gone bad, or that something has poisoned it. (subject) runs to find (friend).",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Look Into It",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Keep Everyone Away and Wait",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) wades in, tastes the water, stirs the mud, and watches for a long time. \"It's too warm and too still,\" (friend.he/she) says at last. \"I think the fish ran out of something they needed in the water. I THINK. I'm not sure.\" The village keeps the children out of the lagoon until the wind changes. When it finally does, the water freshens and no more fish die. Nobody is completely certain why it happened.",
+   "src": "L194",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L194"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to guess. The lagoon is closed to everyone, and the fish are buried well away from it. The village draws water from the stream instead, which means a much longer walk. After a few days of wind, the lagoon looks normal again. Small fish come back. People start swimming again, slowly, cautiously. Whatever it was, it didn't leave a note.",
+   "src": "L197"
+  }
+ }
+}

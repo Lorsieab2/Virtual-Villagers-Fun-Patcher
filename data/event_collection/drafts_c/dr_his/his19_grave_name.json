@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grave with No Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his19_grave_name",
+  "source": "draft_his",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-13 and an elder)"
+   }
+  ],
+  "description": "A child brings flowers to an old grave with no name, and an elder follows: ask who it is, or leave the flowers quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Out past the gardens, under a tree, there's a single old grave, marked only with a ring of white stones. No carving, no name. Nobody visits it. (subject) found it while chasing a lizard and has come back with a handful of flowers. (friend) has followed (subject.him/her).",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Ask Who It Is",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Leave the Flowers Quietly",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks (friend) who's buried there. (friend) doesn't know. Nobody does. It's older than anyone's memory. \"Then who brings them flowers?\" asks (subject). \"Nobody,\" says (friend). (subject) puts the flowers down. \"I do now.\" (friend) helps (subject.him/her) straighten the white stones. They don't need to know who it is. Someone should remember there's someone there.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't ask anything. (subject.He/she) just puts the flowers on the grave and stands there for a moment, very serious, the way (subject.he/she) has seen grown-ups do. (friend) stands beside (subject.him/her). Then (subject) goes back to chasing lizards. (friend) stays a little longer. On the way home, (friend.he/she) picks a few more flowers and goes back.",
+   "src": "L233"
+  }
+ }
+}

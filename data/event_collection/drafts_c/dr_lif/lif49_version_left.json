@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Version Who Left",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif49_version_left",
+  "source": "draft_lif",
+  "lines": [
+   566,
+   575
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L566",
+  "ledger": [
+   {
+    "src": "L567",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older)"
+   }
+  ],
+  "description": "A villager imagines the self who left Isola with the explorers: wave to the other one, or wonder if they are happy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Long ago, (name1) had the chance to leave Isola, to go out across the sea with a group of explorers who never came back to stay. (He/she) said no. Today, standing on the beach looking out at the horizon, (he/she) finds (him/her)self imagining the other version of (him/her)self: the one who went. Somewhere out there, living some other life.",
+   "src": "L569",
+   "choices": [
+    {
+     "label": "Wave to the Other One",
+     "next": "o1",
+     "src": "L571"
+    },
+    {
+     "label": "Wonder If They're Happy",
+     "next": "o2",
+     "src": "L574"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) imagines that other self, older now too, standing on some faraway beach, looking back this way and wondering about the one who stayed. (He/she) feels silly. (He/she) waves anyway, at the empty sea. \"Hope it's going well,\" (he/she) says. \"It's going fine here.\" Then (he/she) goes home for dinner, which is fish, which is good.",
+   "src": "L572"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) wonders if the other version is happy. Happier? Less happy? Just different? (He/she) can't know. Nobody ever can. (He/she) thinks about all the things (he/she) would have missed if (he/she) had gone. Then about all the things (he/she) missed by staying. It comes out about even. That's probably the truth of it. (He/she) picks up a shell and walks home.",
+   "src": "L575"
+  }
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Compliment That Stuck",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif02_compliment_stuck",
+  "source": "draft_lif",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older)"
+   },
+   {
+    "src": "L29",
+    "kind": "sensitivity",
+    "before": "watches a young villager patiently",
+    "after": "watches (young_villager), a young villager, patiently",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L29",
+    "kind": "sensitivity",
+    "before": "The young villager looks startled",
+    "after": "(young_villager) looks startled",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager still remembers a stranger once saying they had kind hands: tell a friend, or pass a kind word on.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "young_villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "young_villager": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, someone (subject.he/she) barely knew watched (subject.him/her) bandage a child's knee and said, in passing, \"You've got kind hands.\" That was all. They probably forgot it the next minute. Today, bandaging another scraped knee, (subject) realizes (subject.he/she) has thought about that sentence almost every day of (subject.his/her) life since.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Tell Someone",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Pass One On",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about it. \"Isn't it strange? A stranger said four words to me, and I've been trying to live up to them ever since.\" (friend) thinks about it, then says, \"Well. You have kind hands.\" (subject) laughs. \"Don't. I'll be stuck with that one too.\" But (subject.he/she) smiles about it all evening.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to do the same thing for somebody else. At the fire that night, (subject.he/she) watches (young_villager), a young villager, patiently untangling a toddler's hair, and says, as lightly as (subject.he/she) can, \"You're very patient.\" (young_villager) looks startled, then pleased. (subject) has no idea if it'll stick. (subject.He/she) hopes it might.",
+   "src": "L29"
+  }
+ }
+}

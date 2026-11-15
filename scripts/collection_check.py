@@ -77,7 +77,8 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
             "rm",                                # Role Models and Good Examples (data/event_collection/rolemodels/)
             *lib.DRAFTS_A) \
-    + tuple(v[2] for v in lib.DRAFTS_B.values())  # the drafts: set A (drafts_a/), group B (drafts_b/)
+    + tuple(v[2] for v in lib.DRAFTS_B.values()) \
+    + tuple(v[2] for v in lib.DRAFTS_C.values())  # the drafts: set A (drafts_a/), groups B and C (drafts_b/, drafts_c/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case")
@@ -1375,7 +1376,7 @@ def collection_files() -> list[Path]:
     return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
-                  + list(lib.DRAFTS_B_DIR.glob("*/*.json")))
+                  + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

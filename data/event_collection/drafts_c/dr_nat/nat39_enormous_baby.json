@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Enormous Baby Bird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat39_enormous_baby",
+  "source": "draft_nat",
+  "lines": [
+   458,
+   467
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L458",
+  "ledger": [
+   {
+    "src": "L459",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-13 and an adult)"
+   }
+  ],
+  "description": "A child asks why a tiny bird's chick is twice its size: tell the child the truth, or let them watch and wonder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In a small nest in the hedge, a tiny brown bird is feeding a chick. The chick is enormous, more than twice the size of its parent, and screams constantly for more food. The tiny bird is wearing itself out. (subject) has been watching for days, and something about it seems very wrong to (subject.him/her). (subject.He/she) asks (friend) why the baby is so big.",
+   "src": "L461",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L461"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Tell (subject.him/her) the Truth",
+     "next": "o1",
+     "src": "L463"
+    },
+    {
+     "label": "Let (subject.him/her) Watch and Wonder",
+     "next": "o2",
+     "src": "L466"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) explains, gently: some birds lay their eggs in other birds' nests, and the other birds raise their chicks as their own. The big chick isn't the tiny bird's chick at all. (subject) is outraged. \"That's CHEATING.\" (friend) says that's just how that kind of bird lives. It isn't wicked. It just is. (subject) doesn't like it one bit. (subject.He/she) keeps watching anyway, and is secretly relieved when the giant chick finally flies off.",
+   "src": "L464"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says, \"Keep watching. See what happens.\" (subject) does. The giant chick grows. The tiny parent keeps feeding it, never giving up. Then one day the chick flies away and doesn't come back, and the tiny bird sits on the edge of the empty nest. (subject) goes home and asks (friend) about it, and (friend) tells (subject.him/her). (subject) thinks the tiny bird was the bravest thing (subject.he/she) ever saw.",
+   "src": "L467"
+  }
+ }
+}

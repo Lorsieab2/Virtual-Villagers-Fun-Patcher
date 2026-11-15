@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall Under the Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his30_wall_under_water",
+  "source": "draft_his",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a fisher or an adult and another adult)"
+   }
+  ],
+  "description": "At very low tide a villager sees an old wall of fitted stones under the water: wade out and look, or watch from the beach.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At very low tide, out beyond the beach, (subject) has noticed something that only shows a few times a year: a long line of big fitted stones, running parallel to the shore, under the water most of the time. It's a wall. Someone built it a long time ago, maybe to hold back the sea, or trap fish, or something else entirely.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Wade Out and Look",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Watch from the Beach",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) wade out along it while the tide is low. The stones are huge, carefully fitted, covered in weed and tiny shellfish. There's a gap in the middle that might have been a gate. Little fish dart through it. \"Fish trap,\" says (friend) firmly. \"Sea wall,\" says (subject). The tide starts coming in, and the argument comes back to shore with them, unfinished.",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They stay on the beach and watch the wall slowly disappear as the tide comes back in. (subject) wonders who built it, and when, and whether the beach was further out back then. (friend) wonders how they carried the stones. By the time it's gone under, they've invented the whole history of a village that probably never existed. It's a good history. They might tell the children.",
+   "src": "L365",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L365"
+    }
+   ]
+  }
+ }
+}

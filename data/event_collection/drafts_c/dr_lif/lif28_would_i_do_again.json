@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Would I Do It Again?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif28_would_i_do_again",
+  "source": "draft_lif",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   }
+  ],
+  "description": "A villager lies awake wondering if they would make their biggest choice again: decide yes, probably, or decide they do not know.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) is lying awake, asking (him/her)self a question (he/she) has never quite asked before: if (he/she) could go back to the biggest choice of (his/her) life, would (he/she) make the same one? (He/she) knows which choice it was. (He/she) thinks about it until the frogs stop singing.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Decide Yes, Probably",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Decide You Don't Know",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Yes, probably. Not because it all went well; it didn't. Some of it was very hard. But the hard parts came with the good parts, tangled up together, and (he/she) can't pull them apart. \"Yes,\" (he/she) whispers to the dark, \"but I'd do some of it differently.\" That seems like an honest answer. (He/she) falls asleep at last.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(He/she) can't decide. Some nights the answer is yes. Some nights it's no. Some nights it's \"the other way would have been just as good, and just as hard.\" (name1) realizes (he/she) might never know, and that it doesn't change anything either way. (He/she) made the choice. (He/she) lived it. (He/she) turns over and goes to sleep.",
+   "src": "L329"
+  }
+ }
+}

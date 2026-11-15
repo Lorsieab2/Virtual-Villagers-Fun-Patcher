@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Grandparents, One Grandchild",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam245_two",
+  "source": "draft_fam2",
+  "lines": [
+   530,
+   539
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L530",
+  "ledger": [
+   {
+    "src": "L531",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders who are grandparents of the same child aged 3-9 (where the game records it)"
+   }
+  ],
+  "description": "Two grandparents both want to be the favorite of one little grandchild: let the child choose, or notice what they are doing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "grandparent_of": "third"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "grandparent_of": "third"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are both grandparents of little (third), and they are both determined to be the favorite. (subject) has brought (third.him/her) a carved turtle. (friend) has brought (third.him/her) a carved turtle AND a honey cake. They are now standing on either side of (third), each holding out a gift, smiling a little too hard.",
+   "src": "L533",
+   "choices": [
+    {
+     "label": "Let (third) Choose",
+     "next": "o1",
+     "src": "L535"
+    },
+    {
+     "label": "The Grandparents Notice What They're Doing",
+     "next": "o2",
+     "src": "L538"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) looks at both turtles very seriously. Then (third.he/she) takes both, puts them together and says, \"They're married now.\" (third.He/she) eats the honey cake. Then (third.he/she) climbs onto (subject)'s lap and holds (friend)'s hand at the same time. Both grandparents melt. Neither of them won. Both of them did.",
+   "src": "L536"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) look at each other over (third)'s head and both start to laugh. \"We're being ridiculous,\" says (friend). \"Completely,\" says (subject). They sit down together and help (third) make a house for the two turtles. After that, they still compete a little. But mostly they team up. They're much more effective that way.",
+   "src": "L539"
+  }
+ }
+}

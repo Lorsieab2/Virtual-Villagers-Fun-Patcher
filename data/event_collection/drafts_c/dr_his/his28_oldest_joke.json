@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Oldest Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his28_oldest_joke",
+  "source": "draft_his",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   },
+   {
+    "src": "L341",
+    "kind": "sensitivity",
+    "before": "asks the oldest villager, who laughs",
+    "after": "asks (elder), the oldest villager, who laughs",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A young villager realizes nobody knows why Isola's oldest joke is funny: ask an elder, or work out what the tall one was.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a joke that's been told on Isola for generations. It goes: \"Why did the fisher bring a ladder to the reef?\" And the answer is: \"Because of the tall one.\" Everyone laughs. Every single time. (friend), who has heard it all (friend.his/her) life, has just realized (friend.he/she) has absolutely no idea why it's funny.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Ask (subject) to Explain",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Try to Work Out What the Tall One Was",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) opens (subject.his/her) mouth to explain, stops, frowns, and thinks. \"Because... the tall one... there was a tall one, and...\" (subject.He/she) gives up. \"I don't know either.\" They ask around. Nobody knows. Everyone laughs anyway. (friend) decides it's the greatest joke ever told, precisely because nobody understands it anymore. (friend.He/she) tells it at every fire for a month.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is determined. The tall one was a fish? A wave? A person? (friend.He/she) asks (elder), the oldest villager, who laughs so hard at the question that no answer ever comes. Eventually (friend) decides the tall one is a lost piece of history and that's that. At the next fire, someone tells the joke, and (friend) laughs louder than anyone.",
+   "src": "L341"
+  }
+ }
+}

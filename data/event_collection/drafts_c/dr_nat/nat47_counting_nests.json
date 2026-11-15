@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Counting the Nests",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat47_counting_nests",
+  "source": "draft_nat",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a scientist or an adult and a child aged 6-13)"
+   }
+  ],
+  "description": "A villager and a child count the seabird nests, and each year's stick is shorter: ask why, or keep counting.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every year, (subject) goes out to the seabird cliffs to count the nests. It's a slow, windy, noisy job, and this year (friend) is coming to help. They count all day, marking each nest with a notch on a stick. At the end, (subject) lays this year's stick beside last year's, and the one from the year before. Each one is a little shorter.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Ask Why",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Keep Counting",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks why there are fewer. (subject) doesn't know. Fewer fish? Rats from somewhere? Storms? People taking eggs? \"Maybe all of those,\" (subject.he/she) says. \"Maybe none. That's why we keep counting. One day the sticks might tell us.\" (friend) takes it very seriously. (friend.He/she) asks if (friend.he/she) can count again next year. (subject) says yes.",
+   "src": "L554"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They don't talk about it much. They just put the sticks away carefully in the basket with all the others, years and years of them. On the walk home, (friend) asks if the sticks will ever get longer again. \"Some years they have,\" says (subject). \"Not lately. But some years they have.\" (friend) decides to count extra carefully next year, just in case it helps.",
+   "src": "L557"
+  }
+ }
+}

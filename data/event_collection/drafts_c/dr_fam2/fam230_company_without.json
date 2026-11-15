@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Company Without Romance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam230_company_without",
+  "source": "draft_fam2",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults; any sexes)"
+   }
+  ],
+  "description": "A friend asks to be more than friends, but the villager does not feel romance for anyone: explain, or ask for time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been spending a lot of time with (subject) lately: fishing together, eating together, laughing at the fire. Today (friend) takes a deep breath and says (friend.he/she) would like to be more than friends. (subject) smiles, a little sadly. (subject.He/she) has known for a while that romance just isn't something (subject.he/she) feels, for anyone.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Ask for Time",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I love spending time with you,\" says (subject). \"But I don't feel romance. Not for you, not for anyone. I never have. It's not about you.\" (friend) is quiet. \"Oh,\" (friend.he/she) says. \"I didn't know.\" \"Not many people do,\" says (subject). \"Can we still fish tomorrow?\" (friend) thinks about it. \"Yes,\" (friend.he/she) says. \"I think I'd like that.\"",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Can I think about how to say something?\" asks (subject). (friend) nods, nervous. The next day (subject) explains: (subject.he/she) doesn't feel romance, and never has. It isn't a no to (friend), exactly. It's just how (friend.he/she) is. (friend) is disappointed, and says so. But (friend.he/she) keeps coming to fish. After a while, the disappointment fades. The friendship doesn't.",
+   "src": "L365"
+  }
+ }
+}

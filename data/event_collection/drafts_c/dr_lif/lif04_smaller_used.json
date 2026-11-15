@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Smaller Than It Used to Be",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif04_smaller_used",
+  "source": "draft_lif",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older)"
+   },
+   {
+    "src": "L50",
+    "kind": "sensitivity",
+    "before": "A child appears on the bank",
+    "after": "(child), a child, appears on the bank",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L50",
+    "kind": "sensitivity",
+    "before": "The child accepts.",
+    "after": "(child) accepts.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager finds the rock pool of their childhood is tiny: jump off the giant rock anyway, or sit and remember.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has wandered down to the rock pool where (subject.he/she) used to play as a child. It's the same pool. It must be. But it's tiny. The \"giant\" rock (subject.he/she) used to jump off is about knee high. The \"deep end\" barely covers (subject.his/her) ankles. (subject.He/she) stands there in the water, trying to make sense of it.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Jump Off the Rock Anyway",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Sit and Remember",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) climbs up onto the giant rock, all the way to knee height, looks around to make sure nobody's watching, and jumps. It's a very short jump. It's also exactly as much fun as it used to be. (subject.He/she) does it four more times. (child), a child, appears on the bank and watches gravely. (subject) offers the rock. (child) accepts.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits on the edge and lets (subject.his/her) feet dangle in the water. The pool hasn't changed. (subject.He/she) has. It isn't sad, exactly. It's strange and a little funny, to have been so small once that this was an ocean. (subject.He/she) looks at (subject.his/her) big feet in the little pool and smiles. Then (subject.he/she) goes home, a bit taller than (subject.he/she) came.",
+   "src": "L53"
+  }
+ }
+}

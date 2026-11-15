@@ -1000,6 +1000,44 @@ def _drafts_b_rows() -> None:
 
 _drafts_b_rows()
 
+# ---- The owner-approved draft event files, group C (collection_lib.DRAFTS_C), wired as group B ------------------------
+#
+# The same shape, plus: an event may offer three choices (HEA-15), and a heading's "(VV5 only)" tag is a game note
+# (the row is New Believers only; the tag is cut from the title).  Built by scripts/drafts_c/gen_drafts_c.py.
+
+for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_C.items():
+    CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
+DRAFTS_C_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_C.items()}      # source id -> its one series (the section)
+DRAFTS_C_VV5_TAG = " (VV5 only)"
+
+
+def _drafts_c_rows() -> None:
+    for sid, (topic, _n, sec, pre) in lib.DRAFTS_C.items():
+        with lib.use_source(sid):
+            heads = [n for n in range(1, lib.n_lines() + 1) if re.match(rf"^{pre}-\d\d\. ", lib.line(n))]
+            notes = next(n for n in range(1, lib.n_lines() + 1) if lib.line(n).startswith("NOTES FOR THE OWNER"))
+            last = max(n for n in range(1, lib.n_lines() + 1) if lib.line(n).strip())
+            N(f"{sec}_notes_intro", f"{topic}: title, premise and how to read the draft", 1, 5, sec, sec, source=sid)
+            N(f"{sec}_notes_end", f"{topic}: notes for the owner", notes, last, sec, sec, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else notes
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                games = ALL
+                if src_title.endswith(DRAFTS_C_VV5_TAG):
+                    games, src_title = [5], src_title[:-len(DRAFTS_C_VV5_TAG)]
+                eid = f"{pre.lower()}{num}"
+                nc = sum(1 for n in range(h + 2, e + 1) if re.match(r"^[^.!?]{1,80}:$", lib.line(n).strip()))
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title.replace('"', '')),              # a title holds no '"' (gap G6)
+                  games, h, e, "event", sec, sec, nc, series=sec, source=sid, choice_re=r"^[^.!?]{1,80}:$")
+
+
+_drafts_c_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1345,6 +1383,8 @@ def build() -> dict:
         "drafts_a": {sid: whole_file(sid, lib.SOURCES[sid][0], (sid,)) for sid in lib.DRAFTS_A},
         # The approved drafts, group B (collection_lib.DRAFTS_B): rows with "source" "draft_hum", ...
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_B_SERIES[sid],)) for sid in lib.DRAFTS_B},
+        # The approved drafts, group C (collection_lib.DRAFTS_C): rows with "source" "draft_hea", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_C_SERIES[sid],)) for sid in lib.DRAFTS_C},
         "rows": rows,
     }
 
@@ -1372,7 +1412,7 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

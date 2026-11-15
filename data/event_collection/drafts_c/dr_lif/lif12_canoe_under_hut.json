@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Under the Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif12_canoe_under_hut",
+  "source": "draft_lif",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   },
+   {
+    "src": "L143",
+    "kind": "sensitivity",
+    "before": "gives it to a young villager who's been wanting a canoe of their own",
+    "after": "gives it to (young_villager), a young villager who's been wanting a canoe of (young_villager.his/her) own",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L143",
+    "kind": "sensitivity",
+    "before": "The young villager finishes it",
+    "after": "(young_villager) finishes it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager unwraps the half-built canoe they started long ago: finish it at last, or give it to someone else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "young_villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "young_villager": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Under (subject)'s hut, wrapped in palm leaves, is a canoe (subject.he/she) started building a very long time ago. It's half finished. The hull is shaped, but there's no outrigger, no seat, no paint. Every year, (subject.he/she) means to get back to it. Today, looking for a lost basket, (subject.he/she) unwraps it for the first time in years.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Finish It",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Give It to Someone Else",
+     "next": "o2",
+     "src": "L142"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides that this is the year. It takes all season, mostly in evenings. Some of the wood has to be replaced. Some of (subject.his/her) old work, (subject.he/she) realizes, wasn't very good, and (subject.he/she) redoes it. When it's finally done, (subject.he/she) paddles it out past the reef, alone, at dawn. It's a good canoe. It's taken half (subject.his/her) life. (subject.He/she) decides that's not too long for a good canoe.",
+   "src": "L140"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks at it for a long time and realizes (subject.he/she) doesn't want to finish it. (subject.He/she) wanted to want to finish it. That's different. (subject.He/she) gives it to (young_villager), a young villager who's been wanting a canoe of (young_villager.his/her) own. (young_villager) finishes it in a month, slightly badly, and paddles out grinning. (subject) watches from the beach and feels lighter than (subject.he/she) has in years.",
+   "src": "L143"
+  }
+ }
+}

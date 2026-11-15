@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Days",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div39_grey_days",
+  "source": "draft_div",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another villager; in the story (name1) has long stretches of heavy, low mood)"
+   }
+  ],
+  "description": "A villager in one of their grey stretches has missed the fire for three nights: bring food and ask nothing, or ask about company.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every so often, for a few weeks at a time, (subject) has what (subject.he/she) calls the grey days. Everything gets heavy. Getting up takes a long time. Talking is hard. It isn't anyone's fault, and it isn't (subject.his/her) fault. It comes, and eventually it lifts. This is one of those weeks. (friend) has noticed (subject) hasn't been at the fire for three nights.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Bring Food and Ask Nothing",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Ask If (subject.He/she) Wants Company",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) leaves a covered bowl of stew at (subject)'s door and goes away. The next day, the bowl is empty and back on (friend)'s step. (friend) does it again. And again. On the fifth day, (subject) is sitting outside when (friend.he/she) comes. \"Thank you,\" (subject.he/she) says. \"It's still grey.\" \"I know,\" says (friend), and sits beside (subject.him/her) for a while. Nothing is fixed. It helps a bit.",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) knocks and asks, quietly, if (subject) wants company or wants to be left alone. \"Alone,\" says (subject). \"But come back tomorrow and ask again.\" (friend) does, every day. Most days the answer is the same. Then one day it's, \"Sit for a bit.\" They sit. A few weeks later the grey lifts, as it does, and (subject) is back at the fire. (subject.He/she) saves (friend) a seat.",
+   "src": "L473"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L467",
+   "before": "(his/hers)",
+   "after": "(his/her) fault"
+  }
+ ]
+}

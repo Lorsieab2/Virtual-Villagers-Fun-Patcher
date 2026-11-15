@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Someone Small Lived Here",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his06_someone_lived",
+  "source": "draft_his",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-13)"
+   }
+  ],
+  "description": "In old hearths deep in the forest, a villager and a child find a tiny clay bowl: take it home, or put it back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Deep in the forest, under ferns taller than a person, (subject) and (friend) have found stones arranged in neat circles: old hearths, long cold. There are bits of broken pot in the soil, a worn grinding stone and, half buried by a root, a tiny clay bowl, just the right size for a child's hands.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Take the Bowl Home",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Put It Back Where It Was",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) wants to keep it, and (subject) agrees. They clean it gently in the stream. It's perfect, apart from a chip on the rim. (friend) puts it on the shelf in (friend.his/her) hut and doesn't use it for anything; (friend.he/she) just likes knowing it's there. Sometimes (friend.he/she) wonders who ate from it, and what they ate, and whether they liked it. (friend.He/she) thinks they probably did.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) holds the bowl for a long time. Then (friend.he/she) puts it back, exactly where it was, under the root. \"It's theirs,\" (friend.he/she) says. (subject) doesn't argue. They walk home without saying much. Later (friend) makes a tiny clay bowl of (friend.his/her) own and fires it in the cooking fire. (friend.He/she) uses that one every day.",
+   "src": "L77"
+  }
+ }
+}

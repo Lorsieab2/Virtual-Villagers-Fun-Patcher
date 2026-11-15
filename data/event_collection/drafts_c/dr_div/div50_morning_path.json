@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Morning on the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div50_morning_path",
+  "source": "draft_div",
+  "lines": [
+   596,
+   599
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult; a single popup, no choice)"
+   }
+  ],
+  "description": "On an early walk to the stream, a villager greets neighbors of every shape and shade on a perfectly ordinary morning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) is walking to the stream early, and the village is waking up around (him/her). An elder is out on a walking frame, already halfway to the gardens and complaining about the slope. A woman with a cloud of white hair and a wide-brimmed hat is talking to a man with no hair at all about whether it'll rain. Two deaf fishers are arguing with their hands about a net, and the argument looks very rude. A child on crutches races a child without, and loses, and demands a rematch. Somebody tall ducks under a low branch without looking. Somebody short is lifting a load that would flatten most people. There are faces of every shape and skin of every shade, and everybody is just getting on with the morning. (name1) fills (his/her) water jar and says hello to all of them, and it's a perfectly ordinary day.",
+   "src": "L599"
+  }
+ }
+}

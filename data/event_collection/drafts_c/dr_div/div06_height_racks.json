@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Height of the Racks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div06_height_racks",
+  "source": "draft_div",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a builder or another adult; in the story (name1) has dwarfism and is much shorter than most adults)"
+   }
+  ],
+  "description": "The new drying racks are too tall for a villager with dwarfism: ask for racks at different heights, or bring a step.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is building new fish-drying racks, and (friend) has made them all exactly the same height: just right for (friend.him/her)self. (subject), who has dwarfism and stands at about the height of (friend)'s chest, has been looking at them with (subject.his/her) hands on (subject.his/her) hips. (subject.He/she) could reach the bottom row. Just.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Ask for Racks at Different Heights",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Bring a Step",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Some of us are shorter than you,\" (subject) says. \"Including most of the children who do half the fish work.\" (friend) hadn't thought of that. They build the next row lower, and another lower still. Within a week, everyone is using the low racks: children, elders with sore shoulders, a villager with a bad back. (friend) admits it should have been like that from the start.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't feel like arguing today. (subject.He/she) brings over a sturdy stepping block (subject.he/she) made years ago and gets on with the work. (subject.He/she) works fast and neatly. (friend) watches for a while and then quietly starts building a lower rack beside the others, without saying anything. (subject) notices. (subject.He/she) doesn't say anything either. (subject.He/she) does use it.",
+   "src": "L77"
+  }
+ }
+}

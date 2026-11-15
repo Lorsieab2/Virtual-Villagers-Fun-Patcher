@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Words on the Tip of the Tongue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv24_words_tip_tongue",
+  "source": "draft_adv",
+  "lines": [
+   278,
+   287
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L278",
+  "ledger": [
+   {
+    "src": "L279",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend's coop under the mango tree has scared off every hen, as warned: say I told you so, or do not say it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last week, (subject) told (friend) not to build (friend.his/her) chicken coop under the big mango tree, because the falling mangoes would frighten the hens. (friend) built it there anyway. This morning a mango fell on the roof with a tremendous BONK, and every hen ran screaming into the forest. (subject) and (friend) are now chasing hens together.",
+   "src": "L281",
+   "choices": [
+    {
+     "label": "Say \"I Told You So\"",
+     "next": "o1",
+     "src": "L283"
+    },
+    {
+     "label": "Don't Say It",
+     "next": "o2",
+     "src": "L286"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I did tell you,\" says (subject), between hens. (friend) stops, red-faced. \"Yes. Thank you. Very helpful.\" They chase the rest of the hens in silence. (subject) realizes that saying it felt good for exactly one moment and then not at all. Later, (subject.he/she) helps move the coop without being asked. Neither of them mentions mangoes again.",
+   "src": "L284"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The words are right there. (subject) swallows them. \"Grab that one,\" (subject.he/she) says instead, pointing. They chase hens until midday and end up laughing, covered in feathers. Later (friend) moves the coop by (friend.him/her)self. (friend.He/she) never says (subject) was right. (subject) never needs (friend.him/her) to.",
+   "src": "L287"
+  }
+ }
+}

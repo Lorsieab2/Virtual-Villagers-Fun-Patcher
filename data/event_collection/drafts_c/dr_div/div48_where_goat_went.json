@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where the Goat Went",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div48_where_goat_went",
+  "source": "draft_div",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another villager; in the story (name1) walks with crutches)"
+   }
+  ],
+  "description": "The goat is missing, and a villager on crutches has a hunch: follow the hunch, or check the gardens first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The goat is missing. It has been missing all morning, and half the village is out looking for it, calling its name. (subject) heads off along the cliff path, crutches swinging, and (friend) tags along.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Follow (subject)'s Hunch",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Check the Gardens First",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) has a hunch, and the hunch leads to the old fig tree above the cliff, where the goat is standing on a high branch, chewing calmly, with no idea how to get down. (friend) climbs up. (subject) shouts instructions. The goat ignores both of them, then hops down on its own, lands neatly next to (subject), and eats the end of one of (subject.his/her) crutches. (subject) is outraged. Everyone else is delighted.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) insists the goat will be in the gardens. It isn't. They check the stream. It isn't. They check the beach. It isn't. They come back exhausted to find the goat asleep in (subject)'s hut, on (subject.his/her) sleeping mat. (subject) leans on (subject.his/her) crutches in the doorway and stares at it for a long time. \"Out,\" (subject.he/she) says. The goat doesn't move.",
+   "src": "L581"
+  }
+ }
+}

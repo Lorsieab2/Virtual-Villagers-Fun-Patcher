@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Layers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his50_layers",
+  "source": "draft_his",
+  "lines": [
+   596,
+   599
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-13; a single popup, no choice)"
+   }
+  ],
+  "description": "Digging a hole for fun, a child finds layers of old fires, shells and a red bead, then adds their own layer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) has been digging a hole behind the huts all afternoon, for no reason except that digging is excellent. Near the top it's just dirt. Then, deeper, there's a dark layer full of tiny bits of charcoal, where someone, a long time ago, had a fire. Below that, a layer of broken shells, thousands of them, where someone ate a great many shellfish. Below that, a single bead, red and round, with a hole through it. And below that, just sand, clean and white, from before anyone was here at all. (name1) sits at the bottom of the hole with the bead in (his/her) hand and looks up at the sky, and at the layers going up the sides of the hole like the lines on a shell, each one somebody's whole life. Then (his/her) name is called for dinner, and (he/she) climbs out, and puts the bead in (his/her) pocket, and adds (his/her) own layer: footprints, and a dropped mango skin.",
+   "src": "L599"
+  }
+ }
+}

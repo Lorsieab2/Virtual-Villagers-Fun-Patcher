@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(name2) Was Right, Probably",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv42_right_probably",
+  "source": "draft_adv",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager who refused a friend's advice is seen coming out of the weaver's hut: the friend says nothing, or smiles a little.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A month ago, (friend) suggested that (subject) ask the old weaver for lessons instead of trying to teach (subject.him/her)self from scratch. (subject) said no, quite firmly. Today, after a month of tangled, lumpy, hopeless mats, (subject) quietly went and asked the old weaver for lessons. (friend) has just seen (subject.him/her) coming out of the weaver's hut.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "(friend) Says Nothing",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "(friend) Can't Resist a Little Smile",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) waves. (subject) waves back, a bit stiffly. Neither of them says a word about it. The next time they meet, (subject)'s mat is much better. \"Nice mat,\" says (friend). \"Thank you,\" says (subject). That's all. It's one of the most tactful conversations either of them has ever had.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't say anything. But (friend.he/she) smiles. Just slightly. (subject) narrows (subject.his/her) eyes. \"Don't,\" (subject.he/she) says. \"I didn't!\" says (friend). \"You smiled.\" \"I'm allowed to smile.\" They walk on, both trying very hard not to laugh. (subject) never says (friend) was right. (friend) never needs (subject.him/her) to.",
+   "src": "L497"
+  }
+ }
+}

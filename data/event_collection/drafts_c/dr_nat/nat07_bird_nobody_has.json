@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bird Nobody Has Seen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat07_bird_nobody_has",
+  "source": "draft_nat",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   }
+  ],
+  "description": "An elder sees a red-throated bird thought gone for years: tell the whole village, or keep the place secret.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) comes back from the high forest out of breath and shaking with excitement. (subject.He/she) saw a little bird with a curved beak and a bright red throat. There used to be lots of them, when (subject.he/she) was a child. Nobody has seen one in so long that most people thought they were gone forever. (friend) is the first person (subject) finds to tell.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Tell the Whole Village",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Keep the Place Secret",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The news spreads by lunchtime. By the afternoon, a crowd of hopeful villagers is tramping through the high forest, whispering loudly. Nobody sees the bird. Some of them are fairly sure (subject) saw a different bird. (subject) is certain. (friend) believes (subject.him/her). One bird is not a flock, (friend) says, and it might be the very last one. But it might not.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"If there's one, there might be a nest,\" (friend) says quietly. \"And if there's a nest, it doesn't need forty people stamping around it.\" (subject) agrees. The two of them go back alone, every few days, and sit very still. On the fifth visit, they hear it: a thin, high little song from deep in the leaves. They never do find out if there are any more. They keep going back anyway.",
+   "src": "L89"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Were You Ever Sad?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif09_were_you_ever",
+  "source": "draft_lif",
+  "lines": [
+   98,
+   107
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L98",
+  "ledger": [
+   {
+    "src": "L99",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder who has never married and a child aged 5-12)"
+   }
+  ],
+  "description": "A child asks an elder who never married if they were ever sad about it: answer honestly, or ask why they want to know.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) never married and never wanted to. (subject.He/she) has had a full, busy life: friends, work, a garden that's the envy of the village, and more of the village's children underfoot than (subject.he/she) can count. Today (friend), one of them, asks very seriously, \"Were you sad you didn't get married?\"",
+   "src": "L101",
+   "choices": [
+    {
+     "label": "Answer Honestly",
+     "next": "o1",
+     "src": "L103"
+    },
+    {
+     "label": "Ask Why (friend.He/she) Wants to Know",
+     "next": "o2",
+     "src": "L106"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) thinks about it, because it's a fair question. \"No,\" (subject.he/she) says. \"Sometimes I've been lonely. Everyone is, married or not. But I've never been sad about that.\" (friend) nods slowly. \"I might not get married,\" (friend.he/she) says. \"That's allowed,\" says (subject). \"You might. You might not. You'll find out.\" (friend) seems satisfied, and goes off to dig a hole.",
+   "src": "L104"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks why (friend) wants to know. (friend) shrugs. \"Someone said grown-ups who don't get married are sad.\" (subject) laughs, a big real laugh. \"Do I look sad?\" (friend) looks. (subject) has mud on (subject.his/her) nose and a flower behind (subject.his/her) ear and is holding a giant squash. \"No,\" says (friend). \"Well, then,\" says (subject).",
+   "src": "L107"
+  }
+ }
+}

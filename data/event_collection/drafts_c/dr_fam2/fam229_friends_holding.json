@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Old Friends Holding Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam229_friends_holding",
+  "source": "draft_fam2",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders who are not partners; any sexes)"
+   }
+  ],
+  "description": "Two elder friends hold hands on the way to the beach, and a young villager asks if they are sweethearts: laugh, or answer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been friends since they were children. Their legs aren't what they were, so these days they hold hands when they walk down to the beach, to keep each other steady and because they always have. A young villager, (third), watching them, asks (subject) if they're sweethearts.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "(subject) Laughs",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "(friend) Answers",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Sweethearts? Us?\" (subject) laughs so hard (subject.he/she) has to stop walking. \"No, no. Just friends. Very old friends.\" \"But you hold hands,\" says (third). \"Of course we do,\" says (friend). \"You hold hands with people you love. That's not only for sweethearts.\" (third) thinks about this all day. The next morning, (third.he/she) holds (third.his/her) friend's hand on the way to the stream.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"We're friends,\" says (friend). \"Have been for sixty years. Holding hands is just how we walk.\" (third) nods slowly. \"That's nice,\" (third.he/she) says. \"It is,\" says (subject). They carry on to the beach, slow and steady, still holding hands, arguing gently about which of them is slowing the other down.",
+   "src": "L353"
+  }
+ }
+}

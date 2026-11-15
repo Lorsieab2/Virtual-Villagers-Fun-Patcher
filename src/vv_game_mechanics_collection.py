@@ -65,6 +65,15 @@ SECTIONS = (
     ("dr_drm", "New Events: Dreams and Ambitions"),
     ("dr_fea", "New Events: Fears and Doubts"),
     ("dr_day", "New Events: Good, Bad and Ordinary Days"),
+    # The owner-approved draft event files, group C (data/event_collection/drafts_c/<section>/)
+    ("dr_hea", "New Events: Healing, Psychology and Medicine"),
+    ("dr_adv", "New Events: Advice and Decisions"),
+    ("dr_fam2", "New Events: Relationships, Singlehood and Family"),
+    ("dr_blf", "New Events: Belief and Identity"),
+    ("dr_nat", "New Events: Nature, Ecology and Animals"),
+    ("dr_div", "New Events: Disability and Diversity"),
+    ("dr_his", "New Events: History and Collective Memory"),
+    ("dr_lif", "New Events: Pondering How Life Has Gone"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -122,7 +131,8 @@ def build_index(living_seeds=()) -> dict:
                          + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
                          + list((base / "rolemodels").glob("*/*.json"))
                          + list((base / "drafts_a").glob("*/*.json"))
-                         + list((base / "drafts_b").glob("*/*.json"))):
+                         + list((base / "drafts_b").glob("*/*.json"))
+                         + list((base / "drafts_c").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

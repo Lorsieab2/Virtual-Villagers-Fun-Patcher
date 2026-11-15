@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(name1)'s Knot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div16_knot",
+  "source": "draft_div",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-13 and a fisher or an adult; in the story (name1) was born with a hand that has two fingers)"
+   }
+  ],
+  "description": "A child born with a two-fingered hand cannot tie the usual fishing knot: let them find another way, or keep trying the usual way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was born with one hand that has two fingers, and (subject.he/she) does almost everything with it the same way everyone else does. But the fishing knot (friend) is teaching just won't work: it needs three fingers holding the loop at once. (subject) has tried eleven times. (subject.He/she) is starting to get cross.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Find Another Way",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Keep Trying the Usual Way",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stops showing and says, \"Forget my way. How would YOU hold it?\" (subject) thinks, tries using (subject.his/her) teeth, then (subject.his/her) knee, then the two fingers in a pinch. On the fifth try, the knot holds, and it's tight. (friend) tests it. It's a perfectly good knot. It's a different way of tying it. By the end of the season, some of the other children are tying it (subject)'s way, because it's faster.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) keeps showing the usual way, slower and slower. (subject) keeps trying. On the twentieth try (subject.he/she) throws the net down and stomps off. Later (friend) finds (subject.him/her) by the canoes, tying the knot perfectly in a way (friend) has never seen before. \"I worked it out,\" says (subject), not looking up. \"My way.\" (friend) sits down and asks to be taught.",
+   "src": "L197"
+  }
+ }
+}
