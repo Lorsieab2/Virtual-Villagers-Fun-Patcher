@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Much to Carry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep03_too_much_carry",
+  "source": "draft_dep",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has packed far too much for a three-day walk: unpack it together with a friend, or take all of it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is going on a three-day walk to the far side of the island, and (subject.he/she) has packed. (subject.He/she) has packed a cooking pot, two blankets, a spare pair of sandals, a fishing line, a bag of nuts, a bag of different nuts, a carved turtle for luck, and a small stool. (friend) watches (subject.him/her) try to lift the bundle. It does not leave the ground.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Unpack It Together",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Take All of It",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They lay everything out on the floor. \"Do you need the stool?\" asks (friend). (subject) looks at the stool for a long time. \"What if I want to sit down?\" \"There's the ground.\" The stool stays behind. So do the second nuts. The carved turtle, after some argument, goes. (subject) sets off the next morning with a bundle (subject.he/she) can actually carry.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) ties the bundle to a pole, hoists it onto (subject.his/her) shoulder, and sets off with tremendous determination. (subject.He/she) is back before lunch. The stool is now somewhere along the path, under a bush, and (subject.he/she) has decided that a three-day walk is really a five-day walk if you are carrying furniture. (subject.He/she) will try again tomorrow, with less.",
+   "src": "L41"
+  }
+ }
+}

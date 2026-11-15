@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sticky Fingers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum42_sticky_fingers",
+  "source": "draft_hum",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager gets canoe gum on their hands and everything starts sticking: ask a friend for help, or carry on regardless.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been helping to boil up the sticky tree gum used to seal canoes, and wiped (subject.his/her) hands on (subject.his/her) clothes without thinking. Now (subject.his/her) hands stick to (subject.his/her) clothes, the basket sticks to (subject.his/her) hand, a leaf sticks to (subject.his/her) elbow, and the more (subject.he/she) tries to unstick things, the more things get stuck.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Ask (friend) for Help",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Carry on Regardless",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tries to help and gets stuck too. The two of them walk down to the stream together, joined at the elbow, and sit in the water until the gum softens. It takes most of the afternoon. They get to know each other very well that afternoon, having no other choice.",
+   "src": "L506"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to carry on with (subject.his/her) day. By evening (subject.he/she) is carrying a leaf, a feather, two twigs and a small, confused beetle. Somebody suggests rolling in dry sand. It works. Now (subject) is a sandy person instead of a sticky one, which is better, mostly.",
+   "src": "L509"
+  }
+ }
+}

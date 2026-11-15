@@ -333,3 +333,22 @@ harmless trial, a success, a compromise or a delay; injuries, illness, war and h
 speculation about distant peoples (text only). The only effects are six small skill gains (Horizon 009 A1 Building,
 018 A1 Research; RM-11 B1 and RM-25 A1 Building, RM-17 A1 Healing, RM-36 A2 Parenting). Both outcomes of every
 choice are equally likely.
+
+## The approved draft event files, group B (DRAFTS-B)
+
+Range: the owner's eight approved draft files of 2026-11-15 (HUM, TT, HON, JUS, DEP, DRM, FEA, DAY; 50 events each,
+`drafts_b/dr_<x>`), 400 events. Generator: `scripts/drafts_b/gen_drafts_b.py`. No `protected: "allow"` anywhere
+(protected villagers stay out of every harmful role). Each choice has one outcome, so a harmful effect is the player's
+chosen path, as the drafts wrote it:
+
+| Event | Outcome | Role | Effect |
+|---|---|---|---|
+| `dep07_canoe_kept_going` | A (Help Get Ready) | subject (25-) | vanish (sails away; later word "alive and well") |
+| `hon13_quite_cooked` | A, B | subject (18-) | health -30..-10 (an upset stomach) |
+| `hon20_step_meant_fix` | A, B | friend (18-) | health -30..-10 (a scraped knee) |
+| `hon01`, `hon12`, `hon15`, `hon22`, `hon27`, `hon39` | A, B | - | small food loss |
+| `jus40_dry_season_rule` | A | - | small food loss |
+
+The rest is small and good: food gains (HUM-49, TT-40, DEP-48, DRM-39, DAY-19 both outcomes), small tech gains
+(DRM-27, DRM-44), small skill gains (JUS-05 Farming, DEP-22 Healing, DRM-25 Building, DRM-48 one work skill at
+random), celebrations (DEP-46, DRM-04, DRM-14, DAY-24) and FEA-18's health gain.

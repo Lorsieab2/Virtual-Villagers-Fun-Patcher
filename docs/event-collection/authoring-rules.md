@@ -388,6 +388,28 @@ small words lower case unless first or last). Titles use the pipeline's `title_c
 fidelity check matches the label case-blind, then requires exactly that form). The older sources' labels switch after
 the merge.
 
+## 15d. The approved draft event files, group B
+
+Eight owner-approved draft files of 2026-11-15 ("the drafts are ok as long as they stick to our rules"): "New Events -
+Humor and Absurdity", "Tall Tales and Self-Interest", "Honesty and Accountability", "Justice and Consequences",
+"Departures and Exile", "Dreams and Ambitions", "Fears and Doubts" and "Good, Bad and Ordinary Days" (draft for
+owner).txt in `docs/more-island-events/`, each its own frozen source (byte for byte, `-text`, SHA-256 in
+`data/event_collection/DRAFT_<X>.sha256`; `collection_lib.DRAFTS_B` lists them: source ids `draft_hum`, `draft_tt`,
+`draft_hon`, `draft_jus`, `draft_dep`, `draft_drm`, `draft_fea`, `draft_day`). Files:
+`data/event_collection/drafts_b/dr_<x>/<id>.json`. Rows: `_drafts_b_rows` in `scripts/collection_manifest.py` (lines 1-5
+and the closing NOTES block are notes rows; one series per file). Generator: `scripts/drafts_b/gen_drafts_b.py` on
+`drafts_b_parse.py`, reading the per-event annotations in `scripts/drafts_b/annotations/<x>.txt` (whose each pronoun
+is, the roles' ages, the role figures, the Pick Island Event sentence, the 15-point review).
+
+- The setup is the question page; each label leads to its own one outcome (no odds in the drafts). A few events are
+  one popup with no choice. The casting line is a ledger note carried out as the roles' ages; `(name1)` / `(name2)`
+  are the roles `subject` / `friend`. An `[effect: ...]` is an instruction cut from its outcome and made as its effect.
+- The owner (2026-11-15): "use names and pronouns where possible instead of vague 'a fisher', 'a healer', 'an elder'":
+  a single person of the village called only by a role word is a cast villager of its own (harmless, cast only) and
+  its mentions show the name, each change a `sensitivity` ledger entry (before -> after) listed by `--report`.
+- Grammar fixes are rows `| draft_<x> L<line> |` in grammar-fixes.md (the nine `(his/hers)`: the format has no such
+  placeholder).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

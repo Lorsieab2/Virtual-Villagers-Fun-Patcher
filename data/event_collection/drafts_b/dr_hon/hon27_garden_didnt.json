@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden That Didn't Come Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon27_garden_didnt",
+  "source": "draft_hon",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L326",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L329",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager said they had planted the shared plot but never did, and nothing has come up: tell the truth, or plant them tonight.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) asked (subject) to plant the new seeds in their shared plot while (friend.he/she) was busy. (subject) said (subject.he/she) had. (subject.He/she) hadn't: the day got away from (subject.him/her), and it seemed easier to say \"done\" and do it the next morning. Then the next morning got away too. Two weeks later, (friend) is crouched beside the bare earth, puzzled. \"Nothing's come up at all.\"",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) the Truth",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Plant Them Tonight and Say Nothing",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Nothing's come up because I never planted them,\" says (subject). \"I said I had. I'm sorry.\" (friend) stands up slowly. \"Two weeks.\" \"I know.\" (friend) isn't shouting, but (friend.he/she) isn't smiling either. They plant the seeds together that afternoon. For a while afterward, whenever (subject) says \"done,\" (friend) goes and has a look.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L326"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) plants them that night by moonlight. A week later the shoots appear, late, and (friend) is delighted. \"Slow seeds,\" (friend.he/she) says. (subject) agrees that they were very slow. The harvest is a little smaller than it might have been, and nobody else ever knows why. (subject) does.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L329"
+    }
+   ]
+  }
+ }
+}

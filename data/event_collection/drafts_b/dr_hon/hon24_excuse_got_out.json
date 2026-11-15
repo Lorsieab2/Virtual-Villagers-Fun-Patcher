@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Excuse That Got Out of Hand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon24_excuse_got_out",
+  "source": "draft_hon",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager turned up late to help a friend and is telling a wild excuse: keep adding to it, or stop and tell the truth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was supposed to help (friend) carry thatch this morning and didn't turn up until midday. The real reason is that (subject.he/she) overslept. What (subject.he/she) is now telling (friend) is a long story about a crab in (subject.his/her) sandal, a sudden fog, and a lost child who turned out to be a pig.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Keep Adding to It",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Stop and Tell the Truth",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The story grows: a second pig, a falling coconut, a cloud shaped exactly like the village leader. (friend) listens to all of it with (friend.his/her) arms folded. \"And then?\" \"And then I overslept,\" (subject) admits. (friend) bursts out laughing. \"Why didn't you just say that?\" \"It didn't seem like enough.\" \"It's plenty,\" says (friend), and hands (subject.him/her) a bundle of thatch.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Halfway through the fog, (subject) stops. \"I overslept. There wasn't any crab.\" \"No crab?\" \"No crab.\" (friend) looks almost disappointed. \"I was enjoying the crab.\" They carry thatch together all afternoon. After that, whenever (subject) is late, (friend) just asks, \"Crab?\"",
+   "src": "L293"
+  }
+ }
+}

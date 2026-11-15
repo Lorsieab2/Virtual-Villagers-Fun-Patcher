@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moved Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon48_moved_stone",
+  "source": "draft_hon",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager moved a marsh path stone for a shortcut, and a friend got stuck in the mud: own up, or put it back quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A row of white stones marks the safe path across the marsh. Last week (subject) moved one of them to make a shortcut for (subject.him/her)self, and didn't mention it. Today (friend) followed the stones and ended up knee deep in sticky mud, holding (friend.his/her) basket above (friend.his/her) head.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) It Was You",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Put It Back Quietly",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) wades in to help (friend.him/her) out. \"That was me. I moved a stone.\" (friend), mud to the knees, looks at (subject.him/her) for a long time. \"Put it back.\" (subject) puts it back. Then (subject.he/she) checks every other stone on the path, and asks around whether anyone would like a proper shortcut marked. It turns out several people would.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) helps pull (friend) out of the mud, and later slips back and moves the stone to where it belongs. The next day (friend) goes back to see what went wrong and finds the path perfectly marked. (friend.He/she) stands there frowning for a long time, scraping mud off (friend.his/her) sandals. (friend.He/she) never works it out. (subject) never moves another stone.",
+   "src": "L581"
+  }
+ }
+}

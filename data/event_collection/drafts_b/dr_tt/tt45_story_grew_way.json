@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story That Grew on the Way",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt45_story_grew_way",
+  "source": "draft_tt",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L542",
+    "kind": "sensitivity",
+    "before": "an elder tells",
+    "after": "(elder), an elder, tells",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's small crab story comes back from round the village far bigger: find out where it changed, or let it grow.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning (subject) mentioned to (friend) that a crab had walked off with a fishhook someone left on the rocks. By the time the story had gone all round the village and come back to (subject) at lunch, it was an enormous crab that had stolen every fishhook in the village and was building a nest of them on the far rocks.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Find Out Where It Changed",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Let It Grow",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes round asking. Everyone changed it a little, and everyone is sure they told it exactly as they heard it. Nobody can agree where the crab got so big. (subject) gives up. That evening (elder), an elder, tells (subject.him/her) the story of the giant fishhook crab, with great seriousness. (subject) just nods.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides it's a much better story now, and adds a bit of (subject.his/her) own. By the next day the crab is wearing a fishhook necklace, and the children are taking turns standing guard on the rocks. No crab appears. Everyone is a little disappointed, and a little relieved.",
+   "src": "L545"
+  }
+ }
+}

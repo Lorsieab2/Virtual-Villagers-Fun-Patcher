@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Row of Baskets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt48_row_baskets",
+  "source": "draft_tt",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "sensitivity",
+    "before": "The best storyteller in the village is telling stories",
+    "after": "(storyteller), the best storyteller in the village, is telling stories",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L581",
+    "kind": "sensitivity",
+    "before": "By the time the storyteller arrives",
+    "after": "By the time (storyteller) arrives",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L581",
+    "kind": "sensitivity",
+    "before": "The storyteller looks at the baskets",
+    "after": "(storyteller) looks at the baskets",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has saved the whole front row by the fire with baskets: move a basket, or add a basket of your own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "storyteller"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(storyteller), the best storyteller in the village, is telling stories at the fire tonight, and the seats closest to the fire always fill up fast. (subject) has saved one for (subject.him/her)self by leaving a basket on it. And one for a friend. And another, just in case. When (friend) arrives early, (friend.he/she) finds the whole front row taken up by (subject)'s baskets, and (subject) nowhere to be seen.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Move a Basket",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Add a Basket of Your Own",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) moves one basket aside and sits down. Soon others do the same. By the time (subject) arrives, there is one basket left, and (subject) sits behind it, looking at a row of other people's backs. Then (friend) shuffles over to make room. \"Saved you a seat,\" (friend.he/she) says.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sets down a basket of (friend.his/her) own beside the others. So does the next person, and the next. By the time (storyteller) arrives, the front row is entirely baskets, and the whole village is sitting behind them. (storyteller) looks at the baskets, shrugs, and begins telling the story to them.",
+   "src": "L581"
+  }
+ }
+}

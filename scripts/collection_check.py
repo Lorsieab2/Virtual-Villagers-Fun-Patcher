@@ -75,7 +75,8 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "lv_med", "lv_life", "lv_circle",    # the Living Event Engine's volumes (data/event_collection/living/)
             "lv_peoples", "lv_unseen", "lv_ways", "lv_auth",
             "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
-            "rm")                                # Role Models and Good Examples (data/event_collection/rolemodels/)
+            "rm") \
+    + tuple(v[2] for v in lib.DRAFTS_B.values())  # the approved drafts, group B (data/event_collection/drafts_b/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case")
@@ -620,7 +621,8 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                 rep.add("b FIDELITY", f"{f.where} ({f.src}): {para.strip()[:90]!r} is not the source text "
                                       f"{span.text[:160]!r}")
                 continue
-            if titled and para.strip() != lib.title_case_label(m.group(0)):
+            # (a label with a placeholder -- "Let (name1.him/her) Sleep" -- is compared as written: its own title case)
+            if titled and para.strip() != lib.title_case_label(m.group(0) if "(" not in para else para.strip()):
                 # collection_lib.title_case_label: the owner's words, only their case changed
                 rep.add("b FIDELITY", f"{f.where}: {para.strip()!r} is not the title case of the source's "
                                       f"{m.group(0)!r} ({lib.title_case_label(m.group(0))!r})")
@@ -1362,7 +1364,7 @@ def collection_files() -> list[Path]:
     same under horizon/ and rolemodels/."""
     return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
-                  + list(lib.ROLEMODELS_DIR.glob("*/*.json")))
+                  + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_B_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

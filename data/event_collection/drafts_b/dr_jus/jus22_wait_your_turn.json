@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wait Your Turn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus22_wait_your_turn",
+  "source": "draft_jus",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager walked straight to the front of the spring line and hurried off: call them back, or let it go this time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning there's a line at the spring, and everyone waits their turn. Today (subject) has walked straight to the front, filled (subject.his/her) jar and hurried off. (friend), who was first in line, calls after (subject.him/her). Other people are muttering.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Call (subject.him/her) Back",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Let It Go This Time",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) comes back, red-faced. \"I'm sorry. I left a pot on the fire at home with nobody there.\" The line agrees, after a moment, that a fire is a fair reason. Somebody says that next time (subject.he/she) should just ask. (subject) says (subject.he/she) will, and runs.",
+   "src": "L266"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) lets it go and fills (friend.his/her) own jar. Later (friend.he/she) hears that (subject) jumped the line because a pot was boiling over at home, which seems fair enough, really. The next morning (subject) waits at the very back of the line and lets three people go ahead of (subject.him/her), including (friend). Nobody makes a rule about it. Nobody needs to.",
+   "src": "L269"
+  }
+ }
+}

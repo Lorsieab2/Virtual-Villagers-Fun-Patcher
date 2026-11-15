@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cracked Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep25_cracked_pot",
+  "source": "draft_dep",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager moving huts cannot part with an old cracked cooking pot: keep it, or leave it for the next person.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) is moving huts tomorrow, and everything is packed except one cooking pot. It's old. It has a crack down one side that leaks if you fill it past halfway. It has made, (name1) estimates, about a thousand stews. There's a perfectly good newer pot already packed. (name1) is sitting on the floor holding the old one.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Keep It",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Leave It for the Next Person",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The old pot goes too. In the new hut it doesn't get used for cooking anymore. It sits on a shelf, holding nothing in particular, and every now and then (name1) looks at it and thinks of a thousand stews. That seems like a fine job for an old pot.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) leaves it by the hearth, cleaned and full of fresh water, for whoever lives here next. A few weeks later (he/she) passes the old hut and smells stew cooking. (He/she) is almost certain it's in the old pot. (He/she) is right. It leaks a little. The new family doesn't mind.",
+   "src": "L305"
+  }
+ }
+}

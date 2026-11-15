@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Accidental Hero",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt17_accidental_hero",
+  "source": "draft_tt",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L209",
+    "kind": "sensitivity",
+    "before": "says one of the gardeners",
+    "after": "says (gardener), one of the gardeners",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager fled from a pig, but everyone thinks they chased it off bravely: accept the praise, or tell what really happened.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "gardener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "gardener": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A pig got into the garden this morning. (subject) saw it, panicked, and ran. The pig, delighted, ran after (subject.him/her), straight out of the garden and all the way down the path to the beach. The gardeners arrived just in time to see the pig disappearing, and now they are telling everyone how bravely (subject) chased it away.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Accept the Praise",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Tell What Really Happened",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) is thanked by everyone and given the first fruit from the garden. It's delicious. But (subject.he/she) also notices (friend), who saw the whole thing from the other side of the garden, smiling at (subject.him/her) very, very knowingly. (friend) never says a word about it. (subject) is never quite sure whether that's better or worse.",
+   "src": "L206"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Actually,\" says (subject), \"it was chasing me.\" A pause, and then everyone laughs. \"Well,\" says (gardener), one of the gardeners, \"it worked.\" The village decides that running away from pigs is a perfectly good method, and from then on, whenever a pig gets into the garden, someone is sent to run away from it.",
+   "src": "L209"
+  }
+ }
+}

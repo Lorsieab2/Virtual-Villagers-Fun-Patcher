@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Best of Three, Best of Five",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt47_best_three_best",
+  "source": "draft_tt",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager loses an arm-wrestle and keeps asking for best of more: go for best of seven, or call it done.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just lost an arm-wrestle to (friend). \"Best of three,\" says (subject). (subject.He/she) loses the second as well. \"Best of five.\" (subject.He/she) loses the third. A small crowd has gathered. (friend)'s arm is getting tired. So is (subject)'s pride.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Best of Seven",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Call It Done",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They go on. (subject) loses the fourth. Then (friend)'s arm finally gets so tired that (subject) wins the fifth. (subject) leaps up. \"I WIN!\" \"You won one,\" says (friend). \"The most recent one,\" says (subject), \"which is the important one.\" The crowd, for some reason, cheers.",
+   "src": "L566"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Fine,\" says (subject). \"You're stronger.\" (friend) rubs (friend.his/her) arm and says, \"You're more stubborn.\" \"Is that a compliment?\" \"Not really.\" \"I'll take it.\" They shake hands, very gently, because both their arms are sore.",
+   "src": "L569"
+  }
+ }
+}

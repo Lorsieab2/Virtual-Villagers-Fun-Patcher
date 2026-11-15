@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beetle with No Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm44_beetle_name",
+  "source": "draft_drm",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L530",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L533",
+    "kind": "sensitivity",
+    "before": "An elder squints and says",
+    "after": "(elder), an elder, squints and says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who always wanted to discover something finds a beetle nobody knows: give it a name, or show it to everyone first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always wanted to discover something. Something nobody's seen before. Today, under a log, (subject.he/she) has found a small beetle with a shiny green back and three red spots, and nobody (subject.he/she) has shown it to has ever seen one like it. (friend) leans in to look.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Give It a Name",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Show It to Everyone First",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides to call it the three-spot green. (friend) suggests \"(subject)'s beetle.\" (subject) pretends to object and then writes both names down. (subject.He/she) draws it carefully on bark and lets it go back under the log. It might be common on the other side of the island. (subject) doesn't want to know.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L530"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) carries it carefully to the fire. Everyone looks. (elder), an elder, squints and says, \"Oh, we used to call those spotty ones. Haven't seen one in years.\" (subject)'s face falls, then rises again. It's not new. But it was lost, and (subject.he/she) found it again. (subject.He/she) decides that counts as discovering something.",
+   "src": "L533"
+  }
+ }
+}

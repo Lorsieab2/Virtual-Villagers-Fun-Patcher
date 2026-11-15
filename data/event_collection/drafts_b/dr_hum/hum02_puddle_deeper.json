@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Puddle That Was Deeper Than It Looked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum02_puddle_deeper",
+  "source": "draft_hum",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager steps into a puddle that turns out to be knee deep: pretend it was on purpose, or fill the hole in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a night of rain, a flat brown puddle lies across the path. It looks ankle deep. (subject) has walked this path a thousand times and knows for certain there is no hole there. (subject.He/she) steps in confidently. The puddle is knee deep. While nobody was looking, a pig has been digging a very nice wallow right in the middle of the path.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Pretend It Was on Purpose",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Fill It In",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands in the puddle up to (subject.his/her) knees and looks around. (friend) is watching from a doorway. \"Lovely and cool,\" says (subject), and wades slowly through to the far side, as if this is how (subject.he/she) always crosses. (friend) walks round it. Later that afternoon, (friend) is seen standing in the middle of it too, \"just to see what the fuss was about.\"",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) climbs out, fetches a basket of sand and fills the hole until the path is flat again. The next morning (subject.he/she) finds the pig standing in a brand-new hole in exactly the same place, muddy to the eyebrows and completely unrepentant. They look at each other for a long moment. Neither of them mentions it.",
+   "src": "L29"
+  }
+ }
+}

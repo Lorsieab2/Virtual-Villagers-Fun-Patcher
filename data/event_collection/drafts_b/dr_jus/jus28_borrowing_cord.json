@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Borrowing Cord",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus28_borrowing_cord",
+  "source": "draft_jus",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L341",
+    "kind": "sensitivity",
+    "before": "An elder suggests that",
+    "after": "(elder), an elder, suggests that",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who forgets to return things is upset that a friend stopped lending: back the friend, or suggest a borrowing cord.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) borrows things. A knife, a basket, a pot, a coil of cord. (subject.He/she) always means to give them back, and mostly forgets. (friend) has lent (subject.him/her) seven things this season and got two back. (friend) has decided not to lend (subject.him/her) anything else, and has said so. (subject) has gone to the council, upset.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Back (friend)'s Decision",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Suggest a Borrowing Cord",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council says that (friend) may lend or not lend, as (friend.he/she) pleases; that isn't a matter for the council. It does suggest (subject) give back the other five things. (subject) goes home and finds four of them. The fifth is never found. (friend) still doesn't lend (subject.him/her) anything, which is (friend.his/her) right. They're friendly enough otherwise.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(elder), an elder, suggests that (subject) keep a knotted cord: one knot for each thing borrowed, untied when it goes back. (subject) tries it. The cord is very knotty at first. After a month it has only one knot left. (friend) sees it, thinks about it for a while, and lends (subject.him/her) a basket. One basket. On trial.",
+   "src": "L341"
+  }
+ }
+}

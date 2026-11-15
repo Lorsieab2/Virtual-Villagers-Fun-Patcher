@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crispy Bits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt19_crispy_bits",
+  "source": "draft_tt",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L233",
+    "kind": "sensitivity",
+    "before": "a small child darts in",
+    "after": "(child), a small child, darts in",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager comes for the crispy bits at the bottom of the stew pot and finds a rival there: offer to share, or race for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The best part of any stew is the crispy layer stuck to the bottom of the pot, and everyone knows it. (subject) has worked out exactly when to arrive and offer to \"help with the scrubbing\": just after the last bowl is served. Tonight (subject.he/she) arrives at exactly the right moment and finds (friend) already standing by the pot, holding a spoon.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Offer to Share",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Race for It",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Shall we scrub it together?\" They scrape the pot side by side, eating as they go. It's the most enjoyable washing-up either of them has ever done, and the pot has never been cleaner. They agree to take turns from now on. Both of them keep turning up every night anyway.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Both of them lunge. Spoons clash. In the confusion, (child), a small child, darts in, scrapes the crispy bits into a bowl and runs off with them. (subject) and (friend) look at each other, and then at the empty pot. \"There's a new one,\" says (subject) gravely. \"Better than us.\"",
+   "src": "L233"
+  }
+ }
+}

@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "It Was the Log",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum39_log",
+  "source": "draft_hum",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L473",
+    "kind": "sensitivity",
+    "before": "a small child says, helpfully",
+    "after": "(child), a small child, says, helpfully",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder's hollow log lets out a loud, unfortunate noise at sunset: explain, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has gathered for a quiet moment at sunset, as it often does. (subject), the eldest person present, is sitting on a hollow log. As (subject.he/she) shifts (subject.his/her) weight, the log lets out a long, loud and deeply unfortunate noise. Every head turns.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Say Nothing",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That,\" says (subject) calmly, \"was the log.\" Silence. (subject.He/she) shifts again, deliberately. The log makes the noise again, even louder. \"You see?\" The silence breaks completely. For years afterward, any unexplained noise in the village is followed by somebody saying, \"It was the log.\"",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing, and keeps (subject.his/her) eyes fixed on the sunset with great dignity. After a moment (child), a small child, says, helpfully and very loudly, \"It was probably the log.\" Everyone agrees, a little too quickly. The next evening, (subject) sits on the log again, just to prove it. The log obliges.",
+   "src": "L473"
+  }
+ }
+}

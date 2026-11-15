@@ -136,3 +136,12 @@ assets/island_events_scale/*.txt -text
 # The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
 assets/event_collection/** -text
 docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collection[[:space:]]-[[:space:]]Credits.md -text
+# The owner-approved draft event files, group B (frozen byte for byte; scripts/drafts_b/)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Humor[[:space:]]and[[:space:]]Absurdity[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Tall[[:space:]]Tales[[:space:]]and[[:space:]]Self-Interest[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Honesty[[:space:]]and[[:space:]]Accountability[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Justice[[:space:]]and[[:space:]]Consequences[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Departures[[:space:]]and[[:space:]]Exile[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Dreams[[:space:]]and[[:space:]]Ambitions[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Fears[[:space:]]and[[:space:]]Doubts[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Good,[[:space:]]Bad[[:space:]]and[[:space:]]Ordinary[[:space:]]Days[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text

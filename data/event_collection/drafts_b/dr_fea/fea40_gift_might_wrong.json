@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift That Might Be Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea40_gift_might_wrong",
+  "source": "draft_fea",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has carved a gift for a friend and is suddenly sure it is terrible: give it anyway, or keep it for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has made (friend) a gift: a little carved bird. (subject.He/she) worked on it for days. Now it's finished and wrapped in a leaf, and (subject) is suddenly sure it's terrible. The beak is too long. One wing is lumpy. (friend) won't like it. (subject) is standing outside (friend)'s hut, unable to knock.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Give It Anyway",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Keep It for Now",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) knocks and hands it over without a word. (friend) unwraps it and goes very quiet. Then (friend.he/she) says, \"I love it. Is that a heron?\" It is not a heron. \"Yes,\" says (subject). (friend) puts it on the shelf by (friend.his/her) sleeping mat, where it stays for years, as a heron.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks home with the bird still in (subject.his/her) hand. (subject.He/she) puts it on (subject.his/her) own shelf. Every time (subject.he/she) looks at it, it looks a little less terrible. A month later, (subject.he/she) gives it to (friend) after all. (friend) loves it. (subject) wonders why (subject.he/she) waited, and then remembers exactly why.",
+   "src": "L485"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mango Both of Them Were Watching",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt15_mango_both_them",
+  "source": "draft_tt",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers have both been watching the same perfect mango for a week: claim it first, or split it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a week, (subject) has been watching one particular mango ripen on the tree behind the huts: golden, round, perfect. Today, as (subject) arrives to pick it, (subject.he/she) finds (friend) already standing under the tree, gazing up at the same mango with the same expression. It turns out (friend) has been watching it for a week too.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Claim It First",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Split It",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I've been watching it for a week,\" says (subject). \"So have I.\" \"I saw it first.\" \"Did you, though?\" They argue about it for some time. While they argue, a bird lands on the branch and starts eating the mango. They watch in silence. \"...We could share the next one,\" says (friend). They spend the following week watching it together.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They pick it together and cut it exactly in half, very carefully, measuring with a stick. It's the best mango either of them has ever eaten, and they agree it's because of all the waiting. Then each of them secretly starts watching a different mango.",
+   "src": "L185"
+  }
+ }
+}

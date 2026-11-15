@@ -134,6 +134,19 @@ ROLEMODELS_CREDIT_BLOCKS = (
 )
 SOURCE_LINE_WORDS = {"companion": "companion source lines", "living": "living source lines",
                      "horizon": "Beyond the Horizon source lines", "rolemodels": "Role Models source lines"}
+# The owner-approved draft event files, group B (data/event_collection/drafts_b/, scripts/drafts_b/): each file's title
+# and introduction lines (1-3) verbatim, as the 2026-11-15 sources above.
+DRAFTS_B_FILES = (   # (source id, topic, SHA-256)
+    ("draft_hum", "Humor and Absurdity", "3E0CD2569773F511D29B33C6A6DE00A35F18BC17327B72E005DEC73A2A26D6FB"),
+    ("draft_tt", "Tall Tales and Self-Interest", "A3236FA05F3D2E7EF2AE25854A12D36EC31125AB9E9AE3C6784BF5C83E22908A"),
+    ("draft_hon", "Honesty and Accountability", "E5D919720B552C9887EB3139505704C440532FD49DEBEB8502B5287DC90AA418"),
+    ("draft_jus", "Justice and Consequences", "7B178BDA4C21DFA1BF2887F1E98255D745A71B910F6F407E827091B5B6C392F8"),
+    ("draft_dep", "Departures and Exile", "E45D9DAC577D689C6B32D973E398B95F4520AE687A73C051B56073C00F6C6E66"),
+    ("draft_drm", "Dreams and Ambitions", "1193D682BC84B98BCF249D015991913DA280A92B31BAF13146C99B2ED9C1A87B"),
+    ("draft_fea", "Fears and Doubts", "3D9320A0ECFD2A73FF03DAEB0C8A2B92E0F84ED2B41CBC211DD75CC55F97ED9E"),
+    ("draft_day", "Good, Bad and Ordinary Days", "F2DFD2C82F722F7F7D69218D64ED3D574441EEF34F260C87AEDDC905E1E136AD"),
+)
+SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES})
 
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
@@ -280,9 +293,13 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
             "\n"]
     for first, last, what in LIVING_CREDIT_BLOCKS:
         out += [f"LIVING CREDIT: {what} (living source lines {first}-{last})\n", "\n", span(liv, first, last), "\n"]
+    drafts_b = tuple((f"NEW EVENTS: {topic.upper()}",
+                      ROOT / "docs" / "more-island-events" / f"New Events - {topic} (draft for owner).txt", digest,
+                      ((1, 3, f"{topic} (its title and introduction)"),))
+                     for _sid, topic, digest in DRAFTS_B_FILES)
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
-                                        ROLEMODELS_CREDIT_BLOCKS)):
+                                        ROLEMODELS_CREDIT_BLOCKS)) + drafts_b:
         src = [s.replace("\r\n", "\n") for s in source_lines(path, digest)]
         out += [f"{name}\n", "\n",
                 f"Source: {path.name} (SHA-256 {digest}). The texts below are copied from it verbatim.\n", "\n"]

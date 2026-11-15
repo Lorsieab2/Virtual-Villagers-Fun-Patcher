@@ -179,6 +179,40 @@ class FrozenHorizonAndRoleModels(unittest.TestCase):
                                                                "hz_part4": 7, "hz_part5": 8, "hz_vol2": 40})
 
 
+class FrozenDraftsB(unittest.TestCase):
+    """The owner-approved draft event files, group B (2026-11-15): eight files, each its own frozen source (byte for
+    byte), 50 events each, one series per file, built by scripts/drafts_b/gen_drafts_b.py."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(len(lib.DRAFTS_B), 8)
+        for sid, (topic, n, section, prefix) in lib.DRAFTS_B.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                path = lib.SOURCES[sid][0]
+                rel = lib.SOURCES[sid][1].read_text(encoding="ascii").split(None, 1)[1].strip()
+                self.assertEqual(ROOT / rel, path)
+                self.assertEqual(path.read_bytes().count(b"\n"), n)
+                with lib.use_source(sid):
+                    self.assertTrue(lib.line(1).startswith("NEW EVENTS"))
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), 50)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                    self.assertTrue(r["id"].startswith(prefix.lower()), r["id"])
+                    self.assertEqual(r["games"], [1, 2, 3, 4, 5])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_B_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+                    for c in doc["nodes"]["setup"].get("choices", []):
+                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

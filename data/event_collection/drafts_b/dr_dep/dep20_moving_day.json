@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Moving Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep20_moving_day",
+  "source": "draft_dep",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "sensitivity",
+    "before": "A child is wearing the cooking pot as a hat.",
+    "after": "(child), a child, is wearing the cooking pot as a hat.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L242",
+    "kind": "sensitivity",
+    "before": "Pot: off the child.",
+    "after": "Pot: off (child).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Half the village turns up to help a villager move huts, and it is chaos: take charge, or let it happen.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is moving into a newly built hut across the village, and half the village has turned up to help carry things. This is very kind. It is also chaos. Someone has carried the sleeping mat to the wrong hut. (child), a child, is wearing the cooking pot as a hat. Three different people are holding (subject)'s favorite basket, each believing they are in charge of it.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Take Charge",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Let It Happen",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) climbs onto a stump and starts calling out instructions. Mat: new hut. Pot: off (child). Basket: (friend), and only (friend). It takes the rest of the afternoon, but by evening everything is in the right place except one sandal, which turns up three days later on a roof. Nobody can explain the roof.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits down in the shade and lets everyone get on with it. By sunset everything has been moved, mostly. The new hut contains (subject.his/her) things, a basket that belongs to somebody else, and a goat. (subject) decides the basket can stay until somebody asks. The goat is escorted out.",
+   "src": "L245"
+  }
+ }
+}

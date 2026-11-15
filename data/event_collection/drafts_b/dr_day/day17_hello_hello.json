@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Hello, Hello, Hello",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day17_hello_hello",
+  "source": "draft_day",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L203",
+    "kind": "sensitivity",
+    "before": "An elder called",
+    "after": "(elder), an elder, called",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L203",
+    "kind": "sensitivity",
+    "before": "A child ran",
+    "after": "(child), a child, ran",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L209",
+    "kind": "sensitivity",
+    "before": "to the elder",
+    "after": "to (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "For no clear reason everyone keeps saying hello to a villager: ask a friend what is happening, or say hello back louder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Today, for no reason (subject) can work out, everyone is saying hello to (subject.him/her). Not just a nod. A proper \"Hello, (subject)!\" with a wave. The fishers called it from the water. (elder), an elder, called it from a doorway. (child), a child, ran all the way across the beach just to say it. (subject) is beginning to wonder if something is going on.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Ask (friend) What's Happening",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Say Hello to Everyone Back, Twice as Loud",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Why is everyone saying hello to me?\" asks (subject). (friend) shrugs. \"I don't know. Hello, (subject).\" Nothing is going on. There is no plan, no festival, no secret. Just a day when everybody happened to notice (subject.him/her). (subject) decides to stop asking and enjoy it. It is a very nice day.",
+   "src": "L206"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) starts saying hello back, with enthusiasm. \"HELLO!\" to the fishers. \"HELLO!\" to (elder). By evening the whole village is shouting hello at each other across the paths, for no reason at all. Nobody remembers how it started. It just seems like the thing to do today.",
+   "src": "L209"
+  }
+ }
+}

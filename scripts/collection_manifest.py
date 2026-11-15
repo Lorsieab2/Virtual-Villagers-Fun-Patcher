@@ -917,6 +917,42 @@ def _rolemodel_rows() -> None:
 
 _rolemodel_rows()
 
+# ---- The owner-approved draft event files, group B (collection_lib.DRAFTS_B; each file its own source) ---------------
+#
+# "New Events - <Topic> (draft for owner).txt" (2026-11-15): lines 1-5 (title, premise, how to read it) and the closing
+# "NOTES FOR THE OWNER" block are notes rows; each "HUM-01. Title" heading starts an event (casting line, setup, two
+# "Label:" lines each followed by its outcome; a few are one popup with no choice).  One series per file (each file
+# counts as one draw in the rare roll).  Built by scripts/drafts_b/gen_drafts_b.py.
+
+for _sid, (_topic, _n, _sec, _pre) in lib.DRAFTS_B.items():
+    CREDITS[_sec] = ("mixed", [(1, 3)], _sid)
+DRAFTS_B_SERIES = {sid: v[2] for sid, v in lib.DRAFTS_B.items()}      # source id -> its one series (the section)
+
+
+def _drafts_b_rows() -> None:
+    for sid, (topic, _n, sec, pre) in lib.DRAFTS_B.items():
+        with lib.use_source(sid):
+            heads = [n for n in range(1, lib.n_lines() + 1) if re.match(rf"^{pre}-\d\d\. ", lib.line(n))]
+            notes = next(n for n in range(1, lib.n_lines() + 1) if lib.line(n).startswith("NOTES FOR THE OWNER"))
+            last = max(n for n in range(1, lib.n_lines() + 1) if lib.line(n).strip())
+            N(f"{sec}_notes_intro", f"{topic}: title, premise and how to read the draft", 1, 5, sec, sec, source=sid)
+            N(f"{sec}_notes_end", f"{topic}: notes for the owner", notes, last, sec, sec, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else notes
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = re.match(rf"^{pre}-(\d\d)\. (.+)$", lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{pre.lower()}{num}"
+                nc = 2 if e - h > 3 else 0
+                R(f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  lib.title_case_label(src_title.replace('"', '')),              # a title holds no '"' (gap G6)
+                  ALL, h, e, "event", sec, sec, nc, series=sec, source=sid, choice_re=r"^[^.!?]{1,80}:$")
+
+
+_drafts_b_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1258,6 +1294,8 @@ def build() -> dict:
         # "horizon" / "rolemodels".
         "horizon": whole_file(lib.HORIZON_ID, lib.HORIZON, HORIZON_SERIES_NAMES),
         "rolemodels": whole_file(lib.ROLEMODELS_ID, lib.ROLEMODELS, ()),
+        # The approved drafts, group B (collection_lib.DRAFTS_B): rows with "source" "draft_hum", ...
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_B_SERIES[sid],)) for sid in lib.DRAFTS_B},
         "rows": rows,
     }
 
@@ -1285,7 +1323,7 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels"):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     return 0

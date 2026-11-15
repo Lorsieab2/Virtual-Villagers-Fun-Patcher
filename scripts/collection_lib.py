@@ -74,6 +74,24 @@ SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
            LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES),
            HORIZON_ID: (HORIZON, HORIZON_HASH_FILE, HORIZON_LINES),
            ROLEMODELS_ID: (ROLEMODELS, ROLEMODELS_HASH_FILE, ROLEMODELS_LINES)}
+
+# The owner-approved draft event files, group B (2026-11-15: "the drafts are ok as long as they stick to our rules"),
+# each its own frozen source (byte for byte, SHA-256 in data/event_collection/<ID>.sha256):
+# data/event_collection/drafts_b/<section>/<id>.json, built by scripts/drafts_b/gen_drafts_b.py.
+DRAFTS_B_DIR = COLLECTION_DIR / "drafts_b"
+DRAFTS_B = {   # source id: (topic, line count, section, event prefix)
+    "draft_hum": ("Humor and Absurdity", 619, "dr_hum", "HUM"),
+    "draft_tt": ("Tall Tales and Self-Interest", 618, "dr_tt", "TT"),
+    "draft_hon": ("Honesty and Accountability", 619, "dr_hon", "HON"),
+    "draft_jus": ("Justice and Consequences", 621, "dr_jus", "JUS"),
+    "draft_dep": ("Departures and Exile", 611, "dr_dep", "DEP"),
+    "draft_drm": ("Dreams and Ambitions", 611, "dr_drm", "DRM"),
+    "draft_fea": ("Fears and Doubts", 611, "dr_fea", "FEA"),
+    "draft_day": ("Good, Bad and Ordinary Days", 611, "dr_day", "DAY"),
+}
+for _sid, (_topic, _n, _sec, _pre) in DRAFTS_B.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
+                     COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
 _ACTIVE = [SOURCE_ID]
 
 
