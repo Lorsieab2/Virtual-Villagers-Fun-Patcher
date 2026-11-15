@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tigerfern Study",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat075_tigerfern",
+  "source": "companion",
+  "lines": [
+   7997,
+   8007
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_foliage",
+  "title_src": "L7997",
+  "ledger": [
+   {
+    "src": "L8007",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   },
+   {
+    "src": "L8006",
+    "kind": "sensitivity",
+    "before": "herbarium",
+    "after": "dried",
+    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+   }
+  ],
+  "description": "A botanist finds a Lilia Tigerfern whose leaves hold water well, but a neighboring one looks different."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "botanist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A botanist discovers a Lilia Tigerfern growing among vines and damp stone. Its leaves seem to hold water unusually well, but a neighboring specimen looks different.",
+   "src": "L7998",
+   "choices": [
+    {
+     "label": "Draw the living plant in place",
+     "next": "a",
+     "src": "L7999"
+    },
+    {
+     "label": "Take a fallen leaf and flower",
+     "next": "b",
+     "src": "L8001"
+    },
+    {
+     "label": "Cultivate a cutting if feasible",
+     "next": "c",
+     "src": "L8003"
+    },
+    {
+     "label": "Uproot and dry the entire plant",
+     "next": "d",
+     "src": "L8005"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The sketch preserves leaf shape and setting, though the flower may close before its color is recorded accurately.",
+   "src": "L8000"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The sample is minimally disruptive but may be too damaged for confident identification.",
+   "src": "L8002"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The cutting may root, fail, or change appearance under garden conditions; the original habitat remains recorded.",
+   "src": "L8004",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8004"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A detailed dried specimen results, but the original plant is lost; rarity and ecological impact shape the villagers' reaction.",
+   "src": "L8006",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8006"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the original plant is lost",
+     "reason": "a plant, not a villager or the village's food",
+     "src": "L8006"
+    }
+   ]
+  }
+ }
+}

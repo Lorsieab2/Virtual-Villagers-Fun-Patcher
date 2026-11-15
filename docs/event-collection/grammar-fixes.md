@@ -191,6 +191,9 @@ verbatim apart from glaring grammar.
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | companion L2875 | `villager dies` | `the villager dies` | c5dn023_false_delicacy (Part 4 N023, outcome 2) | a missing article: with the designer tag "RARE FATAL:" and the instruction "if the fatal branch is enabled" cut, the line reads "Villager dies." |
+| companion L7902 | `a Arthurium` | `an Arthurium` | cat067_lemonbush (Living Catalogue 067, premise) | "an" before a vowel sound |
+| companion L8022 | `a Anagallis` | `an Anagallis` | cat077_weeper (Living Catalogue 077, premise) | "an" before a vowel sound |
+| companion L8034 | `a Indigoberry` | `an Indigoberry` | cat078_multiflora (Living Catalogue 078, premise) | "an" before a vowel sound |
 | companion L8538 | `a Oriental` | `an Oriental` | cat120_growth (Living Catalogue 120, premise) | "an" before a vowel sound |
 | companion L8550 | `a Orange` | `an Orange` | cat121_health (Living Catalogue 121, premise) | "an" before a vowel sound |
 | companion L8574 | `the The Golden Guppy` | `the Golden Guppy` | cat123_golden_guppy (Living Catalogue 123, premise) | a doubled article ("with the The Golden Guppy") |
