@@ -1,4 +1,4 @@
-"""Write the Companion Anthology's Volume 1 Part 3, Small Lives, Deep Roots, events 001-030 (companion L2041-2408),
+"""Write the Companion Anthology's Volume 1 Part 3, Small Lives, Deep Roots, events 001-050 (companion L2041-2650),
 as data/event_collection/companion/c5/c5c<NNN>_<slug>.json, then format and check them.
 
 The source's format (L2035: "Each event uses a single randomized ending; where choices appear, they are optional
@@ -12,12 +12,13 @@ How it maps (docs/event-collection/companion-authoring.md):
   ending branch (the choices are "optional prompts", not routes).
 - "NO CHOICE.", "POSSIBLE ENDINGS (select one):", "CHOICES:" are structural; "TONE:" is a designer note.
 - Effects: the part's rule (L2038) "Parenting experience is awarded to designated caregivers in every child-related
-  outcome" -- where the text names a child's parent (003, 009, 025), that parent is cast (parent_of the child) and
+  outcome" -- where the text names a child's parent (003, 009, 025, 041), that parent is cast (parent_of the child) and
   gains a small Parenting on BOTH endings.  The tone is "no large reward required": no other effect.  Words the
   effects table reads that change nothing ("death", "die", "food", "celebrates") are text_only with the reason.
 - Kinship the text states is cast as kinship (cie-v6-binary.md 21): two siblings (002), a father and his child (003),
   a parent and their grown child (004), a parent and their child (009, 025).
-- Deceased loved ones (010, 013, 023, 027, 028) stay generic text: no role can name a real dead relative yet (gap C3).
+- A grandparent (032, 047) has no relation yet (gap C2): text only, cast by age.
+- Deceased loved ones (010, 013, 023, 027, 028, 039, 040, 046, 048) stay generic text: no role can name a real dead relative yet (gap C3).
 
     python scripts/companion/gen_c5c.py
 """
@@ -32,6 +33,8 @@ import companion_common as c  # noqa: E402
 HEAD = r"^SMALL LIFE EVENT \d{3}\s+-\s+"
 V, G, CH, EL = c.VILLAGER, c.GROWN, c.CHILD, c.ELDER
 GROWN_CHILD = c.GROWN
+YOUNG_ADULT = {"kind": "villager", "min_age": 18, "max_age": 25}   # "a young adult" (032)
+YOUNG = {"kind": "villager", "min_age": 3, "max_age": 17}         # "a young villager" (043)
 
 # num: ({role: spec}, [roles that gain Parenting on every ending], description, {ending 1-2 or 0 (scene): [text_only]})
 E = {
@@ -76,6 +79,31 @@ E = {
     29: ({"friend1": V, "friend2": V}, [],
          "Two friends talk about a mistake that strained their friendship: apologize, or ask what would help.", {}),
     30: ({"villager": V, "other": V}, [], "A villager offers an apology, but the other person is not ready.", {}),
+    # 031-050 (companion L2411-2650, chunk K2)
+    31: ({"child": CH}, [], "A child invents a game using three shells, a leaf and an impossible set of rules.", {}),
+    32: ({"young_adult": YOUNG_ADULT}, [], "A young adult hears that they gesture just like a grandparent.", {}),
+    33: ({"villager": V, "helper": V}, [],
+         "Someone realizes the person who cleans the communal pots is never thanked: thank them, or organize a cleaning day.",
+         {}),
+    34: ({"villager": V}, [], "A villager finds a sun-warmed stone and keeps it in their palm while resting.", {}),
+    35: ({"friend1": V, "friend2": V}, [], "Two friends agree to spend an entire afternoon doing absolutely nothing.", {}),
+    36: ({"elder1": EL, "elder2": EL}, [], "Two elderly friends resume a debate they have been having for decades.", {}),
+    37: ({"villager": V}, [], "A villager notices a healed scar and remembers the day they got it.", {}),
+    38: ({"villager": V}, [], "After a busy festival, the village seems strangely silent.", {}),
+    39: ({"villager": V}, [], "At a gathering, only one person recalls the birthday of a villager who died years ago.", {}),
+    40: ({"villager": V}, [], "A villager realizes they have begun making tea exactly as their mother once did.", {}),
+    41: ({"child": CH, "parent": c.related(G, "parent_of", "child")}, ["parent"],
+         "A child draws a portrait of a parent with six fingers and enormous ears.", {}),
+    42: ({"friend1": V, "friend2": V}, [], "Two friends take the longer path home without discussing why.", {}),
+    43: ({"elder": EL, "young": YOUNG}, [], "An elder accidentally calls a young villager by the name of an old friend.", {}),
+    44: ({"villager": V}, [], "A family keeps a small light burning while someone is away on a long voyage.", {}),
+    45: ({"child": CH}, [], "A child wonders what sort of person they will be when they are old.", {}),
+    46: ({"villager": V}, [], "A villager returns to chores for the first time after a family death.",
+         {0: [c.text_only("death", "a family death in the past; nobody dies now")]}),
+    47: ({"elder": EL, "grandchild": c.ANY_AGE}, [], "An elder finishes repairing a treasured garment for a grandchild.", {}),
+    48: ({"villager": V}, [], "A visitor remembers a villager who died by a different story than their family tells.", {}),
+    49: ({"villager": V}, [], "A villager realizes someone has been leaving fresh water by their door each morning.", {}),
+    50: ({"villager": V}, [], "After a difficult week, a villager notices the first new leaves on a damaged tree.", {}),
 }
 
 
@@ -119,8 +147,8 @@ def build(row: dict) -> dict:
 
 
 def main() -> int:
-    rows = [r for r in c.rows("c5c") if c.num_of(r) <= 30]
-    assert len(rows) == len(E) == 30
+    rows = c.rows("c5c")
+    assert len(rows) == len(E) == 50
     return c.write_and_check([(r["section"], r["id"], build(r)) for r in rows])
 
 

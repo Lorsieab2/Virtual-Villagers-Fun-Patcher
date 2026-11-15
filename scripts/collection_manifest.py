@@ -594,6 +594,9 @@ COMPANION_IDS: dict[str, str] = {
     "c5c012": "c5c012_ordinary_win", "c5c014": "c5c014_seatmates", "c5c017": "c5c017_brave",
     "c5c021": "c5c021_tidy_doorsteps", "c5c024": "c5c024_real_friend", "c5c025": "c5c025_small_sandals",
     "c5c026": "c5c026_unasked", "c5c027": "c5c027_sea_no_answer", "c5c028": "c5c028_anniversary",
+    "c5b006": "c5b006_hard_question", "c5b011": "c5b011_watching_over", "c5b030": "c5b030_fairness",
+    "c5b035": "c5b035_resemblance", "c5c032": "c5c032_same_gesture", "c5c033": "c5c033_pot_washer",
+    "c5c038": "c5c038_after_festival", "c5c046": "c5c046_morning_after",
     "cat125": "cat125_knowledge", "cat132": "cat132_pufferfish",
 }
 

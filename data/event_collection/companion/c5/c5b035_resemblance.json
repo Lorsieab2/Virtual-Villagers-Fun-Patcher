@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family Resemblance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b035_resemblance",
+  "source": "companion",
+  "lines": [
+   1439,
+   1448
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1439",
+  "ledger": [
+   {
+    "src": "L1441",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1445",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1448",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Relatives argue affectionately about whose smile a baby inherited.",
+  "cast_only": [
+   "relative1",
+   "relative2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "relative1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "relative2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Relatives argue affectionately about whose smile a baby inherited.",
+   "src": "L1440",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1442"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1443"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1444"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Everyone claims the resemblance.",
+   "src": "L1446"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The baby interrupts with a sneeze.",
+   "src": "L1447"
+  }
+ }
+}

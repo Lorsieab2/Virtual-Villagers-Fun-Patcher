@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reach of Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b009_reach_stars",
+  "source": "companion",
+  "lines": [
+   1212,
+   1220
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1212",
+  "ledger": [
+   {
+    "src": "L1214",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1217",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1220",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two friends wonder whether anyone could ever touch a star.",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two friends wonder whether anyone could ever touch a star.",
+   "src": "L1213",
+   "choices": [
+    {
+     "label": "Let the moment unfold naturally.",
+     "next": "ending",
+     "src": "L1215"
+    },
+    {
+     "label": "Invite someone else into the moment.",
+     "next": "ending",
+     "src": "L1216"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They imagine a boat that sails through the sky.",
+   "src": "L1218"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They argue cheerfully about how far away stars are.",
+   "src": "L1219"
+  }
+ }
+}
