@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Conch With Two Voices",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat150_conch_two",
+  "source": "companion",
+  "lines": [
+   8897,
+   8907
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8897",
+  "ledger": [
+   {
+    "src": "L8907",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A conch horn makes two distinct notes, and a magician claims it answers questions."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A conch horn produces two distinct notes, and a magician claims it answers questions.",
+   "src": "L8898",
+   "choices": [
+    {
+     "label": "Test the horn's shape",
+     "next": "a",
+     "src": "L8899"
+    },
+    {
+     "label": "Ask villagers what they hear",
+     "next": "b",
+     "src": "L8901"
+    },
+    {
+     "label": "Preserve it as a cultural object",
+     "next": "c",
+     "src": "L8903"
+    },
+    {
+     "label": "Use a replica",
+     "next": "d",
+     "src": "L8905"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A craftsperson finds a physical reason for the tones.",
+   "src": "L8900",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8900"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Interpretations differ, often reflecting what listeners hope for.",
+   "src": "L8902"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The horn is displayed with both scientific notes and stories.",
+   "src": "L8904"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The replica produces similar sounds, but some still prefer the original.",
+   "src": "L8906"
+  }
+ }
+}

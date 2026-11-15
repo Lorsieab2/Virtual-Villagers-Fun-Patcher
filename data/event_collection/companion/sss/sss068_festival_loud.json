@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival That Was Too Loud",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss068_festival_loud",
+  "source": "companion",
+  "lines": [
+   6775,
+   6783
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6775",
+  "ledger": [
+   {
+    "src": "L6783",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager who looked forward to the festival is distressed by its drums, voices and fires.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager who anticipated the celebration becomes distressed by overlapping drums, voices, and bright fires.",
+   "src": "L6776",
+   "choices": [
+    {
+     "label": "Offer a quieter viewing place",
+     "next": "a",
+     "src": "L6777"
+    },
+    {
+     "label": "Ask what would help",
+     "next": "b",
+     "src": "L6779"
+    },
+    {
+     "label": "Respect their wish to go home",
+     "next": "c",
+     "src": "L6781"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the celebration",
+     "reason": "the festival already under way; the event adds none",
+     "src": "L6776"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They enjoy part of the festival from a distance.",
+   "src": "L6778"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They request advance notice before the loudest music.",
+   "src": "L6780"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They work peacefully on a carving and feel no shame about leaving.",
+   "src": "L6782"
+  }
+ }
+}

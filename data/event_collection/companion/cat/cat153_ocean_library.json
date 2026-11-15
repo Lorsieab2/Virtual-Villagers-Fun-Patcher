@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ocean's Library",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat153_ocean_library",
+  "source": "companion",
+  "lines": [
+   8933,
+   8943
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8933",
+  "ledger": [
+   {
+    "src": "L8943",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A diver finds a reef covered in tiny organisms whose patterns look like writing."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "diver": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A diver discovers a reef covered in tiny organisms whose patterns resemble writing.",
+   "src": "L8934",
+   "choices": [
+    {
+     "label": "Sketch them underwater",
+     "next": "a",
+     "src": "L8935"
+    },
+    {
+     "label": "Collect a naturally detached fragment",
+     "next": "b",
+     "src": "L8937"
+    },
+    {
+     "label": "Declare them ancient script",
+     "next": "c",
+     "src": "L8939"
+    },
+    {
+     "label": "Ask four schools of thought",
+     "next": "d",
+     "src": "L8941"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The symbols prove hard to reproduce accurately.",
+   "src": "L8936"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The sample is examined without breaking the living colony.",
+   "src": "L8938",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "diver",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8938"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The exciting claim spreads before evidence exists; a later correction causes embarrassment.",
+   "src": "L8940"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "Magic, nature, spirit and science each offer a reading; none becomes official truth.",
+   "src": "L8942"
+  }
+ }
+}

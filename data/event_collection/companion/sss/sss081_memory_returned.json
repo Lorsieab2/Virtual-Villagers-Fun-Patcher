@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memory That Returned",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss081_memory_returned",
+  "source": "companion",
+  "lines": [
+   6905,
+   6913
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6905",
+  "ledger": [
+   {
+    "src": "L6913",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A familiar smell brings back a frightening childhood memory, leaving an adult shaken.",
+  "cast_only": [
+   "adult",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A familiar smell brings back a frightening childhood event, leaving an adult shaken.",
+   "src": "L6906",
+   "choices": [
+    {
+     "label": "Ground them in the present",
+     "next": "a",
+     "src": "L6907"
+    },
+    {
+     "label": "Offer a break",
+     "next": "b",
+     "src": "L6909"
+    },
+    {
+     "label": "Invite a conversation only if wanted",
+     "next": "c",
+     "src": "L6911"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A trusted friend helps them notice the safe surroundings.",
+   "src": "L6908"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They leave the crowded workshop and return later.",
+   "src": "L6910"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They share a little of the memory without pressure to reveal everything.",
+   "src": "L6912"
+  }
+ }
+}

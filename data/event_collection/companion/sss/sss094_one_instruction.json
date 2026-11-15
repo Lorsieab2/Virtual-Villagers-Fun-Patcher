@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Needed One Instruction",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss094_one_instruction",
+  "source": "companion",
+  "lines": [
+   7035,
+   7043
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7035",
+  "ledger": [
+   {
+    "src": "L7043",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A trainee is confused when a mentor gives six directions at once.",
+  "cast_only": [
+   "trainee",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "trainee": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A trainee becomes confused when a mentor gives six directions at once.",
+   "src": "L7036",
+   "choices": [
+    {
+     "label": "Give one step at a time",
+     "next": "a",
+     "src": "L7037"
+    },
+    {
+     "label": "Draw a sequence",
+     "next": "b",
+     "src": "L7039"
+    },
+    {
+     "label": "Ask the trainee to repeat the plan",
+     "next": "c",
+     "src": "L7041"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The trainee works accurately and gains confidence.",
+   "src": "L7038"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The visual guide helps the entire workshop.",
+   "src": "L7040"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They identify a confusing step before a mistake occurs.",
+   "src": "L7042"
+  }
+ }
+}

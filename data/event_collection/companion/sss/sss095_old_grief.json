@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Grief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss095_old_grief",
+  "source": "companion",
+  "lines": [
+   7045,
+   7053
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7045",
+  "ledger": [
+   {
+    "src": "L7053",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An elder cries while repairing a toy that belonged to a sibling who has died.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elder unexpectedly cries while repairing a toy that belonged to a deceased sibling.",
+   "src": "L7046",
+   "choices": [
+    {
+     "label": "Let the memory be spoken",
+     "next": "a",
+     "src": "L7047"
+    },
+    {
+     "label": "Help finish the toy",
+     "next": "b",
+     "src": "L7049"
+    },
+    {
+     "label": "Offer privacy",
+     "next": "c",
+     "src": "L7051"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The elder tells a funny childhood story.",
+   "src": "L7048"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "It becomes a gift for a grandchild.",
+   "src": "L7050"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder keeps the toy and the memory to themselves.",
+   "src": "L7052"
+  }
+ }
+}

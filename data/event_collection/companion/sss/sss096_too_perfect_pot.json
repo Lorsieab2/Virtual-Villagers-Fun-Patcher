@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Too-Perfect Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss096_too_perfect_pot",
+  "source": "companion",
+  "lines": [
+   7055,
+   7063
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7055",
+  "ledger": [
+   {
+    "src": "L7063",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A potter keeps destroying good work because each pot has a tiny flaw.",
+  "cast_only": [
+   "potter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "potter": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A potter repeatedly destroys good work because each pot has a tiny flaw.",
+   "src": "L7056",
+   "choices": [
+    {
+     "label": "Ask what matters most",
+     "next": "a",
+     "src": "L7057"
+    },
+    {
+     "label": "Set aside imperfect pieces",
+     "next": "b",
+     "src": "L7059"
+    },
+    {
+     "label": "Take a rest from the wheel",
+     "next": "c",
+     "src": "L7061"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They decide which flaws are harmless.",
+   "src": "L7058"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The pieces become practice gifts.",
+   "src": "L7060"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The potter returns with less pressure, though the habit may persist.",
+   "src": "L7062"
+  }
+ }
+}

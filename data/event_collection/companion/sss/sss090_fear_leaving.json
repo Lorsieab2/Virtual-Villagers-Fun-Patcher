@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fear of Leaving Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss090_fear_leaving",
+  "source": "companion",
+  "lines": [
+   6995,
+   7003
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6995",
+  "ledger": [
+   {
+    "src": "L7003",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager wants to visit a distant part of Isola but fears being trapped far from home.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager wants to visit a distant part of Isola but fears becoming trapped far from familiar places.",
+   "src": "L6996",
+   "choices": [
+    {
+     "label": "Plan a short nearby outing",
+     "next": "a",
+     "src": "L6997"
+    },
+    {
+     "label": "Travel with a trusted friend",
+     "next": "b",
+     "src": "L6999"
+    },
+    {
+     "label": "Postpone without shame",
+     "next": "c",
+     "src": "L7001"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They explore a little and choose when to return.",
+   "src": "L6998"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They enjoy parts of the journey despite anxiety.",
+   "src": "L7000"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They study maps and decide whether to try another day.",
+   "src": "L7002"
+  }
+ }
+}

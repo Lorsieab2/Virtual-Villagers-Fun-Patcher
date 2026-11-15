@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beetle That Polishes Gold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat144_beetle_polishes",
+  "source": "companion",
+  "lines": [
+   8825,
+   8835
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8825",
+  "ledger": [
+   {
+    "src": "L8835",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A rare beetle's secretion cleans tarnished metal, and a jeweler wants to keep hundreds."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A rare beetle leaves a secretion that cleans tarnished metal remarkably well. A jeweler wants to keep hundreds.",
+   "src": "L8826",
+   "choices": [
+    {
+     "label": "Observe a few beetles",
+     "next": "a",
+     "src": "L8827"
+    },
+    {
+     "label": "Collect residue from empty bark",
+     "next": "b",
+     "src": "L8829"
+    },
+    {
+     "label": "Breed them in captivity",
+     "next": "c",
+     "src": "L8831"
+    },
+    {
+     "label": "Use traditional polishing",
+     "next": "d",
+     "src": "L8833"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The jeweler learns their habitat and collects no secretion.",
+   "src": "L8828",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8828"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The method is slow but does not require capturing beetles.",
+   "src": "L8830"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The beetles may fail to thrive; the jeweler learns husbandry is not simple.",
+   "src": "L8832",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8832"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "More work is required, but the rare population is left alone.",
+   "src": "L8834"
+  }
+ }
+}

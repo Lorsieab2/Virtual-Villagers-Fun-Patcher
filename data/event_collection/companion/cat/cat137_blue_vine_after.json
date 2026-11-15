@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blue Vine After Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat137_blue_vine_after",
+  "source": "companion",
+  "lines": [
+   8741,
+   8751
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8741",
+  "ledger": [
+   {
+    "src": "L8751",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A rare vine's luminous sap could mark trails, but cutting it may kill its only stem.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A rare vine produces luminous sap useful for marking trails. Cutting it may kill its only known stem.",
+   "src": "L8742",
+   "choices": [
+    {
+     "label": "Collect a fallen branch",
+     "next": "a",
+     "src": "L8743"
+    },
+    {
+     "label": "Try a tiny nonlethal sample",
+     "next": "b",
+     "src": "L8745"
+    },
+    {
+     "label": "Harvest the stem",
+     "next": "c",
+     "src": "L8747"
+    },
+    {
+     "label": "Make reflective markers",
+     "next": "d",
+     "src": "L8749"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The faint glow lasts only one night.",
+   "src": "L8744"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The vine survives, but the sample is too small for a trail.",
+   "src": "L8746"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A bright trail saves a lost party, but the plant may never regrow.",
+   "src": "L8748"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "Ordinary shells and pale stones work with moonlight.",
+   "src": "L8750"
+  }
+ }
+}

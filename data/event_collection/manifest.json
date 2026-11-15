@@ -32675,7 +32675,7 @@
    }
   },
   {
-   "id": "sss086_apprentice",
+   "id": "sss086_heard_too_much",
    "title": "The Apprentice Who Heard Too Much",
    "games": [
     1,
@@ -32786,7 +32786,7 @@
    }
   },
   {
-   "id": "sss089_mask",
+   "id": "sss089_cheerfulness",
    "title": "The Mask of Cheerfulness",
    "games": [
     1,
@@ -32971,7 +32971,7 @@
    }
   },
   {
-   "id": "sss094_apprentice",
+   "id": "sss094_one_instruction",
    "title": "The Apprentice Who Needed One Instruction",
    "games": [
     1,
@@ -37414,8 +37414,6 @@
    "id": "cat117_fertility",
    "title": "Magic Fish of Fertility: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37451,8 +37449,6 @@
    "id": "cat118_sustenance",
    "title": "Magic Fish of Sustenance: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37488,8 +37484,6 @@
    "id": "cat119_curing",
    "title": "Magic Fish of Curing: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37525,8 +37519,6 @@
    "id": "cat120_growth",
    "title": "Magic Fish of Growth: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37562,8 +37554,6 @@
    "id": "cat121_health",
    "title": "Magic Fish of Health: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37599,8 +37589,6 @@
    "id": "cat122_mutation",
    "title": "Magic Fish of Mutation: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -37636,8 +37624,6 @@
    "id": "cat123_golden_guppy",
    "title": "The Golden Guppy: A Question of Cause",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -38225,7 +38211,7 @@
    }
   },
   {
-   "id": "cat139_orchid",
+   "id": "cat139_orchid_memory",
    "title": "The Orchid That Remembers",
    "games": [
     1,
@@ -38484,7 +38470,7 @@
    }
   },
   {
-   "id": "cat146_incorrect",
+   "id": "cat146_masterpiece",
    "title": "The Incorrect Masterpiece",
    "games": [
     1,
@@ -38635,8 +38621,6 @@
    "id": "cat150_conch_two",
    "title": "The Conch With Two Voices",
    "games": [
-    1,
-    2,
     3,
     4,
     5
@@ -38669,7 +38653,7 @@
    }
   },
   {
-   "id": "cat151_child",
+   "id": "cat151_ants",
    "title": "The Child Who Catalogued Ants",
    "games": [
     1,

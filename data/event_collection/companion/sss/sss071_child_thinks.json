@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Thinks Differently",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss071_child_thinks",
+  "source": "companion",
+  "lines": [
+   6805,
+   6813
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6805",
+  "ledger": [
+   {
+    "src": "L6813",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child who notices tiny insect patterns struggles when friends change a game's rules without warning.",
+  "cast_only": [
+   "child",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child notices tiny insect patterns but struggles when friends change the rules of a game without warning.",
+   "src": "L6806",
+   "choices": [
+    {
+     "label": "Explain the rules plainly",
+     "next": "a",
+     "src": "L6807"
+    },
+    {
+     "label": "Invite the child to show their observations",
+     "next": "b",
+     "src": "L6809"
+    },
+    {
+     "label": "Offer a different activity",
+     "next": "c",
+     "src": "L6811"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The game becomes easier for several children.",
+   "src": "L6808"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Some friends become interested; others politely choose another game.",
+   "src": "L6810"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child enjoys watching beetles with a patient friend.",
+   "src": "L6812"
+  }
+ }
+}

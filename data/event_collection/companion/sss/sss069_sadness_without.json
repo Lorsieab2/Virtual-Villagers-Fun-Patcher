@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sadness Without a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss069_sadness_without",
+  "source": "companion",
+  "lines": [
+   6785,
+   6793
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6785",
+  "ledger": [
+   {
+    "src": "L6793",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A gardener has lost interest in flowers, meals and familiar games for many days.",
+  "cast_only": [
+   "gardener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "gardener": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A gardener has lost interest in flowers, meals, and familiar games for many days.",
+   "src": "L6786",
+   "choices": [
+    {
+     "label": "Sit nearby without demanding cheer",
+     "next": "a",
+     "src": "L6787"
+    },
+    {
+     "label": "Share the garden work",
+     "next": "b",
+     "src": "L6789"
+    },
+    {
+     "label": "Invite a trusted healer to listen",
+     "next": "c",
+     "src": "L6791"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The gardener appreciates quiet company, though the heaviness remains.",
+   "src": "L6788"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The beds recover; the gardener still needs rest.",
+   "src": "L6790",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "helper",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6790"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The healer checks sleep, food, pain, and safety and offers ongoing care.",
+   "src": "L6792",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6792"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "pain and safety",
+     "reason": "the healer checks; nobody is found hurt or ill",
+     "src": "L6792"
+    }
+   ]
+  }
+ }
+}

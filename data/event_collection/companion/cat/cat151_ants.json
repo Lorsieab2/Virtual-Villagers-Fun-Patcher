@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Catalogued Ants",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat151_ants",
+  "source": "companion",
+  "lines": [
+   8909,
+   8919
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8909",
+  "ledger": [
+   {
+    "src": "L8919",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A child records ants carrying flower fragments but draws them with too many legs."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child records ants carrying flower fragments but draws them with too many legs.",
+   "src": "L8910",
+   "choices": [
+    {
+     "label": "Praise the careful observation",
+     "next": "a",
+     "src": "L8911"
+    },
+    {
+     "label": "Invite a naturalist to help",
+     "next": "b",
+     "src": "L8913"
+    },
+    {
+     "label": "Keep the charming first sketch",
+     "next": "c",
+     "src": "L8915"
+    },
+    {
+     "label": "Collect a dead ant found nearby",
+     "next": "d",
+     "src": "L8917"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The child learns to count again and correct the drawing.",
+   "src": "L8912"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The pair compare species without killing the colony.",
+   "src": "L8914"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "It is labeled an early attempt, not a final scientific record.",
+   "src": "L8916"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The child studies its anatomy and understands the earlier error.",
+   "src": "L8918",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8918"
+    }
+   ]
+  }
+ }
+}
