@@ -128,21 +128,11 @@ SSS = {
 
 # ---- The Living Catalogue, 117-154 ----------------------------------------------------------------------------------
 CAT_HEAD = r"^EVENT \d{3}\s+-\s+"          # "EVENT 117 — " after the source's typography is normalised
-# The owner's content rules (2026-11-14), rule 3: a modern-day thing is named in the words of people who never saw
-# one.  The smallest piece changes; each is a "sensitivity" ledger entry for the owner's review.
-# Only modern technology objects change (the owner, 2026-11-14: "don't go crazy with the name changes ... scholarly
-# words are ok"); scholarly words (laboratory, monograph, publish, synthetic, teleportation, checklist) stay.
-MODERN = ("rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's "
-          "wording: a clear-walled rectangular container)")
-CW = "clear-walled rectangular container"
-SENS = {**{n: [("aquarium", CW)] for n in (8658, 8670, 8682, 8694, 8706)},            # 130-134 premise
-        **{n: [("tanks", CW + "s")] for n in (8505, 8517, 8529, 8541, 8553, 8565, 8577)},  # 117-123 choice B
-        8846: [("aquaria", CW + "s")],                                                # 145 D
-        8861: [("Aquarium", "Container")],                                            # 147 title
-        8862: [("an aquarium", "a " + CW)]}                                           # 147 premise
-
-# The Inner Lives (gen_k8.build pages): no edit.  The owner (2026-11-14) keeps 085's "since their child died" and
-# 095's "a deceased sibling" ("deceased/late siblings or others = keep them. death happens").
+# Sensitivity edits (the owner's content rules, 2026-11-14): none.  The owner reviewed every candidate and keeps the
+# text as written ("aquarium is ok"; scholarly words stay; 085's and 095's death wording stays).  The tables stay so
+# a later edit is one line: {line: [(before, after)]}, each logged as a "sensitivity" ledger entry.
+MODERN = "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would"
+SENS: dict[int, list[tuple[str, str]]] = {}
 SSS_SENS: dict[int, list[tuple[str, str]]] = {}
 
 
@@ -188,7 +178,7 @@ CAT = {
     145: ({"scholar": SCHOLAR}, "A scholar proposes cataloguing every living thing on Isola, a task that seems impossible.",
           {"eff": {"a": [sk("scholar", "Research")]}}),
     146: ({"artist": V}, "A renowned artist paints a Greenfin Spotanus with the wrong fin and the wrong name.", {}),
-    147: ({"keeper": V}, "A keeper finds a clear-walled rectangular container empty after a storm, with no dead fish in sight.", {}),
+    147: ({"keeper": V}, "A keeper finds an aquarium empty after a storm, with no dead fish in sight.", {}),
     148: ({"botanist": GARDENER}, "A more experienced botanist says a Painted Tigerfern was named wrongly.",
           {"eff": {"b": [sk("botanist", "Farming")]}}),
     149: ({"perfumer": V}, "A rare Fourpetal Maple's scent draws night pollinators, and perfumers want its flowers.",

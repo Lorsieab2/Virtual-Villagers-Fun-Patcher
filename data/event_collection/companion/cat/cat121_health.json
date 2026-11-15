@@ -24,13 +24,6 @@
     "src": "L8559",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
-   },
-   {
-    "src": "L8553",
-    "kind": "sensitivity",
-    "before": "tanks",
-    "after": "clear-walled rectangular containers",
-    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
   "description": "A keeper records a stretch of unusually vigorous swimming near an Orange Snooper, tied in stories to the Magic Fish of Health."
@@ -62,7 +55,7 @@
      "src": "L8551"
     },
     {
-     "label": "Compare clear-walled rectangular containers and conditions",
+     "label": "Compare tanks and conditions",
      "next": "b",
      "src": "L8553"
     },

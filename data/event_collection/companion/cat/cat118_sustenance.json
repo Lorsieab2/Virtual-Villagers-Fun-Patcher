@@ -24,13 +24,6 @@
     "src": "L8523",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
-   },
-   {
-    "src": "L8517",
-    "kind": "sensitivity",
-    "before": "tanks",
-    "after": "clear-walled rectangular containers",
-    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
   "description": "A keeper records an unusually abundant harvest near a Speckled Leaffish, tied in stories to the Magic Fish of Sustenance."
@@ -62,7 +55,7 @@
      "src": "L8515"
     },
     {
-     "label": "Compare clear-walled rectangular containers and conditions",
+     "label": "Compare tanks and conditions",
      "next": "b",
      "src": "L8517"
     },

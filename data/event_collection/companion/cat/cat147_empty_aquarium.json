@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Empty Container",
+ "title": "The Empty Aquarium",
  "games": [
   1,
   2,
@@ -26,23 +26,9 @@
     "src": "L8871",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
-   },
-   {
-    "src": "L8861",
-    "kind": "sensitivity",
-    "before": "Aquarium",
-    "after": "Container",
-    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
-   },
-   {
-    "src": "L8862",
-    "kind": "sensitivity",
-    "before": "an aquarium",
-    "after": "a clear-walled rectangular container",
-    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
-  "description": "A keeper finds a clear-walled rectangular container empty after a storm, with no dead fish in sight.",
+  "description": "A keeper finds an aquarium empty after a storm, with no dead fish in sight.",
   "cast_only": [
    "keeper"
   ]
@@ -61,7 +47,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "A keeper finds a clear-walled rectangular container empty after a storm, with no dead fish in sight.",
+   "text": "A keeper finds an aquarium empty after a storm, with no dead fish in sight.",
    "src": "L8862",
    "choices": [
     {
