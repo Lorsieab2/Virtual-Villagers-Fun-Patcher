@@ -252,8 +252,15 @@ def check_quality(bank: mx.Bank, seed: dict, v: dict, d: dict, found: dict, game
                 out.append(f"{where}: {ident} -> {x} breaks S2-S6")
             if "supernatural" in seed["tags"] and "resolves" in bank.arc[x]["tags"]:
                 out.append(f"{where}: supernatural seed resolved by {x}")
+            rule = mx.seed_arc_rule(bank, seed, x)
+            if rule:
+                out.append(f"{where}: {rule}: {x} after {ident}")
+            if not mx.endorse_ok(bank, seed, kind, ident, x):
+                out.append(f"{where}: S11: {ident} -> {x} rewards following an unjust custom")
             if bank.arc[x]["group"] != "rare" and not bank.arc[x]["effects"]:
                 free = True
+        if mx.no_mocking(seed) and "mocking" in mx.choice_classes(bank, kind, ident) and not v["flags"] & mx.FLAG_MIX:
+            out.append(f"{where}: S10-S12: the seed offers the mocking {ident}")
     if not free:
         out.append(f"{where}: no path without an effect")
 
@@ -362,8 +369,9 @@ def check_packs(packs: dict[int, bytes] | None = None, bank: mx.Bank | None = No
     active = ["living_" + s["id"] for s in bank.seeds] + \
              ["living_" + s["id"] for s in bank.mc_sits if s.get("outcomes_status") == "active"]
     for sid in active:
-        if per_seed_k.get(sid) != set(range(mx.K)):
-            out.append(f"{sid}: variants k {sorted(per_seed_k.get(sid, []))}, expected 0..{mx.K - 1}")
+        k_want = mx.MC_K if sid.startswith("living_mc_") else mx.K
+        if per_seed_k.get(sid) != set(range(k_want)):
+            out.append(f"{sid}: variants k {sorted(per_seed_k.get(sid, []))}, expected 0..{k_want - 1}")
     return out, stats
 
 

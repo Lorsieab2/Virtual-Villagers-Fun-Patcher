@@ -544,10 +544,13 @@ static int sc_arm_collection(int game, int i) {
     if (sc_test_traced < 64) {
         sc_test_trace[sc_test_traced++] = 0x10000 | i;
     }
-    if (sc_test_manifest != NULL) {
+    if (sc_test_manifest != NULL && !(lv_entry_living(i) && lv_test_has_pack())) {
         return (sc_test_coll_ok & (1u << (i & 31))) != 0;
     }
 #endif
+    if (lv_entry_living(i)) {
+        return lv_arm_entry(game, i, CG_ORIGIN_NATURAL, CG_CAST_STRICT);   /* a Living Event Engine seed */
+    }
     return sc_load_entry(i, &size) && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
@@ -569,6 +572,9 @@ static int sc_choose_and_arm(int game) {
     }
     for (i = 0; i < n_coll; ++i) {
         left[i] = 1;
+    }
+    if (n_coll > 0) {
+        n_coll -= lv_draw_prepare(game, left);   /* the Living Event Engine's recency and moods (story_living.inc) */
     }
     while (n_more > 0 || n_coll > 0) {
         int source = n_more > 0 && n_coll > 0 ? sc_rand(game, 2) : (n_more > 0 ? 0 : 1);
@@ -595,7 +601,7 @@ static int sc_choose_and_arm(int game) {
                             break;
                         }
                     }
-                    total += first;
+                    total += first ? lv_series_weight(i) : 0;
                 } else {
                     total += sc_list[i].weight;
                 }
@@ -613,7 +619,7 @@ static int sc_choose_and_arm(int game) {
                             break;
                         }
                     }
-                    w = first;
+                    w = first ? lv_series_weight(i) : 0;
                 } else {
                     w = sc_list[i].weight;
                 }
@@ -706,6 +712,18 @@ static const char *sc_check(int game, int i, char *why, int cap) {
                                "another branching island event is still running", 200), cap);
         return why;
     }
+    if (lv_is_living(sc_list[i].id)) {
+        refusal = lv_check_entry(game, i);   /* possible when any of its variants casts (story_living.inc) */
+        if (refusal == NULL) {
+            return NULL;
+        }
+        lstrcpynA(why, refusal, cap);
+        n = lstrlenA(why);
+        if (n > 25 && lstrcmpA(why + n - 25, " Nothing has been queued.") == 0) {
+            why[n - 25] = '\0';
+        }
+        return why;
+    }
     if (!sc_load_entry(i, &size) || !cg_load(&cg_g, sc_bytes, size)) {
         lstrcpynA(why, vvfp_tr("vvfp.story/story_collection.sc_check.s1",
                                "its file can not be read: install the patch again", 200), cap);
@@ -733,6 +751,7 @@ static int sc_pick_fill(int game) {
     if (!sc_collection_on(game) || sc_scan(game) == 0) {
         return 0;
     }
+    (void)lv_map_entries(game);
     for (i = 0; i < sc_count && sm_list.count < SM_MAX; ++i) {
         int m = sm_list.count;
         lstrcpynA(sm_list.title[m], sc_list[i].title, SM_TEXT);
@@ -771,8 +790,10 @@ static int sc_pick_buy(int game, HWND owner, int i) {
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if (sc_check(game, i, why, sizeof why) != NULL || !sc_load_entry(i, &size)
-        || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK, CG_CAST_STRICT)) {
+    if (sc_check(game, i, why, sizeof why) != NULL
+        || (lv_entry_living(i) ? !lv_arm_entry(game, i, CG_ORIGIN_PICK, CG_CAST_STRICT)
+                               : (!sc_load_entry(i, &size)
+                                  || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK, CG_CAST_STRICT)))) {
         wsprintfA(message, vvfp_tr("vvfp.story/story_collection.sc_pick_buy.s0",
                                    "%s can not happen right now: %s No tech points have been deducted.", 200),
                   sc_list[i].title, cg_queue_refusal()[0] != '\0' ? cg_queue_refusal() : why);
@@ -795,11 +816,25 @@ static void sc_library_add(int game) {
     if (!sc_collection_on(game) || sc_scan(game) == 0) {
         return;
     }
+    (void)lv_map_entries(game);
     for (i = 0; i < sc_count && cg_lib.count < CG_LIBRARY_MAX; ++i) {
         char leaf[80];
         wchar_t wide[VVFP_PATCHER_FILES_PATH_CAP];
         BOOL lossy = FALSE;
         int n;
+        if (lv_is_living(sc_list[i].id)) {
+            /* A Living Event Engine seed: its row's sentence tells the seeds of a category apart. */
+            if (lv_library_entry(game, i, cg_lib.path[cg_lib.count])) {
+                char text[sizeof sc_list[0].title + sizeof sc_list[0].description + 4];
+                char full[sizeof text + 120];
+                wsprintfA(text, "%s: %s", sc_list[i].title, sc_list[i].description);
+                wsprintfA(full, vvfp_tr("vvfp.story/story_collection.sc_library_add.s0",
+                                        "Isola Grand Event Collection: %s", 100), text);
+                lstrcpynA(cg_lib.label[cg_lib.count], full, sizeof cg_lib.label[0]);
+                ++cg_lib.count;
+            }
+            continue;
+        }
         wsprintfA(leaf, "%s.cieg", sc_list[i].id);
         if (sc_path(wide, leaf) == 0) {
             continue;

@@ -1894,6 +1894,7 @@ static int test_roll = -1;         /* TEST build: the next roll, -1 = the real s
 static int test_rolls[64];         /* TEST build: the next rolls, in order, before test_roll */
 static int test_roll_count;
 static int test_roll_next;
+static int test_roll_tail = -1;    /* TEST build: every roll after the list (-1 = the real source) */
 #endif
 
 /* Whether `game` can ask a question: its delivery hook is in place. */
@@ -2094,6 +2095,9 @@ static int ce_random_below(const ce_adapter *a, int n) {
         r = test_roll;
         test_roll = -1;
         return r % n;
+    }
+    if (test_roll_tail >= 0) {
+        return test_roll_tail % n;
     }
 #endif
     if (a->rand_below != NULL) {

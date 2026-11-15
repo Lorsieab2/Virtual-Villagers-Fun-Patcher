@@ -104,7 +104,7 @@ class TheVariants(unittest.TestCase):
             by.setdefault(v.manifest_id, []).append(v.k)
         self.assertEqual(len(by), 120 + 95)
         for sid, ks in by.items():
-            self.assertEqual(ks, list(range(mx.K)), sid)
+            self.assertEqual(ks, list(range(mx.MC_K if sid.startswith("living_mc_") else mx.K)), sid)
 
     def test_mix_is_variant_zero(self) -> None:
         mixed = [v for v in VARIANTS if v.flags & mx.FLAG_MIX]
@@ -127,11 +127,22 @@ class TheVariants(unittest.TestCase):
     def test_no_mj(self) -> None:
         self.assertFalse(any(v.seed.startswith("mj_") for v in VARIANTS))
 
-    def test_mc_orders_are_distinct(self) -> None:
+    def test_mc_ships_its_source_order_alone(self) -> None:
+        """MC K = 1 (lead, 2026-11-14): its other orders were near duplicates (about 2 MB a pack)."""
+        self.assertEqual(mx.MC_K, 1)
         for sit in BANK.mc_sits:
             orders = [v.plan["order"] for v in VARIANTS if v.seed == sit["id"]]
+            self.assertEqual(orders, [(0, 1, 2, 3)])
+
+    def test_mc_orders_are_distinct_when_asked_for(self) -> None:
+        for sit in BANK.mc_sits[:5]:
+            orders = mx.mc_orders(sit, mx.K)
             self.assertEqual(orders[0], (0, 1, 2, 3))
             self.assertEqual(len(set(orders)), mx.K)
+
+    def test_packs_stay_small(self) -> None:
+        for game, data in PACKS.items():
+            self.assertLess(len(data), 4_000_000, game)
 
     def test_manifest_rows(self) -> None:
         for game in mx.GAMES:
@@ -207,6 +218,55 @@ class Ordering(unittest.TestCase):
         h.finished(5)
         h.finished(mx.NONE8)
         self.assertEqual(dict(h.arc), {5: 1})
+
+
+class Moods(unittest.TestCase):
+    """The owner's Global Editorial Override (item 10): about one third warm, social and serious."""
+
+    TABLE = {"le_cat_per": "warm", "le_cat_fam": "social", "le_cat_cel": "warm", "le_cat_art": "social",
+             "le_cat_ani": "social", "le_cat_bel": "serious", "le_cat_gov": "serious", "le_cat_oth": "social",
+             "le_cat_foo": "warm", "le_cat_emo": "serious", "le_cat_res": "serious", "le_cat_odd": "warm",
+             "mc_cat_isl": "social", "mc_cat_dis": "serious", "mc_cat_aft": "serious", "mc_cat_los": "serious",
+             "mc_cat_tra": "serious", "mc_cat_bel": "social"}
+
+    def test_the_table(self) -> None:
+        got = {c["id"]: c["mood"] for c in BANK.categories + BANK.mc_cats}
+        self.assertEqual(got, self.TABLE)
+        self.assertEqual(BANK.raw["moods"]["order"], list(mx.MOODS))
+
+    def test_living_engine_is_a_third_each(self) -> None:
+        moods = [c["mood"] for c in BANK.categories]
+        self.assertEqual({m: moods.count(m) for m in mx.MOODS}, {"warm": 4, "social": 4, "serious": 4})
+
+    def test_each_seed_record_holds_its_categorys_mood(self) -> None:
+        for game, data in PACKS.items():
+            p = mx.read_pack(data)
+            for s in p["seeds"]:
+                v = next(x for x in VARIANTS if x.manifest_id == s["id"])
+                cat = BANK.cat[BANK.seed[v.seed]["category"]] if v.bank == 0 else BANK.mc_cats[v.cat_index]
+                self.assertEqual(mx.MOODS[s["mood"]], cat["mood"], (game, s["id"]))
+
+    def test_mood_weights(self) -> None:
+        h = mx.History(30, 38, 15, 10)
+        moods = [0, 0, 1, 2]                          # seed -> mood
+        self.assertEqual(h.mood_weights(moods), [1, 1, 1])           # nothing seen: no bias
+        h.ring = [0, 2]
+        self.assertEqual(h.mood_weights(moods), [1, 1, mx.MOOD_BOOST])   # serious seen least
+        h.ring = [0, 3]
+        self.assertEqual(h.mood_weights(moods), [1, mx.MOOD_BOOST, 1])
+        h.ring = [0]
+        self.assertEqual(h.mood_weights(moods), [1, mx.MOOD_BOOST, mx.MOOD_BOOST])
+        h.ring = [0, 2, 3]
+        self.assertEqual(h.mood_weights(moods), [1, 1, 1])           # one each: no bias
+
+
+class TheLenses(unittest.TestCase):
+    def test_fifteen_plain_lenses(self) -> None:
+        texts = [l["text"] for l in BANK.lenses]
+        self.assertEqual(len(texts), 15)
+        self.assertEqual(texts[-1], "uncertainty")
+        self.assertTrue(all("." not in x and " seed " not in x for x in texts), texts)
+        self.assertEqual([l["id"] for l in BANK.lenses], ["le_lens_" + x for x in texts])
 
 
 if __name__ == "__main__":

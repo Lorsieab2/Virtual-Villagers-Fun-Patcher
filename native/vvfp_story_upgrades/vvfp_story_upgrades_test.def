@@ -158,3 +158,13 @@ EXPORTS
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
     VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24
     VvfpStoryProbeMoreDescription=_VvfpStoryProbeMoreDescription@12
+    VvfpStoryProbeLivingPack=_VvfpStoryProbeLivingPack@8
+    VvfpStoryProbeLivingForget=_VvfpStoryProbeLivingForget@0
+    VvfpStoryProbeLivingFile=_VvfpStoryProbeLivingFile@8
+    VvfpStoryProbeLivingSetFile=_VvfpStoryProbeLivingSetFile@8
+    VvfpStoryProbeLivingOrder=_VvfpStoryProbeLivingOrder@16
+    VvfpStoryProbeLivingArm=_VvfpStoryProbeLivingArm@16
+    VvfpStoryProbeLivingState=_VvfpStoryProbeLivingState@8
+    VvfpStoryProbeLivingLibrary=_VvfpStoryProbeLivingLibrary@12
+    VvfpStoryProbeLivingReset=_VvfpStoryProbeLivingReset@8
+    VvfpStoryProbeSetRollTail=_VvfpStoryProbeSetRollTail@4

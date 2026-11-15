@@ -109,6 +109,7 @@ typedef struct {
 } story_village;
 static unsigned int story_village_generation;
 static int story_current_slot(int game);
+static void lv_village_reset(int game, int slot);   /* story_living.inc: Start Over deletes its history */
 
 static story_village story_village_now(int game) {
     story_village v;
@@ -1206,6 +1207,7 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
     sq_village_reset(game, slot);   /* its queue's file goes with it */
     titles_village_reset(game, slot);   /* and its custom titles (story_titles.inc) */
     faith_notice_village_reset(game);   /* and the believers waiting for their popup (story_faith_notice.inc) */
+    lv_village_reset(game, slot);       /* and its Living Events history (story_living.inc) */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its
@@ -1325,8 +1327,26 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_time_skip.inc"
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
+/* The Living Event Engine (story_living.inc), called by the branching engine and the collection's roll. */
+static int lv_is_living(const char *id);
+static int lv_entry_living(int i);
+static int lv_arm_entry(int game, int i, int origin, int cast);
+static const char *lv_check_entry(int game, int i);
+static int lv_map_entries(int game);
+static int lv_draw_prepare(int game, unsigned char *left);
+static int lv_series_weight(int i);
+static int lv_library_path(const char *path);
+static int lv_library_load(int game, const char *path);
+static void lv_library_armed(int game);
+static int lv_library_entry(int game, int i, char *path);
+static void lv_on_finish(int game);
+#ifdef VVFP_TEST
+static int lv_test_has_pack(void);
+#endif
+
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
 #include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
+#include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

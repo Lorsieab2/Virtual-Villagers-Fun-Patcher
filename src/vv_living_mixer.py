@@ -36,6 +36,9 @@ import vv_cie_graph as cg  # noqa: E402
 
 BANK = ROOT / "data" / "living_events" / "bank.json"
 K = 10
+# An MC situation's variants only reorder its four approaches (near duplicates of one another, about 2 MB a pack):
+# it ships its source order alone (lead, 2026-11-14).
+MC_K = 1
 GAMES = (1, 2, 3, 4, 5)
 ALL_SKILLS = ("Parenting", "Building", "Farming", "Healing", "Research")
 W_GOOD, W_ADVERSE, W_RARE = 20, 20, 2           # per choice (living-events.md Q7)
@@ -46,6 +49,10 @@ FAM_MC = 1 << 6
 FLAG_MIX, FLAG_SET, FLAG_APPROACHES = 1, 2, 4
 GROUP_CODE = {"good": 1, "mixed": 2, "bad": 3, "rare": 4}
 NONE16, NONE8 = 0xFFFF, 0xFF
+# The owner's Global Editorial Override (item 10): about one third each.  A category's mood is the bank's
+# (categories[].mood, mc.categories[].mood); the pack keeps it in the seed record (living-pack.md 2.2).
+MOODS = ("warm", "social", "serious")
+MOOD_BOOST = 2                                  # a least-seen mood's series weight (living-pack.md 4.1a)
 FRAME_TAIL = "disagree about what should happen next. Their status alone does not settle the matter."
 # The chief's game words (authoring-rules.md 10): VV3 keeps the owner's words, the other games say the village leader.
 CHIEF_WORDS = {
@@ -103,9 +110,34 @@ SENSITIVITY_RULES = {
     "S7": "A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding "
           "obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a "
           "child, a teenager or anyone younger than 18 in any role.",
-    "S8": "An injury or exhaustion never lands on a child or a teenager (child labour would be implied).",
+    "S8": "An injury may land on a child or a teenager only at the rare tier, like any villager's rare harm (owner, "
+          "2026-11-15: \"Allow it, rare\"); never from a comedic or a trial choice (S2, S3). The bank's only injury "
+          "outcome (minor injury or exhaustion) is an adverse one (weight 20 of 42), so it never lands on a child or "
+          "a teenager: a rare-tier injury line from the owner would be needed for one.",
     "S9": "Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied).",
+    # Owner world rule (2026-11-15): some villagers believe, others do not; whether gods or spirits exist stays
+    # ambiguous; every belief and non-belief is valid and individual; nothing mocks, ranks or corrects a belief.
+    "S10": "Belief and spirit seeds never take a mocking or comedic approach (a friendly contest, a joke, celebrating "
+           "the result) and never end in an outcome that corrects or settles something (a misunderstanding gently "
+           "corrected, confidence found mistaken): a belief would read as mocked or corrected.",
+    # Owner rule (2026-11-15): villagers never murder or abuse; any other wrong act is acknowledged as wrong and has
+    # fitting consequences, never justified, rewarded or laughed off; no bigotry or unjust hatred anywhere.
+    "S11": "A seed whose situation is a wrong act (a prank that embarrasses someone, cheating alleged, a rule meant "
+           "only for outsiders) never takes a mocking or comedic choice, never ends in a celebration or a light "
+           "outcome, and never in one that keeps an unjust custom (customs coexisting, the tradition preserved); "
+           "following the unjust custom is never offered, and where the owner's example offers it, its good outcome "
+           "is one that acknowledges the people affected.",
+    # Owner rules 15-18 (2026-11-15): appearance, body and disability are never a problem, a lesson or a punchline.
+    "S12": "A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or "
+           "comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would "
+           "read as a problem or a punchline.",
 }
+WRONG_ACT_SEEDS = {"le_cel_07", "le_gov_04", "le_gov_07"}          # S11
+UNJUST_KEEP = {"le_arc_good_09", "le_arc_mixed_09"}                # customs coexist; the tradition preserved
+ENDORSE_CHOICES = {"le_gov_07": {"le_cs_gov_oth_b"}}               # Follow the established custom
+ACKNOWLEDGE = ("le_arc_good_07", "le_arc_good_01")                 # the person affected heard; dignity kept
+APPEARANCE_SEEDS = {"le_per_01", "le_per_03", "le_per_04", "le_per_05", "le_per_07", "le_per_08", "le_cel_10",
+                    "le_odd_07"}                                    # S12
 ADULT_FRAME_SEEDS = {"le_fam_04", "le_gov_08"}      # plus every seed tagged adult_only
 SECRET_CHOICES = {"le_app_withdraw_03"}              # Keep the matter private
 ANIMAL_SEEDS_EXTRA = {"le_cel_09", "le_odd_01", "le_odd_04", "le_odd_09"}
@@ -223,6 +255,7 @@ class Variant:
     outcomes: list[tuple[str, int, int]] = field(default_factory=list)    # (node, group, archetype index)
     plan: dict = field(default_factory=dict)                              # what was chosen (tests, the report)
     cieg: bytes = b""
+    mood: int = 0                     # MOODS index of the seed's category
 
 
 def _pick(cands, score, rng: random.Random):
@@ -331,8 +364,40 @@ def archetype_effects(bank: Bank, arc: str, a: str, b: str, games: list[int]) ->
     return out
 
 
+def belief_corrected(bank: Bank, seed: dict, arc: str) -> bool:
+    """S10: would this archetype read as correcting or settling the seed's belief?"""
+    return belief_seed(seed) and "resolves" in bank.arc[arc]["tags"]
+
+
+def seed_arc_rule(bank: Bank, seed: dict, arc: str) -> str | None:
+    """S10-S12: the rule that keeps this archetype from this seed, None when none does."""
+    if belief_corrected(bank, seed, arc):
+        return "S10"
+    tags = bank.arc[arc]["tags"]
+    if seed["id"] in WRONG_ACT_SEEDS and ("light" in tags or arc in UNJUST_KEEP):
+        return "S11"
+    if seed["id"] in APPEARANCE_SEEDS and "blame" in tags:
+        return "S12"
+    return None
+
+
+def no_mocking(seed: dict) -> bool:
+    """S10-S12: a seed that never takes a mocking or comedic choice."""
+    return belief_seed(seed) or seed["id"] in WRONG_ACT_SEEDS or seed["id"] in APPEARANCE_SEEDS
+
+
+def endorse_ok(bank: Bank, seed: dict, kind: str, ident: str, arc: str) -> bool:
+    """S11: after a choice that follows an unjust custom (only in the owner's example), a good outcome
+    acknowledges the people affected."""
+    if ident not in ENDORSE_CHOICES.get(seed["id"], set()) or bank.arc[arc]["group"] != "good":
+        return True
+    return arc in ACKNOWLEDGE
+
+
 def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str) -> bool:
     if not bank.seed_allows(seed, "archetype", arc):
+        return False
+    if seed_arc_rule(bank, bank.seed[seed], arc):
         return False
     if not (bank.role_allows_archetype(a, arc) and bank.role_allows_archetype(b, arc)):
         return False
@@ -608,21 +673,27 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
     games = variant_games(bank, sdict, a, b)
     for i, ((kind, ident), pair) in enumerate(zip(choices, outs)):
         for j, arc in enumerate(pair):
-            if arc_ok_after(bank, kind, ident, arc) and cast_ok(bank, arc, a, b):
+            if arc_ok_after(bank, kind, ident, arc) and cast_ok(bank, arc, a, b) \
+                    and not seed_arc_rule(bank, sdict, arc) and endorse_ok(bank, sdict, kind, ident, arc):
                 continue
             group = ("good",) if bank.arc[arc]["group"] == "good" else ("mixed", "bad")
             same = [x["id"] for x in bank.archetypes if x["group"] in group]
             cands = NEAREST_ARCHETYPE.get(arc, []) + sorted(same, key=lambda x: (abs(bank.arc_index[x] - bank.arc_index[arc]),
                                                                                   bank.arc_index[x]))
+            if not endorse_ok(bank, sdict, kind, ident, arc):
+                cands = list(ACKNOWLEDGE) + cands
             new = next(x for x in cands if archetype_possible(bank, seed, x, a, b) and arc_ok_after(bank, kind, ident, x)
-                       and not hurts(bank, x) and "blame" not in bank.arc[x]["tags"])
+                       and not hurts(bank, x) and "blame" not in bank.arc[x]["tags"]
+                       and endorse_ok(bank, sdict, kind, ident, x))
             pair[j] = new
             changes.append({"mix": mix["code"], "what": f"choice {'ABCD'[i]} outcome {'12'[j]} (sensitivity edit)",
                             "before": bank.arc[arc]["text"], "after": bank.arc[new]["text"],
-                            "rule": next((r for r, c in (("S2", "mocking"), ("S3", "trial"), ("S4", "confront"),
-                                                         ("S6", "elder_ask"))
-                                          if c in choice_classes(bank, kind, ident)
-                                          and not arc_ok_after(bank, kind, ident, arc)), "S8")})
+                            "rule": seed_arc_rule(bank, sdict, arc)
+                            or ("S11" if not endorse_ok(bank, sdict, kind, ident, arc) else None)
+                            or next((r for r, c in (("S2", "mocking"), ("S3", "trial"), ("S4", "confront"),
+                                                      ("S6", "elder_ask"))
+                                       if c in choice_classes(bank, kind, ident)
+                                       and not arc_ok_after(bank, kind, ident, arc)), "S8")})
     slots = sensitive_slots(bank, [x for p in outs for x in p], a, b, games)
     for slot in ("first", "second"):
         cur, role = (pa, a) if slot == "first" else (pb, b)
@@ -673,7 +744,9 @@ def possible_pair(bank: Bank, seed: dict, a: str, b: str) -> bool:
 
 def choice_set_choices(bank: Bank, seed: dict) -> list[tuple[str, str]]:
     cs = bank.choice_sets[bank.cat[seed["category"]]["choice_set"]]
-    out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)]
+    out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)
+           and not (no_mocking(seed) and "mocking" in choice_classes(bank, "choice", c))           # S10-S12
+           and c not in ENDORSE_CHOICES.get(seed["id"], set())]                                     # S11
     if seed["consent_choice_required"] and not any("consent" in bank.choice[c]["tags"] or
                                                    bank.choice[c]["text"].startswith("Ask what the person")
                                                    for _k, c in out):
@@ -695,6 +768,8 @@ def approach_allowed(bank: Bank, seed: dict, ident: str, a: str, b: str) -> bool
         return False
     if ident in ANIMAL_NO and animal_seed(seed):
         return False
+    if no_mocking(seed) and "mocking" in choice_classes(bank, "approach", ident):
+        return False                                # S10-S12
     return True
 
 
@@ -944,7 +1019,7 @@ def mc_variants(bank: Bank, sit: dict, k_total: int) -> list[Variant]:
 # ---- All of it ------------------------------------------------------------------------------------------------------
 
 
-def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True) -> list[Variant]:
+def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: int = MC_K) -> list[Variant]:
     """Every variant, in pack order (LE seeds in bank order, then MC)."""
     bank = bank or Bank()
     MIX_CHANGES.clear()
@@ -955,8 +1030,17 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True) -> lis
     if mc:
         for sit in bank.mc_sits:
             if sit.get("outcomes_status") == "active":
-                out += mc_variants(bank, sit, k_total)
+                out += mc_variants(bank, sit, mc_k)
+    for v in out:
+        v.mood = mood_of(bank, v)
     return out
+
+
+def mood_of(bank: Bank, v: Variant) -> int:
+    """The MOODS index of a variant's seed: its category's mood."""
+    if v.bank == 0:
+        return MOODS.index(bank.cat[bank.seed[v.seed]["category"]]["mood"])
+    return MOODS.index(bank.mc_cats[v.cat_index]["mood"])
 
 
 def validate_variant(v: Variant) -> dict:
@@ -1014,7 +1098,8 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     for si, sid in enumerate(seeds):
         vs = by_seed[sid]
         first = vs[0]
-        seed_recs += _SEED.pack(s(sid), s(first.series), vi, len(vs), first.bank, first.cat_index, first.seed_index, 0)
+        seed_recs += _SEED.pack(s(sid), s(first.series), vi, len(vs), first.bank, first.cat_index, first.seed_index,
+                                first.mood)
         for v in vs:
             if not v.cieg:
                 raise ValueError(f"{sid} k={v.k} is not compiled")
@@ -1067,7 +1152,7 @@ def read_pack(data: bytes) -> dict:
     for i in range(n_seeds):
         sid, ser, first, count, bank, cat, index, _ = _SEED.unpack_from(data, off_seeds + 16 * i)
         seeds.append({"id": string(sid), "series": string(ser), "first": first, "count": count, "bank": bank,
-                      "category": cat, "index": index})
+                      "category": cat, "index": index, "mood": _ & 0xFF})
     variants = []
     for i in range(n_vars):
         boff, bsize, si, k, flags, ra, rb, lens, fam, mask, of, oc = _VARIANT.unpack_from(data, off_vars + 24 * i)
@@ -1126,6 +1211,18 @@ class History:
     def recent(self, seed_count: int) -> set[int]:
         w = min(RING, seed_count // 3)
         return set(self.ring[-w:]) if w else set()
+
+    def mood_weights(self, seed_moods: list[int]) -> list[int]:
+        """Each mood's series weight in the rare roll's draw (living-pack.md 4.1a): the moods of the seeds in the
+        ring are counted (`seed_moods[seed index]`); when they are not all equal, every mood with the fewest weighs
+        MOOD_BOOST, the others 1."""
+        count = [0] * len(MOODS)
+        for si in self.ring:
+            count[seed_moods[si]] += 1
+        low = min(count)
+        if low == max(count):
+            return [1] * len(MOODS)
+        return [MOOD_BOOST if c == low else 1 for c in count]
 
 
 def lv_order(variants: list[dict], first: int, hist: History, random_below) -> list[int]:

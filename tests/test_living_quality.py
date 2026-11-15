@@ -91,6 +91,52 @@ class QualityD(unittest.TestCase):
                         if x:
                             self.assertNotIn("resolves", BANK.arc[x]["tags"])
 
+    def test_beliefs_are_never_mocked_or_corrected(self) -> None:
+        """S10 (owner world rule, 2026-11-15): belief and spirit seeds take no mocking choice and no outcome that
+        corrects or settles a belief."""
+        for v in LE:
+            seed = BANK.seed[v.seed]
+            if not mx.belief_seed(seed):
+                continue
+            for kind, ident in v.plan["choices"]:
+                self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))
+            for t in v.plan["outcomes"]:
+                for x in t:
+                    if x:
+                        self.assertFalse(mx.belief_corrected(BANK, seed, x), (v.seed, v.k, x))
+
+    def test_a_wrong_act_is_never_rewarded_or_excused(self) -> None:
+        """S11 (owner, 2026-11-15): a prank, alleged cheating or a rule meant only for outsiders is never laughed
+        off, celebrated or kept; following the unjust custom is never offered (the owner's example keeps its own
+        choice, and its good outcome acknowledges the people affected)."""
+        self.assertTrue(mx.WRONG_ACT_SEEDS)
+        for v in LE:
+            seed = BANK.seed[v.seed]
+            if v.seed not in mx.WRONG_ACT_SEEDS:
+                continue
+            for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
+                if not v.flags & mx.FLAG_MIX:
+                    self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))
+                    self.assertNotIn(ident, mx.ENDORSE_CHOICES.get(v.seed, set()), (v.seed, v.k))
+                for x in outs:
+                    if x:
+                        self.assertNotIn("light", BANK.arc[x]["tags"], (v.seed, v.k, x))
+                        self.assertNotIn(x, mx.UNJUST_KEEP, (v.seed, v.k, x))
+                        self.assertTrue(mx.endorse_ok(BANK, seed, kind, ident, x), (v.seed, v.k, ident, x))
+
+    def test_appearance_is_never_a_punchline(self) -> None:
+        """S12 (owner rules 15-18): a seed about looks or the body takes no mocking choice (outside the owner's own
+        example) and no outcome that blames or embarrasses."""
+        for v in LE:
+            if v.seed not in mx.APPEARANCE_SEEDS:
+                continue
+            for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
+                if not v.flags & mx.FLAG_MIX:
+                    self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))
+                for x in outs:
+                    if x:
+                        self.assertNotIn("blame", BANK.arc[x]["tags"], (v.seed, v.k, x))
+
     def test_medical_offers_consent(self) -> None:
         for v in LE:
             if BANK.seed[v.seed]["consent_choice_required"]:

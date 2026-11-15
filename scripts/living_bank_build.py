@@ -115,14 +115,23 @@ def title_case(h):
     words = h.lower().split(" ")
     return " ".join(w if (i and w in small) else w[:1].upper() + w[1:] for i, w in enumerate(words))
 
+# The owner's Global Editorial Override (Isola_Complete_Anthology.txt, item 10): roughly one third warm / funny /
+# ordinary, one third curious / social / mixed, one third serious / solemn / mysterious.  Each category's mood; the
+# engine biases the living draw toward the mood its history has seen least (living-pack.md 4.1a).
+MOODS = ("warm", "social", "serious")
+LE_MOOD = {"PER": "warm", "FAM": "social", "CEL": "warm", "ART": "social", "ANI": "social", "BEL": "serious",
+           "GOV": "serious", "OTH": "social", "FOO": "warm", "EMO": "serious", "RES": "serious", "ODD": "warm"}
+MC_MOOD = {"ISL": "social", "DIS": "serious", "AFT": "serious", "LOS": "serious", "TRA": "serious", "BEL": "social"}
+
 categories_out = [{"id": "le_cat_" + c[0].lower(), "code": c[0], "heading": c[1], "src": src(c[2]),
-                   "title": title_case(c[1])} for c in CATS]
+                   "title": title_case(c[1]), "mood": LE_MOOD[c[0]]} for c in CATS]
 
 # ---------------------------------------------------------------- roles, personalities, lenses
 ROLE_LINE, PERS_LINE, LENS_LINE = 23980, 23981, 23824
 role_items = L(ROLE_LINE).split(": ", 1)[1].split("; ")
 pers_items = L(PERS_LINE).split(": ", 1)[1].split("; ")
-lens_items = re.sub(r"\.$", "", L(LENS_LINE).split(": ", 1)[1]).replace("or uncertainty", "uncertainty").split(", ")
+# The list ends at its sentence's full stop: "... humor, or uncertainty. A single seed can support several lenses."
+lens_items = L(LENS_LINE).split(": ", 1)[1].split(". ", 1)[0].replace("or uncertainty", "uncertainty").split(", ")
 assert len(role_items) == 30 and len(pers_items) == 24 and len(lens_items) == 15, (len(role_items), len(pers_items), len(lens_items))
 
 def adult(**kw):
@@ -588,7 +597,8 @@ for k, h in MC_HEAD.items():
     assert sum(1 for m in mc_out if m["code"].startswith(k)) == h["count"]
 mc_cats = [{"id": "mc_cat_" + k.lower(), "code": k, "heading": h["heading"], "src": h["src"], "count": h["count"],
             "strangers_are_stranger_roles": k == "LOS",
-            "tags": ["somber"] if k in ("DIS", "AFT", "LOS", "TRA") else []} for k, h in MC_HEAD.items()]
+            "tags": ["somber"] if k in ("DIS", "AFT", "LOS", "TRA") else [], "mood": MC_MOOD[k]}
+           for k, h in MC_HEAD.items()]
 
 # ---------------------------------------------------------------- MJ bank (L26617-26867), held
 assert L(26619).startswith("MODULAR COMPANION: MYSTERIES")
@@ -632,6 +642,23 @@ assert [len(v) for v in mc_pools.values()] == [20, 23, 15]
 contract = [{"id": f"mc_contract_{i}", "src": src(25140 + i), "text": L(25140 + i)} for i in range(1, 11)]
 assert all(c["text"].startswith(f"{i}. ") for i, c in enumerate(contract, 1))
 
+# SENSITIVITY EDITS to the owner's text (owner world rules, 2026-11-14): legendary creatures, afterlife concepts and
+# ideas such as cannibals or headhunters are never named outright, only described or hinted at.  The smallest piece
+# changed; `source_text` keeps the owner's words (living-events.md section 7, listed for the owner's review).
+TEXT_EDITS = {
+    "le_bel_05": ("A supposed cryptid leaves tracks near the gardens.",
+                  "An unseen creature leaves tracks near the gardens.", "W1"),
+    "mc_aft_09": ("A popular legend portrays an old enemy as monsters.",
+                  "A popular legend portrays an old enemy as frightening creatures.", "W1"),
+}
+for item in seeds_out + mc_out:
+    if item["id"] in TEXT_EDITS:
+        before, after, rule = TEXT_EDITS[item["id"]]
+        assert item["text"] == before, (item["id"], item["text"])
+        item["text"] = after
+        item["source_text"] = before
+        item["sensitivity_edit"] = rule
+
 frame_src = mix_out[0]["setup_src"]
 bank = {
     "format": "vvfp-living-bank", "version": 1,
@@ -657,6 +684,8 @@ bank = {
                         "be ambiguous. Grammar fix id: living-frame-article.",
         "grammar_fix": "living-frame-article",
     },
+    "moods": {"order": list(MOODS), "src": "Isola_Complete_Anthology.txt L7-131 (Global Editorial Override, item 10)",
+              "note": "pack seed record byte +12: 0 warm, 1 social, 2 serious (living-pack.md 2.2, 4.1a)"},
     "categories": categories_out,
     "seeds": seeds_out,
     "roles": roles_out,
