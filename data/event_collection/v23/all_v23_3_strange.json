@@ -33,6 +33,72 @@
     "kind": "instruction",
     "text": "Exceptionally rarely,",
     "why": "c4 is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L10039",
+    "kind": "structural",
+    "text": "Nothing Unusual:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10040",
+    "kind": "structural",
+    "text": "The Skeptic's Embarrassment:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10042",
+    "kind": "structural",
+    "text": "The Child's Explanation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10046",
+    "kind": "structural",
+    "text": "The Hidden Prankster:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10047",
+    "kind": "structural",
+    "text": "The Natural Explanation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10048",
+    "kind": "structural",
+    "text": "The Unanswered Mystery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10049",
+    "kind": "structural",
+    "text": "The Unexpected Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10053",
+    "kind": "structural",
+    "text": "False Alarm:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10054",
+    "kind": "structural",
+    "text": "Lucky Warning:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10056",
+    "kind": "structural",
+    "text": "The Great Panic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10058",
+    "kind": "structural",
+    "text": "The Prophecy Fulfilled:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A string of strange coincidences unsettles the village, and the village decides how to respond."
@@ -64,15 +130,15 @@
    ]
   },
   "a1": {
-   "text": "Nothing Unusual: Everyone enjoys the coincidence and returns to work.",
+   "text": "Everyone enjoys the coincidence and returns to work.",
    "src": "L10039"
   },
   "a2": {
-   "text": "The Skeptic's Embarrassment: A researcher dismisses the stories just as another extraordinary coincidence occurs.",
+   "text": "A researcher dismisses the stories just as another extraordinary coincidence occurs.",
    "src": "L10040-10041"
   },
   "a3": {
-   "text": "The Child's Explanation: A child discovers a loose branch, familiar bird calls, and a gust of wind. The mystery dissolves.",
+   "text": "A child discovers a loose branch, familiar bird calls, and a gust of wind. The mystery dissolves.",
    "src": "L10042-10043"
   },
   "set_a": {
@@ -90,19 +156,19 @@
    ]
   },
   "b1": {
-   "text": "The Hidden Prankster: Someone carefully arranged the occurrences.",
+   "text": "Someone carefully arranged the occurrences.",
    "src": "L10046"
   },
   "b2": {
-   "text": "The Natural Explanation: Wind and animal behavior account for them.",
+   "text": "Wind and animal behavior account for them.",
    "src": "L10047"
   },
   "b3": {
-   "text": "The Unanswered Mystery: All but one incident can be explained.",
+   "text": "All but one incident can be explained.",
    "src": "L10048"
   },
   "b4": {
-   "text": "The Unexpected Discovery: Investigators find an overlooked spring, cave opening, or useful plant.",
+   "text": "Investigators find an overlooked spring, cave opening, or useful plant.",
    "src": "L10049-10050",
    "effects": [
     {
@@ -131,11 +197,11 @@
    ]
   },
   "c1": {
-   "text": "False Alarm: The villagers prepare for disaster; nothing happens.",
+   "text": "The villagers prepare for disaster; nothing happens.",
    "src": "L10053"
   },
   "c2": {
-   "text": "Lucky Warning: Precautions accidentally protect stored food from an unrelated heavy rain.",
+   "text": "Precautions accidentally protect stored food from an unrelated heavy rain.",
    "src": "L10054-10055",
    "text_only": [
     {
@@ -146,7 +212,7 @@
    ]
   },
   "c3": {
-   "text": "The Great Panic: Rumors grow until someone insists Isola itself will vanish by sunset. It does not.",
+   "text": "Rumors grow until someone insists Isola itself will vanish by sunset. It does not.",
    "src": "L10056-10057",
    "text_only": [
     {
@@ -157,7 +223,7 @@
    ]
   },
   "c4": {
-   "text": "The Prophecy Fulfilled: an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
+   "text": "an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
    "src": "L10058-10060"
   },
   "set_c": {

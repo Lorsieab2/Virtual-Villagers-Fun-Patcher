@@ -136,6 +136,114 @@
     "src": "L9534-9536",
     "kind": "note",
     "why": "author guidance, never displayed (decision 5)"
+   },
+   {
+    "src": "L9474",
+    "kind": "structural",
+    "text": "The Judge Who Feared No Craft:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9478",
+    "kind": "structural",
+    "text": "The Great Upset:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9480",
+    "kind": "structural",
+    "text": "The Perfectly Useless Wonder:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9483",
+    "kind": "structural",
+    "text": "The Rigged Prize:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9485",
+    "kind": "structural",
+    "text": "The Shared Victory:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9489",
+    "kind": "structural",
+    "text": "A Village of Artisans:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9491",
+    "kind": "structural",
+    "text": "The Great Barter Disaster:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9493",
+    "kind": "structural",
+    "text": "The Invention Exchange:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9495",
+    "kind": "structural",
+    "text": "The Lost Heirloom:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9498",
+    "kind": "structural",
+    "text": "The Children's Fair:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9503",
+    "kind": "structural",
+    "text": "The Night of a Hundred Lamps:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9506",
+    "kind": "structural",
+    "text": "The Uninvited Storm:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9509",
+    "kind": "structural",
+    "text": "The Mask That Chose Its Owner:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9511",
+    "kind": "structural",
+    "text": "The Feast of Reconciliation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9513",
+    "kind": "structural",
+    "text": "The Fair Nobody Could End:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9540",
+    "kind": "structural",
+    "text": "The Disgraced Judge Returns:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9542",
+    "kind": "structural",
+    "text": "The Artisan's Apprentice:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9544",
+    "kind": "structural",
+    "text": "The Festival of Two Communities",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -234,7 +342,7 @@
    ]
   },
   "a1": {
-   "text": "The Judge Who Feared No Craft: The judge calls a bowl 'a coconut shell pretending to be important' and a basket 'a nest with delusions.' Then (judge.he/she) praises a shy child's tiny woven fish as the best work at the fair. The crowd erupts in applause.",
+   "text": "The judge calls a bowl 'a coconut shell pretending to be important' and a basket 'a nest with delusions.' Then (judge.he/she) praises a shy child's tiny woven fish as the best work at the fair. The crowd erupts in applause.",
    "src": "L9474-9477",
    "children": [
     {
@@ -243,7 +351,7 @@
    ]
   },
   "a2": {
-   "text": "The Great Upset: A novice defeats a celebrated master. The master demands a recount; the judges confirm the result.",
+   "text": "A novice defeats a celebrated master. The master demands a recount; the judges confirm the result.",
    "src": "L9478-9479",
    "children": [
     {
@@ -259,7 +367,7 @@
    ]
   },
   "a3": {
-   "text": "The Perfectly Useless Wonder: A contraption is exquisite, intricate, and entirely incapable of doing what its maker claims. The judges award it a special prize for imagination.",
+   "text": "A contraption is exquisite, intricate, and entirely incapable of doing what its maker claims. The judges award it a special prize for imagination.",
    "src": "L9480-9482",
    "children": [
     {
@@ -268,7 +376,7 @@
    ]
   },
   "a4": {
-   "text": "The Rigged Prize: A judge secretly favors a relative. A witness exposes the bias; the council orders a new judging panel.",
+   "text": "A judge secretly favors a relative. A witness exposes the bias; the council orders a new judging panel.",
    "src": "L9483-9484",
    "children": [
     {
@@ -277,7 +385,7 @@
    ]
   },
   "a5": {
-   "text": "The Shared Victory: Two rivals create an extraordinary object together and refuse to claim individual credit. Both receive recognition.",
+   "text": "Two rivals create an extraordinary object together and refuse to claim individual credit. Both receive recognition.",
    "src": "L9485-9486",
    "children": [
     {
@@ -306,7 +414,7 @@
    ]
   },
   "b1": {
-   "text": "A Village of Artisans: Techniques spread across households.",
+   "text": "Techniques spread across households.",
    "src": "L9489-9490",
    "children": [
     {
@@ -330,7 +438,7 @@
    ]
   },
   "b2": {
-   "text": "The Great Barter Disaster: One villager trades an entire basket of food for a 'rare sacred pebble' that turns out to be ordinary stone.",
+   "text": "One villager trades an entire basket of food for a 'rare sacred pebble' that turns out to be ordinary stone.",
    "src": "L9491-9492",
    "children": [
     {
@@ -346,7 +454,7 @@
    ]
   },
   "b3": {
-   "text": "The Invention Exchange: A potter and weaver combine techniques to create an unexpectedly useful container.",
+   "text": "A potter and weaver combine techniques to create an unexpectedly useful container.",
    "src": "L9493-9494",
    "children": [
     {
@@ -363,7 +471,7 @@
    ]
   },
   "b4": {
-   "text": "The Lost Heirloom: A treasured family ornament vanishes amid the crowd. The search ends in recovery, an accusation, or an awkward discovery that its owner put it in the wrong basket.",
+   "text": "A treasured family ornament vanishes amid the crowd. The search ends in recovery, an accusation, or an awkward discovery that its owner put it in the wrong basket.",
    "src": "L9495-9497",
    "children": [
     {
@@ -379,7 +487,7 @@
    ]
   },
   "b5": {
-   "text": "The Children's Fair: Children begin trading miniature clay animals, shell necklaces, and painted stones. The adults realize their fair has been thoroughly outshone.",
+   "text": "Children begin trading miniature clay animals, shell necklaces, and painted stones. The adults realize their fair has been thoroughly outshone.",
    "src": "L9498-9500",
    "children": [
     {
@@ -408,7 +516,7 @@
    ]
   },
   "c1": {
-   "text": "The Night of a Hundred Lamps: Safe, sheltered firelight illuminates the exhibits as singers recite the makers' names. The festival becomes an annual tradition.",
+   "text": "Safe, sheltered firelight illuminates the exhibits as singers recite the makers' names. The festival becomes an annual tradition.",
    "src": "L9503-9505",
    "children": [
     {
@@ -424,7 +532,7 @@
    ]
   },
   "c2": {
-   "text": "The Uninvited Storm: Rain sweeps through the clearing. Potters rush to protect unfired work, while the weavers rescue their dyes and fibers. A hastily built shelter inspires a new communal structure.",
+   "text": "Rain sweeps through the clearing. Potters rush to protect unfired work, while the weavers rescue their dyes and fibers. A hastily built shelter inspires a new communal structure.",
    "src": "L9506-9508",
    "children": [
     {
@@ -433,7 +541,7 @@
    ]
   },
   "c3": {
-   "text": "The Mask That Chose Its Owner: A ceremonial mask repeatedly falls toward the same villager. Some see a sign; others find a crooked stand.",
+   "text": "A ceremonial mask repeatedly falls toward the same villager. Some see a sign; others find a crooked stand.",
    "src": "L9509-9510",
    "children": [
     {
@@ -442,7 +550,7 @@
    ]
   },
   "c4": {
-   "text": "The Feast of Reconciliation: Two feuding households exchange handmade gifts and begin speaking again.",
+   "text": "Two feuding households exchange handmade gifts and begin speaking again.",
    "src": "L9511-9512",
    "children": [
     {
@@ -451,7 +559,7 @@
    ]
   },
   "c5": {
-   "text": "The Fair Nobody Could End: The celebrations run so long that farming and building are neglected. The elders establish sensible festival hours next time.",
+   "text": "The celebrations run so long that farming and building are neglected. The elders establish sensible festival hours next time.",
    "src": "L9513-9515",
    "children": [
     {
@@ -463,6 +571,13 @@
      "do": "celebrate",
      "who": "all",
      "src": "L9513"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9513-9515"
     }
    ]
   },
@@ -489,7 +604,7 @@
   "coda_v21_2": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Disgraced Judge Returns: A former critic seeks a chance to judge fairly.",
+   "text": "A former critic seeks a chance to judge fairly.",
    "src": "L9540",
    "children": [
     {
@@ -500,7 +615,7 @@
   "coda_v21_4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Artisan's Apprentice: A novice becomes a master and honors the teacher.",
+   "text": "A novice becomes a master and honors the teacher.",
    "src": "L9542",
    "children": [
     {
@@ -511,7 +626,7 @@
   "coda_v21_6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Festival of Two Communities: An annual joint fair becomes a fragile but cherished symbol of peaceful coexistence.",
+   "text": "An annual joint fair becomes a fragile but cherished symbol of peaceful coexistence.",
    "src": "L9544-9545",
    "children": [
     {

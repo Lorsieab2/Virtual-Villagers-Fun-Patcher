@@ -79,6 +79,60 @@
     "src": "L9341",
     "kind": "note",
     "why": "designer options ('may') for the VV5 variant"
+   },
+   {
+    "src": "L9317",
+    "kind": "structural",
+    "text": "The Forgotten Genius:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9319",
+    "kind": "structural",
+    "text": "Justice Across Generations:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9321",
+    "kind": "structural",
+    "text": "The Legendary Artifact:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9323",
+    "kind": "structural",
+    "text": "The Great Deception:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9325",
+    "kind": "structural",
+    "text": "The Discovery That Changed Everything:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9327",
+    "kind": "structural",
+    "text": "The Curse That Wasn't:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9328",
+    "kind": "structural",
+    "text": "The Curse That Was:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9329",
+    "kind": "structural",
+    "text": "The Last Witness:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9346",
+    "kind": "structural",
+    "text": "Political Prisoner:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -143,7 +197,7 @@
   "r1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Forgotten Genius: (Second) solves the mystery and receives acclaim once denied to (First).",
+   "text": "(Second) solves the mystery and receives acclaim once denied to (First).",
    "src": "L9317-9318",
    "children": [
     {
@@ -154,7 +208,7 @@
   "r2": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Justice Across Generations: Village records reveal that (First) was wrongfully confined; the elders clear (first.his/her) name.",
+   "text": "Village records reveal that (First) was wrongfully confined; the elders clear (first.his/her) name.",
    "src": "L9319-9320",
    "children": [
     {
@@ -172,7 +226,7 @@
   "r3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Legendary Artifact: The object becomes a cherished relic despite nobody understanding its purpose.",
+   "text": "The object becomes a cherished relic despite nobody understanding its purpose.",
    "src": "L9321-9322",
    "children": [
     {
@@ -183,7 +237,7 @@
   "r4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Great Deception: A supposed ancient marvel was fabricated by an earlier villager as an elaborate prank.",
+   "text": "A supposed ancient marvel was fabricated by an earlier villager as an elaborate prank.",
    "src": "L9323-9324",
    "children": [
     {
@@ -194,7 +248,7 @@
   "r5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Discovery That Changed Everything: A later generation understands part of its construction.",
+   "text": "A later generation understands part of its construction.",
    "src": "L9325-9326",
    "children": [
     {
@@ -213,7 +267,7 @@
   "r6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Curse That Wasn't: The object proves entirely harmless.",
+   "text": "The object proves entirely harmless.",
    "src": "L9327",
    "children": [
     {
@@ -224,7 +278,7 @@
   "r7": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Curse That Was: It activates unexpectedly after decades.",
+   "text": "It activates unexpectedly after decades.",
    "src": "L9328",
    "children": [
     {
@@ -235,7 +289,7 @@
   "r8": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Last Witness: An elder admits to having concealed the truth about the object's arrival for many years.",
+   "text": "An elder admits to having concealed the truth about the object's arrival for many years.",
    "src": "L9329-9330",
    "children": [
     {
@@ -275,7 +329,7 @@
   "coda_p3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Political Prisoner: A wrongfully confined villager is cleared years later.",
+   "text": "A wrongfully confined villager is cleared years later.",
    "src": "L9346"
   },
   "coda": {

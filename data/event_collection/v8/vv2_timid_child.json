@@ -237,6 +237,18 @@
     {
      "next": "coda"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "adult",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3913-3914"
+    }
    ]
   },
   "coda_c10": {

@@ -752,6 +752,15 @@
     {
      "next": "rewards"
     }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L1609-1610"
+    }
    ]
   },
   "death": {

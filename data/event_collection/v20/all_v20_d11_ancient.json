@@ -89,6 +89,15 @@
      "what": "dies",
      "reason": "the line lists all of this choice's outcomes; the death is another page's"
     }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9073-9074"
+    }
    ]
   },
   "a2": {
@@ -118,13 +127,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "weight": 20
     }
    ]
   },

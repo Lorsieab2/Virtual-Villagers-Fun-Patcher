@@ -74,6 +74,24 @@
     "kind": "instruction",
     "text": "Exceptionally rarely,",
     "why": "P8 is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L9349",
+    "kind": "structural",
+    "text": "Secret Society:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9350",
+    "kind": "structural",
+    "text": "The Great Panic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9351",
+    "kind": "structural",
+    "text": "First Contact:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -366,13 +384,13 @@
   "coda_p6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Secret Society: Researchers meet privately to study the objects.",
+   "text": "Researchers meet privately to study the objects.",
    "src": "L9349"
   },
   "coda_p7": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Great Panic: Rumors disrupt work and empty the village stores.",
+   "text": "Rumors disrupt work and empty the village stores.",
    "src": "L9350",
    "effects": [
     {
@@ -394,7 +412,7 @@
   "coda_p8": {
    "popup": "append",
    "join": "paragraph",
-   "text": "First Contact: evidence shows the object was deliberately left by someone who knows Isola exists.",
+   "text": "evidence shows the object was deliberately left by someone who knows Isola exists.",
    "src": "L9351-9352"
   },
   "rare_coda_p8": {

@@ -20,7 +20,8 @@
   "shared_lines": [
    "L8099-8101"
   ],
-  "description": "Two builders show demonstration shelters at a festival, and the village decides how to test them."
+  "description": "Two builders show demonstration shelters at a festival, and the village decides how to test them.",
+  "ledger": []
  },
  "requirement": {
   "min_eligible": 1

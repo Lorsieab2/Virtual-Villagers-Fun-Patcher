@@ -55,6 +55,108 @@
     "kind": "structural",
     "text": "(D1-D5)",
     "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7392",
+    "kind": "structural",
+    "text": "THE NEW SONG:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7399",
+    "kind": "structural",
+    "text": "THE OFFENSE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7405",
+    "kind": "structural",
+    "text": "THE REVELATION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7410",
+    "kind": "structural",
+    "text": "THE LEGEND OF THE GOAT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7415",
+    "kind": "structural",
+    "text": "THE GRACEFUL RECOVERY:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7419",
+    "kind": "structural",
+    "text": "THE WORSE APOLOGY:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7425",
+    "kind": "structural",
+    "text": "THE HUMILIATION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7430",
+    "kind": "structural",
+    "text": "THE COMPASSION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7435",
+    "kind": "structural",
+    "text": "THE BRILLIANT INTERPRETATION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7441",
+    "kind": "structural",
+    "text": "THE DESPERATE EXCUSE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7446",
+    "kind": "structural",
+    "text": "THE HEATED DISPUTE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7451",
+    "kind": "structural",
+    "text": "THE NEW TRADITION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7455",
+    "kind": "structural",
+    "text": "THE SCHOLARLY CRITIQUE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7460",
+    "kind": "structural",
+    "text": "THE GREAT DISAGREEMENT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7465",
+    "kind": "structural",
+    "text": "THE LOST ORIGINAL:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7471",
+    "kind": "structural",
+    "text": "THE BITTER SATIRIST:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7477",
+    "kind": "structural",
+    "text": "THE LEGACY:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A villager botches the first line of a beloved verse at the story gathering, and decides how to carry on."
@@ -336,7 +438,7 @@
   },
   "a1": {
    "src": "L7392-7397",
-   "text": "THE NEW SONG:\nThe crowd bursts into laughter.",
+   "text": "The crowd bursts into laughter.",
    "children": [
     {
      "next": "a1_more"
@@ -349,7 +451,7 @@
   },
   "a2": {
    "src": "L7399-7403",
-   "text": "THE OFFENSE:\nAn elder rises and says the performance dishonors the ancestors.",
+   "text": "An elder rises and says the performance dishonors the ancestors.",
    "children": [
     {
      "next": "a2_more"
@@ -362,7 +464,7 @@
   },
   "a3": {
    "src": "L7405-7408",
-   "text": "THE REVELATION:\nThe mistaken line causes the audience to hear a familiar teaching in a startling new way.",
+   "text": "The mistaken line causes the audience to hear a familiar teaching in a startling new way.",
    "children": [
     {
      "next": "a3_more"
@@ -375,7 +477,7 @@
   },
   "a4": {
    "src": "L7410-7413",
-   "text": "THE LEGEND OF THE GOAT:\n(Reciter)'s mispronunciation becomes a story about a legendary goat that supposedly saved the village.",
+   "text": "(Reciter)'s mispronunciation becomes a story about a legendary goat that supposedly saved the village.",
    "children": [
     {
      "next": "a4_more"
@@ -388,7 +490,7 @@
   },
   "b1": {
    "src": "L7415-7417",
-   "text": "THE GRACEFUL RECOVERY:\n(Reciter) admits the error, begins again, and performs beautifully.",
+   "text": "(Reciter) admits the error, begins again, and performs beautifully.",
    "children": [
     {
      "next": "b1_more"
@@ -401,7 +503,7 @@
   },
   "b2": {
    "src": "L7419-7423",
-   "text": "THE WORSE APOLOGY:\nIn apologizing, (Reciter) accidentally repeats the offensive phrase three times, each louder than the last.",
+   "text": "In apologizing, (Reciter) accidentally repeats the offensive phrase three times, each louder than the last.",
    "children": [
     {
      "next": "b2_more"
@@ -414,7 +516,7 @@
   },
   "b3": {
    "src": "L7425-7428",
-   "text": "THE HUMILIATION:\n(Reciter) flees the stage in tears.",
+   "text": "(Reciter) flees the stage in tears.",
    "children": [
     {
      "next": "b3_more"
@@ -425,6 +527,14 @@
      "src": "L7426",
      "what": "flees",
      "reason": "the reciter leaves the stage, not the village"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "reciter",
+     "mood": "bad",
+     "src": "L7425-7428"
     }
    ]
   },
@@ -441,7 +551,7 @@
   },
   "b4": {
    "src": "L7430-7433",
-   "text": "THE COMPASSION:\nThe elder whose honor was supposedly insulted stands and recites the next line alongside (Reciter).",
+   "text": "The elder whose honor was supposedly insulted stands and recites the next line alongside (Reciter).",
    "children": [
     {
      "next": "b4_more"
@@ -454,7 +564,7 @@
   },
   "c1": {
    "src": "L7435-7439",
-   "text": "THE BRILLIANT INTERPRETATION:\n(Reciter) explains that the altered wording was intended to question whether the old heroes were flawless.",
+   "text": "(Reciter) explains that the altered wording was intended to question whether the old heroes were flawless.",
    "children": [
     {
      "next": "c1_more"
@@ -467,7 +577,7 @@
   },
   "c2": {
    "src": "L7441-7444",
-   "text": "THE DESPERATE EXCUSE:\n(Reciter) claims the ancestors spoke entirely in goat metaphors.",
+   "text": "(Reciter) claims the ancestors spoke entirely in goat metaphors.",
    "children": [
     {
      "next": "c2_more"
@@ -480,7 +590,7 @@
   },
   "c3": {
    "src": "L7446-7449",
-   "text": "THE HEATED DISPUTE:\nA devotee argues that the verse must never change.",
+   "text": "A devotee argues that the verse must never change.",
    "children": [
     {
      "next": "c3_more"
@@ -493,7 +603,7 @@
   },
   "c4": {
    "src": "L7451-7453",
-   "text": "THE NEW TRADITION:\nThe villagers begin performing the solemn original at dawn and the comic reinterpretation at sunset.",
+   "text": "The villagers begin performing the solemn original at dawn and the comic reinterpretation at sunset.",
    "children": [
     {
      "next": "c4_more"
@@ -506,7 +616,7 @@
   },
   "d1": {
    "src": "L7455-7458",
-   "text": "THE SCHOLARLY CRITIQUE:\nThree scholars produce an exhaustive commentary on the mistaken line.",
+   "text": "Three scholars produce an exhaustive commentary on the mistaken line.",
    "children": [
     {
      "next": "d1_more"
@@ -519,7 +629,7 @@
   },
   "d2": {
    "src": "L7460-7463",
-   "text": "THE GREAT DISAGREEMENT:\nThe Keeper of Verses declares the error unforgivable.",
+   "text": "The Keeper of Verses declares the error unforgivable.",
    "children": [
     {
      "next": "d2_more"
@@ -532,7 +642,7 @@
   },
   "d3": {
    "src": "L7465-7469",
-   "text": "THE LOST ORIGINAL:\nAn elder reveals that the supposedly incorrect wording appears in an ancient copy of the verse.",
+   "text": "An elder reveals that the supposedly incorrect wording appears in an ancient copy of the verse.",
    "children": [
     {
      "next": "d3_more"
@@ -545,7 +655,7 @@
   },
   "d4": {
    "src": "L7471-7475",
-   "text": "THE BITTER SATIRIST:\n(Reciter) embraces the controversy and writes increasingly outrageous verses mocking village pretensions.",
+   "text": "(Reciter) embraces the controversy and writes increasingly outrageous verses mocking village pretensions.",
    "children": [
     {
      "next": "d4_more"
@@ -558,7 +668,7 @@
   },
   "d5": {
    "src": "L7477-7480",
-   "text": "THE LEGACY:\nGenerations later, children learn both the traditional verse and \"(Reciter)'s Version.\"",
+   "text": "Generations later, children learn both the traditional verse and \"(Reciter)'s Version.\"",
    "children": [
     {
      "next": "d5_more"

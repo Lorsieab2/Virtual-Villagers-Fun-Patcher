@@ -93,6 +93,54 @@
     "kind": "structural",
     "text": "DEVOTION/CEREMONY  -",
     "why": "the contest type the critic belongs to"
+   },
+   {
+    "src": "L7083",
+    "kind": "structural",
+    "text": "THE EXPERT IS VINDICATED:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7085",
+    "kind": "structural",
+    "text": "THE EXPERT IS HUMBLED:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7087",
+    "kind": "structural",
+    "text": "THE CROWD DISAGREES:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7090",
+    "kind": "structural",
+    "text": "THE BITTER RIVAL:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7092",
+    "kind": "structural",
+    "text": "THE UNEXPECTED MENTOR:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7094",
+    "kind": "structural",
+    "text": "THE SHAMEFUL INSULT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7096",
+    "kind": "structural",
+    "text": "THE STUNNING MASTERPIECE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7098",
+    "kind": "structural",
+    "text": "THE POINTLESS PERFECTION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A demanding elder critic judges a village contest, and the village decides how to weigh the verdict."
@@ -361,15 +409,15 @@
   },
   "end1": {
    "src": "L7083-7084",
-   "text": "THE EXPERT IS VINDICATED:\nThe flaw appears during the demonstration. The contestant is embarrassed but learns how to correct it."
+   "text": "The flaw appears during the demonstration. The contestant is embarrassed but learns how to correct it."
   },
   "end2": {
    "src": "L7085-7086",
-   "text": "THE EXPERT IS HUMBLED:\nThe supposed flaw turns out to be intentional and effective. The expert publicly acknowledges the oversight."
+   "text": "The supposed flaw turns out to be intentional and effective. The expert publicly acknowledges the oversight."
   },
   "end3": {
    "src": "L7087-7089",
-   "text": "THE CROWD DISAGREES:\nThe expert dislikes the work, but the village adores it. The judges explain that popularity and technical merit are different measures; neither is automatically worthless.",
+   "text": "The expert dislikes the work, but the village adores it. The judges explain that popularity and technical merit are different measures; neither is automatically worthless.",
    "text_only": [
     {
      "src": "L7087",
@@ -380,23 +428,23 @@
   },
   "end4": {
    "src": "L7090-7091",
-   "text": "THE BITTER RIVAL:\nThe contestant rejects the criticism, vows to return next year, and spends months practicing."
+   "text": "The contestant rejects the criticism, vows to return next year, and spends months practicing."
   },
   "end5": {
    "src": "L7092-7093",
-   "text": "THE UNEXPECTED MENTOR:\nThe judge offers instruction after seeing determination beneath the errors."
+   "text": "The judge offers instruction after seeing determination beneath the errors."
   },
   "end6": {
    "src": "L7094-7095",
-   "text": "THE SHAMEFUL INSULT:\nThe judge crosses from critique into cruelty. The organizers demand an apology and appoint a fair replacement."
+   "text": "The judge crosses from critique into cruelty. The organizers demand an apology and appoint a fair replacement."
   },
   "end7": {
    "src": "L7096-7097",
-   "text": "THE STUNNING MASTERPIECE:\nThe judge is rendered speechless for the first time in living memory. A child asks whether (critic.he/she) is ill."
+   "text": "The judge is rendered speechless for the first time in living memory. A child asks whether (critic.he/she) is ill."
   },
   "end8": {
    "src": "L7098-7099",
-   "text": "THE POINTLESS PERFECTION:\nThe work is technically flawless but serves no discernible purpose. The judge awards skill, not utility.",
+   "text": "The work is technically flawless but serves no discernible purpose. The judge awards skill, not utility.",
    "text_only": [
     {
      "src": "L7099",

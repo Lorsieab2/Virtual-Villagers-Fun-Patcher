@@ -92,13 +92,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "weight": 20
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -150,13 +154,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     }
    ]
   },
@@ -184,13 +192,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "c1"
+     "next": "c1",
+     "weight": 20
     },
     {
-     "next": "c2"
+     "next": "c2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "c3"
+     "next": "c3",
+     "weight": 20
     }
    ]
   }

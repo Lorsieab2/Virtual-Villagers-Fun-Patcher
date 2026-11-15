@@ -20,7 +20,8 @@
   "shared_lines": [
    "L8274-8276"
   ],
-  "description": "Two cooks prepare meals near the Tree of Life for a harsh judge, and the village decides how they are tasted."
+  "description": "Two cooks prepare meals near the Tree of Life for a harsh judge, and the village decides how they are tasted.",
+  "ledger": []
  },
  "requirement": {
   "min_eligible": 1

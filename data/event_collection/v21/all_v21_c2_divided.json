@@ -39,6 +39,96 @@
     "kind": "note",
     "text": "; the mystery remains deliberately exceptional",
     "why": "designer note on coda 7"
+   },
+   {
+    "src": "L9432",
+    "kind": "structural",
+    "text": "Beloved Monstrosity:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9434",
+    "kind": "structural",
+    "text": "The Unflattering Portrait:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9437",
+    "kind": "structural",
+    "text": "The Masterwork:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9439",
+    "kind": "structural",
+    "text": "The Terrible Omen:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9441",
+    "kind": "structural",
+    "text": "The Impossible Balance:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9446",
+    "kind": "structural",
+    "text": "Many Hands:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9448",
+    "kind": "structural",
+    "text": "The Artistic War:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9450",
+    "kind": "structural",
+    "text": "The Unexpected Genius:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9452",
+    "kind": "structural",
+    "text": "The Ruined Treasure:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9456",
+    "kind": "structural",
+    "text": "The Secret Favorite:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9458",
+    "kind": "structural",
+    "text": "The False Miracle:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9460",
+    "kind": "structural",
+    "text": "The Real Mystery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9462",
+    "kind": "structural",
+    "text": "Forgotten Art:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9539",
+    "kind": "structural",
+    "text": "The Ugly Statue Becomes a Legend:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9542",
+    "kind": "structural",
+    "text": "The Artisan's Apprentice:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -82,7 +172,7 @@
    ]
   },
   "a1": {
-   "text": "Beloved Monstrosity: The statue is staggeringly ugly, yet somehow endearing. Villagers leave flowers beside it; it becomes a landmark.",
+   "text": "The statue is staggeringly ugly, yet somehow endearing. Villagers leave flowers beside it; it becomes a landmark.",
    "src": "L9432-9433",
    "children": [
     {
@@ -91,7 +181,7 @@
    ]
   },
   "a2": {
-   "text": "The Unflattering Portrait: (Other), the subject, recognizes (other.himself/herself) and is deeply offended. (Sculptor) must apologize, defend artistic freedom, or reveal that the resemblance was accidental.",
+   "text": "(Other), the subject, recognizes (other.himself/herself) and is deeply offended. (Sculptor) must apologize, defend artistic freedom, or reveal that the resemblance was accidental.",
    "src": "L9434-9436",
    "children": [
     {
@@ -100,7 +190,7 @@
    ]
   },
   "a3": {
-   "text": "The Masterwork: The statue is praised for balance and expression; (Sculptor) becomes a distinguished artisan.",
+   "text": "The statue is praised for balance and expression; (Sculptor) becomes a distinguished artisan.",
    "src": "L9437-9438",
    "children": [
     {
@@ -124,7 +214,7 @@
    ]
   },
   "a4": {
-   "text": "The Terrible Omen: A sudden crack splits the figure at the unveiling. Some villagers fear an omen; others blame poor firing. A debate follows.",
+   "text": "A sudden crack splits the figure at the unveiling. Some villagers fear an omen; others blame poor firing. A debate follows.",
    "src": "L9439-9440",
    "children": [
     {
@@ -133,7 +223,7 @@
    ]
   },
   "a5": {
-   "text": "The Impossible Balance: A top-heavy statue stands upright despite every builder's prediction. Researchers inspect the base; perhaps (Sculptor) is brilliant, perhaps the island is playing a trick.",
+   "text": "A top-heavy statue stands upright despite every builder's prediction. Researchers inspect the base; perhaps (Sculptor) is brilliant, perhaps the island is playing a trick.",
    "src": "L9441-9443",
    "children": [
     {
@@ -162,7 +252,7 @@
    ]
   },
   "b1": {
-   "text": "Many Hands: Children add shells and pigments. The statue becomes a beloved community work, though (Sculptor) loses sole credit.",
+   "text": "Children add shells and pigments. The statue becomes a beloved community work, though (Sculptor) loses sole credit.",
    "src": "L9446-9447",
    "children": [
     {
@@ -171,7 +261,7 @@
    ]
   },
   "b2": {
-   "text": "The Artistic War: Two factions repaint the figure every night. The elders finally demand that both sides stop.",
+   "text": "Two factions repaint the figure every night. The elders finally demand that both sides stop.",
    "src": "L9448-9449",
    "children": [
     {
@@ -180,7 +270,7 @@
    ]
   },
   "b3": {
-   "text": "The Unexpected Genius: A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
+   "text": "A quiet apprentice repairs its weak base and transforms the statue into a masterpiece. (Sculptor) shares the prize.",
    "src": "L9450-9451",
    "children": [
     {
@@ -189,7 +279,7 @@
    ]
   },
   "b4": {
-   "text": "The Ruined Treasure: An enthusiastic helper damages the statue; (Sculptor) must decide whether to forgive (Other).",
+   "text": "An enthusiastic helper damages the statue; (Sculptor) must decide whether to forgive (Other).",
    "src": "L9452-9453",
    "children": [
     {
@@ -215,7 +305,7 @@
    ]
   },
   "c1": {
-   "text": "The Secret Favorite: Villagers begin visiting the sculpture in private; its popularity grows slowly into a lasting tradition.",
+   "text": "Villagers begin visiting the sculpture in private; its popularity grows slowly into a lasting tradition.",
    "src": "L9456-9457",
    "children": [
     {
@@ -224,7 +314,7 @@
    ]
   },
   "c2": {
-   "text": "The False Miracle: Rainwater trickles from the statue's eyes. Some call it weeping; a child finds a crack collecting water from above.",
+   "text": "Rainwater trickles from the statue's eyes. Some call it weeping; a child finds a crack collecting water from above.",
    "src": "L9458-9459",
    "children": [
     {
@@ -233,7 +323,7 @@
    ]
   },
   "c3": {
-   "text": "The Real Mystery: The statue casts a shadow in an unexpected direction at sunset. The scholars cannot explain it; no answer is imposed.",
+   "text": "The statue casts a shadow in an unexpected direction at sunset. The scholars cannot explain it; no answer is imposed.",
    "src": "L9460-9461",
    "children": [
     {
@@ -242,7 +332,7 @@
    ]
   },
   "c4": {
-   "text": "Forgotten Art: Plants grow around the statue until it is rediscovered by a later generation and hailed as an ancient masterpiece.",
+   "text": "Plants grow around the statue until it is rediscovered by a later generation and hailed as an ancient masterpiece.",
    "src": "L9462-9463",
    "children": [
     {
@@ -270,13 +360,13 @@
   "coda_v21_1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Ugly Statue Becomes a Legend: Children retell its origin for years.",
+   "text": "Children retell its origin for years.",
    "src": "L9539"
   },
   "coda_v21_4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Artisan's Apprentice: A novice becomes a master and honors the teacher.",
+   "text": "A novice becomes a master and honors the teacher.",
    "src": "L9542"
   },
   "coda": {

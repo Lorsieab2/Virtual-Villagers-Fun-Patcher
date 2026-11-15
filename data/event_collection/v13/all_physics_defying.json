@@ -56,6 +56,84 @@
     "kind": "structural",
     "text": "(D1-D3)",
     "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7219",
+    "kind": "structural",
+    "text": "THE COUNTERWEIGHT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7225",
+    "kind": "structural",
+    "text": "THE ROOTS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7231",
+    "kind": "structural",
+    "text": "THE MIRAGE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7236",
+    "kind": "structural",
+    "text": "THE MIRACLE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7241",
+    "kind": "structural",
+    "text": "THE EMBARRASSMENT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7247",
+    "kind": "structural",
+    "text": "THE UNSETTLING SUCCESS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7252",
+    "kind": "structural",
+    "text": "THE EXPERT WAS WRONG:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7257",
+    "kind": "structural",
+    "text": "THE PARADE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7262",
+    "kind": "structural",
+    "text": "THE STUNT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7267",
+    "kind": "structural",
+    "text": "THE COLLAPSE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7272",
+    "kind": "structural",
+    "text": "THE EXPLANATION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7278",
+    "kind": "structural",
+    "text": "THE NON-EXPLANATION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7283",
+    "kind": "structural",
+    "text": "THE IMPOSSIBLE CLAIM:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A builder unveils a platform that seems to defy balance, and the village decides how to test it."
@@ -129,7 +207,7 @@
   },
   "a1": {
    "src": "L7219-7223",
-   "text": "THE COUNTERWEIGHT:\nThe builders uncover an ingenious system of buried stones and interlocking beams.",
+   "text": "The builders uncover an ingenious system of buried stones and interlocking beams.",
    "children": [
     {
      "next": "a1_more"
@@ -142,7 +220,7 @@
   },
   "a2": {
    "src": "L7225-7229",
-   "text": "THE ROOTS:\nA living tree's roots anchor the structure.",
+   "text": "A living tree's roots anchor the structure.",
    "children": [
     {
      "next": "a2_more"
@@ -155,7 +233,7 @@
   },
   "a3": {
    "src": "L7231-7234",
-   "text": "THE MIRAGE:\nThe supposed unsupported edge is an illusion created by a hidden slope and clever stonework.",
+   "text": "The supposed unsupported edge is an illusion created by a hidden slope and clever stonework.",
    "children": [
     {
      "next": "a3_more"
@@ -168,7 +246,7 @@
   },
   "b1": {
    "src": "L7236-7239",
-   "text": "THE MIRACLE:\nThe platform holds an astonishing load without bending.",
+   "text": "The platform holds an astonishing load without bending.",
    "children": [
     {
      "next": "b1_more"
@@ -181,7 +259,7 @@
   },
   "b2": {
    "src": "L7241-7245",
-   "text": "THE EMBARRASSMENT:\nA single basket of coconuts makes the platform tip into the sand.",
+   "text": "A single basket of coconuts makes the platform tip into the sand.",
    "children": [
     {
      "next": "b2_more"
@@ -194,7 +272,7 @@
   },
   "b3": {
    "src": "L7247-7250",
-   "text": "THE UNSETTLING SUCCESS:\nThe structure remains upright even after its apparent supports are removed.",
+   "text": "The structure remains upright even after its apparent supports are removed.",
    "children": [
     {
      "next": "b3_more"
@@ -207,7 +285,7 @@
   },
   "b4": {
    "src": "L7252-7255",
-   "text": "THE EXPERT WAS WRONG:\nThe judge's calculations predict failure, but repeated safe tests show the design works.",
+   "text": "The judge's calculations predict failure, but repeated safe tests show the design works.",
    "children": [
     {
      "next": "b4_more"
@@ -220,7 +298,7 @@
   },
   "c1": {
    "src": "L7257-7260",
-   "text": "THE PARADE:\nThe crowd rushes onto the platform.",
+   "text": "The crowd rushes onto the platform.",
    "children": [
     {
      "next": "c1_more"
@@ -233,7 +311,7 @@
   },
   "c2": {
    "src": "L7262-7265",
-   "text": "THE STUNT:\n(builder) walks across the platform while the crowd gasps.",
+   "text": "(builder) walks across the platform while the crowd gasps.",
    "children": [
     {
      "next": "c2_more"
@@ -246,7 +324,7 @@
   },
   "c3": {
    "src": "L7267-7270",
-   "text": "THE COLLAPSE:\nThe platform tilts and settles into soft earth before anyone steps on it.",
+   "text": "The platform tilts and settles into soft earth before anyone steps on it.",
    "children": [
     {
      "next": "c3_more"
@@ -273,7 +351,7 @@
   },
   "d1": {
    "src": "L7272-7276",
-   "text": "THE EXPLANATION:\n(builder) presents an intricate account of load, balance and buried counterweights.",
+   "text": "(builder) presents an intricate account of load, balance and buried counterweights.",
    "children": [
     {
      "next": "d1_more"
@@ -286,7 +364,7 @@
   },
   "d2": {
    "src": "L7278-7281",
-   "text": "THE NON-EXPLANATION:\n(builder) says the building stands because it \"wants to.\"",
+   "text": "(builder) says the building stands because it \"wants to.\"",
    "children": [
     {
      "next": "d2_more"
@@ -299,7 +377,7 @@
   },
   "d3": {
    "src": "L7283-7286",
-   "text": "THE IMPOSSIBLE CLAIM:\n(builder) insists that (builder.he/she) has overturned the very order of the world.",
+   "text": "(builder) insists that (builder.he/she) has overturned the very order of the world.",
    "children": [
     {
      "next": "d3_more"

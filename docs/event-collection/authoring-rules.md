@@ -103,6 +103,15 @@ matched by some text or taken out. A line is consumed by a `src` of a text field
 ```
 
 - `structural`: headings, bank labels (`A — APPROACH:`, `(1) SHARED GARDEN — choose one:`), routes like `(to 2)`.
+  **In-text subroute headings are never shown** (the owner, 2026-11-14: "events should have a single event title. no
+  need for subroute headings"): a paragraph-leading heading such as `ROUND ONE — THE IMPOSSIBLE INGREDIENT:` or
+  `A1 — THE THUNDERCLAP:` is taken out of the page with a `structural` ledger entry -- the whole line when the heading
+  stands on its own line, or a `text` cut when it leads a line of story -- and the node's `src` starts after it.
+  No new fidelity rule is needed: the ledger's structural cut is the marker. Each removal is listed in
+  [retrofit-log.md](retrofit-log.md).
+  A shared pool item (its item is matched inside its own lines) simply drops the heading, with no ledger entry.
+  A **speaker label** is not a route heading and stays (the owner, 2026-11-14): The Crafty Inspector's
+  `MASTER STONEWRIGHT (NAME3):` names who is speaking, so it ships with the critic's name.
 - `note`: designer notes and rules never shown (`(deliberately unsuitable container)`, "IMPLEMENTATION NOTES").
 - `instruction`: a mechanical instruction (`(earn tech points)`, `Parenting skill: SIGNIFICANT GAIN`); the matching
   effect or `text_only` entry carries the same line in its `src`.

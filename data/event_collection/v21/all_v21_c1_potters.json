@@ -57,6 +57,120 @@
     "kind": "note",
     "text": "; the mystery remains deliberately exceptional",
     "why": "designer note on coda 7"
+   },
+   {
+    "src": "L9382",
+    "kind": "structural",
+    "text": "The Perfect Water Jar:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9384",
+    "kind": "structural",
+    "text": "A Beautiful Sieve:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9387",
+    "kind": "structural",
+    "text": "The Great Collapse:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9389",
+    "kind": "structural",
+    "text": "The Unbreakable Bowl:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9392",
+    "kind": "structural",
+    "text": "The Vessel with Two Mouths:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9397",
+    "kind": "structural",
+    "text": "The Ancestors' Faces:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9400",
+    "kind": "structural",
+    "text": "The Ugliest Masterpiece:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9403",
+    "kind": "structural",
+    "text": "The Painted Catastrophe:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9406",
+    "kind": "structural",
+    "text": "The Stolen Pattern:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9409",
+    "kind": "structural",
+    "text": "The Speaking Pot:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9414",
+    "kind": "structural",
+    "text": "The Merciless Critic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9417",
+    "kind": "structural",
+    "text": "The Critic Is Wrong:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9419",
+    "kind": "structural",
+    "text": "The Apprentice's Triumph:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9421",
+    "kind": "structural",
+    "text": "The Judge's Favorite:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9540",
+    "kind": "structural",
+    "text": "The Disgraced Judge Returns:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9541",
+    "kind": "structural",
+    "text": "The Forgotten Potter:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9542",
+    "kind": "structural",
+    "text": "The Artisan's Apprentice:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9543",
+    "kind": "structural",
+    "text": "The Great Design Feud:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9546",
+    "kind": "structural",
+    "text": "The Impossible Vessel:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -104,7 +218,7 @@
    ]
   },
   "a1": {
-   "text": "The Perfect Water Jar: The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
+   "text": "The pot holds water without leaking and is easy to carry. The judges praise (Potter)'s skill.",
    "src": "L9382-9383",
    "children": [
     {
@@ -128,7 +242,7 @@
    ]
   },
   "a2": {
-   "text": "A Beautiful Sieve: The vessel is covered in tiny holes. (Potter) calls it a water jar; the judge calls it a colander. The farmers immediately request copies for washing gathered food.",
+   "text": "The vessel is covered in tiny holes. (Potter) calls it a water jar; the judge calls it a colander. The farmers immediately request copies for washing gathered food.",
    "src": "L9384-9386",
    "children": [
     {
@@ -152,7 +266,7 @@
    ]
   },
   "a3": {
-   "text": "The Great Collapse: The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
+   "text": "The unfired vessel slumps into a shapeless mound. (Potter) is mortified; an apprentice gently offers to help rebuild it.",
    "src": "L9387-9388",
    "children": [
     {
@@ -168,7 +282,7 @@
    ]
   },
   "a4": {
-   "text": "The Unbreakable Bowl: The bowl survives a fall onto packed earth. The judges celebrate, until someone discovers it cannot be lifted without spilling everything inside.",
+   "text": "The bowl survives a fall onto packed earth. The judges celebrate, until someone discovers it cannot be lifted without spilling everything inside.",
    "src": "L9389-9391",
    "children": [
     {
@@ -189,7 +303,7 @@
    ]
   },
   "a5": {
-   "text": "The Vessel with Two Mouths: Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
+   "text": "Nobody can explain the double spout until a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator.",
    "src": "L9392-9394",
    "children": [
     {
@@ -225,7 +339,7 @@
    ]
   },
   "b1": {
-   "text": "The Ancestors' Faces: The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",
+   "text": "The carved figures are so expressive that an elder recognizes a long-dead relative. The crowd falls respectfully silent; (Potter) is awarded first place.",
    "src": "L9397-9399",
    "children": [
     {
@@ -234,7 +348,7 @@
    ]
   },
   "b2": {
-   "text": "The Ugliest Masterpiece: The pot resembles a lopsided crab with an enormous nose. The judges recoil; the children adore it. Years later, its likeness is found in nearly every hut.",
+   "text": "The pot resembles a lopsided crab with an enormous nose. The judges recoil; the children adore it. Years later, its likeness is found in nearly every hut.",
    "src": "L9400-9402",
    "children": [
     {
@@ -243,7 +357,7 @@
    ]
   },
   "b3": {
-   "text": "The Painted Catastrophe: During firing, the colors change unexpectedly. The judges call it ruined; a visiting craftsperson calls it beautiful. The village splits into rival schools of taste.",
+   "text": "During firing, the colors change unexpectedly. The judges call it ruined; a visiting craftsperson calls it beautiful. The village splits into rival schools of taste.",
    "src": "L9403-9405",
    "children": [
     {
@@ -252,7 +366,7 @@
    ]
   },
   "b4": {
-   "text": "The Stolen Pattern: (Rival) accuses (Potter) of copying a family motif. The elders investigate and discover coincidence, theft, or a shared ancestral source.",
+   "text": "(Rival) accuses (Potter) of copying a family motif. The elders investigate and discover coincidence, theft, or a shared ancestral source.",
    "src": "L9406-9408",
    "children": [
     {
@@ -261,7 +375,7 @@
    ]
   },
   "b5": {
-   "text": "The Speaking Pot: When the wind passes over the vessel, it makes a mournful musical note. (Potter) insists this was intentional; no one believes (potter.him/her), but the musicians beg to borrow it.",
+   "text": "When the wind passes over the vessel, it makes a mournful musical note. (Potter) insists this was intentional; no one believes (potter.him/her), but the musicians beg to borrow it.",
    "src": "L9409-9411",
    "children": [
     {
@@ -290,7 +404,7 @@
    ]
   },
   "c1": {
-   "text": "The Merciless Critic: The judge lists twelve flaws without taking a breath. (Potter) nearly cries, then spends days improving the work. (Potter) gains a crafting-related Tech reward and new respect.",
+   "text": "The judge lists twelve flaws without taking a breath. (Potter) nearly cries, then spends days improving the work. (Potter) gains a crafting-related Tech reward and new respect.",
    "src": "L9414-9416",
    "children": [
     {
@@ -303,6 +417,16 @@
      "size": "normal",
      "scaled": true,
      "src": "L9416"
+    },
+    {
+     "do": "skill",
+     "role": "potter",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9414-9416"
     }
    ],
    "text_only": [
@@ -314,7 +438,7 @@
    ]
   },
   "c2": {
-   "text": "The Critic Is Wrong: The judge condemns the shape, but a farmer demonstrates its remarkable usefulness. The judge apologizes publicly.",
+   "text": "The judge condemns the shape, but a farmer demonstrates its remarkable usefulness. The judge apologizes publicly.",
    "src": "L9417-9418",
    "children": [
     {
@@ -323,7 +447,7 @@
    ]
   },
   "c3": {
-   "text": "The Apprentice's Triumph: A child quietly suggests reinforcing the base. The resulting pot wins; (Potter) credits the child before all.",
+   "text": "A child quietly suggests reinforcing the base. The resulting pot wins; (Potter) credits the child before all.",
    "src": "L9419-9420",
    "children": [
     {
@@ -332,7 +456,7 @@
    ]
   },
   "c4": {
-   "text": "The Judge's Favorite: The judge praises a friend's inferior pot. Outraged competitors demand a new panel; the council may uphold or overturn the result.",
+   "text": "The judge praises a friend's inferior pot. Outraged competitors demand a new panel; the council may uphold or overturn the result.",
    "src": "L9421-9423",
    "children": [
     {
@@ -360,7 +484,7 @@
   "coda_v21_2": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Disgraced Judge Returns: A former critic seeks a chance to judge fairly.",
+   "text": "A former critic seeks a chance to judge fairly.",
    "src": "L9540",
    "children": [
     {
@@ -371,7 +495,7 @@
   "coda_v21_3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Forgotten Potter: A later generation rediscovers an overlooked vessel.",
+   "text": "A later generation rediscovers an overlooked vessel.",
    "src": "L9541",
    "children": [
     {
@@ -382,7 +506,7 @@
   "coda_v21_4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Artisan's Apprentice: A novice becomes a master and honors the teacher.",
+   "text": "A novice becomes a master and honors the teacher.",
    "src": "L9542",
    "children": [
     {
@@ -393,7 +517,7 @@
   "coda_v21_5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Great Design Feud: Two families dispute ownership of a decorative motif.",
+   "text": "Two families dispute ownership of a decorative motif.",
    "src": "L9543",
    "children": [
     {
@@ -404,7 +528,7 @@
   "coda_v21_7": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Impossible Vessel: An inexplicable pot seems to preserve water, sing, or balance beyond reason.",
+   "text": "An inexplicable pot seems to preserve water, sing, or balance beyond reason.",
    "src": "L9546-9547",
    "children": [
     {

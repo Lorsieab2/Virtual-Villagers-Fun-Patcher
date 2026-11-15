@@ -24,7 +24,15 @@
   "ledger": [],
   "description": "A pregnant villager is gravely ill, and the village decides how the healers should treat her."
  },
- "roles": {},
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "sex": "female",
+   "min_age": 14,
+   "special": "nursing_parent",
+   "protected": "allow"
+  }
+ },
  "start": "intro",
  "nodes": {
   "intro": {
@@ -53,7 +61,7 @@
     {
      "src": "L8951-8953",
      "what": "a pregnant villager and her unborn child",
-     "reason": "decision Q11: the patient is an uncast stranger, so no villager is affected by the pregnancy content; told only"
+     "reason": "the pregnant villager is cast as the nursing parent (the owner's V28 protection model, protected allow; see docs/event-collection/retrofit-harm-review.md); the intro itself changes nothing"
     }
    ]
   },
@@ -68,7 +76,14 @@
     {
      "src": "L8956",
      "what": "dies",
-     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+     "reason": "the child is the unborn baby: baby_lost ends the pregnancy; no villager dies"
+    }
+   ],
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L8956"
     }
    ]
   },
@@ -79,35 +94,58 @@
     {
      "src": "L8957",
      "what": "dies",
-     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+     "reason": "the games keep the unborn baby only as the mother's own state, so her death would end it: this outcome (the child survives) is told only, and no one is harmed"
     }
    ]
   },
   "a4": {
    "text": "Neither survives; the healer questions whether the decision was right.",
-   "src": "L8958"
+   "src": "L8958",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "mother",
+     "cause": "unknown",
+     "src": "L8958"
+    }
+   ]
   },
   "a5": {
    "text": "Both survive, though the mother requires prolonged care.",
-   "src": "L8959"
+   "src": "L8959",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": -30,
+     "max": -10,
+     "src": "L8959"
+    }
+   ]
   },
   "set_a": {
    "type": "branch",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "weight": 20
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "weight": 20
     },
     {
-     "next": "a4"
+     "next": "a4",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "a5"
+     "next": "a5",
+     "weight": 20
     }
    ]
   },
@@ -117,20 +155,37 @@
   },
   "b2": {
    "text": "The mother survives but loses the baby.",
-   "src": "L8962"
+   "src": "L8962",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L8962"
+    }
+   ]
   },
   "b3": {
    "text": "The condition worsens, demanding a desperate intervention.",
-   "src": "L8963"
+   "src": "L8963",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": -30,
+     "max": -10,
+     "src": "L8963"
+    }
+   ]
   },
   "b4": {
    "text": "Both die; villagers disagree about whether waiting was a mistake.",
    "src": "L8964",
-   "text_only": [
+   "effects": [
     {
-     "src": "L8964",
-     "what": "die",
-     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+     "do": "kill",
+     "role": "mother",
+     "cause": "unknown",
+     "src": "L8964"
     }
    ]
   },
@@ -138,16 +193,21 @@
    "type": "branch",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "weight": 20
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -157,7 +217,16 @@
   },
   "c2": {
    "text": "She chooses gentler care; her recovery is prolonged and uncertain.",
-   "src": "L8967"
+   "src": "L8967",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": -30,
+     "max": -10,
+     "src": "L8967"
+    }
+   ]
   },
   "c3": {
    "text": "Her relatives object to her decision, but the healers honor her wishes.",

@@ -119,13 +119,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "weight": 20
     }
    ]
   },
@@ -170,7 +174,16 @@
   },
   "c2": {
    "text": "They conflict dangerously.",
-   "src": "L9086-9087"
+   "src": "L9086-9087",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9086-9087"
+    }
+   ]
   },
   "c3": {
    "text": "An apprentice organizes supplies and saves time.",

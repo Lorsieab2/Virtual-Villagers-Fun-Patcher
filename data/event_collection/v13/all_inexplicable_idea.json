@@ -185,6 +185,96 @@
     "src": "L7531",
     "kind": "instruction",
     "why": "the outcome's result, carried by its effect or text_only"
+   },
+   {
+    "src": "L7517",
+    "kind": "structural",
+    "text": "IT WORKS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7523",
+    "kind": "structural",
+    "text": "IT SORT OF WORKS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7528",
+    "kind": "structural",
+    "text": "THE ABSOLUTE FAILURE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7533",
+    "kind": "structural",
+    "text": "THE UNEXPECTED SIDE EFFECT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7539",
+    "kind": "structural",
+    "text": "THE GREAT LAUGH:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7544",
+    "kind": "structural",
+    "text": "THE GENIUS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7549",
+    "kind": "structural",
+    "text": "THE NONSENSE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7554",
+    "kind": "structural",
+    "text": "THE INSULTED INVENTOR:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7559",
+    "kind": "structural",
+    "text": "THE BETTER QUESTION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7564",
+    "kind": "structural",
+    "text": "THE COUNCIL IS STUMPED:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7569",
+    "kind": "structural",
+    "text": "THE QUIET COMEBACK:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7573",
+    "kind": "structural",
+    "text": "THE SPITEFUL MASTERPIECE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7577",
+    "kind": "structural",
+    "text": "THE FORTY-SEVEN REVISIONS:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7582",
+    "kind": "structural",
+    "text": "THE LOST OPPORTUNITY:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7587",
+    "kind": "structural",
+    "text": "THE FINAL WORD:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A villager presents a peculiar invention, and the village council decides what to do with it."
@@ -528,18 +618,30 @@
   },
   "a1": {
    "src": "L7517-7520",
-   "text": "IT WORKS:\nThe council is astonished. The idea solves a practical problem with ordinary materials, though the inventor's original explanation was nonsense. (Inventor) is offered a chance to teach the method.",
+   "text": "The council is astonished. The idea solves a practical problem with ordinary materials, though the inventor's original explanation was nonsense. (Inventor) is offered a chance to teach the method.",
    "text_only": [
     {
      "src": "L7521",
      "what": "the result line",
      "reason": "rule 7 / rule 9: told only"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7517-7520"
+    }
    ]
   },
   "a2": {
    "src": "L7523-7526",
-   "text": "IT SORT OF WORKS:\nThe device functions, but only under such specific conditions that it is scarcely useful. The villagers praise the effort and decline to build another.",
+   "text": "The device functions, but only under such specific conditions that it is scarcely useful. The villagers praise the effort and decline to build another.",
    "text_only": [
     {
      "src": "L7526",
@@ -550,7 +652,7 @@
   },
   "a3": {
    "src": "L7528-7530",
-   "text": "THE ABSOLUTE FAILURE:\nThe project fails instantly. (Inventor) insists that the failure proves the idea is \"ahead of its time.\" The council requests evidence.",
+   "text": "The project fails instantly. (Inventor) insists that the failure proves the idea is \"ahead of its time.\" The council requests evidence.",
    "text_only": [
     {
      "src": "L7531",
@@ -561,51 +663,83 @@
   },
   "a4": {
    "src": "L7533-7537",
-   "text": "THE UNEXPECTED SIDE EFFECT:\nThe device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better."
+   "text": "The device fails at its stated purpose but proves unexpectedly useful for {drying herbs|shading seedlings|teaching apprentices|decorating a festival}. (Inventor) accepts a small prize while continuing to insist the original idea was better."
   },
   "a5": {
    "src": "L7539-7542",
-   "text": "THE GREAT LAUGH:\nThe entire audience assumes the proposal is comedy and applauds. (Inventor) is devastated to discover that nobody believed (inventor.him/her). A sympathetic elder offers to review the idea seriously."
+   "text": "The entire audience assumes the proposal is comedy and applauds. (Inventor) is devastated to discover that nobody believed (inventor.him/her). A sympathetic elder offers to review the idea seriously.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "inventor",
+     "mood": "bad",
+     "src": "L7539-7542"
+    }
+   ]
   },
   "b1": {
    "src": "L7544-7547",
-   "text": "THE GENIUS:\n(Inventor) gives a clear demonstration and anticipates every objection. The council approves a supervised trial. The stern scholar grudgingly admits that appearances can deceive."
+   "text": "(Inventor) gives a clear demonstration and anticipates every objection. The council approves a supervised trial. The stern scholar grudgingly admits that appearances can deceive.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7544-7547"
+    }
+   ]
   },
   "b2": {
    "src": "L7549-7552",
-   "text": "THE NONSENSE:\n(Inventor) explains that the invention works because \"everything wants to be somewhere else.\" The council asks for a testable explanation. (Inventor) offers a drawing of a smiling coconut."
+   "text": "(Inventor) explains that the invention works because \"everything wants to be somewhere else.\" The council asks for a testable explanation. (Inventor) offers a drawing of a smiling coconut."
   },
   "b3": {
    "src": "L7554-7557",
-   "text": "THE INSULTED INVENTOR:\nWhen the crowd laughs, (Inventor) shouts, \"YOU LAUGHED AT MY LAST INVENTION TOO!\" A builder replies, \"Your last invention was a hole.\" \"AN IMPROVED HOLE!\" (Inventor) screams."
+   "text": "When the crowd laughs, (Inventor) shouts, \"YOU LAUGHED AT MY LAST INVENTION TOO!\" A builder replies, \"Your last invention was a hole.\" \"AN IMPROVED HOLE!\" (Inventor) screams."
   },
   "b4": {
    "src": "L7559-7562",
-   "text": "THE BETTER QUESTION:\nA child asks what problem the invention solves. (Inventor) cannot answer. After a long silence, (inventor.he/she) admits that the invention was made simply to see whether it could be done."
+   "text": "A child asks what problem the invention solves. (Inventor) cannot answer. After a long silence, (inventor.he/she) admits that the invention was made simply to see whether it could be done."
   },
   "b5": {
    "src": "L7564-7567",
-   "text": "THE COUNCIL IS STUMPED:\nThe leaders debate for hours and finally admit they cannot decide whether the invention is possible. They ask the researchers to test it rather than inventing a verdict."
+   "text": "The leaders debate for hours and finally admit they cannot decide whether the invention is possible. They ask the researchers to test it rather than inventing a verdict."
   },
   "c1": {
    "src": "L7569-7571",
-   "text": "THE QUIET COMEBACK:\n(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly."
+   "text": "(Inventor) returns weeks later with a smaller, more practical design. The council approves it. (Inventor) says nothing, but smiles broadly.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7569-7571"
+    }
+   ]
   },
   "c2": {
    "src": "L7573-7575",
-   "text": "THE SPITEFUL MASTERPIECE:\n(Inventor) spends months perfecting the rejected design. It works, but is still completely useless. The inventor demands a parade."
+   "text": "(Inventor) spends months perfecting the rejected design. It works, but is still completely useless. The inventor demands a parade."
   },
   "c3": {
    "src": "L7577-7580",
-   "text": "THE FORTY-SEVEN REVISIONS:\n(Inventor) returns with forty-seven revised sketches. The leaders ask which one is best. \"All of them,\" says (Inventor). The meeting ends abruptly."
+   "text": "(Inventor) returns with forty-seven revised sketches. The leaders ask which one is best. \"All of them,\" says (Inventor). The meeting ends abruptly."
   },
   "c4": {
    "src": "L7582-7585",
-   "text": "THE LOST OPPORTUNITY:\nA visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes."
+   "text": "A visiting artisan independently demonstrates the same useful principle months later. The council realizes it dismissed (Inventor) too quickly and apologizes."
   },
   "c5": {
    "src": "L7587-7590",
-   "text": "THE FINAL WORD:\n(Inventor) abandons the invention and returns to ordinary work. Years later, the village still jokes about it. (Inventor) finally laughs too, then admits that the ridicule hurt at the time."
+   "text": "(Inventor) abandons the invention and returns to ordinary work. Years later, the village still jokes about it. (Inventor) finally laughs too, then admits that the ridicule hurt at the time."
   },
   "set_a": {
    "type": "branch",

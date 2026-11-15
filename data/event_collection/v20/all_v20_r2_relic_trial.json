@@ -74,6 +74,90 @@
     "kind": "instruction",
     "text": "Exceptionally rarely,",
     "why": "P8 is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L9258",
+    "kind": "structural",
+    "text": "Innocent:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9259",
+    "kind": "structural",
+    "text": "The Hidden Visitor:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9261",
+    "kind": "structural",
+    "text": "The False Confession:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9263",
+    "kind": "structural",
+    "text": "The Unexpected Spy:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9267",
+    "kind": "structural",
+    "text": "The Wrongful Prisoner:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9269",
+    "kind": "structural",
+    "text": "The Prisoner's Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9271",
+    "kind": "structural",
+    "text": "The Village Divided:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9273",
+    "kind": "structural",
+    "text": "The Escape:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9277",
+    "kind": "structural",
+    "text": "The Vindicated Explorer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9279",
+    "kind": "structural",
+    "text": "The Unanswered Suspicion:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9280",
+    "kind": "structural",
+    "text": "The Courageous Elder:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9282",
+    "kind": "structural",
+    "text": "The Genuine Conspiracy:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9346",
+    "kind": "structural",
+    "text": "Political Prisoner:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9351",
+    "kind": "structural",
+    "text": "First Contact:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -134,7 +218,7 @@
    ]
   },
   "a1": {
-   "text": "Innocent: Evidence clears (Accused), who is publicly vindicated.",
+   "text": "Evidence clears (Accused), who is publicly vindicated.",
    "src": "L9258",
    "children": [
     {
@@ -143,7 +227,7 @@
    ]
   },
   "a2": {
-   "text": "The Hidden Visitor: Strange footprints and materials suggest someone else has recently visited the island.",
+   "text": "Strange footprints and materials suggest someone else has recently visited the island.",
    "src": "L9259-9260",
    "children": [
     {
@@ -152,7 +236,7 @@
    ]
   },
   "a3": {
-   "text": "The False Confession: Frightened, (Accused) admits to something untrue; another witness eventually exposes the mistake.",
+   "text": "Frightened, (Accused) admits to something untrue; another witness eventually exposes the mistake.",
    "src": "L9261-9262",
    "children": [
     {
@@ -161,7 +245,7 @@
    ]
   },
   "a4": {
-   "text": "The Unexpected Spy: Another villager planted the object to discredit (Accused).",
+   "text": "Another villager planted the object to discredit (Accused).",
    "src": "L9263-9264",
    "children": [
     {
@@ -187,7 +271,7 @@
    ]
   },
   "b1": {
-   "text": "The Wrongful Prisoner: (Accused) is innocent. Later revelations bring shame upon the council and demands for restitution.",
+   "text": "(Accused) is innocent. Later revelations bring shame upon the council and demands for restitution.",
    "src": "L9267-9268",
    "children": [
     {
@@ -203,7 +287,7 @@
    ]
   },
   "b2": {
-   "text": "The Prisoner's Discovery: In confinement, (Accused) recalls a crucial clue about the object's arrival.",
+   "text": "In confinement, (Accused) recalls a crucial clue about the object's arrival.",
    "src": "L9269-9270",
    "children": [
     {
@@ -212,7 +296,7 @@
    ]
   },
   "b3": {
-   "text": "The Village Divided: Supporters demand release while fearful villagers demand continued confinement.",
+   "text": "Supporters demand release while fearful villagers demand continued confinement.",
    "src": "L9271-9272",
    "children": [
     {
@@ -221,7 +305,7 @@
    ]
   },
   "b4": {
-   "text": "The Escape: (Accused) flees into the forest; the village cannot decide whether this proves guilt or desperation.",
+   "text": "(Accused) flees into the forest; the village cannot decide whether this proves guilt or desperation.",
    "src": "L9273-9274",
    "children": [
     {
@@ -240,21 +324,26 @@
    "type": "branch",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "weight": 20
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "rarity": "rare",
+     "weight": 5
     }
    ]
   },
   "c1": {
-   "text": "The Vindicated Explorer: The accusation collapses; (Accused) receives public thanks for the discovery.",
+   "text": "The accusation collapses; (Accused) receives public thanks for the discovery.",
    "src": "L9277-9278",
    "children": [
     {
@@ -270,7 +359,7 @@
    ]
   },
   "c2": {
-   "text": "The Unanswered Suspicion: (Accused) is freed, but rumors persist.",
+   "text": "(Accused) is freed, but rumors persist.",
    "src": "L9279",
    "children": [
     {
@@ -279,7 +368,7 @@
    ]
   },
   "c3": {
-   "text": "The Courageous Elder: An elder argues that fear must not become an excuse for cruelty, winning grudging respect.",
+   "text": "An elder argues that fear must not become an excuse for cruelty, winning grudging respect.",
    "src": "L9280-9281",
    "children": [
     {
@@ -288,7 +377,7 @@
    ]
   },
   "c4": {
-   "text": "The Genuine Conspiracy: The relic was planted deliberately, although (Accused) may still be innocent.",
+   "text": "The relic was planted deliberately, although (Accused) may still be innocent.",
    "src": "L9282-9283",
    "children": [
     {
@@ -316,13 +405,13 @@
   "coda_p3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Political Prisoner: A wrongfully confined villager is cleared years later.",
+   "text": "A wrongfully confined villager is cleared years later.",
    "src": "L9346"
   },
   "coda_p8": {
    "popup": "append",
    "join": "paragraph",
-   "text": "First Contact: evidence shows the object was deliberately left by someone who knows Isola exists.",
+   "text": "evidence shows the object was deliberately left by someone who knows Isola exists.",
    "src": "L9351-9352"
   },
   "rare_coda_p8": {

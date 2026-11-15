@@ -104,6 +104,138 @@
     "kind": "note",
     "text": "VV5",
     "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
+    "src": "L9718",
+    "kind": "structural",
+    "text": "The Careful Healer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9721",
+    "kind": "structural",
+    "text": "The Promising Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9724",
+    "kind": "structural",
+    "text": "The Beautiful Failure:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9727",
+    "kind": "structural",
+    "text": "The Misidentified Leaf:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9732",
+    "kind": "structural",
+    "text": "Strength of the Spirit:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9735",
+    "kind": "structural",
+    "text": "The Boastful Brew:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9738",
+    "kind": "structural",
+    "text": "The Potion That Worked Too Well:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9741",
+    "kind": "structural",
+    "text": "The Impossible Result:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9749",
+    "kind": "structural",
+    "text": "Exactly as Requested:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9751",
+    "kind": "structural",
+    "text": "Almost Right:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9753",
+    "kind": "structural",
+    "text": "The Endless Bubbles:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9755",
+    "kind": "structural",
+    "text": "The Unexpected Utility:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9760",
+    "kind": "structural",
+    "text": "The Thoughtful Researcher:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9762",
+    "kind": "structural",
+    "text": "The Cautious Scholar:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9764",
+    "kind": "structural",
+    "text": "The Great Mislabeling:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9767",
+    "kind": "structural",
+    "text": "The Rival's Sabotage:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9771",
+    "kind": "structural",
+    "text": "A New Principle:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9773",
+    "kind": "structural",
+    "text": "The Potion of Hiccups:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9775",
+    "kind": "structural",
+    "text": "The Temporary Transformation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9778",
+    "kind": "structural",
+    "text": "The Council Intervenes:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9957",
+    "kind": "structural",
+    "text": "The Potion That Became Tradition:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9963",
+    "kind": "structural",
+    "text": "The Shared Prize:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -171,7 +303,7 @@
    ]
   },
   "a1": {
-   "text": "The Careful Healer: Using established methods and careful observation, (Brewer) makes a useful preparation. The judges",
+   "text": "Using established methods and careful observation, (Brewer) makes a useful preparation. The judges",
    "src": "L9718-9720",
    "children": [
     {
@@ -192,7 +324,7 @@
    ]
   },
   "a2": {
-   "text": "The Promising Discovery: The mixture appears helpful in controlled demonstrations, but the judges insist on further study before calling it a cure.",
+   "text": "The mixture appears helpful in controlled demonstrations, but the judges insist on further study before calling it a cure.",
    "src": "L9721-9723",
    "children": [
     {
@@ -219,7 +351,7 @@
    ]
   },
   "a3": {
-   "text": "The Beautiful Failure: The potion smells wonderful and looks magnificent but performs no better than plain water in the agreed tests.",
+   "text": "The potion smells wonderful and looks magnificent but performs no better than plain water in the agreed tests.",
    "src": "L9724-9726",
    "children": [
     {
@@ -240,11 +372,23 @@
    ]
   },
   "a4": {
-   "text": "The Misidentified Leaf: A judge notices an ingredient mix-up before anyone uses the preparation. The entry is disqualified; the healer gains a lesson in careful identification.",
+   "text": "A judge notices an ingredient mix-up before anyone uses the preparation. The entry is disqualified; the healer gains a lesson in careful identification.",
    "src": "L9727-9729",
    "children": [
     {
      "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9727-9729"
     }
    ]
   },
@@ -266,7 +410,7 @@
    ]
   },
   "b1": {
-   "text": "Strength of the Spirit: A fictional, magical preparation briefly grants an adult contestant unusual vigor. The effect fades harmlessly; (Brewer) wins a rare prize.",
+   "text": "A fictional, magical preparation briefly grants an adult contestant unusual vigor. The effect fades harmlessly; (Brewer) wins a rare prize.",
    "src": "L9732-9734",
    "children": [
     {
@@ -275,7 +419,7 @@
    ]
   },
   "b2": {
-   "text": "The Boastful Brew: A rival proclaims extraordinary power, but a simple test reveals that the potion does nothing. The audience applauds the judge's deadpan expression.",
+   "text": "A rival proclaims extraordinary power, but a simple test reveals that the potion does nothing. The audience applauds the judge's deadpan expression.",
    "src": "L9735-9737",
    "children": [
     {
@@ -284,7 +428,7 @@
    ]
   },
   "b3": {
-   "text": "The Potion That Worked Too Well: A harmless fictional calming mixture leaves a judge sleepy through the awards ceremony. The organizers rule that \"strongest\" is not always \"best.\"",
+   "text": "A harmless fictional calming mixture leaves a judge sleepy through the awards ceremony. The organizers rule that \"strongest\" is not always \"best.\"",
    "src": "L9738-9740",
    "children": [
     {
@@ -293,7 +437,7 @@
    ]
   },
   "b4": {
-   "text": "The Impossible Result: A glowing mixture behaves in a way no researcher can explain. It is sealed for further study;",
+   "text": "A glowing mixture behaves in a way no researcher can explain. It is sealed for further study;",
    "src": "L9741-9743",
    "children": [
     {
@@ -332,7 +476,7 @@
    ]
   },
   "c1": {
-   "text": "Exactly as Requested: The potion performs its assigned task reliably. (Brewer) wins.",
+   "text": "The potion performs its assigned task reliably. (Brewer) wins.",
    "src": "L9749-9750",
    "children": [
     {
@@ -353,7 +497,7 @@
    ]
   },
   "c2": {
-   "text": "Almost Right: The color changes beautifully but to the wrong shade, or the fragrance fades too quickly.",
+   "text": "The color changes beautifully but to the wrong shade, or the fragrance fades too quickly.",
    "src": "L9751-9752",
    "children": [
     {
@@ -374,7 +518,7 @@
    ]
   },
   "c3": {
-   "text": "The Endless Bubbles: The mixture produces far more bubbles than intended. The judges struggle to keep straight faces.",
+   "text": "The mixture produces far more bubbles than intended. The judges struggle to keep straight faces.",
    "src": "L9753-9754",
    "children": [
     {
@@ -383,7 +527,7 @@
    ]
   },
   "c4": {
-   "text": "The Unexpected Utility: The mixture fails its assigned task but proves useful for marking baskets or decorating barkcloth.",
+   "text": "The mixture fails its assigned task but proves useful for marking baskets or decorating barkcloth.",
    "src": "L9755-9757",
    "children": [
     {
@@ -426,7 +570,7 @@
    ]
   },
   "d1": {
-   "text": "The Thoughtful Researcher: (Brewer) correctly matches a known remedy to a simulated case.",
+   "text": "(Brewer) correctly matches a known remedy to a simulated case.",
    "src": "L9760-9761",
    "children": [
     {
@@ -457,7 +601,7 @@
    ]
   },
   "d2": {
-   "text": "The Cautious Scholar: (Brewer) refuses to make unsupported claims. The judges commend the honesty",
+   "text": "(Brewer) refuses to make unsupported claims. The judges commend the honesty",
    "src": "L9762-9763",
    "children": [
     {
@@ -466,7 +610,7 @@
    ]
   },
   "d3": {
-   "text": "The Great Mislabeling: Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
+   "text": "Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
    "src": "L9764-9766",
    "children": [
     {
@@ -475,7 +619,7 @@
    ]
   },
   "d4": {
-   "text": "The Rival's Sabotage: A competitor tampers with the labels. An inquiry exposes the trick.",
+   "text": "A competitor tampers with the labels. An inquiry exposes the trick.",
    "src": "L9767-9768",
    "children": [
     {
@@ -501,7 +645,7 @@
    ]
   },
   "e1": {
-   "text": "A New Principle: A careful experiment reveals a useful property of an island plant.",
+   "text": "A careful experiment reveals a useful property of an island plant.",
    "src": "L9771-9772",
    "children": [
     {
@@ -518,7 +662,7 @@
    ]
   },
   "e2": {
-   "text": "The Potion of Hiccups: A rare comic magical mishap gives an adult judge harmless hiccups until sunset.",
+   "text": "A rare comic magical mishap gives an adult judge harmless hiccups until sunset.",
    "src": "L9773-9774",
    "children": [
     {
@@ -527,7 +671,7 @@
    ]
   },
   "e3": {
-   "text": "The Temporary Transformation: A rare magical potion briefly changes the brewer's hair color or makes (brewer.his/her) voice squeak. The effect wears off; the crowd is astonished.",
+   "text": "A rare magical potion briefly changes the brewer's hair color or makes (brewer.his/her) voice squeak. The effect wears off; the crowd is astonished.",
    "src": "L9775-9777",
    "children": [
     {
@@ -559,7 +703,7 @@
    ]
   },
   "e4_1": {
-   "text": "The Council Intervenes: The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
+   "text": "The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
    "src": "L9778-9780",
    "children": [
     {
@@ -587,7 +731,7 @@
    ]
   },
   "e4_2": {
-   "text": "The Council Intervenes: The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
+   "text": "The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
    "src": "L9778-9780",
    "children": [
     {
@@ -616,7 +760,7 @@
   "coda_v22_3": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Potion That Became Tradition: A useful, carefully studied preparation enters the healers' records.",
+   "text": "A useful, carefully studied preparation enters the healers' records.",
    "src": "L9957-9958",
    "children": [
     {
@@ -627,7 +771,7 @@
   "coda_v22_6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "text": "A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
    "src": "L9963-9964",
    "children": [
     {

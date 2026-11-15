@@ -17,7 +17,8 @@
   "draw_weight": 1,
   "series": "v17_contests",
   "title_src": "L8384",
-  "description": "A villager and a visitor cook signature dishes before an Isolan judge, and the village decides how they are tasted."
+  "description": "A villager and a visitor cook signature dishes before an Isolan judge, and the village decides how they are tasted.",
+  "ledger": []
  },
  "requirement": {
   "min_eligible": 1

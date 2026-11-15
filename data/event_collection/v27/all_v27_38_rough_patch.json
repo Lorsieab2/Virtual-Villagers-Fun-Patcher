@@ -45,7 +45,10 @@
   },
   "parent2": {
    "kind": "villager",
-   "min_age": 18
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "parent1"
+   }
   }
  },
  "start": "intro",

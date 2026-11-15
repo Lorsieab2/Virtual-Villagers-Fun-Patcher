@@ -39,6 +39,78 @@
     "kind": "instruction",
     "text": "THE PRANK WAR.",
     "why": "a text_only reason on c3 (rule 9)"
+   },
+   {
+    "src": "L9984",
+    "kind": "structural",
+    "text": "The Perfect Prank:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9986",
+    "kind": "structural",
+    "text": "The Wrong Audience:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9988",
+    "kind": "structural",
+    "text": "The Prankster Pranked:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9990",
+    "kind": "structural",
+    "text": "The Great Misunderstanding:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9994",
+    "kind": "structural",
+    "text": "The Vanishing Villager:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9997",
+    "kind": "structural",
+    "text": "The Haunted Hut:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9999",
+    "kind": "structural",
+    "text": "The Accidental Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10001",
+    "kind": "structural",
+    "text": "The Village Panic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10005",
+    "kind": "structural",
+    "text": "The Great Conspiracy:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10007",
+    "kind": "structural",
+    "text": "The Betrayal:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10008",
+    "kind": "structural",
+    "text": "The Prank War:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L10010",
+    "kind": "structural",
+    "text": "The Apology:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A villager plans a harmless prank to lighten the mood, and decides how elaborate to make it."
@@ -79,7 +151,7 @@
    ]
   },
   "a1": {
-   "text": "The Perfect Prank: (Target) jumps, then laughs so hard that the whole village joins in.",
+   "text": "(Target) jumps, then laughs so hard that the whole village joins in.",
    "src": "L9984-9985",
    "effects": [
     {
@@ -97,15 +169,15 @@
    ]
   },
   "a2": {
-   "text": "The Wrong Audience: An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
+   "text": "An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
    "src": "L9986-9987"
   },
   "a3": {
-   "text": "The Prankster Pranked: (Target) anticipated everything and replaces the surprise with a carved sign reading, \"TRY AGAIN.\"",
+   "text": "(Target) anticipated everything and replaces the surprise with a carved sign reading, \"TRY AGAIN.\"",
    "src": "L9988-9989"
   },
   "a4": {
-   "text": "The Great Misunderstanding: A mysteriously moving basket convinces several witnesses that an ancestral spirit is visiting.",
+   "text": "A mysteriously moving basket convinces several witnesses that an ancestral spirit is visiting.",
    "src": "L9990-9991"
   },
   "set_a": {
@@ -126,7 +198,7 @@
    ]
   },
   "b1": {
-   "text": "The Vanishing Villager: Clever screens and woven mats make (Target) appear to vanish. The researchers spend an embarrassing afternoon investigating the trick.",
+   "text": "Clever screens and woven mats make (Target) appear to vanish. The researchers spend an embarrassing afternoon investigating the trick.",
    "src": "L9994-9996",
    "text_only": [
     {
@@ -142,11 +214,11 @@
    ]
   },
   "b2": {
-   "text": "The Haunted Hut: A hollow bamboo tube produces eerie noises until (Prankster) is caught giggling behind the hut.",
+   "text": "A hollow bamboo tube produces eerie noises until (Prankster) is caught giggling behind the hut.",
    "src": "L9997-9998"
   },
   "b3": {
-   "text": "The Accidental Discovery: The prank reveals an unusual echo or air current.",
+   "text": "The prank reveals an unusual echo or air current.",
    "src": "L9999-10000",
    "effects": [
     {
@@ -158,7 +230,7 @@
    ]
   },
   "b4": {
-   "text": "The Village Panic: The illusion is too convincing. Villagers flee, then demand an apology and help restoring the interrupted work.",
+   "text": "The illusion is too convincing. Villagers flee, then demand an apology and help restoring the interrupted work.",
    "src": "L10001-10002"
   },
   "set_b": {
@@ -179,15 +251,15 @@
    ]
   },
   "c1": {
-   "text": "The Great Conspiracy: Several pranksters maintain straight faces until one bursts out laughing and ruins the surprise.",
+   "text": "Several pranksters maintain straight faces until one bursts out laughing and ruins the surprise.",
    "src": "L10005-10006"
   },
   "c2": {
-   "text": "The Betrayal: A child announces the entire plan to the target.",
+   "text": "A child announces the entire plan to the target.",
    "src": "L10007"
   },
   "c3": {
-   "text": "The Prank War: (Target) organizes a friendly retaliation.",
+   "text": "(Target) organizes a friendly retaliation.",
    "src": "L10008-10009",
    "text_only": [
     {
@@ -198,7 +270,7 @@
    ]
   },
   "c4": {
-   "text": "The Apology: The prank accidentally hurts someone's feelings. The pranksters apologize and make amends; friendship improves.",
+   "text": "The prank accidentally hurts someone's feelings. The pranksters apologize and make amends; friendship improves.",
    "src": "L10010-10011"
   },
   "set_c": {

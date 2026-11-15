@@ -121,13 +121,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "weight": 20
     }
    ]
   },
@@ -172,7 +176,16 @@
   },
   "c2": {
    "text": "They argue too long.",
-   "src": "L9038-9039"
+   "src": "L9038-9039",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9038-9039"
+    }
+   ]
   },
   "c3": {
    "text": "They hear a third solution from a quiet assistant.",
