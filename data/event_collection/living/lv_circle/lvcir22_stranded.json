@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranded Dolphin",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir22_stranded",
+  "source": "living",
+  "lines": [
+   21517,
+   21528
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21517",
+  "ledger": [
+   {
+    "src": "L21528",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dolphin is found stranded in shallow water, and villagers disagree about intervening.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dolphin is found stranded in shallow water, and villagers disagree about intervening.",
+   "src": "L21518",
+   "choices": [
+    {
+     "label": "Attempt a careful rescue.",
+     "next": "a",
+     "src": "L21519"
+    },
+    {
+     "label": "Keep watch and reduce disturbance.",
+     "next": "b",
+     "src": "L21522"
+    },
+    {
+     "label": "Ask experienced fishers and healers to assess it.",
+     "next": "c",
+     "src": "L21525"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The dolphin reaches deeper water, though its fate remains unknown.",
+   "src": "L21520"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rescue fails, and the villagers grieve despite their efforts.",
+   "src": "L21521"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The animal moves with the rising tide and swims away.",
+   "src": "L21523"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Its condition worsens, and the villagers reconsider helping.",
+   "src": "L21524"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Their combined knowledge guides a cautious effort.",
+   "src": "L21526"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villagers disagree over what the animal needs, delaying action.",
+   "src": "L21527"
+  }
+ }
+}

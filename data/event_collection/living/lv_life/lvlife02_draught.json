@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleeping Draught",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife02_draught",
+  "source": "living",
+  "lines": [
+   20655,
+   20666
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20655",
+  "ledger": [
+   {
+    "src": "L20666",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer's strong plant draught may dull pain during a difficult procedure, but may also slow breathing.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer has prepared a strong plant draught that may dull pain during a difficult procedure but may also dangerously slow breathing.",
+   "src": "L20656",
+   "choices": [
+    {
+     "label": "Offer the draught after explaining the uncertainty.",
+     "next": "a",
+     "src": "L20657"
+    },
+    {
+     "label": "Use a milder preparation.",
+     "next": "b",
+     "src": "L20660"
+    },
+    {
+     "label": "Postpone the operation.",
+     "next": "c",
+     "src": "L20663"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient feels little pain, but remains weak and difficult to wake.",
+   "src": "L20658",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20658"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient grows dangerously still, and the healers abandon the procedure to tend to breathing.",
+   "src": "L20659",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20659"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient remains awake and frightened, but the procedure is completed.",
+   "src": "L20661"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The weaker draught does little, and the patient asks the healers to stop.",
+   "src": "L20662"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient agrees to wait while the healers seek a safer approach.",
+   "src": "L20664"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay allows the condition to worsen, forcing another difficult discussion.",
+   "src": "L20665",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20665"
+    }
+   ]
+  }
+ }
+}

@@ -204,6 +204,11 @@ Living Catalogue templates): "believes its a startling" (22 times), "a Orange / 
 a Anagallis / a Indigoberry / a Aureus" (9 times: companion L7542, 7554, 7722, 7902, 8022, 8034, 8538, 8550, 8622) and
 "with the The Golden Guppy" (L8574). The chunk that builds them adds its rows here.
 
+### Living Event Engine fixed event volumes (the third source; rows `| living L<line> |`)
+
+LV-A (MED-01..31, LIFE-01..45, CIRCLE-01..31, living L20219-21645): none. Not fixed (not glaring): MED-19's "A Magic
+practitioner" (living L20454) keeps the source's capital, the volume's name for one of its four ways of knowing.
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

@@ -57,7 +57,8 @@ sys.path.insert(0, str(lib.ROOT / "src"))
 
 # ---- Constants the authoring rules name ---------------------------------------------------------------------------
 
-RARITY_WEIGHTS = {None: 20, "rare": 5, "very_rare": 2, "exceptionally_rare": 1}
+# "occasional" (10): a minor setback (the V28 consequence rules' "minor setback: occasional")
+RARITY_WEIGHTS = {None: 20, "occasional": 10, "rare": 5, "very_rare": 2, "exceptionally_rare": 1}
 SIZES = ("small", "normal", "large", "huge")
 # Skill amounts (design A3 "experience" = normal, "a little / small" = small; rule 10 doubles and triples for the
 # larger words).  A loss is the same range, negative.  "masters" is {"set": 100}.
@@ -70,7 +71,8 @@ ALL_SKILLS = {1: ("Parenting", "Building", "Farming", "Healing", "Research"),
 SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v27",
-            "c5", "lbl", "fwk", "sss", "cat")    # the Companion Anthology's volumes (data/event_collection/companion/)
+            "c5", "lbl", "fwk", "sss", "cat",    # the Companion Anthology's volumes (data/event_collection/companion/)
+            "lv_med", "lv_life", "lv_circle")    # the Living Event Engine's volumes (data/event_collection/living/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
@@ -1054,7 +1056,8 @@ def weighted_set(where: str, kids: list[dict], rep: Report) -> None:
     rar = [k.get("rarity") for k in kids]
     for r in rar:
         if r not in RARITY_WEIGHTS:
-            rep.add("h CHANCES", f"{where}: rarity {r!r} is not one of rare, very_rare, exceptionally_rare")
+            rep.add("h CHANCES", f"{where}: rarity {r!r} is not one of occasional, rare, very_rare, "
+                                 "exceptionally_rare")
             return
     ws = [k.get("weight", 1) for k in kids]
     if any(rar):
@@ -1330,8 +1333,9 @@ def check_shared_pools() -> list[str]:
 
 def collection_files() -> list[Path]:
     """Every event file: data/event_collection/<section>/<id>.json and
-    data/event_collection/companion/<section>/<id>.json."""
-    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json")))
+    data/event_collection/companion/<section>/<id>.json and data/event_collection/living/<section>/<id>.json."""
+    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
+                  + list(lib.LIVING_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

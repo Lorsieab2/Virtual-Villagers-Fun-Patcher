@@ -94,6 +94,18 @@ COMPANION_CREDIT_BLOCKS = (
     (7087, 7088, "The Living Catalogue"),
 )
 
+# The third source: the owner's all-in-one Living Event Engine file (data/event_collection/living/<volume>/<id>.json
+# are its fixed event volumes).  Its credits go in the same Credits.txt, verbatim: the file's own credit, then each
+# volume's heading and credit line.
+LIVING = ROOT / "docs" / "more-island-events" / "Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt"
+LIVING_SHA256 = "CBB46FCBBDB594F54B69DA9297CA21242B51D15EE7B41080C795E8555ADDF31C"
+LIVING_CREDIT_BLOCKS = (
+    (1, 2, "the all-in-one Living Event Engine file (its title and credit)"),
+    (20202, 20206, "Experimental Medicine, Last Resorts and Comfort Care"),
+    (20625, 20627, "The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams"),
+    (21229, 21230, "The Circle of Life, Rights, and Remembrance"),
+)
+
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
     """A frozen source's lines, each with its own line ending, after checking its SHA-256."""
@@ -214,11 +226,19 @@ def credits_text(events: list[dict], lines: list[str] | None = None) -> str:
     for first, last, what in COMPANION_CREDIT_BLOCKS:
         out += [f"COMPANION CREDIT: {what} (companion source lines {first}-{last})\n", "\n", span(comp, first, last),
                 "\n"]
+    liv = source_lines(LIVING, LIVING_SHA256)
+    out += ["THE LIVING EVENT ENGINE'S EVENT VOLUMES\n",
+            "\n",
+            f"Source: {LIVING.name} (SHA-256 {LIVING_SHA256}). The texts below are copied from it verbatim.\n",
+            "\n"]
+    for first, last, what in LIVING_CREDIT_BLOCKS:
+        out += [f"LIVING CREDIT: {what} (living source lines {first}-{last})\n", "\n", span(liv, first, last), "\n"]
     out += ["EACH EVENT'S CREDIT\n", "\n"]
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
-        which = "companion source lines" if e.get("source") == "companion" else "source lines"
+        which = {"companion": "companion source lines", "living": "living source lines"}.get(e.get("source"),
+                                                                                              "source lines")
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
     return "".join(out)

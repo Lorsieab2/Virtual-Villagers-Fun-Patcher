@@ -61,6 +61,29 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "living": {
+  "source": "docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt",
+  "source_sha256": "cbb46fcbbdb594f54b69da9297ca21242b51d15ee7b41080c795e8555addf31c",
+  "volumes": [
+   "L20201-20217",
+   "L20219-20620",
+   "L20624-20639",
+   "L20642-21225",
+   "L21228-21242",
+   "L21244-21645"
+  ],
+  "counts": {
+   "rows": 110,
+   "events": 107,
+   "addons": 0,
+   "banks": 0,
+   "notes": 3,
+   "events_and_addons": 107,
+   "series": {}
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "rows": [
   {
    "id": "notes_credit_ledger",
@@ -38795,6 +38818,4053 @@
    "source": "companion",
    "source_check": {
     "heading": "L8945: EVENT 154  -  The Keeper of Unfinished Records",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_med_rules",
+   "title": "Experimental Medicine, Last Resorts and Comfort Care: credits and implementation rules",
+   "games": [],
+   "lines": [
+    20201,
+    20217
+   ],
+   "kind": "notes",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20202: ISOLA  -  EXPERIMENTAL MEDICINE, LAST RESORTS & COMFORT CARE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvmed01_borrowed_organ",
+   "title": "The Borrowed Organ",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20219,
+    20230
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20219: MED-01  -  THE BORROWED ORGAN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed02_gift_after",
+   "title": "The Gift After Death",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20232,
+    20243
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20232: MED-02  -  THE GIFT AFTER DEATH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed03_blood_another",
+   "title": "The Blood of Another",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20245,
+    20256
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20245: MED-03  -  THE BLOOD OF ANOTHER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed04_draught",
+   "title": "The Sleeping Draught",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20258,
+    20269
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20258: MED-04  -  THE SLEEPING DRAUGHT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed05_limb_might",
+   "title": "The Limb That Might Be Saved",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20271,
+    20282
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20271: MED-05  -  THE LIMB THAT MIGHT BE SAVED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed06_stone_belly",
+   "title": "The Stone in the Belly",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20284,
+    20295
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20284: MED-06  -  THE STONE IN THE BELLY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed07_breath_fades",
+   "title": "The Breath That Fades",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20297,
+    20308
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20297: MED-07  -  THE BREATH THAT FADES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed08_fever_will",
+   "title": "The Fever That Will Not Break",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20310,
+    20321
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20310: MED-08  -  THE FEVER THAT WILL NOT BREAK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed09_heart_falters",
+   "title": "The Heart That Falters",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20323,
+    20334
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20323: MED-09  -  THE HEART THAT FALTERS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed10_sight_behind",
+   "title": "The Sight Behind the Cloud",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20336,
+    20347
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20336: MED-10  -  THE SIGHT BEHIND THE CLOUD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed11_water_must",
+   "title": "The Water That Must Be Clean",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20349,
+    20360
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20349: MED-11  -  THE WATER THAT MUST BE CLEAN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed12_strange_thread",
+   "title": "The Strange Thread",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20362,
+    20373
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20362: MED-12  -  THE STRANGE THREAD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed13_growing_lump",
+   "title": "The Growing Lump",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20375,
+    20386
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20375: MED-13  -  THE GROWING LUMP",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed14_child_long",
+   "title": "The Child with the Long Fever",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20388,
+    20399
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20388: MED-14  -  THE CHILD WITH THE LONG FEVER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed15_last_treatment",
+   "title": "The Last Treatment",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20401,
+    20412
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20401: MED-15  -  THE LAST TREATMENT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed16_healer_cannot",
+   "title": "The Healer Who Cannot Let Go",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20414,
+    20425
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20414: MED-16  -  THE HEALER WHO CANNOT LET GO",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed17_shrine_sickbed",
+   "title": "The Shrine and the Sickbed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20427,
+    20438
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20427: MED-17  -  THE SHRINE AND THE SICKBED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed18_healing_spring",
+   "title": "The Healing Spring",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20440,
+    20451
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20440: MED-18  -  THE HEALING SPRING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed19_spell_holds",
+   "title": "The Spell That Holds a Pulse",
+   "games": [
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20453,
+    20464
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20453: MED-19  -  THE SPELL THAT HOLDS A PULSE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed20_vine_closes",
+   "title": "The Vine That Closes Wounds",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20466,
+    20477
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20466: MED-20  -  THE VINE THAT CLOSES WOUNDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed21_curing_fish",
+   "title": "The Last Curing Fish",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20479,
+    20490
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20479: MED-21  -  THE LAST CURING FISH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed22_dream_kidney",
+   "title": "The Dream of a New Kidney",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20492,
+    20503
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20492: MED-22  -  THE DREAM OF A NEW KIDNEY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed23_painful_truth",
+   "title": "The Painful Truth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20505,
+    20516
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20505: MED-23  -  THE PAINFUL TRUTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed24_visitor_cure",
+   "title": "The Visitor with the Cure",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20518,
+    20529
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20518: MED-24  -  THE VISITOR WITH THE CURE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed25_patient_wants",
+   "title": "The Patient Who Wants to Go Home",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20531,
+    20542
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20531: MED-25  -  THE PATIENT WHO WANTS TO GO HOME",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed26_scar_reopened",
+   "title": "The Scar That Reopened",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20544,
+    20555
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20544: MED-26  -  THE SCAR THAT REOPENED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed27_medicine_helps",
+   "title": "The Medicine That Helps One and Hurts Another",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20557,
+    20568
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20557: MED-27  -  THE MEDICINE THAT HELPS ONE AND HURTS ANOTHER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed28_unfinished",
+   "title": "The Unfinished Operation",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20570,
+    20581
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20570: MED-28  -  THE UNFINISHED OPERATION",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed29_last_dose_hope",
+   "title": "The Last Dose of Hope",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20583,
+    20594
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20583: MED-29  -  THE LAST DOSE OF HOPE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed30_animal_trial",
+   "title": "The Animal Experiment",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20596,
+    20607
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20596: MED-30  -  THE ANIMAL EXPERIMENT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvmed31_choose_healer",
+   "title": "The Village Chooses a Healer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20609,
+    20620
+   ],
+   "kind": "event",
+   "section": "lv_med",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20206"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20609: MED-31  -  THE VILLAGE CHOOSES A HEALER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_life_rules",
+   "title": "The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams: heading and rules",
+   "games": [],
+   "lines": [
+    20624,
+    20639
+   ],
+   "kind": "notes",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20625: NEW COMPANION VOLUME  -  THE HEALER'S HANDS, THE FARMER'S FIELDS,",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvlife01_bitter_root",
+   "title": "The Bitter Root and the Quiet Song",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20642,
+    20653
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20642: LIFE-01  -  THE BITTER ROOT AND THE QUIET SONG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife02_draught",
+   "title": "The Sleeping Draught",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20655,
+    20666
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20655: LIFE-02  -  THE SLEEPING DRAUGHT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife03_reed_breath",
+   "title": "The Breath Through a Hollow Reed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20668,
+    20679
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20668: LIFE-03  -  THE BREATH THROUGH A HOLLOW REED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife04_crooked_arm",
+   "title": "The Crooked Arm",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20681,
+    20692
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20681: LIFE-04  -  THE CROOKED ARM",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife05_splint_bamboo",
+   "title": "The Splint of Bamboo",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20694,
+    20705
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20694: LIFE-05  -  THE SPLINT OF BAMBOO",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife06_bone_would",
+   "title": "The Bone That Would Not Heal",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20707,
+    20718
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20707: LIFE-06  -  THE BONE THAT WOULD NOT HEAL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife07_warm_stone",
+   "title": "The Warm Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20720,
+    20731
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20720: LIFE-07  -  THE WARM STONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife08_patient_fears",
+   "title": "The Patient Who Fears the Knife",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20733,
+    20744
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20733: LIFE-08  -  THE PATIENT WHO FEARS THE KNIFE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife09_fever_river",
+   "title": "The Fever and the River Bath",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20746,
+    20757
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20746: LIFE-09  -  THE FEVER AND THE RIVER BATH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife10_wound_would",
+   "title": "The Wound That Would Not Close",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20759,
+    20770
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20759: LIFE-10  -  THE WOUND THAT WOULD NOT CLOSE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife11_empty_granary",
+   "title": "The Empty Granary",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20772,
+    20783
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20772: LIFE-11  -  THE EMPTY GRANARY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife12_sealed_jar",
+   "title": "The Sealed Jar",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20785,
+    20796
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20785: LIFE-12  -  THE SEALED JAR",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife13_salt_tide",
+   "title": "The Salt of the Tide",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20798,
+    20809
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20798: LIFE-13  -  THE SALT OF THE TIDE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife14_field_grew",
+   "title": "The Field That Grew Tired",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20811,
+    20822
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20811: LIFE-14  -  THE FIELD THAT GREW TIRED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife15_worms_beneath",
+   "title": "The Worms Beneath the Roots",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20824,
+    20835
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20824: LIFE-15  -  THE WORMS BENEATH THE ROOTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife16_farm_above",
+   "title": "The Farm Above the Reef",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20837,
+    20848
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20837: LIFE-16  -  THE FARM ABOVE THE REEF",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife17_mangrove",
+   "title": "The Mangrove and the Canoe",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20850,
+    20861
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20850: LIFE-17  -  THE MANGROVE AND THE CANOE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife18_fruit_arrived",
+   "title": "The Fruit That Arrived by Sea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20863,
+    20874
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20863: LIFE-18  -  THE FRUIT THAT ARRIVED BY SEA",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife19_seeds_ash",
+   "title": "The Seeds in the Ash",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20876,
+    20887
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20876: LIFE-19  -  THE SEEDS IN THE ASH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife20_rare_dye_vine",
+   "title": "The Rare Dye Vine",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20889,
+    20900
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20889: LIFE-20  -  THE RARE DYE VINE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife21_story_tablet",
+   "title": "The Story or the Tablet",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20902,
+    20913
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20902: LIFE-21  -  THE STORY OR THE TABLET",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife22_map_old_path",
+   "title": "The Map of the Old Path",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20915,
+    20926
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20915: LIFE-22  -  THE MAP OF THE OLD PATH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife23_song_stored",
+   "title": "The Song That Stored the Seasons",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20928,
+    20939
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20928: LIFE-23  -  THE SONG THAT STORED THE SEASONS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife24_drum",
+   "title": "The Drum of the New Generation",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20941,
+    20952
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20941: LIFE-24  -  THE DRUM OF THE NEW GENERATION",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife25_hollow_reed",
+   "title": "The Hollow Reed Orchestra",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20954,
+    20965
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20954: LIFE-25  -  THE HOLLOW REED ORCHESTRA",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife26_web_woven",
+   "title": "The Web-woven Shawl",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20967,
+    20978
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20967: LIFE-26  -  THE WEB-WOVEN SHAWL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife27_blanket_rainy",
+   "title": "The Blanket for the Rainy Season",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20980,
+    20991
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20980: LIFE-27  -  THE BLANKET FOR THE RAINY SEASON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife28_tapestry",
+   "title": "The Tapestry of the First Villagers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    20993,
+    21004
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L20993: LIFE-28  -  THE TAPESTRY OF THE FIRST VILLAGERS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife29_new_clothes",
+   "title": "The Clothes No One Has Seen",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21006,
+    21017
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21006: LIFE-29  -  THE CLOTHES NO ONE HAS SEEN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife30_shell_robe",
+   "title": "The Shell-stitched Robe",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21019,
+    21030
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21019: LIFE-30  -  THE SHELL-STITCHED ROBE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife31_colors_reef",
+   "title": "The Colors of the Reef",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21032,
+    21043
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21032: LIFE-31  -  THE COLORS OF THE REEF",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife32_spider_silk",
+   "title": "The Spider's Silk",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21045,
+    21056
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21045: LIFE-32  -  THE SPIDER'S SILK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife33_canoe_sail",
+   "title": "The Canoe Sail of Leaves",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21058,
+    21069
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21058: LIFE-33  -  THE CANOE SAIL OF LEAVES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife34_basket",
+   "title": "The Basket That Breathes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21071,
+    21082
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21071: LIFE-34  -  THE BASKET THAT BREATHES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife35_wedding_cloth",
+   "title": "The Wedding Cloth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21084,
+    21095
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21084: LIFE-35  -  THE WEDDING CLOTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife36_fern_printed",
+   "title": "The Fern-printed Dress",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21097,
+    21108
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21097: LIFE-36  -  THE FERN-PRINTED DRESS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife37_winter_cloak",
+   "title": "The Winter Visitor's Cloak",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21110,
+    21121
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21110: LIFE-37  -  THE WINTER VISITOR'S CLOAK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife38_fisher_net",
+   "title": "The Fisher's Net and the Turtle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21123,
+    21134
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21123: LIFE-38  -  THE FISHER'S NET AND THE TURTLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife39_hive_orchard",
+   "title": "The Hive at the Orchard",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21136,
+    21147
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21136: LIFE-39  -  THE HIVE AT THE ORCHARD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife40_fruit_tree",
+   "title": "The Fruit Tree and the Bat",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21149,
+    21160
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21149: LIFE-40  -  THE FRUIT TREE AND THE BAT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife41_hidden_spring",
+   "title": "The Hidden Spring",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21162,
+    21173
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21162: LIFE-41  -  THE HIDDEN SPRING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife42_waste_dye",
+   "title": "The Waste of the Dye Pits",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21175,
+    21186
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21175: LIFE-42  -  THE WASTE OF THE DYE PITS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife43_library_hands",
+   "title": "The Library of Hands",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21188,
+    21199
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21188: LIFE-43  -  THE LIBRARY OF HANDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife44_cure_rare",
+   "title": "The Cure in the Rare Blossom",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21201,
+    21212
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21201: LIFE-44  -  THE CURE IN THE RARE BLOSSOM",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvlife45_design_name",
+   "title": "The Old Design and the New Name",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21214,
+    21225
+   ],
+   "kind": "event",
+   "section": "lv_life",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L20625-20627"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21214: LIFE-45  -  THE OLD DESIGN AND THE NEW NAME",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_circle_rules",
+   "title": "The Circle of Life, Rights, and Remembrance: heading and guidance",
+   "games": [],
+   "lines": [
+    21228,
+    21242
+   ],
+   "kind": "notes",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21229: NEW COMPANION VOLUME  -  THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvcir01_child_beneath",
+   "title": "The Child Beneath the Burial Tree",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21244,
+    21255
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21244: CIRCLE-01  -  THE CHILD BENEATH THE BURIAL TREE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir02_crab_wanted",
+   "title": "The Crab That Wanted to Live",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21257,
+    21268
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21257: CIRCLE-02  -  THE CRAB THAT WANTED TO LIVE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir03_mushroom",
+   "title": "The Mushroom Beneath the Fallen Tree",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21270,
+    21281
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21270: CIRCLE-03  -  THE MUSHROOM BENEATH THE FALLEN TREE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir04_does_tree_have",
+   "title": "Does a Tree Have Rights?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21283,
+    21294
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21283: CIRCLE-04  -  DOES A TREE HAVE RIGHTS?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir05_goat_companion",
+   "title": "The Goat and the Companion",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21296,
+    21307
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21296: CIRCLE-05  -  THE GOAT AND THE COMPANION",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir06_parrot_chose",
+   "title": "The Parrot Who Chose the Forest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21309,
+    21320
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21309: CIRCLE-06  -  THE PARROT WHO CHOSE THE FOREST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir07_octopus_pot",
+   "title": "The Octopus in the Pot",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21322,
+    21333
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21322: CIRCLE-07  -  THE OCTOPUS IN THE POT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir08_last_moth",
+   "title": "The Last Moth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21335,
+    21346
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21335: CIRCLE-08  -  THE LAST MOTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir09_fisher_thanks",
+   "title": "The Fisher's Thanks",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21348,
+    21359
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21348: CIRCLE-09  -  THE FISHER'S THANKS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir10_hungry_heron",
+   "title": "The Hungry Heron",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21361,
+    21372
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21361: CIRCLE-10  -  THE HUNGRY HERON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir11_forest_many",
+   "title": "The Forest's Many Mouths",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21374,
+    21385
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21374: CIRCLE-11  -  THE FOREST'S MANY MOUTHS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir12_tree_fed_fungi",
+   "title": "The Tree That Fed the Fungi",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21387,
+    21398
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21387: CIRCLE-12  -  THE TREE THAT FED THE FUNGI",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir13_grandmother",
+   "title": "A Grandmother's Last Story",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21400,
+    21411
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21400: CIRCLE-13  -  A GRANDMOTHER'S LAST STORY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir14_tide_go",
+   "title": "Where Does the Tide Go?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21413,
+    21424
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21413: CIRCLE-14  -  WHERE DOES THE TIDE GO?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir15_name_sand",
+   "title": "The Name in the Sand",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21426,
+    21437
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21426: CIRCLE-15  -  THE NAME IN THE SAND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir16_child_refused",
+   "title": "The Child Who Refused the Circle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21439,
+    21450
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21439: CIRCLE-16  -  THE CHILD WHO REFUSED THE CIRCLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir17_healer_beetle",
+   "title": "The Healer and the Beetle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21452,
+    21463
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21452: CIRCLE-17  -  THE HEALER AND THE BEETLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir18_tiger_hunger",
+   "title": "The Tiger's Hunger",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21465,
+    21476
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21465: CIRCLE-18  -  THE TIGER'S HUNGER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir19_departed",
+   "title": "The Garden of the Departed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21478,
+    21489
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21478: CIRCLE-19  -  THE GARDEN OF THE DEPARTED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir20_fungi_food",
+   "title": "The Fungi in the Food Basket",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21491,
+    21502
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21491: CIRCLE-20  -  THE FUNGI IN THE FOOD BASKET",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir21_tree_fallen",
+   "title": "The Tree's Fallen Fruit",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21504,
+    21515
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21504: CIRCLE-21  -  THE TREE'S FALLEN FRUIT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir22_stranded",
+   "title": "The Stranded Dolphin",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21517,
+    21528
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21517: CIRCLE-22  -  THE STRANDED DOLPHIN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir23_coral_stone",
+   "title": "The Coral That Was Not a Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21530,
+    21541
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21530: CIRCLE-23  -  THE CORAL THAT WAS NOT A STONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir24_pet_wild_thing",
+   "title": "The Pet and the Wild Thing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21543,
+    21554
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21543: CIRCLE-24  -  THE PET AND THE WILD THING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir25_rights_reef",
+   "title": "The Rights of the Reef",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21556,
+    21567
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21556: CIRCLE-25  -  THE RIGHTS OF THE REEF",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir26_dog_morning",
+   "title": "The Old Dog's Last Morning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21569,
+    21580
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21569: CIRCLE-26  -  THE OLD DOG'S LAST MORNING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir27_stranger",
+   "title": "The Circle and the Stranger",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21582,
+    21593
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21582: CIRCLE-27  -  THE CIRCLE AND THE STRANGER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir28_last_seed",
+   "title": "The Last Seed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21595,
+    21606
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21595: CIRCLE-28  -  THE LAST SEED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir29_weaver_funeral",
+   "title": "The Weaver's Funeral Cloth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21608,
+    21619
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21608: CIRCLE-29  -  THE WEAVER'S FUNERAL CLOTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir30_smallest_life",
+   "title": "The Smallest Life",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21621,
+    21632
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21621: CIRCLE-30  -  THE SMALLEST LIFE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvcir31_whale",
+   "title": "The Whale That Did Not Return",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21634,
+    21645
+   ],
+   "kind": "event",
+   "section": "lv_circle",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2",
+     "L21229-21230"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21634: CIRCLE-31  -  THE WHALE THAT DID NOT RETURN",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

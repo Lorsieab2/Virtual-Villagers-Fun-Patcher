@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breath That Fades",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed07_breath_fades",
+  "source": "living",
+  "lines": [
+   20297,
+   20308
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20297",
+  "ledger": [
+   {
+    "src": "L20308",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient's breathing grows shallow, and an inventor proposes a hand-operated device to move air into the lungs."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient's breathing becomes shallow after a sudden illness; an inventor proposes a hand-operated device to move air into the lungs.",
+   "src": "L20298",
+   "choices": [
+    {
+     "label": "Try the untested device with permission.",
+     "next": "a",
+     "src": "L20299"
+    },
+    {
+     "label": "Rely on established supportive care.",
+     "next": "b",
+     "src": "L20302"
+    },
+    {
+     "label": "Test the mechanism before using it on a patient.",
+     "next": "c",
+     "src": "L20305"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient begins breathing more steadily, though the improvement may not last.",
+   "src": "L20300"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The device fails to help, and the patient dies despite the effort.",
+   "src": "L20301",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20301"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient recovers slowly over several days.",
+   "src": "L20303",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20303"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient grows weaker, and the family gathers at the bedside.",
+   "src": "L20304",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20304"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The inventor finds a flaw that could have caused harm.",
+   "src": "L20306",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "inventor",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20306"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The device becomes a teaching model rather than a proven treatment.",
+   "src": "L20307"
+  }
+ }
+}

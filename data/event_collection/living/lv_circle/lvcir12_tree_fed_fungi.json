@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree That Fed the Fungi",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir12_tree_fed_fungi",
+  "source": "living",
+  "lines": [
+   21387,
+   21398
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21387",
+  "ledger": [
+   {
+    "src": "L21398",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dead tree supports mushrooms, beetles, and seedlings, but blocks a walking path.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dead tree supports mushrooms, beetles, and seedlings, but blocks a walking path.",
+   "src": "L21388",
+   "choices": [
+    {
+     "label": "Clear the tree for safety.",
+     "next": "a",
+     "src": "L21389"
+    },
+    {
+     "label": "Make a new path around it.",
+     "next": "b",
+     "src": "L21392"
+    },
+    {
+     "label": "Move only the dangerous branches.",
+     "next": "c",
+     "src": "L21395"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The path reopens, while insects lose their shelter.",
+   "src": "L21390"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Villagers use the fallen wood for repairs and leave part to decay.",
+   "src": "L21391"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children observe new life in the fallen trunk.",
+   "src": "L21393"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The detour makes carrying water more difficult.",
+   "src": "L21394"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The path becomes safer while much of the habitat remains.",
+   "src": "L21396"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A storm brings down another branch and requires fresh judgment.",
+   "src": "L21397"
+  }
+ }
+}
