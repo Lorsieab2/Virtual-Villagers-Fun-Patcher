@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rival Coworkers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_45_coworkers",
+  "source": "v28",
+  "lines": [
+   10841,
+   10847
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10841",
+  "ledger": [
+   {
+    "src": "L10842",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10847",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Two researchers resent having to share the credit for a discovery.",
+  "cast_only": [
+   "researcher1",
+   "researcher2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher1": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "researcher2": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Two researchers resent sharing credit for a discovery.",
+   "src": "L10843",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They document each person's contribution fairly.",
+   "src": "L10844"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The rivalry becomes a friendly competition.",
+   "src": "L10845"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One conceals information, delaying progress and damaging trust.",
+   "src": "L10846"
+  }
+ }
+}

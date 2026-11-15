@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish That Followed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_32_fish",
+  "source": "v28",
+  "lines": [
+   10737,
+   10743
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10737",
+  "ledger": [
+   {
+    "src": "L10738",
+    "kind": "note",
+    "why": "the cast: ANIMALS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10743",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A swimmer keeps meeting the same fish in the lagoon.",
+  "cast_only": [
+   "swimmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "swimmer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A swimmer notices the same fish appearing on several visits to a lagoon.",
+   "src": "L10739",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager names it and enjoys the encounters without capturing it.",
+   "src": "L10740"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The fish disappears one season; the villager wonders what happened.",
+   "src": "L10741",
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "the fish disappears, not a villager",
+     "src": "L10741"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It returns with a group of similar fish, delighting the swimmer.",
+   "src": "L10742"
+  }
+ }
+}

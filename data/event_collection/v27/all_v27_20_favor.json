@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unasked Favor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_20_favor",
+  "source": "v28",
+  "lines": [
+   10641,
+   10647
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10641",
+  "ledger": [
+   {
+    "src": "L10642",
+    "kind": "note",
+    "why": "the cast: ADULTS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10647",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "An agreeable villager keeps taking on more chores than they can manage."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "helper": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 54
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "An agreeable villager keeps accepting more chores than they can manage.",
+   "src": "L10643",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They learn to set a kind boundary.",
+   "src": "L10644"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A coworker notices and redistributes the work.",
+   "src": "L10645"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They become exhausted and miss an important obligation.",
+   "src": "L10646",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "helper",
+     "min": -30,
+     "max": -10,
+     "src": "L10646"
+    }
+   ]
+  }
+ }
+}
