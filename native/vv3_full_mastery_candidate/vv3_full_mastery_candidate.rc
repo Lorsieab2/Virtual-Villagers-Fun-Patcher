@@ -295,6 +295,7 @@ BEGIN
     CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 8, 218, 348, 9
     PUSHBUTTON  "Undo changes", 3500, 16, 230, 64, 16
     PUSHBUTTON  "Reset to original", 3501, 84, 230, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 166, 230, 62, 16
     DEFPUSHBUTTON "OK", 1, 236, 230, 54, 16
     PUSHBUTTON  "Cancel", 2, 294, 230, 54, 16
 END
@@ -342,6 +343,7 @@ BEGIN
     CTEXT       "OK deducts 5,000 tech points, for the head look too. Cancel changes nothing.", -1, 8, 240, 348, 9
     PUSHBUTTON  "Undo changes", 3500, 16, 254, 64, 16
     PUSHBUTTON  "Reset to original", 3501, 84, 254, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 166, 254, 62, 16
     DEFPUSHBUTTON "OK", 1, 236, 254, 54, 16
     PUSHBUTTON  "Cancel", 2, 294, 254, 54, 16
 END

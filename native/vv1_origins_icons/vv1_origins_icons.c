@@ -29,6 +29,9 @@
 #ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
 #endif
+#include "../shared/villager_rekey.h" /* the pair a sex change leaves, read with the file */
+#include "../shared/sex_change.h"     /* a villager's sex changed: the masks follow them */
+#include "../shared/sex_change_ui.h"  /* Change Appearance's "Change sex..." button */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2.
@@ -392,6 +395,40 @@ static int vv1_mask_live_roster(unsigned int *out) {
     }
     return n;
 }
+
+/* A SEX CHANGE (native/shared/sex_change.h): the identity holds the sex.  The records, for the slot's
+   "Sex Changes" log and the pair a change leaves (villager_rekey.h). */
+static const unsigned char *vv1_mask_record_at(int index) {
+    unsigned char *base = VV_MASK_MANAGER;
+    return base != NULL && index >= 0 && index < VV_MASK_SLOTS ? base + (size_t)index * VV_RECORD_STRIDE : NULL;
+}
+
+static int vv1_mask_record_present(const unsigned char *rec) {
+    return rec[VV_OCCUPIED_OFFSET] == 1;
+}
+
+/* The live roster the slot's log was last read against (0: not since the file was read). */
+static unsigned int vv1_mask_log_roster;
+
+/* Before the loaded table follows its villagers: a villager the slot's log names whose sex the save and
+   the file tell differently (the save not saved after the change) is read as who they are now -- each
+   identity the file keeps for them, by the log's pairs and those a change in this session left.  Read
+   again only when the villagers on screen are others (the title screen's founders, then the village). */
+static void vv1_mask_sex_log(int slot, const unsigned int *live) {
+    unsigned int h = 2166136261u;
+    int i;
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        h = (h ^ live[i]) * 16777619u;
+    }
+    h = h ? h : 1u;
+    if (h == vv1_mask_log_roster) {
+        return;
+    }
+    vv1_mask_log_roster = h;
+    (void)vv_sex_log_note(1, slot, VV_MASK_SLOTS, vv1_mask_record_at, vv1_mask_record_present,
+                          vv1_mask_identity);
+    (void)vv_rekey_apply(slot, vv1_mask_file_roster, VV_MASK_SLOTS);
+}
 /* MIGRATE A SIDECAR LEFT BY AN OLDER BUILD.
 
    The data files moved into "Virtual Villagers Fun Patcher Data" under
@@ -678,6 +715,9 @@ static int vv1_mask_follow_loaded(void) {
     if (vv1_mask_live_roster(live) == 0) {
         return 0;                       /* no village yet: wait */
     }
+    if (vv1_mask_follow_pending) {
+        vv1_mask_sex_log(vv1_mask_loaded_slot, live);
+    }
     if (vv1_mask_follow_pending && vv_roster_shares(VV_MASK_SLOTS, vv1_mask_file_roster, live) == 0) {
         /* Nobody on screen is in the file: not the file's village (yet).
            Followed now, every mask would be dropped and the empty table
@@ -752,6 +792,7 @@ static void vv1_mask_sidecar_load(void) {
                    sizeof(vv1_mask_file_roster));
             vv1_mask_follow_pending = 1;
             vv1_mask_rewrite_pending = 0;
+            vv1_mask_log_roster = 0;    /* the slot's Sex Changes log is read for this file */
         } else {
             vv1_mask_follow_pending = 0;
             vv1_mask_rewrite_pending = 1;
@@ -1055,6 +1096,33 @@ static int __stdcall Vv1MaskApplyDistribution(int mode,
 
 void __stdcall Vv1MaskRestore(void) {
     vv1_mask_sidecar_load();
+}
+
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live with the new sex, `before` a copy
+   as it was.  The mask stays theirs.  The table is kept by record, and records do not move during play, so
+   it stays on screen as it is; what follows them is the identity the file names them by: the pair is kept
+   for the slot (a table still waiting for its village reads it at once), and the file is written now, under
+   the new identity.  1 when the pair was kept. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    unsigned int from, to;
+    int carried;
+    if (game != 1 || record == NULL || before == NULL) {
+        return 0;
+    }
+    carried = vv_sex_changed_note(slot, (const unsigned char *)record, (const unsigned char *)before,
+                                  VV_MASK_SLOTS, vv1_mask_record_at, vv1_mask_record_present,
+                                  vv1_mask_identity, &from, &to);
+    if (slot < 1 || slot != vv1_mask_prepare_slot()) {
+        return carried;
+    }
+    if (vv1_mask_follow_pending) {
+        if (carried) {
+            (void)vv_rekey_apply(slot, vv1_mask_file_roster, VV_MASK_SLOTS);
+        }
+    } else if (vv_table_any(VV_MASK_TABLE, VV_MASK_TABLE_BYTES)) {
+        (void)vv1_mask_sidecar_save();
+    }
+    return carried;
 }
 #endif
 
@@ -2887,6 +2955,17 @@ static int vv1_confirm_head_genetics_warning(HWND window) {
 /* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the window's dice. */
 static unsigned int appearance_rng;
 
+/* The "Change sex..." button is shown only when the change is offered for the shown villager: never for the
+   Golden Child (native/shared/sex_change_ui.h vvfp_ax_change_sex_offered). */
+static void appearance_offer_sex(HWND window) {
+    HWND button = GetDlgItem(window, VVFP_AX_CHANGE_SEX);
+    if (button != NULL) {
+        int offered = vvfp_ax_change_sex_offered(1, appearance_state.villager);
+        ShowWindow(button, offered ? SW_SHOW : SW_HIDE);
+        EnableWindow(button, offered);
+    }
+}
+
 /* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
    to original or a random. */
 static void appearance_show(HWND window) {
@@ -2945,6 +3024,13 @@ static int appearance_extra(HWND window, unsigned int command) {
             &appearance_rng, VV_MASK_COUNT, vv1_mask_get(appearance_state.villager)));
     } else if (command == VVFP_AX_RANDOM_LOOK && appearance_look_offered) {
         appearance_look = vvfp_ax_random_look(&appearance_rng, appearance_look);
+    } else if (command == VVFP_AX_CHANGE_SEX) {
+        /* Made at once on Yes (native/shared/sex_change_ui.h), not by OK, Cancel or Undo changes: the
+           previews and the hair colours follow the new sex, the same head and body rows. */
+        if (!vvfp_ax_change_sex(window, 1, appearance_state.villager, vv1_mask_index(appearance_state.villager))) {
+            return 1;
+        }
+        appearance_state.male = *(int *)(appearance_state.villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     } else {
         return 0;
     }
@@ -2986,6 +3072,7 @@ static INT_PTR CALLBACK appearance_dialog(
            mask row has no owner-draw preview (it's a plain text label,
            not a bitmap strip cell), so its starting text is set directly
            here rather than through WM_DRAWITEM. */
+        appearance_offer_sex(window);
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
         appearance_show(window);

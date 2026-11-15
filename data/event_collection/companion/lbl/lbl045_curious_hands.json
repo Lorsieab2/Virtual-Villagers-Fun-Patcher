@@ -49,7 +49,7 @@
  "roles": {
   "caregiver": {
    "kind": "villager",
-   "min_age": 14,
+   "min_age": 18,
    "sex": "female",
    "special": "nursing_parent"
   },

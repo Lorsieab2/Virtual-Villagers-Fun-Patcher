@@ -80,6 +80,7 @@
    cannot be told) and ol_save_written(slot, &time) (0 when it cannot be told). */
 
 #include "../shared/villager_rekey.h"   /* a rename at a load keeps the original (VvfpVillagersRenamed) */
+#include "../shared/sex_change.h"       /* ...and so does a sex change (VvfpVillagerSexChanged) */
 
 #define OL_MAGIC 0x314C4F56u            /* 'VOL1' */
 #define OL_VERSION 1u
@@ -607,6 +608,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     }
     /* Villagers another companion renamed as the village loaded (native/shared/villager_rekey.h): the
        identities the file keeps for them read as the ones they have now (here, the entries and the logs'). */
+    (void)vv_sex_log_note(ol_game(), slot, ol_slots(), ol_record, ol_present, ol_identity);
     renamed = vv_rekey_apply(slot, filesnap, kept);
     if (!ol_same_village(filesnap, live)) {
         g_foreign = 1;
@@ -689,6 +691,37 @@ static int ol_renamed(int slot, int count, const void *const *records, const cha
         (void)ol_publish();
     }
     return kept;
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): `record` live, `before` as it was.  The original stays
+   theirs: the pair is kept for the slot's file (ol_load), what is held for the slot is carried (who held each
+   record, the originals' identities, the logs' originals, a waiting conversion) with the stable parts of the
+   record refreshed, so a later rename is still told as one, and the file is written once the village is bound.
+   1 when the pair was kept. */
+static int ol_sex_changed(int slot, const unsigned char *record, const unsigned char *before) {
+    unsigned int from, to, stable_before;
+    int i, k;
+    if (!vv_sex_changed_note(slot, record, before, ol_slots(), ol_record, ol_present, ol_identity, &from, &to)) {
+        return 0;
+    }
+    (void)ol_rekey_held(slot);
+    stable_before = ol_stable(before);
+    for (k = 0; k < g_convert_count; ++k) {
+        if (g_convert[k].slot == slot && g_convert[k].id == to && g_convert[k].stable == stable_before) {
+            g_convert[k].stable = ol_stable(record);
+        }
+    }
+    if (g_state != OL_UNBOUND && g_slot == slot) {
+        for (i = 0; i < ol_slots() && i < OL_MAX; ++i) {
+            if (ol_record(i) == record) {
+                g_stable[i] = ol_stable(record);
+            }
+        }
+        if (g_state == OL_BOUND) {
+            (void)ol_publish();
+        }
+    }
+    return 1;
 }
 
 /* The game saved the slot since the village was bound: the village on screen is that slot's. */

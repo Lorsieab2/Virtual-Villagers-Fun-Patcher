@@ -29,6 +29,11 @@
    "functions": ["vvfp_crosscheck_quit", "vvfp_xc_*"]
   },
   {
+   "reason": "A sex change's save-folder log (\"Sex Changes - Save N.txt\", which the patcher and the companions read back) and its History record lines: logs and files stay in the game's English.",
+   "files": ["native/shared/sex_change.h"],
+   "functions": ["vv_sex_log_path", "vv_sex_history"]
+  },
+  {
    "reason": "Windows class names, the Roman numeral digits and a label fragment searched for in a window's text: code, never shown.",
    "files": ["native/shared/vvfp_dialog_kit.h", "native/shared/story_bridge.h"],
    "match": "^(BUTTON|Button|Edit|Static|IVXLCDM|tech point)$"

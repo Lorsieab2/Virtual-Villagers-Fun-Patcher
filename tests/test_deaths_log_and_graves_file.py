@@ -132,8 +132,12 @@ class Harnesses(unittest.TestCase):
         # layout's slot folder that holds a log still appended to, numbered on, and no new folder made: 3);
         # and 19 for the parents a villager who disappears or passes away keeps in the record (the owner,
         # 2026-10-20: "make room for their parents in all 5 games"): 4 in each of The Lost Children to New
-        # Believers, 3 in A New Home, whose come only from its Show Parents companion.
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 352, result.stdout)
+        # Believers, 3 in A New Home, whose come only from its Show Parents companion; and 8 for the carrier
+        # of a delivery found by the pregnancy, whatever their sex (the owner, 2026-11-15): a look-alike not
+        # carrying is never the mother, and a male carrier's litter is read (2 in each of The Lost Children to
+        # New Believers).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 360, result.stdout)
+        self.assertEqual(result.stdout.count("  ok   a male carrier: Born as: Twin"), 4)
         self.assertEqual(result.stdout.count("  ok   ...with the parents the game kept on the record, their heads "
                                              "and bodies"), 4)
         self.assertEqual(result.stdout.count("  ok   ...a parent the game never recorded is left out, never made up"), 4)

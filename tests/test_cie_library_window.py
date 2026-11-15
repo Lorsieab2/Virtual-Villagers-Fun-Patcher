@@ -216,7 +216,7 @@ class Helpers(unittest.TestCase):
             g["nodes"]["start"]["effects"] = [e] if kind != "pay_award" else [
                 {"do": "food", "amount": 5, "scaled": False, "defer": True}, e]
             if kind in ("baby_lost", "birth_then_die"):  # only a nursing parent, allowed (cie-v6-binary.md 22, 23)
-                g["roles"]["subject"].update(special="nursing_parent", protected="allow")
+                g["roles"]["subject"].update(special="nursing_parent", protected="allow", min_age=18)
             self.assertEqual(cg.validate(g)[1], [], kind)
         # The risky ones are marked.
         self.assertEqual(set(w.RISKY), {"kill", "vanish", "sick", "status", "die_unrecovered", "baby_lost",

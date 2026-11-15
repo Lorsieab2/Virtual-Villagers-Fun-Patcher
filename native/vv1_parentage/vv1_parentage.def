@@ -2,6 +2,7 @@ LIBRARY "VVFP VV1 Parentage"
 EXPORTS
     Vv1ParentageConceived=_Vv1ParentageConceived@12
     Vv1ParentageTick=_Vv1ParentageTick@0
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     Vv1ParentageBorn=_Vv1ParentageBorn@8
     Vv1ParentageDrawPortrait=_Vv1ParentageDrawPortrait@16
     Vv1ParentageQuery=_Vv1ParentageQuery@8

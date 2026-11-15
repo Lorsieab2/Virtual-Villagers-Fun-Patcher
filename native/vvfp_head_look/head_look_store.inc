@@ -47,6 +47,7 @@
    hl_stable(r), hl_slot_now(), hl_game(). */
 
 #include "../shared/villager_rekey.h"   /* a rename at a load keeps the look (VvfpVillagersRenamed) */
+#include "../shared/sex_change.h"       /* ...and so does a sex change (VvfpVillagerSexChanged) */
 
 #define HL_MAGIC 0x324C4856u            /* 'VHL2' */
 #define HL_MAGIC_V1 0x314C4856u         /* 'VHL1', still read */
@@ -230,8 +231,10 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
         memcpy(fileids, filesnap, sizeof fileids);  /* 'VHL1': the roster named each look's villager */
         looks_at = HL_HEADER + count * 4u;
     }
-    /* Villagers another companion renamed as the village loaded (native/shared/villager_rekey.h): the
-       identities the file keeps for them read as the ones they have now. */
+    /* Villagers another companion renamed as the village loaded (native/shared/villager_rekey.h), and those
+       whose sex changed (native/shared/sex_change.h, the slot's log): the identities the file keeps for them
+       read as the ones they have now. */
+    (void)vv_sex_log_note(hl_game(), slot, hl_slots(), hl_record, hl_present, hl_identity);
     renamed = vv_rekey_apply(slot, filesnap, kept) + vv_rekey_apply(slot, fileids, kept);
     g_foreign = !hl_same_village(filesnap, live);
     if (g_foreign) {
@@ -266,6 +269,28 @@ static int hl_renamed(int slot, int count, const void *const *records, const cha
         (void)hl_publish();
     }
     return kept;
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): `record` live, `before` as it was.  The look stays
+   theirs: the pair is kept for the slot's file, and a table held for the slot is carried (the roster, the
+   look's identity and the stable part, so a later rename is still told as one) and written now. */
+static int hl_sex_changed(int slot, const unsigned char *record, const unsigned char *before) {
+    unsigned int from, to;
+    int i;
+    if (!vv_sex_changed_note(slot, record, before, hl_slots(), hl_record, hl_present, hl_identity, &from, &to)) {
+        return 0;
+    }
+    if (g_have_roster && g_slot == slot) {
+        (void)vv_rekey_apply(slot, g_roster, HL_MAX);
+        (void)vv_rekey_apply(slot, g_look_id, HL_MAX);
+        for (i = 0; i < hl_slots() && i < HL_MAX; ++i) {
+            if (hl_record(i) == record) {
+                g_stable[i] = hl_stable(record);
+            }
+        }
+        (void)hl_publish();
+    }
+    return 1;
 }
 
 /* Bind the table to the village on screen (throttled: at most every HL_SYNC_MS).  Called on head draws and

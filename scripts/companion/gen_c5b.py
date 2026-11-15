@@ -47,7 +47,7 @@ LITTLE = {"kind": "villager", "min_age": 3, "max_age": 7}      # "a little child
 YOUNG = {"kind": "villager", "min_age": 3, "max_age": 17}      # "two young villagers"
 YOUNG_ADULT = {"kind": "villager", "min_age": 18, "max_age": 25}    # "a young adult"
 FARMER = c.skilled(V, "Farming")                                  # "a farmer"
-NURSING = {"kind": "villager", "min_age": 14, "special": "nursing_parent"}
+NURSING = {"kind": "villager", "min_age": 18, "special": "nursing_parent"}
 
 NOTE_PRIVATE = c.text_only("celebration", "a friend's small private celebration, not the village's (rule 7)")
 NOTE_CELEB = c.text_only("celebrates", "a friend celebrates one villager, not the village (rule 7)")

@@ -136,6 +136,18 @@ static int vv_rekey_note(int slot, unsigned int *from, unsigned int *to, int n) 
             }
         }
         if (j == vv_rekey_count) {
+            int back;
+            /* The way back (a sex change undone by a save that was not saved after it, sex_change.h): the pair
+               the other way is no longer the word on it, so the two never make a loop. */
+            for (back = 0; back < vv_rekey_count; ++back) {
+                if (vv_rekeys[back].slot == slot && vv_rekeys[back].from == to[i] && vv_rekeys[back].to == from[i]) {
+                    memmove(vv_rekeys + back, vv_rekeys + back + 1,
+                            (size_t)(vv_rekey_count - back - 1) * sizeof vv_rekeys[0]);
+                    --vv_rekey_count;
+                    break;
+                }
+            }
+            j = vv_rekey_count;
             if (vv_rekey_count == VV_REKEY_MAX) {
                 memmove(vv_rekeys, vv_rekeys + 1, (VV_REKEY_MAX - 1) * sizeof vv_rekeys[0]);
                 --vv_rekey_count;
@@ -191,6 +203,20 @@ static int vv_rekey_pairs(int count, const void *const *records, const char *con
         }
     }
     return count;
+}
+
+/* A SEX CHANGE (native/shared/sex_change.h, VvfpVillagerSexChanged): the one pair, the owner's identity of
+   `before` (the record as it was) and of `record` (as it is now).  0 when either is unusable or the two are
+   equal (the identity does not hold the sex). */
+static int vv_rekey_pair_one(const unsigned char *record, const unsigned char *before, vv_rekey_identity_fn identity,
+                             unsigned int *from, unsigned int *to) {
+    *from = *to = 0u;
+    if (record == NULL || before == NULL) {
+        return 0;
+    }
+    *from = identity(before);
+    *to = identity(record);
+    return *from != 0u && *to != 0u && *from != *to;
 }
 
 /* NOBODY ELSE IS THAT VILLAGER (Codex, #733).  A pair whose `from` a present villager OUTSIDE the batch

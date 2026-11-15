@@ -137,6 +137,7 @@ class Person:
     # and "|<rank>" after it only between namesakes sharing the marker (vv_family_tree.entry_key; Codex, PR #653).
     marker: str = ""
     edit_suffix: str = ""
+    sex_from_slot: bool = False         # the sex only guessed from a parent slot (_slot_sex): a record's own wins
 
     @property
     def key(self) -> Key:
@@ -365,6 +366,15 @@ class Village:
 # Reading the village
 # ---------------------------------------------------------------------------
 
+def _slot_sex(person: Person, sex: str) -> None:
+    """A parent slot's sex for a parent whose sex nothing else gave yet: only a guess, as the carrier of a
+    pregnancy is in the Mother slot whatever their sex (a man made to carry, a sex changed mid-pregnancy),
+    so their own record's Sex line (_log_people) replaces it."""
+    if person.sex is None:
+        person.sex = sex
+        person.sex_from_slot = True
+
+
 def _i32(data: bytes, at: int) -> int:
     return int.from_bytes(data[at:at + 4], "little", signed=True)
 
@@ -458,6 +468,7 @@ class _Registry:
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.lost: list[tuple[Key, int]] = []          # (mother, babies): "Lost before birth" records
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
+        self.sex_changed: set[str] = set()             # names whose sex changed (vv_sex_changes)
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
         # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
         self.vv1_living: list[tuple] = []
@@ -544,7 +555,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         elif f.expecting is not None:
             # Her pregnancy field, as the Population log's "Nursing" -- never the expected father's
             # name alone, which the game leaves on her after the delivery (ln.PREGNANCY).
-            p.expecting = p.sex == "Female" and ln.carrying(game, data, at)
+            p.expecting = ln.carrying(game, data, at)         # whoever carries, whatever their sex now
             if p.expecting and data[at + f.expecting] != 0:
                 _fh, _fb, _mh, _mb, eh, eb = f.looks
                 reg.expected[p.id] = (_cstr(data, at + f.expecting, f.parent_cap),
@@ -562,7 +573,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 name = _cstr(data, at + off, f.parent_cap)
                 if name:
                     parent = reg.get(name, _i32(data, at + head), _i32(data, at + body))
-                    parent.sex = parent.sex or sex
+                    _slot_sex(parent, sex)
                     if sex == "Male":
                         p.father = parent.id
                     else:
@@ -627,8 +638,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if b.heading.startswith(("Death", "Disappeared")):
             p = _namesake_for(reg, p, b)     # a living villager's dead namesake (the identity audit)
         sex = b.value("Sex")
-        if sex in ("Male", "Female") and p.sex is None:
-            p.sex = sex
+        if sex in ("Male", "Female") and (p.sex is None or p.sex_from_slot):
+            p.sex, p.sex_from_slot = sex, False
         # Every status any record gives them, held then or now (a former Tribal Chief stays one).
         for title in _values(b.value("Special villager")):
             _add_status(p, status_marks(title))
@@ -709,7 +720,7 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         for label, sex, attr in (("Father", "Male", "father"), ("Mother", "Female", "mother")):
             if label in parents and getattr(p, attr) is None:
                 parent = reg.get(*parents[label])
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 setattr(p, attr, parent.id)
 
 
@@ -844,7 +855,7 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             parent_id = None
             if person is not None and person.name:
                 parent = reg.get(person.name, person.head, person.body)
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 parent_id = parent.id
                 if getattr(child, attr) is None:
                     setattr(child, attr, parent.id)
@@ -1099,10 +1110,12 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
             for attr, label in (("father", "Father"), ("mother", "Mother")):
                 if getattr(child, attr) not in group:
                     continue
-                # Only a man can be a father and only a woman a mother: namesakes of the other sex are never
-                # offered, linked or given by a kept answer (Codex, PR #653).  The sex unknown: still a candidate.
+                # The parent slot says the sex at the conception: namesakes of the other sex are never offered,
+                # linked or given by a kept answer (Codex, PR #653) -- unless their sex changed since
+                # (vv_sex_changes: the parents recorded stay as recorded).  The sex unknown: still a candidate.
                 sex = "Male" if label == "Father" else "Female"
-                pool = [pid for pid in others if reg.people[pid].sex in (sex, None)]
+                pool = [pid for pid in others if reg.people[pid].sex in (sex, None)
+                        or reg.people[pid].name in reg.sex_changed]
                 if not pool:
                     setattr(child, attr, None)
                     notes.append(f"{child.name}'s {label.lower()} is {key[0]} (head {key[1]}, body {key[2]}), but no "
@@ -1381,7 +1394,8 @@ def _renamed_villagers(reg: _Registry, answers: dict, notes: list[str]) -> list[
                 or o.sex is None or not o.likes_seen or o.name in living_names:
             continue
         fits = [q for q in living
-                if q.name != o.name and q.sex == o.sex and q.head == o.head and q.body == o.body
+                if q.name != o.name and (q.sex == o.sex or o.name in reg.sex_changed)
+                and q.head == o.head and q.body == o.body
                 and q.likes is not None and frozenset(w.lower() for w in q.likes) in o.likes_seen
                 and (o.age is None or q.age is None or q.age >= o.age)
                 and not (o.birth_record is not None and q.birth_record is not None)
@@ -1460,7 +1474,8 @@ def _could_be_same(reg: _Registry, p: Person, q: Person, together: dict, seen_on
     all before q's; and q older than every living child the records give p."""
     if q.id == p.id or q.upcoming or q.placeholder or not _same_name(p.name, q.name) or not (q.alive or q.gone):
         return False
-    if p.sex is not None and q.sex is not None and p.sex != q.sex:
+    if p.sex is not None and q.sex is not None and p.sex != q.sex \
+            and not {p.name, q.name} & reg.sex_changed:
         return False
     if q.id in together.get(p.id, ()):
         return False
@@ -1740,13 +1755,17 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
     owner: "regarding appearance changes, sure. Log those.").  In log order, so a later change wins;
     a change back makes the old look the villager's own again."""
     import vv_log_additions as additions
+    import vv_sex_changes
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
+    # A change of sex (the save's log, and the records' Old sex / New sex): the same villager either sex.
+    reg.sex_changed |= vv_sex_changes.changed_names(folder, slot)
     births = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name]
     for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
         for b in additions.blocks(path):
             if b.heading != "Appearance changed" or not b.of(slot, game, villages):
                 continue
+            reg.sex_changed |= vv_sex_changes.history_names([b])
             values = [b.value(label) for label in ("Old head", "Old body", "New head", "New body")]
             name = b.value("Name")
             if not name or not all(v and v.lstrip("-").isdigit() for v in values):
@@ -1815,10 +1834,12 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
     return out
 
 
-def _vv1_fits(who: tuple, living: tuple) -> bool:
+def _vv1_fits(who: tuple, living: tuple, sex_changed=frozenset()) -> bool:
+    """The sidecar's roster entry `who` is this living villager: name, sex (either, for a villager whose
+    sex changed: vv_sex_changes), family and, where kept, head and body."""
     name, gender, family, head, body = who
     _pid, l_name, l_gender, l_family, l_head, l_body = living
-    return (name, gender, family) == (l_name, l_gender, l_family) \
+    return (name, family) == (l_name, l_family) and (gender == l_gender or name in sex_changed) \
         and (head is None or (head, body) == (l_head, l_body))
 
 
@@ -1856,8 +1877,8 @@ def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
                 continue
             target = reg.people[pid]
         else:
-            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v)]
-            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0])) != 1:
+            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v, reg.sex_changed)]
+            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0], reg.sex_changed)) != 1:
                 continue
             target = reg.people[holders[0][0]]
             if e.stash is not None and target.id in expecting and target.id not in reg.expected:
@@ -1865,7 +1886,7 @@ def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
         for key, attr, sex in ((e.father, "father", "Male"), (e.mother, "mother", "Female")):
             if key is not None and getattr(target, attr) is None:
                 parent = reg.get(*key)
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 setattr(target, attr, parent.id)
 
 def _upcoming(reg: _Registry) -> None:
@@ -1880,7 +1901,7 @@ def _upcoming(reg: _Registry) -> None:
         father_key = reg.expected.get(mother.id, father_key)
         father = reg.get(*father_key) if father_key and father_key[0] else None
         if father is not None:
-            father.sex = father.sex or "Male"
+            _slot_sex(father, "Male")
         n += 1
         litter = -n if babies > 1 else None
         for k in range(max(1, min(3, babies))):

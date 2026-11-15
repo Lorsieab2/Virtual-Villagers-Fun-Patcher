@@ -55,7 +55,7 @@ ADULT = {"kind": "villager", "min_age": 18, "max_age": 54}
 ELDER = {"kind": "villager", "min_age": 55}
 GROWN = {"kind": "villager", "min_age": 18}
 VILLAGER = {"kind": "villager", "min_age": 14}
-NURSING = {"kind": "villager", "min_age": 14, "special": "nursing_parent"}
+NURSING = {"kind": "villager", "min_age": 18, "special": "nursing_parent"}
 
 
 def skilled(base: dict, skill: str) -> dict:

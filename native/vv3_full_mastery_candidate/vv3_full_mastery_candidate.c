@@ -23,6 +23,8 @@
 #ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
 #endif
+#include "../shared/sex_change.h"    /* a villager's sex changed: the mask follows (VvfpVillagerSexChanged) */
+#include "../shared/sex_change_ui.h" /* Change Appearance's "Change sex..." button */
 
 static HINSTANCE module_instance;
 
@@ -1406,6 +1408,9 @@ static int vv3_mask_can_set_prepared(const void *record, int mask) {
 #define VV3_MASK_MAGIC 0x344B534Du
 static int g_vv3_mask_loaded;
 static int g_vv3_mask_slot;
+/* Set by each load of a slot's file: the slot's "Sex Changes" log is read once, at the first look that finds
+   no mask stored (vv3_mask_sex_log_settle, native/shared/sex_change.h). */
+static int g_vv3_sex_log_pending;
 
 static void vv3_mask_clear_tables(void) {
     ZeroMemory(g_vv3_mask, sizeof(g_vv3_mask));
@@ -1413,6 +1418,7 @@ static void vv3_mask_clear_tables(void) {
     ZeroMemory(g_vv3_running_before, sizeof(g_vv3_running_before));
     ZeroMemory(g_vv3_running_mask_before, sizeof(g_vv3_running_mask_before));
     g_vv3_running_capture = 0;
+    g_vv3_sex_log_pending = 0;
 }
 
 /* Sidecars are user-writable files, so never publish an unchecked byte as an
@@ -1562,6 +1568,7 @@ static void vv3_mask_read_sidecar(int slot) {
         memcpy(g_vv3_mask_fp, file + sizeof(unsigned int) + sizeof(g_vv3_mask),
                sizeof(g_vv3_mask_fp));
         vv3_mask_sanitize_loaded_table();
+        g_vv3_sex_log_pending = 1;    /* the slot's "Sex Changes" log, at the first look (vv3_mask_sex_log_settle) */
         break;
     default:
         break;                                             /* missing or set aside */
@@ -1589,6 +1596,77 @@ static int vv3_mask_prepare_slot(void) {
         g_vv3_mask_loaded = 0;
     }
     if (!g_vv3_mask_loaded) vv3_mask_read_sidecar(slot);
+    return 1;
+}
+
+/* ---- A villager's sex changed (native/shared/sex_change.h) ----------------
+   The fingerprint holds the gender and the mask is found by its fingerprint,
+   so the mask stored under the identity a villager had is stored again under
+   the one they have now.  NEVER A GUESS: only one mask stored under the old
+   fingerprint, nobody living still carrying it, one living villager carrying
+   the new one, and nothing stored under that yet. */
+static int vv3_sex_slots(void) {
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    return slots;
+}
+
+static const unsigned char *vv3_sex_record(int index) {
+    return index >= 0 && index < vv3_sex_slots()
+        ? (const unsigned char *)(UINT_PTR)(VV3_REC_BASE + (UINT_PTR)index * VV3_STRIDE) : NULL;
+}
+
+static int vv3_sex_present(const unsigned char *rec) {
+    return rec[VV3_ACTIVE] != 0 && *(const int *)(rec + VV3_HEALTH) > 0;
+}
+
+/* The mask stored under `from` now under `to`.  1 when moved (the caller writes the file). */
+static int vv3_mask_retag(unsigned int from, unsigned int to) {
+    int stored;
+    if (from == 0 || to == 0 || from == to) return 0;
+    stored = vv3_mask_unique_stored_index(from);
+    if (stored < 0 || vv3_mask_live_fingerprint_count(from) != 0
+        || vv3_mask_has_stored_fingerprint(to) || vv3_mask_unique_live_index(to) < 0)
+        return 0;
+    g_vv3_mask_fp[stored] = to;
+    return 1;
+}
+
+/* The save may not hold a change the file was written after (the owner
+   Alt-F4s and restores backups): once per load of the slot's file, for each
+   living villager the slot's log names (a name nobody else living has), the
+   mask stored under their fingerprint with the other sex is theirs. */
+static void vv3_mask_sex_log_settle(void) {
+    static unsigned int from[VV3_MASK_SLOTS], to[VV3_MASK_SLOTS];
+    int i, n, moved = 0, slots = vv3_sex_slots(), anyone = 0;
+    if (!g_vv3_sex_log_pending || g_vv3_mask_slot <= 0) return;
+    for (i = 0; i < slots && !anyone; ++i)
+        anyone = vv3_sex_present(vv3_sex_record(i));
+    if (!anyone) return;                       /* no village in the records yet: asked again */
+    g_vv3_sex_log_pending = 0;
+    n = vv_sex_log_pairs(3, g_vv3_mask_slot, slots, vv3_sex_record, vv3_sex_present,
+                         vv3_mask_fingerprint, from, to, VV3_MASK_SLOTS);
+    for (i = 0; i < n; ++i)
+        moved += vv3_mask_retag(from[i], to[i]);
+    if (moved) vv3_mask_write_sidecar();
+}
+
+/* `record` live with the new sex, `before` a copy as it was.  1 when the mask was carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    unsigned int to;
+    int idx;
+    if (game != 3 || record == NULL || before == NULL || !vv3_mask_prepare_slot()
+        || (slot > 0 && slot != g_vv3_mask_slot)) {
+        return 0;
+    }
+    idx = vv3_mask_index(record);
+    to = vv3_mask_fingerprint((const unsigned char *)record);
+    if (idx < 0 || vv3_mask_unique_live_index(to) != idx
+        || !vv3_mask_retag(vv3_mask_fingerprint((const unsigned char *)before), to)) {
+        return 0;
+    }
+    vv3_mask_write_sidecar();
     return 1;
 }
 
@@ -1629,6 +1707,7 @@ static int vv3_om_scan(int slot, vv_om_list *out) {
     if (!anyone) {
         return -1;                    /* no village in the records yet */
     }
+    vv3_mask_sex_log_settle();        /* a mask a sex change keeps is no orphan */
     for (i = 0; i < VV3_MASK_SLOTS; ++i) {
         if (vv_om_orphan(g_vv3_mask[i], 0, g_vv3_mask_fp[i], ids, VV3_MASK_SLOTS)) {
             vv_om_add(out, i, g_vv3_mask[i], g_vv3_mask_fp[i]);
@@ -1757,7 +1836,12 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
        first, it spares the live scan (a fingerprint of every record) that
        this getter ran for every villager drawn, masked or not: 256 x 256
        fingerprints a frame. */
-    if (!vv3_mask_has_stored_fingerprint(fpv)) return 0;
+    if (!vv3_mask_has_stored_fingerprint(fpv)) {
+        /* Once per load: a villager whose sex changed after the save (sex_change.h's log). */
+        if (!g_vv3_sex_log_pending) return 0;
+        vv3_mask_sex_log_settle();
+        if (!vv3_mask_has_stored_fingerprint(fpv)) return 0;
+    }
     /* The live scan, over every record as it is now, hashing again only a
        record whose identity bytes changed (vv3_mask_live_refresh, v1.35.71):
        the same unique owner and the same owner count as hashing them all. */
@@ -3383,6 +3467,9 @@ static const void *vv3_appearance_record;
 static int vv3_appearance_open_head, vv3_appearance_open_body, vv3_appearance_open_mask;
 static int vv3_appearance_open_look;
 static unsigned int vv3_appearance_rng;
+/* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once, so an OK
+   with nothing else changed is no change to report or charge. */
+static int vv3_appearance_sex_changed;
 
 /* Every control as the chosen values say: the window's start, and after Undo changes or Reset to
    original. */
@@ -3432,6 +3519,20 @@ static int vv3_appearance_extra(HWND window, unsigned int command) {
         vv3_appearance_mask = vvfp_ax_pick_other(&vv3_appearance_rng, VV3_MASK_COUNT, vv3_appearance_mask);
     } else if (command == VVFP_AX_RANDOM_LOOK && vv3_appearance_look_offered) {
         vv3_appearance_look = vvfp_ax_random_look(&vv3_appearance_rng, vv3_appearance_look);
+    } else if (command == VVFP_AX_CHANGE_SEX) {
+        /* Made at once on Yes, on the villager's own record (the exe writes only the head and body back);
+           the preview then draws the other sex's sheets with the same rows.  Undo changes and Cancel leave it. */
+        unsigned char *villager = (unsigned char *)vv3_appearance_record;
+        if (villager == NULL) {
+            MessageBoxA(window, "This villager's sex could not be changed.", VVFP_AX_CHANGE_SEX_TITLE,
+                        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return 1;
+        }
+        if (!vvfp_ax_change_sex(window, 3, villager, -1)) {   /* the record index matters to A New Home only */
+            return 1;
+        }
+        vv3_appearance_sex = *(const int *)(villager + VV3_GENDER) ? 1 : 0;
+        vv3_appearance_sex_changed = 1;
     } else {
         return 0;
     }
@@ -3886,6 +3987,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     vv3_appearance_open_look = vv3_appearance_look;
     vv3_appearance_record = record;
     vv3_appearance_rng = GetTickCount() | 1u;
+    vv3_appearance_sex_changed = 0;
 
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
@@ -3905,6 +4007,9 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     /* OK with nothing changed: report it and do not charge. */
     if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
         vv3_appearance_mask == orig_mask && !look_changed) {
+        if (vv3_appearance_sex_changed) {
+            return 0;   /* only the sex, made at once and free: nothing more to keep or charge */
+        }
         MessageBoxA(GetForegroundWindow(),
             "The appearance is unchanged. No tech points have been deducted.",
             "Villager Upgrades",

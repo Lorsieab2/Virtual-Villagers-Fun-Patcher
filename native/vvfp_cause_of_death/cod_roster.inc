@@ -782,6 +782,69 @@ static int roster_gone_back(const unsigned char *record, int slot) {
     return 0;
 }
 
+/* A SEX CHANGE (native/shared/sex_change.h): every pass above, and the departures, ask for the same sex, so a
+   villager whose sex changed between two saves would be written as having left and arrived.  The slot's own
+   "Sex Changes" log says whose changed: a kept villager it names, the only one of that name kept, takes the sex
+   of the only villager of that name in the village now -- or, with nobody of that name here, of the only departure
+   of that name reported since (they changed, then died or vanished: their Death or Disappeared record accounts
+   for them).  Two of a name, on either side, are never guessed.  Only the bytes read are changed; the roster
+   written after is the village's own.  Returns how many were taken. */
+static int roster_sex_follow(unsigned int n, unsigned int size, unsigned char *records, const int *live, int nl,
+                             int slot) {
+    static char log[VV_SEX_LOG_MAX];
+    const struct game_records *r = &REC[g_game];
+    unsigned int k, j;
+    int taken = 0;
+    if (n == 0 || !vv_sex_log_read(slot, log, sizeof log)) {
+        return 0;
+    }
+    for (k = 0; k < n; ++k) {
+        unsigned char *entry = roster_buffer + ROSTER_HEADER + k * size;
+        int *sex = (int *)(entry + ROSTER_ENTRY_HEAD + (r->sex - r->snapshot_lo));
+        const unsigned char *field = id_field(entry, 1, r->name);
+        char name[64];
+        int found = -1, count = 0, l, i, other = 0;
+        unsigned int c;
+        for (c = 0; c + 1 < sizeof name && c < r->name_capacity && field[c] != 0; ++c) {
+            name[c] = (char)field[c];
+        }
+        name[c] = 0;
+        if (name[0] == 0 || !vv_sex_log_names(log, name)) {
+            continue;
+        }
+        for (j = 0; j < n; ++j) {
+            if (j != k && id_same_name(entry, 1, roster_buffer + ROSTER_HEADER + j * size, 1)) {
+                ++count;
+            }
+        }
+        if (count != 0) {
+            continue;                 /* two kept of that name: never a guess */
+        }
+        for (l = 0; l < nl; ++l) {
+            const unsigned char *now = records + (size_t)live[l] * r->stride;
+            if (id_same_name(entry, 1, now, 0)) {
+                found = l;
+                ++count;
+            }
+        }
+        if (count == 1) {
+            other = *(const int *)(records + (size_t)live[found] * r->stride + r->sex);
+        } else if (count == 0) {
+            for (i = 0; i < RECORDS_MAX; ++i) {
+                if (gone[i].tag != REPORT_NONE && report_counts(gone[i].tag, slot) && gone_same_name(i, entry)) {
+                    other = gone[i].sex;
+                    ++count;
+                }
+            }
+        }
+        if (count == 1 && other != *sex) {
+            *sex = other;
+            ++taken;
+        }
+    }
+    return taken;
+}
+
 static void roster_reconcile(int slot) {
     unsigned char *records = cod_records();
     const struct game_records *r = &REC[g_game];
@@ -856,6 +919,7 @@ static void roster_reconcile(int slot) {
                 live[live_count++] = (int)i;
             }
         }
+        (void)roster_sex_follow(n, size, records, live, live_count, slot);
         /* A departure the game reported since (a burial, a body's removal, a disappearance: its
            Death or Disappeared record) accounts for the kept villager it names first: whoever is
            in the village now is never taken for them -- one written back alive unreported, or a

@@ -367,10 +367,17 @@ def _dead_elders(folder: Path, slot: int, alive: set[tuple]) -> list[Elder]:
     return out
 
 
-def _exact(e: Elder, t: Totem) -> bool:
+def _sex_fits(e: Elder, t: Totem, sex_changed=frozenset()) -> bool:
+    """The statue copied the elder's sex -- or the elder's sex changed since (vv_sex_changes: the statue
+    keeps the sex it was made with)."""
+    return not e.sex or t.sex == e.sex or e.name in sex_changed or t.name in sex_changed
+
+
+def _exact(e: Elder, t: Totem, sex_changed=frozenset()) -> bool:
     if e.living:
-        return (t.name, t.sex, t.lineage, t.father, t.mother) == (e.name, e.sex, e.lineage, e.father, e.mother)
-    return (t.name, t.head, t.body) == (e.name, e.head, e.body) and (not e.sex or t.sex == e.sex)
+        return (t.name, t.lineage, t.father, t.mother) == (e.name, e.lineage, e.father, e.mother) \
+            and (t.sex == e.sex or _sex_fits(e, t, sex_changed))
+    return (t.name, t.head, t.body) == (e.name, e.head, e.body) and _sex_fits(e, t, sex_changed)
 
 
 def _renames(folder: Path, slot: int) -> set[tuple[str, str, int, int]]:
@@ -470,10 +477,10 @@ def _unnumbered(name: str) -> str:
     return name
 
 
-def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]]) -> bool:
+def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]], sex_changed=frozenset()) -> bool:
     """The records say the statue's name became the elder's (a chain of renames, with the looks the
-    statue copied and the elder still has, and the same sex)."""
-    if (t.head, t.body) != (e.head, e.body) or (e.sex and t.sex != e.sex) or t.name == e.name:
+    statue copied and the elder still has, and the same sex -- or a sex the elder's changed from)."""
+    if (t.head, t.body) != (e.head, e.body) or not _sex_fits(e, t, sex_changed) or t.name == e.name:
         return False
     # The patcher's numbering: the statue keeps the name the elder had before Number Duplicate Names gave
     # them a number (or a number the elder has since), the same looks and sex -- and, for a living elder,
@@ -492,11 +499,11 @@ def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]]) -> boo
     return False
 
 
-def _maybe(e: Elder, t: Totem) -> str | None:
+def _maybe(e: Elder, t: Totem, sex_changed=frozenset()) -> str | None:
     """Why the statue could be the elder's although nothing certain says so; None when nothing does.
     The first name (a last name given or changed), or what 0x44D190 copies that a rename leaves alone:
-    the head, the body, the sex and (a living elder) the family line."""
-    if e.sex and t.sex != e.sex:
+    the head, the body, the sex (or one the elder's changed from) and (a living elder) the family line."""
+    if not _sex_fits(e, t, sex_changed):
         return None
     if _first(t.name) == _first(e.name):
         return "the same first name"
@@ -554,7 +561,7 @@ def _stored(folder: Path, slot: int, data: bytes) -> list[Totem] | None:
 
 def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | None = None,
                  slot: int | None = None, renames: set[tuple[str, str, int, int]] | None = None,
-                 stored: list[Totem] | None = None) -> Survey:
+                 stored: list[Totem] | None = None, sex_changed: set[str] | None = None) -> Survey:
     offsets = _offsets(data)
     s = Survey(entries=len(offsets), owed=_owed(data, offsets), in_store=stored is not None)
     living: list[Elder] = []
@@ -584,7 +591,11 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
     if renames is None:
         renames = _renames(folder, slot) if folder is not None else set()
     # Each elder against the statues: certain by the copied fields, or by a recorded rename.
-    exact = {id(e): [t for t in statues if _exact(e, t) or _renamed(e, t, renames)] for e in s.elders}
+    if sex_changed is None:
+        import vv_sex_changes
+        sex_changed = vv_sex_changes.changed_names(folder, slot) if folder is not None else set()
+    exact = {id(e): [t for t in statues if _exact(e, t, sex_changed) or _renamed(e, t, renames, sex_changed)]
+             for e in s.elders}
     claimed: dict[int, list[Elder]] = {}
     for e in s.elders:
         for t in exact[id(e)]:
@@ -602,7 +613,7 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
         found = False
         for t in statues:
             # A statue certainly another elder's is never offered.
-            why = None if any(x is not e for x in claimed.get(id(t), [])) else _maybe(e, t)
+            why = None if any(x is not e for x in claimed.get(id(t), [])) else _maybe(e, t, sex_changed)
             if why:
                 s.elder_questions.append(ElderQuestion(e, t, why))
                 found = True

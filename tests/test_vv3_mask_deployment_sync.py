@@ -159,8 +159,11 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         # removed (v1.35.70). 36 since VvfpOriginsVillageReset, which "VVFP
         # Save Reset.dll" calls at Start Over or a deleted tribe so a purchase
         # not yet delivered goes with the erased village (also through the
-        # .def only).
-        self.assertEqual(len(exports), 36)
+        # .def only). 37 since VvfpVillagerSexChanged, which every companion
+        # that changes a villager's sex calls so the mask follows them
+        # (native/shared/sex_change.h; also through the .def only).
+        self.assertEqual(len(exports), 37)
+        self.assertIn("VvfpVillagerSexChanged", exports)
         self.assertIn("VvfpOriginsVillageReset", exports)
         self.assertNotIn("_VvfpOriginsVillageReset@8", exports)
         self.assertNotIn("ShowOriginsUpgradeMenu", exports)

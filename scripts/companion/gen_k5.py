@@ -58,7 +58,7 @@ YOUNG = {"kind": "villager", "min_age": 3, "max_age": 17}           # "a young v
 HEALER = c.skilled(V, "Healing")
 SCHOLAR = c.skilled(V, "Research")                                  # a researcher, a historian
 MALE, FEMALE = c.sexed(G, "male"), c.sexed(G, "female")
-NURSING = {"kind": "villager", "min_age": 14, "sex": "female", "special": "nursing_parent"}
+NURSING = {"kind": "villager", "min_age": 18, "sex": "female", "special": "nursing_parent"}
 NURSING_HARMED = dict(NURSING, protected="allow")                  # 044 only: retrofit-harm-review.md
 FOUR = ["Building", "Farming", "Healing", "Research"]
 T = c.text_only

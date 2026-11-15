@@ -398,10 +398,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # learned the missing last names (v1.35.66), and again when another
         # village's mask file was never to be replaced (native/shared/foreign_sidecar.h),
         # and again for Equal Division by skill progress and the skill-preference
-        # rows (v1.35.70), and for resetting corrupted skills.
+        # rows (v1.35.70), and for resetting corrupted skills.  Re-pinned when its masks
+        # learned to follow a sex change and Change Appearance gained "Change sex..."
+        # (native/shared/sex_change.h, sex_change_ui.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "31AE7BB3AA8ACB4409B4CDA9F14D87DDA430C5B257F843584DBCD5245BCEC5DE",
+            "52037145DB045E46AC9DABE64318940A3144DF2996BA11FC5974952925DFE968",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

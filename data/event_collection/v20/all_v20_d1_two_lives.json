@@ -28,7 +28,7 @@
   "mother": {
    "kind": "villager",
    "sex": "female",
-   "min_age": 14,
+   "min_age": 18,
    "special": "nursing_parent",
    "protected": "allow"
   }
