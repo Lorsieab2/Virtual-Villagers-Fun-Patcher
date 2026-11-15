@@ -1433,6 +1433,230 @@
    "harm": [],
    "section": "c5"
   },
+  "cat001_shark": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat002_catfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat003_arrowfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat004_snout": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat005_fatfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat006_snooper": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat007_goldshark": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat008_fire_arrow": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat009_fruitfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat010_flashfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat011_goldbulb": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat012_comet": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat013_stickfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat014_grouper": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat015_leaffish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat016_carp": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat017_beta": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat018_pigmy": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat019_bananafish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat020_quicksilver": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat021_spotanus": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat022_clownfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat023_discus": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat024_bicolor": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat025_trigger": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat026_surgeonfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat027_tang": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat028_idle": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat029_silky_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat030_tiger_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat031_hornet_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat032_fanned_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat033_pink_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat034_snubbed_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat035_wasp_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat036_canary_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat037_orange_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat038_oriental_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat039_golden_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat040_crimson_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat041_spined_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat042_stubby_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat043_speckled_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat044_razorback_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat045_greenfin_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat046_great_sail_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat047_flagged_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat048_finless_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat049_twin_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat050_small_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat051_roundy_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat052_angel_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat053_clown_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat054_yellow_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat055_blue_fin": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat056_moorish_fin": {
+   "harm": [],
+   "section": "cat"
+  },
   "sss001_cartographer": {
    "harm": [],
    "section": "sss"
