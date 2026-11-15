@@ -329,13 +329,12 @@ Owner decision (2026-11-15): the mixer keeps everything except combinations that
 | C3 | Medical seeds never have the chief decide a villager's care (an obviously problematic power dynamic). | seeds tagged medical | approaches: Ask the chief to decide |
 | C6 | Purely personal seeds never take prayer, magic, animal labour or experiments (source L23825: nonsensical options for a purely personal issue). | seeds tagged personal | approaches: Try a small experiment, Invent a new tool or technique, Use animal assistance with appropriate care, Try a magical method if available, Hold a ritual or prayer if desired |
 | C9 | Seeds with an adult-only or romantic framing (a love letter, having a child, a child's companion, a wedding) never cast a child or a teenager (minor-adult romance). | seeds tagged adult_only | roles: a child, a teenager |
-| R1 | A child never 'leaves for a time' with an unknown fate (a generic departure does not make sense for a child). | roles tagged child | archetypes: The central villager leaves for a time and their fate remains unknown. |
 | P1 | Contradiction or repeat: a devout or skeptical skeptical observer. | a skeptical observer | personalities: devout, skeptical, observant |
 | P2 | Contradiction: a skeptical spiritual elder. | a spiritual elder | personalities: skeptical |
 | P3 | Repeat: a confident confident novice. | a confident novice | personalities: confident |
 | P4 | Contradiction: a confident shy craftsperson. | a shy craftsperson | personalities: confident |
 
-Pairs in the expanded table: seed_approach 275, seed_choice 0, seed_archetype 0, seed_role 8, role_personality 6, role_archetype 1. Coherence in the mixer as well: an outcome naming an elder is drawn only with an elder in the scene.
+Pairs in the expanded table: seed_approach 275, seed_choice 0, seed_archetype 0, seed_role 8, role_personality 6, role_archetype 0. Coherence in the mixer as well: an outcome naming an elder is drawn only with an elder in the scene.
 
 ### The owner's MIX examples that break a rule
 

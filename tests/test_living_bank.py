@@ -328,7 +328,6 @@ class CompatTest(unittest.TestCase):
         ex = BANK["compat"]["exclusions"]
         chief = next(a["id"] for a in BANK["approaches"] if a["text"] == "Ask the chief to decide")
         magic = next(a["id"] for a in BANK["approaches"] if a["text"].startswith("Try a magical method"))
-        leaves = next(a["id"] for a in BANK["archetypes"] if "leaves for a time" in a["text"])
         for s in BANK["seeds"]:
             t = set(s["tags"])
             if "medical" in t:
@@ -337,8 +336,8 @@ class CompatTest(unittest.TestCase):
                 self.assertIn(magic, ex["seed_approach"][s["id"]])
             if "adult_only" in t:
                 self.assertEqual(ex["seed_role"][s["id"]], ["le_role_child", "le_role_teenager"])
-        self.assertEqual(ex["role_archetype"], {"le_role_child": [leaves]})
-        # everything else is kept (owner decision, 2026-11-15): no seed x archetype or seed x choice exclusion
+        # everything else is kept (owner decision, 2026-11-15): no seed or role x archetype, no seed x choice exclusion
+        self.assertEqual(ex["role_archetype"], {})
         self.assertEqual(ex["seed_archetype"], {})
         self.assertEqual(ex["seed_choice"], {})
         for s in ("le_res_02", "le_res_09", "le_emo_10", "le_fam_02"):
@@ -366,8 +365,7 @@ class CompatTest(unittest.TestCase):
         self.assertTrue(any("x role le_role_child" in x for x in p))
         self.assertTrue(any("personality le_pers_confident" in x for x in p))
         self.assertTrue(any("le_app_act_07" in x for x in p))
-        self.assertTrue(any("le_arc_rare_01" in x for x in p))
-        self.assertFalse(any("le_pers_forgetful" in x or "le_arc_good_08" in x for x in p))
+        self.assertFalse(any("le_pers_forgetful" in x or "le_arc_good_08" in x or "le_arc_rare_01" in x for x in p))
         ok = {"seed": "le_art_09", "first": {"role": "le_role_storyteller", "personality": "le_pers_curious"},
               "second": {"role": "le_role_elderly_villager", "personality": "le_pers_warm"},
               "choices": ["le_cs_art_per_a"], "archetypes": ["le_arc_good_01", "le_arc_rare_02"]}

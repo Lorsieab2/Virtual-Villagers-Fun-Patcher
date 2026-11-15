@@ -399,11 +399,7 @@ RULES = [
      "seeds_with_any": ["adult_only"],
      "exclude": {"roles": sorted(r["id"] for r in roles_out if {"child", "teen"} & set(r["tags"]))}},
 ]
-ROLE_RULES = [
-    {"id": "R1", "why": "A child never 'leaves for a time' with an unknown fate (a generic departure does not make "
-                        "sense for a child).",
-     "roles_with_any": ["child"], "exclude": {"archetypes": by_tag(arcs_out, "vanish")}},
-]
+ROLE_RULES = []
 PAIR_RULES = [  # contradictions and repeats in "a <personality> <role>"
     {"id": "P1", "why": "Contradiction or repeat: a devout or skeptical skeptical observer.",
      "role": "le_role_skeptical_observer", "personalities": ["le_pers_devout", "le_pers_skeptical", "le_pers_observant"]},

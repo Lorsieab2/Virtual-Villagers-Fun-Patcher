@@ -123,7 +123,7 @@ ALT_RULE = "both kept, equal chance (owner, 2026-11-15)"
 # ---- What the mixer never combines (owner decision, 2026-11-15) ----------------------------------------------------
 # The mixer keeps everything except combinations that produce obviously problematic power dynamics, invalidate
 # someone's pain or trauma, portray anyone as lesser, or a minor-adult romance or power imbalance; genuine
-# contradictions stay prevented (coherence).  The bank's compat table (C3, C6, C9, R1, P1-P4) holds the rest.
+# contradictions stay prevented (coherence).  The bank's compat table (C3, C6, C9, P1-P4) holds the rest.
 SENSITIVITY_RULES = {
     "S7": "A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding "
           "obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a "
@@ -1196,7 +1196,7 @@ def write_docs() -> None:
 
 
 FIXTURE = ROOT / "tests" / "data" / "living_fixture"
-FIXTURE_SEEDS = ("le_odd_03", "le_cel_01", "le_per_01", "le_art_05", "mc_tra_13", "mc_tra_08")
+FIXTURE_SEEDS = ("le_odd_08", "le_cel_01", "le_per_01", "le_art_05", "mc_tra_13", "mc_tra_08")
 FIXTURE_K = 5                   # le_per_01 k = 4 is the first a village of four adults with no skills can cast
 
 

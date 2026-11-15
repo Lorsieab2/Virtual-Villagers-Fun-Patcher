@@ -346,7 +346,7 @@ class Moods(unittest.TestCase):
             run.idle()
         run.rolls([3] + [0] * 63)
         armed, trace = run.choose()
-        self.assertEqual(trace[0], 3)                    # living_le_odd_03
+        self.assertEqual(trace[0], 3)                    # living_le_odd_08
         run.idle()
         run.rolls([4] + [0] * 63)
         armed, trace = run.choose()

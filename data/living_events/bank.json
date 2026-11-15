@@ -10080,20 +10080,7 @@
     }
    }
   ],
-  "role_rules": [
-   {
-    "id": "R1",
-    "why": "A child never 'leaves for a time' with an unknown fate (a generic departure does not make sense for a child).",
-    "roles_with_any": [
-     "child"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_rare_01"
-     ]
-    }
-   }
-  ],
+  "role_rules": [],
   "pair_rules": [
    {
     "id": "P1",
@@ -10552,11 +10539,7 @@
      "le_pers_skeptical"
     ]
    },
-   "role_archetype": {
-    "le_role_child": [
-     "le_arc_rare_01"
-    ]
-   }
+   "role_archetype": {}
   },
   "owner_example_conflicts": [
    {
