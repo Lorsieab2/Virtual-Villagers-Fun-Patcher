@@ -5,16 +5,16 @@
  "source_sha256": "319712596bccd325f47df13b10dc895071f0306f7105b17cc8f3ed73bae44c3e",
  "counts": {
   "rows": 285,
-  "events": 232,
+  "events": 231,
   "addons": 4,
   "banks": 7,
-  "notes": 42,
-  "events_and_addons": 236,
+  "notes": 43,
+  "events_and_addons": 235,
   "series": {
    "v14_golden_child": 25,
    "v17_contests": 34,
    "v18_trials": 12,
-   "v20_crises": 12
+   "v20_crises": 11
   }
  },
  "disagreements": [],
@@ -78,15 +78,16 @@
    "L22688-22702",
    "L22704-23310",
    "L23314-23329",
-   "L23331-23809"
+   "L23331-23809",
+   "L8957-9056"
   ],
   "counts": {
-   "rows": 258,
-   "events": 251,
+   "rows": 259,
+   "events": 252,
    "addons": 0,
    "banks": 0,
    "notes": 7,
-   "events_and_addons": 251,
+   "events_and_addons": 252,
    "series": {}
   },
   "uncovered_lines": [],
@@ -6903,15 +6904,15 @@
     5
    ],
    "lines": [
-    8950,
-    8968
+    8957,
+    9056
    ],
    "kind": "event",
    "section": "v20",
    "credit": {
     "who": "mixed",
     "lines": [
-     "L8906-8909"
+     "L8913-8916"
     ],
     "text": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact."
    },
@@ -6923,12 +6924,41 @@
    ],
    "deaths": true,
    "series": "v20_crises",
-   "source": "v28",
+   "source": "living",
    "source_check": {
-    "heading": "L8950: D1  -  TWO LIVES, ONE DECISION",
+    "heading": "L8957: D1  -  TWO LIVES, ONE DECISION",
     "title_found": true,
     "boundary": [],
     "choices": "verified"
+   }
+  },
+  {
+   "id": "notes_v20_d1_v28",
+   "title": "Two Lives, One Decision: the V28 text (the event reads the Living Engine file's copy)",
+   "games": [],
+   "lines": [
+    8950,
+    8968
+   ],
+   "kind": "notes",
+   "section": "v20",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L8906-8909"
+    ],
+    "text": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "v28",
+   "source_check": {
+    "heading": "L8950: D1  -  TWO LIVES, ONE DECISION",
+    "title_found": null,
+    "boundary": []
    }
   },
   {

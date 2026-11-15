@@ -168,7 +168,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 27 */
        CGE_OLD_LOOK = 21,
        /* cie-v6-binary.md 29 (23 is kept for a cross-sex body look) */
-       CGE_SEX_CHANGE = 22 };
+       CGE_SEX_CHANGE = 22,
+       /* cie-v6-binary.md 30 */
+       CGE_DELIVER_EARLY = 24 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -1023,9 +1025,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
-                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE;
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
+                       || e[0] == CGE_DELIVER_EARLY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && e[0] == CGE_SEX_CHANGE);
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1063,6 +1066,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 break;
             case CGE_BABY_LOST: case CGE_OLD_LOOK: case CGE_SEX_CHANGE:
                 ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
+            case CGE_DELIVER_EARLY:
+                /* 30: the newborn's extra health loss, a range -99..-1, or none (0, 0). */
+                ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
@@ -2877,6 +2884,12 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
     case CGE_HEALTH_CHANGE: case CGE_DAMAGE:
         va = lo + ce_random_below(a, hi - lo + 1);
         break;
+    case CGE_DELIVER_EARLY:
+        /* 30: the newborn's extra loss, rolled only when the effect has one */
+        if (lo != 0 || hi != 0) {
+            va = lo + ce_random_below(a, hi - lo + 1);
+        }
+        break;
     case CGE_SKILL_SET: {
         int n = cg_skills(a, e, -1);
         va = n > 0 ? cg_skills(a, e, ce_random_below(a, n)) : -1;
@@ -4327,7 +4340,7 @@ static int cg_effect_harmful(const ce_adapter *a, int game, const unsigned char 
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     switch (e[0]) {
     case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST:
-    case CGE_BIRTH_THEN_DIE:
+    case CGE_BIRTH_THEN_DIE: case CGE_DELIVER_EARLY:
         return 1;
     case CGE_HEALTH: return hi < 100;
     case CGE_HEALTH_CHANGE: return lo < 0;
@@ -4660,6 +4673,30 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         }
         cg_extra_add(cg.name[role], what);
         cg.gone |= 1u << role;
+        return;
+    }
+    if (e[0] == CGE_DELIVER_EARLY) {
+        /* 30: the game's own birth now, as birth_then_die's (babies born early get the age the nursing reached and
+           the health deficit; each loses the roll va more, -99..-1, or nothing), and the parent LIVES.  A parent no
+           longer nursing, or a birth the game would not make, is a refusal and nothing changes. */
+        int babies, early = 0;
+        char what[96];
+        if (!(a->caps & CAP_CANCEL) || a->deliver == NULL || *(const int *)(record + a->off_pregnant) == 0) {
+            ce_refuse_as(r, CE_WHY_NOT_EXPECTING);
+            return;
+        }
+        ce_birth_extra = va < 0 ? -va : 0;
+        babies = a->deliver(index, &early);
+        ce_birth_extra = 0;
+        if (babies < 0) {
+            ce_refuse_as(r, CE_WHY_OTHER);
+            return;
+        }
+        cg_tell_delivered(game, index);
+        if (babies > 0) {
+            wsprintfA(what, "'s %s %s.", babies > 1 ? "babies were" : "baby was", early ? "born early" : "born");
+            cg_extra_add(cg.name[role], what);
+        }
         return;
     }
     if (e[0] == CGE_SEX_CHANGE) {

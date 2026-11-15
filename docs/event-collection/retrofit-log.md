@@ -745,6 +745,7 @@ Retrofit agent B: the V13, V14, game-exclusive, V17, V18, V20-V24 and V27 events
 - Role: the pregnant villager is now cast as `mother` (female, special nursing_parent, protected allow); before, decision Q11 kept her an uncast stranger. A3 ("The child survives but the mother dies") uses the `birth_then_die` effect (cie-v6-binary.md 23): the baby is born, then the mother dies. Listed in retrofit-harm-review.md.
 - Done (the owner, 2026-11-14): A3 now makes the child really survive its mother's death, with the `birth_then_die` effect; very rare (2 of 64).
 - Approved by the owner (2026-11-14) as built: the cast pregnant villager, `baby_lost`, the very rare kills, and A3's very rare `birth_then_die` (approved with the rest of D1).
+- The owner's added outcomes (2026-11-15): A6-A15, B5-B14 and C4-C37 (54 outcomes) from the Living Engine file's copy of D1 (L8957-9056; the event now reads that file). The role is `parent`: 18 or older, either sex (sex-aware parent words). Each outcome's effect and chance is listed in retrofit-harm-review.md (the new `deliver_early` for a premature birth both survive, cie-v6-binary.md 30). C38-C52 are held for the owner.
 
 #### The Treatment That Does Not Exist (`all_v20_d2_no_such`)
 

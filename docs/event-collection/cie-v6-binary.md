@@ -214,8 +214,8 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 7. Harm and the protected filter
 
-Harmful effects: `kill`, `vanish`, `die_unrecovered`, `baby_lost`, `birth_then_die`, `sick`, `health` with max < 100,
-`health_change` with min < 0, `preference` dislikes, `skill` with a negative amount, `mood` bad, `action` from the
+Harmful effects: `kill`, `vanish`, `die_unrecovered`, `baby_lost`, `birth_then_die`, `deliver_early`, `sick`, `health`
+with max < 100, `health_change` with min < 0, `preference` dislikes, `skill` with a negative amount, `mood` bad, `action` from the
 MOOD group or marked (Unsafe) in the game's action list (`data/cie_actions.json`). `appearance` is harmless.
 
 - A role is harm-capable when a harmful effect anywhere in the graph acts on it, or on an alias whose members
@@ -255,10 +255,11 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 20 | birth_then_die | role index | 0, 0 | the cause (as kill's) |
 | 21 | old_look | role index | 0, 0 | NONE (section 27) |
 | 22 | sex_change | role index | 0, 0 | NONE (section 29) |
+| 24 | deliver_early | role index | 0, 0, or a..b: the newborn's extra health loss (-99..-1) | NONE (section 30) |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
-code 22 section 29. **Numbering:** 23 is kept for a cross-sex body look (not built: section 29); 24 is not used -- the new name
-of section 28 is a role kind (a stranger's flag), not an effect code.
+code 22 section 29, code 24 section 30. **Numbering:** 23 is kept for a cross-sex body look (not built: section 29); the
+new name of section 28 is a role kind (a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
 
@@ -865,3 +866,24 @@ stay as recorded.
 - **A cross-sex body look** (code 23, keeping the sex field) is NOT built: the games choose each villager's head and
   body sheets from the sex field at every draw (The Tree of Life alone reads +0x1B90 at about 100 places), so it
   needs a draw-hook companion like Head Look's for every game. An owner question.
+
+## 30. An early birth, the parent lives (`deliver_early`, code 24)
+
+The owner's new outcomes for "Two Lives, One Decision" (2026-11-15: A6, A9, A13, A14, B5, B7, B12, B13, C4, C5, C10,
+C12, C15, C22) have the baby born early -- small, frail or with lasting health difficulties -- while the carrying
+parent lives. `birth_then_die` (section 23) always kills the parent, so this is its own effect.
+
+- **`{"do": "deliver_early", "role": r}`**, optionally with `"min"` and `"max"` (both -99..-1, min <= max): the
+  health each new baby loses on top of the early birth's own deficit (a frail newborn). Both left out: a = b = 0, no
+  roll; with them, one roll `lo + random_below(hi - lo + 1)` at its place in the walk (as `health_change`'s). The role
+  MUST be `"special": "nursing_parent"`, so it needs `protected: "allow"` (section 7). Harmful (the newborn is weaker);
+  the event needs `CAP_CANCEL` (the nursing parent's pregnancy) and the adapter's `deliver`.
+- **What it does:** section 23's steps 1-5 and its Cause of Death call (`VvfpCauseDelivered`), and NOT the kill: the
+  game's own delivery makes the babies now; each baby born early gets the age the nursing reached and the deficit
+  `round(50 * (40 - elapsed) / 40)` (5..50); each baby then loses the roll more (`ce_birth_extra`), never below
+  health 1, at full term too. Twins and triplets: the same age, deficit and roll each.
+- **Refused** ("N changes could not be made"; nothing changes): the parent is no longer carrying the baby (born
+  since), or the game did not deliver (the field and the age are put back, as in section 23).
+- **The log:** "<name>'s baby was born early." ("babies were"; "was born" at full term). No automatic line (section
+  25), as `birth_then_die`.
+- Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).

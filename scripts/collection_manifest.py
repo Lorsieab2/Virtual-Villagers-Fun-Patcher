@@ -392,8 +392,17 @@ _V20 = [("D1", "Two Lives, One Decision", 8950, 8968, 3, True), ("D2", "The Trea
         ("D9", "The Healer's Secret", 9055, 9061, 2, False), ("D10", "The Child Who Corrected the Masters", 9063, 9069, 2, False),
         ("D11", "The Ancient Oath", 9071, 9078, 2, True), ("D12", "The Doctor Who Could Not Save Everyone", 9080, 9087, 3, True)]
 _V20_SLUGS = {'D1': 'two_lives', 'D2': 'no_such_treatment', 'D3': 'experimental_cure', 'D4': 'half_translated', 'D5': 'last_dose', 'D6': 'physician_refused', 'D7': 'patient_knew_much', 'D8': 'works_too_well', 'D9': 'healers_secret', 'D10': 'child_corrected', 'D11': 'ancient_oath', 'D12': 'cannot_save_all'}   # ids at most 30 characters
+# D1 reads the owner's newer copy in the Living Event Engine file (its own line numbers): the same D1 with the owner's
+# outcomes A6-A15, B5-B14 and C4-C37 added (2026-11-15).  Its V28 lines are a notes row.
+_D1_LIVING = (8957, 9056)
 for _d, _t, _a, _b, _c, _dead in _V20:
     _slug = _V20_SLUGS[_d]
+    if _d == "D1":
+        R(f"all_v20_{_d.lower()}_{_slug}", _t, ALL, *_D1_LIVING, "event", "v20", "liv_v20", _c, {},
+          ["kill", "health_change"], deaths=True, series="v20_crises", source=lib.LIVING_ID)
+        N("notes_v20_d1_v28", "Two Lives, One Decision: the V28 text (the event reads the Living Engine file's copy)",
+          _a, _b, "v20", "v20")
+        continue
     R(f"all_v20_{_d.lower()}_{_slug}", _t, ALL, _a, _b, "event", "v20", "v20", _c, {},
       ["kill", "health_change"] if _dead else ["health_change"], deaths=_dead, series="v20_crises")
 R("all_v20_between_life_and_death", "The Doctors' Dilemma: Between Life and Death", ALL, 9089, 9184, "event", "v20",
@@ -731,6 +740,8 @@ CREDITS.update({
     "liv_unseen": ("mixed", [(1, 2)], LIV),
     "liv_ways": ("mixed", [(1, 2)], LIV),
     "liv_auth": ("mixed", [(1, 2)], LIV),
+    # D1 (Two Lives, One Decision) from this file's copy of V20: V20's own credit block (the V28 file's L8906-8909)
+    "liv_v20": ("mixed", [(8913, 8916)], LIV),
 })
 # (prefix in the source, first and last line of the volume's events, id prefix, section, credit, its notes rows)
 LIVING_VOLUMES = [
@@ -774,7 +785,7 @@ def living_span() -> list[tuple[int, int]]:
     out = []
     for _, first, last, _, _, _, notes in LIVING_VOLUMES:
         out += [(a, b) for _, _, a, b in notes] + [(first, last)]
-    return out
+    return out + [_D1_LIVING]
 
 
 def _living_rows() -> None:

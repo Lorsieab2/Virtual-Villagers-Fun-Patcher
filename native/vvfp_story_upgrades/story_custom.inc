@@ -216,6 +216,10 @@ static int ce_early_deficit(int elapsed) {
          : deficit > CE_EARLY_DEFICIT_MAX ? CE_EARLY_DEFICIT_MAX : deficit;
 }
 
+/* cie-v6-binary.md 30: the health each new baby loses beyond the early birth's own deficit (deliver_early's roll;
+   0 for birth_then_die), set by the graph around the adapter's deliver. */
+static int ce_birth_extra;
+
 static int ce_birth_now(const ce_adapter *a, const ce_birth_layout *b, int index, int *early) {
     static unsigned char was[CE_MAX_RECORDS];
     unsigned char *parent = a->record(index);
@@ -260,14 +264,17 @@ static int ce_birth_now(const ce_adapter *a, const ce_birth_layout *b, int index
             continue;
         }
         ++babies;              /* a record free before the catch-up holding a living villager now: a baby */
-        if (elapsed < CE_NURSING_UNITS) {
+        {
             /* Born early (the owner): the age the nursing reached (0 would be the creators' "a random age"), and
-               the health deficit. */
-            int keep = elapsed > 0 ? elapsed : 1;
-            int left = *(const int *)(r + b->health) - ce_early_deficit(elapsed);
-            *(int *)(r + b->age) = keep;
-            *(int *)(r + b->processed) = keep;
-            if (a->set_health != NULL) {
+               the health deficit; a frail newborn (section 30) loses ce_birth_extra more. */
+            int loss = (elapsed < CE_NURSING_UNITS ? ce_early_deficit(elapsed) : 0) + ce_birth_extra;
+            int left = *(const int *)(r + b->health) - loss;
+            if (elapsed < CE_NURSING_UNITS) {
+                int keep = elapsed > 0 ? elapsed : 1;
+                *(int *)(r + b->age) = keep;
+                *(int *)(r + b->processed) = keep;
+            }
+            if (loss > 0 && a->set_health != NULL) {
                 a->set_health(i, left < 1 ? 1 : left);     /* the game's own health write (the adapters') */
             }
         }

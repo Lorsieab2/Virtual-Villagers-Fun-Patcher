@@ -1010,6 +1010,41 @@ class V28Features(unittest.TestCase):
         self.assertEqual(cg.default_outcome([("p", {"do": "birth_then_die", "role": "subject"})]),
                          "dies (the baby is born)")
 
+    def test_deliver_early_needs_a_nursing_parent_allowed_and_the_parent_lives(self):
+        # cie-v6-binary.md 30: code 24; a, b the newborn's extra loss (-99..-1) or none; the parent is not gone.
+        d = v6(roles={"mum": {"kind": "villager", "special": "nursing_parent", "protected": "allow"}},
+               nodes={"p": {"text": "(Mum)'s baby arrives early.",
+                            "effects": [{"do": "deliver_early", "role": "mum"}], "children": [{"next": "z"}]},
+                      "z": {"text": "(Mum) rests.", "effects": [{"do": "celebrate", "who": "mum"}]}},
+               pools={})
+        for nid in ("q", "k", "l"):
+            del d["nodes"][nid]
+        self.assertEqual(t.problems_of(d), [], "the parent lives on: later effects may still act on them")
+        g = cg.load(d)
+        self.assertEqual(cg.harm_capable(g), {"mum"})
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        e = struct.unpack_from("<BBBBiiHH", blob, struct.unpack_from("<I", blob, 56)[0])
+        self.assertEqual((e[0], e[4], e[5]), (24, 0, 0))
+        frail = copy.deepcopy(d)
+        frail["nodes"]["p"]["effects"][0].update(min=-30, max=-10)
+        g = cg.load(frail)
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        e = struct.unpack_from("<BBBBiiHH", blob, struct.unpack_from("<I", blob, 56)[0])
+        self.assertEqual((e[0], e[4], e[5]), (24, -30, -10))
+        for bad in ({"min": -10, "max": -30}, {"min": 0, "max": 5}, {"min": -10}):
+            wrong = copy.deepcopy(d)
+            wrong["nodes"]["p"]["effects"][0].update(bad)
+            self.assertTrue(any("deliver_early min and max" in p for p in t.problems_of(wrong)), bad)
+        auto = copy.deepcopy(d)
+        auto["roles"]["mum"]["protected"] = "auto"
+        self.assertTrue(any("needs protected allow" in p for p in t.problems_of(auto)))
+        plain = copy.deepcopy(d)
+        plain["roles"]["mum"] = {"kind": "villager", "protected": "allow"}
+        self.assertTrue(any("deliver_early acts on a role with special nursing_parent" in p
+                            for p in t.problems_of(plain)))
+
     def test_kinship_roles(self):
         d = v6(roles={"hero": {"kind": "villager"}, "pal": {"kind": "villager", "relation": {"child_of": "hero"}},
                       "kin": {"kind": "villager", "optional": True, "relation": {"sibling_of": "pal"}}})
