@@ -1888,7 +1888,8 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     appearance_open_look = appearance_look;
     appearance_rng = GetTickCount() | 1u;
     appearance_sex_changed = 0;
-    appearance_gp_record = VV5_SELECTED_RECORD(appearance_sex, age);
+    /* The selected villager is asked for only with the row on (the game object is game memory). */
+    appearance_gp_record = GetModuleHandleA(VVFP_GP_DLL) != NULL ? VV5_SELECTED_RECORD(appearance_sex, age) : NULL;
     vvfp_gp_window_open(&appearance_gp, 5, appearance_gp_record);
     gp_open = appearance_gp.was;
 

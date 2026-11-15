@@ -27,7 +27,7 @@
     {
       "source": "assets/gender_presentation/VVFP Gender Presentation.dll",
       "destination": "VVFP Gender Presentation.dll",
-      "sha256": "9F415DEF96A874F0B789CFD5674B20699C207D261016AE7D57A52FC0C6E02DF6"
+      "sha256": "8FF5F0F76D1F32ADC7093F8ABA2418B5E78EE11856B3AA4EC926148F180FF79C"
     }
   ],
   "patches": [],

@@ -69526,20 +69526,6 @@
    "notes": "drawn by the game's text routine; at most 47 bytes"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_load.s42",
    "english": "a new name is not for a villager role the event needs",
    "games": [
@@ -70121,6 +70107,118 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/gender_presentation.VVFP_AX_PRESENTATION_LABEL.s0",
+   "english": "Gender presentation: use the other sex's look",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/gender_presentation.VVFP_GP_TITLE.s0",
+   "english": "Gender presentation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/gender_presentation.vvfp_gp_refused_text.s0",
+   "english": "%s is a story villager, so %s's look stays as the game draws it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/gender_presentation.vvfp_gp_refused_text.s1",
+   "english": "The look could not be kept: the patcher's file for this save could not be written. Nothing was changed.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.vvfp_sex_change_warning.s2",
+   "english": "%s was born male, so %s will not conceive on their own. A Custom Island Event can still give %s a baby with a partner you choose.\n\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect.s6",
+   "english": " is now drawn with the other sex's look.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect.s7",
+   "english": " is drawn with their own look again.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
   }
  ]

@@ -3911,6 +3911,8 @@ def _decompile_v6(data: bytes) -> dict:
                             e[part] = "random" if v == LOOK_RANDOM else v
                 elif do == "die_unrecovered":
                     e["cause"] = s(st)
+                elif do == "presentation":
+                    e["on"] = a == 1
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,

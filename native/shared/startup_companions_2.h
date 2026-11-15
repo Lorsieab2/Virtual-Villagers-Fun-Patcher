@@ -75,7 +75,7 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
        child's pastime pick. */
     "VVFP Children Play.dll",
     /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
-       keeping the recorded sex; its row also offers Change Appearance's "Change sex...". */
+       keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
     "VVFP Gender Presentation.dll",
     /* APPEND ONLY (see above). */
 };

@@ -1,7 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 # Builds "VVFP Gender Presentation.dll" (a villager drawn with the other sex's heads and bodies, all five games) from
-# native\vvfp_gender_presentation.  32-bit, static CRT, like every other companion.  Re-run
+# native\vvfp_gender_presentation, which includes native\vvfp_head_look\head_look_store.inc (the Head Looks store).
+# 32-bit, static CRT, like every other companion.  Re-run
 # scripts\build_gender_presentation_feature.py afterwards: the rows pin the DLL by SHA-256.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot

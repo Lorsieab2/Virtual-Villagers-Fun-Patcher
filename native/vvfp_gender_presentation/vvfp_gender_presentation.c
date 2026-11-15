@@ -416,15 +416,14 @@ typedef char gp_enough_stubs[(GP_N(VV1_SITES) <= GP_N(GP_STUBS) && GP_N(VV2_SITE
                               && GP_N(VV3_SITES) <= GP_N(GP_STUBS) && GP_N(VV4_SITES) <= GP_N(GP_STUBS)
                               && GP_N(VV5_SITES) <= GP_N(GP_STUBS)) ? 1 : -1];
 
-static void gp_install(const gp_site *sites, int count) {
-    vvfp_site_write w[GP_N(GP_STUBS)];
+/* The draw sites' writes into `w`. */
+static void gp_fill(const gp_site *sites, int count, vvfp_site_write *w) {
     int i;
     for (i = 0; i < count; ++i) {
         vvfp_site_branch(&w[i], sites[i].va, sites[i].length, sites[i].stock, 0xE9,
                          (const void *)(sites[i].kind == GP_LOAD ? GP_LSTUBS[i] : GP_STUBS[i]));
     }
     g_sites = sites;
-    g_installed = vvfp_install_sites(w, count);
 }
 
 /* ---- CONCEPTION --------------------------------------------------------------------------------------------- */
@@ -551,13 +550,13 @@ static __declspec(naked) void gp_entry_stub(void) {
     }
 }
 
-static void gp_guard_install(void) {
+/* The conception site's write into `w`; 1 when there is one. */
+static int gp_guard_fill(vvfp_site_write *w) {
     const gp_conception *c = &CONCEPTION[g_game];
-    vvfp_site_write w[1];
     const IMAGE_DOS_HEADER *dos = (const IMAGE_DOS_HEADER *)(UINT_PTR)0x400000u;
     const IMAGE_NT_HEADERS32 *nt = (const IMAGE_NT_HEADERS32 *)(UINT_PTR)(0x400000u + (unsigned int)dos->e_lfanew);
     if (c->va == 0) {
-        return;
+        return 0;
     }
     g_image_end = 0x400000u + nt->OptionalHeader.SizeOfImage;
     if (c->target != 0) {
@@ -567,26 +566,28 @@ static void gp_guard_install(void) {
         g_guard_target = c->va + 5;
         vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE9, (const void *)gp_entry_stub);
     }
-    g_guard_installed = vvfp_install_sites(w, 1);
+    return 1;
 }
 
 /* ---- exports ---------------------------------------------------------------------------------------------- */
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    vvfp_site_write w[GP_N(GP_STUBS) + 1];
+    static const struct { const gp_site *sites; int count; } TABLE[6] = {
+        { NULL, 0 }, { VV1_SITES, (int)GP_N(VV1_SITES) }, { VV2_SITES, (int)GP_N(VV2_SITES) },
+        { VV3_SITES, (int)GP_N(VV3_SITES) }, { VV4_SITES, (int)GP_N(VV4_SITES) }, { VV5_SITES, (int)GP_N(VV5_SITES) },
+    };
+    int count;
     (void)shipped;
     if (g_game != 0 || game < 1 || game > 5) {
         return;
     }
     g_game = game;
-    switch (game) {
-    case 1: gp_install(VV1_SITES, (int)GP_N(VV1_SITES)); break;
-    case 2: gp_install(VV2_SITES, (int)GP_N(VV2_SITES)); break;
-    case 3: gp_install(VV3_SITES, (int)GP_N(VV3_SITES)); break;
-    case 4: gp_install(VV4_SITES, (int)GP_N(VV4_SITES)); break;
-    case 5: gp_install(VV5_SITES, (int)GP_N(VV5_SITES)); break;
-    default: break;
-    }
-    gp_guard_install();
+    count = TABLE[game].count;
+    gp_fill(TABLE[game].sites, count, w);
+    count += gp_guard_fill(&w[count]);
+    /* One all-or-none install: the draws and the conception guard together. */
+    g_installed = g_guard_installed = vvfp_install_sites(w, count);
 }
 
 int __stdcall VvfpConceptionGuardInstalled(int game) {
