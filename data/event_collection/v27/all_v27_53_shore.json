@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unmarked Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_53_shore",
+  "source": "v28",
+  "lines": [
+   10905,
+   10911
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10905",
+  "ledger": [
+   {
+    "src": "L10906",
+    "kind": "note",
+    "why": "the cast: MYSTERY; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10911",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A search party finds a missing villager's belongings, but no sign of the person.",
+  "cast_only": [
+   "searcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "searcher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A search party finds belongings from a missing villager but no sign of the person.",
+   "src": "L10907",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They expand the search and maintain an open missing-person record.",
+   "src": "L10908"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A later witness reports seeing the villager elsewhere.",
+   "src": "L10909"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The family holds a remembrance gathering without declaring a death.",
+   "src": "L10910",
+   "text_only": [
+    {
+     "what": "death",
+     "reason": "no death is declared: the family's remembrance only",
+     "src": "L10910"
+    }
+   ]
+  }
+ }
+}

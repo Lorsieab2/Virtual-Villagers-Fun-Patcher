@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Child at Supper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_10_supper",
+  "source": "v28",
+  "lines": [
+   10561,
+   10567
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10561",
+  "ledger": [
+   {
+    "src": "L10562",
+    "kind": "note",
+    "why": "the cast: CHILDREN; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10567",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A child fails to appear when the evening meal is served."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A child fails to appear when the evening meal is served.",
+   "src": "L10563",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 20
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They are discovered asleep in a relative's hut.",
+   "src": "L10564"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A coordinated search finds them lost but safe.",
+   "src": "L10565"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A clue suggests they followed a stranger; the village begins a careful search and records the case as unresolved.",
+   "src": "L10566",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "child",
+     "src": "L10566"
+    }
+   ]
+  }
+ }
+}

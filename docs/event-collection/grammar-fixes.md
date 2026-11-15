@@ -6,7 +6,7 @@ one of the three inventories found: a broken sentence, a wrong word, a missing p
 Nothing stylistic is changed.
 
 Line numbers are the frozen source's
-(`docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt`, SHA-256 in
+(`docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt`, SHA-256 in
 `data/event_collection/SOURCE.sha256`). "Before" is the exact text on that line, with the source's curly quotes and
 dashes written as plain `"` `'` and ` - `. A collection file may only use a fix listed here (its
 `grammar_fixes` entry must match a row exactly); `scripts/collection_check.py` and
@@ -125,7 +125,7 @@ word with no sentence around it (review r2, M8, M18, M19).
 | L8459 | `sincere apology;` | `sincere apology.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 | L8460 | `adult disagreement;` | `adult disagreement.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 
-### Part 3b (lines 8490-10571: V18-V26)
+### Part 3b (lines 8490-10431: V18-V24)
 
 The compact medical crises (V20 D6-D12) list each choice's outcomes as "the patient recovers; or dies; or ...". Each
 outcome is its own page, so an outcome without its subject would read "Dies". Each fix restores the subject the line
@@ -173,6 +173,12 @@ Closing full stops (decision 7, review r1 minor 1, M8):
 | L9584 | `; the contest` | `; The contest` | V22-1 The Great Isolan Drawing Competition | After the cut reward instruction the sentence starts here (review M8) |
 | L10008 | `retaliation; unlock` | `retaliation.` | V23-1 The Practical Joke | The page closes with a full stop once the sequel instruction is cut (decision 7) |
 | L10372 | `reputation, if` | `reputation.` | V24 The Revolutionary Invention, reaction R6 | The reaction closes with a full stop once the designer note is cut (decision 7) |
+
+### V27 (lines 10433-10945: the 57 short events of the V28 source)
+
+None. The V27 lines needed no glaring grammar fix. Their designer words inside an outcome ("if eligible", "grant a
+small appropriate skill gain", "no grave is created and a search/missing-person state persists", "selected by weighted
+sub-branch" and the like) are ledger cuts, never shown, not grammar fixes (scripts/collection_v27.py lists each).
 
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 

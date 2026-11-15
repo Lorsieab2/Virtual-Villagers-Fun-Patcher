@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lovers' Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_43_lovers",
+  "source": "v28",
+  "lines": [
+   10825,
+   10831
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10825",
+  "ledger": [
+   {
+    "src": "L10826",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10831",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Two lovers disagree about whether one of them should take a dangerous assignment.",
+  "cast_only": [
+   "lover1",
+   "lover2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "lover1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "lover2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Two adult lovers disagree about whether one should take a dangerous assignment.",
+   "src": "L10827",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They negotiate a safer plan together.",
+   "src": "L10828"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They remain in disagreement without ending their relationship.",
+   "src": "L10829"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One leaves without telling the other; trust suffers on their return.",
+   "src": "L10830"
+  }
+ }
+}

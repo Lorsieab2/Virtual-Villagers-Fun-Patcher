@@ -11,7 +11,7 @@
  ],
  "collection": {
   "id": "all_invention",
-  "source": "v26",
+  "source": "v28",
   "lines": [
    5524,
    5605
@@ -166,7 +166,7 @@
   "intro": {
    "name": "Dreadful ideas",
    "src": "L5529-5538",
-   "text": "(Subject) has become famous for proposing dreadful ideas: a chair held together with fermented fruit juice, a roof made from tree bark and rotten wood, and a ceremonial necklace fashioned from {polished pearls|pulverized gemstones|crushed-up snail shells}.\nAfter the latest failure, some villagers cruelly call (Subject) \"the village idiot.\"\n(Subject) hears them.",
+   "text": "(Subject) has become famous for proposing dreadful ideas: a chair held together with slug slime, a roof made from tree bark and rotten wood, and a ceremonial necklace fashioned from {polished pearls|pulverized gemstones|crushed-up snail shells}.\nAfter the latest failure, some villagers cruelly call (Subject) \"the village idiot.\"\n(Subject) hears them.",
    "children": [
     {
      "next": "question"
