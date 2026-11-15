@@ -162,7 +162,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_original_look", "vv_misfiled_records",
+               "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
@@ -524,9 +524,10 @@ class ReleasesLinkTests(unittest.TestCase):
             with self.subTest(module=module):
                 # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
                 # every byte kept.  vv_game_text imports only the standard library.  Any window may use the
-                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).
+                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).  Any tool that
+                # matches villagers may read the save's Sex Changes log (vv_sex_changes, the save layout only).
                 self.assertEqual(imported - set(sys.stdlib_module_names) - may_import
-                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars"},
+                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars", "vv_sex_changes"},
                                  set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)

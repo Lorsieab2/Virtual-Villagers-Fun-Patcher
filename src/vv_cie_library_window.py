@@ -2876,6 +2876,10 @@ class Library:
 
             def set_special(_e=None):
                 role["special"] = specials[special.current()]
+                if role["special"] == "nursing_parent" and role.get("min_age", 0) < cg.NURSING_PARENT_MIN_AGE:
+                    # Children never carry in events (the owner, 2026-11-15): the youngest age goes up to 18.
+                    role["min_age"] = cg.NURSING_PARENT_MIN_AGE
+                    age.set(str(cg.NURSING_PARENT_MIN_AGE))
                 self._role_changed()
             special.bind("<<ComboboxSelected>>", set_special)
             row += 1
