@@ -6979,7 +6979,7 @@
      "mother": {
       "kind": "villager",
       "sex": "female",
-      "min_age": 14,
+      "min_age": 18,
       "special": "nursing_parent",
       "protected": "allow"
      },
@@ -7048,7 +7048,7 @@
     ],
     "labels": [],
     "rolls_used": 0,
-    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+    "cieg_sha256": "2d282f97afff8ef65b1f6b82b9fb7c411bb79499599453a0f4cc1c6d0e8c245c"
    }
   },
   {
@@ -7068,7 +7068,7 @@
      "mother": {
       "kind": "villager",
       "sex": "female",
-      "min_age": 14,
+      "min_age": 18,
       "special": "nursing_parent",
       "protected": "allow"
      },
@@ -7137,7 +7137,7 @@
     ],
     "labels": [],
     "rolls_used": 0,
-    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+    "cieg_sha256": "2d282f97afff8ef65b1f6b82b9fb7c411bb79499599453a0f4cc1c6d0e8c245c"
    }
   },
   {
@@ -7157,7 +7157,7 @@
      "mother": {
       "kind": "villager",
       "sex": "female",
-      "min_age": 14,
+      "min_age": 18,
       "special": "nursing_parent",
       "protected": "allow"
      },
@@ -7226,7 +7226,7 @@
     ],
     "labels": [],
     "rolls_used": 0,
-    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+    "cieg_sha256": "2d282f97afff8ef65b1f6b82b9fb7c411bb79499599453a0f4cc1c6d0e8c245c"
    }
   },
   {
@@ -7246,7 +7246,7 @@
      "mother": {
       "kind": "villager",
       "sex": "female",
-      "min_age": 14,
+      "min_age": 18,
       "special": "nursing_parent",
       "protected": "allow"
      },
@@ -7315,7 +7315,7 @@
     ],
     "labels": [],
     "rolls_used": 0,
-    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+    "cieg_sha256": "2d282f97afff8ef65b1f6b82b9fb7c411bb79499599453a0f4cc1c6d0e8c245c"
    }
   },
   {
@@ -7335,7 +7335,7 @@
      "mother": {
       "kind": "villager",
       "sex": "female",
-      "min_age": 14,
+      "min_age": 18,
       "special": "nursing_parent",
       "protected": "allow"
      },
@@ -7404,7 +7404,7 @@
     ],
     "labels": [],
     "rolls_used": 0,
-    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+    "cieg_sha256": "2d282f97afff8ef65b1f6b82b9fb7c411bb79499599453a0f4cc1c6d0e8c245c"
    }
   }
  ]

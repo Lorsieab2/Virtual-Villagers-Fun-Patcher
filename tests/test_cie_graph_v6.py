@@ -315,7 +315,7 @@ LOOKS = {
 # cie-v6-binary.md 23: the baby is born, then the mother dies; the friend's page after it.
 BIRTH = {
     "format": "vvfp-cie-graph", "version": 6, "title": "Two Lives", "games": [1, 2, 3, 4, 5],
-    "roles": {"mother": {"kind": "villager", "sex": "female", "min_age": 14, "special": "nursing_parent",
+    "roles": {"mother": {"kind": "villager", "sex": "female", "min_age": 18, "special": "nursing_parent",
                          "protected": "allow"},
               "friend": {"kind": "villager", "min_age": 14}},
     "start": "p",

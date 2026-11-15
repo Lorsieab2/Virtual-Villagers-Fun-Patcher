@@ -97,7 +97,7 @@ def graph(game: str, after: bool = False, effect: dict | None = None) -> dict:
         nodes["p0"]["children"] = [{"next": "p1"}]
         nodes["p1"] = {"text": "(Friend) carries the child home."}
     return {"format": "vvfp-cie-graph", "version": 6, "title": "Two Lives", "games": [int(game[2])],
-            "roles": {"mum": {"kind": "villager", "min_age": 14, "special": "nursing_parent", "protected": "allow"},
+            "roles": {"mum": {"kind": "villager", "min_age": 18, "special": "nursing_parent", "protected": "allow"},
                       "friend": {"kind": "villager", "min_age": 14}},
             "start": "p0", "nodes": nodes}
 
