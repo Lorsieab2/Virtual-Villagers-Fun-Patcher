@@ -13,7 +13,8 @@ PART 5 (L3313-3317; V001-V050 "short encounters; each has two alternative outcom
 - Effects (the V28 consequence rules: only where the text clearly supports one, no reward inflation): a builder who
   does the building work the outcome names gains a small Building (V004 B, V009 A/B, V026 A); a naturalist or
   researcher who identifies, documents or compares gains a small Research (V013 A, V018 B, V029 B); "Stored food
-  lasts longer" (V019 A) is a small food gain; "A child discovers a favorite vegetable" (V011 A) adds a like, in the
+  lasts longer" (V019 A) is a small food gain and "spoiled food must be discarded" (V019 B) a small food loss (lead
+  2026-11-14; the engine's ce_amount never takes food below 0); "A child discovers a favorite vegetable" (V011 A) adds a like, in the
   game's own word (A New Home has no "vegetables": its vegetable is "turnips"; gap C1 write-around, a child with an
   "if" per game).  Nobody is harmed.
 
@@ -77,8 +78,7 @@ E = {
     18: ({"diver": V, "naturalist": SCHOLAR}, "Divers bring back edible seaweed while leaving fragile reef habitats intact.",
          {2: [res("naturalist")]}, {}),
     19: ({"fisher": V, "cook": V}, "Fishers and cooks debate drying, salting and smoking a surplus catch.",
-         {1: [FOOD_SMALL]},
-         {2: [c.text_only("food", "the apprentice learns a lesson about spoiled food; no stores are named as lost")]}),
+         {1: [FOOD_SMALL], 2: [dict(FOOD_SMALL, loss=True)]}, {}),
     20: ({"cook": V}, "A cook combines coconut cream, roasted seeds, fruit and a pinch of sea salt.", {}, {}),
     21: ({"swimmer": V, "apprentice": V}, "A confident swimmer helps a nervous apprentice practice in shallow water.", {}, {}),
     22: ({"diver": V}, "A diver finds an unusual object beneath a shallow reef ledge.", {}, {}),

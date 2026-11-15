@@ -83,10 +83,12 @@
    "join": "paragraph",
    "text": "An apprentice learns that spoiled food must be discarded.",
    "src": "L3457",
-   "text_only": [
+   "effects": [
     {
-     "what": "food",
-     "reason": "the apprentice learns a lesson about spoiled food; no stores are named as lost",
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
      "src": "L3457"
     }
    ]
