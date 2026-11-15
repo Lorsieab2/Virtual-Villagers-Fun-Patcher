@@ -604,6 +604,14 @@ COMPANION_IDS: dict[str, str] = {
     "sss086": "sss086_heard_too_much", "sss089": "sss089_cheerfulness",
     "sss094": "sss094_one_instruction", "cat139": "cat139_orchid_memory", "cat146": "cat146_masterpiece",
     "cat151": "cat151_ants",
+    # K7: The Four Ways of Knowing
+    "fwk004": "fwk004_doorway_dream", "fwk005": "fwk005_knows_my_name", "fwk007": "fwk007_forest_memory",
+    "fwk009": "fwk009_unanswered_pray", "fwk015": "fwk015_silent_reef", "fwk019": "fwk019_reflection",
+    "fwk020": "fwk020_fire_not_catch", "fwk025": "fwk025_child_questions", "fwk030": "fwk030_festival_signs",
+    "fwk035": "fwk035_two_stories", "fwk039": "fwk039_no_one_answers", "fwk041": "fwk041_trembling_hands",
+    "fwk043": "fwk043_hates_research", "fwk046": "fwk046_lost_apprentice", "fwk047": "fwk047_scholar_error",
+    "fwk050": "fwk050_explorer_risk", "fwk054": "fwk054_rival_invite", "fwk055": "fwk055_skill_fading",
+    "fwk058": "fwk058_surpassed",
 }
 
 # Companion events limited to some games (the lead, 2026-11-14): an event where a magician acts is VV3-VV5 only

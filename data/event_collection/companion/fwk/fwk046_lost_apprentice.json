@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk046_lost_apprentice",
+  "source": "companion",
+  "lines": [
+   5905,
+   5912
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5905",
+  "ledger": [
+   {
+    "src": "L5911",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5912",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "An apprentice disappears after a bitter argument with their mentor.",
+  "cast_only": [
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An apprentice vanishes after a bitter argument with their mentor.",
+   "src": "L5906",
+   "choices": [
+    {
+     "label": "Organize a careful search.",
+     "next": "outcome",
+     "src": "L5907"
+    },
+    {
+     "label": "Check whether the apprentice left voluntarily.",
+     "next": "outcome",
+     "src": "L5908"
+    },
+    {
+     "label": "Find them injured in an isolated place.",
+     "next": "outcome_c",
+     "src": "L5909"
+    },
+    {
+     "label": "Face an unresolved disappearance.",
+     "next": "outcome_d",
+     "src": "L5910"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an apprentice vanishes",
+     "reason": "the premise: on A and B the apprentice is found or comes back unhurt; C and D are their own answers",
+     "src": "L5906"
+    }
+   ]
+  },
+  "outcome_c": {
+   "name": "Ending (C)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5911",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "apprentice",
+     "min": -30,
+     "max": -10,
+     "src": "L5911"
+    }
+   ]
+  },
+  "outcome_d": {
+   "name": "Ending (D)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5911",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "apprentice",
+     "src": "L5911"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5911"
+  }
+ }
+}

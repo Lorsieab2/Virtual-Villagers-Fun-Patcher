@@ -184,3 +184,17 @@ Every harm case (role ages: 14- is 14 and over; the text is the outcome's line):
 | `lvmed28_unfinished` | B2 | patient (14-) | death (Unknown causes) | very_rare (2) | The patient dies, leaving the healer wondering whether more could have been done. |
 | `lvmed29_last_dose_hope` | C2 | patient (18-) | health -30..-10 | occasional (10) | The delay leaves one patient in pain, and the healer regrets waiting. |
 | `lvmed30_animal_trial` | A2 | patient (14-) | health -30..-10 | occasional (10) | The patient develops complications, and the trial is stopped. |
+## Companion K7
+
+Range: The Four Ways of Knowing 001-060 (`companion/fwk/fwk001`-`fwk060`), 60 events. Line numbers are the companion
+source's. Generator: `scripts/companion/gen_k7.py`.
+
+| Event | Outcome | Villager | Exact text | Why |
+|---|---|---|---|---|
+| `fwk053_nursing_mother` The Nursing Mother's Impossible Day | choice C (L5972) | `mother`, a nursing parent (female), `protected: "allow"`: `sick` | "Overextend herself and become ill." | The event is about a nursing mother; the player's own choice says she becomes ill. Illness, not injury or death; the baby is untouched. |
+
+- The other harm-capable roles keep the default `auto` protection: FWK 046's apprentice (choice C "Find them injured
+  in an isolated place.": a minor injury, health_change -30..-10; choice D "Face an unresolved disappearance.":
+  vanish, missing with no grave) and FWK 055's craftsperson (choice C "Give up and develop a dislike of the craft.":
+  a dislike of work).
+- Part I (001-040) has no harm at all.

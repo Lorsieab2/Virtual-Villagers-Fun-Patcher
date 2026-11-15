@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher Who Fears Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk044_fisher_fears",
+  "source": "companion",
+  "lines": [
+   5887,
+   5894
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5887",
+  "ledger": [
+   {
+    "src": "L5893",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5894",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "After a frightening accident, a fisher cannot face the sea.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "After a frightening accident, a fisher cannot face the sea.",
+   "src": "L5888",
+   "choices": [
+    {
+     "label": "Take gradual supervised steps toward returning.",
+     "next": "outcome",
+     "src": "L5889"
+    },
+    {
+     "label": "Move into net-making or coastal work.",
+     "next": "outcome",
+     "src": "L5890"
+    },
+    {
+     "label": "Force a return too soon and suffer a setback.",
+     "next": "outcome",
+     "src": "L5891"
+    },
+    {
+     "label": "Discover a new interest in farming.",
+     "next": "outcome",
+     "src": "L5892"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5893"
+  }
+ }
+}
