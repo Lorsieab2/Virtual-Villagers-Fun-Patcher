@@ -3466,18 +3466,23 @@
   "living_le_ani_01": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_ani_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_ani_03": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3485,6 +3490,7 @@
   "living_le_ani_04": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3492,18 +3498,23 @@
   "living_le_ani_05": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_ani_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_ani_07": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3518,6 +3529,7 @@
   "living_le_ani_09": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3525,6 +3537,7 @@
   "living_le_ani_10": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3532,6 +3545,7 @@
   "living_le_art_01": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3539,6 +3553,7 @@
   "living_le_art_02": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3554,6 +3569,7 @@
   "living_le_art_04": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3561,23 +3577,31 @@
   "living_le_art_05": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_art_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_art_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_art_08": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3593,6 +3617,7 @@
   "living_le_art_10": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3600,18 +3625,23 @@
   "living_le_bel_01": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_bel_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_bel_03": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3619,6 +3649,7 @@
   "living_le_bel_04": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3626,18 +3657,23 @@
   "living_le_bel_05": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_bel_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_bel_07": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3645,6 +3681,7 @@
   "living_le_bel_08": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3652,6 +3689,7 @@
   "living_le_bel_09": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3659,208 +3697,326 @@
   "living_le_bel_10": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_cel_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_cel_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_emo_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_fam_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_foo_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_gov_01": {
@@ -3873,6 +4029,7 @@
   "living_le_gov_02": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3880,6 +4037,7 @@
   "living_le_gov_03": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
@@ -3887,13 +4045,17 @@
   "living_le_gov_04": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_gov_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_gov_06": {
@@ -3906,75 +4068,112 @@
   "living_le_gov_07": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_gov_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_gov_09": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_gov_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_odd_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_oth_01": {
@@ -3987,154 +4186,230 @@
   "living_le_oth_02": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_oth_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_oth_04": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_oth_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_oth_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_oth_07": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_oth_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_oth_09": {
    "allow": true,
    "harm": [
+    "kill",
     "vanish"
    ],
    "section": "living_engine"
   },
   "living_le_oth_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_per_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_01": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_02": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_03": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_04": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_05": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_06": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_07": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_08": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_09": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_le_res_10": {
    "allow": true,
-   "harm": [],
+   "harm": [
+    "kill",
+    "vanish"
+   ],
    "section": "living_engine"
   },
   "living_mc_aft_01": {
