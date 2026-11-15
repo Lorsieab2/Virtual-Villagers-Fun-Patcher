@@ -101,7 +101,7 @@ SSS = {
          "A child struggles with spoken counting but invents a clever way to group shells.", {}),
     83: ({"villager": V, "friend": V}, "A villager has stopped attending gatherings but still enjoys fishing alone.", {}),
     84: ({"caregiver": G}, "A kind caregiver is distressed by a frightening thought they never wanted.", {}),
-    85: ({"parent": G}, "A grieving parent cannot bear to attend the first harvest feast since their child died.",
+    85: ({"parent": G}, "A grieving parent cannot bear to attend the first harvest feast since their loss.",
          {"to": {"c": [T("help prepare food", "a small task at the feast; no food is made or stored")]}}),
     86: ({"apprentice": TEEN, "mentor": V},
          "After witnessing a serious accident, a young apprentice struggles to concentrate during lessons.", {}),
@@ -120,7 +120,7 @@ SSS = {
          "A child keeps asking whether their family will be safe when the rains come.",
          {"eff": {"a": [c.parenting("adult")], "b": [c.parenting("adult")], "c": [c.parenting("adult")]}}),
     94: ({"trainee": V, "mentor": V}, "A trainee is confused when a mentor gives six directions at once.", {}),
-    95: ({"elder": EL}, "An elder cries while repairing a toy that belonged to a sibling who has died.", {}),
+    95: ({"elder": EL}, "An elder cries while repairing a toy that belonged to a late sibling.", {}),
     96: ({"potter": V}, "A potter keeps destroying good work because each pot has a tiny flaw.", {}),
     97: ({"teen": TEEN}, "A teen feels different from peers and believes everyone else has found close friends.", {}),
 }
@@ -141,6 +141,24 @@ SENS = {**{n: [("aquarium", "fish ponds")] for n in (8658, 8670, 8682, 8694, 870
         8893: [("synthetic", "mixed")],                                                 # 149 D
         8949: [("Publish with", "Share with")],                                         # 154 B
         8952: [("monograph", "record")]}                                                # 154 C
+
+# Rule 11 (part 2, 2026-11-14): a child's loss and grief are implied, never stated.
+IMPLIED = "rule 11 (2026-11-14): a loss is implied, never stated"
+SSS_SENS = {6946: [("their child died", "their loss")],                                 # 085 premise
+            7046: [("a deceased sibling", "a late sibling")]}                            # 095 premise
+
+
+def sss_sensitivity(doc: dict) -> dict:
+    """gen_k8.build's page texts with SSS_SENS applied, each logged as a sensitivity ledger entry."""
+    for n, pairs in SSS_SENS.items():
+        for node in doc["nodes"].values():
+            if node.get("src") == c.L(n):
+                for b, a in pairs:
+                    node["text"] = node["text"].replace(b, a)
+                    doc["collection"]["ledger"].append(
+                        {"src": c.L(n), "kind": "sensitivity", "before": b, "after": a, "why": IMPLIED})
+    return doc
+
 
 FIX = {8538: [("a Oriental", "an Oriental")], 8550: [("a Orange", "an Orange")],
        8574: [("the The Golden Guppy", "the Golden Guppy")], 8622: [("a Aureus", "an Aureus")]}
@@ -293,7 +311,7 @@ def main() -> int:
     sss = [r for r in c.rows("sss") if c.num_of(r) in SSS]
     cat = [r for r in c.rows("cat") if c.num_of(r) >= 117]
     assert len(sss) == 30 and len(cat) == 38, (len(sss), len(cat))
-    docs = [(r["section"], r["id"], k8.build(r)) for r in sss] + [(r["section"], r["id"], build_cat(r)) for r in cat]
+    docs = [(r["section"], r["id"], sss_sensitivity(k8.build(r))) for r in sss] + [(r["section"], r["id"], build_cat(r)) for r in cat]
     return c.write_and_check(docs)
 
 

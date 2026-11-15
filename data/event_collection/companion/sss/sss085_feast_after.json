@@ -26,9 +26,16 @@
     "src": "L6953",
     "kind": "note",
     "why": "Context and callbacks: the designer's tags and notes, never shown"
+   },
+   {
+    "src": "L6946",
+    "kind": "sensitivity",
+    "before": "their child died",
+    "after": "their loss",
+    "why": "rule 11 (2026-11-14): a loss is implied, never stated"
    }
   ],
-  "description": "A grieving parent cannot bear to attend the first harvest feast since their child died.",
+  "description": "A grieving parent cannot bear to attend the first harvest feast since their loss.",
   "cast_only": [
    "parent"
   ]
@@ -47,7 +54,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "A parent cannot bear to attend the first harvest feast since their child died.",
+   "text": "A parent cannot bear to attend the first harvest feast since their loss.",
    "src": "L6946",
    "choices": [
     {

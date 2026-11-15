@@ -1433,6 +1433,160 @@
    "harm": [],
    "section": "c5"
   },
+  "cat117_fertility": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat118_sustenance": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat119_curing": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat120_growth": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat121_health": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat122_mutation": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat123_golden_guppy": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat124_fruit_life": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat125_knowledge": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat126_rose_joy": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat127_golden_berries": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat128_fabled_rose": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat129_magic_tree": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat130_golden_seahorse": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat131_cleaning_snail": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat132_pufferfish": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat133_blue_spotted": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat134_moray_eel": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat135_shimmering": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat136_pearl_heals": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat137_blue_vine_after": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat138_sea_otter": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat139_orchid_memory": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat140_orcas_passage": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat141_cormorant_gift": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat142_ptarmigan": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat143_tiger_shadow": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat144_beetle_polishes": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat145_map_all_living": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat146_masterpiece": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat147_empty_aquarium": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat148_flower_changed": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat149_fragrance_calls": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat150_conch_two": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat151_ants": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat152_rare_cure": {
+   "harm": [
+    "kill"
+   ],
+   "section": "cat"
+  },
+  "cat153_ocean_library": {
+   "harm": [],
+   "section": "cat"
+  },
+  "cat154_keeper": {
+   "harm": [],
+   "section": "cat"
+  },
   "sss001_cartographer": {
    "harm": [],
    "section": "sss"
@@ -1700,6 +1854,126 @@
    "section": "sss"
   },
   "sss067_nobody_special": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss068_festival_loud": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss069_sadness_without": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss070_worry_would": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss071_child_thinks": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss072_thoughts_would": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss073_child_could_sit": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss074_storm_came_back": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss075_night_sleep": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss076_heavy_basket": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss077_meal_left": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss078_words_stuck": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss079_same_path_every": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss080_many_feelings": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss081_memory_returned": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss082_numbers_sand": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss083_friend_needed": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss084_unwanted": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss085_feast_after": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss086_heard_too_much": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss087_joy_arrived": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss088_quiet_healer": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss089_cheerfulness": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss090_fear_leaving": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss091_argument_grew": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss092_after_success": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss093_boy_could_stop": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss094_one_instruction": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss095_old_grief": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss096_too_perfect_pot": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss097_small_circle": {
    "harm": [],
    "section": "sss"
   },
