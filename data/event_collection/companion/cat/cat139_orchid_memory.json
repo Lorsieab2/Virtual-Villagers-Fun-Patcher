@@ -26,16 +26,9 @@
     "src": "L8775",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
-   },
-   {
-    "src": "L8772",
-    "kind": "sensitivity",
-    "before": "laboratory facts",
-    "after": "proven facts",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
-  "description": "A Nox Orchid is said to bloom near the grieving, but a scientist sees it follows rain."
+  "description": "A Nox Orchid is said to bloom near the grieving, and a scientist notices it flowers after rain."
  },
  "requirement": {
   "min_eligible": 1
@@ -106,7 +99,7 @@
   },
   "c": {
    "name": "Answer C",
-   "text": "The elder says meanings need not be proven facts.",
+   "text": "The elder says meanings need not be laboratory facts.",
    "src": "L8772"
   },
   "d": {

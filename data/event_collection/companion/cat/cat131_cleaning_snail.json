@@ -31,8 +31,8 @@
     "src": "L8670",
     "kind": "sensitivity",
     "before": "aquarium",
-    "after": "fish ponds",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+    "after": "clear-walled rectangular container",
+    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
   "description": "An apprentice wants to add a Cleaning Snail to the creature catalogue, but its habits are little known.",
@@ -58,7 +58,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "A Cleaning Snail is seen near the island's fish ponds or coastal waters. An apprentice wants to add it to the creature catalogue, but its habits are not well understood.",
+   "text": "A Cleaning Snail is seen near the island's clear-walled rectangular container or coastal waters. An apprentice wants to add it to the creature catalogue, but its habits are not well understood.",
    "src": "L8670",
    "choices": [
     {

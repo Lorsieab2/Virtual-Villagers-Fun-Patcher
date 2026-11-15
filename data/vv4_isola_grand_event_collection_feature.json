@@ -24,12 +24,12 @@
     {
       "source": "assets/event_collection/vv4/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "5F759EDD073203B26187D86DF6E26A2269C556DE481B12BD5370A69B3DB3E739"
+      "sha256": "2D98A81E6108684DE12BCF476F98153AB9A4B7CAB818B15DEB1FB250EC6F9561"
     },
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "139557480BE74E3C8D508A94874D6EC0B73CC02E28765BF366D1EEFDA4CA19B4"
+      "sha256": "926DC872B5FED78C6D0C4C99E6208182AD18266141B687A86ABF7FB69FED6987"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",
@@ -1779,37 +1779,37 @@
     {
       "source": "assets/event_collection/cat117_fertility.cieg",
       "destination": "Island Event Collection/cat117_fertility.cieg",
-      "sha256": "94C6EF1F16E86BE1A700B2CF9AF96E7DAECA5F7C376F4AA2BDBCA8B6FA5E0762"
+      "sha256": "F3805E585C87880D7921A911024B6929D1B6651F651ECDB5586B0D52EAA73DDB"
     },
     {
       "source": "assets/event_collection/cat118_sustenance.cieg",
       "destination": "Island Event Collection/cat118_sustenance.cieg",
-      "sha256": "185C3306F99A86C44C89828DA1E4FBFAC37F428073A466E965890D6DA811215C"
+      "sha256": "676FD34FAC28105D37AA85974F57FF4BF3B1F815455E287E541873E23C151490"
     },
     {
       "source": "assets/event_collection/cat119_curing.cieg",
       "destination": "Island Event Collection/cat119_curing.cieg",
-      "sha256": "BF56A9D32490B736DFAFCCBC7C643B34257AF09EFC5C7692057CCB1451310C29"
+      "sha256": "966D708A6A8D63331191576AD23288E81FA7C264DDE14FE902FC671FA75A7660"
     },
     {
       "source": "assets/event_collection/cat120_growth.cieg",
       "destination": "Island Event Collection/cat120_growth.cieg",
-      "sha256": "DC37F44FED3C5B27F12649A1F3A121D3B29507B129191BA3D634833BB15CA724"
+      "sha256": "190CF1ED325CCAC82A6BD3973C7A54EE8837C062921FAD24FFE18004EBFD53A3"
     },
     {
       "source": "assets/event_collection/cat121_health.cieg",
       "destination": "Island Event Collection/cat121_health.cieg",
-      "sha256": "40B72F8CBDEDBAB1C05CABCBD028989EE9138172A4395C4904FD1B45178D3EA4"
+      "sha256": "FC7748DECF768B3BAB8668DF341A105AEBF0DBBF11FB560A2A9CDB54ECA24C3E"
     },
     {
       "source": "assets/event_collection/cat122_mutation.cieg",
       "destination": "Island Event Collection/cat122_mutation.cieg",
-      "sha256": "BE47AC6A9A1EE9BA346E20753897BEC3110097F6FF0E79FC7B960FFB4FC32E92"
+      "sha256": "DA17760979460FDA508262E4EDCC1D13CF5C6D4FF51E66821AEFCD85D2EB4BAB"
     },
     {
       "source": "assets/event_collection/cat123_golden_guppy.cieg",
       "destination": "Island Event Collection/cat123_golden_guppy.cieg",
-      "sha256": "3BF24A335AD5F5FA2F74AEA967AD5663C885BE96B72FFAFBBDE84DC51F707AD0"
+      "sha256": "928518BE36BFD49C98694123CF8FA45853B9643BA570A8A9CDF72567AF644902"
     },
     {
       "source": "assets/event_collection/cat124_fruit_life.cieg",
@@ -1844,27 +1844,27 @@
     {
       "source": "assets/event_collection/cat130_golden_seahorse.cieg",
       "destination": "Island Event Collection/cat130_golden_seahorse.cieg",
-      "sha256": "8212337E9C2E0B4834EE4D6464791BD46DD9D05A7680895B20E7DCC000202430"
+      "sha256": "D91AE981AB689C0AB551FEA5600AB9DE2E8A225D289ADF84ED401851D1A296B6"
     },
     {
       "source": "assets/event_collection/cat131_cleaning_snail.cieg",
       "destination": "Island Event Collection/cat131_cleaning_snail.cieg",
-      "sha256": "F803A68F39BFACD6E7787F7079C0F2F210C7D6F0A5251A27DA819F307F4DF18A"
+      "sha256": "07F43908FE5A0A1CA9679FDAB89702C6653239BE0745AB997C1557CE4173B9A9"
     },
     {
       "source": "assets/event_collection/cat132_pufferfish.cieg",
       "destination": "Island Event Collection/cat132_pufferfish.cieg",
-      "sha256": "CED47E09D902A27965D26F49C6F16C18F92A9CB109AB3FDE21AC13E1D7EF6E58"
+      "sha256": "288F0F6A8A3ADAC5FC1757F518893521D93C42EBAC3F248577DC9FE09E8BFC70"
     },
     {
       "source": "assets/event_collection/cat133_blue_spotted.cieg",
       "destination": "Island Event Collection/cat133_blue_spotted.cieg",
-      "sha256": "E761E24E12D1051B7389797F55C0328B86FE1F9817093103530D60BDB4F05FDA"
+      "sha256": "4EB4B44B4E034419D4B437D0D5B54AD2F40AD15428B3958EE9573F6B03919B3F"
     },
     {
       "source": "assets/event_collection/cat134_moray_eel.cieg",
       "destination": "Island Event Collection/cat134_moray_eel.cieg",
-      "sha256": "CD44C303060813A9C25551512E7FAA510C32885F57C3964422680F05898137F0"
+      "sha256": "4C94A4432FD6066502AB99E0A175A86E13CC1DF2F7CB26F49C3761A76586A5FD"
     },
     {
       "source": "assets/event_collection/cat135_shimmering.cieg",
@@ -1889,7 +1889,7 @@
     {
       "source": "assets/event_collection/cat139_orchid_memory.cieg",
       "destination": "Island Event Collection/cat139_orchid_memory.cieg",
-      "sha256": "712B0768264EF49520367B2B424D316D5EC2C6AC7496178E61B6263C1EAB9D77"
+      "sha256": "1B2096A9D3786377EB2C8BAAAE60804643D401B3916F07BA66EECCED71254E8A"
     },
     {
       "source": "assets/event_collection/cat140_orcas_passage.cieg",
@@ -1919,7 +1919,7 @@
     {
       "source": "assets/event_collection/cat145_map_all_living.cieg",
       "destination": "Island Event Collection/cat145_map_all_living.cieg",
-      "sha256": "29D331E9938D84056A147F17171CB0E344802CD91FD1A924D9DBC613B407C28A"
+      "sha256": "FC1BF20622EB45B16A86638E2985EBB5E4AA625497D7D2ABB02BB36DD2BFFFD8"
     },
     {
       "source": "assets/event_collection/cat146_masterpiece.cieg",
@@ -1929,7 +1929,7 @@
     {
       "source": "assets/event_collection/cat147_empty_aquarium.cieg",
       "destination": "Island Event Collection/cat147_empty_aquarium.cieg",
-      "sha256": "7ACCC565B424E78BD5476EED8F8500787AC060568178DEBCC69C68C66EECB924"
+      "sha256": "CC4E6795428E9F53B1D0CC4F78A971F828B8F40DAF1B6488DCC562CDD935F8FB"
     },
     {
       "source": "assets/event_collection/cat148_flower_changed.cieg",
@@ -1939,7 +1939,7 @@
     {
       "source": "assets/event_collection/cat149_fragrance_calls.cieg",
       "destination": "Island Event Collection/cat149_fragrance_calls.cieg",
-      "sha256": "80A4131991BAA9D1CA1BDFECC8AAAC5F2B276F46AF73EF447A631D6A16E3C650"
+      "sha256": "2639B69DFED78DCB79BC622DD850E32E966757B32CA4EF32CEDCEA369F66C7F0"
     },
     {
       "source": "assets/event_collection/cat150_conch_two.cieg",
@@ -1964,7 +1964,7 @@
     {
       "source": "assets/event_collection/cat154_keeper.cieg",
       "destination": "Island Event Collection/cat154_keeper.cieg",
-      "sha256": "56202C4D60172F403C5311240B45793DE11E3901949B62F5D10830445868CF6C"
+      "sha256": "94BAE5C30AE18C4B1C3B3268C482C79964426D0915A2994DB9C300D2D22CAA6B"
     },
     {
       "source": "assets/event_collection/sss001_cartographer.cieg",
@@ -2389,7 +2389,7 @@
     {
       "source": "assets/event_collection/sss085_feast_after.cieg",
       "destination": "Island Event Collection/sss085_feast_after.cieg",
-      "sha256": "B7706D05736E074FF4050783EA1DB1D1470663A199791818D032C93F7695398D"
+      "sha256": "C4BF3672994BF22F79DD9C0A7AEA28BF5B676EE2604DC29E5105E3D6BFC70849"
     },
     {
       "source": "assets/event_collection/sss086_heard_too_much.cieg",
@@ -2439,7 +2439,7 @@
     {
       "source": "assets/event_collection/sss095_old_grief.cieg",
       "destination": "Island Event Collection/sss095_old_grief.cieg",
-      "sha256": "B592E335C3476F1E495195E2693CB5797D2EB426E14786D5AB8CDB0DB425F17A"
+      "sha256": "710302A3C12FCD7379C0533F01851353F736D0C9899D1A924B37AD4F5CFDC2D7"
     },
     {
       "source": "assets/event_collection/sss096_too_perfect_pot.cieg",

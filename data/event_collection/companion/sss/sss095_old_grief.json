@@ -26,16 +26,9 @@
     "src": "L7053",
     "kind": "note",
     "why": "Context and callbacks: the designer's tags and notes, never shown"
-   },
-   {
-    "src": "L7046",
-    "kind": "sensitivity",
-    "before": "a deceased sibling",
-    "after": "a late sibling",
-    "why": "rule 11 (2026-11-14): a loss is implied, never stated"
    }
   ],
-  "description": "An elder cries while repairing a toy that belonged to a late sibling.",
+  "description": "An elder cries while repairing a toy that belonged to a sibling who has died.",
   "cast_only": [
    "elder"
   ]
@@ -54,7 +47,7 @@
   "premise": {
    "type": "question",
    "name": "The premise",
-   "text": "An elder unexpectedly cries while repairing a toy that belonged to a late sibling.",
+   "text": "An elder unexpectedly cries while repairing a toy that belonged to a deceased sibling.",
    "src": "L7046",
    "choices": [
     {

@@ -101,7 +101,7 @@ SSS = {
          "A child struggles with spoken counting but invents a clever way to group shells.", {}),
     83: ({"villager": V, "friend": V}, "A villager has stopped attending gatherings but still enjoys fishing alone.", {}),
     84: ({"caregiver": G}, "A kind caregiver is distressed by a frightening thought they never wanted.", {}),
-    85: ({"parent": G}, "A grieving parent cannot bear to attend the first harvest feast since their loss.",
+    85: ({"parent": G}, "A grieving parent cannot bear to attend the first harvest feast since their child died.",
          {"to": {"c": [T("help prepare food", "a small task at the feast; no food is made or stored")]}}),
     86: ({"apprentice": TEEN, "mentor": V},
          "After witnessing a serious accident, a young apprentice struggles to concentrate during lessons.", {}),
@@ -120,7 +120,7 @@ SSS = {
          "A child keeps asking whether their family will be safe when the rains come.",
          {"eff": {"a": [c.parenting("adult")], "b": [c.parenting("adult")], "c": [c.parenting("adult")]}}),
     94: ({"trainee": V, "mentor": V}, "A trainee is confused when a mentor gives six directions at once.", {}),
-    95: ({"elder": EL}, "An elder cries while repairing a toy that belonged to a late sibling.", {}),
+    95: ({"elder": EL}, "An elder cries while repairing a toy that belonged to a sibling who has died.", {}),
     96: ({"potter": V}, "A potter keeps destroying good work because each pot has a tiny flaw.", {}),
     97: ({"teen": TEEN}, "A teen feels different from peers and believes everyone else has found close friends.", {}),
 }
@@ -130,22 +130,20 @@ SSS = {
 CAT_HEAD = r"^EVENT \d{3}\s+-\s+"          # "EVENT 117 — " after the source's typography is normalised
 # The owner's content rules (2026-11-14), rule 3: a modern-day thing is named in the words of people who never saw
 # one.  The smallest piece changes; each is a "sensitivity" ledger entry for the owner's review.
-MODERN = "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
-SENS = {**{n: [("aquarium", "fish ponds")] for n in (8658, 8670, 8682, 8694, 8706)},     # 130-134 premises
-        **{n: [("tanks", "ponds")] for n in (8505, 8517, 8529, 8541, 8553, 8565, 8577)},  # 117-123 choice B
-        8772: [("laboratory facts", "proven facts")],                                   # 139 C
-        8846: [("aquaria", "fish ponds")],                                              # 145 D
-        8861: [("Aquarium", "Fish Pond")],                                              # 147 title
-        8862: [("an aquarium", "a fish pond")],                                         # 147 premise
-        8870: [("teleportation", "magical travel")],                                    # 147 D
-        8893: [("synthetic", "mixed")],                                                 # 149 D
-        8949: [("Publish with", "Share with")],                                         # 154 B
-        8952: [("monograph", "record")]}                                                # 154 C
+# Only modern technology objects change (the owner, 2026-11-14: "don't go crazy with the name changes ... scholarly
+# words are ok"); scholarly words (laboratory, monograph, publish, synthetic, teleportation, checklist) stay.
+MODERN = ("rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's "
+          "wording: a clear-walled rectangular container)")
+CW = "clear-walled rectangular container"
+SENS = {**{n: [("aquarium", CW)] for n in (8658, 8670, 8682, 8694, 8706)},            # 130-134 premise
+        **{n: [("tanks", CW + "s")] for n in (8505, 8517, 8529, 8541, 8553, 8565, 8577)},  # 117-123 choice B
+        8846: [("aquaria", CW + "s")],                                                # 145 D
+        8861: [("Aquarium", "Container")],                                            # 147 title
+        8862: [("an aquarium", "a " + CW)]}                                           # 147 premise
 
-# Rule 11 (part 2, 2026-11-14): a child's loss and grief are implied, never stated.
-IMPLIED = "rule 11 (2026-11-14): a loss is implied, never stated"
-SSS_SENS = {6946: [("their child died", "their loss")],                                 # 085 premise
-            7046: [("a deceased sibling", "a late sibling")]}                            # 095 premise
+# The Inner Lives (gen_k8.build pages): no edit.  The owner (2026-11-14) keeps 085's "since their child died" and
+# 095's "a deceased sibling" ("deceased/late siblings or others = keep them. death happens").
+SSS_SENS: dict[int, list[tuple[str, str]]] = {}
 
 
 def sss_sensitivity(doc: dict) -> dict:
@@ -156,7 +154,7 @@ def sss_sensitivity(doc: dict) -> dict:
                 for b, a in pairs:
                     node["text"] = node["text"].replace(b, a)
                     doc["collection"]["ledger"].append(
-                        {"src": c.L(n), "kind": "sensitivity", "before": b, "after": a, "why": IMPLIED})
+                        {"src": c.L(n), "kind": "sensitivity", "before": b, "after": a, "why": MODERN})
     return doc
 
 
@@ -175,7 +173,7 @@ CAT = {
     137: ({"villager": V}, "A rare vine's luminous sap could mark trails, but cutting it may kill its only stem.", {}),
     138: ({"fisher": V, "jeweler": V}, "A fisher blames an otter for the dwindling abalone, and a jeweler wants the shells.",
           {"eff": {"a": [sk("fisher", "Research")]}}),
-    139: ({"scientist": SCHOLAR}, "A Nox Orchid is said to bloom near the grieving, but a scientist sees it follows rain.",
+    139: ({"scientist": SCHOLAR}, "A Nox Orchid is said to bloom near the grieving, and a scientist notices it flowers after rain.",
           {"eff": {"b": [sk("scientist", "Research")]}}),
     140: ({"child": CH, "fisher": V}, "A pod of orcas follows the outer reef: fishers want them chased off, children want to watch.",
           {}),
@@ -190,7 +188,7 @@ CAT = {
     145: ({"scholar": SCHOLAR}, "A scholar proposes cataloguing every living thing on Isola, a task that seems impossible.",
           {"eff": {"a": [sk("scholar", "Research")]}}),
     146: ({"artist": V}, "A renowned artist paints a Greenfin Spotanus with the wrong fin and the wrong name.", {}),
-    147: ({"keeper": V}, "A keeper finds a fish pond empty after a storm, with no dead fish in sight.", {}),
+    147: ({"keeper": V}, "A keeper finds a clear-walled rectangular container empty after a storm, with no dead fish in sight.", {}),
     148: ({"botanist": GARDENER}, "A more experienced botanist says a Painted Tigerfern was named wrongly.",
           {"eff": {"b": [sk("botanist", "Farming")]}}),
     149: ({"perfumer": V}, "A rare Fourpetal Maple's scent draws night pollinators, and perfumers want its flowers.",

@@ -26,13 +26,6 @@
     "src": "L8895",
     "kind": "note",
     "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
-   },
-   {
-    "src": "L8893",
-    "kind": "sensitivity",
-    "before": "synthetic",
-    "after": "mixed",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "A rare Fourpetal Maple's scent draws night pollinators, and perfumers want its flowers."
@@ -70,7 +63,7 @@
      "src": "L8891"
     },
     {
-     "label": "Create a mixed or herbal blend",
+     "label": "Create a synthetic or herbal blend",
      "next": "d",
      "src": "L8893"
     }

@@ -31,8 +31,8 @@
     "src": "L8846",
     "kind": "sensitivity",
     "before": "aquaria",
-    "after": "fish ponds",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+    "after": "clear-walled rectangular containers",
+    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
   "description": "A scholar proposes cataloguing every living thing on Isola, a task that seems impossible."
@@ -111,7 +111,7 @@
   },
   "d": {
    "name": "Answer D",
-   "text": "Gardens, fish ponds and sketches complement each other, though care is costly.",
+   "text": "Gardens, clear-walled rectangular containers and sketches complement each other, though care is costly.",
    "src": "L8846"
   }
  }

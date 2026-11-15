@@ -29,8 +29,8 @@
     "src": "L8529",
     "kind": "sensitivity",
     "before": "tanks",
-    "after": "ponds",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+    "after": "clear-walled rectangular containers",
+    "why": "rule 3 (2026-11-14): a modern technology object described as a tribe unfamiliar with it would (the owner's wording: a clear-walled rectangular container)"
    }
   ],
   "description": "A keeper records a sick fish recovering after a water change near a Crimson Comet, tied in stories to the Magic Fish of Curing."
@@ -62,7 +62,7 @@
      "src": "L8527"
     },
     {
-     "label": "Compare ponds and conditions",
+     "label": "Compare clear-walled rectangular containers and conditions",
      "next": "b",
      "src": "L8529"
     },
