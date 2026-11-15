@@ -598,6 +598,9 @@ COMPANION_IDS: dict[str, str] = {
     "c5b035": "c5b035_resemblance", "c5c032": "c5c032_same_gesture", "c5c033": "c5c033_pot_washer",
     "c5c038": "c5c038_after_festival", "c5c046": "c5c046_morning_after",
     "cat125": "cat125_knowledge", "cat132": "cat132_pufferfish",
+    "sss006": "sss006_between_names", "sss010": "sss010_reads_slowly", "sss012": "sss012_argument_help",
+    "sss055": "sss055_argument_chair", "sss057": "sss057_was_wrong", "sss060": "sss060_changed_mind",
+    "sss062": "sss062_shortcut",
 }
 
 

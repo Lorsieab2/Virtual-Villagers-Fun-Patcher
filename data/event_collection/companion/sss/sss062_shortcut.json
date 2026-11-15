@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Terrible Shortcut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss062_shortcut",
+  "source": "companion",
+  "lines": [
+   6699,
+   6707
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6699",
+  "ledger": [
+   {
+    "src": "L6707",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A reckless teen takes a dangerous shortcut to deliver supplies faster.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A reckless teen takes a dangerous shortcut to prove they can deliver supplies faster.",
+   "src": "L6700",
+   "choices": [
+    {
+     "label": "Praise the speed but discuss risk",
+     "next": "a",
+     "src": "L6701"
+    },
+    {
+     "label": "Ask them to map the hazard",
+     "next": "b",
+     "src": "L6703"
+    },
+    {
+     "label": "Ignore the near miss",
+     "next": "c",
+     "src": "L6705"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The teen admits they were frightened and agrees to use safer routes.",
+   "src": "L6702"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They identify a weak bridge before someone else is hurt.",
+   "src": "L6704"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The behavior continues; a later event may cause injury or a missing-person search.",
+   "src": "L6706",
+   "text_only": [
+    {
+     "what": "a later event may cause injury or a missing-person search",
+     "reason": "rule 9: a later event; nobody is hurt or goes missing now",
+     "src": "L6706"
+    }
+   ]
+  }
+ }
+}

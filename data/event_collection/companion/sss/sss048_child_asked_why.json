@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Asked Why",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss048_child_asked_why",
+  "source": "companion",
+  "lines": [
+   6555,
+   6563
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6555",
+  "ledger": [
+   {
+    "src": "L6563",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "After a storm destroys a home, a child asks whether the gods were angry.",
+  "cast_only": [
+   "child",
+   "elder",
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "After a storm destroys a home, a child asks whether the gods were angry.",
+   "src": "L6556",
+   "choices": [
+    {
+     "label": "Offer a spiritual interpretation without certainty",
+     "next": "a",
+     "src": "L6557"
+    },
+    {
+     "label": "Explain the storm's physical causes",
+     "next": "b",
+     "src": "L6559"
+    },
+    {
+     "label": "Admit nobody knows why this home was struck",
+     "next": "c",
+     "src": "L6561"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "An elder describes prayer as a source of comfort, not proof of blame.",
+   "src": "L6558"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A researcher describes wind and water while acknowledging the family's grief.",
+   "src": "L6560"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child is allowed to feel angry and sad without being corrected.",
+   "src": "L6562"
+  }
+ }
+}

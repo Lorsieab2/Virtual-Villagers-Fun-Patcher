@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Second Apprenticeship",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss054_elder_second",
+  "source": "companion",
+  "lines": [
+   6619,
+   6627
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6619",
+  "ledger": [
+   {
+    "src": "L6627",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An elderly fisher confesses a lifelong wish to learn pottery.",
+  "cast_only": [
+   "elder",
+   "potter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "potter": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elderly fisher confesses that they have always wanted to learn pottery.",
+   "src": "L6620",
+   "choices": [
+    {
+     "label": "Start lessons",
+     "next": "a",
+     "src": "L6621"
+    },
+    {
+     "label": "Exchange skills with a potter",
+     "next": "b",
+     "src": "L6623"
+    },
+    {
+     "label": "Wait until the busy season ends",
+     "next": "c",
+     "src": "L6625"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Their first pots are crooked, and they adore them.",
+   "src": "L6622"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The potter learns fishing knots while the elder learns clay work.",
+   "src": "L6624"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder regrets postponing it and finally sets a firm date.",
+   "src": "L6626"
+  }
+ }
+}

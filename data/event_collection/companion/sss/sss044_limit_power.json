@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Limit of Power",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss044_limit_power",
+  "source": "companion",
+  "lines": [
+   6515,
+   6523
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6515",
+  "ledger": [
+   {
+    "src": "L6523",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A gifted leader wants authority to make emergency decisions without consultation.",
+  "cast_only": [
+   "leader"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "leader": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A gifted leader wants authority to make emergency decisions without consultation.",
+   "src": "L6516",
+   "choices": [
+    {
+     "label": "Grant narrow emergency powers",
+     "next": "a",
+     "src": "L6517"
+    },
+    {
+     "label": "Keep shared decisions",
+     "next": "b",
+     "src": "L6519"
+    },
+    {
+     "label": "Test a rotating council",
+     "next": "c",
+     "src": "L6521"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A crisis is handled quickly, but the village sets a clear review date.",
+   "src": "L6518"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Debate slows one response but prevents an unpopular unilateral action.",
+   "src": "L6520"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Different leaders reveal different strengths and weaknesses.",
+   "src": "L6522"
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Borrowed Necklace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss021_borrowed",
+  "source": "companion",
+  "lines": [
+   6277,
+   6285
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6277",
+  "ledger": [
+   {
+    "src": "L6285",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An apprentice melts down a family heirloom, believing it to be scrap metal.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An apprentice melts down a family heirloom, believing it to be scrap metal.",
+   "src": "L6278",
+   "choices": [
+    {
+     "label": "Admit the mistake immediately",
+     "next": "a",
+     "src": "L6279"
+    },
+    {
+     "label": "Hide the error",
+     "next": "b",
+     "src": "L6281"
+    },
+    {
+     "label": "Tell the full story through a new design",
+     "next": "c",
+     "src": "L6283"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The family is furious but accepts a sincere offer to rebuild the piece from remaining fragments.",
+   "src": "L6280"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The deception is discovered when the heirloom is requested; trust falls sharply.",
+   "src": "L6282"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The replacement preserves a surviving clasp and gains meaning, though the loss cannot be undone.",
+   "src": "L6284"
+  }
+ }
+}

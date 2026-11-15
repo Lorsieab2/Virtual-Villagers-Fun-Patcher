@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tracks of Biggles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss032_tracks_biggles",
+  "source": "companion",
+  "lines": [
+   6391,
+   6399
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6391",
+  "ledger": [
+   {
+    "src": "L6399",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Odd footprints circle a hut overnight, and villagers disagree about Biggles.",
+  "cast_only": [
+   "hunter",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "hunter": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Odd footprints circle a hut overnight. A hunter sees animal signs; a magician insists the pattern is too deliberate.",
+   "src": "L6392",
+   "choices": [
+    {
+     "label": "Follow the tracks",
+     "next": "a",
+     "src": "L6393"
+    },
+    {
+     "label": "Set a harmless observation station",
+     "next": "b",
+     "src": "L6395"
+    },
+    {
+     "label": "Leave an offering of fruit",
+     "next": "c",
+     "src": "L6397"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They end at wet stone; no explanation survives the tide.",
+   "src": "L6394"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The station records a small animal, but not the source of every footprint.",
+   "src": "L6396"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The fruit disappears; a child later admits visiting the site, but denies taking it.",
+   "src": "L6398",
+   "text_only": [
+    {
+     "what": "the fruit disappears",
+     "reason": "an offering of fruit; no villager disappears",
+     "src": "L6398"
+    }
+   ]
+  }
+ }
+}

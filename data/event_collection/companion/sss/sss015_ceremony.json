@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ceremony Without a Category",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss015_ceremony",
+  "source": "companion",
+  "lines": [
+   6213,
+   6221
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6213",
+  "ledger": [
+   {
+    "src": "L6221",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A nonbinary dancer asks to perform without being assigned to either group of dancers.",
+  "cast_only": [
+   "dancer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "dancer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A village celebration traditionally divides dancers into two groups. A nonbinary dancer asks to perform without being assigned either one.",
+   "src": "L6214",
+   "choices": [
+    {
+     "label": "Create a third formation",
+     "next": "a",
+     "src": "L6215"
+    },
+    {
+     "label": "Let dancers choose freely",
+     "next": "b",
+     "src": "L6217"
+    },
+    {
+     "label": "Keep the ceremony flexible",
+     "next": "c",
+     "src": "L6219"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a village celebration",
+     "reason": "the ceremony's custom is described; nobody celebrates on this page",
+     "src": "L6214"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The dancers experiment; it becomes a beautiful, optional part of the ceremony.",
+   "src": "L6216"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "People organize by preferred movements rather than gender; rehearsals are chaotic but joyful.",
+   "src": "L6218"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The dancer performs a solo interlude while others retain familiar steps.",
+   "src": "L6220"
+  }
+ }
+}

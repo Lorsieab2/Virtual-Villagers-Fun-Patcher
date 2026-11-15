@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby and the Beads",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss053_baby_beads",
+  "source": "companion",
+  "lines": [
+   6609,
+   6617
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6609",
+  "ledger": [
+   {
+    "src": "L6617",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A baby grabs a jeweler's necklace and scatters beads across the floor.",
+  "cast_only": [
+   "jeweler",
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "female",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A baby grabs a jeweler's necklace during a visit and scatters beads across the floor.",
+   "src": "L6610",
+   "choices": [
+    {
+     "label": "Keep the baby safe first",
+     "next": "a",
+     "src": "L6611"
+    },
+    {
+     "label": "Ask the caregivers to help",
+     "next": "b",
+     "src": "L6613"
+    },
+    {
+     "label": "Make a sturdier keepsake",
+     "next": "c",
+     "src": "L6615"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The beads are gathered before anyone can swallow one; the jeweler redesigns the clasp.",
+   "src": "L6612"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The family and jeweler recover most beads, but one remains missing for years.",
+   "src": "L6614"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The jeweler creates a smooth, age-appropriate object instead of wearable small parts.",
+   "src": "L6616"
+  }
+ }
+}

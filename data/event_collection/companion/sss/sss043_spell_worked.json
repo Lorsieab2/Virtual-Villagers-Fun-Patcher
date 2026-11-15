@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spell That Worked Too Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss043_spell_worked",
+  "source": "companion",
+  "lines": [
+   6505,
+   6513
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6505",
+  "ledger": [
+   {
+    "src": "L6513",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A magician claims credit for an astonishing harvest; farmers point to irrigation.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A magician's ritual coincides with an astonishing harvest. The magician claims credit; farmers point to careful irrigation.",
+   "src": "L6506",
+   "choices": [
+    {
+     "label": "Celebrate both efforts",
+     "next": "a",
+     "src": "L6507"
+    },
+    {
+     "label": "Compare fields next season",
+     "next": "b",
+     "src": "L6509"
+    },
+    {
+     "label": "Ask the magician to teach",
+     "next": "c",
+     "src": "L6511"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The community honors labor and belief without declaring a single cause.",
+   "src": "L6508"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Results are mixed, prompting better records and fresh arguments.",
+   "src": "L6510"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Some students report success; others discover the discipline improves their attention regardless of magic.",
+   "src": "L6512"
+  }
+ }
+}

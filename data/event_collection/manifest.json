@@ -29721,7 +29721,7 @@
    }
   },
   {
-   "id": "sss006_villager",
+   "id": "sss006_between_names",
    "title": "The Villager Between Names",
    "games": [
     1,
@@ -29869,7 +29869,7 @@
    }
   },
   {
-   "id": "sss010_apprentice",
+   "id": "sss010_reads_slowly",
    "title": "The Apprentice Who Reads Slowly",
    "games": [
     1,
@@ -29943,7 +29943,7 @@
    }
   },
   {
-   "id": "sss012_argument_about",
+   "id": "sss012_argument_help",
    "title": "The Argument About Help",
    "games": [
     1,
@@ -31534,7 +31534,7 @@
    }
   },
   {
-   "id": "sss055_argument_over",
+   "id": "sss055_argument_chair",
    "title": "The Argument Over a Chair",
    "games": [
     1,
@@ -31608,7 +31608,7 @@
    }
   },
   {
-   "id": "sss057_apprentice",
+   "id": "sss057_was_wrong",
    "title": "The Apprentice Who Was Wrong",
    "games": [
     1,
@@ -31719,7 +31719,7 @@
    }
   },
   {
-   "id": "sss060_villager",
+   "id": "sss060_changed_mind",
    "title": "The Villager Who Changed Their Mind",
    "games": [
     1,
@@ -31793,7 +31793,7 @@
    }
   },
   {
-   "id": "sss062_terrible",
+   "id": "sss062_shortcut",
    "title": "The Terrible Shortcut",
    "games": [
     1,

@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Boy's Big Idea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss013_boy_big_idea",
+  "source": "companion",
+  "lines": [
+   6193,
+   6201
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6193",
+  "ledger": [
+   {
+    "src": "L6201",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A quiet boy has a useful idea at a flood meeting but keeps being interrupted.",
+  "cast_only": [
+   "boy"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "boy": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17,
+   "sex": "male"
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A boy rarely speaks at meetings. During a flood discussion, he has a useful suggestion but keeps being interrupted.",
+   "src": "L6194",
+   "choices": [
+    {
+     "label": "Make room for him",
+     "next": "a",
+     "src": "L6195"
+    },
+    {
+     "label": "Let him submit a drawing",
+     "next": "b",
+     "src": "L6197"
+    },
+    {
+     "label": "Speak with him afterward",
+     "next": "c",
+     "src": "L6199"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "He proposes marking safe high ground; the village adopts the idea.",
+   "src": "L6196"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "His diagram communicates more clearly than a speech would.",
+   "src": "L6198"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "He prefers helping with preparations rather than public debate, and does so brilliantly.",
+   "src": "L6200"
+  }
+ }
+}

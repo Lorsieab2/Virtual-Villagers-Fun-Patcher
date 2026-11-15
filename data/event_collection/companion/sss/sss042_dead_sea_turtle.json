@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dead Sea Turtle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss042_dead_sea_turtle",
+  "source": "companion",
+  "lines": [
+   6495,
+   6503
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6495",
+  "ledger": [
+   {
+    "src": "L6503",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A dead sea turtle washes ashore: a naturalist wants to learn, a child wants a burial.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A large turtle washes ashore already dead. A naturalist sees an opportunity to learn; a child wants a burial.",
+   "src": "L6496",
+   "choices": [
+    {
+     "label": "Study without needless damage",
+     "next": "a",
+     "src": "L6497"
+    },
+    {
+     "label": "Hold a remembrance",
+     "next": "b",
+     "src": "L6499"
+    },
+    {
+     "label": "Use selected remains responsibly",
+     "next": "c",
+     "src": "L6501"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Observations reveal signs of an old injury, and the remains are respectfully returned to the shore.",
+   "src": "L6498",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6498"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an old injury",
+     "reason": "the dead turtle's; no villager is hurt",
+     "src": "L6498"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Children decorate a marker and discuss the animal's life.",
+   "src": "L6500"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Craftspeople and researchers agree on limits; not everyone feels comfortable with the decision.",
+   "src": "L6502"
+  }
+ }
+}

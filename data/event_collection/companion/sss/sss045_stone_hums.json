@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Hums",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss045_stone_hums",
+  "source": "companion",
+  "lines": [
+   6525,
+   6533
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6525",
+  "ledger": [
+   {
+    "src": "L6533",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A cave stone seems to vibrate when villagers sing nearby."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A cave stone seems to vibrate when villagers sing nearby.",
+   "src": "L6526",
+   "choices": [
+    {
+     "label": "Test sound and resonance",
+     "next": "a",
+     "src": "L6527"
+    },
+    {
+     "label": "Ask a magician to listen",
+     "next": "b",
+     "src": "L6529"
+    },
+    {
+     "label": "Hold a quiet ceremony",
+     "next": "c",
+     "src": "L6531"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Researchers find a physical response but cannot explain every reported sensation.",
+   "src": "L6528",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6528"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The magician describes a sense of energy; a skeptical friend hears only echoes.",
+   "src": "L6530"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Participants find meaning in the experience without claiming proof of spirits.",
+   "src": "L6532",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a ceremony's experience, not a skill's: nothing is gained",
+     "src": "L6532"
+    }
+   ]
+  }
+ }
+}

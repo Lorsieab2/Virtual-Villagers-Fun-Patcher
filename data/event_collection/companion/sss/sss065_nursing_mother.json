@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nursing Mother's Loss",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss065_nursing_mother",
+  "source": "companion",
+  "lines": [
+   6729,
+   6737
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6729",
+  "ledger": [
+   {
+    "src": "L6737",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A nursing mother loses her infant, and the village struggles to support her."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "female",
+   "special": "nursing_parent",
+   "protected": "allow"
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A nursing mother loses her infant after an illness despite the caregivers' efforts. The village struggles to know how to support her.",
+   "src": "L6730",
+   "choices": [
+    {
+     "label": "Ask what she needs",
+     "next": "a",
+     "src": "L6731"
+    },
+    {
+     "label": "Offer a remembrance ritual",
+     "next": "b",
+     "src": "L6733"
+    },
+    {
+     "label": "Arrange support without taking over",
+     "next": "c",
+     "src": "L6735"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "She asks for privacy and practical help; friends honor both.",
+   "src": "L6732",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L6732"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "She chooses whether and when to participate, and the baby's name is spoken with care.",
+   "src": "L6734",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L6734"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Trusted caregivers handle chores and meals; the mother's grief is neither hurried nor treated as a moral failing.",
+   "src": "L6736",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L6736"
+    }
+   ]
+  }
+ }
+}

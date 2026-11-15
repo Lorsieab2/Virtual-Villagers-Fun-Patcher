@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Likes Silence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss058_friend_likes",
+  "source": "companion",
+  "lines": [
+   6659,
+   6667
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6659",
+  "ledger": [
+   {
+    "src": "L6667",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A talkative villager assumes their quiet friend is upset because they rarely speak on walks.",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A talkative villager assumes their quiet friend is upset because they rarely speak during walks.",
+   "src": "L6660",
+   "choices": [
+    {
+     "label": "Ask once, then listen",
+     "next": "a",
+     "src": "L6661"
+    },
+    {
+     "label": "Fill the silence with stories",
+     "next": "b",
+     "src": "L6663"
+    },
+    {
+     "label": "Find a shared activity",
+     "next": "c",
+     "src": "L6665"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The friend explains they enjoy companionship without conversation.",
+   "src": "L6662"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The quiet friend laughs at one story but eventually asks for peace.",
+   "src": "L6664"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They watch tide pools together, comfortable with different temperaments.",
+   "src": "L6666"
+  }
+ }
+}

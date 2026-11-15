@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Argument About Help",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss012_argument_help",
+  "source": "companion",
+  "lines": [
+   6183,
+   6191
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6183",
+  "ledger": [
+   {
+    "src": "L6191",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager with chronic pain refuses a coworker's offers to carry their tools.",
+  "cast_only": [
+   "villager",
+   "coworker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coworker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager with chronic pain refuses a coworker's repeated offers to carry their tools. The coworker feels rejected.",
+   "src": "L6184",
+   "choices": [
+    {
+     "label": "Ask before helping",
+     "next": "a",
+     "src": "L6185"
+    },
+    {
+     "label": "Adapt the workbench",
+     "next": "b",
+     "src": "L6187"
+    },
+    {
+     "label": "Respect the refusal",
+     "next": "c",
+     "src": "L6189"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They agree on specific tasks where assistance is welcome.",
+   "src": "L6186"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A small design change reduces strain without requiring constant intervention.",
+   "src": "L6188"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The coworker backs off; later, the villager asks for help on their own terms.",
+   "src": "L6190"
+  }
+ }
+}
