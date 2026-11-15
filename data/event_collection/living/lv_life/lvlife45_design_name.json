@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Design and the New Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife45_design_name",
+  "source": "living",
+  "lines": [
+   21214,
+   21225
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21214",
+  "ledger": [
+   {
+    "src": "L21225",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young weaver changes their clothing and asks for a new way of being addressed; an elder struggles to remember.",
+  "cast_only": [
+   "weaver",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young weaver changes their clothing and asks for a new way of being addressed; an elder struggles to remember.",
+   "src": "L21215",
+   "choices": [
+    {
+     "label": "Respect the request and gently correct mistakes.",
+     "next": "a",
+     "src": "L21216"
+    },
+    {
+     "label": "Ask the weaver to explain their design.",
+     "next": "b",
+     "src": "L21219"
+    },
+    {
+     "label": "Celebrate the garment's craftsmanship.",
+     "next": "c",
+     "src": "L21222"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder gradually learns, and the two become closer.",
+   "src": "L21217"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder makes another mistake, apologizes, and keeps trying.",
+   "src": "L21218"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The weaver shares its meaning without having to defend their identity.",
+   "src": "L21220"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The weaver declines to explain, and the village respects that boundary.",
+   "src": "L21221"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The new style inspires others to experiment.",
+   "src": "L21223"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The weaver appreciates praise but asks not to become a spectacle.",
+   "src": "L21224"
+  }
+ }
+}

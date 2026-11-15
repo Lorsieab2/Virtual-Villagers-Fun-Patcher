@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parrot Who Chose the Forest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir06_parrot_chose",
+  "source": "living",
+  "lines": [
+   21309,
+   21320
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21309",
+  "ledger": [
+   {
+    "src": "L21320",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A hand-raised parrot begins calling to wild parrots beyond the village.",
+  "cast_only": [
+   "keeper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A hand-raised parrot begins calling to wild parrots beyond the village.",
+   "src": "L21310",
+   "choices": [
+    {
+     "label": "Keep the bird close.",
+     "next": "a",
+     "src": "L21311"
+    },
+    {
+     "label": "Let it choose whether to leave.",
+     "next": "b",
+     "src": "L21314"
+    },
+    {
+     "label": "Prepare a gradual release.",
+     "next": "c",
+     "src": "L21317"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The parrot remains safe but grows restless at the window.",
+   "src": "L21312"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The bird seems content with its familiar family and toys.",
+   "src": "L21313"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The parrot joins a wild flock and occasionally returns.",
+   "src": "L21315"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The parrot cannot keep up with the flock and comes home hungry.",
+   "src": "L21316"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The bird learns to find food before venturing farther.",
+   "src": "L21318",
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "the parrot learns to find its own food",
+     "src": "L21318"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The plan takes longer than expected, and the keeper grows impatient.",
+   "src": "L21319"
+  }
+ }
+}

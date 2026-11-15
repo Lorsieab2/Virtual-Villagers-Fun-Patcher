@@ -231,6 +231,11 @@ a Anagallis / a Indigoberry / a Aureus" (9 times: companion L7542, 7554, 7722, 7
 "with the The Golden Guppy" (L8574). The chunk that builds them adds its rows here. Chunk K10 (Living Catalogue
 001-056) added the 22 "believes its a" rows and L7542, L7554, L7722 above; the rest belong to K11 and K9.
 
+### Living Event Engine fixed event volumes (the third source; rows `| living L<line> |`)
+
+LV-A (MED-01..31, LIFE-01..45, CIRCLE-01..31, living L20219-21645): none. Not fixed (not glaring): MED-19's "A Magic
+practitioner" (living L20454) keeps the source's capital, the volume's name for one of its four ways of knowing.
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

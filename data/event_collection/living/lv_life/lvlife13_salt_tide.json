@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Salt of the Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife13_salt_tide",
+  "source": "living",
+  "lines": [
+   20798,
+   20809
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20798",
+  "ledger": [
+   {
+    "src": "L20809",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Fishers debate using scarce salt to preserve fish or keeping it for other village needs.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fishers debate using scarce salt to preserve fish or keeping it for other village needs.",
+   "src": "L20799",
+   "choices": [
+    {
+     "label": "Salt most of the catch.",
+     "next": "a",
+     "src": "L20800"
+    },
+    {
+     "label": "Dry the fish without salt.",
+     "next": "b",
+     "src": "L20803"
+    },
+    {
+     "label": "Preserve only a portion.",
+     "next": "c",
+     "src": "L20806"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The preserved fish feeds the village during rough weather.",
+   "src": "L20801"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The salt supply dwindles, creating a new problem.",
+   "src": "L20802"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A well-ventilated rack preserves part of the catch.",
+   "src": "L20804"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Humid weather spoils the fish before it can dry.",
+   "src": "L20805",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20805"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village keeps some salt in reserve.",
+   "src": "L20807"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The smaller food stores prove insufficient during a long storm.",
+   "src": "L20808",
+   "text_only": [
+    {
+     "what": "food stores",
+     "reason": "the smaller stores of this choice; nothing more is lost",
+     "src": "L20808"
+    }
+   ]
+  }
+ }
+}

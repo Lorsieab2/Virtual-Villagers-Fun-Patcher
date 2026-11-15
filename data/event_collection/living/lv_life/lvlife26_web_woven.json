@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Web-woven Shawl",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife26_web_woven",
+  "source": "living",
+  "lines": [
+   20967,
+   20978
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20967",
+  "ledger": [
+   {
+    "src": "L20978",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A weaver studies spiderwebs and proposes a shawl patterned after their radiating threads.",
+  "cast_only": [
+   "weaver",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A weaver studies spiderwebs and proposes a shawl patterned after their radiating threads.",
+   "src": "L20968",
+   "choices": [
+    {
+     "label": "Emulate the web's geometry.",
+     "next": "a",
+     "src": "L20969"
+    },
+    {
+     "label": "Use a traditional family motif.",
+     "next": "b",
+     "src": "L20972"
+    },
+    {
+     "label": "Blend both patterns.",
+     "next": "c",
+     "src": "L20975"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The shawl becomes admired for its delicate design.",
+   "src": "L20970"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The pattern is beautiful but weak at the edges, requiring reinforcement.",
+   "src": "L20971"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The shawl preserves a cherished story.",
+   "src": "L20973"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The young weaver wishes the design reflected their own life.",
+   "src": "L20974"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The finished cloth honors family and forest alike.",
+   "src": "L20976"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder initially objects but later helps refine the pattern.",
+   "src": "L20977"
+  }
+ }
+}

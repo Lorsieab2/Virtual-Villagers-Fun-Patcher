@@ -3954,6 +3954,462 @@
    "harm": [],
    "section": "living_engine"
   },
+  "lvcir01_child_beneath": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir02_crab_wanted": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir03_mushroom": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir04_does_tree_have": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir05_goat_companion": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir06_parrot_chose": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir07_octopus_pot": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir08_last_moth": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir09_fisher_thanks": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir10_hungry_heron": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir11_forest_many": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir12_tree_fed_fungi": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir13_grandmother": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir14_tide_go": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir15_name_sand": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir16_child_refused": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir17_healer_beetle": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir18_tiger_hunger": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir19_departed": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir20_fungi_food": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir21_tree_fallen": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir22_stranded": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir23_coral_stone": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir24_pet_wild_thing": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir25_rights_reef": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir26_dog_morning": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir27_stranger": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir28_last_seed": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir29_weaver_funeral": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir30_smallest_life": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvcir31_whale": {
+   "harm": [],
+   "section": "lv_circle"
+  },
+  "lvlife01_bitter_root": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife02_draught": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife03_reed_breath": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife04_crooked_arm": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife05_splint_bamboo": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife06_bone_would": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife07_warm_stone": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife08_patient_fears": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife09_fever_river": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife10_wound_would": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife11_empty_granary": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife12_sealed_jar": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife13_salt_tide": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife14_field_grew": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife15_worms_beneath": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife16_farm_above": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife17_mangrove": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife18_fruit_arrived": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife19_seeds_ash": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife20_rare_dye_vine": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife21_story_tablet": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife22_map_old_path": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife23_song_stored": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife24_drum": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife25_hollow_reed": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife26_web_woven": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife27_blanket_rainy": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife28_tapestry": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife29_new_clothes": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife30_shell_robe": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife31_colors_reef": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife32_spider_silk": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife33_canoe_sail": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife34_basket": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife35_wedding_cloth": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife36_fern_printed": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife37_winter_cloak": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife38_fisher_net": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife39_hive_orchard": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife40_fruit_tree": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife41_hidden_spring": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife42_waste_dye": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife43_library_hands": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife44_cure_rare": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvlife45_design_name": {
+   "harm": [],
+   "section": "lv_life"
+  },
+  "lvmed01_borrowed_organ": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed02_gift_after": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed03_blood_another": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed04_draught": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed05_limb_might": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed06_stone_belly": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed07_breath_fades": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed08_fever_will": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed09_heart_falters": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed10_sight_behind": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed11_water_must": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed12_strange_thread": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed13_growing_lump": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed14_child_long": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed15_last_treatment": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed16_healer_cannot": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed17_shrine_sickbed": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed18_healing_spring": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed19_spell_holds": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed20_vine_closes": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed21_curing_fish": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed22_dream_kidney": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed23_painful_truth": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed24_visitor_cure": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed25_patient_wants": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed26_scar_reopened": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed27_medicine_helps": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed28_unfinished": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_med"
+  },
+  "lvmed29_last_dose_hope": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed30_animal_trial": {
+   "harm": [],
+   "section": "lv_med"
+  },
+  "lvmed31_choose_healer": {
+   "harm": [],
+   "section": "lv_med"
+  },
   "sss001_cartographer": {
    "harm": [],
    "section": "sss"

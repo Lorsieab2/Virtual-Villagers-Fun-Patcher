@@ -1,0 +1,162 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Dog's Last Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir26_dog_morning",
+  "source": "living",
+  "lines": [
+   21569,
+   21580
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21569",
+  "ledger": [
+   {
+    "src": "L21580",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elderly village dog can no longer walk comfortably and refuses food.",
+  "cast_only": [
+   "villager",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elderly village dog can no longer walk comfortably and refuses food.",
+   "src": "L21570",
+   "choices": [
+    {
+     "label": "Offer comfort and quiet company.",
+     "next": "a",
+     "src": "L21571"
+    },
+    {
+     "label": "Try another difficult treatment.",
+     "next": "b",
+     "src": "L21574"
+    },
+    {
+     "label": "Ask the healer to assess suffering and options.",
+     "next": "c",
+     "src": "L21577"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "refuses food",
+     "reason": "the dog, not the village's food",
+     "src": "L21570"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The dog rests beside its family and dies peacefully later.",
+   "src": "L21572",
+   "text_only": [
+    {
+     "what": "dies",
+     "reason": "the dog, not a villager",
+     "src": "L21572"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The dog has a brighter day, giving the family time together.",
+   "src": "L21573"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The dog improves briefly, though weakness returns.",
+   "src": "L21575"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The treatment causes distress, and the family changes course.",
+   "src": "L21576"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family chooses a gentle plan centered on comfort.",
+   "src": "L21578"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healer admits uncertainty, and the family keeps watch together.",
+   "src": "L21579"
+  }
+ }
+}

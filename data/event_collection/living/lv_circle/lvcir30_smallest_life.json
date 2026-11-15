@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smallest Life",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir30_smallest_life",
+  "source": "living",
+  "lines": [
+   21621,
+   21632
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21621",
+  "ledger": [
+   {
+    "src": "L21632",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child asks whether crushing insects while walking makes the villagers cruel.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks whether crushing insects while walking makes the villagers cruel.",
+   "src": "L21622",
+   "choices": [
+    {
+     "label": "Teach careful avoidance when possible.",
+     "next": "a",
+     "src": "L21623"
+    },
+    {
+     "label": "Explain the needs of people and other creatures.",
+     "next": "b",
+     "src": "L21626"
+    },
+    {
+     "label": "Invite observation of the insects.",
+     "next": "c",
+     "src": "L21629"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child learns to move insects from busy paths.",
+   "src": "L21624"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child becomes distressed by unavoidable accidents, and a parent offers perspective.",
+   "src": "L21625",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21625"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child understands that living sometimes causes harm, even with care.",
+   "src": "L21627"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child asks how to decide which harms are necessary.",
+   "src": "L21628"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child discovers their role in soil and flowers.",
+   "src": "L21630"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child is surprised to see one insect eating another.",
+   "src": "L21631"
+  }
+ }
+}

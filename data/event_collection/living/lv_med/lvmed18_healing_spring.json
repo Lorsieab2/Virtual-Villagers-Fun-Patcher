@@ -1,0 +1,187 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healing Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed18_healing_spring",
+  "source": "living",
+  "lines": [
+   20440,
+   20451
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20440",
+  "ledger": [
+   {
+    "src": "L20451",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A mineral spring is said to restore strength, but a weak patient may not survive the difficult journey."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A mineral spring is said to restore strength, but a weak patient may not survive the difficult journey.",
+   "src": "L20441",
+   "choices": [
+    {
+     "label": "Carry the consenting patient to the spring.",
+     "next": "a",
+     "src": "L20442"
+    },
+    {
+     "label": "Bring spring water to the patient.",
+     "next": "b",
+     "src": "L20445"
+    },
+    {
+     "label": "Study the spring before using it as medicine.",
+     "next": "c",
+     "src": "L20448"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient feels refreshed, though their illness remains.",
+   "src": "L20443"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The journey exhausts the patient and worsens their condition.",
+   "src": "L20444",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20444"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient enjoys the familiar taste and recovers gradually.",
+   "src": "L20446",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20446"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The water causes stomach illness, and the healers question its purity.",
+   "src": "L20447",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "patient",
+     "src": "L20447"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The researcher finds no reliable evidence of healing.",
+   "src": "L20449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20449"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The spring becomes a place of rest rather than a promised cure.",
+   "src": "L20450"
+  }
+ }
+}

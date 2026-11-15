@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Dose of Hope",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed29_last_dose_hope",
+  "source": "living",
+  "lines": [
+   20583,
+   20594
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20583",
+  "ledger": [
+   {
+    "src": "L20594",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare medicinal plant could ease one dying patient's suffering, but the village has only enough for one treatment.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare medicinal plant could ease one dying patient's suffering, but the village has only enough for one treatment.",
+   "src": "L20584",
+   "choices": [
+    {
+     "label": "Give it to the patient in greatest distress.",
+     "next": "a",
+     "src": "L20585"
+    },
+    {
+     "label": "Divide the supply among several patients.",
+     "next": "b",
+     "src": "L20588"
+    },
+    {
+     "label": "Reserve the plant while searching for alternatives.",
+     "next": "c",
+     "src": "L20591"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient rests more comfortably, and the healer explains the decision to others.",
+   "src": "L20586"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The plant brings little relief, leaving the healer disappointed.",
+   "src": "L20587"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Several patients experience modest relief, though none receives a full dose.",
+   "src": "L20589",
+   "text_only": [
+    {
+     "what": "experience modest relief",
+     "reason": "the patients feel relief: no skill is meant",
+     "src": "L20589"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The smaller amounts seem ineffective, prompting a difficult review.",
+   "src": "L20590"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A common remedy provides some comfort, and the rare plant is preserved.",
+   "src": "L20592"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay leaves one patient in pain, and the healer regrets waiting.",
+   "src": "L20593",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20593"
+    }
+   ]
+  }
+ }
+}

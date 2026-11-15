@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Octopus in the Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir07_octopus_pot",
+  "source": "living",
+  "lines": [
+   21322,
+   21333
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21322",
+  "ledger": [
+   {
+    "src": "L21333",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A curious octopus repeatedly enters a fisher's traps and escapes.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A curious octopus repeatedly enters a fisher's traps and escapes.",
+   "src": "L21323",
+   "choices": [
+    {
+     "label": "Keep it for study.",
+     "next": "a",
+     "src": "L21324"
+    },
+    {
+     "label": "Return it to the sea.",
+     "next": "b",
+     "src": "L21327"
+    },
+    {
+     "label": "Redesign the traps.",
+     "next": "c",
+     "src": "L21330"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The scientist learns how it solves simple puzzles but questions confinement.",
+   "src": "L21325",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21325"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The octopus stops eating, and the scientist releases it.",
+   "src": "L21326"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The animal slips into the reef, leaving the fisher fascinated.",
+   "src": "L21328"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "It returns to the traps the following week.",
+   "src": "L21329"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The octopus escapes unharmed while fishers still catch their supper.",
+   "src": "L21331"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new traps fail at first, costing the village a day's catch.",
+   "src": "L21332",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21332"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bone That Would Not Heal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife06_bone_would",
+  "source": "living",
+  "lines": [
+   20707,
+   20718
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20707",
+  "ledger": [
+   {
+    "src": "L20718",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder's fractured leg remains painful long after the expected healing time."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder's fractured leg remains painful long after the expected healing time.",
+   "src": "L20708",
+   "choices": [
+    {
+     "label": "Attempt a risky operation.",
+     "next": "a",
+     "src": "L20709"
+    },
+    {
+     "label": "Continue supportive care and mobility aids.",
+     "next": "b",
+     "src": "L20712"
+    },
+    {
+     "label": "Ask the elder what matters most.",
+     "next": "c",
+     "src": "L20715"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder regains some movement after a long recovery.",
+   "src": "L20710"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The wound becomes infected, and the elder's health declines.",
+   "src": "L20711",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": -60,
+     "max": -40,
+     "src": "L20711"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder finds a comfortable routine without full recovery.",
+   "src": "L20713"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder grows frustrated by limited movement and requests another opinion.",
+   "src": "L20714"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder chooses comfort and time with family over another operation.",
+   "src": "L20716"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder requests further treatment after understanding the risks.",
+   "src": "L20717"
+  }
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Moth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir08_last_moth",
+  "source": "living",
+  "lines": [
+   21335,
+   21346
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21335",
+  "ledger": [
+   {
+    "src": "L21346",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare night moth is the only known pollinator of an equally rare flower.",
+  "cast_only": [
+   "scientist",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare night moth is the only known pollinator of an equally rare flower.",
+   "src": "L21336",
+   "choices": [
+    {
+     "label": "Collect a specimen for the catalogue.",
+     "next": "a",
+     "src": "L21337"
+    },
+    {
+     "label": "Sketch and observe the moth alive.",
+     "next": "b",
+     "src": "L21340"
+    },
+    {
+     "label": "Protect both species and their habitat.",
+     "next": "c",
+     "src": "L21343"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The preserved moth reveals fine details, but the flower bears fewer seeds.",
+   "src": "L21338"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The scientist realizes too late that the population was smaller than believed.",
+   "src": "L21339"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The drawing misses some details, but the moth continues visiting flowers.",
+   "src": "L21341"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An apprentice mistakes its markings, and the record is corrected later.",
+   "src": "L21342"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The flowers set seed, though the villagers forgo a valuable harvest.",
+   "src": "L21344"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A storm damages the habitat, testing the village's commitment.",
+   "src": "L21345"
+  }
+ }
+}

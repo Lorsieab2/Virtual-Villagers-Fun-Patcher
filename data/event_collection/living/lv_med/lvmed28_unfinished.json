@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Operation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed28_unfinished",
+  "source": "living",
+  "lines": [
+   20570,
+   20581
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20570",
+  "ledger": [
+   {
+    "src": "L20581",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "During an experimental procedure, the healer realizes the patient's condition is far worse than expected.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During an experimental procedure, the healer realizes the patient's condition is far worse than expected.",
+   "src": "L20571",
+   "choices": [
+    {
+     "label": "Continue despite the new danger.",
+     "next": "a",
+     "src": "L20572"
+    },
+    {
+     "label": "Stop and provide supportive care.",
+     "next": "b",
+     "src": "L20575"
+    },
+    {
+     "label": "Follow the patient's previously expressed limits.",
+     "next": "c",
+     "src": "L20578"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer completes the operation, but the patient dies days later.",
+   "src": "L20573",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20573"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient survives, though recovery is long and uncertain.",
+   "src": "L20574",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20574"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient survives the immediate crisis and later thanks the healer for stopping.",
+   "src": "L20576"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient dies, leaving the healer wondering whether more could have been done.",
+   "src": "L20577",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20577"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer stops when the agreed boundary is reached.",
+   "src": "L20579"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healer proceeds only with the limited step the patient had authorized.",
+   "src": "L20580"
+  }
+ }
+}

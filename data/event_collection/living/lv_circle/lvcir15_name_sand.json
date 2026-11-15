@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name in the Sand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir15_name_sand",
+  "source": "living",
+  "lines": [
+   21426,
+   21437
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21426",
+  "ledger": [
+   {
+    "src": "L21437",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A parent writes the name of a lost baby where the tide will wash it away.",
+  "cast_only": [
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A parent writes the name of a lost baby where the tide will wash it away.",
+   "src": "L21427",
+   "choices": [
+    {
+     "label": "Let the tide take the writing.",
+     "next": "a",
+     "src": "L21428"
+    },
+    {
+     "label": "Carve the name on a lasting stone.",
+     "next": "b",
+     "src": "L21431"
+    },
+    {
+     "label": "Plant a flowering shrub nearby.",
+     "next": "c",
+     "src": "L21434"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The parent watches the letters vanish and weeps with a loved one.",
+   "src": "L21429",
+   "text_only": [
+    {
+     "what": "the letters vanish",
+     "reason": "the writing in the sand, not a villager",
+     "src": "L21429"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The ritual brings a moment of calm without ending the grief.",
+   "src": "L21430"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family creates a place to remember the child.",
+   "src": "L21432"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The parent later chooses a private remembrance instead.",
+   "src": "L21433"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family tends the plant through changing seasons.",
+   "src": "L21435"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The shrub fails to grow, and the family learns their memory need not depend on it.",
+   "src": "L21436"
+  }
+ }
+}

@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife41_hidden_spring",
+  "source": "living",
+  "lines": [
+   21162,
+   21173
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21162",
+  "ledger": [
+   {
+    "src": "L21173",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A miner discovers a spring beneath a seam of valuable stone.",
+  "cast_only": [
+   "miner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "miner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A miner discovers a spring beneath a seam of valuable stone.",
+   "src": "L21163",
+   "choices": [
+    {
+     "label": "Divert the water to continue mining.",
+     "next": "a",
+     "src": "L21164"
+    },
+    {
+     "label": "Protect the spring and stop digging.",
+     "next": "b",
+     "src": "L21167"
+    },
+    {
+     "label": "Study the flow before deciding.",
+     "next": "c",
+     "src": "L21170"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The miners reach the stone, but nearby gardens grow dry.",
+   "src": "L21165",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21165"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A new channel supplies both mine and village after careful work.",
+   "src": "L21166"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gardens thrive, while the miners abandon a rich deposit.",
+   "src": "L21168"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The council debates how to replace lost materials.",
+   "src": "L21169"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A survey reveals a safer route around the spring.",
+   "src": "L21171"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay frustrates jewelers waiting for stone.",
+   "src": "L21172"
+  }
+ }
+}

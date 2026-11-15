@@ -195,7 +195,7 @@ When the source promises a change the games cannot make, keep the text, add no e
 | Source | Weight | `rarity` |
 |---|---|---|
 | (normal) | 20 | none |
-| occasional (the V27 global rule's "minor setback/occasional") | 10 | `occasional` |
+| occasional, a minor setback (the V27 global rule's "minor setback/occasional"; the V28 consequence rules' "occasional"; living volumes) | 10 | `occasional` |
 | rare | 5 | `rare` |
 | very rare, very rarely | 2 | `very_rare` |
 | exceptionally rare, extremely rare | 1 | `exceptionally_rare` |
@@ -347,6 +347,19 @@ text an event can show there with one of those words (title, page, variant, labe
 form with `{"patch": "guardians_of_isola"}` -- a `title_variants` entry, the node's FIRST variant, or a
 `description_variants` entry -- that is the text with the event's pairs of [guardians-wording.md](guardians-wording.md)
 made (check j). Add the pair to that table first; the owner reads it.
+
+## 15b. The third source: the Living Event Engine's fixed event volumes
+
+The owner's all-in-one Living Event Engine file
+(`docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt`, byte for byte, SHA-256 in
+`data/event_collection/LIVING.sha256`) holds fixed event volumes (MED-, LIFE-, CIRCLE-, PEOPLES-, ...) that ship as
+collection events. Files: `data/event_collection/living/<section>/<id>.json`, `collection.source` `"living"`; every
+`src` means a line of that file. `scripts/collection_manifest.py` `LIVING_VOLUMES` lists the volumes (rows, notes,
+credits); the manifest's `living` block checks coverage inside them only (the rest of the file is the Living Event
+bank's). Generators: `scripts/living_vols/gen_<chunk>.py` on `living_common.py`, which documents the event shape
+(the setup is the question; each choice has its own two weighted outcomes), the weights and the effects. Grammar
+fixes for this source are rows `| living L<line> |` in grammar-fixes.md. A label too wide for a game's screen shows
+its first words on the button, and its whole sentence opens each of its outcome pages (`living_common.build`).
 
 ## 15a. The Pick Island Event sentence
 

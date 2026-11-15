@@ -91,6 +91,36 @@ class FrozenCompanion(unittest.TestCase):
             self.assertEqual(lib.strip_structural("  • A jar."), "A jar.")
 
 
+class FrozenLiving(unittest.TestCase):
+    """The third source: the owner's all-in-one Living Event Engine file, frozen byte for byte (2026-11-14)."""
+
+    def test_sha256_matches_the_record(self):
+        self.assertEqual(lib.recorded_sha256(lib.LIVING_ID),
+                         "cbb46fcbbdb594f54b69da9297ca21242b51d15ee7b41080c795e8555addf31c")
+        self.assertEqual(lib.source_sha256(lib.LIVING_ID), lib.recorded_sha256(lib.LIVING_ID))
+        rel = lib.LIVING_HASH_FILE.read_text(encoding="ascii").split(None, 1)[1].strip()
+        self.assertEqual(ROOT / rel, lib.LIVING)
+
+    def test_line_count(self):
+        self.assertNotIn(b"\r", lib.LIVING.read_bytes())
+        self.assertEqual(len(lib.source_lines(lib.LIVING_ID)), lib.LIVING_LINES)
+        with lib.use_source(lib.LIVING_ID):
+            self.assertTrue(lib.line(20219).startswith("MED-01"))
+
+    def test_living_rows(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(data["living"]["uncovered_lines"], [])
+        self.assertEqual(data["living"]["overlaps"], [])
+        rows = [r for r in data["rows"] if r["source"] == lib.LIVING_ID and r["kind"] == "event"]
+        by = {}
+        for r in rows:
+            by[r["section"]] = by.get(r["section"], 0) + 1
+            self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+        self.assertEqual(by, {"lv_med": 31, "lv_life": 45, "lv_circle": 31})
+        files = [p for p in cc.collection_files() if lib.LIVING_DIR in p.parents]
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

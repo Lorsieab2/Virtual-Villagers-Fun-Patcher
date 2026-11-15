@@ -37,6 +37,10 @@ SECTIONS = (
     ("fwk", "Companion Anthology: The Four Ways of Knowing"),
     ("sss", "Companion Anthology: Stone, Spirit, Strangers and Mind and Belonging"),
     ("cat", "Companion Anthology: The Living Catalogue"),
+    # The Living Event Engine's fixed event volumes (the owner's third source, data/event_collection/living/<section>/)
+    ("lv_med", "Living Events: Experimental Medicine, Last Resorts and Comfort Care"),
+    ("lv_life", "Living Events: The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams"),
+    ("lv_circle", "Living Events: The Circle of Life, Rights, and Remembrance"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -88,7 +92,8 @@ def build_index() -> dict:
     """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped)."""
     out = {}
     base = ROOT / "data" / "event_collection"
-    for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))):
+    for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
+                         + list((base / "living").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

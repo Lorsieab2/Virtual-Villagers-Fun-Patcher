@@ -71,7 +71,8 @@ ALL_SKILLS = {1: ("Parenting", "Building", "Farming", "Healing", "Research"),
 SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v27",
-            "c5", "lbl", "fwk", "sss", "cat")    # the Companion Anthology's volumes (data/event_collection/companion/)
+            "c5", "lbl", "fwk", "sss", "cat",    # the Companion Anthology's volumes (data/event_collection/companion/)
+            "lv_med", "lv_life", "lv_circle")    # the Living Event Engine's volumes (data/event_collection/living/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
@@ -1336,8 +1337,9 @@ def check_shared_pools() -> list[str]:
 
 def collection_files() -> list[Path]:
     """Every event file: data/event_collection/<section>/<id>.json and
-    data/event_collection/companion/<section>/<id>.json."""
-    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json")))
+    data/event_collection/companion/<section>/<id>.json and data/event_collection/living/<section>/<id>.json."""
+    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
+                  + list(lib.LIVING_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tapestry of the First Villagers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife28_tapestry",
+  "source": "living",
+  "lines": [
+   20993,
+   21004
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20993",
+  "ledger": [
+   {
+    "src": "L21004",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A historian wants to weave the village's founding story into a wall tapestry.",
+  "cast_only": [
+   "historian"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "historian": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A historian wants to weave the village's founding story into a wall tapestry.",
+   "src": "L20994",
+   "choices": [
+    {
+     "label": "Follow the elders' traditional account.",
+     "next": "a",
+     "src": "L20995"
+    },
+    {
+     "label": "Include newer discoveries and corrections.",
+     "next": "b",
+     "src": "L20998"
+    },
+    {
+     "label": "Weave multiple viewpoints.",
+     "next": "c",
+     "src": "L21001"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The tapestry becomes a treasured gathering place.",
+   "src": "L20996"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A descendant points out someone important who was omitted.",
+   "src": "L20997"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tapestry reflects several generations of research.",
+   "src": "L20999"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some elders feel the familiar story has been altered too quickly.",
+   "src": "L21000"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The work becomes a conversation between families.",
+   "src": "L21002"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Disagreement over the final panel delays its completion.",
+   "src": "L21003"
+  }
+ }
+}

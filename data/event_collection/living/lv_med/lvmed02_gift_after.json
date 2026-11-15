@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift After Death",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed02_gift_after",
+  "source": "living",
+  "lines": [
+   20232,
+   20243
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20232",
+  "ledger": [
+   {
+    "src": "L20243",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dying villager once offered their body to help future patients, and a healer proposes studying its organs after death.",
+  "cast_only": [
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dying villager once offered their body to help future patients, and a healer proposes studying its organs after death.",
+   "src": "L20233",
+   "choices": [
+    {
+     "label": "Honor the documented wish.",
+     "next": "a",
+     "src": "L20234"
+    },
+    {
+     "label": "Ask the family to decide when no wish is known.",
+     "next": "b",
+     "src": "L20237"
+    },
+    {
+     "label": "Preserve the body for burial without examination.",
+     "next": "c",
+     "src": "L20240"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "death",
+     "reason": "the villager has already died: the premise; nobody dies now",
+     "src": "L20233"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family grieves but takes comfort in the villager's chosen gift.",
+   "src": "L20235"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The healer learns something useful yet cannot answer the family's deepest questions.",
+   "src": "L20236",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20236"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family declines, and the healer respects their decision.",
+   "src": "L20238"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The family agrees to a limited examination and later requests a memorial.",
+   "src": "L20239"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The funeral proceeds according to custom, and the healer accepts the limits of knowledge.",
+   "src": "L20241"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An apprentice begins collecting observations from living patients instead.",
+   "src": "L20242"
+  }
+ }
+}

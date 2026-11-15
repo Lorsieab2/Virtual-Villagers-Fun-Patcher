@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Painful Truth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed23_painful_truth",
+  "source": "living",
+  "lines": [
+   20505,
+   20516
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20505",
+  "ledger": [
+   {
+    "src": "L20516",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient asks the healer whether recovery is likely, while the family begs the healer to offer only hope.",
+  "cast_only": [
+   "patient",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient asks the healer whether recovery is likely, while the family begs the healer to offer only hope.",
+   "src": "L20506",
+   "choices": [
+    {
+     "label": "Tell the patient what is known and uncertain.",
+     "next": "a",
+     "src": "L20507"
+    },
+    {
+     "label": "Offer reassurance without discussing the prognosis.",
+     "next": "b",
+     "src": "L20510"
+    },
+    {
+     "label": "Ask how much the patient wants to know.",
+     "next": "c",
+     "src": "L20513"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient thanks the healer and chooses how to spend their remaining time.",
+   "src": "L20508"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient is frightened at first but later appreciates the honesty.",
+   "src": "L20509"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient senses something is being withheld and becomes distrustful.",
+   "src": "L20511"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The family feels relieved, but the patient asks harder questions.",
+   "src": "L20512"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient requests every detail before deciding on treatment.",
+   "src": "L20514"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient prefers a brief explanation and asks the healer to speak with family afterward.",
+   "src": "L20515"
+  }
+ }
+}
