@@ -2955,6 +2955,17 @@ static int vv1_confirm_head_genetics_warning(HWND window) {
 /* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the window's dice. */
 static unsigned int appearance_rng;
 
+/* The "Change sex..." button is shown only when the change is offered for the shown villager: never for the
+   Golden Child (native/shared/sex_change_ui.h vvfp_ax_change_sex_offered). */
+static void appearance_offer_sex(HWND window) {
+    HWND button = GetDlgItem(window, VVFP_AX_CHANGE_SEX);
+    if (button != NULL) {
+        int offered = vvfp_ax_change_sex_offered(1, appearance_state.villager);
+        ShowWindow(button, offered ? SW_SHOW : SW_HIDE);
+        EnableWindow(button, offered);
+    }
+}
+
 /* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
    to original or a random. */
 static void appearance_show(HWND window) {
@@ -3061,6 +3072,7 @@ static INT_PTR CALLBACK appearance_dialog(
            mask row has no owner-draw preview (it's a plain text label,
            not a bitmap strip cell), so its starting text is set directly
            here rather than through WM_DRAWITEM. */
+        appearance_offer_sex(window);
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
         appearance_show(window);

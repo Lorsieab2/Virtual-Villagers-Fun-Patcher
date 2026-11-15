@@ -14,7 +14,7 @@ Vv4MaskCacheSurface, the per-frame export the game's present hook calls.
 THE BUTTON.  Change Appearance's "Change sex..." (native/shared/sex_change_ui.h) is driven in the companion's real
 dialog procedure and chooser export by native/vv4_origins_icons/sex_change_ui_harness.c
 (scripts/build_sex_change_ui_harness.ps1): Yes changes the sex at once, No nothing; a villager carrying or nursing a
-baby is refused and never asked; Undo changes does not change it back; an OK with only the sex changed is no change
+baby is asked with the carrying sentence and keeps the pregnancy fields; the story villagers are refused; Undo changes does not change it back; an OK with only the sex changed is no change
 for the executable.  The window and the warning box on screen: the harness's shot mode (-Shots <folder>).
 """
 from __future__ import annotations
@@ -69,14 +69,18 @@ def have_compiler() -> bool:
     return sys.platform == "win32" and CL.is_file() and shutil.which("powershell") is not None
 
 
+# Every check the harness makes, by game (The Secret City's chief and stand-in; New Believers' roles 12 and 17,
+# a Heathen's and a believer's faith fields).
+BUTTON_CHECKS = {3: 15, 4: 13, 5: 19}
+
+
 def run_button_harness(test: unittest.TestCase, game: int) -> None:
     """The "Change sex..." button in the game's real dialog procedure and chooser export (test mode)."""
     run = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUTTON_HARNESS),
                           "-Games", str(game)], capture_output=True, text=True, timeout=900)
     out = run.stdout + run.stderr
     test.assertEqual(run.returncode, 0, out)
-    test.assertIn(f"game {game}: ", out)
-    test.assertIn(" 0 failures", out)
+    test.assertIn(f"game {game}: {BUTTON_CHECKS[game]} checks, 0 failures", out)
     test.assertNotIn("FAIL", out)
 
 

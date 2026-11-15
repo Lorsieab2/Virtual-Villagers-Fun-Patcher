@@ -250,6 +250,8 @@ static int h_press(const UINT *script, int len, int answer) {
     return h_open();
 }
 
+static INT_PTR CALLBACK h_quiet_proc(HWND w, UINT m, WPARAM wp, LPARAM lp);
+
 static void h_checks_run(void) {
     int c, k;
     {
@@ -305,27 +307,58 @@ static void h_checks_run(void) {
         }
     }
     {
+        /* Carrying or nursing (the same field in every game): offered, the warning says they go on carrying;
+           Yes changes the sex and the pregnancy fields stay exactly as they were. */
         static const UINT script[] = { VVFP_AX_CHANGE_SEX, IDOK };
         h_villager("Lani", H_FEMALE);
         *(int *)(h_record + H_PREGNANT) = 7;
+        *(int *)(h_record + H_PREGNANT + 4u) = 2;
         h_press(script, 2, IDYES);
-        h_check(H_SEX_NOW() == H_FEMALE && !h_window_male(), "carrying: nothing changes");
-        h_check(h_boxes == 1 && (h_box_flags & 0xFu) == MB_OK
-                && strstr(h_box_text, "Lani is carrying or nursing a baby") != NULL, "carrying: the refusal says why");
+        h_check(H_SEX_NOW() == H_MALE && h_window_male(), "carrying: Yes changes the sex");
+        h_check(h_boxes == 1 && (h_box_flags & 0xFu) == MB_YESNO
+                && strstr(h_box_text, "Lani is carrying or nursing a baby. Lani goes on carrying, and stays the "
+                                      "carrying parent") != NULL, "carrying: the warning says they go on carrying");
+        h_check(*(int *)(h_record + H_PREGNANT) == 7 && *(int *)(h_record + H_PREGNANT + 4u) == 2,
+                "carrying: the pregnancy fields are untouched");
         h_villager("Lani", H_FEMALE);
-        *(int *)(h_record + H_PREGNANT + 4u) = 1;
-        h_press(script, 2, IDYES);
-        h_check(H_SEX_NOW() == H_FEMALE && strstr(h_box_text, "carrying or nursing") != NULL,
-                "nursing: nothing changes");
+        *(int *)(h_record + H_PREGNANT) = 7;
+        h_press(script, 2, IDNO);
+        h_check(H_SEX_NOW() == H_FEMALE && *(int *)(h_record + H_PREGNANT) == 7, "carrying, No: nothing changes");
+        h_villager("Lani", H_FEMALE);
+        h_press(script, 2, IDNO);
+        h_check(strstr(h_box_text, "goes on carrying") == NULL, "not carrying: no carrying sentence");
     }
 #if HARNESS_GAME == 1
     {
+        /* The Golden Child: never offered.  The button's own command does nothing and shows no box. */
         static const UINT script[] = { VVFP_AX_CHANGE_SEX, IDOK };
+        HWND w;
         h_villager("Golden Child", H_MALE);
         *(int *)(h_record + 0x36C) = 0xC7;
         h_press(script, 2, IDYES);
-        h_check(H_SEX_NOW() == H_MALE && strstr(h_box_text, "is a story villager") != NULL,
-                "the Golden Child: the refusal, nothing changes");
+        h_check(H_SEX_NOW() == H_MALE && h_boxes == 0, "the Golden Child: the button's command does nothing, no box");
+        h_check(!vvfp_ax_change_sex_offered(1, h_record), "the Golden Child: not offered");
+        /* The window's own code hides the button (appearance_offer_sex, called at WM_INITDIALOG). */
+        for (k = 0; k < 2; ++k) {
+            HWND button;
+            w = CreateDialogParamA(module_instance, MAKEINTRESOURCEA(k ? H_TEMPLATE_LOOK : H_TEMPLATE), NULL,
+                                   h_quiet_proc, 0);
+            h_check(w != NULL, "the Golden Child: the template is there");
+            if (w == NULL) {
+                continue;
+            }
+            button = GetDlgItem(w, VVFP_AX_CHANGE_SEX);
+            appearance_state.villager = h_record;
+            appearance_offer_sex(w);
+            h_check(button != NULL && !(GetWindowLongA(button, GWL_STYLE) & WS_VISIBLE) && !IsWindowEnabled(button),
+                    "the Golden Child: the Change sex button is hidden");
+            *(int *)(h_record + 0x36C) = 10;
+            appearance_offer_sex(w);
+            h_check(button != NULL && (GetWindowLongA(button, GWL_STYLE) & WS_VISIBLE) && IsWindowEnabled(button),
+                    "anyone else: the Change sex button is shown");
+            *(int *)(h_record + 0x36C) = 0xC7;
+            DestroyWindow(w);
+        }
     }
 #endif
 }
@@ -525,12 +558,23 @@ static DWORD WINAPI h_shooter(LPVOID unused) {
     return 0;
 }
 
-static void h_shot(const char *window_name, const char *box_name, int look) {
+/* `who`: 0 Lani, 1 Lani carrying, 2 the Golden Child (A New Home). */
+static void h_shot(const char *window_name, const char *box_name, int look, int who) {
     HANDLE thread;
     h_look_there = look;
     h_shot_window = window_name;
     h_shot_box = box_name;
-    h_villager("Lani", H_FEMALE);
+    if (who == 2) {
+        h_villager("Golden Child", H_MALE);
+        *(int *)(h_record + 0x36C) = 0xC7;
+        *(int *)(h_record + H_HEAD) = 19;    /* the golden head and body (row 19) */
+        *(int *)(h_record + H_BODY) = 19;
+    } else {
+        h_villager("Lani", H_FEMALE);
+        if (who == 1) {
+            *(int *)(h_record + H_PREGNANT) = 7;
+        }
+    }
     thread = CreateThread(NULL, 0, h_shooter, NULL, 0, NULL);
     h_open();
     WaitForSingleObject(thread, 20000);
@@ -562,8 +606,14 @@ int main(int argc, char **argv) {
         wsprintfA(window_name, "%s Change Appearance - Change sex.bmp", H_GAME_NAME);
         wsprintfA(box_name, "%s Change sex warning.bmp", H_GAME_NAME);
         wsprintfA(look_name, "%s Change Appearance (Head look) - Change sex.bmp", H_GAME_NAME);
-        h_shot(window_name, box_name, 0);
-        h_shot(look_name, NULL, 1);
+        h_shot(window_name, box_name, 0, 0);
+        h_shot(look_name, NULL, 1, 0);
+        wsprintfA(window_name, "%s Change Appearance - carrying.bmp", H_GAME_NAME);
+        wsprintfA(box_name, "%s Change sex warning (carrying).bmp", H_GAME_NAME);
+        h_shot(window_name, box_name, 0, 1);
+#if HARNESS_GAME == 1
+        h_shot("VV1 Change Appearance - Golden Child (no Change sex).bmp", NULL, 0, 2);
+#endif
         return 0;
     }
     h_checks_run();

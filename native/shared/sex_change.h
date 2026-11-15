@@ -37,9 +37,9 @@
    NEVER A GUESS: a name two living villagers share is skipped, and a pair whose `from` a villager outside the
    change still carries is dropped (villager_rekey.h vv_rekey_drop_carried).
 
-   REFUSED (nothing written; vv_sex_change_refusal): carrying or nursing (the game's own countdown, or the babies
-   after it), A New Home's parentage sidecar holding an expected father for them, and the special villagers (the
-   Golden Child, The Secret City's Tribal Chief and stand-in, New Believers' story villagers, roles 12-17).
+   REFUSED (nothing written; vv_sex_change_refusal): the special villagers -- the Golden Child (never even offered),
+   The Secret City's Tribal Chief and stand-in, New Believers' story villagers (roles 12-17).  A villager carrying or
+   nursing may change: they go on carrying, and stay the carrying parent on the babies' records.
 
    Needs save_folder.c linked in (per_save_data.h).  Header-only and file-static. */
 #ifndef VV_SEX_CHANGE_H
@@ -58,7 +58,7 @@ typedef struct {
     unsigned int name, name_bytes;
     unsigned int sex;
     int male, female;
-    unsigned int pregnant;          /* the game's countdown; the babies are the dword after it */
+    unsigned int pregnant;          /* the age at conception (0: not carrying); the babies are the dword after it */
     unsigned int head, body;
 } vv_sex_layout;
 
@@ -72,7 +72,6 @@ static const vv_sex_layout VV_SEX_LAYOUT[6] = {
 };
 
 #define VV_SEX_OK        0
-#define VV_SEX_EXPECTING 1          /* carrying or nursing */
 #define VV_SEX_SPECIAL   2          /* a story villager */
 #define VV_SEX_UNUSABLE  3          /* no game, no record, no slot */
 
@@ -91,29 +90,23 @@ static int vv_sex_female(int game, const unsigned char *record) {
     return *(const int *)(record + VV_SEX_LAYOUT[game].sex) == VV_SEX_LAYOUT[game].female;
 }
 
-/* Why villager `record` (record index `index`) cannot have their sex changed (VV_SEX_*), or VV_SEX_OK. */
+/* A New Home's Golden Child (family 0xC7): the change is never even offered for him (the owner, 2026-11-15:
+   "breaks things") -- Change Appearance hides the button, the engine never casts him for sex_change. */
+static int vv_sex_golden_child(int game, const unsigned char *record) {
+    return game == 1 && record != NULL && *(const int *)(record + 0x36Cu) == 0xC7;
+}
+
+/* Why villager `record` (record index `index`) cannot have their sex changed (VV_SEX_*), or VV_SEX_OK.  Carrying
+   and nursing are NOT refused (the owner, 2026-11-15): no game's delivery depends on the carrier's sex
+   (tests/test_sex_change_carrier_all.py runs each game's own delivery with the sex changed part way: the same
+   babies, on time, the carrier in the mother's place on their records), so the villager goes on carrying. */
 static int vv_sex_change_refusal(int game, const unsigned char *record, int index) {
-    const vv_sex_layout *l;
     if (!vv_sex_game_ok(game) || record == NULL) {
         return VV_SEX_UNUSABLE;
     }
-    l = &VV_SEX_LAYOUT[game];
-    if (*(const int *)(record + l->pregnant) != 0 || *(const int *)(record + l->pregnant + 4u) != 0) {
-        return VV_SEX_EXPECTING;
-    }
-    if (game == 1) {
-        typedef int (__stdcall *expected_fn)(int, int *, char *, int);
-        HMODULE module = GetModuleHandleA("VVFP VV1 Parentage.dll");
-        expected_fn expected = module != NULL
-            ? (expected_fn)(void *)GetProcAddress(module, "Vv1ParentageQueryExpectedFather") : NULL;
-        char name[64];
-        int looks[4];
-        if (expected != NULL && index >= 0 && expected(index, looks, name, (int)sizeof name)) {
-            return VV_SEX_EXPECTING;
-        }
-        if (*(const int *)(record + 0x36Cu) == 0xC7) {
-            return VV_SEX_SPECIAL;           /* the Golden Child (family 0xC7) */
-        }
+    (void)index;
+    if (vv_sex_golden_child(game, record)) {
+        return VV_SEX_SPECIAL;
     }
     if (game == 3 && (record[0xE80] != 0 || record[0xE94] != 0)) {
         return VV_SEX_SPECIAL;               /* the Tribal Chief, the stand-in */

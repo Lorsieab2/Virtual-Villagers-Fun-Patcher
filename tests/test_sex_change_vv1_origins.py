@@ -125,15 +125,20 @@ CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC"
           r"\14.51.36231\bin\Hostx64\x86\cl.exe")
 
 
+# Every check the harness makes, by game: A New Home adds the Golden Child's (the button hidden, its command doing
+# nothing, no box); both have the carrying villager's (asked with the carrying sentence, the pregnancy kept).
+DIALOG_CHECKS = {1: 60, 2: 53}
+
+
 def run_dialog_harness(test: unittest.TestCase, game: int) -> str:
     """native/vv1_origins_icons/sex_change_dialog_harness.c for `game`: the real dialog procedure pressed (Change
-    sex answered Yes and No, Undo changes, Cancel, pressed twice, the hair colours after it, the refusals) and
+    sex answered Yes and No, Undo changes, Cancel, pressed twice, the hair colours after it, a carrying villager, the Golden Child) and
     the real templates measured (the button inside the window, over no other control, its text inside it)."""
     run = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD),
                           "-Games", str(game)], capture_output=True, text=True, timeout=900)
     out = run.stdout + run.stderr
     test.assertEqual(run.returncode, 0, out)
-    test.assertRegex(out, rf"game {game}: \d+ checks, 0 failures")
+    test.assertIn(f"game {game}: {DIALOG_CHECKS[game]} checks, 0 failures", out)
     return out
 
 
@@ -166,6 +171,18 @@ class ChangeSexButtonSource(unittest.TestCase):
 class VV1ChangeSexDialog(unittest.TestCase):
     def test_the_real_dialog(self):
         run_dialog_harness(self, 1)
+
+
+class GoldenChildNeverOffered(unittest.TestCase):
+    """The Golden Child (family 0xC7) never sees the button: the window hides it when it opens."""
+
+    def test_the_window_hides_the_button_for_him(self):
+        source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
+        hide = source.split("static void appearance_offer_sex(HWND window) {", 1)[1].split("\n}", 1)[0]
+        self.assertIn("vvfp_ax_change_sex_offered(1, appearance_state.villager)", hide)
+        self.assertIn("SW_HIDE", hide)
+        init = source.split("static INT_PTR CALLBACK appearance_dialog(", 1)[1].split("} else if (message == WM_DRAWITEM)", 1)[0]
+        self.assertIn("appearance_offer_sex(window);", init)
 
 
 if __name__ == "__main__":

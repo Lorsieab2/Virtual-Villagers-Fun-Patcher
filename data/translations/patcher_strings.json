@@ -70028,6 +70028,100 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.VVFP_AX_CHANGE_SEX_LABEL.s0",
+   "english": "Change sex...",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.VVFP_AX_CHANGE_SEX_TITLE.s0",
+   "english": "Change sex",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.vvfp_sex_change_warning.s0",
+   "english": "%s is carrying or nursing a baby. %s goes on carrying, and stays the carrying parent on the baby's record.\n\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.vvfp_sex_change_warning.s1",
+   "english": "Change %s's sex to %s?\n\nThis changes the sex the game keeps for %s. The game then draws %s with the %s heads and bodies (the same head and body rows).\n\n%sIt is done at once, not by OK or Cancel, and Undo changes does not undo it. Press Change sex again to change it back.\n\nThese stay as they are: the name, the head and body rows, the skills, and every parent record. Children keep %s as the parent recorded at their birth.\n\nThe patcher's own records follow %s: masks, looks, titles, names and logs.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name); %4 = text (person when it is a villager's name); %5 = text (person when it is a villager's name); %6 = text (person when it is a villager's name); %7 = text (person when it is a villager's name); %8 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.vvfp_sex_change_refused_text.s0",
+   "english": "%s is a story villager, so %s's sex cannot be changed.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.shared/sex_change_ui.vvfp_sex_change_refused_text.s1",
+   "english": "%s's sex could not be changed.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.origins/vv5_task9_origins.appearance_dialog.s1",
+   "english": "This villager's sex could not be changed.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Origins Icons.dll (VV5)",
+   "notes": "a patcher window"
   }
  ]
 }

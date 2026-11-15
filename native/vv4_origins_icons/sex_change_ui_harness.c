@@ -12,8 +12,9 @@
    TEST MODE (no argument): the Win32 calls a dialog needs a screen for are stood in -- the dialog runs the scripted
    presses, EndDialog records the result, every message box is answered by the script (Yes or No for the warning)
    and remembered.  Checked: Yes changes the record's sex and what the window draws by it; No changes nothing; a
-   villager carrying or nursing a baby, The Secret City's Tribal Chief and stand-in and New Believers' story
-   villagers (roles 12..17) are refused with a message and never asked; Undo changes does not change it back; an
+   villager carrying or nursing a baby is asked with the carrying sentence and keeps the pregnancy fields; The
+   Secret City's Tribal Chief and stand-in and New Believers' story villagers (roles 12..17) are refused with a
+   message and never asked; Undo changes does not change it back; an
    OK with only the sex changed returns no change to the executable and shows no "unchanged" box; a press again
    changes it back.
 
@@ -316,13 +317,58 @@ static void h_tests(void) {
         h_check(result == 0 && h_sex() == l->male && h_boxes == 1,
                 "OK with only the sex changed: no change for the executable, no \"unchanged\" box");
     }
-    h_refused("carrying a baby: refused, never asked", h_make_pregnant, "carrying or nursing a baby");
-    h_refused("nursing: refused, never asked", h_make_nursing, "carrying or nursing a baby");
+    {
+        /* Carrying or nursing (the same field in every game): offered; the warning says they go on carrying and
+           stay the carrying parent; Yes changes the sex and leaves the pregnancy fields as they were. */
+        static const UINT press[] = { VVFP_AX_CHANGE_SEX, IDCANCEL };
+        h_villager(l->female);
+        h_make_pregnant();
+        h_make_nursing();
+        h_answer = IDYES;
+        h_window(press, 2);
+        h_check(h_sex() == l->male && h_asked == 1 && h_boxes == 1, "carrying: asked, Yes changes the sex");
+        h_check(strstr(h_box_text, "Lani is carrying or nursing a baby. Lani goes on carrying, and stays the "
+                                   "carrying parent") != NULL, "carrying: the warning says they go on carrying");
+        h_check(*(int *)(h_record + l->pregnant) == 40 && *(int *)(h_record + l->pregnant + 4) == 1,
+                "carrying: the pregnancy fields are untouched");
+        h_villager(l->female);
+        h_make_pregnant();
+        h_answer = IDNO;
+        h_window(press, 2);
+        h_check(h_sex() == l->female && *(int *)(h_record + l->pregnant) == 40, "carrying, No: nothing changes");
+        h_villager(l->female);
+        h_window(press, 2);
+        h_check(strstr(h_box_text, "goes on carrying") == NULL, "not carrying: no carrying sentence");
+        h_answer = IDYES;
+    }
 #if HARNESS_GAME == 3
     h_refused("the Tribal Chief: refused, never asked", h_make_chief, "is a story villager");
     h_refused("the Tribal Chief's stand-in: refused, never asked", h_make_standin, "is a story villager");
 #endif
 #if HARNESS_GAME == 5
+    {
+        /* A Heathen (an Isolan with Guardians of Isola: the same record) and a believer: offered, Yes changes the
+           sex, and the faith fields -- the faction byte, the mask selectors, the faith, the role -- stay as they
+           were (0x1CE0..0x1CFF compared byte for byte). */
+        static const UINT press[] = { VVFP_AX_CHANGE_SEX, IDCANCEL };
+        unsigned char faith[0x20];
+        int heathen;
+        for (heathen = 0; heathen < 2; ++heathen) {
+            h_villager(l->female);
+            h_record[0x1CEC] = (unsigned char)heathen;          /* the faction: a Heathen */
+            h_record[0x1CED] = (unsigned char)heathen;          /* the orange mask selector */
+            *(int *)(h_record + 0x1CF0) = heathen ? -25 : 60;   /* the faith */
+            *(int *)(h_record + 0x1CFC) = heathen ? 3 : 0;      /* an ordinary role, not 12..17 */
+            memcpy(faith, h_record + 0x1CE0, sizeof faith);
+            h_answer = IDYES;
+            h_window(press, 2);
+            h_check(h_sex() == l->male && h_asked == 1,
+                    heathen ? "a Heathen (Isolan): Yes changes the sex" : "a believer: Yes changes the sex");
+            h_check(memcmp(faith, h_record + 0x1CE0, sizeof faith) == 0,
+                    heathen ? "a Heathen (Isolan): the faith fields are untouched"
+                            : "a believer: the faith fields are untouched");
+        }
+    }
     h_refused("a story villager (role 12): refused, never asked", h_make_story, "is a story villager");
     h_refused("a story villager (role 17): refused, never asked", h_make_story_last, "is a story villager");
 #endif
@@ -422,9 +468,12 @@ static int h_capture(HWND window, const char *name) {
     return ok;
 }
 
+static int h_shot_carrying;        /* the second shot: Lani carrying */
+
 static DWORD WINAPI h_shooter(LPVOID unused) {
     char name[96];
     HWND window, box;
+    const char *suffix = h_shot_carrying ? " (carrying)" : "";
     (void)unused;
     window = h_wait("Change Appearance", NULL);
     if (window == NULL) {
@@ -433,7 +482,7 @@ static DWORD WINAPI h_shooter(LPVOID unused) {
         return 0;
     }
     Sleep(800);
-    wsprintfA(name, "VV%d Change Appearance - Change sex.bmp", HARNESS_GAME);
+    wsprintfA(name, "VV%d Change Appearance - Change sex%s.bmp", HARNESS_GAME, suffix);
     h_check(h_capture(window, name), "the window captured");
     PostMessageA(window, WM_COMMAND, MAKEWPARAM(VVFP_AX_CHANGE_SEX, BN_CLICKED),
                  (LPARAM)GetDlgItem(window, VVFP_AX_CHANGE_SEX));
@@ -443,7 +492,7 @@ static DWORD WINAPI h_shooter(LPVOID unused) {
         printf("FAIL: the warning was not shown\n");
     } else {
         Sleep(800);
-        wsprintfA(name, "VV%d Change sex warning.bmp", HARNESS_GAME);
+        wsprintfA(name, "VV%d Change sex warning%s.bmp", HARNESS_GAME, suffix);
         h_check(h_capture(box, name), "the warning captured");
         PostMessageA(box, WM_COMMAND, IDNO, 0);
         Sleep(300);
@@ -452,9 +501,13 @@ static DWORD WINAPI h_shooter(LPVOID unused) {
     return 0;
 }
 
-static void h_shot(void) {
+static void h_shot(int carrying) {
     HANDLE thread;
+    h_shot_carrying = carrying;
     h_villager(VV_SEX_LAYOUT[HARNESS_GAME].female);
+    if (carrying) {
+        h_make_pregnant();
+    }
     h_open();
     thread = CreateThread(NULL, 0, h_shooter, NULL, 0, NULL);
     DialogBoxParamA(GetModuleHandleA(NULL), MAKEINTRESOURCEA(208), NULL, H_PROC, 0);
@@ -480,7 +533,8 @@ int main(int argc, char **argv) {
     if (argc >= 3 && lstrcmpA(argv[1], "shots") == 0) {
         h_shots = 1;
         lstrcpynA(h_folder, argv[2], sizeof h_folder);
-        h_shot();
+        h_shot(0);
+        h_shot(1);
     } else {
         h_tests();
     }
