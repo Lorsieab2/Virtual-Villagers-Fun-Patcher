@@ -148,7 +148,10 @@ RISKY = {
 }
 LOOK_WORDS = "(keep)"                  # an appearance effect's head or body left as it is
 RELATION_WORDS = {"": "(none)", "spouse_of": "the spouse of", "parent_of": "a parent of", "child_of": "a child of",
-                  "sibling_of": "a brother or sister of"}
+                  "sibling_of": "a brother or sister of", "grandparent_of": "a grandparent of",
+                  "grandchild_of": "a grandchild of", "aunt_or_uncle_of": "an aunt or uncle of",
+                  "cousin_of": "a cousin of"}
+RANDOM_PREF_WORDS = "(any, at random)"   # cie-v6-binary.md 23: a random like or dislike
 CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown causes"}
 OWN_WORDS = "In my own words:"
 PER_GAME_WORDS = "Different amounts per game (a game left unticked uses the amount above)"
@@ -230,6 +233,8 @@ def describe_cond(c, g: dict | None = None) -> str:
         return f"{role_words(arg['role'])} has {arg['skill']} {arg['min']} or more"
     if op == "has_living_child":
         return f"{role_words(arg)} has a living child"
+    if op == "has_dead_relative":
+        return f"{role_words(arg)} has lost a parent or a partner"
     if op == "drew":
         return f"the list {arg['pool']} picked \"{arg['item']}\""
     if op == "not":
@@ -272,6 +277,13 @@ def cond_options(g: dict, keep=None, static: bool = False) -> list[tuple[str, ob
     for p in g.get("patches", []):
         out.append((capital(describe_cond({"patch": p})), {"patch": p}))
         out.append((capital(describe_cond({"not": {"patch": p}})), {"not": {"patch": p}}))
+    if g.get("version", 1) >= cg.VERSION_V6 and not static:
+        # Run-time facts of a villager (cie-v6-binary.md 8, 21a): never a button's condition.
+        for r, role in g.get("roles", {}).items():
+            if role.get("kind", "villager") == "villager":
+                for op in ("has_living_child", "has_dead_relative"):
+                    out.append((capital(describe_cond({op: r})), {op: r}))
+                    out.append(("Not: " + describe_cond({op: r}), {"not": {op: r}}))
     for nid in g.get("nodes", {}) if not static else ():
         out.append((capital(describe_cond({"visited": nid}, g)), {"visited": nid}))
         out.append((capital(describe_cond({"not": {"visited": nid}}, g)), {"not": {"visited": nid}}))
@@ -320,6 +332,8 @@ def describe_effect(e: dict) -> str:
         return f"{who}'s health becomes {lo}" if lo == hi else f"{who}'s health becomes {lo} to {hi}, at random"
     if do == "preference":
         verb = "now dislikes" if e.get("list") == "dislikes" else "now likes"
+        if e.get("preference") == cg.PREF_RANDOM:
+            return f"{who} {verb} something new, at random (never one already held)"
         return f"{who} {verb} {e.get('preference')}"
     if do == "skill":
         skills = ", ".join(e.get("skills") or [])
@@ -1025,6 +1039,12 @@ class Library:
         self.node_title_entry.pack(side="left", padx=(4, 4))
         ttk.Label(titled, text="(empty: the title shown so far stays)").pack(side="left")
         self.node_title_var.trace_add("write", lambda *_: self._node_title_changed())
+        # cie-v6-binary.md 24: the part's changes told in short lines after its text.
+        self.auto_text_var = tk.BooleanVar(master=self.window, value=False)
+        self.auto_text_box = ttk.Checkbutton(
+            page, text="Say what the changes did, in short lines after the text (\"Ana now likes herbs.\")",
+            variable=self.auto_text_var, command=self._auto_text_changed)
+        self.auto_text_box.pack(anchor="w", pady=(6, 0))
 
         which = ttk.Frame(page)
         which.pack(fill="x", pady=(8, 0))
@@ -1689,6 +1709,9 @@ class Library:
             self.node_title_var.set(n.get("title", ""))
             titled = n["type"] != "branch" and self.g.get("version", 1) >= cg.VERSION_V6
             self.node_title_entry.configure(state="normal" if titled else "disabled")
+            self.auto_text_var.set(bool(n.get("auto_text")))
+            self.auto_text_box.configure(state="normal" if n["type"] == "popup"
+                                         and self.g.get("version", 1) >= cg.VERSION_V6 else "disabled")
             variants =["The usual text"] + [f"Variant {i + 1}: {capital(describe_cond(v['if'], self.g))}"
                                              for i, v in enumerate(n["variants"])]
             self.variant_box.configure(values=variants)
@@ -1889,6 +1912,17 @@ class Library:
         n[key] = value
         self.changed()
 
+    def _auto_text_changed(self) -> None:
+        """The part's automatic lines (cie-v6-binary.md 24): kept only when on."""
+        n = self.node()
+        if self._loading or n is None:
+            return
+        if self.auto_text_var.get() and n["type"] == "popup":
+            n["auto_text"] = True
+        else:
+            n.pop("auto_text", None)
+        self.changed()
+
     def _node_title_changed(self) -> None:
         """The part's popup title (cie-v6-binary.md 14): empty takes it away."""
         n = self.node()
@@ -1915,6 +1949,8 @@ class Library:
                 return
             n["text"], n["variants"] = "", []
             n.pop("title", None)       # a silent split has no popup, so no popup title
+        if kind != "popup":
+            n.pop("auto_text", None)   # automatic lines only on a popup (cie-v6-binary.md 24)
         if kind == "question":
             if self.nid != self.g["start"]:
                 self.g["version"] = max(self.g.get("version", 1), 2)   # questions anywhere: version 2
@@ -2527,13 +2563,16 @@ class Library:
                 which.set(e.get("list") or "likes")
                 row += 1
                 ttk.Label(form, text="The like or dislike:").grid(row=row, column=0, sticky="w", pady=2)
-                word = ttk.Combobox(form, state="readonly", width=24, values=common(self.g["games"], "preferences"))
+                v6 = self.g.get("version", 1) >= cg.VERSION_V6
+                word = ttk.Combobox(form, state="readonly", width=24,
+                                    values=([RANDOM_PREF_WORDS] if v6 else []) + common(self.g["games"], "preferences"))
                 word.grid(row=row, column=1, sticky="w")
-                word.set(e.get("preference") or "")
+                word.set(RANDOM_PREF_WORDS if e.get("preference") == cg.PREF_RANDOM else e.get("preference") or "")
                 row += 1
 
                 def write_pref(_e=None):
-                    e["list"], e["preference"] = which.get(), word.get()
+                    e["list"] = which.get()
+                    e["preference"] = cg.PREF_RANDOM if word.get() == RANDOM_PREF_WORDS else word.get()
                     self._effect_changed()
                 which.bind("<<ComboboxSelected>>", write_pref)
                 word.bind("<<ComboboxSelected>>", write_pref)

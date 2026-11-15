@@ -128,6 +128,7 @@ effect of that kind, or a `text_only` entry for that line.
 | disappears, vanishes, flees | `{"do": "vanish", "role": r}` |
 | celebrates, celebrating | `{"do": "celebrate", "who": "all"}`, or a role when only named villagers celebrate |
 | dislikes | `{"do": "preference", "role": r, "list": "dislikes", "preference": "<the game's own word>"}` |
+| random (valid) like / dislike, a new preference | `{"do": "preference", "role": r, "like": "random"}` / `"dislike": "random"` (cie-v6-binary.md 23: one the villager does not hold, never both a like and a dislike) |
 | injured, lose health, health | `{"do": "health_change", "role": r, "min": ..., "max": ...}` |
 | collapses (a structure) | `{"do": "damage", "structures": "any", "min": 50, "max": 100}` |
 | looks different, new hair, appearance | `{"do": "appearance", "role": r, "head": "random"}` (and/or `"body"`) |
@@ -146,6 +147,10 @@ effect of that kind, or a `text_only` entry for that line.
 - A kill's cause: `"unknown"` (the stock island events' words) unless the source gives grave words.
 - Effects on a node are made when its page is shown. Changes before a question need a page of their own: put the
   question's lead text on a popup before it.
+- **Outcomes written only as instructions** ("change hair color", "random like", "skill loss"): cut the instruction,
+  make the effect, and put `"auto_text": true` on that popup node (cie-v6-binary.md 24). The popup then says what
+  happened in short plain lines after the text, e.g. "Ana's hair changes color.", "Ana now likes herbs.", "Ana feels
+  less sure of her Farming." Never write those sentences yourself: the engine makes them from the effects.
 
 ## 7. Text-only reasons
 
@@ -210,10 +215,14 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
   it. Use judgement; ask the owner on doubtful cases. Every `allow` on a harmed role is listed by
   `python scripts/collection_check.py --allow-report` for the owner's review. VV5 roles are believers only (the
   default), and New Believers' story villagers stay out of harm whatever `protected` says.
-- **Kinship** (cie-v6-binary.md 21): `"relation": {"spouse_of" | "parent_of" | "child_of" | "sibling_of": role}`
-  when the text needs the two villagers to be family ("(Parent) watches (his/her) son (Child)"). The other role must
-  be a villager the event needs. A New Home knows parents only with the parentage log patch; no game keeps a
-  spouse (the engine takes co-parents), so a kinship event may be drawn rarely.
+- **Kinship** (cie-v6-binary.md 21): `"relation": {"spouse_of" | "parent_of" | "child_of" | "sibling_of" |
+  "grandparent_of" | "grandchild_of" | "aunt_or_uncle_of" | "cousin_of": role}` when the text needs the two
+  villagers to be family ("(Parent) watches (his/her) son (Child)"). The other role must be a villager the event
+  needs. A New Home knows parents only with the parentage log patch; no game keeps a spouse (the engine takes
+  co-parents); the wider four need the villager between them alive; so a kinship event may be drawn rarely.
+- **A bereaved villager** (cie-v6-binary.md 21a): a text that says a villager lost someone ("still misses (his/her)
+  mother") goes in a variant (or a way on) with `{"if": {"has_dead_relative": r}}`, and the plain text stays the
+  usual one. It holds for a lost parent or co-parent only (a dead child or sibling is on no record).
 - **Pronouns are role-prefixed** whenever the event has two or more roles: `(gardener2.he/she)`,
   `(child.His/Her)`, `(child.himself/herself)`. Capitalise inside the token: `(patient.He/She)`. The source's
   lower-case `(he/she)` at a sentence start is fixed this way, with no grammar fix needed.
