@@ -705,13 +705,17 @@
    "set": "(5)",
    "children": [
     {
-     "next": "recovery"
+     "next": "recovery",
+     "weight": 20
     },
     {
-     "next": "disability"
+     "next": "disability",
+     "weight": 20
     },
     {
-     "next": "death"
+     "next": "death",
+     "weight": 2,
+     "rarity": "very_rare"
     }
    ]
   },

@@ -16,7 +16,8 @@ serious -60..-40 (it never kills).
 
 Range: `original/` (The Cooking Contest, The Child of Legend, The Meaning of "Faith"), `universal/`, `v6/`,
 `vv5_isolan/`, `v8/`, `v9/`, `v10/`, `v11/` -- 51 events. Changed: 6 events. Added: 8 skill effects (all small gains),
-1 `health_change` (serious injury). Removed: 27 subroute headings (all in The Cooking Contest). No death,
+1 `health_change` (serious injury). Reweighted: 1 death outcome to very rare (The Doctors' Dilemma; it is the only
+outcome in this range that kills or vanishes a villager). Removed: 27 subroute headings (all in The Cooking Contest). No death,
 disappearance, lost baby, appearance change or kinship role was added in this range: none of these stories sets up a
 credible risk the text does not already resolve ("Nobody is hurt", "before anyone is seriously hurt"), and the one
 event with a real medical risk (The Doctors' Dilemma) already has its death outcome. No role in Part A uses
@@ -88,6 +89,12 @@ the building work already gives its Building and tech.
 | Node | Effect | Weight | Why |
 |---|---|---|---|
 | disability | health_change -60..-40 on patient (serious injury or illness; never kills) | unchanged (1 of the 3 existing outcomes: recovery, lasting effects, death) | "(Patient name) survives, but the illness or injury has lasting effects." (L1609-1610). The lasting disability itself stays text only (rule 9); the health loss is the illness's mark on the survivor |
+
+Reweight (V28's global rule: a death with no odds in the source is very rare; a disappearance with no odds is rare):
+
+| Node | Before | After | Why |
+|---|---|---|---|
+| outcome | recovery 1 : disability 1 : death 1 (death 1 in 3) | recovery 20 : disability 20 : death 2, `rarity: very_rare` (death 1 in 21) | The source gives the three outcomes (L1599-1630) no odds ("select independently of the moral framing"), so the death takes the very-rare weight. The source's rule "Do not make survival a guaranteed reward for one choice" still holds: every choice can reach every outcome |
 
 The death outcome (kill, "Unknown causes", body recovered, so a grave) was already there. The patient role stays
 `protected: "auto"`: nursing parents, the Golden Child and the VV3 Chief are never cast as the patient.
