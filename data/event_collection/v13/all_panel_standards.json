@@ -95,42 +95,6 @@
     "why": "the contest type the critic belongs to"
    },
    {
-    "src": "L7040",
-    "kind": "structural",
-    "text": "MASTER STONEWRIGHT (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
-    "src": "L7046",
-    "kind": "structural",
-    "text": "MASTER CARVER (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
-    "src": "L7052",
-    "kind": "structural",
-    "text": "THE STERN SCHOLAR (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
-    "src": "L7058",
-    "kind": "structural",
-    "text": "THE KEEPER OF VERSES (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
-    "src": "L7064",
-    "kind": "structural",
-    "text": "THE HARVEST MASTER (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
-    "src": "L7069",
-    "kind": "structural",
-    "text": "THE ELDER OF RITES (NAME3):",
-    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
-   },
-   {
     "src": "L7083",
     "kind": "structural",
     "text": "THE EXPERT IS VINDICATED:",
@@ -218,7 +182,7 @@
   "critic1": {
    "name": "Master Stonewright",
    "src": "L7040-7044",
-   "text": "An elderly craftsperson known for inspecting walls by tapping them with a knuckle. \"I've seen better foundations under a sleeping pig!\"",
+   "text": "MASTER STONEWRIGHT (CRITIC):\nAn elderly craftsperson known for inspecting walls by tapping them with a knuckle. \"I've seen better foundations under a sleeping pig!\"",
    "children": [
     {
      "next": "ask1"
@@ -256,7 +220,7 @@
   "critic2": {
    "name": "Master Carver",
    "src": "L7046-7050",
-   "text": "A renowned sculptor who insists that art should have intention, balance, and something worth looking at. \"Is it a person? A potato? Or a potato suffering from terrible news?\"",
+   "text": "MASTER CARVER (CRITIC):\nA renowned sculptor who insists that art should have intention, balance, and something worth looking at. \"Is it a person? A potato? Or a potato suffering from terrible news?\"",
    "children": [
     {
      "next": "ask2"
@@ -294,7 +258,7 @@
   "critic3": {
    "name": "The Stern Scholar",
    "src": "L7052-7056",
-   "text": "A senior researcher who asks the same question of every invention: \"What does it do, and how do you know?\"",
+   "text": "THE STERN SCHOLAR (CRITIC):\nA senior researcher who asks the same question of every invention: \"What does it do, and how do you know?\"",
    "children": [
     {
      "next": "ask3"
@@ -332,7 +296,7 @@
   "critic4": {
    "name": "The Keeper Of Verses",
    "src": "L7058-7062",
-   "text": "A famous poet and historian with an astonishing memory. (critic.He/She) notices every misplaced word, faulty rhyme, and unintentional insult.",
+   "text": "THE KEEPER OF VERSES (CRITIC):\nA famous poet and historian with an astonishing memory. (critic.He/She) notices every misplaced word, faulty rhyme, and unintentional insult.",
    "children": [
     {
      "next": "ask4"
@@ -370,7 +334,7 @@
   "critic5": {
    "name": "The Harvest Master",
    "src": "L7064-7067",
-   "text": "An experienced grower who distrusts impressive speeches about crops. \"Show me the roots. The roots never flatter anybody.\"",
+   "text": "THE HARVEST MASTER (CRITIC):\nAn experienced grower who distrusts impressive speeches about crops. \"Show me the roots. The roots never flatter anybody.\"",
    "children": [
     {
      "next": "ask5"
@@ -408,7 +372,7 @@
   "critic6": {
    "name": "The Elder Of Rites",
    "src": "L7069-7073",
-   "text": "A respected keeper of ceremonies who values sincerity and accuracy. \"A loud voice is not the same thing as a wise heart.\"",
+   "text": "THE ELDER OF RITES (CRITIC):\nA respected keeper of ceremonies who values sincerity and accuracy. \"A loud voice is not the same thing as a wise heart.\"",
    "children": [
     {
      "next": "ask6"

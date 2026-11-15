@@ -319,8 +319,9 @@ Retrofit agent B: the V13, V14, game-exclusive, V17, V18, V20-V24 and V27 events
 
 #### The Crafty Inspector (`all_panel_standards`)
 
-- Headings removed (14): "MASTER STONEWRIGHT (CRITIC)"; "MASTER CARVER (CRITIC)"; "THE STERN SCHOLAR (CRITIC)"; "THE KEEPER OF VERSES (CRITIC)"; "THE HARVEST MASTER (CRITIC)"; "THE ELDER OF RITES (CRITIC)"; "THE EXPERT IS VINDICATED"; "THE EXPERT IS HUMBLED"; "THE CROWD DISAGREES"; "THE BITTER RIVAL"; "THE UNEXPECTED MENTOR"; "THE SHAMEFUL INSULT"; "THE STUNNING MASTERPIECE"; "THE POINTLESS PERFECTION".
+- Headings removed (8): "THE EXPERT IS VINDICATED"; "THE EXPERT IS HUMBLED"; "THE CROWD DISAGREES"; "THE BITTER RIVAL"; "THE UNEXPECTED MENTOR"; "THE SHAMEFUL INSULT"; "THE STUNNING MASTERPIECE"; "THE POINTLESS PERFECTION".
 - Effects: no change (flavor-only).
+- Kept (the owner, 2026-11-14): the critic speaker labels ("MASTER STONEWRIGHT (critic):" and the five others) name who is speaking, so they are not route headings; they stay, with the critic's name.
 
 #### The Physics-Defying Builder (`all_physics_defying`)
 
@@ -740,6 +741,8 @@ Retrofit agent B: the V13, V14, game-exclusive, V17, V18, V20-V24 and V27 events
 - Node `b4`: kill `mother` (cause: Unknown causes). Weight: weight 2 of 62 of choice "Choose the gentler treatment." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "Both die" -- the mother dies, and the unborn child with her.
 - Node `c2`: health_change -30..-10 on `mother`. Weight: 1 in 3 of choice "Explain the risks and ask the mother." (equal weights, the source gives no odds). Why: "her recovery is prolonged and uncertain" -- a minor health loss.
 - Role: the pregnant villager is now cast as `mother` (female, special nursing_parent, protected allow); before, decision Q11 kept her an uncast stranger. A3 ("The child survives but the mother dies") stays told only: the games keep the unborn baby as the mother's own state, so her death would end it too. Listed in retrofit-harm-review.md.
+- **TODO (the owner, 2026-11-14):** A3 must change so the child really survives its mother's death. That needs an engine feature (another agent is researching it); until then A3 stays told only.
+- Approved by the owner (2026-11-14) as built: the cast pregnant villager, `baby_lost`, and the very rare kills.
 
 #### The Treatment That Does Not Exist (`all_v20_d2_no_such`)
 

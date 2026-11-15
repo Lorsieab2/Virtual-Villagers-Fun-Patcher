@@ -50,8 +50,8 @@ and the Tribal Chief are never cast in it).
 | B4 | "Both die; villagers disagree about whether waiting was a mistake." | `kill`, cause Unknown causes (and the baby) | very rare: 2 of 62 in choice B |
 | C2 | "She chooses gentler care; her recovery is prolonged and uncertain." | `health_change` -30..-10 | 1 in 3 of choice C |
 
-- **Not made:** A3, "The child survives but the mother dies; the family remembers her courage." The games keep an
-  unborn baby only as the mother's own state, so killing her would end the baby too and contradict the text. A3 stays
-  told only and harms no one. **Owner question:** keep A3 told only, or kill the mother there as well (the baby would
-  then be lost with her)?
-- **Owner question:** approve this case, or return D1 to an uncast stranger (no effects)?
+- **Not made yet:** A3, "The child survives but the mother dies; the family remembers her courage." The games
+  keep an unborn baby only as the mother's own state, so killing her would end the baby too. **Owner (2026-11-14):**
+  A3 must change so the child really survives; that needs an engine feature (being researched). TODO: until it
+  lands, A3 stays told only and harms no one.
+- **Owner decision (2026-11-14): APPROVED as built** -- the cast pregnant villager, `baby_lost` and the very rare kills.
