@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Letter Never Sent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c005_letter_never",
+  "source": "companion",
+  "lines": [
+   2091,
+   2102
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2091",
+  "ledger": [
+   {
+    "src": "L2094",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L2098",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2102",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A villager writes to someone they can no longer speak to: keep it private, or read it quietly.",
+  "cast_only": [
+   "writer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "writer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A villager writes words to someone they can no longer speak to.",
+   "src": "L2092",
+   "choices": [
+    {
+     "label": "Keep the letter private.",
+     "next": "ending",
+     "src": "L2095"
+    },
+    {
+     "label": "Read it in a quiet place.",
+     "next": "ending",
+     "src": "L2096"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "The paper is folded and kept in a small wooden box.",
+   "src": "L2099"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The words are read aloud to the sea.",
+   "src": "L2100"
+  }
+ }
+}

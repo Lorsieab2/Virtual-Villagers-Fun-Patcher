@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Chronicles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a034_two_chronicles",
+  "source": "companion",
+  "lines": [
+   802,
+   824
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L807",
+  "ledger": [
+   {
+    "src": "L803",
+    "kind": "structural",
+    "why": "the group heading 'HISTORY'"
+   },
+   {
+    "src": "L809",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L813",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L818",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L820",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L822",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L824",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "Two preserved records tell the founding of a village in contradictory ways."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "historian": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two preserved records describe the founding of a village in contradictory ways.",
+   "src": "L811",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L814"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L815"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L816"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "Scholars identify clues that reconcile the accounts.",
+   "src": "L818",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "historian",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L818"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The disagreement becomes a lively public debate.",
+   "src": "L820"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A third fragment suggests both accounts omitted an important person.",
+   "src": "L822"
+  }
+ }
+}

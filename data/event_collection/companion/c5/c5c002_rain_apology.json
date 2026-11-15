@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c002_rain_apology",
+  "source": "companion",
+  "lines": [
+   2053,
+   2064
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2053",
+  "ledger": [
+   {
+    "src": "L2056",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L2060",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2064",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "Two siblings who argued shelter beneath the same broad leaf: let them speak first, or give them time.",
+  "cast_only": [
+   "sibling1",
+   "sibling2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "sibling1": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "sibling2": {
+   "kind": "villager",
+   "min_age": 3,
+   "relation": {
+    "sibling_of": "sibling1"
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "After an argument, two siblings find themselves sheltering beneath the same broad leaf.",
+   "src": "L2054",
+   "choices": [
+    {
+     "label": "Let them speak first.",
+     "next": "ending",
+     "src": "L2057"
+    },
+    {
+     "label": "Give them time.",
+     "next": "ending",
+     "src": "L2058"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They laugh at how ridiculous their quarrel sounds in the rain.",
+   "src": "L2061"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Neither is ready to apologize, but they walk home together.",
+   "src": "L2062"
+  }
+ }
+}

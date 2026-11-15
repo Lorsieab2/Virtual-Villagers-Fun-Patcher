@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Color of Change",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a016_color_change",
+  "source": "companion",
+  "lines": [
+   412,
+   434
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L417",
+  "ledger": [
+   {
+    "src": "L413",
+    "kind": "structural",
+    "why": "the group heading 'CHEMISTRY'"
+   },
+   {
+    "src": "L419",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L423",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L428",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L430",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L432",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L434",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "A chemist compares plant extracts mixed with different mineral-rich waters."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chemist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A chemist compares the colors of plant extracts when mixed with different mineral-rich waters.",
+   "src": "L421",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L424"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L425"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L426"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "A repeatable reaction becomes a new laboratory test.",
+   "src": "L428",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "chemist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L428"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "Unreliable measurements produce contradictory results.",
+   "src": "L430"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "An apprentice finds that the containers are contaminating the samples.",
+   "src": "L432"
+  }
+ }
+}
