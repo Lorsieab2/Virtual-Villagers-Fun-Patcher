@@ -63,7 +63,8 @@
     },
     {
      "next": "b",
-     "weight": 20
+     "weight": 10,
+     "rarity": "occasional"
     },
     {
      "next": "c",

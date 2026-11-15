@@ -165,8 +165,8 @@
     },
     {
      "next": "c_death",
-     "weight": 5,
-     "rarity": "rare"
+     "weight": 2,
+     "rarity": "very_rare"
     }
    ]
   }

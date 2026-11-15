@@ -11,8 +11,10 @@ at L10440-10485):
   elder age).  A caregiver, healer or other grown-up the text names is 18+ (a plain "villager" 14+).
 - Sex is random in every role (a villager role's "any").  The source names no one, so no text carries a name: a role
   only the gate needs is listed in collection.cast_only.
-- Weights (L10461-10463): harmless and minor-setback outcomes are normal (20); serious injury, prolonged illness and
-  disappearance are rare (5); a death the source calls "rare" is rare (5).  The source's own sub-branches ("severe
+- Weights (L10461-10463, the lead's decisions 2026-11-14): harmless outcomes are normal (20); a minor setback (a
+  minor injury or illness, a small structure damage) is "occasional" (10); serious injury, prolonged illness and
+  disappearance are rare (5); every death is very rare (2), per the V27 global rule ("death/very rare"), whatever
+  the event's own line calls it.  rarity_of() derives this from the effects.  The source's own sub-branches ("severe
   injury or, on a rare enabled branch, death"; "a rescue, disappearance, or rare fatal accident") are silent
   branches whose pages show one alternative each (node src_cut).
 - Effects only where the text clearly gives one: Parenting (small) for caregiving, a small skill for learning or
@@ -263,6 +265,23 @@ def outcome_text(n: int, cuts: dict[int, list[str]], node_cut: list[str]) -> str
     return p[:1].upper() + p[1:]
 
 
+def rarity_of(o: dict) -> str | None:
+    """The outcome's weight word (the lead's decisions, 2026-11-14, from the V27 global rule L10461-10463): every
+    death very rare (2); a serious harm or a disappearance as the table says (rare, 5); a minor setback -- a minor
+    injury or illness, a small structure damage -- occasional (10); anything harmless normal (20).  An outcome
+    split into sub-branches keeps its own word (its sub-branches carry theirs)."""
+    if o["subs"]:
+        return o["rarity"]
+    effects = o["effects"]
+    if any(e["do"] == "kill" for e in effects):
+        return "very_rare"
+    if o["rarity"]:
+        return o["rarity"]
+    if any(e["do"] == "damage" or (e["do"] == "health_change" and (e["min"], e["max"]) == MINOR) for e in effects):
+        return "occasional"
+    return None
+
+
 def build(num: int) -> tuple[str, dict]:
     eid, title = cm.V27_EVENTS[num - 1]
     roles, cast_only, outs, lcuts, desc, intro = E[num]
@@ -293,23 +312,23 @@ def build(num: int) -> tuple[str, dict]:
             intro_node["text_only"] = tonly(intro[1], L(2))
     kids = []
     nodes["intro"] = intro_node
-    any_rare = any(o["rarity"] for o in outs)
+    any_rare = any(rarity_of(o) for o in outs)
     for letter, o, off in zip("abc", outs, (3, 4, 5)):
         child = {"next": letter}
         if any_rare:
-            child["weight"] = cc.RARITY_WEIGHTS[o["rarity"]]
-            if o["rarity"]:
-                child["rarity"] = o["rarity"]
+            child["weight"] = cc.RARITY_WEIGHTS[rarity_of(o)]
+            if rarity_of(o):
+                child["rarity"] = rarity_of(o)
         kids.append(child)
         if o["subs"]:
-            sub_rare = any(so["rarity"] for _, so in o["subs"])
+            sub_rare = any(rarity_of(so) for _, so in o["subs"])
             sk = []
             for key, so in o["subs"]:
                 c = {"next": f"{letter}_{key}"}
                 if sub_rare:
-                    c["weight"] = cc.RARITY_WEIGHTS[so["rarity"]]
-                    if so["rarity"]:
-                        c["rarity"] = so["rarity"]
+                    c["weight"] = cc.RARITY_WEIGHTS[rarity_of(so)]
+                    if rarity_of(so):
+                        c["rarity"] = rarity_of(so)
                 sk.append(c)
                 nodes[f"{letter}_{key}"] = page(f"Outcome {letter.upper()}: {key}", outcome_text(h + off, cuts, so["cut"]),
                                                 L(off), eff(so["effects"], L(off)), tonly(so["text_only"], L(off)),

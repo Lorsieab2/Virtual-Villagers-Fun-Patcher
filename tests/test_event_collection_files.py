@@ -143,6 +143,29 @@ class CollectionFiles(unittest.TestCase):
         self.assertEqual(r.returncode, 1 if KNOWN_GAPS else 0, r.stdout + r.stderr)
         self.assertIn("files pass", r.stdout)
 
+    def test_v27_weights_follow_the_global_rule(self):
+        # The lead's decisions (2026-11-14, the V27 global rule): a death is very rare (2 against 20), a minor setback
+        # occasional (10), a disappearance or serious harm rare (5).
+        seen = {"kill": 0, "minor": 0}
+        for p in sorted((lib.COLLECTION_DIR / "v27").glob("*.json")):
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            for nid, n in doc["nodes"].items():
+                for k in n.get("children") or []:
+                    target = doc["nodes"][k["next"]]
+                    effs = target.get("effects") or []
+                    with self.subTest(file=p.name, node=k["next"]):
+                        if any(e["do"] == "kill" for e in effs):
+                            seen["kill"] += 1
+                            self.assertEqual((k.get("weight"), k.get("rarity")), (2, "very_rare"))
+                        elif effs and all(e["do"] == "damage" or (e["do"] == "health_change" and e["min"] == -30)
+                                          for e in effs):
+                            seen["minor"] += 1
+                            self.assertEqual((k.get("weight"), k.get("rarity")), (10, "occasional"))
+                        elif any(e["do"] == "vanish" for e in effs):
+                            self.assertEqual(k.get("weight"), 5)
+        self.assertGreaterEqual(seen["kill"], 3)
+        self.assertGreaterEqual(seen["minor"], 6)
+
     def test_shared_pools(self):
         self.assertEqual(cc.check_shared_pools(), [])
 

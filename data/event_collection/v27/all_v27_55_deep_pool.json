@@ -179,7 +179,8 @@
    "children": [
     {
      "next": "c_rescue",
-     "weight": 20
+     "weight": 10,
+     "rarity": "occasional"
     },
     {
      "next": "c_missing",
@@ -188,8 +189,8 @@
     },
     {
      "next": "c_fatal",
-     "weight": 5,
-     "rarity": "rare"
+     "weight": 2,
+     "rarity": "very_rare"
     }
    ]
   }

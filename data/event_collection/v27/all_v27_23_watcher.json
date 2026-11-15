@@ -53,13 +53,17 @@
    "src": "L10667",
    "children": [
     {
-     "next": "a"
+     "next": "a",
+     "weight": 20
     },
     {
-     "next": "b"
+     "next": "b",
+     "weight": 20
     },
     {
-     "next": "c"
+     "next": "c",
+     "weight": 10,
+     "rarity": "occasional"
     }
    ]
   },

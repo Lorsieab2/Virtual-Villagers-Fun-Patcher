@@ -57,7 +57,8 @@ sys.path.insert(0, str(lib.ROOT / "src"))
 
 # ---- Constants the authoring rules name ---------------------------------------------------------------------------
 
-RARITY_WEIGHTS = {None: 20, "rare": 5, "very_rare": 2, "exceptionally_rare": 1}
+# "occasional" (10): the V27 global rule's "minor setback/occasional" (the lead, 2026-11-14).
+RARITY_WEIGHTS = {None: 20, "occasional": 10, "rare": 5, "very_rare": 2, "exceptionally_rare": 1}
 SIZES = ("small", "normal", "large", "huge")
 # Skill amounts (design A3 "experience" = normal, "a little / small" = small; rule 10 doubles and triples for the
 # larger words).  A loss is the same range, negative.  "masters" is {"set": 100}.
@@ -1029,14 +1030,14 @@ def weighted_set(where: str, kids: list[dict], rep: Report) -> None:
     rar = [k.get("rarity") for k in kids]
     for r in rar:
         if r not in RARITY_WEIGHTS:
-            rep.add("h CHANCES", f"{where}: rarity {r!r} is not one of rare, very_rare, exceptionally_rare")
+            rep.add("h CHANCES", f"{where}: rarity {r!r} is not one of occasional, rare, very_rare, exceptionally_rare")
             return
     ws = [k.get("weight", 1) for k in kids]
     if any(rar):
         for k, r, w in zip(kids, rar, ws):
             if w != RARITY_WEIGHTS[r]:
                 rep.add("h CHANCES", f"{where}: weight {w} for {'a ' + r if r else 'a normal'} outcome; the "
-                                     f"rarity table gives {RARITY_WEIGHTS[r]} (normal 20, rare 5, very rare 2, "
+                                     f"rarity table gives {RARITY_WEIGHTS[r]} (normal 20, occasional 10, rare 5, very rare 2, "
                                      "exceptionally rare 1)")
     elif len(set(ws)) > 1:
         rep.add("h CHANCES", f"{where}: weights {ws} differ but the source gives no odds (equal weights)")

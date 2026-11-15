@@ -45,7 +45,7 @@ format sees the file; never rely on them at run time.
 | pool | `set` | The manifest bank the pool is (`"A"`, `"(3)"`) |
 | pool | `mirror_of` | The same bank with its pronouns on another role (section 10) |
 | pool item, choice, variant, effect | `src` | Their source lines |
-| child, pool item | `rarity` | `rare`, `very_rare` or `exceptionally_rare` (section 8) |
+| child, pool item | `rarity` | `occasional`, `rare`, `very_rare` or `exceptionally_rare` (section 8) |
 
 `grammar_fixes` is a top-level list the format itself keeps (section 13).
 
@@ -170,6 +170,7 @@ When the source promises a change the games cannot make, keep the text, add no e
 | Source | Weight | `rarity` |
 |---|---|---|
 | (normal) | 20 | none |
+| occasional (the V27 global rule's "minor setback/occasional") | 10 | `occasional` |
 | rare | 5 | `rare` |
 | very rare, very rarely | 2 | `very_rare` |
 | exceptionally rare, extremely rare | 1 | `exceptionally_rare` |
