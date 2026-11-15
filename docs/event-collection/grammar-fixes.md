@@ -207,3 +207,41 @@ These stay as the owner wrote them. Some are handled another way; the rest are l
 | L8709, L8715 | living or deceased composer | Content: owner question |
 | L8747 | the Chief's title in an all-games event | The game-word rule (`{@chief}`) handles it |
 | L9679-9680, L9794-9798, L10187-10208 | designer rules inside display text | Ledger notes: never displayed |
+
+## Living Event Engine
+
+A separate source: `docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt` (SHA-256 in
+`data/living_events/SOURCE.sha256`). Line numbers in this section are that file's, so the rows below are written
+"Living L..." and are not V28 fixes. The bank is described in [living-events.md](living-events.md).
+
+Status: **waiting for the owner's approval** (the names themselves were the owner's request, 2026-11-14).
+
+### Fix `living-frame-article`: the frame sentence with names
+
+The 60 MIX SETUP lines (Living L24096, L24113, ... one per MIX) share one frame, for example Living L24096:
+
+> `A warm a master parent and a private a teenager disagree about what should happen next. Their status alone does not settle the matter.`
+
+Shipped, with the two villagers' names (owner, 2026-11-14):
+
+> `(first), a warm master parent, and (second), a private teenager, disagree about what should happen next. Their status alone does not settle the matter.`
+
+| Case | Before | After | Why |
+|---|---|---|---|
+| Living L24096 (all 60 MIX) | `A warm a master parent` | `(first), a warm master parent,` | The source doubles the article ("A warm a master parent"). The first villager's name now leads, followed by a comma; the role keeps its words without its own article (role bank, Living L23980); the comma closes the description |
+| Living L24096 (all 60 MIX) | `and a private a teenager` | `, and (second), a private teenager,` | The same doubled article for the second villager; a comma before "and" because a name and its description precede it, and a comma after the description before the verb |
+| Living L24130 and others | `A ambitious a caretaker` | `(first), an ambitious caretaker,` | The article follows the personality's first sound: "an" before ambitious, impatient, insecure, observant (the source always writes "A ... a") |
+| Living L24113 and others | `a cautious a cook` | `(second), a cautious cook,` | "a" before a consonant: every other personality |
+| Every shipped variant | `disagree about what should happen next. Their status alone does not settle the matter.` | unchanged | The owner's words, kept exactly |
+
+### Joining words and pronouns (owner-approved, 2026-11-14)
+
+- The only words the engine adds are the two names, `a` / `an`, the commas above and single spaces. The seed
+  sentence, the personality, the role, the choices and the outcomes are the owner's lines, unchanged.
+- Names appear once, in the frame. A later mention of either villager in the same event uses the role pronoun
+  tokens `(first.he/she)`, `(first.him/her)`, `(first.his/her)` (or `(second. ...)`), and the name instead where a
+  pronoun would be ambiguous (both villagers the same sex), as in the owner's own events. The owner's words "the
+  central villager", "the novice", "the master" in the archetype lines are kept, never swapped for a name. Today's
+  archetype lines mention neither villager, so no pronoun is inserted yet.
+- Outside VV3 the seeds that name the chief (CEL-01, GOV-01, GOV-09, ODD-01, EMO-07) use the collection's game word
+  (`{@chief}`), as in [authoring-rules.md](authoring-rules.md) section 10; VV3 shows the owner's words.
