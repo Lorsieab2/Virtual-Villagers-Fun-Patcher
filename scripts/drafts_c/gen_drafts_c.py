@@ -27,6 +27,7 @@ Nothing here touches a game, a save or an exe.
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -265,6 +266,53 @@ def build(ev: P.Event, ann: dict) -> tuple[dict, list[str], list[dict]]:
     return doc, problems, gfix_rows
 
 
+def same_sex_variants(doc: dict) -> dict:
+    """The owner's rule for a same-sex couple: cast by sex, the relationship is text.  The couple (subject, friend)
+    becomes two pairs, two men (men1, men2) and two women (women1, women2); the event starts with a branch of two
+    equally likely children, each leading to its own copy of the pages.  The checker needs a page for every cast, so
+    one pair is needed (the men) and the other optional (the women, whose child is taken only when both are cast):
+    where both pairs can be cast the two are equally likely; where no two women can, the men's version shows."""
+    import copy
+    pairs = {"m": ("men1", "men2", "male"), "f": ("women1", "women2", "female")}
+    base = {k: v for k, v in doc["roles"].items() if k not in ("subject", "friend")}
+    spec = {k: v for k, v in doc["roles"]["subject"].items()}
+    roles = dict(base)
+    for a, b, sex in pairs.values():
+        roles[a] = dict(spec, sex=sex, **({"optional": True} if sex == "female" else {}))
+        roles[b] = dict(spec, sex=sex, **({"optional": True} if sex == "female" else {}))
+
+    def swap(obj, a, b):
+        s = json.dumps(obj, ensure_ascii=False)
+        s = re.sub(r"\(subject([.)])", rf"({a}\1", s)
+        s = re.sub(r"\(friend([.)])", rf"({b}\1", s)
+        s = s.replace('"who": "subject"', f'"who": "{a}"').replace('"who": "friend"', f'"who": "{b}"')
+        s = s.replace('"role": "subject"', f'"role": "{a}"').replace('"role": "friend"', f'"role": "{b}"')
+        return json.loads(s)
+
+    nodes, children = {}, []
+    for tag, (a, b, _sex) in pairs.items():
+        for k, nd in doc["nodes"].items():
+            nd = swap(copy.deepcopy(nd), a, b)
+            for c in nd.get("choices", []):
+                c["next"] = f"{c['next']}_{tag}"
+            nodes[f"{k}_{tag}"] = nd
+        children.append({"next": f"{doc['start']}_{tag}"} if tag == "m" else
+                        {"next": f"{doc['start']}_{tag}", "if": {"all": [{"role": a}, {"role": b}]}})
+    doc = dict(doc, roles=roles, start="pair", nodes={"pair": {"type": "branch", "name": "The couple",
+                                                               "children": children}, **nodes})
+    doc["requirement"] = {"min_eligible": len(base) + 2}
+    col = dict(doc["collection"])
+    col["cast_only"] = [r for r in col.get("cast_only", []) if r in roles]
+    if not col["cast_only"]:
+        col.pop("cast_only")
+    col["ledger"] = col["ledger"] + [{"src": col["ledger"][0]["src"], "kind": "note",
+                                      "why": "the owner's rule for a same-sex couple: cast by sex (two men or two "
+                                             "women, equally likely where both can be cast), the relationship as "
+                                             "story text"}]
+    doc["collection"] = col
+    return doc
+
+
 def main() -> int:
     docs, problems, gfix = [], [], []
     only = [a.lower() for a in sys.argv[1:]]
@@ -274,6 +322,8 @@ def main() -> int:
         anns = P.read_annotations(sid)
         for ev in P.events(sid):
             doc, probs, g = build(ev, anns.get(ev.code, {}))
+            if anns.get(ev.code, {}).get("WORD") == "same_sex":
+                doc = same_sex_variants(doc)
             problems += probs
             gfix += [dict(x, sid=sid) for x in g]
             docs.append((lib.DRAFTS_C_DIR / sec / f"{ev.row['id']}.json", doc))

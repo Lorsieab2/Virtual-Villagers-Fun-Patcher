@@ -241,8 +241,9 @@ class FrozenDraftsC(unittest.TestCase):
                 for p in files:
                     doc = json.loads(p.read_text(encoding="utf-8"))
                     self.assertEqual(doc["collection"]["label_case"], "title", p.name)
-                    for c in doc["nodes"]["setup"].get("choices", []):
-                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+                    for nd in doc["nodes"].values():      # BLF-36: setup_m / setup_f (the same-sex couple)
+                        for c in nd.get("choices", []):
+                            self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
         self.assertEqual(vv5_only, {"blf26", "blf27"})
 
 

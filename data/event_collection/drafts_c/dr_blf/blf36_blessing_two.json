@@ -38,6 +38,11 @@
     "kind": "instruction",
     "text": "[effect: (name1) and (name2) celebrate]",
     "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the owner's rule for a same-sex couple: cast by sex (two men or two women, equally likely where both can be cast), the relationship as story text"
    }
   ],
   "description": "A couple ask the leader of the village songs for a blessing: the leader says yes at once, or asks what they would like.",
@@ -50,69 +55,157 @@
   "min_eligible": 3
  },
  "roles": {
-  "subject": {
-   "kind": "villager",
-   "min_age": 18
-  },
-  "friend": {
-   "kind": "villager",
-   "min_age": 18
-  },
   "third": {
    "kind": "villager",
    "min_age": 18
+  },
+  "men1": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "men2": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "women1": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "optional": true
+  },
+  "women2": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "optional": true
   }
  },
- "start": "setup",
+ "start": "pair",
  "nodes": {
-  "setup": {
+  "pair": {
+   "type": "branch",
+   "name": "The couple",
+   "children": [
+    {
+     "next": "setup_m"
+    },
+    {
+     "next": "setup_f",
+     "if": {
+      "all": [
+       {
+        "role": "women1"
+       },
+       {
+        "role": "women2"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "setup_m": {
    "type": "question",
    "name": "The setup",
-   "text": "(subject) and (friend) have been together for a while, and they'd like a blessing from (third), who leads the village's songs. They're both a bit nervous asking. (third) listens to them, then smiles.",
+   "text": "(men1) and (men2) have been together for a while, and they'd like a blessing from (third), who leads the village's songs. They're both a bit nervous asking. (third) listens to them, then smiles.",
    "src": "L431",
    "choices": [
     {
      "label": "(third) Says Yes at Once",
-     "next": "o1",
+     "next": "o1_m",
      "src": "L433"
     },
     {
      "label": "(third) Asks What They'd Like",
-     "next": "o2",
+     "next": "o2_m",
      "src": "L436"
     }
    ]
   },
-  "o1": {
+  "o1_m": {
    "name": "Outcome A",
-   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (subject) and (friend) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (men1) and (men2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
    "src": "L434",
    "effects": [
     {
      "do": "celebrate",
-     "who": "subject",
+     "who": "men1",
      "src": "L434"
     },
     {
      "do": "celebrate",
-     "who": "friend",
+     "who": "men2",
      "src": "L434"
     }
    ]
   },
-  "o2": {
+  "o2_m": {
    "name": "Outcome B",
-   "text": "\"What sort of blessing would you like?\" asks (third). \"Big? Small? Old words or new ones?\" The couple look at each other, relieved. \"Small,\" says (subject). \"Old words,\" says (friend). \"With fish,\" they both add. (third) laughs. It's small, with old words and a great deal of fish, and exactly what they wanted.",
+   "text": "\"What sort of blessing would you like?\" asks (third). \"Big? Small? Old words or new ones?\" The couple look at each other, relieved. \"Small,\" says (men1). \"Old words,\" says (men2). \"With fish,\" they both add. (third) laughs. It's small, with old words and a great deal of fish, and exactly what they wanted.",
    "src": "L437",
    "effects": [
     {
      "do": "celebrate",
-     "who": "subject",
+     "who": "men1",
      "src": "L437"
     },
     {
      "do": "celebrate",
-     "who": "friend",
+     "who": "men2",
+     "src": "L437"
+    }
+   ]
+  },
+  "setup_f": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(women1) and (women2) have been together for a while, and they'd like a blessing from (third), who leads the village's songs. They're both a bit nervous asking. (third) listens to them, then smiles.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "(third) Says Yes at Once",
+     "next": "o1_f",
+     "src": "L433"
+    },
+    {
+     "label": "(third) Asks What They'd Like",
+     "next": "o2_f",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1_f": {
+   "name": "Outcome A",
+   "text": "\"Of course,\" says (third). \"I'd be honored.\" The blessing is small and simple, by the sea at sunset, with a few friends and a lot of flowers. (third) says the old words. (women1) and (women2) hold hands the whole time, trying not to cry and both failing. Afterwards, everyone eats far too much. It's a very good evening.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "women1",
+     "src": "L434"
+    },
+    {
+     "do": "celebrate",
+     "who": "women2",
+     "src": "L434"
+    }
+   ]
+  },
+  "o2_f": {
+   "name": "Outcome B",
+   "text": "\"What sort of blessing would you like?\" asks (third). \"Big? Small? Old words or new ones?\" The couple look at each other, relieved. \"Small,\" says (women1). \"Old words,\" says (women2). \"With fish,\" they both add. (third) laughs. It's small, with old words and a great deal of fish, and exactly what they wanted.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "women1",
+     "src": "L437"
+    },
+    {
+     "do": "celebrate",
+     "who": "women2",
      "src": "L437"
     }
    ]

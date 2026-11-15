@@ -371,4 +371,4 @@ choice has one outcome, so a harmful effect is the player's chosen path, as the 
 The rest is small and good: food gains (ADV-33 both outcomes, BLF-25, DIV-09, NAT-04, 06, 09, 13, 21, 22, 23, 40, 48),
 small tech gains (BLF-20, BLF-39, DIV-17, NAT-31, HIS-37), small skill gains (HEA-23 and ADV-40 Healing, HEA-39
 Healing for the child, ADV-20 Building, DIV-27 Research), health gains (HEA-24, HEA-49, DIV-26 both outcomes) and
-celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners, DIV-30). LIF has no effect at all.
+celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners in both the men's and the women's version, DIV-30). LIF has no effect at all.

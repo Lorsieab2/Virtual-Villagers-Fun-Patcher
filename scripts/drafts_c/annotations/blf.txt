@@ -196,7 +196,8 @@ REVIEW: ok
 BLF-36
 DESC: A couple ask the leader of the village songs for a blessing: the leader says yes at once, or asks what they would like.
 ROLES: name1=18+ name2=18+ name3=18+
-REVIEW: OWNER QUESTION the casting line asks for a same-sex couple: the format can fix each role's sex but cannot require "the same sex as the other", and the games record only co-parents as partners; built with any sexes and no relation (the text has no gendered word). Fix both as women, both as men, or keep any?
+WORD: same_sex
+REVIEW: ok (the owner's rule: a same-sex couple is cast by sex, two women or two men equally likely, the relationship as story text)
 
 BLF-37
 DESC: The loudest singer at every evening song admits they do not believe any of it: the friend is surprised, or says that is fine.

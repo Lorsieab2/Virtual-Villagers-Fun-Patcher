@@ -434,6 +434,11 @@ owner).txt, `collection_lib.DRAFTS_C` (source ids `draft_hea`, `draft_adv`, `dra
   a named stranger (15). Neither says Heathen or convert, so no Guardians of Isola variant is needed.
 - FAM2-40's carrying or nursing parent is the game's nursing parent (`"special": "nursing_parent"`); FAM2-11/28's teens
   are at most two years apart (`max_age_gap`).
+- BLF-36's same-sex couple follows the owner's rule (cast by sex, the relationship as story text):
+  `gen_drafts_c.same_sex_variants` (annotation `WORD: same_sex`) makes two men (`men1`, `men2`, needed) and two women
+  (`women1`, `women2`, optional) and starts with a branch of two equal children, each to its own copy of the pages
+  (same `src`); the women's child is taken only when both women are cast. The checker needs a page for every cast,
+  so one pair must be needed: where both pairs can be cast the two versions are equally likely.
 
 ## 15a. The Pick Island Event sentence
 
