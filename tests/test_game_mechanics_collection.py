@@ -33,7 +33,9 @@ class TheIndex(unittest.TestCase):
     def test_the_shipped_index_is_the_sources(self) -> None:
         import json
         shipped = json.loads(gc.INDEX_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(shipped, gc.build_index(), "run: python src/vv_game_mechanics_collection.py")
+        import vv_living_mixer as living
+        seeds = [(v.manifest_id, v.graph) for v in living.generate()]
+        self.assertEqual(shipped, gc.build_index(seeds), "run: python scripts/build_event_collection_features.py")
 
     def test_the_index_ships_with_the_release(self) -> None:
         text = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

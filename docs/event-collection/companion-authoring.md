@@ -123,7 +123,7 @@ The generic choices of Part 1, Part 2 and Lives Between Legends are not named.
    descriptions, text_only reasons, one row per event). Hand-written JSON only where the event is unique.
 2. `python scripts/companion/gen_<part>.py` writes the files and runs `collection_check.py --format` on them: every
    file must print OK.
-3. Then `python scripts/build_event_collection_features.py`, `python src/vv_game_mechanics_collection.py`, and the
+3. Then `python scripts/build_event_collection_features.py` (it writes the Game Mechanics index too), and the
    test files one per process: `tests/test_event_collection_files.py`, `tests/test_event_collection_package.py`,
    `tests/test_collection_trigger.py`, `tests/test_game_mechanics_collection.py`.
 

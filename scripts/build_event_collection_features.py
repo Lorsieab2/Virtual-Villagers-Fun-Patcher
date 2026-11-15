@@ -436,6 +436,10 @@ def main() -> None:
     for game, record in rows.items():
         print(f"vv{game}: {len(record['companion_files']) - 3} events and living.pak -> "
               f"data/vv{game}_isola_grand_event_collection_feature.json")
+    # The Game Mechanics page's index (src/vv_game_mechanics_collection.py), the living seeds from the variants.
+    import vv_game_mechanics_collection as gc
+    gc.write_index([(v.manifest_id, v.graph) for v in living_build()[0]])
+    print("wrote data/event_collection_index.json")
 
 
 if __name__ == "__main__":

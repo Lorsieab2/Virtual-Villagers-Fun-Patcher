@@ -5,7 +5,8 @@ patcher ships, so it cannot drift: the game's events and their order from assets
 (the file "VVFP Story Upgrades.dll" reads); each event's section and the effects that can kill or remove a villager
 from data/event_collection_index.json, which `build_index` makes from the source graphs
 data/event_collection/<section>/<id>.json (the graphs the .cieg files are compiled from; they are not shipped) --
-python src/vv_game_mechanics_collection.py writes it, tests/test_game_mechanics_collection.py keeps it equal to
+scripts/build_event_collection_features.py writes it (with the Living Event Engine's seeds, from the repository-only
+vv_living_mixer), tests/test_game_mechanics_collection.py keeps it equal to
 the sources and to every game's manifest.  The roll's rules are native/vvfp_story_upgrades/story_collection.inc's (tests/test_collection_trigger.py);
 its chance per game is vv_game_mechanics_adventurer.RARE_ROLL_PERCENT, kept equal to the C table by
 tests/test_more_island_events_stock_odds.py.
@@ -96,8 +97,10 @@ def _effects(node) -> set[str]:
     return out
 
 
-def build_index() -> dict:
-    """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped)."""
+def build_index(living_seeds=()) -> dict:
+    """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped).
+    `living_seeds`: (manifest id, variant graph) of every Living Event Engine variant -- the caller makes them with
+    vv_living_mixer.generate(), a repository-only module this shipped one never imports."""
     out = {}
     base = ROOT / "data" / "event_collection"
     for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
@@ -111,11 +114,10 @@ def build_index() -> dict:
             out[source.stem]["allow"] = True
     # The Living Event Engine's seeds (docs/event-collection/living-pack.md): one manifest row per seed, its event one
     # of the seed's variants in living.pak -- the seed can make what any of its variants makes.
-    import vv_living_mixer as living
-    for variant in living.generate():
-        entry = out.setdefault(variant.manifest_id, {"section": LIVING_SECTION, "harm": []})
-        entry["harm"] = sorted(set(entry["harm"]) | _effects(variant.graph))
-        if _allows(variant.graph):
+    for manifest_id, graph in living_seeds:
+        entry = out.setdefault(manifest_id, {"section": LIVING_SECTION, "harm": []})
+        entry["harm"] = sorted(set(entry["harm"]) | _effects(graph))
+        if _allows(graph):
             entry["allow"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
@@ -222,6 +224,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     return [gm.Fact(GROUP, text, gm.RUNNING, sub=sub) for text, sub in lines(game)]
 
 
-if __name__ == "__main__":
-    INDEX_PATH.write_text(json.dumps(build_index(), indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
-    print(f"wrote {INDEX_PATH.relative_to(ROOT)}")
+def write_index(living_seeds) -> None:
+    """Write data/event_collection_index.json (scripts/build_event_collection_features.py calls it)."""
+    INDEX_PATH.write_text(json.dumps(build_index(living_seeds), indent=1, sort_keys=True) + "\n", encoding="utf-8",
+                          newline="\n")
