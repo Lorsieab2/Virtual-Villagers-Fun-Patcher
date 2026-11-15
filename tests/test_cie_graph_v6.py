@@ -339,6 +339,15 @@ OLD = {
                     "effects": [{"do": "old_look", "role": "subject"},
                                 {"do": "preference", "role": "subject", "dislike": "running"}]}},
 }
+# cie-v6-binary.md 27 and 28: a new name, and the sex field changed.
+NEW_NAME = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Name That Fits", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 14},
+              "chosen": {"kind": "stranger", "new_name_for": "subject", "sex": "other", "last_name": "different"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) asks to be called (Chosen). (chosen) it is.", "auto_text": True,
+                    "effects": [{"do": "sex_change", "role": "subject"}]}},
+}
 AUTO_LIKES = ["likes:subject:ants", "likes:subject:crowds", "dislikes:subject:resting", "harmable:subject"]
 
 
@@ -1094,6 +1103,55 @@ class EngineFollowups(unittest.TestCase):
                                            "Ana now dislikes running."])
         v5 = t.tiny()
         v5["nodes"][v5["start"]]["effects"] = [{"do": "old_look", "role": "subject"}]
+        self.assertTrue(any("version 6" in p for p in t.problems_of(v5)))
+
+    def test_a_new_name(self):
+        # cie-v6-binary.md 27: a named stranger that is a new name for a villager role.
+        g = cg.load(copy.deepcopy(NEW_NAME), True)
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_role = struct.unpack_from("<I", blob, 44)[0]
+        rec = struct.unpack_from("<BBBBHBBBBHBBH", blob, o_role + 16)
+        self.assertEqual((rec[0], rec[1], rec[2], rec[3], rec[12]), (1, 3, 5, 1, 1),
+                         "stranger, named + new name, sex other, last different, for role 0")
+        self.assertEqual(cg.harm_capable(g), set())
+        self.assertEqual(cg.role_name_room(g["roles"]["chosen"], 3), 8 + 1 + 8)
+        self.assertEqual(len(cg.last_names(1)), 50)
+        r = cg.simulate(g, 3, [], binding({"subject": {"name": "Ana Bandele", "sex": "f"},
+                                           "chosen": {"name": "Kalau Chinaka", "sex": "m"}}))
+        self.assertEqual(r["popups"], ["Ana Bandele asks to be called Kalau Chinaka. Kalau Chinaka it is.\n"
+                                       "Ana Bandele's sex changes."])
+        for game in range(1, 6):
+            w = cg.worst_v6("(Chosen)", cg.lower(g), cg.GAMES[game], None)
+            self.assertEqual(len(w), cg.stranger_name_room(game) + 1 + max(map(len, cg.last_names(game))))
+        defaults = copy.deepcopy(NEW_NAME)
+        defaults["roles"]["chosen"] = {"kind": "stranger", "new_name_for": "subject"}
+        self.assertEqual({k: v for k, v in cg.load(defaults, True)["roles"]["chosen"].items()},
+                         {"kind": "stranger", "sex": "same", "named": True, "new_name_for": "subject",
+                          "last_name": "same"})
+        for bad, words in (({"new_name_for": "nobody"}, "villager role the event needs"),
+                           ({"new_name_for": "subject", "sex": "any"}, "same, other, random"),
+                           ({"new_name_for": "subject", "last_name": "maybe"}, "same, different or random"),
+                           ({"last_name": "same"}, "new name (new_name_for) only")):
+            d = copy.deepcopy(NEW_NAME)
+            d["roles"]["chosen"] = dict({"kind": "stranger"}, **bad)
+            self.assertTrue(any(words in p for p in t.problems_of(d)), (bad, t.problems_of(d)))
+        d = copy.deepcopy(NEW_NAME)
+        d["roles"]["subject"]["optional"] = True
+        d["roles"] = {"lead": {"kind": "villager"}, **d["roles"]}
+        self.assertTrue(any("not optional" in p for p in t.problems_of(d)))
+        d = copy.deepcopy(NEW_NAME)
+        d["nodes"]["p"]["effects"] = [{"do": "mood", "role": "chosen", "mood": "good"}]
+        self.assertTrue(t.problems_of(d), "a new name is nobody to change")
+
+    def test_sex_change(self):
+        g = cg.load(copy.deepcopy(NEW_NAME), True)
+        blob = cg.compile_graph(g)
+        o_eff = struct.unpack_from("<I", blob, 56)[0]
+        self.assertEqual(struct.unpack_from("<BBBBiiHH", blob, o_eff), (22, 0, 0, 0, 0, 0, 0xFFFF, 0))
+        self.assertEqual(cg.AUTO_LINES["sex_change"], "<R>'s sex changes.")
+        v5 = t.tiny()
+        v5["nodes"][v5["start"]]["effects"] = [{"do": "sex_change", "role": "subject"}]
         self.assertTrue(any("version 6" in p for p in t.problems_of(v5)))
 
     def test_wider_kinship_and_a_dead_relative(self):

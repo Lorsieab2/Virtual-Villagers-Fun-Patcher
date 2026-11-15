@@ -99,7 +99,8 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "celebrate": "celebrate", "preference": "preference", "health": "health",
                "health_change": "health_change", "damage": "damage", "sick": "health", "mood": "mood",
                "action": "action", "status": "status", "pay_award": "food", "appearance": "appearance",
-               "die_unrecovered": "die_unrecovered", "baby_lost": "baby_lost", "old_look": "appearance"}
+               "die_unrecovered": "die_unrecovered", "baby_lost": "baby_lost", "old_look": "appearance",
+               "sex_change": "appearance"}
 
 PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}

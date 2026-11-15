@@ -32,6 +32,9 @@ EXES = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Los
 OUT_JSON = ROOT / "data" / "cie_villager_names.json"
 OUT_H = ROOT / "native" / "vvfp_story_upgrades" / "story_villager_names.h"
 LIST_RE = re.compile(rb"(?:[A-Z][a-z]+,){60,}[A-Z]?[a-z]*,?")
+# The last-name list each game's naming routine pushes and never reads (VV1 0x43B9B1, VV2 0x44B771, VV3 0x45C6DA,
+# VV4 0x465E21, VV5 0x46F701; native/vvfp_last_names/vvfp_last_names.c), the list "VVFP Last Names.dll" names from.
+LAST_VA = {1: 0x481BA0, 2: 0x48FB98, 3: 0x49DFF8, 4: 0x4AA930, 5: 0x4B8450}
 
 
 def find_lists(game: int) -> dict:
@@ -45,8 +48,15 @@ def find_lists(game: int) -> dict:
     (m_off, male), (f_off, female) = found[0], found[1]
     va = lambda off: pe.get_rva_from_offset(off) + pe.OPTIONAL_HEADER.ImageBase  # noqa: E731
     split = lambda s: [x for x in s.split(",") if x]  # noqa: E731
+    # The third list: the 50 last names (shorter than LIST_RE's 60), at the address each game's naming routine
+    # pushes (native/vvfp_last_names/vvfp_last_names.c): a new name's last name (cie-v6-binary.md 27).
+    image = pe.get_memory_mapped_image()
+    last = image[LAST_VA[game] - pe.OPTIONAL_HEADER.ImageBase:].split(b"\0", 1)[0].decode()
+    if not re.fullmatch(r"(?:[A-Z][a-z]+,){50}", last):
+        raise SystemExit(f"game {game}: no list of 50 last names at 0x{LAST_VA[game]:X}")
     return {"male_va": va(m_off), "female_va": va(f_off), "male_bytes": len(male), "female_bytes": len(female),
-            "male": split(male), "female": split(female)}
+            "male": split(male), "female": split(female),
+            "last_va": LAST_VA[game], "last_bytes": len(last), "last": split(last)}
 
 
 def main() -> None:
@@ -74,6 +84,15 @@ def main() -> None:
     for male, female in texts:
         lines.append(f"    {{ \"{male}\",")
         lines.append(f"      \"{female}\" }},")
+    lines[-1] = lines[-1].rstrip(",") + " };"
+    lines.append("/* The 50 last names (cie-v6-binary.md 27: a new name's last name), read from the game as the first names. */")
+    lines.append("static const unsigned int CG_LAST_VA[6] = { 0,")
+    lines.append("    " + ", ".join(f"0x{out['games'][str(g)]['last_va']:X}u" for g in sorted(EXES)) + " };")
+    lines.append("static const unsigned int CG_LAST_BYTES[6] = { 0,")
+    lines.append("    " + ", ".join(f"{out['games'][str(g)]['last_bytes']}u" for g in sorted(EXES)) + " };")
+    lines.append("static const char *const CG_LAST_TEXT[6] = { \"\",")
+    for g in sorted(EXES):
+        lines.append(f"    \"{','.join(out['games'][str(g)]['last'])},\",")
     lines[-1] = lines[-1].rstrip(",") + " };"
     lines.append("")
     OUT_JSON.write_bytes((json.dumps(out, indent=1) + "\n").encode())
