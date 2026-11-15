@@ -2039,6 +2039,248 @@
    "harm": [],
    "section": "lbl"
   },
+  "lbl061_bird_returned": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl062_octopus_thief": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl063_fierce_crab": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl064_butterfly": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl065_wild_piglet": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl066_fish_pool": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl067_strange_egg": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl068_creature_six": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl069_animal_followed": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl070_shell_collector": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl071_silent_forest": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl072_last_nest": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl073_bottomless_pool": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "lbl"
+  },
+  "lbl074_abandoned_raft": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl075_unlit_beacon": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl076_cave_breathes": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl077_disappearing": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl078_false_prophet": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl079_hidden": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl080_forgotten": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl081_unclaimed": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl082_dangerous_proof": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl083_stranger_dawn": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl084_message_canoe": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl085_stolen": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl086_unpopular_chief": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl087_prankster": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl088_quiet_expert": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl089_failed": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl090_overworked": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl091_broken_tool": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl092_fair_promotion": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl093_unwanted_mentor": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl094_worker_strike": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl095_reputation": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl096_secret_helper": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl097_coconut": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl098_purple_hair": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl099_crooked_outfit": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl100_awful_song": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl101_snack_dispute": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl102_talking_pig": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl103_wandering": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl104_invention": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl105_surprise_feast": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl106_shell_orchestra": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl107_missing_sandal": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl108_festival_bad": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl109_last_canoe": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl110_shared_river": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl111_sacred_grove": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl112_gods_silence": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl113_stranger_past": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl114_great_census": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl115_forgotten": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl116_healer_doubt": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl117_animal_treaty": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl118_honest_election": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl119_old_enemy_child": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl120_unanswered": {
+   "harm": [],
+   "section": "lbl"
+  },
   "vv1_child_of_legend": {
    "harm": [],
    "section": "original"

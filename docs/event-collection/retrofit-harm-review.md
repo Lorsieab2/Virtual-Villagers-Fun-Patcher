@@ -79,3 +79,17 @@ nothing), and 043's bereaved mother is a woman who is not nursing (the baby is t
 | 1 | "Prompt care brings recovery." | small Parenting to the mother | 20 of 45 |
 | 2 | "The baby remains ill and needs ongoing attention." | small Parenting to the mother (the baby cannot be made `sick`: it is not a villager) | 20 of 45 |
 | 3 | "A rare fatal outcome leaves the family mourning." | `baby_lost` (the pregnancy ends; the Births and Conceptions log records "Lost before birth") | rare: 5 of 45 (the source's own "rare") |
+
+## Companion K6
+
+Range: The Lives Between Legends 061-120 (`companion/lbl/lbl061`-`lbl120`), 60 events, generator
+`scripts/companion/gen_k6.py`. Line numbers are the companion source's.
+
+**No entries.** No role in this range uses `protected: "allow"`. The harm-capable roles keep the default `auto`
+protection, so nursing parents, the Golden Child and the Tribal Chief are never cast in them:
+
+| Event | Outcome | Villager | Exact text | Effect | Chance |
+|---|---|---|---|---|---|
+| The Bottomless Pool (`lbl073_bottomless_pool`, L4753-4767) | 2 | `explorer` | "A dangerous dive causes injury." | `health_change` -30..-10 | 20 of 45 |
+| The Bottomless Pool | 3 | `explorer` | "The explorer disappears and an uncertain search begins." | `vanish` (missing is not dead: no grave) | rare: 5 of 45 |
+| The Dangerous Proof (`lbl082_dangerous_proof`, L4874-4884) | 3 | `teen` | "They are injured and must confront their recklessness." | `health_change` -30..-10 | 1 in 3 |
