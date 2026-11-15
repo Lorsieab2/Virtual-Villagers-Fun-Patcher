@@ -19,20 +19,53 @@ sys.path.insert(0, str(ROOT / "tests"))
 import vv_cie_graph as cg  # noqa: E402
 from test_story_custom_island_event import HAVE_EMULATOR, TEXT_BUF, emulated, have_stock  # noqa: E402
 
+# Story text (the owner's rule, 2026-11-14, every part).
 CASES = [
+    # Other narration in capitals (no lower-case letter, no "!", not quoted): sentence case.
     ("WHICH LESSON SHOULD (Parent) TEACH?", "Which lesson should (parent) teach?"),
+    ("TELL (NAME1) TO STOP BEFORE ANYONE IS HURT.", "Tell (name1) to stop before anyone is hurt."),
+    ("HONESTY", "Honesty"),
+    ("Line one.\nAN ALL CAPS LINE.", "Line one.\nAn all caps line."),
+    ("ROUND ONE - THE TEST OF SKILL\nThe competitors cook.", "Round one - the test of skill\nThe competitors cook."),
+    ("THE {@tribe} GATHERS. {FOODS} ARE SHARED.", "The {@tribe} gathers. {FOODS} are shared."),
+    ("I THINK I'M READY.", "I think I'm ready."),
+    ("WE SAIL FOR ISOLA'S REEF.", "We sail for Isola's reef."),           # the island's name keeps its capital
+    # Emphasis: a word or a phrase in capitals inside a sentence with a lower-case letter stays.
+    ("It was HUGE, said (Name).", "It was HUGE, said (Name)."),
+    ("It was the BEST.", "It was the BEST."),
+    ("OK then", "OK then"),
+    ("I said DO NOT TOUCH the pot.", "I said DO NOT TOUCH the pot."),
+    ("Parenting skill: MODERATE GAIN.", "Parenting skill: MODERATE GAIN."),
+    ("The village speaks of THE GREAT STENCH for generations.",
+     "The village speaks of THE GREAT STENCH for generations."),
+    # Speech: capitals in quotation marks stay, a whole sentence too -- straight, single and curly (cp1252) quotes.
+    ("The rival shouts, \"I HATE YOUR GUTS!\"", "The rival shouts, \"I HATE YOUR GUTS!\""),
+    ("\"I HATE YOUR GUTS.\"", "\"I HATE YOUR GUTS.\""),
+    ("'THE FEELING IS MUTUAL.' (HE) SAYS.", "'THE FEELING IS MUTUAL.' (He) says."),
+    ("\x93I HATE YOUR GUTS.\x94 (HE) SAYS.", "\x93I HATE YOUR GUTS.\x94 (He) says."),
+    ("\"STOP!\" (HE) SHOUTS.", "\"STOP!\" (He) shouts."),
+    # Shouting: a sentence in capitals ending in "!" or "!?" stays.
+    ("I THINK I'M READY. YOU ARE NOT!", "I think I'm ready. YOU ARE NOT!"),
+    ("CLOSE IT! CLOSE THE WRETCHED THING!", "CLOSE IT! CLOSE THE WRETCHED THING!"),
+    ("WHAT IS THAT!? RUN.", "WHAT IS THAT!? Run."),
+    # No heading rule (the owner, 2026-11-14: such headings leave the data): a ":" is ordinary text.
+    ("THE TINY TYRANT: The child decrees that everyone must play.",
+     "THE TINY TYRANT: The child decrees that everyone must play."),
+    ("MASTER STONEWRIGHT (CRITIC):\nAn elderly craftsperson.", "Master stonewright (critic):\nAn elderly craftsperson."),
+    ("WARNING: DO NOT TOUCH.", "Warning: do not touch."),
+    ("Already in sentence case.", "Already in sentence case."),
+]
+# Button labels: a label with no lower-case letter is shown in sentence case as a whole, "!" too; quoted text stays.
+LABELS = [
     ("TELL (NAME1) TO STOP BEFORE ANYONE IS HURT.", "Tell (name1) to stop before anyone is hurt."),
     ("HONESTY", "Honesty"),
     ("THINK BEFORE ACTING", "Think before acting"),
     ("KINDNESS AND SHARING", "Kindness and sharing"),
-    ("Parenting skill: MODERATE GAIN.", "Parenting skill: moderate gain."),
-    ("It was HUGE, said (Name).", "It was HUGE, said (Name)."),       # one word inside ordinary text: as written
-    ("OK then", "OK then"),
-    ("I THINK I'M READY. YOU ARE NOT!", "I think I'm ready. You are not!"),
-    ("Line one.\nAN ALL CAPS LINE.", "Line one.\nAn all caps line."),
-    ("\"STOP!\" (HE) SHOUTS.", "\"Stop!\" (He) shouts."),
-    ("Already in sentence case.", "Already in sentence case."),
-    ("THE {@tribe} GATHERS. {FOODS} ARE SHARED.", "The {@tribe} gathers. {FOODS} are shared."),
+    ("RUN! HIDE!", "Run! Hide!"),
+    ("A LANDSCAPE OF ISOLA", "A landscape of Isola"),
+    ("\"I HATE YOUR GUTS!\"", "\"I HATE YOUR GUTS!\""),
+    ("SAY \"NO\" FIRMLY", "Say \"NO\" firmly"),
+    ("Ask THE ELDER first", "Ask THE ELDER first"),
 ]
 TITLES = [("THE PARENT'S LESSON", "The Parent's Lesson"), ("The Parent's Lesson", "The Parent's Lesson"),
           ("(NAME)'S BIG DAY", "(Name)'s Big Day"), ("A", "A")]
@@ -44,12 +77,20 @@ class TheRule(unittest.TestCase):
             self.assertEqual(cg.sentence_case(text), shown, text)
             self.assertEqual(cg.sentence_case(shown), shown, "shown text stays as it is")
 
+    def test_labels(self):
+        for text, shown in LABELS:
+            self.assertEqual(cg.sentence_case(text, label=True), shown, text)
+            self.assertEqual(cg.sentence_case(shown, label=True), shown, "shown text stays as it is")
+        self.assertEqual(cg.sentence_case("RUN! HIDE!"), "RUN! HIDE!", "the same words in the story: shouting")
+
     def test_titles(self):
         for title, shown in TITLES:
             self.assertEqual(cg.title_case(title), shown)
 
     def test_a_pool_item_does_not_start_a_sentence(self):
         self.assertEqual(cg.sentence_case("A HUGE FISH", item=True), "a huge fish")
+        self.assertEqual(cg.sentence_case("THE INSULT: A judge calls.", item=True), "THE INSULT: A judge calls.",
+                         "no heading rule: a sentence with a lower-case letter keeps its capitals")
 
     def test_names_keep_their_capitals_and_the_bytes_stay(self):
         g = cg.load({"format": "vvfp-cie-graph", "version": 6, "title": "THE TEST", "games": [3],
@@ -59,10 +100,13 @@ class TheRule(unittest.TestCase):
         b = {"pal": cg.Binding("Ana", "f")}
         self.assertEqual(cg.expand_v6(g["nodes"]["a"]["text"], lg, b), "Tell Ana to stop before anyone is hurt.")
         self.assertEqual(g["nodes"]["a"]["text"], "TELL (PAL) TO STOP BEFORE ANYONE IS HURT.", "data unchanged")
+        # A label is cased as one (cie-v6-binary.md 20): "RUN!" on a button is "Run!", in the story it is shouted.
+        self.assertEqual(cg.label_shown("RUN, (PAL)!", lg, b, 3), "Run, Ana!")
+        self.assertEqual(cg.expand_v6("RUN, (PAL)!", lg, b), "RUN, ANA!")
 
 
 def collection_texts() -> list[tuple[str, int]]:
-    """(text, 1 for a title) of every node, label, pool item and title of the collection."""
+    """(text, 1 for a title, 2 for a label) of every node, label and title of the collection."""
     out: list[tuple[str, int]] = []
     for path in sorted((ROOT / "data" / "event_collection").rglob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -77,7 +121,7 @@ def collection_texts() -> list[tuple[str, int]]:
                 out.append((node["title"], 1))
             for c in node.get("choices", []):
                 if isinstance(c.get("label"), str):
-                    out.append((c["label"], 0))
+                    out.append((c["label"], 2))
             for v in node.get("variants", []) or []:
                 if isinstance(v, dict) and isinstance(v.get("text"), str):
                     out.append((v["text"], 0))
@@ -92,17 +136,18 @@ class NativeIsTheSame(unittest.TestCase):
         if game is None:
             self.skipTest("no stock executable")
         r = Run(game)
-        texts = [(t, 0, 0) for t, _ in CASES] + [(t, 0, 1) for t, _ in TITLES] + [("A HUGE FISH", 1, 0)]
+        texts = [(t, 0, 0) for t, _ in CASES] + [(t, 0, 1) for t, _ in TITLES] + [(t, 0, 2) for t, _ in LABELS]
+        texts += [("A HUGE FISH", 1, 0), ("THE INSULT: A judge calls.", 1, 0), ("RUN! HIDE!", 1, 2)]
         texts += [(t, 0, k) for t, k in collection_texts()]
         checked = 0
-        for text, item, title in texts:
+        for text, item, kind in texts:
             raw = text.encode("latin-1", "replace")
             if len(raw) >= 8000:
                 continue
             r.p.write(TEXT_BUF, raw + b"\0")
-            r.p.export("VvfpStoryProbeSentenceCase", TEXT_BUF, item, title)
+            r.p.export("VvfpStoryProbeSentenceCase", TEXT_BUF, item, kind)
             native = r.p.cstring(TEXT_BUF, 9000)
-            want = cg.title_case(text) if title else cg.sentence_case(text, item=bool(item))
+            want = cg.title_case(text) if kind == 1 else cg.sentence_case(text, item=bool(item), label=kind == 2)
             self.assertEqual(native, want.encode("latin-1", "replace").decode("latin-1"), text[:80])
             checked += 1
         self.assertGreater(checked, 1000)

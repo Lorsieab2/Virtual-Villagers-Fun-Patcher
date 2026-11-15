@@ -14,7 +14,9 @@ runtime.py's Run), in all five games:
     with no other island event between its texts.
   * 2, 4 and 7 choices: each choice its own outcome and effect, once; a second question after an answer is asked in
     the same popup, its choices after its text.
-  * Without Scrolling Popups: paged as before (the start's intro a page of its own).
+  * The choice picked starts its outcome (cie-v6-binary.md 19): its row's words on a line of their own, a blank line,
+    then the outcome ("Honesty\n\n..."); the Island Events log keeps its "Choice:" line and never the label line.
+  * Without Scrolling Popups: paged as before (the start's intro a page of its own, no label line).
 """
 from __future__ import annotations
 
@@ -89,6 +91,7 @@ class OnePopupRun:
         self.r = r
         self.p = r.p
         self.arms = 0
+        self.raw = ""                                 # the last text as written, line breaks and all
 
     def open(self) -> tuple[str, list[str]]:
         r, p = self.r, self.p
@@ -111,7 +114,8 @@ class OnePopupRun:
         p = self.p
         p.write(TEXT_BUF, b"\0")
         assert p.export("VvfpStoryProbeChoiceResolve", self.r.n, k, TEXT_BUF, 9000) == 1
-        return " ".join(p.cstring(TEXT_BUF, 9000).split()), self.labels()
+        self.raw = p.cstring(TEXT_BUF, 9000)
+        return " ".join(self.raw.split()), self.labels()
 
     def ok(self) -> int:
         self.p.write(TEXT_BUF, b"\0")
@@ -123,8 +127,27 @@ class OnePopupRun:
         test.assertEqual(st["armed"], 0, st)
 
 
+def own_words(raw: str, game) -> str:
+    """The text's own words: in the first two games the text starts with its title line and the lines under it (the
+    dialog's host opens the picture's gap there); the later games draw the title themselves."""
+    if game in ("vv1", "vv2"):
+        head, sep, body = raw.partition("\n\n\n\n")
+        assert sep and head.strip() and "\n" not in head, raw[:120]
+        return body
+    return raw
+
+
+def assert_label_first(test: unittest.TestCase, raw: str, label: str, game) -> None:
+    """The answer's text as written: the choice's row first in its own words, alone on its line, then a blank line,
+    then the outcome."""
+    words = own_words(raw, game)
+    test.assertTrue(words.startswith(label + "\n\n"), (game, label, raw[:160]))
+    test.assertTrue(words[len(label) + 2:].strip(), "the outcome follows")
+
+
 @emulated
 class TheParentsLesson(unittest.TestCase):
+    assert_label_first = assert_label_first
 
     def start(self, game, counter=5):
         r = Run(game, people=FAMILY)
@@ -157,6 +180,7 @@ class TheParentsLesson(unittest.TestCase):
                     host.quiet(self)
                     outcome, after = host.pick(k)
                     self.assertTrue(outcome.strip(), "the outcome in the same popup")
+                    self.assert_label_first(host.raw, shown[k], game)
                     self.assertNotIn("LESSON SHOULD", outcome.upper())
                     self.assertEqual(after, [], "OK now: no choice")
                     host.quiet(self)
@@ -167,6 +191,7 @@ class TheParentsLesson(unittest.TestCase):
                     n_filed, _now, filed = r.log()
                     self.assertEqual(n_filed, 1, "ONE Island Events log entry")
                     self.assertIn("Choice: ", filed)
+                    self.assertNotIn(shown[k] + "\n\n", filed, "the label line is never logged")
 
     def test_bug_a_a_new_village_runs_the_picked_event_start_to_finish(self):
         """Island Events Seen 0 (the opening events not yet seen): the picked event's intro, question and outcome
@@ -193,6 +218,7 @@ class TheParentsLesson(unittest.TestCase):
 
 @emulated
 class ChoicesAndQuestions(unittest.TestCase):
+    assert_label_first = assert_label_first
 
     def start(self, game, data):
         r = Run(game)
@@ -217,6 +243,9 @@ class ChoicesAndQuestions(unittest.TestCase):
                         tech0 = stores(r)[1]
                         outcome, after = host.pick(k)
                         self.assertIn(f"Behind door {k + 1}", outcome)
+                        self.assert_label_first(host.raw, f"Open door number {k + 1}", game)
+                        self.assertTrue(own_words(host.raw, game).startswith(
+                            f"Open door number {k + 1}\n\nBehind door {k + 1}"))
                         self.assertEqual(after, [])
                         self.assertEqual(stores(r)[1] - tech0, 10 * (k + 1), "its effect, with its text")
                         self.assertEqual(host.ok(), 0)
@@ -224,6 +253,7 @@ class ChoicesAndQuestions(unittest.TestCase):
                         n_filed, _now, filed = r.log()
                         self.assertEqual(n_filed, 1)
                         self.assertIn(f"Choice: Open door number {k + 1}", filed)
+                        self.assertNotIn(f"Open door number {k + 1}\n\n", filed, "the label line is never logged")
 
     def test_a_second_question_in_the_same_popup(self):
         for game in games():
@@ -233,12 +263,15 @@ class ChoicesAndQuestions(unittest.TestCase):
                 host.open()
                 food0, tech0 = stores(r)
                 text, shown = host.pick(0)
+                self.assertTrue(own_words(host.raw, game).startswith("Open door number 1\n\nBehind door 1"),
+                                host.raw[:120])
                 self.assertIn("Behind door 1", text, "the answer's text ...")
                 self.assertIn("Three more doors", text, "... and the next question, one text")
                 self.assertEqual(shown, ["Left", "Middle", "Right"], "its choices after it")
                 self.assertEqual(stores(r)[0] - food0, 7, "the answer's effect with its text")
                 host.quiet(self)
                 text, shown = host.pick(2)
+                self.assertTrue(own_words(host.raw, game).startswith("Right\n\nDoor 3 of three"), host.raw[:120])
                 self.assertIn("Door 3 of three", text)
                 self.assertEqual(shown, [])
                 self.assertEqual(stores(r)[1] - tech0, 300)
@@ -262,6 +295,41 @@ class ChoicesAndQuestions(unittest.TestCase):
                 self.assertIn("walks to the old cliff", shown[0][1])
                 self.assertNotIn("finds many doors", shown[0][1])
                 self.assertEqual(shown[1][0], "question")
+                self.assertFalse(any(s[1].lstrip().startswith("Open door number") for s in shown[2:]),
+                                 "no label line without Scrolling Popups")
+
+
+class ThePatchersMirror(unittest.TestCase):
+    """src/vv_cie_graph.py one_popup: the answer's text starts with the choice's row (cie-v6-binary.md 19), and the
+    bytes the popup holds are checked with it."""
+
+    def test_the_label_line_starts_the_answers_text(self):
+        g = cg.load(doors(4, True), scrolling=True)
+        ctx = next(iter(cg.contexts(g)))
+        for h in cg.walk(g, ctx):
+            pops = cg.one_popup(h.popups)
+            first = h.answers[0][1]
+            self.assertTrue(pops[1].worst.startswith(f"Open door number {first + 1}\n\nBehind door {first + 1}"),
+                            pops[1].worst[:80])
+            if first == 0:
+                second = ["Left", "Middle", "Right"][h.answers[1][1]]
+                self.assertTrue(pops[2].worst.startswith(second + "\n\nDoor "), pops[2].worst[:80])
+            self.assertFalse(pops[0].worst.startswith("Open door"), "the first text has none")
+
+    def test_the_label_line_counts_in_the_bytes(self):
+        def graph(label):
+            body = ("tech " * 400)[:cg.POPUP_TEXT_MAX - 10].strip() + "."
+            return {"format": "vvfp-cie-graph", "version": 6, "title": "Long", "games": [3],
+                    "roles": {}, "start": "q", "nodes": {
+                        "q": {"type": "question", "text": "Pick one.", "choices": [
+                            {"label": label, "next": "a"}, {"label": "B", "next": "b"}]},
+                        "a": {"text": body}, "b": {"text": "Short."}}}
+        _g, problems = cg.validate(graph("A"), True)
+        self.assertEqual([x for x in problems if "bytes" in x], [], "label and blank line still fit")
+        _g, problems = cg.validate(graph("Open the long door"), True)
+        self.assertTrue(any("longer than 1990 bytes" in x for x in problems), problems)
+        _g, problems = cg.validate(graph("Open the long door"), False)
+        self.assertFalse(any("longer than 1990 bytes" in x for x in problems), "without Scrolling Popups: no label")
 
 
 if __name__ == "__main__":

@@ -27,6 +27,10 @@
      * the event pump's `call` of the mouse dispatcher (mouse_site): an event on a scrollbar of the dialog drawn this
        moment (or a knob drag in progress) is used here and not passed on; every other event goes to the game's
        dispatcher unchanged, so the dialog's buttons work as before.
+   The island-event dialog's call of the villager's picture (scroll_popup.h portrait_site) calls the companion too, so
+   the picture scrolls with the text: moved with a scrolled body (A New Home, The Lost Children; any scrolled
+   encounter, as its title and text already move), or, in a one-popup event of the later three, drawn by the text's
+   draw first in the scrolled box, which then starts under the title.
    The wheel: an SDL event watch (SDL_AddEventWatch, installed the first time a scrollbar is drawn) counts
    SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse: up and down, or sideways when the mouse is on
    the horizontal bar or the popup has no vertical bar; a sideways wheel (tilt, touchpad: the event's x) always
@@ -279,6 +283,107 @@ static int sp_op_query(const unsigned char *popup) {
 }
 
 static int sp_load(sp_picture *pic, const sp_art *art);
+static int sp_art_ready(void);
+static int sp_row_ready(void);
+
+/* ---- The villager's picture scrolls with the text (scroll_popup.h portrait_site) ------------------------------
+
+   A New Home, The Lost Children: the dialog's whole body is drawn moved (sp_draw_shifted); the picture, drawn at a
+   place the constructor kept (x 0x16D, y +0x68) rather than by the moved fields, is moved by the same amount here,
+   under the same clip.  The later three: in a one-popup event the picture's call is held (not drawn) and the text's
+   draw (sp_body) draws it first in the scrolled content, between the title and the text; when that draw is not
+   scrolled after all, the picture is drawn where the game put it, just before the text. */
+static unsigned char *g_shift_dialog;   /* the body being drawn moved, and by how much */
+static int g_shift_dx, g_shift_dy;
+typedef struct sp_portrait {
+    int pending;
+    const unsigned char *popup;
+    void *self;                         /* the call's ecx */
+    unsigned int args[8];
+} sp_portrait;
+static sp_portrait g_portrait;
+
+/* The game's portrait draw with `args` (thiscall; it pops them). */
+static void sp_portrait_call(void *self, const unsigned int *args) {
+    unsigned int fn = g_game->portrait_fn;
+    int n = g_game->portrait_args;
+    if (fn == 0 || n <= 0 || n > 8) {
+        return;
+    }
+    __asm {
+        mov ecx, n
+        mov edx, args
+    push_one:
+        push dword ptr [edx + ecx * 4 - 4]
+        loop push_one
+        mov ecx, self
+        call fn
+    }
+}
+
+/* From the stub at portrait_site: 1 the game draws it now (its arguments perhaps moved), 0 it is held. */
+static int __stdcall sp_portrait_at(void *self, const unsigned char *popup, unsigned int *args) {
+    __try {
+        if (g_game->classes == NULL) {
+            if (popup != NULL && popup == g_shift_dialog) {
+                args[1] += (unsigned int)g_shift_dx;         /* (index, x, y) */
+                args[2] += (unsigned int)g_shift_dy;
+            }
+            return 1;
+        }
+        g_portrait.pending = 0;
+        if (popup != NULL && sp_op_query(popup) && sp_art_ready()) {
+            int k;
+            g_portrait.popup = popup;
+            g_portrait.self = self;
+            for (k = 0; k < g_game->portrait_args && k < 8; ++k) {
+                g_portrait.args[k] = args[k];
+            }
+            g_portrait.pending = 1;
+            return 0;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_portrait.pending = 0;
+    }
+    return 1;
+}
+
+static unsigned int g_portrait_fn, g_portrait_pop;
+
+__declspec(naked) static void sp_portrait_stub(void) {
+    __asm {
+        push ecx
+        lea eax, [esp + 8]
+        push eax                            /* the arguments */
+        push esi                            /* the dialog */
+        push ecx                            /* the call's ecx */
+        call sp_portrait_at
+        pop ecx
+        test eax, eax
+        jz held
+        jmp dword ptr [g_portrait_fn]
+    held:
+        pop eax                             /* the return address */
+        add esp, dword ptr [g_portrait_pop]
+        jmp eax
+    }
+}
+
+/* The held picture of `popup`, drawn where the game put it, moved by (dx, dy). */
+static void sp_portrait_draw(const unsigned char *popup, int dx, int dy) {
+    unsigned int a[8];
+    int k;
+    if (!g_portrait.pending || g_portrait.popup != popup) {
+        return;
+    }
+    g_portrait.pending = 0;
+    for (k = 0; k < 8; ++k) {
+        a[k] = g_portrait.args[k];
+    }
+    a[0] += (unsigned int)dx;                               /* (x, y, ...) */
+    a[1] += (unsigned int)dy;
+    sp_portrait_call(g_portrait.self, a);
+}
 
 static int sp_row_ready(void) {
     if (g_row_art == 0) {
@@ -746,12 +851,18 @@ typedef struct sp_justify_draw {
     unsigned int colour;
     void *font;
     int result;
+    const unsigned char *popup;
+    int gap;                      /* the villager's picture above the text (0: none), and where the game put both */
+    int text_x, top;
 } sp_justify_draw;
 
 static void sp_draw_justified(void *holder, void *data, int x, int y) {
     sp_justify_draw *d = (sp_justify_draw *)data;
-    d->result = ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, d->text, x, y, d->width, d->colour,
-                                                            d->font, 0);
+    if (d->gap > 0) {
+        sp_portrait_draw(d->popup, x - d->text_x, y - d->top);
+    }
+    d->result = ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, d->text, x, y + d->gap, d->width,
+                                                            d->colour, d->font, 0);
 }
 
 /* The body text, scrolled when it does not fit; returns what the game's call returns (its height). */
@@ -762,7 +873,7 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     void *font = (void *)(UINT_PTR)a[5];
     unsigned char *popup = (unsigned char *)text - c->text;
     const int *panel = (const int *)(popup + c->panel);
-    int reserve, box_h, content_h, content_w, line, op = 0, text_h;
+    int reserve, box_h, content_h, content_w, line, op = 0, text_h, gap = 0, by = y;
     sp_justify_draw d;
     if (a[6] == 0 && sp_op_query(popup)) {
         op = 1;                             /* one_popup.h: the rows after the text, the companion's OK room */
@@ -773,12 +884,23 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     if (reserve < 0 || sp_clip(holder) == NULL || a[6] != 0 || w <= 0) {
         return -1;
     }
-    box_h = panel[3] - reserve - y;
+    if (op && g_portrait.pending && g_portrait.popup == popup) {
+        /* The villager's picture scrolls with the text: the box starts under the title (one line high), the
+           content is the room the game left for the picture above the text, then the text and the rows. */
+        int below_title = *(const int *)(popup + SP_TITLE_Y) + sp_measure(holder, "X", w, colour, font);
+        if (below_title < y) {
+            gap = y - below_title;
+            by = below_title;
+        }
+    }
+    box_h = panel[3] - reserve - by;
     content_w = sp_widest_word(holder, text, colour, font);
     if (content_w < w) {
         content_w = w;
     }
     content_h = text_h = sp_measure(holder, text, content_w, colour, font);   /* wrapped at the widest word */
+    content_h += gap;
+    text_h += gap;
     if (op) {
         int rw = sp_rows_w(font);
         content_h += sp_rows_h(g_op.r.rows);
@@ -798,13 +920,17 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     d.colour = colour;
     d.font = font;
     d.result = -1;
+    d.popup = popup;
+    d.gap = gap;
+    d.text_x = x;
+    d.top = by;
     g_op_draw.on = op;
     g_op_draw.cx = 0;
     g_op_draw.top = text_h + sp_rows_gap();
     g_op_draw.font = font;
     g_op_draw.colour = sp_row_colour();
     {
-        int k = sp_scroll(holder, popup, panel, x, y, w, box_h, x, panel[2] - 4, content_w, content_h, line,
+        int k = sp_scroll(holder, popup, panel, x, by, w, box_h, x, panel[2] - 4, content_w, content_h, line,
                           sp_hash(text) ^ (unsigned int)(op ? g_op.r.rows * 0x9E3779B1u : 0u), sp_draw_justified, &d);
         g_op_draw.on = 0;
         if (!k) {
@@ -852,7 +978,13 @@ static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int 
             g_view.popup = NULL;
         }
         if (r != -1) {
+            g_portrait.pending = 0;
             return r;
+        }
+        __try {
+            sp_portrait_draw((const unsigned char *)(UINT_PTR)a[0] - c->text, 0, 0);   /* not scrolled: as placed */
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            g_portrait.pending = 0;
         }
     }
     {
@@ -1447,8 +1579,8 @@ typedef struct sp_shifted {
 static void sp_draw_shifted(void *holder, void *data, int x, int y) {
     sp_shifted *s = (sp_shifted *)data;
     int *panel = (int *)(s->dialog + 0x14), saved[4], dx = s->dx0 + (x - s->bx), dy = s->dy0 + (y - s->by);
-    (void)holder;
     int *yfield = s->yfield != 0 ? (int *)(s->dialog + s->yfield) : NULL, saved_y = yfield != NULL ? *yfield : 0;
+    (void)holder;
     saved[0] = panel[0]; saved[1] = panel[1]; saved[2] = panel[2]; saved[3] = panel[3];
     panel[0] += dx; panel[2] += dx;
     if (yfield != NULL) {
@@ -1456,9 +1588,13 @@ static void sp_draw_shifted(void *holder, void *data, int x, int y) {
     } else {
         panel[1] += dy; panel[3] += dy;
     }
+    g_shift_dialog = s->dialog;             /* the villager's picture moves with the body (sp_portrait_at) */
+    g_shift_dx = dx;
+    g_shift_dy = dy;
     __try {
         s->content(s->dialog, NULL);
     } __finally {
+        g_shift_dialog = NULL;
         panel[0] = saved[0]; panel[1] = saved[1]; panel[2] = saved[2]; panel[3] = saved[3];
         if (yfield != NULL) {
             *yfield = saved_y;
@@ -1995,10 +2131,22 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         vvfp_site_branch(&w[count], g->widen_site, 5, stock[count], 0xE8, (const void *)sp_draw_stub);
         ++count;
     }
+    /* The island-event dialog's call of the villager's picture (after `push eax`; esi = the dialog). */
+    if (g->portrait_site != 0) {
+        if (g->portrait_args <= 0 || g->portrait_args > 8
+            || !vvfp_site_holds(g->portrait_site - 1u, (const unsigned char *)"\x50", 1)) {
+            return;
+        }
+        sp_call_bytes(stock[count], g->portrait_site, g->portrait_fn);
+        vvfp_site_branch(&w[count], g->portrait_site, 5, stock[count], 0xE8, (const void *)sp_portrait_stub);
+        ++count;
+    }
     g_game = g;
     g_game_number = game;
     g_mouse_dispatch = g->mouse_dispatch;
     g_core_draw = g->core_draw;
+    g_portrait_fn = g->portrait_fn;
+    g_portrait_pop = (unsigned int)g->portrait_args * 4u;
     if (vvfp_install_sites(w, count)) {
         g_installed = 1;
     } else {

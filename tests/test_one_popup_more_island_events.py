@@ -9,6 +9,8 @@ Island Events question event runs whole in the popup the game builds for it (mie
   * an answer by row (VvfpOnePopupPick) or by key (1 to N, the dialog's own keyboard handler) writes its outcome into
     the same dialog's text field, with its effects made then, once; a second question (The Cave Explorers) asks
     in the same popup, its rows after its text;
+  * that text starts with the answer picked, its row's words on a line of their own and a blank line
+    (docs/event-collection/cie-v6-binary.md 19: "Go investigate!\n\n..."), never in the log (its "Choice:" line);
   * the game's own OK (a click, or Enter) then ends it: the game's close, nothing made again, ONE Island Events log
     entry ("VVFP Island Events.dll" stood in for);
   * the game's own two answer buttons are never shown (VV1 / VV2: taken off the dialog at its first draw; the later
@@ -125,6 +127,14 @@ class OnePopup:
             assert text.startswith(self.title + "\n\n\n\n\n\n"), text[:80]
             text = text[len(self.title):]
         return norm(text)
+
+    def words(self) -> str:
+        """The text's own words, line breaks kept: after A New Home's / The Lost Children's title and picture lines."""
+        text = self.text()
+        if self.game <= 2:
+            assert text.startswith(self.title + "\n\n\n\n\n\n"), text[:80]
+            text = text[len(self.title):].lstrip("\n")
+        return text
 
     def draw(self) -> None:
         if self.game <= 2:
@@ -270,7 +280,9 @@ class TwoAnswers(unittest.TestCase):
                         self.assertEqual(writes(calls), [])
                         self.assertEqual(op.pick(choice, by_key), 1)
                         result = v.pages(1 + choice)
-                        self.assertEqual(op.body(), norm(" ".join(result)), "the outcome in the same field")
+                        self.assertTrue(op.words().startswith(ADV_LABELS[choice] + "\n\n"), op.text()[:200])
+                        self.assertEqual(op.body(), norm(" ".join([ADV_LABELS[choice]] + result)),
+                                         "the answer picked, then the outcome, in the same field")
                         self.assertEqual(op.rows()[:2], (1, []), "OK now: no answer")
                         gained = tuple(a - b for a, b in zip(v.stores(), before))
                         if choice == 0:
@@ -289,6 +301,7 @@ class TwoAnswers(unittest.TestCase):
                         self.assertTrue(entry.startswith("  Event: The Aspiring Adventurer\n  Choice: "
                                                          + ADV_LABELS[choice] + "\n"), entry)
                         self.assertEqual(entry.count("  Choice: "), 1)
+                        self.assertNotIn(ADV_LABELS[choice] + "\n\n", entry, "the label line is never logged")
                         self.assertEqual(op.rows()[0], 0, "over: the popup is no longer ours")
 
     def test_the_games_own_answers_are_never_taken(self) -> None:
@@ -365,7 +378,9 @@ class FourAnswers(unittest.TestCase):
         self.assertEqual(op.body(), norm(" ".join(question_pages)), "the whole question, one text")
         before = v.snapshot()[0]
         self.assertEqual(op.pick(answer, by_key), 1)
-        self.assertEqual(op.body(), norm(" ".join(outcome_pages())), "the outcome in the same field")
+        self.assertTrue(op.words().startswith(labels[answer] + "\n\n"), op.text()[:200])
+        self.assertEqual(op.body(), norm(" ".join([labels[answer]] + outcome_pages())),
+                         "the answer picked, then the outcome, in the same field")
         self.assertEqual(op.rows()[1], [])
         self.assertEqual(len(writes(calls)), 1, "its effects and the log's one entry with the outcome")
         after = v.snapshot()
@@ -376,6 +391,7 @@ class FourAnswers(unittest.TestCase):
         self.assertEqual(len(writes(calls)), 1)
         entry = writes(calls)[0][2]
         self.assertTrue(entry.startswith(f"  Event: {title}\n  Choice: {labels[answer]}\n"), entry)
+        self.assertNotIn(labels[answer] + "\n\n", entry, "the label line is never logged")
         return before
 
     def test_the_troubling_signs(self) -> None:
@@ -442,17 +458,20 @@ class ASecondQuestion(unittest.TestCase):
         self.assertEqual(labels[0], "Explore the Cave")
         food0 = v.stores()
         self.assertEqual(op.pick(0), 1)
+        self.assertTrue(op.words().startswith("Explore the Cave\n\n"), op.text()[:200])
         _, labels2, _ = op.rows()
         self.assertEqual(len(labels2), 2, "the next question's answers after its text")
         self.assertNotEqual(labels2, labels)
         self.assertEqual(v.stores(), food0, "no effect before the ending")
         self.assertEqual(writes(calls), [])
         self.assertEqual(op.pick(0, by_key=True), 1)
+        self.assertTrue(op.words().startswith(labels2[0] + "\n\n"), op.text()[:200])
         self.assertEqual(op.rows()[1], [], "the ending: OK")
         self.assertEqual(len(writes(calls)), 1)
         entry = writes(calls)[0][2]
         self.assertEqual(entry.count("  Choice: "), 2, entry)
         self.assertIn("  Choice: Explore the Cave\n", entry)
+        self.assertNotIn("Explore the Cave\n\n", entry, "the label line is never logged")
         changed = v.stores()
         v.ui.clear()
         op.ok()

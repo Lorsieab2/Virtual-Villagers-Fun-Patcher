@@ -446,6 +446,15 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
 - **An answer** shows its text (up to the next question, or the ending) in the SAME popup, scrolled to its top; a
   question there puts its choices at its end again (`cg_resolve`). The game's OK ends the event (`cg_op_ok` returns
   0). One window from start to finish.
+- **The choice picked starts its answer's text** (the owner, 2026-11-14): its label exactly as its row showed it
+  (section 15's names or pronouns, section 20's label case), alone on the first line of the text's own words, then a
+  blank line, then the outcome -- `"Honesty\n\nTruth with Kindness: ..."`; no "You chose:". In A New Home and The
+  Lost Children it comes after the title line and the villager picture's gap the dialog keeps. An answer with no
+  text of its own shows the label alone. Story Upgrades composes it into the text (`cg_op_lead`, `cg_compose_once`);
+  More Island Events question events the same (`mie_one_popup.inc` `mop.lead`, its labels as its rows show them).
+  It is display only: the Island Events log's "Choice:" line is unchanged and the label line is never logged.
+  Python `one_popup` puts the label at its widest (`chosen_label`) and `ONE_POPUP_JOIN` before the answer's `worst`,
+  so the bytes below count it. Only with Scrolling Popups; the paged popups without it have no label line.
 - **Arming.** The run is armed ONCE: as a question when its start can reach a question through pages and branches
   (`cg_start_may_ask`), so its popup is the game's question popup (A New Home's and The Lost Children's encounter
   dialog, the later games' two-choice dialog), else as a plain event (one text, OK). Nothing waits for another
@@ -463,24 +472,38 @@ Collection, Custom Island Events; the games' own events stay as they are) appear
 ## 20. Sentence case
 
 The owner, 2026-11-14: the entire event text is shown in sentence case, the choices too ("Honesty", not
-"HONESTY"). The source writes some labels and lines in capitals; the data is never changed: the rule is applied to
-what is shown, by the same code shape in Python (`sentence_case`, `title_case`) and in the engine
-(`cg_sentence_case`, `cg_title_case`), pinned equal on every collection text by `tests/test_sentence_case.py`. It
-is applied to a version 6 text as shown (`cg_expand` REAL and WORST, not the award pass; a popup's whole text, a
-label), before anything is filled in:
+"HONESTY"); capitals that mean something stay. The source writes some labels and lines in capitals; the
+data is never changed: the rule is applied to what is shown, by the same code shape in Python (`sentence_case`,
+`title_case`) and in the engine (`cg_sentence_case`, `cg_title_case`), pinned equal on every collection text, label
+and title by `tests/test_sentence_case.py`. It is applied to a version 6 text as shown (`cg_expand` REAL and WORST,
+not the award pass; a popup's whole text; a label -- `cg_label_text`, Python `label=True` -- as a label), before
+anything is filled in:
 
 - a WORD is a run of letters (A-Z, a-z, Latin-1 0xC0-0xFF but 0xD7 and 0xF7), an apostrophe between two letters
-  inside it; it is in CAPITALS when it has no lower-case letter;
-- a RUN is, within one line, a run of words in capitals with no word holding a lower-case letter between them;
-  placeholders `(...)`, picks `{...}` and escapes `\x` sit between words and break nothing;
-- a run is shown in sentence case when it holds two or more words of two or more letters, or one such word on a
-  line with no word holding a lower-case letter ("HONESTY", "STOP!"); one word in capitals inside ordinary text
-  ("it was HUGE", "OK") stays as written;
-- in such a run every letter, and every placeholder's letter, is made lower case -- so `(NAME1)` shows the name in
-  its own case and `(HE)` "he" -- then the first letter of a word or placeholder that starts a sentence (the text's
-  or a line's start, or after `.` `!` `?`, past spaces and quotes) is made a capital, and the word "I" (also in
-  "I'm", "I'll", "I've", "I'd") stays a capital. Names keep their own capitals (they are filled in afterwards);
-- a pool's item is cased on its own the same way, its start not a sentence's start;
+  inside it; it has a lower-case letter or not. Placeholders `(...)`, picks `{...}`, escapes `\x`, digits and
+  punctuation are not words;
+- a SENTENCE ends after a run of `.` `!` `?` and at a line's end (a `:` ends nothing);
+- QUOTED text is inside `"` ... `"`, the cp1252 curly quotes 0x93 ... 0x94, or `'` ... `'`: a `'` opens a
+  quotation when the unit before it is not a letter, digit, placeholder or pick and something other than a space
+  follows it, and closes it when no letter or digit follows it (so "DON'T" and "(NAME)'S" open nothing); a line
+  break ends any quotation;
+- shown in SENTENCE CASE: outside quotations, a LABEL with no lower-case letter in the whole label and a
+  word of two or more letters (a "!" too: "RUN!" is "Run!"); outside quotations, a story SENTENCE with no
+  lower-case letter, a word of two or more letters and no `!` ("AN ALL CAPS LINE.", "WHICH LESSON SHOULD
+  (PARENT) TEACH?");
+- KEPT as written: capitals in a sentence (or a label) that holds a lower-case letter -- emphasis, a word or a
+  phrase ("it was HUGE", "I said DO NOT TOUCH the pot", "Parenting skill: MODERATE GAIN."); anything quoted, a
+  whole sentence too ('"I HATE YOUR GUTS!"', a label that is a quotation); a story sentence in capitals with a `!`
+  -- shouting, "CLOSE IT!", "WHAT IS THAT!?";
+- in sentence case every letter, and every placeholder's letter, is made lower case -- so `(NAME1)` shows the name
+  in its own case and `(HE)` "he" -- then the first letter of a word or placeholder that starts a sentence (the
+  text's or a line's start, or after `.` `!` `?`, past spaces and quotation marks) is made a capital, the word "I" (also in "I'm", "I'll", "I've", "I'd") stays a capital, and so do the
+  island's names "Isola" and "Isolan" ("Isola's" too). Villagers' names keep their own capitals (they are filled in
+  afterwards);
+- a pool's item is cased on its own the same way (as a label inside a label), its start not a sentence's start;
+- there is no heading rule (the owner, 2026-11-14): subroute headings such as "THE TINY TYRANT:" leave the data in a
+  content pass; until then a line like "THE TINY TYRANT: The child ..." is one sentence with lower-case letters and
+  stays as written;
 - a TITLE written in capitals (no lower-case letter, a word of two or more letters) is shown in title case: each
   word's first letter a capital, the rest lower case, a placeholder's name as written (`"(NAME)'S BIG DAY"` ->
   `"(Name)'s Big Day"`); any other title as written. The titles of section 17 (as written, logged, the library's file name) are made from it.
