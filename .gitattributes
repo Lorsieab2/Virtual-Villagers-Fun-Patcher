@@ -132,6 +132,10 @@ assets/island_events_scale/*.txt -text
 /data/living_events/** text eol=lf
 /docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt -text
 /docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt -text
+# The owner-approved drafts of 2026-11-15, set A (Inner Life I-X, What's That Doing Here, Luck, Omens and Lavastones)
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Inner[[:space:]]Life*.txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]What's[[:space:]]That[[:space:]]Doing[[:space:]]Here[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Luck,[[:space:]]Omens[[:space:]]and[[:space:]]Lavastones[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /data/event_collection/** text eol=lf
 # The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
 assets/event_collection/** -text

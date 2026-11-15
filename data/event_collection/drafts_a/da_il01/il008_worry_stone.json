@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worry Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il008_worry_stone",
+  "source": "da_il01",
+  "lines": [
+   95,
+   104
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L95",
+  "ledger": [
+   {
+    "src": "L96",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has been worried for days and keeps turning a smooth stone: offer to listen, or find a match.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been worried about something for days. (subject.He/She) won't say what, and that's (subject.his/her) business. But (subject.he/she) keeps turning a smooth little stone over and over in (subject.his/her) fingers. Today (friend) notices.",
+   "src": "L98",
+   "choices": [
+    {
+     "label": "Offer to Listen",
+     "next": "a",
+     "src": "L100"
+    },
+    {
+     "label": "Find (subject.him/her) a Matching Stone",
+     "next": "b",
+     "src": "L103"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"You don't have to tell me anything,\" says (friend). \"But if you ever want to, I'm here.\" (subject) nods, and keeps turning the stone. (subject.He/She) doesn't say anything that day. But the next morning there's a little flower on (friend)'s doorstep, and (subject) is humming.",
+   "src": "L101"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) spends the afternoon on the beach and comes back with a stone that's almost exactly the same. \"For when one isn't enough,\" (friend.he/she) says. (subject) laughs for the first time in days. The worry is still there. It just feels a little smaller with two stones.",
+   "src": "L104"
+  }
+ }
+}

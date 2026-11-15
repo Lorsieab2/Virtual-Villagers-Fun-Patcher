@@ -315,6 +315,32 @@ Shipped, with the two villagers' names (owner, 2026-11-14):
 | MIX-050 | `A confident a confident novice` | `(first), a confident novice,` | The personality repeats the role's own word; the repeat is dropped (lead decision, 2026-11-14) |
 | MIX-054 | `A skeptical a skeptical observer` | `(first), a skeptical observer,` | The same |
 
+### The owner-approved drafts, set A (2026-11-15; each file its own source)
+
+Each draft file (`collection_lib.DRAFTS_A`) has its own line numbers; its rows start with its source id, e.g.
+`| da_il07 L123 |`. `(his/hers)` has no placeholder (the engine knows `his/her`, not `his/hers`): such a line's
+smallest fix that reads the same is listed here.
+
+#### Group 1 (Inner Life II-V)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
+#### Group 2 (Inner Life VI-IX)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
+#### Group 3 (Inner Life X, What's That Doing Here)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
+#### Group 4 (Luck, Omens and Lavastones)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
 ### Fix `living-title-ampersand`: the MC category titles
 
 The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event
