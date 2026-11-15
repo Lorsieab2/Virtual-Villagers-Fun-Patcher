@@ -309,6 +309,18 @@
     {
      "next": "end"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2966-2967"
+    }
    ]
   },
   "m4": {
@@ -317,6 +329,18 @@
    "children": [
     {
      "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2968-2969"
     }
    ]
   },
