@@ -940,6 +940,41 @@ int main(int argc, char **argv) {
                 save_done(3, save_block);
                 n = read_file(words_file, buf, sizeof buf);
                 CHECK(n == 16, "used up: the next save keeps no words (%ld bytes)", n);
+                /* VvfpCauseDiedUnrecovered (cie-v6-binary.md 22): a death with no body is a Death record,
+                   "Unknown causes", and no grave. */
+                {
+                    typedef void (__stdcall *died_t)(int, int, const char *);
+                    died_t died_unrecovered = (died_t)GetProcAddress(dll, "VvfpCauseDiedUnrecovered");
+                    died_t baby_lost = (died_t)GetProcAddress(dll, "VvfpCauseBabyLost");
+                    unsigned char *gone = later + 0x14 + (size_t)8 * 0x1F8C;
+                    unsigned char *mum = later + 0x14 + (size_t)9 * 0x1F8C;
+                    CHECK(died_unrecovered != NULL && baby_lost != NULL,
+                          "the companion exports VvfpCauseDiedUnrecovered and VvfpCauseBabyLost");
+                    if (died_unrecovered != NULL && baby_lost != NULL) {
+                        gone[0xF10] = 0;                         /* taken with no body: the presence byte */
+                        *(int *)(gone + 0xE78) = 50;
+                        *(int *)(gone + 0xDC4) = 900;
+                        strcpy((char *)gone + 0xDD4, "Fourth");
+                        cie_last[0] = 0;
+                        died_unrecovered(3, 8, "Unknown causes");
+                        CHECK(strstr(cie_last, "Cause of death: Unknown causes\n") != NULL
+                              && strstr(cie_last, "Grave: no grave (the body was not recovered)\n") != NULL,
+                              "a Death record, Unknown causes, no grave: %s", cie_last);
+                        mum[0xF10] = 1;
+                        *(int *)(mum + 0xE78) = 60;
+                        *(int *)(mum + 0xDC4) = 700;
+                        *(int *)(mum + 0xE8C) = 650;             /* nursing ... */
+                        *(int *)(mum + 0xE90) = 2;               /* ... twins */
+                        strcpy((char *)mum + 0xDD4, "Mia");
+                        cie_last[0] = 0;
+                        baby_lost(3, 9, "the baby was lost in The Long Night; never born");
+                        CHECK(strstr(cie_last, "Babies nursing: 2\n") != NULL
+                              && strstr(cie_last, "What happened: the baby was lost in The Long Night; never born\n")
+                                 != NULL,
+                              "the open Conception is closed: Lost before birth: %s", cie_last);
+                        mum[0xF10] = 0;
+                    }
+                }
                 ((reset_t)GetProcAddress(dll, "VvfpCauseVillageReset"))(3, 3);
                 CHECK(GetFileAttributesA(words_file) == INVALID_FILE_ATTRIBUTES,
                       "Start Over (VvfpCauseVillageReset) deletes the words' file");

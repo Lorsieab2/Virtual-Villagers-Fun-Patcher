@@ -215,9 +215,11 @@ class Helpers(unittest.TestCase):
                 w.to_v6(g)                                   # the new changes make the event version 6
             g["nodes"]["start"]["effects"] = [e] if kind != "pay_award" else [
                 {"do": "food", "amount": 5, "scaled": False, "defer": True}, e]
+            if kind == "baby_lost":                          # only a nursing parent, allowed (cie-v6-binary.md 22)
+                g["roles"]["subject"].update(special="nursing_parent", protected="allow")
             self.assertEqual(cg.validate(g)[1], [], kind)
         # The risky ones are marked.
-        self.assertEqual(set(w.RISKY), {"kill", "vanish", "sick", "status"})
+        self.assertEqual(set(w.RISKY), {"kill", "vanish", "sick", "status", "die_unrecovered", "baby_lost"})
         self.assertEqual(w.CAUSE_WORDS, {"custom": "Died in a custom island event", "unknown": "Unknown causes"})
 
     def test_the_fit_meter_counts_pages_or_only_the_text_limit(self) -> None:
@@ -479,7 +481,8 @@ lib._role_form()
 out["role_widgets"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
 lib.select_node(ends[0], "Changes")
 for kind in w.NEW_KINDS:
-    lib.add_effect(kind)
+    if kind not in ("die_unrecovered", "baby_lost"):   # gone for good / only a nursing parent (own tests)
+        lib.add_effect(kind)
 lib.add_effect("skill")
 lib.g["nodes"][ends[0]]["effects"][-1].pop("min")
 lib.g["nodes"][ends[0]]["effects"][-1].pop("max")
@@ -700,7 +703,7 @@ class Window(unittest.TestCase):
         self.assertIn(w.PREFER_NOTE, words)
         listed = "\n".join(self.out["effects_listed"])
         for part in ("Everyone celebrates", "looks pleased", "health changes by 10 to 20", "percent of its work",
-                     "skill becomes 100"):
+                     "skill becomes 100", "gets a new look: head at random"):
             self.assertIn(part, listed)
         self.assertEqual(self.out["v6_problems"], [])
         self.assertTrue(self.out["seven_round_trip"])

@@ -366,11 +366,24 @@ SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
 
 # ---- Version 6 (docs/event-collection/cie-v6-binary.md is the engine's contract) ---------------------------------
 
-V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage")     # the new "do" words
-EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16})
+V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # the new "do" words
+              "appearance", "die_unrecovered", "baby_lost")                  # cie-v6-binary.md 22
+EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
+                     "appearance": 17, "die_unrecovered": 18, "baby_lost": 19})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
-                    "skill_set": CAP_SKILLS, "damage": 0})
-VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change")
+                    "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
+                    "baby_lost": CAP_CANCEL})
+VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
+                                          "baby_lost")
+GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered",)
+# Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
+HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
+BODY_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
+LOOK_RANDOM = -1              # an appearance effect's head / body: "random" (any row but the current one)
+LOOK_KEEP = -2                # ... not changed
+# Section 21: kinship relations (the relations table; the header is then 104 bytes).
+RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4}
+HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
             "has_living_child", "drew")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
@@ -839,9 +852,22 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             if "min" in e or "max" in e:
                 problems.append(f"{where}: a skill set takes no min or max")
             out.update(skills=list(skills), set=e.get("set"))
-        if do == "kill":
+        elif do == "appearance":
+            # Section 22: a head and / or body row, or "random" (any other row); fixed rows checked per game later.
+            known |= {"head", "body"}
+            for part in ("head", "body"):
+                v = e.get(part)
+                if v is None:
+                    continue
+                if v != "random" and not _int_in(v, 0, max(HEAD_ROWS.values()) - 1):
+                    problems.append(f"{where}: appearance {part} is a row number or \"random\"")
+                    continue
+                out[part] = v
+            if "head" not in e and "body" not in e:
+                problems.append(f"{where}: appearance changes the head, the body or both")
+        if do in ("kill", "die_unrecovered"):
             known.add("cause")
-            cause = e.get("cause", "custom")
+            cause = e.get("cause", "custom" if do == "kill" else "unknown")
             if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
                 problems.append(f"{where}: kill cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")
@@ -1050,8 +1076,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected"}
+                extra -= {"max_age", "skill", "special", "protected", "relation"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                rel = r.get("relation")
+                if rel is not None:
+                    # Section 21: one kinship relation to another villager role the event needs.
+                    if not isinstance(rel, dict) or len(rel) != 1 or next(iter(rel)) not in RELATION_CODES \
+                            or not isinstance(next(iter(rel.values())), str):
+                        problems.append(f"{where}: relation is {{one of {', '.join(RELATION_CODES)}: a role}}")
+                    else:
+                        roles[rid]["relation"] = dict(rel)
             else:
                 roles[rid] = {"kind": "villager", "optional": bool(r.get("optional", False)), "sex": sex,
                               "min_age": min_age, "exclude_nursing": bool(r.get("exclude_nursing", True)),
@@ -1111,6 +1145,14 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             problems.append(f"role {rid}: the age gap names another villager role")
         elif other.get("max_age_gap", {}).get("role") == rid:
             problems.append(f"role {rid}: give the age gap on one of the two roles only")
+    for rid, r in roles.items():
+        rel = r.get("relation")
+        if rel is None:
+            continue
+        (kind, to), = rel.items()
+        other = roles.get(to)
+        if to == rid or other is None or other["kind"] != "villager" or other.get("optional"):
+            problems.append(f"role {rid}: {kind} names another villager role the event needs (not optional)")
     g["roles"] = roles
 
     start = data.get("start")
@@ -2015,7 +2057,7 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
@@ -2529,7 +2571,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         say(f"node {nid} ({where}): {do} acts on {r}, who may not be bound here")
                     elif member in gone:
                         say(f"node {nid} ({where}): {do} acts on {r}, who is already gone")
-                    if do in GONE_EFFECTS:
+                    if do in GONE_EFFECTS_V6:
                         gone = gone | {member}
                     if do == "status" and e.get("status") not in game.statuses:
                         say(f"node {nid}: status {e.get('status')} is not in {game.name}")
@@ -2906,11 +2948,13 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
     for rid, r in g["roles"].items():
         if r["kind"] != "villager":
             continue
-        if rid in harm and r["protected"] == "allow" and collection:
-            problems.append(f"role {rid}: can be harmed, so protected villagers stay out (protected cannot be "
-                            "allow in a collection event)")
-        if rid in harm and r["special"] and collection:
-            problems.append(f"role {rid}: a {r['special']} role is never harmed")
+        # The owner's protection model (2026-11-14; cie-v6-binary.md 7): "allow" on a harmed role is the author's
+        # choice, in a collection event too (collection_check --allow-report lists each for the owner).  A special
+        # role (it MUST be that villager) that can be harmed needs it, or its own villager is kept out.
+        if rid in harm and r["special"] and r["protected"] != "allow":
+            problems.append(f"role {rid}: a {r['special']} role that can be harmed needs protected allow (with "
+                            f"{r['protected']} its own villager is kept out)")
+        _ = collection
         if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
             problems.append(f"role {rid}: none of its skills is in the event's games")
     all_skills = {s for gm in GAMES.values() for s in gm.skills}
@@ -2927,6 +2971,16 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
                 for s in e["skills"]:
                     if s not in all_skills:
                         problems.append(f"{where}: {s!r} is not a skill in any game")
+            if e["do"] == "appearance":
+                for part, rows in (("head", HEAD_ROWS), ("body", BODY_ROWS)):
+                    v = e.get(part)
+                    if isinstance(v, int) and any(v >= rows[gn] for gn in g["games"]):
+                        problems.append(f"{where}: {part} {v} is not a row in every game of the event (0.."
+                                        f"{min(rows[gn] for gn in g['games']) - 1})")
+            if e["do"] == "baby_lost":
+                role = g["roles"].get(e["role"], {})
+                if role.get("kind") != "villager" or role.get("special") != "nursing_parent":
+                    problems.append(f"{where}: baby_lost acts on a role with special nursing_parent")
 
 
 def _check_text(where: str, text: str, problems: list[str], version: int = 1, g: dict | None = None,
@@ -3263,7 +3317,10 @@ _HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18:
 _ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
 _POOL = struct.Struct("<HHHBBHH")       # G3: + the distinct_from string, + 0
 _ITEM = struct.Struct("<HHHH")
+_HEADER_REL = struct.Struct("<IHH")    # 21: + the relations' offset, count, 0 (a 104-byte header)
+_RELATION = struct.Struct("<BBBB")     # role, kind, other role, 0
 assert _HEADER6.size == HEADER_BYTES_V6 and _ROLE6.size == 16 and _POOL.size == 12 and _ITEM.size == 8
+assert _HEADER6.size + _HEADER_REL.size == HEADER_BYTES_REL
 ROLE_FLAG_SAID_EXCLUDE = 64   # the author wrote protected "exclude" (decompiling only; the engine reads 32)
 ROLE_FLAG_SAID_ALLOW = 128    # the author wrote protected "allow"
 
@@ -3400,6 +3457,11 @@ def _compile_v6(g: dict) -> bytes:
                 st = s(e["action"])
             elif do == "mood":
                 a = 1 if e["mood"] == "good" else -1
+            elif do == "appearance":
+                a, b = (LOOK_KEEP if e.get(p) is None else LOOK_RANDOM if e[p] == "random" else e[p]
+                        for p in ("head", "body"))
+            elif do == "die_unrecovered":
+                st = s(e["cause"])
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3450,19 +3512,25 @@ def _compile_v6(g: dict) -> bytes:
                   len(lg["pools"]), n_item):
         if count >= NONE:
             raise GraphError(["the graph is too big for the .cieg format"])
-    sections = [roles, nodes, children, effects, b"".join(conds), variants, patches, pools, items,
+    # 21: the kinship relations, one record per role with one (the header grows to 104 bytes only then).
+    relations = b"".join(_RELATION.pack(ridx[r], RELATION_CODES[k], ridx[t], 0) for r in role_ids
+                         for k, t in (lg["roles"][r].get("relation") or {}).items())
+    sections = [roles, nodes, children, effects, b"".join(conds), variants, patches, pools, items, relations,
                 b"".join(struct.pack("<I", o) for o in offsets) + blob]
-    at = _HEADER6.size
+    hsize = HEADER_BYTES_REL if relations else _HEADER6.size
+    at = hsize
     offs = []
     for sec in sections:
         offs.append(at)
         at += len(sec)
-    head = _HEADER6.pack(BINARY_MAGIC, VERSION_V6, _HEADER6.size, at, 0,
+    head = _HEADER6.pack(BINARY_MAGIC, VERSION_V6, hsize, at, 0,
                          sum(1 << (x - 1) for x in lg["games"]), title, nidx[lg["start"]],
                          lg["requirement"]["min_eligible"], len(role_ids), len(node_ids), n_child, n_effect,
                          len(conds), n_variant, len(strings), len(lg["patches"]), requirement,
-                         offs[0], offs[1], offs[2], offs[3], offs[4], offs[5], offs[6], offs[9],
+                         offs[0], offs[1], offs[2], offs[3], offs[4], offs[5], offs[6], offs[10],
                          offs[7], offs[8], len(lg["pools"]), n_item, 1, col, tv_first, tv_count)
+    if relations:
+        head += _HEADER_REL.pack(offs[9], len(relations) // _RELATION.size, 0)
     data = bytearray(head + b"".join(sections))
     struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
     return bytes(data)
@@ -3546,6 +3614,12 @@ def _decompile_v6(data: bytes) -> dict:
                           "believers_only": bool(flags & 8)}
             if gap_role:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
+    if _hsize == HEADER_BYTES_REL:
+        o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
+        code_relation = {v: k for k, v in RELATION_CODES.items()}
+        for i in range(n_rel):
+            who, kind, to, _ = _RELATION.unpack_from(data, o_rel + i * _RELATION.size)
+            roles[role_ids[who]]["relation"] = {code_relation[kind]: role_ids[to]}
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
         (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
@@ -3597,6 +3671,12 @@ def _decompile_v6(data: bytes) -> dict:
                     e["action"] = s(st)
                 elif do == "mood":
                     e["mood"] = "good" if a > 0 else "bad"
+                elif do == "appearance":
+                    for part, v in (("head", a), ("body", b)):
+                        if v != LOOK_KEEP:
+                            e[part] = "random" if v == LOOK_RANDOM else v
+                elif do == "die_unrecovered":
+                    e["cause"] = s(st)
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
@@ -3807,8 +3887,9 @@ def decompile_graph(data: bytes) -> dict:
     (magic, version, hsize, fsize, crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect, n_cond,
      n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
      _z2) = h
-    want = HEADER_BYTES_V6 if version >= VERSION_V6 else _HEADER.size
-    if magic != BINARY_MAGIC or version not in VERSIONS or hsize != want or fsize != len(data) or len(data) < want:
+    want = (HEADER_BYTES_V6, HEADER_BYTES_REL) if version >= VERSION_V6 else (_HEADER.size,)
+    if magic != BINARY_MAGIC or version not in VERSIONS or hsize not in want or fsize != len(data) \
+            or len(data) < hsize:
         raise GraphError(["not a version 1 to 6 .cieg file"])
     check = bytearray(data)
     struct.pack_into("<I", check, 12, 0)
@@ -3999,6 +4080,14 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if "set" in e:
                 return [va, e["set"]]
             return [va, e["min"] + below(e["max"] - e["min"] + 1)]
+        if do == "appearance":
+            # 22: a fixed row is itself, "kept" -1; "random" the roll k in 0..rows-2 (k + 1 from the current row up
+            # when the effect is made).  The head's first.
+            out = []
+            for part, rows in (("head", HEAD_ROWS), ("body", BODY_ROWS)):
+                v = e.get(part)
+                out.append(-1 if v is None else below(rows[game] - 1) if v == "random" else v)
+            return out
         return [0, 0]
 
     def scan(text: str, visited: tuple, picks: list, depth: int = 0) -> None:
@@ -4145,6 +4234,8 @@ def default_outcome(effects: list[tuple[str, dict]]) -> str:
                 return "dies"
             if e["do"] == "vanish":
                 return "disappears"
+            if e["do"] == "die_unrecovered":
+                return "dies (body not recovered)"
             if e["do"] == "status":
                 return "becomes a Heathen"
     return "lives"

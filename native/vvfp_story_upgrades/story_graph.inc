@@ -160,7 +160,13 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_PREF = 8, CGE_SKILL = 9, CGE_SICK = 10,
        /* version 6 */
        CGE_CELEBRATE = 11, CGE_ACTION = 12, CGE_MOOD = 13, CGE_HEALTH_CHANGE = 14, CGE_SKILL_SET = 15,
-       CGE_DAMAGE = 16 };
+       CGE_DAMAGE = 16,
+       /* cie-v6-binary.md 22 */
+       CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19 };
+#define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
+#define CG_LOOK_KEEP (-2)             /* ... not changed */
+#define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
+enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 4 };
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
@@ -213,6 +219,9 @@ typedef struct {
     /* Version 6 (cie-v6-binary.md 18): the title as the file holds it, and its title variants (header +92 the
        first in the variants table, +94 the count; 0 none).  `title` is the one cg_choose_title picked. */
     int base_title, tv_first, tv_count;
+    /* Version 6 (cie-v6-binary.md 21): the kinship relations (a 104-byte header); 0 none. */
+    int n_rel;
+    unsigned int o_rel;
 } cg_graph;
 
 static unsigned int cg_u16(const unsigned char *p) {
@@ -766,7 +775,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     g->d = data;
     g->size = size;
     if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 6u
-        || cg_u16(h + 6) != (cg_u16(h + 4) >= 6u ? CG_HEADER_V6 : CG_HEADER_BYTES) || size < cg_u16(h + 6)
+        || (cg_u16(h + 6) != (cg_u16(h + 4) >= 6u ? CG_HEADER_V6 : CG_HEADER_BYTES)
+            && !(cg_u16(h + 4) >= 6u && cg_u16(h + 6) == CG_HEADER_REL)) || size < cg_u16(h + 6)
         || cg_u32(h + 8) != size) {
         return cg_bad("it is not a version 1, 2, 3, 4, 5 or 6 .cieg file");
     }
@@ -812,6 +822,14 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         }
         g->tv_first = (int)cg_u16(h + 92);
         g->tv_count = (int)cg_u16(h + 94);
+        if (g->header_bytes == CG_HEADER_REL) {
+            /* 21: the relations' offset and count, then 0. */
+            g->o_rel = cg_u32(h + 96);
+            g->n_rel = (int)cg_u16(h + 100);
+            if (g->n_rel < 1 || cg_u16(h + 102) != 0u || !cg_section(g, g->o_rel, g->n_rel, 4)) {
+                return cg_bad("its kinship relations do not fit in the file");
+            }
+        }
     }
     if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
         || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
@@ -915,6 +933,20 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             }
         }
     }
+    for (i = 0; i < g->n_rel; ++i) {
+        /* 21: two different villager roles, a known kind, one relation a role. */
+        const unsigned char *rel = g->d + g->o_rel + 4u * (unsigned int)i;
+        if ((int)rel[0] >= g->n_role || (int)rel[2] >= g->n_role || rel[0] == rel[2] || rel[1] < CG_REL_SPOUSE
+            || rel[1] > CG_REL_SIBLING || rel[3] != 0 || cg_role_at(g, rel[0])[0] != CG_ROLE_VILLAGER
+            || cg_role_at(g, rel[2])[0] != CG_ROLE_VILLAGER) {
+            return cg_bad("a kinship relation is not one this game can read");
+        }
+        for (k = 0; k < i; ++k) {
+            if (g->d[g->o_rel + 4u * (unsigned int)k] == rel[0]) {
+                return cg_bad("a role has two kinship relations");
+            }
+        }
+    }
     for (i = 0; i < g->n_cond; ++i) {
         const unsigned char *c = cg_cond_at(g, i);
         unsigned int a = cg_u16(c + 2);
@@ -966,8 +998,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int a = (int)cg_u32(e + 4), b = (int)cg_u32(e + 8), lo, hi;
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
-                       || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL);
-        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_DAMAGE : CGE_SICK);
+                       || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_BABY_LOST);
+        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_BABY_LOST : CGE_SICK);
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -992,11 +1025,18 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                     }
                 }
                 break;
-            case CGE_KILL: {
+            case CGE_KILL: case CGE_DIE_UNRECOVERED: {
                 const char *cause = cg_s(g, str);
-                ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < CG_CAUSE_BYTES && ce_text_ok(cause, 0);
+                ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < CG_CAUSE_BYTES && ce_text_ok(cause, 0)
+                     && (e[0] == CGE_KILL || (a == 0 && b == 0));
                 break;
             }
+            case CGE_APPEARANCE:
+                /* 22: a row 0..29, random or kept, each; at least one changed. */
+                ok = a >= CG_LOOK_KEEP && a <= 29 && b >= CG_LOOK_KEEP && b <= 29
+                     && !(a == CG_LOOK_KEEP && b == CG_LOOK_KEEP) && str == CG_NONE;
+                break;
+            case CGE_BABY_LOST: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -1311,7 +1351,8 @@ static int test_graph_puzzles = -1;    /* the puzzles solved (bit = the adapter'
 static short test_graph_force[64];     /* nodes a draw picks whenever one of them can be drawn */
 static int test_graph_forced;
 typedef struct {
-    int kind;                          /* 1 killed (words), 2 vanished (words), 3 faith conversion */
+    int kind;                          /* 1 killed (words), 2 vanished (words), 3 faith conversion, 4 died with no
+                                          body (words), 5 a baby lost (words) */
     int index;
     char words[96];
 } cg_told_entry;
@@ -1377,6 +1418,21 @@ static int cg_protected(const ce_adapter *a, int game, const unsigned char *r) {
     return *(const int *)(r + a->off_pregnant) != 0 || cg_special(a, game, r);
 }
 
+/* A villager no harm ever reaches, whatever the role's `protected` says (the owner's model of 2026-11-14, cie-v6-
+   binary.md 7): The Secret City's stand-in record and New Believers' story villagers (roles 12-17: the chief, the
+   Retired Chief, the puzzles' Heathens -- whether harming them is safe is UNCONFIRMED, an owner question).  The Lost
+   Children's totems are never listed (c2_listed), so never cast at all. */
+static int cg_never_harmed(int game, const unsigned char *r) {
+    if (game == 3) {
+        return r[0xE94] != 0;
+    }
+    if (game == 5) {
+        int role = *(const int *)(r + 0x1CFC);
+        return role >= 12 && role <= 17;
+    }
+    return 0;
+}
+
 /* Record `r`'s best value in the skills `list` names (comma separated) that the game has, -1 when it has none. */
 static int cg_skill_value(const ce_adapter *a, const unsigned char *r, const char *list) {
     char word[32];
@@ -1438,6 +1494,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r)) {
         return 0;
     }
+    if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
+        return 0;                      /* never harmed, even with protected "allow" */
+    }
     /* The requirements (version 6: dropped for a role nobody meets when the cast prefers them). */
     if (cg_relax_mask & (1u << role)) {
         return 1;
@@ -1495,8 +1554,210 @@ static int cg_augment(const ce_adapter *a, int game, int role, unsigned char *se
 static int cg_try[CG_MAX_ROLES];       /* the record each role holds in this search, -1 */
 static int cg_gap_steps;
 
+/* ---- Kinship (docs/event-collection/cie-v6-binary.md 21) ----------------------------------------------------
+
+   A villager role may need to be the spouse, parent, child or sibling of another role's villager: a rule between
+   two roles, filled by the age gaps' search.  Read from the game's own data, never from a name alone: a child's
+   recorded father and mother (name, head and body on its own record in The Lost Children to New Believers; A New
+   Home keeps none, so there the patcher's parentage sidecar, "VVFP VV1 Parentage.dll", while it is loaded), and a
+   carrier's expected father.  A parent field is villager X when its name, head and body are X's now; a default
+   father (The Lost Children's Gong "?", The Tree of Life's and New Believers' "Joey", A New Home's sidecar
+   "Unknown") is nobody.  No game keeps a spouse: "spouse" is the two recorded parents of one living villager, or a
+   carrier and the expected father of the baby carried. */
+typedef struct {
+    char name[CG_NAME_BYTES];
+    int head, body;                    /* -1 unknown */
+} cg_person;
+
+static cg_person cg_kin_me[CE_MAX_RECORDS];        /* each listed villager as a parent field would name them */
+static cg_person cg_kin_par[CE_MAX_RECORDS][2];    /* ... their recorded father [0] and mother [1] */
+static cg_person cg_kin_exp[CE_MAX_RECORDS];       /* ... the father of the baby they carry */
+static unsigned char cg_kin_live[CE_MAX_RECORDS];
+static int cg_kin_game;                /* the game cg_kin_fill read */
+
+#ifdef VVFP_TEST
+/* A New Home's parentage sidecar for the test build: a record's father and mother (names empty: none). */
+static cg_person test_graph_vv1_par[CE_MAX_RECORDS][2];
+static cg_person test_graph_vv1_exp[CE_MAX_RECORDS];
+static int test_graph_vv1_parents;     /* 1: the table above stands for the sidecar */
+#endif
+
+/* Role `r`'s relation: its kind (0 none) and the other role into *other. */
+static int cg_relation(int r, int *other) {
+    int i;
+    for (i = 0; i < cg_g.n_rel; ++i) {
+        const unsigned char *rel = cg_g.d + cg_g.o_rel + 4u * (unsigned int)i;
+        if ((int)rel[0] == r) {
+            *other = rel[2];
+            return rel[1];
+        }
+    }
+    return 0;
+}
+
+static void cg_person_unknown(cg_person *p) {
+    p->name[0] = '\0';
+    p->head = p->body = -1;
+}
+
+static void cg_person_field(const ce_adapter *a, cg_person *p, const unsigned char *r, unsigned int name,
+                            int capacity, unsigned int head, unsigned int body) {
+    ce_copy_name(p->name, CG_NAME_BYTES, r + name, capacity < a->name_bytes ? capacity : a->name_bytes);
+    p->head = *(const int *)(r + head);
+    p->body = *(const int *)(r + body);
+}
+
+/* A New Home: the parentage sidecar's parents and expected father of record `i` (nothing without the companion). */
+static void cg_kin_vv1(int i) {
+    typedef int (__stdcall *names_fn)(int, char *, char *, int);
+    typedef int (__stdcall *looks_fn)(int, int *);
+    typedef int (__stdcall *expected_fn)(int, int *, char *, int);
+    HMODULE module;
+    names_fn names;
+    looks_fn looks;
+    expected_fn expected;
+    int out[4];
+#ifdef VVFP_TEST
+    if (test_graph_vv1_parents) {
+        cg_kin_par[i][0] = test_graph_vv1_par[i][0];
+        cg_kin_par[i][1] = test_graph_vv1_par[i][1];
+        cg_kin_exp[i] = test_graph_vv1_exp[i];
+        return;
+    }
+#endif
+    module = GetModuleHandleA("VVFP VV1 Parentage.dll");
+    if (module == NULL) {
+        return;
+    }
+    names = (names_fn)(void *)GetProcAddress(module, "Vv1ParentageQueryNames");
+    looks = (looks_fn)(void *)GetProcAddress(module, "Vv1ParentageQuery");
+    expected = (expected_fn)(void *)GetProcAddress(module, "Vv1ParentageQueryExpectedFather");
+    if (names != NULL && looks != NULL && names(i, cg_kin_par[i][0].name, cg_kin_par[i][1].name, CG_NAME_BYTES)
+        && looks(i, out)) {
+        cg_kin_par[i][0].head = out[0];
+        cg_kin_par[i][0].body = out[1];
+        cg_kin_par[i][1].head = out[2];
+        cg_kin_par[i][1].body = out[3];
+    } else {
+        cg_person_unknown(&cg_kin_par[i][0]);
+        cg_person_unknown(&cg_kin_par[i][1]);
+    }
+    if (expected != NULL && expected(i, out, cg_kin_exp[i].name, CG_NAME_BYTES)) {
+        cg_kin_exp[i].head = out[0];
+        cg_kin_exp[i].body = out[1];
+    } else {
+        cg_person_unknown(&cg_kin_exp[i]);
+    }
+}
+
+/* Each listed villager's own name and looks, recorded parents and expected father, read once for a search. */
+static void cg_kin_fill(const ce_adapter *a, int game) {
+    /* The expected father on the carrier (VV2-VV5: the conception copies his name, head and body there). */
+    static const unsigned int EXP[6][3] = { { 0 }, { 0 }, { 0x5C0u, 0x5E0u, 0x5DCu }, { 0xE48u, 0xE68u, 0xE64u },
+                                            { 0x1C10u, 0x1C30u, 0x1C2Cu }, { 0x1C10u, 0x1C30u, 0x1C2Cu } };
+    int i;
+    if (cg_g.n_rel == 0 || game < 1 || game > 5) {
+        return;
+    }
+    cg_kin_game = game;
+    memset(cg_kin_live, 0, sizeof cg_kin_live);
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        const unsigned char *r = a->record(i);
+        cg_kin_live[i] = (unsigned char)(r != NULL && a->listed(r));
+        cg_person_unknown(&cg_kin_me[i]);
+        cg_person_unknown(&cg_kin_par[i][0]);
+        cg_person_unknown(&cg_kin_par[i][1]);
+        cg_person_unknown(&cg_kin_exp[i]);
+        if (!cg_kin_live[i]) {
+            continue;
+        }
+        cg_person_field(a, &cg_kin_me[i], r, a->off_name, a->name_bytes, a->off_head, a->off_body);
+        if (a->off_father_name != 0u) {
+            cg_person_field(a, &cg_kin_par[i][0], r, a->off_father_name, a->name_bytes, a->off_father_head,
+                            a->off_father_body);
+            cg_person_field(a, &cg_kin_par[i][1], r, a->off_mother_name, a->name_bytes, a->off_mother_head,
+                            a->off_mother_body);
+            if (*(const int *)(r + a->off_pregnant) != 0 && EXP[game][0] != 0u) {
+                cg_person_field(a, &cg_kin_exp[i], r, EXP[game][0], 0x18, EXP[game][1], EXP[game][2]);
+            }
+        } else if (game == 1) {
+            cg_kin_vv1(i);
+            if (*(const int *)(r + a->off_pregnant) == 0) {
+                cg_person_unknown(&cg_kin_exp[i]);
+            }
+        }
+    }
+}
+
+/* A game's default father: nobody (the parentage rules). */
+static int cg_default_father(int game, const cg_person *p) {
+    if (game == 1) {
+        return lstrcmpA(p->name, "Unknown") == 0 && p->head == 0 && p->body == 0;
+    }
+    if (game == 2) {
+        return lstrcmpA(p->name, "?") == 0 && p->head == 0 && p->body == 0;
+    }
+    if (game == 4 || game == 5) {
+        return (lstrcmpA(p->name, "Joey") == 0 || lstrcmpA(p->name, "Joey Joerson") == 0) && p->head == 2
+               && p->body == 2;
+    }
+    return 0;
+}
+
+/* Parent field `p` (a father's when `father`) names the villager in record `x`. */
+static int cg_kin_is(int game, const cg_person *p, int x, int father) {
+    const cg_person *me = &cg_kin_me[x];
+    if (p->name[0] == '\0' || me->name[0] == '\0' || (father && cg_default_father(game, p))) {
+        return 0;
+    }
+    return lstrcmpA(p->name, me->name) == 0 && p->head == me->head && p->body == me->body;
+}
+
+/* Two parent fields name one person (a real one: never a default father). */
+static int cg_kin_same(int game, const cg_person *p, const cg_person *q, int father) {
+    if (p->name[0] == '\0' || (father && cg_default_father(game, p))) {
+        return 0;
+    }
+    return lstrcmpA(p->name, q->name) == 0 && p->head == q->head && p->body == q->body;
+}
+
+/* Whether the villager in record `x` is relation `kind` of the villager in record `y` (cg_kin_fill first). */
+static int cg_kin(int game, int kind, int x, int y) {
+    int k;
+    if (x < 0 || y < 0 || x >= CE_MAX_RECORDS || y >= CE_MAX_RECORDS || x == y || !cg_kin_live[x]
+        || !cg_kin_live[y]) {
+        return 0;
+    }
+    switch (kind) {
+    case CG_REL_PARENT:
+        return cg_kin_is(game, &cg_kin_par[y][0], x, 1) || cg_kin_is(game, &cg_kin_par[y][1], x, 0);
+    case CG_REL_CHILD:
+        return cg_kin_is(game, &cg_kin_par[x][0], y, 1) || cg_kin_is(game, &cg_kin_par[x][1], y, 0);
+    case CG_REL_SIBLING:
+        return cg_kin_same(game, &cg_kin_par[x][1], &cg_kin_par[y][1], 0)
+               || cg_kin_same(game, &cg_kin_par[x][0], &cg_kin_par[y][0], 1);
+    case CG_REL_SPOUSE:
+        if (cg_kin_is(game, &cg_kin_exp[x], y, 1) || cg_kin_is(game, &cg_kin_exp[y], x, 1)) {
+            return 1;                  /* one carries the other's baby */
+        }
+        for (k = 0; k < CE_MAX_RECORDS; ++k) {
+            if (k != x && k != y && cg_kin_live[k]
+                && ((cg_kin_is(game, &cg_kin_par[k][0], x, 1) && cg_kin_is(game, &cg_kin_par[k][1], y, 0))
+                    || (cg_kin_is(game, &cg_kin_par[k][0], y, 1) && cg_kin_is(game, &cg_kin_par[k][1], x, 0)))) {
+                return 1;              /* the recorded father and mother of one living villager */
+            }
+        }
+        return 0;
+    default:
+        return 0;
+    }
+}
+
 static int cg_has_gaps(void) {
     int r;
+    if (cg_g.n_rel > 0) {
+        return 1;                      /* 21: a kinship relation is a rule between two roles too */
+    }
     for (r = 0; r < cg_g.n_role; ++r) {
         if (cg_role_at(&cg_g, r)[6] != 0) {
             return 1;
@@ -1512,15 +1773,22 @@ static void cg_try_reset(void) {
     }
 }
 
-/* Record `i` as role `r` keeps every age gap with the roles already filled. */
+/* Record `i` as role `r` keeps every age gap and kinship relation (21) with the roles already filled. */
 static int cg_gap_ok(const ce_adapter *a, int r, int i) {
     const unsigned char *spec = cg_role_at(&cg_g, r);
-    int q;
+    int q, other = -1, kind = cg_relation(r, &other);
     for (q = 0; q < cg_g.n_role; ++q) {
         const unsigned char *qs = cg_role_at(&cg_g, q);
-        int years, diff;
+        int years, diff, qother = -1, qkind;
         if (q == r || cg_try[q] < 0 || (cg_relax_mask & ((1u << r) | (1u << q)))) {
             continue;
+        }
+        if (kind != 0 && other == q && !cg_kin(cg_kin_game, kind, i, cg_try[q])) {
+            return 0;                  /* r's villager must be that relation of q's */
+        }
+        qkind = cg_relation(q, &qother);
+        if (qkind != 0 && qother == r && !cg_kin(cg_kin_game, qkind, cg_try[q], i)) {
+            return 0;                  /* q's villager must be that relation of r's */
         }
         if (spec[6] == (unsigned char)(q + 1)) {
             years = spec[7];
@@ -1575,6 +1843,7 @@ static int cg_matchable(const ce_adapter *a, int game, unsigned int roles, const
     int r;
     if (cg_has_gaps()) {
         static unsigned char copy[CE_MAX_RECORDS];
+        cg_kin_fill(a, game);          /* 21: the families as they are now */
         memcpy(copy, used, sizeof copy);
         cg_gap_steps = 0;
         return cg_search(a, game, roles, copy);
@@ -1857,6 +2126,7 @@ static int cg_bind(int game) {
     cg_try_reset();
     cg_relax_mask = cg.relaxed;
     cg_cast_now = cg.cast_mode;
+    cg_kin_fill(a, game);
     if (!cg_matchable(a, game, left, used)) {
         if (!cg_plan_cast(a, game, left, used)) {
             return 0;
@@ -2011,7 +2281,7 @@ static int cg_harmable(int r, int game) {
         return 0;
     }
     record = cg_villager(a, r);
-    return record != NULL && !cg_protected(a, game, record);
+    return record != NULL && !cg_protected(a, game, record) && !cg_never_harmed(game, record);
 }
 
 static const cg_pick *cg_find_pick(int pool, int instance);
@@ -2274,8 +2544,14 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = lo;                       /* the value set: no roll */
         break;
     }
+    case CGE_APPEARANCE:
+        /* 22: a fixed row is itself, kept -1 (no roll); random the roll k in 0..rows-2, the head's first (k + 1 from
+           the current row up when the effect is made). */
+        va = lo == CG_LOOK_RANDOM ? ce_random_below(a, a->head_count - 1) : lo == CG_LOOK_KEEP ? -1 : lo;
+        vb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : hi == CG_LOOK_KEEP ? -1 : hi;
+        break;
     default:
-        break;                         /* celebrate, action, mood: no roll */
+        break;                         /* celebrate, action, mood, die_unrecovered, baby_lost: no roll */
     }
     if (h->fx < CG_MAX_FX) {
         h->fx_a[h->fx] = va;
@@ -3557,6 +3833,41 @@ static void cg_tell_vanished(int game, int index) {
     cg_tell_words("VvfpCauseVanishedBy", game, index, words, 2);
 }
 
+/* cie-v6-binary.md 22: "died, no body" -- the villager just taken with no body is a DEATH in the Deaths log, with the
+   cause words ("unknown": the game's own "Unknown causes", the owner's rule for the new events) and no grave
+   (VvfpCauseDiedUnrecovered).  An older Cause of Death companion without it: told as a disappearance. */
+static void cg_tell_died_unrecovered(int game, int index, const char *cause) {
+    typedef void (__stdcall *died_fn)(int game, int index, const char *words);
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    died_fn died = module != NULL ? (died_fn)(void *)GetProcAddress(module, "VvfpCauseDiedUnrecovered") : NULL;
+    const char *words = lstrcmpA(cause, "unknown") == 0 || lstrcmpA(cause, "custom") == 0 ? "Unknown causes" : cause;
+#ifdef VVFP_TEST
+    cg_test_tell(4, index, words);
+#endif
+    if (died != NULL) {
+        died(game, index, words);
+    } else {
+        cg_tell_vanished(game, index);
+    }
+}
+
+/* ...and a nursing parent's lost baby, told BEFORE the pregnancy ends (it reads the babies from the record): the
+   Births and Conceptions log's "Lost before birth" record closes the open Conception (VvfpCauseBabyLost). */
+static void cg_tell_baby_lost(int game, int index) {
+    typedef void (__stdcall *lost_fn)(int game, int index, const char *what);
+    char what[CE_TITLE_BYTES + 48], title[CE_TITLE_BYTES];
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    lost_fn lost = module != NULL ? (lost_fn)(void *)GetProcAddress(module, "VvfpCauseBabyLost") : NULL;
+    cg_title_logged(title, sizeof title);
+    wsprintfA(what, "the baby was lost in %s; never born", title);
+#ifdef VVFP_TEST
+    cg_test_tell(5, index, what);
+#endif
+    if (lost != NULL) {
+        lost(game, index, what);
+    }
+}
+
 /* A believer the event made a Heathen is a faith conversion (the owner): "VVFP Faith Notice.dll" counts it with
    the drift's (its "other" reason), so "Popup When Believers Become Heathens" tells of it when that patch is on. */
 static void cg_tell_faith(int game, int index) {
@@ -3648,7 +3959,7 @@ static int cg_behaviour_of(const ce_adapter *a, int game, const unsigned char *e
 static int cg_effect_harmful(const ce_adapter *a, int game, const unsigned char *e) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     switch (e[0]) {
-    case CGE_KILL: case CGE_VANISH: case CGE_SICK: return 1;
+    case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST: return 1;
     case CGE_HEALTH: return hi < 100;
     case CGE_HEALTH_CHANGE: return lo < 0;
     case CGE_PREF: return (e[2] & 4u) != 0;
@@ -3709,6 +4020,15 @@ static char cg_extra_lines[512];
 static int test_graph_structures = -1;  /* the finished structures (bit k), -1 = as the game says */
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
 #endif
+
+/* One more line for the event's log entry ("  <text>\n"), when it fits. */
+static void cg_extra_add(const char *who, const char *what) {
+    char line[224];
+    wsprintfA(line, "  %s%s\n", who, what);
+    if (lstrlenA(cg_extra_lines) + lstrlenA(line) < (int)sizeof cg_extra_lines) {
+        lstrcatA(cg_extra_lines, line);
+    }
+}
 
 static int cg_structure_finished(int game, int k) {
 #ifdef VVFP_TEST
@@ -3822,8 +4142,12 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         ce_refuse(r, CE_WHY_OTHER);
         return;
     }
+    if (cg_effect_harmful(a, game, e) && cg_never_harmed(game, record)) {
+        ce_refuse(r, CE_WHY_OTHER);    /* never harmed, whatever the role allows (cg_never_harmed) */
+        return;
+    }
     index = cg.record[role];
-    if (e[0] == CGE_KILL || e[0] == CGE_VANISH) {
+    if (e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) {
         if (!(a->caps & (e[0] == CGE_KILL ? CAP_KILL : CAP_VANISH))) {
             ce_refuse(r, CE_WHY_OTHER);
         } else if (e[0] == CGE_KILL && a->kill(index)) {
@@ -3832,10 +4156,34 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         } else if (e[0] == CGE_VANISH && a->vanish(index)) {
             ++r->vanished;
             cg_tell_vanished(game, index);
+        } else if (e[0] == CGE_DIE_UNRECOVERED && a->vanish(index)) {
+            /* 22: the stock disappearance (no body, no grave), told as a death. */
+            const char *cause = cg_s(&cg_g, cg_u16(e + 12));
+            char what[128];
+            ++r->died;
+            cg_tell_died_unrecovered(game, index, cause);
+            wsprintfA(what, " died (%s); the body was not recovered.",
+                      lstrcmpA(cause, "unknown") == 0 || lstrcmpA(cause, "custom") == 0 ? "Unknown causes" : cause);
+            cg_extra_add(cg.name[role], what);
         } else {
             ce_refuse_as(r, CE_WHY_OTHER);
         }
         cg.gone |= 1u << role;         /* gone for good: nothing more is done to them (their name stays) */
+        return;
+    }
+    if (e[0] == CGE_BABY_LOST) {
+        /* 22: the nursing parent's pregnancy ends as the Custom Island Event's "0 babies" ends it (the adapter's
+           cancel); the Cause of Death companion is told first, while the record still holds the babies. */
+        if (!(a->caps & CAP_CANCEL) || *(const int *)(record + a->off_pregnant) == 0) {
+            ce_refuse_as(r, CE_WHY_NOT_EXPECTING);
+            return;
+        }
+        cg_tell_baby_lost(game, index);
+        if (!a->cancel(index)) {
+            ce_refuse_as(r, CE_WHY_NOT_EXPECTING);
+            return;
+        }
+        cg_extra_add(cg.name[role], "'s baby was lost.");
         return;
     }
     memset(&cg_one, 0, sizeof cg_one);
@@ -3930,11 +4278,38 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         }
         c->skills[va] = vb < 0 ? 0 : (vb > 100 ? 100 : vb);
         break;
+    case CGE_APPEARANCE: {
+        /* 22: the rows through the Custom Island Event's own head / body write (ce_apply_fields); random: the roll,
+           one up from the current row on, so never the row the villager has. */
+        int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+        int head = *(const int *)(record + a->off_head), body = *(const int *)(record + a->off_body);
+        if (!(a->caps & CAP_APPEARANCE)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        if (lo != CG_LOOK_KEEP && va >= 0) {
+            c->head = lo == CG_LOOK_RANDOM && va >= head ? va + 1 : va;
+        }
+        if (hi != CG_LOOK_KEEP && vb >= 0 && !(game == 3 && ce_role(a, record, NULL) == STORY_KIND_TRIBAL_CHIEF)) {
+            c->body = hi == CG_LOOK_RANDOM && vb >= body ? vb + 1 : vb;   /* the Tribal Chief keeps the robe */
+        }
+        if ((c->head == CE_KEEP || c->head == head) && (c->body == CE_KEEP || c->body == body)) {
+            return;                    /* nothing to change (the robe kept, or the row it already has) */
+        }
+        if ((c->head != CE_KEEP && c->head >= a->head_count) || (c->body != CE_KEEP && c->body >= a->body_count)) {
+            ce_refuse(r, CE_WHY_OTHER);   /* a row this game does not have (the patcher refuses it first) */
+            return;
+        }
+        break;
+    }
     default:
         return;
     }
     ce_apply(a, &cg_one, &one);
     cg_merge_result(r, &one);
+    if (e[0] == CGE_APPEARANCE) {
+        cg_extra_add(cg.name[role], "'s look changed.");
+    }
     if (e[0] == CGE_STATUS && cg_heathen(game, record)) {
         cg_tell_faith(game, index);
     }
@@ -5446,8 +5821,18 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     }
     if (!cg_matchable(a, game, needed, used)) {
         if (cg_has_gaps()) {
-            /* Version 3: no villagers fit the roles together (an age gap). */
+            /* Version 3: no villagers fit the roles together (an age gap); version 6: or a kinship relation. */
             int q;
+            for (q = 0; q < cg_g.n_role; ++q) {
+                static const char *const KIN[5] = { "", "spouses", "a parent and child", "a parent and child",
+                                                    "siblings" };
+                int other = -1, kind = cg_relation(q, &other);
+                if (kind != 0 && (needed & (1u << q)) && (needed & (1u << other))) {
+                    wsprintfA(reason, "No villagers in the village can take part together now: two of them must be "
+                              "%s. Nothing has been queued.", KIN[kind]);
+                    return reason;
+                }
+            }
             for (q = 0; q < cg_g.n_role; ++q) {
                 const unsigned char *qs = cg_role_at(&cg_g, q);
                 if (qs[6] != 0 && (needed & (1u << q)) && (needed & (1u << (qs[6] - 1)))) {
@@ -6174,6 +6559,21 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
 /* Record `record` starts nursing just before the next walk (after the roles are cast), -1 none. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphNurseAtWalk(int record) {
     test_graph_nurse = record;
+}
+
+/* A New Home's parentage sidecar as the test build sees it (cie-v6-binary.md 21): record `record`'s father (which 0)
+   or mother (1), or the father of the baby it carries (2); an empty name: none. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphVv1Parent(int record, int which, const char *name, int head,
+                                                                   int body) {
+    cg_person *p;
+    if (record < 0 || record >= CE_MAX_RECORDS || which < 0 || which > 2) {
+        return;
+    }
+    test_graph_vv1_parents = 1;
+    p = which == 2 ? &test_graph_vv1_exp[record] : &test_graph_vv1_par[record][which];
+    lstrcpynA(p->name, name != NULL ? name : "", CG_NAME_BYTES);
+    p->head = head;
+    p->body = body;
 }
 
 /* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's. */

@@ -275,10 +275,16 @@ class ChecksRefuse(unittest.TestCase):
         self.assertTrue(problems(check_doc(d), "f SAFETY"))
 
     def test_harmed_role_allowing_protected(self):
+        # The owner's model (2026-11-14, cie-v6-binary.md 7): "allow" on a harmed role is the author's choice, listed
+        # by --allow-report for review; a harmed special role without it is refused.
         d = self.doc()
         d["roles"]["gardener1"]["protected"] = "allow"
         d["nodes"]["s1"]["effects"][0] = {"do": "health_change", "role": "gardener1", "min": -20, "max": -10,
                                           "src": "L3071"}
+        self.assertFalse(problems(check_doc(d), "f SAFETY"))
+        self.assertEqual([x[0] for x in cc.allow_on_harm(d)], ["gardener1"])
+        d["roles"]["gardener1"]["protected"] = "auto"
+        d["roles"]["gardener1"]["special"] = "tribal_chief"
         self.assertTrue(problems(check_doc(d), "f SAFETY"))
 
     def test_wrong_credit(self):

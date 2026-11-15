@@ -294,6 +294,24 @@ VISITOR = {
 }
 
 
+# cie-v6-binary.md 22: a new look (a random head, a fixed body; then a random body alone) and a death with no body.
+LOOKS = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Strange Pool", "games": [1, 3, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 14}, "friend": {"kind": "villager", "min_age": 14}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) swims in the strange pool and comes out looking different.",
+              "effects": [{"do": "appearance", "role": "subject", "head": "random", "body": 4}],
+              "children": [{"next": "q"}]},
+        "q": {"text": "(Friend) follows, and changes too.",
+              "effects": [{"do": "appearance", "role": "friend", "body": "random"}],
+              "children": [{"next": "r"}]},
+        "r": {"text": "(Friend) dives again and never comes up.",
+              "effects": [{"do": "die_unrecovered", "role": "friend", "cause": "unknown"}]},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -391,6 +409,15 @@ def vector_cases() -> list[dict]:
         {"name": "title_variant_vv3_guardians", "graph": TITLE_VARIANTS, "game": 3, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None,
          "patches": ["guardians_of_isola"]},
+        {"name": "looks_vv1", "graph": LOOKS, "game": 1, "unicode": False, "rolls": [25, 7],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},
+         "answers": [], "facts": None},
+        {"name": "looks_vv3", "graph": LOOKS, "game": 3, "unicode": False, "rolls": [25, 7],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},
+         "answers": [], "facts": None},
+        {"name": "looks_vv5", "graph": LOOKS, "game": 5, "unicode": False, "rolls": [0, 28],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}, "friend": {"name": "Ana", "sex": "f"}},
+         "answers": [], "facts": None},
     ]
 
 
@@ -677,11 +704,15 @@ class RolesAndSafety(unittest.TestCase):
         hero_flags, pal_flags = blob[roles + 1], blob[roles + 17]
         self.assertEqual(hero_flags & (16 | 32 | 6), 16 | 32 | 6)
         self.assertEqual(pal_flags & (16 | 32 | 6), 0)                       # harmless: protected may take part
-        # An owner's collection event never allows protected villagers into a harm-capable role ...
+        # The owner's model (2026-11-14): "allow" on a harm-capable role is the author's choice, in a player's own
+        # graph and in a collection event alike (collection_check --allow-report lists each for the owner) ...
         d["roles"]["hero"]["protected"] = "allow"
-        self.assertEqual(t.problems_of(d), [])                                # (a player's own graph: they decide)
+        self.assertEqual(t.problems_of(d), [])
         d["collection"] = {"id": "x", "lines": [1, 2]}
-        self.assertTrue(any("cannot be allow in a collection event" in p for p in t.problems_of(d)))
+        self.assertEqual(t.problems_of(d), [])
+        blob = cg.compile_graph(cg.load(d))
+        self.assertEqual(blob[roles + 1] & (16 | 32 | 6 | 128), 16 | 128)   # harm-capable, nobody kept out
+        del d["collection"]
         # ... and an explicit "exclude" keeps them out of a harmless role too.
         d["roles"]["hero"]["protected"] = "auto"
         d["roles"]["pal"]["protected"] = "exclude"
@@ -789,6 +820,121 @@ class EffectsAndConditions(unittest.TestCase):
         self.assertNotEqual(struct.unpack_from("<H", blob, 42)[0], cg.NONE)
         self.assertEqual(cg.decompile_graph(blob)["requirement"], {"min_eligible": 2, "if": {"min_population": 8}})
         self.assertTrue(t.problems_of(v6(requirement={"if": {"visited": "p"}})))
+
+
+class V28Features(unittest.TestCase):
+    """cie-v6-binary.md 7, 21, 22: appearance, died with no body, a lost baby, kinship roles, the protection model."""
+
+    def test_appearance(self):
+        d = v6(games=[1, 3], nodes={"k": {"text": "(Hero) keeps them.", "effects": [
+            {"do": "appearance", "role": "hero", "head": "random", "body": 19},
+            {"do": "appearance", "role": "pal", "body": "random"}]}})
+        g = cg.load(d)
+        self.assertEqual(cg.harm_capable(g), set(), "a new look is harmless")
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o = struct.unpack_from("<I", blob, 56)[0]
+        e0 = struct.unpack_from("<BBBBiiHH", blob, o)
+        e1 = struct.unpack_from("<BBBBiiHH", blob, o + 16)
+        self.assertEqual((e0[0], e0[4], e0[5], e0[6]), (17, -1, 19, cg.NONE))
+        self.assertEqual((e1[0], e1[4], e1[5]), (17, -2, -1))
+        # A fixed row must be a row in every game of the event: A New Home has 20, the later games 30.
+        bad = copy.deepcopy(d)
+        bad["nodes"]["k"]["effects"][0]["body"] = 25
+        self.assertTrue(any("not a row in every game" in p for p in t.problems_of(bad)))
+        bad["games"] = [3, 5]
+        self.assertEqual(t.problems_of(bad), [])
+        for wrong in ({"do": "appearance", "role": "hero"}, {"do": "appearance", "role": "hero", "head": "blue"},
+                      {"do": "appearance", "role": "hero", "head": 30}):
+            self.assertTrue(t.problems_of(v6(nodes={"k": {"text": "x", "effects": [wrong]}})), wrong)
+        # The walk's rolls: random is one roll below rows - 1 (the head first), a fixed row none.
+        r = cg.simulate(g, 1, [0, 0, 100, 200], {"hero": cg.Binding("Ana", "f"), "pal": cg.Binding("Bo", "m")}, [0])
+        self.assertEqual(r["fx"], [[100 % 19, 19], [-1, 200 % 19]])
+        r = cg.simulate(g, 3, [0, 0, 100, 200], {"hero": cg.Binding("Ana", "f"), "pal": cg.Binding("Bo", "m")}, [0])
+        self.assertEqual(r["fx"], [[100 % 29, 19], [-1, 200 % 29]])
+
+    def test_died_with_no_body(self):
+        d = v6(nodes={"k": {"text": "(Hero) is lost at sea.", "effects": [{"do": "die_unrecovered", "role": "hero"}],
+                            "children": [{"next": "z"}]},
+                      "z": {"text": "The tide turns."}})
+        g = cg.load(d)
+        self.assertEqual(g["nodes"]["k"]["effects"][0]["cause"], "unknown", "the owner's Unknown causes")
+        self.assertEqual(cg.harm_capable(g), {"hero"})
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        e = struct.unpack_from("<BBBBiiHH", blob, struct.unpack_from("<I", blob, 56)[0])
+        self.assertEqual(e[0], 18)
+        # Gone for good: a later effect on the same role is refused.
+        d["nodes"]["z"]["effects"] = [{"do": "celebrate", "who": "hero"}]
+        self.assertTrue(any("already gone" in p for p in t.problems_of(d)))
+        rows = cg.chances(g, 3)
+        self.assertTrue(rows)
+
+    def test_baby_lost_needs_a_nursing_parent_allowed(self):
+        d = v6(roles={"mum": {"kind": "villager", "special": "nursing_parent", "protected": "allow"},
+                      "pal": {"kind": "villager"}},
+               nodes={"p": {"text": "(Mum) loses (mum.his/her) baby. (Pal) comforts (mum.him/her).",
+                            "effects": [{"do": "baby_lost", "role": "mum"}]}},
+               pools={})
+        for nid in ("q", "k", "l"):
+            del d["nodes"][nid]
+        self.assertEqual(t.problems_of(d), [])
+        g = cg.load(d)
+        self.assertEqual(cg.harm_capable(g), {"mum"})
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        roles = struct.unpack_from("<I", blob, 44)[0]
+        self.assertEqual(blob[roles + 1] & (2 | 4 | 16 | 32), 16, "harm-capable, nursing parents allowed")
+        self.assertEqual(blob[struct.unpack_from("<I", blob, 56)[0]], 19)
+        auto = copy.deepcopy(d)
+        auto["roles"]["mum"]["protected"] = "auto"
+        self.assertTrue(any("needs protected allow" in p for p in t.problems_of(auto)))
+        plain = copy.deepcopy(d)
+        plain["roles"]["mum"] = {"kind": "villager", "protected": "allow"}
+        self.assertTrue(any("special nursing_parent" in p for p in t.problems_of(plain)))
+
+    def test_kinship_roles(self):
+        d = v6(roles={"hero": {"kind": "villager"}, "pal": {"kind": "villager", "relation": {"child_of": "hero"}},
+                      "kin": {"kind": "villager", "optional": True, "relation": {"sibling_of": "pal"}}})
+        g = cg.load(d)
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 6)[0], 104)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_rel, n_rel, zero = struct.unpack_from("<IHH", blob, 96)
+        self.assertEqual((n_rel, zero), (2, 0))
+        self.assertEqual([tuple(blob[o_rel + 4 * i:o_rel + 4 * i + 4]) for i in range(2)], [(1, 3, 0, 0), (2, 4, 1, 0)])
+        self.assertEqual(struct.unpack_from("<H", cg.compile_graph(cg.load(v6())), 6)[0], 96, "no relation: 96")
+        for bad in ({"spouse_of": "pal"}, {"parent_of": "kin"}, {"cousin_of": "hero"}, {"child_of": "nobody"},
+                    {"child_of": "hero", "parent_of": "hero"}):
+            w = copy.deepcopy(d)
+            w["roles"]["pal"]["relation"] = bad
+            self.assertTrue(t.problems_of(w), bad)       # itself, an optional role, an unknown kind or role, two
+        stranger = copy.deepcopy(d)
+        stranger["roles"]["kin"] = {"kind": "stranger", "sex": "random"}
+        stranger["roles"]["pal"]["relation"] = {"spouse_of": "kin"}
+        self.assertTrue(t.problems_of(stranger))
+
+    def test_a_harmed_special_role_needs_allow(self):
+        d = v6(games=[3], roles={"chief": {"kind": "villager", "special": "tribal_chief"}, "pal": {"kind": "villager"}},
+               nodes={"k": {"text": "(Chief) is hurt.", "effects": [{"do": "health_change", "role": "chief",
+                                                                      "min": -9, "max": -5}]}})
+        d["nodes"]["p"]["text"] = "(Chief) and (pal) find {X.1} and {X.2}."
+        self.assertTrue(any("needs protected allow" in p for p in t.problems_of(d)))
+        d["roles"]["chief"]["protected"] = "allow"
+        d["collection"] = {"id": "x", "lines": [1, 2]}
+        self.assertEqual(t.problems_of(d), [])
+
+    def test_the_allow_report(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import collection_check as cc
+        doc = {"roles": {"mum": {"kind": "villager", "special": "nursing_parent", "protected": "allow"},
+                         "pal": {"kind": "villager", "protected": "allow"},
+                         "both": {"kind": "alias", "of": ["mum", "pal"]}},
+               "nodes": {"a": {"effects": [{"do": "baby_lost", "role": "mum"}]},
+                         "b": {"effects": [{"do": "die_unrecovered", "role": "both"}]},
+                         "c": {"effects": [{"do": "appearance", "role": "pal", "head": 3}]}}}
+        self.assertEqual(cc.allow_on_harm(doc), [("mum", "nursing_parent", ["a: baby_lost", "b: die_unrecovered"]),
+                                                 ("pal", "", ["b: die_unrecovered"])])
 
 
 class Answers(unittest.TestCase):
