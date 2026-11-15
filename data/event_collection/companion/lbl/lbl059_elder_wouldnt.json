@@ -85,13 +85,17 @@
    "type": "branch",
    "children": [
     {
-     "next": "e1"
+     "next": "e1",
+     "weight": 20
     },
     {
-     "next": "e2"
+     "next": "e2",
+     "weight": 20
     },
     {
-     "next": "e3"
+     "next": "e3",
+     "weight": 10,
+     "rarity": "occasional"
     }
    ]
   },

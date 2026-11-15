@@ -944,3 +944,25 @@ The 57 V27 events were authored under the V28 rules (`scripts/collection_v27.py`
 - The Legend of the Deep Pool (`all_v27_55_deep_pool`): confirmed, no change.
 - The Boat That Came Back Empty (`all_v27_56_empty_boat`): confirmed, no change.
 - The Forbidden Bell (`all_v27_57_bell`): confirmed, no change.
+
+### Companion minor setbacks made occasional (integration, 2026-11-15)
+
+The companion chunks were authored while their checker had no weight 10, so their minor setbacks kept the normal
+weight. Per the V27 global rule ("minor setback/occasional"; authoring-rules.md 8), each outcome whose one harm is a
+minor injury (`health_change` -30..-10) on one branch of an outcome split is now occasional: weight 10 against a
+normal 20 (the generators `scripts/companion/gen_k5.py` and `gen_k6.py` give the weight; the files are regenerated).
+
+- The Midnight Raft (`lbl026_midnight_raft`, LBL 026): outcome 2 "The raft breaks and a rescue leaves one injured."
+  from 20 to occasional 10 (outcome 3, the disappearance, stays rare 5).
+- The Daring Climb (`lbl027_daring_climb`, LBL 027): outcome 3 "A fall causes a treatable injury and a lesson in
+  judgment." from 20 to occasional 10.
+- The Elder Who Wouldn't Rest (`lbl059_elder_wouldnt`, LBL 059): outcome 3 "They strain themselves and require
+  recovery." from 20 to occasional 10.
+- The Bottomless Pool (`lbl073_bottomless_pool`, LBL 073): outcome 2 "A dangerous dive causes injury." from 20 to
+  occasional 10 (outcome 3, the disappearance, stays rare 5).
+- The Dangerous Proof (`lbl082_dangerous_proof`, LBL 082): outcome 3 "They are injured and must confront their
+  recklessness." from 20 to occasional 10.
+- Left at equal weight: The Rival's Injury (`lbl016_rival_injury`), whose injury is the scene's and sits on every
+  outcome alike; The Clumsy Morel (`c5dn022_clumsy_morel`), whose three outcomes are all the mushroom's mishaps (a
+  skill loss, tripping, a forgotten knot); and The Smoked Catch (`c5ev019_smoked_catch`) B's small food loss, which
+  harms no villager.

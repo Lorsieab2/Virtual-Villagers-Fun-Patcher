@@ -9,8 +9,8 @@ THE LIVES BETWEEN LEGENDS (engine rules L3779-3787):
   lead to the SAME outcome branch (L3782: "The branches are not necessarily tied one-to-one to choices").  No odds are
   given: the outcomes are equal, except a disappearance (rare, 5 against 20: 073's missing explorer).  TRIGGER,
   PERSISTENCE and EFFECTS are designer notes (rule 9: memories and callbacks).
-- Minor setbacks (073's dive injury, 082's injured teen) keep the normal weight: collection_check's chance rule has no
-  "occasional" weight yet (rare 5, very rare 2, exceptionally rare 1 only), so they stay equal (a lead TODO).
+- Minor setbacks (073's dive injury, 082's injured teen) are occasional (10 against a normal 20: the V27 global
+  rule's "minor setback/occasional", collection_check's weight 10).
 - Casting (the lead's decisions): elders 55+; "a child" 3-13; "a teen" 14-17; a sibling the text names is a relation
   (064).  "A family member" (105) has no relation kind: cast by age, text only.  Genders are random (L3780).
   Strangers the text names (083's unfamiliar villager, 119's child from a rival community, 074's raft owner) are
@@ -58,6 +58,7 @@ SCHOLAR = c.skilled(V, "Research")                                  # a research
 T = c.text_only
 MINOR = (-30, -10)                                                  # a minor injury (companion-authoring.md 6)
 RARE = (5, "rare")
+OCCASIONAL = (10, "occasional")   # a minor setback (the V27 global rule; collection_check weight 10)
 
 
 def hurt(role: str) -> dict:
@@ -110,7 +111,7 @@ L_ = {
     72: ({"builder1": BUILDER, "builder2": BUILDER}, "Builders find a nest in a tree marked for cutting.", {}),
     73: ({"explorer": V}, "A reckless villager tries to prove an ancient pool has no bottom.",
          {"eff": {1: [res("explorer")], 2: [hurt("explorer")], 3: [{"do": "vanish", "role": "explorer"}]},
-          "w": {3: RARE},
+          "w": {2: OCCASIONAL, 3: RARE},
           "to": {3: [T("disappears", "missing is not dead (L3784): the explorer vanishes, no death and no grave; "
                                      "the search is text")]}}),
     74: ({"villager": V}, "A damaged raft washes ashore with no passengers.",
@@ -127,7 +128,7 @@ L_ = {
     81: ({"villager": V}, "A necklace is found near a dangerous cliff.",
          {"to": {2: [T("missing person", "a past disappearance; nobody vanishes now")]}}),
     82: ({"teen": TEEN, "friend": V}, "A teen attempts to recreate a legendary feat to win admiration.",
-         {"eff": {3: [hurt("teen")]}}),
+         {"eff": {3: [hurt("teen")]}, "w": {3: OCCASIONAL}}),
     83: ({"villager": V}, "An exhausted stranger appears at the shore at dawn.", {}),
     84: ({"villager": V, "translator": SCHOLAR}, "A drifting canoe contains a carved wooden message.",
          {"eff": {1: [res("translator")]}}),

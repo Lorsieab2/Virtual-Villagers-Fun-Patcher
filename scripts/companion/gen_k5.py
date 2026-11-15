@@ -18,7 +18,8 @@ THE LIVES BETWEEN LEGENDS 001-060 (engine rules L3779-3787):
 - The scene is the question page; the three responses are the source's own labels, each with its own src, and all
   lead to the SAME outcome branch (L3782: "The branches are not necessarily tied one-to-one to choices").  No odds are
   given: the outcomes are equal, except a harm the V28 rules call rare (an illness, a disappearance, 044's "rare fatal
-  outcome": 5 against 20).  TRIGGER, PERSISTENCE and EFFECTS are designer notes (rule 9: memories and callbacks).
+  outcome": 5 against 20) and a minor setback the V27 global rule calls occasional (026's, 027's and 059's minor
+  injuries: 10 against 20).  TRIGGER, PERSISTENCE and EFFECTS are designer notes (rule 9: memories and callbacks).
 - Casting (the lead's decisions): elders 55+; "a toddler" 3-7; "a young villager" 3-17; a child who looks after a
   YOUNGER sibling is 8-13 and the sibling 3-7.  Kinship the text states is a relation (cie-v6-binary.md 21): parents,
   children and siblings.  Grandchildren, cousins, "relatives", descendants: no relation kind (gap C2): cast by age,
@@ -81,6 +82,7 @@ def res(role: str) -> dict:
 
 
 RARE = (5, "rare")
+OCCASIONAL = (10, "occasional")   # a minor setback (the V27 global rule; collection_check weight 10)
 
 # ---- Part 4, N051-N069 ------------------------------------------------------------------------------------------------
 HEAD_D = r"^EVENT N\d{3}\s+-\s+"
@@ -167,10 +169,10 @@ L_ = {
          "Several children slip away to explore without telling their guardians.",
          {"eff": {3: [{"do": "sick", "role": "child1"}]}, "w": {3: RARE}}),
     26: ({"teen1": TEEN, "teen2": TEEN, "teen3": TEEN}, "Teenagers launch a homemade raft after dark.",
-         {"eff": {2: [hurt("teen1")], 3: [{"do": "vanish", "role": "teen2"}]}, "w": {3: RARE},
+         {"eff": {2: [hurt("teen1")], 3: [{"do": "vanish", "role": "teen2"}]}, "w": {2: OCCASIONAL, 3: RARE},
           "to": {3: [T("death", "missing is not dead (L3784): the teen vanishes, no death and no grave")]}}),
     27: ({"child": CH, "friend": CH}, "A child accepts a challenge to climb an unstable tree.",
-         {"eff": {3: [hurt("child")]}}),
+         {"eff": {3: [hurt("child")]}, "w": {3: OCCASIONAL}}),
     28: ({"child": CH, "friend": CH}, "A child takes a friend's favorite shell pendant.", {}),
     29: ({"teen1": TEEN, "teen2": TEEN, "friend": TEEN}, "A teen imitates another teen's voice for laughs.", {}),
     30: ({"teen": TEEN, "peer": TEEN}, "A teenager realizes they enjoy spending time with a peer.", {}),
@@ -223,7 +225,7 @@ L_ = {
          "A family discovers a tool with an unfamiliar maker's mark.", {"eff": {1: [res("historian")]}}),
     58: ({"elder": EL, "child": CH, "teen": TEEN}, "An elder shares a lesson they wish they had learned earlier.", {}),
     59: ({"elder": EL, "helper": V}, "An aging villager insists on carrying heavy supplies.",
-         {"eff": {3: [hurt("elder")]}}),
+         {"eff": {3: [hurt("elder")]}, "w": {3: OCCASIONAL}}),
     60: ({"villager": V}, "The community gathers to remember villagers who have died or disappeared.",
          {"to": {0: [T("died", "the remembered dead are past; nobody dies now"),
                      T("disappeared", "the remembered missing are past; nobody vanishes now")]}}),

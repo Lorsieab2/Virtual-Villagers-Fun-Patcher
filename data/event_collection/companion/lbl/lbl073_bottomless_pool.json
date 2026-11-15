@@ -88,7 +88,8 @@
     },
     {
      "next": "e2",
-     "weight": 20
+     "weight": 10,
+     "rarity": "occasional"
     },
     {
      "next": "e3",

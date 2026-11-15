@@ -2349,12 +2349,12 @@
     {
       "source": "assets/event_collection/lbl026_midnight_raft.cieg",
       "destination": "Island Event Collection/lbl026_midnight_raft.cieg",
-      "sha256": "C66DE77828ADD47EC81CE67C6F5B8540C7137ECD1F1ABC38634EDFD85A4F3EC6"
+      "sha256": "6DAD8CEA0EBD4242C6C96D77E5DA57497ADB559025CCEBF77916815E69C929B1"
     },
     {
       "source": "assets/event_collection/lbl027_daring_climb.cieg",
       "destination": "Island Event Collection/lbl027_daring_climb.cieg",
-      "sha256": "50F1B88AE9C12BF2CDCF81245EC04FD5A9322CAB25E900FA28CA4557740B5F04"
+      "sha256": "5292291852A81855B37624496413AED3C0CB4FB5777A7CBA12708CC22FCD76A6"
     },
     {
       "source": "assets/event_collection/lbl028_stolen_trinket.cieg",
@@ -2514,7 +2514,7 @@
     {
       "source": "assets/event_collection/lbl059_elder_wouldnt.cieg",
       "destination": "Island Event Collection/lbl059_elder_wouldnt.cieg",
-      "sha256": "CE53F8BC13761DCCC4D2D3312EB44E8C9D977C23E9AEF42A8EB0C0C8F5C30FF2"
+      "sha256": "69C3AD6125E7F2341EE20CE4209FAF81E5E2E5F05EEB558C9727ABAE37761297"
     },
     {
       "source": "assets/event_collection/lbl060_village.cieg",
@@ -2584,7 +2584,7 @@
     {
       "source": "assets/event_collection/lbl073_bottomless_pool.cieg",
       "destination": "Island Event Collection/lbl073_bottomless_pool.cieg",
-      "sha256": "BD6A1C229C3758EDBD55074C7ECC74FCF6E6CC21F07A07C60A17F712D1D51E56"
+      "sha256": "BE158F7CD9BADA28677E1E7671577CE08E0A9AB7E7A8FEF197313C33BC67FC08"
     },
     {
       "source": "assets/event_collection/lbl074_abandoned_raft.cieg",
@@ -2629,7 +2629,7 @@
     {
       "source": "assets/event_collection/lbl082_dangerous_proof.cieg",
       "destination": "Island Event Collection/lbl082_dangerous_proof.cieg",
-      "sha256": "64060222A93245E6A1BA4A10BE5489D67BD7599EDD6BA053B31BC82BCA847D9D"
+      "sha256": "4FE023492B23B5DA4DEBB31A82640916BC4140C7BDCA97BD28C361EF3BB355C2"
     },
     {
       "source": "assets/event_collection/lbl083_stranger_dawn.cieg",
