@@ -5773,6 +5773,1196 @@
    }
   },
   {
+   "name": "auto_lines_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Odd Morning",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) wakes up feeling odd.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "like": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "work"
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Farming",
+         "Research"
+        ],
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Healing"
+        ],
+        "min": -10,
+        "max": -5
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "By noon it has passed.",
+      "popup": "append",
+      "join": "paragraph",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "mood",
+        "role": "subject",
+        "mood": "good"
+       },
+       {
+        "do": "food",
+        "amount": 40
+       },
+       {
+        "do": "action",
+        "role": "subject",
+        "action": "Dancing"
+       }
+      ]
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    7,
+    0,
+    1,
+    3,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": [
+    "likes:subject:ants",
+    "likes:subject:crowds",
+    "dislikes:subject:resting",
+    "harmable:subject"
+   ],
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      7,
+      -1
+     ],
+     [
+      3,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      4,
+      8
+     ],
+     [
+      3,
+      -8
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes laundry.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+    ],
+    "titles": [
+     "The Odd Morning"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "d4601aafd028c6580ac09a50167399900da118094a5e8c6ca41398c922b92fb4"
+   }
+  },
+  {
+   "name": "auto_lines_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Odd Morning",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) wakes up feeling odd.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "like": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "work"
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Farming",
+         "Research"
+        ],
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Healing"
+        ],
+        "min": -10,
+        "max": -5
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "By noon it has passed.",
+      "popup": "append",
+      "join": "paragraph",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "mood",
+        "role": "subject",
+        "mood": "good"
+       },
+       {
+        "do": "food",
+        "amount": 40
+       },
+       {
+        "do": "action",
+        "role": "subject",
+        "action": "Dancing"
+       }
+      ]
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [
+    3,
+    61,
+    0,
+    5,
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      3,
+      -1
+     ],
+     [
+      61,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      2,
+      10
+     ],
+     [
+      3,
+      -10
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes dirt.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+    ],
+    "titles": [
+     "The Odd Morning"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "d4601aafd028c6580ac09a50167399900da118094a5e8c6ca41398c922b92fb4"
+   }
+  },
+  {
+   "name": "auto_lines_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Odd Morning",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) wakes up feeling odd.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "like": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "work"
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Farming",
+         "Research"
+        ],
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Healing"
+        ],
+        "min": -10,
+        "max": -5
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "By noon it has passed.",
+      "popup": "append",
+      "join": "paragraph",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "mood",
+        "role": "subject",
+        "mood": "good"
+       },
+       {
+        "do": "food",
+        "amount": 40
+       },
+       {
+        "do": "action",
+        "role": "subject",
+        "action": "Dancing"
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    12,
+    2,
+    1,
+    0,
+    5
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": [
+    "likes:subject:ants",
+    "likes:subject:crowds",
+    "dislikes:subject:resting",
+    "harmable:subject"
+   ],
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      12,
+      -1
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      3,
+      5
+     ],
+     [
+      2,
+      -5
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes turnips.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+    ],
+    "titles": [
+     "The Odd Morning"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "d4601aafd028c6580ac09a50167399900da118094a5e8c6ca41398c922b92fb4"
+   }
+  },
+  {
+   "name": "auto_lines_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Odd Morning",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) wakes up feeling odd.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "like": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "work"
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Farming",
+         "Research"
+        ],
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Healing"
+        ],
+        "min": -10,
+        "max": -5
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "By noon it has passed.",
+      "popup": "append",
+      "join": "paragraph",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "mood",
+        "role": "subject",
+        "mood": "good"
+       },
+       {
+        "do": "food",
+        "amount": 40
+       },
+       {
+        "do": "action",
+        "role": "subject",
+        "action": "Dancing"
+       }
+      ]
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [
+    0,
+    78,
+    0,
+    2,
+    1
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": [
+    "likes:subject:ants",
+    "likes:subject:crowds",
+    "dislikes:subject:resting",
+    "harmable:subject"
+   ],
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      -1
+     ],
+     [
+      5,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      7
+     ],
+     [
+      2,
+      -9
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes turnips.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+    ],
+    "titles": [
+     "The Odd Morning"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "d4601aafd028c6580ac09a50167399900da118094a5e8c6ca41398c922b92fb4"
+   }
+  },
+  {
+   "name": "old_look_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "84c178c7047577ad92f0dcdd994e3ed488a0c71070c5c00b083fc263ba154f9a"
+   }
+  },
+  {
+   "name": "old_look_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "84c178c7047577ad92f0dcdd994e3ed488a0c71070c5c00b083fc263ba154f9a"
+   }
+  },
+  {
+   "name": "old_look_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "84c178c7047577ad92f0dcdd994e3ed488a0c71070c5c00b083fc263ba154f9a"
+   }
+  },
+  {
+   "name": "old_look_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "84c178c7047577ad92f0dcdd994e3ed488a0c71070c5c00b083fc263ba154f9a"
+   }
+  },
+  {
+   "name": "old_look_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "84c178c7047577ad92f0dcdd994e3ed488a0c71070c5c00b083fc263ba154f9a"
+   }
+  },
+  {
+   "name": "auto_lines_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Odd Morning",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) wakes up feeling odd.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "like": "random"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "work"
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Farming",
+         "Research"
+        ],
+        "min": 5,
+        "max": 10
+       },
+       {
+        "do": "skill",
+        "role": "subject",
+        "skills": [
+         "Healing"
+        ],
+        "min": -10,
+        "max": -5
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "By noon it has passed.",
+      "popup": "append",
+      "join": "paragraph",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "mood",
+        "role": "subject",
+        "mood": "good"
+       },
+       {
+        "do": "food",
+        "amount": 40
+       },
+       {
+        "do": "action",
+        "role": "subject",
+        "action": "Dancing"
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [
+    29,
+    40,
+    1,
+    4,
+    3
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      -1
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      3,
+      9
+     ],
+     [
+      2,
+      -7
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      40,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes dancing.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+    ],
+    "titles": [
+     "The Odd Morning"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "d4601aafd028c6580ac09a50167399900da118094a5e8c6ca41398c922b92fb4"
+   }
+  },
+  {
    "name": "birth_then_die_vv1",
    "graph": {
     "format": "vvfp-cie-graph",

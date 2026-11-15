@@ -101,7 +101,7 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "health_change": "health_change", "damage": "damage", "sick": "health", "mood": "mood",
                "action": "action", "status": "status", "pay_award": "food", "appearance": "appearance",
                "die_unrecovered": "die_unrecovered", "baby_lost": "baby_lost",
-               "birth_then_die": "birth_then_die"}
+               "birth_then_die": "birth_then_die", "old_look": "appearance"}
 
 PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}
@@ -931,7 +931,7 @@ def harmful(e: dict) -> bool:
         return True
     if do == "health_change" and e.get("min", 0) < 0:
         return True
-    if do == "preference" and e.get("list") == "dislikes":
+    if do == "preference" and (e.get("list") == "dislikes" or "dislike" in e):   # 24: "dislike": w | "random"
         return True
     if do == "skill" and "set" not in e and (e.get("min", 0) < 0 or e.get("max", 0) < 0):
         return True

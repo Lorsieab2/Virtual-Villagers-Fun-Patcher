@@ -19,6 +19,7 @@ from __future__ import annotations
 import copy
 import json
 import re
+import struct
 import sys
 import unittest
 from pathlib import Path
@@ -314,6 +315,48 @@ class TheReasons(unittest.TestCase):
                 data["requirement"] = {"min_eligible": 5}
                 people = "believers" if game == "vv5" else "villagers"
                 self.check(picker, data, f"it needs at least 5 {people}.")
+
+
+
+FILL_BUDGET = 400_000_000      # instructions for 1,000 entries (measured: more than 100 million, under 400 million)
+
+
+@unittest.skipUnless(GAMES, "needs the emulator, the Story TEST build and the stock executables")
+class AThousandEntries(unittest.TestCase):
+    """cie-v6-binary.md 26: the list holds about 1,000 events a game (the Isola Grand Event Collection, the Companion
+    Anthology, More Island Events): SM_MAX and SC_MAX 2,048.  The fill -- each entry's event loaded and its strict
+    cast and requirement checked -- finishes within FILL_BUDGET instructions in the emulator (a fraction of a second
+    on a real computer), and the list keeps every entry, the last one's title included."""
+
+    def test_a_thousand_entries_fill_in_time(self) -> None:
+        cieg = cie.compile_graph(cie.load(copy.deepcopy(SMALL), scrolling=True))
+        for game in [g for g in GAMES if g in ("vv1", "vv5")] or GAMES[:1]:
+            with self.subTest(game=game):
+                picker = Picker(game, 12)
+                text = "".join(f"e{i}\tThe Event Number {i}\t1,2,3,4,5\t1\t\ttest\n" for i in range(1000))
+                buf = picker.p.alloc(len(text) + 16)
+                picker.p.write(buf, text.encode("cp1252") + b"\0")
+                picker.p.write(picker.blob, cieg)
+                picker.p.export("VvfpStoryProbeCollectionManifest", buf, 0, 0)
+                picker.p.export("VvfpStoryProbeCollectionCieg", picker.blob, len(cieg))
+                k, possible = picker.p.alloc(4 * 2048), picker.p.alloc(4 * 2048)
+                count = picker.p.call(picker.p.exports["VvfpStoryProbeMoreList"], [picker.n, k, possible, 2048],
+                                      limit=FILL_BUDGET)
+                self.assertEqual(count, 1000, "every entry listed")
+                ks = struct.unpack("<1000i", picker.p.read(k, 4000))
+                self.assertEqual(list(ks), [0x4000 + i for i in range(1000)])
+                self.assertEqual(struct.unpack("<1000i", picker.p.read(possible, 4000)), (1,) * 1000)
+                last = picker.p.call(picker.p.exports["VvfpStoryProbeMoreEntry"],
+                                     [picker.n, 999, *picker.bufs, 1200], limit=FILL_BUDGET)
+                self.assertEqual(last, 0x4000 + 999)
+                self.assertEqual(picker.p.cstring(picker.bufs[0], 1200), "The Event Number 999")
+
+    def test_the_sizes(self) -> None:
+        native = ROOT / "native" / "vvfp_story_upgrades"
+        self.assertIn("#define SM_MAX 2048", (native / "story_more_events.inc").read_text(encoding="utf-8"))
+        coll = (native / "story_collection.inc").read_text(encoding="utf-8")
+        self.assertIn("#define SC_MAX 2048", coll)
+        self.assertIn("#define SC_MANIFEST_BYTES 1048576", coll)
 
 
 if __name__ == "__main__":

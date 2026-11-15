@@ -164,17 +164,24 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 22 */
        CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19,
        /* cie-v6-binary.md 23 */
-       CGE_BIRTH_THEN_DIE = 20 };
+       CGE_BIRTH_THEN_DIE = 20,
+       /* cie-v6-binary.md 27 */
+       CGE_OLD_LOOK = 21 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
-enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 4 };
+enum { CG_REL_SPOUSE = 1, CG_REL_PARENT = 2, CG_REL_CHILD = 3, CG_REL_SIBLING = 4,
+       /* gap C2: through a living villager in between */
+       CG_REL_GRANDPARENT = 5, CG_REL_GRANDCHILD = 6, CG_REL_AUNT = 7, CG_REL_COUSIN = 8 };
+#define CG_PREF_RANDOM 8u             /* a preference effect's flags: a random like or dislike (cie-v6-binary.md 24) */
+#define CG_NODE_AUTO_TEXT 1u          /* a node's flags (byte 3): its effects told in automatic lines (24) */
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
        CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12,
        /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
-       CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16 };
+       CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16,
+       CGC_HAS_DEAD_RELATIVE = 17 };  /* cie-v6-binary.md 21a */
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
 #define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
@@ -939,7 +946,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         /* 21: two different villager roles, a known kind, one relation a role. */
         const unsigned char *rel = g->d + g->o_rel + 4u * (unsigned int)i;
         if ((int)rel[0] >= g->n_role || (int)rel[2] >= g->n_role || rel[0] == rel[2] || rel[1] < CG_REL_SPOUSE
-            || rel[1] > CG_REL_SIBLING || rel[3] != 0 || cg_role_at(g, rel[0])[0] != CG_ROLE_VILLAGER
+            || rel[1] > CG_REL_COUSIN || rel[3] != 0 || cg_role_at(g, rel[0])[0] != CG_ROLE_VILLAGER
             || cg_role_at(g, rel[2])[0] != CG_ROLE_VILLAGER) {
             return cg_bad("a kinship relation is not one this game can read");
         }
@@ -974,7 +981,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             ok = g->version >= 6 && (int)a < g->n_role && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= 100u
                  && cg_str_ok(g, cg_u16(c + 6), 0);
             break;
-        case CGC_HAS_LIVING_CHILD: ok = g->version >= 6 && (int)a < g->n_role; break;
+        case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE: ok = g->version >= 6 && (int)a < g->n_role; break;
         case CGC_DREW:
             ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
                  && cg_u16(c + 6) < cg_u16(cg_pool_at(g, (int)a) + 4);
@@ -1001,8 +1008,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
-                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_BIRTH_THEN_DIE);
-        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_BIRTH_THEN_DIE : CGE_SICK);
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK);
+        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK);
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1038,7 +1045,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a >= CG_LOOK_KEEP && a <= 29 && b >= CG_LOOK_KEEP && b <= 29
                      && !(a == CG_LOOK_KEEP && b == CG_LOOK_KEEP) && str == CG_NONE;
                 break;
-            case CGE_BABY_LOST: ok = a == 0 && b == 0 && str == CG_NONE; break;
+            case CGE_BABY_LOST: case CGE_OLD_LOOK: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -1058,8 +1065,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             default: break;
             }
         }
-        if (ok && (e[0] == CGE_PREF || e[0] == CGE_SKILL || e[0] == CGE_SKILL_SET || e[0] == CGE_ACTION
-                   || e[0] == CGE_DAMAGE)) {
+        if (ok && e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
+            ok = g->version >= 6 && str == CG_NONE && a == 0 && b == 0;   /* 24: a random like or dislike */
+        } else if (ok && (e[0] == CGE_PREF || e[0] == CGE_SKILL || e[0] == CGE_SKILL_SET || e[0] == CGE_ACTION
+                          || e[0] == CGE_DAMAGE)) {
             ok = str != CG_NONE && cg_s(g, str)[0] != '\0';
         }
         if (!ok) {
@@ -1071,7 +1080,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int text = cg_u16(n + 6), vfirst = cg_u16(n + 8), vcount = cg_u16(n + 10);
         unsigned int cfirst = cg_u16(n + 12), ccount = cg_u16(n + 14), els = cg_u16(n + 16);
         unsigned int efirst = cg_u16(n + 18), ecount = cg_u16(n + 20);
-        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
+        if (n[0] > 2u || n[1] > 1u || n[2] > 1u || (n[3] & ~CG_NODE_AUTO_TEXT) != 0u
+            || (n[3] != 0u && (g->version < 6 || n[0] != CG_POPUP))   /* 25: auto lines on a v6 popup only */
+            || !cg_str_ok(g, cg_u16(n + 4), 0) || !cg_str_ok(g, text, 1)
             || (vcount > 0u && vfirst + vcount > (unsigned int)g->n_variant)
             || (ccount > 0u && cfirst + ccount > (unsigned int)g->n_child)
             || (ecount > 0u && efirst + ecount > (unsigned int)g->n_effect)
@@ -1574,6 +1585,8 @@ typedef struct {
 static cg_person cg_kin_me[CE_MAX_RECORDS];        /* each listed villager as a parent field would name them */
 static cg_person cg_kin_par[CE_MAX_RECORDS][2];    /* ... their recorded father [0] and mother [1] */
 static cg_person cg_kin_exp[CE_MAX_RECORDS];       /* ... the father of the baby they carry */
+static short cg_kin_pidx[CE_MAX_RECORDS][2];       /* ... the living villager their father [0] / mother [1] names,
+                                                       -1 none (gap C2: links through a living villager) */
 static unsigned char cg_kin_live[CE_MAX_RECORDS];
 static int cg_kin_game;                /* the game cg_kin_fill read */
 
@@ -1653,12 +1666,25 @@ static void cg_kin_vv1(int i) {
 }
 
 /* Each listed villager's own name and looks, recorded parents and expected father, read once for a search. */
+static int cg_kin_is(int game, const cg_person *p, int x, int father);
+
+/* Each listed villager's own name and looks, recorded parents and expected father, read now (whatever relations
+   the graph has: the dead-relative condition reads them too), and the living villager each parent field names. */
+static void cg_kin_read(const ce_adapter *a, int game);
+
 static void cg_kin_fill(const ce_adapter *a, int game) {
+    if (cg_g.n_rel == 0 || game < 1 || game > 5) {
+        return;
+    }
+    cg_kin_read(a, game);
+}
+
+static void cg_kin_read(const ce_adapter *a, int game) {
     /* The expected father on the carrier (VV2-VV5: the conception copies his name, head and body there). */
     static const unsigned int EXP[6][3] = { { 0 }, { 0 }, { 0x5C0u, 0x5E0u, 0x5DCu }, { 0xE48u, 0xE68u, 0xE64u },
                                             { 0x1C10u, 0x1C30u, 0x1C2Cu }, { 0x1C10u, 0x1C30u, 0x1C2Cu } };
-    int i;
-    if (cg_g.n_rel == 0 || game < 1 || game > 5) {
+    int i, k;
+    if (game < 1 || game > 5) {
         return;
     }
     cg_kin_game = game;
@@ -1689,6 +1715,20 @@ static void cg_kin_fill(const ce_adapter *a, int game) {
             }
         }
     }
+    for (i = 0; i < CE_MAX_RECORDS; ++i) {
+        cg_kin_pidx[i][0] = cg_kin_pidx[i][1] = -1;
+        for (k = 0; cg_kin_live[i] && k < CE_MAX_RECORDS; ++k) {
+            if (k == i || !cg_kin_live[k]) {
+                continue;
+            }
+            if (cg_kin_pidx[i][0] < 0 && cg_kin_is(game, &cg_kin_par[i][0], k, 1)) {
+                cg_kin_pidx[i][0] = (short)k;
+            }
+            if (cg_kin_pidx[i][1] < 0 && cg_kin_is(game, &cg_kin_par[i][1], k, 0)) {
+                cg_kin_pidx[i][1] = (short)k;
+            }
+        }
+    }
 }
 
 /* A game's default father: nobody (the parentage rules). */
@@ -1700,8 +1740,9 @@ static int cg_default_father(int game, const cg_person *p) {
         return lstrcmpA(p->name, "?") == 0 && p->head == 0 && p->body == 0;
     }
     if (game == 4 || game == 5) {
-        return (lstrcmpA(p->name, "Joey") == 0 || lstrcmpA(p->name, "Joey Joerson") == 0) && p->head == 2
-               && p->body == 2;
+        /* New Believers also has the Heathen Mommy's "Unknown" (2, 2) (src/vv_genealogy.py GAME_DEFAULT_FATHERS) */
+        return (lstrcmpA(p->name, "Joey") == 0 || lstrcmpA(p->name, "Joey Joerson") == 0
+                || (game == 5 && lstrcmpA(p->name, "Unknown") == 0)) && p->head == 2 && p->body == 2;
     }
     return 0;
 }
@@ -1738,6 +1779,39 @@ static int cg_kin(int game, int kind, int x, int y) {
     case CG_REL_SIBLING:
         return cg_kin_same(game, &cg_kin_par[x][1], &cg_kin_par[y][1], 0)
                || cg_kin_same(game, &cg_kin_par[x][0], &cg_kin_par[y][0], 1);
+    case CG_REL_GRANDPARENT:
+        /* gap C2: x is a recorded parent of a living recorded parent of y */
+        for (k = 0; k < 2; ++k) {
+            int p = cg_kin_pidx[y][k];
+            if (p >= 0 && p != x && (cg_kin_pidx[p][0] == x || cg_kin_pidx[p][1] == x)) {
+                return 1;
+            }
+        }
+        return 0;
+    case CG_REL_GRANDCHILD:
+        return cg_kin(game, CG_REL_GRANDPARENT, y, x);
+    case CG_REL_AUNT:
+        /* x is a sibling of a living recorded parent of y */
+        for (k = 0; k < 2; ++k) {
+            int p = cg_kin_pidx[y][k];
+            if (p >= 0 && p != x && cg_kin(game, CG_REL_SIBLING, x, p)) {
+                return 1;
+            }
+        }
+        return 0;
+    case CG_REL_COUSIN: {
+        /* a living recorded parent of x and one of y are siblings */
+        int j;
+        for (k = 0; k < 2; ++k) {
+            for (j = 0; j < 2; ++j) {
+                int p = cg_kin_pidx[x][k], q = cg_kin_pidx[y][j];
+                if (p >= 0 && q >= 0 && p != q && p != y && q != x && cg_kin(game, CG_REL_SIBLING, p, q)) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
     case CG_REL_SPOUSE:
         if (cg_kin_is(game, &cg_kin_exp[x], y, 1) || cg_kin_is(game, &cg_kin_exp[y], x, 1)) {
             return 1;                  /* one carries the other's baby */
@@ -1753,6 +1827,44 @@ static int cg_kin(int game, int kind, int x, int y) {
     default:
         return 0;
     }
+}
+
+/* cie-v6-binary.md 21a: whether no living, listed villager has the name of parent field `p` (a real one: a default
+   father is nobody, an empty field nobody).  By the name alone, so a parent whose look changed is still alive. */
+static int cg_kin_lost(int game, const cg_person *p, int father) {
+    int k;
+    if (p->name[0] == '\0' || (father && cg_default_father(game, p))) {
+        return 0;
+    }
+    for (k = 0; k < CE_MAX_RECORDS; ++k) {
+        if (cg_kin_live[k] && lstrcmpA(cg_kin_me[k].name, p->name) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Whether the villager in record `x` lost a recorded parent or a co-parent (cg_kin_read first).  A dead child or
+   sibling is on no record the engine reads, so it is never claimed. */
+static int cg_dead_relative(int game, int x) {
+    int k;
+    if (x < 0 || x >= CE_MAX_RECORDS || !cg_kin_live[x]) {
+        return 0;
+    }
+    if (cg_kin_lost(game, &cg_kin_par[x][0], 1) || cg_kin_lost(game, &cg_kin_par[x][1], 0)
+        || cg_kin_lost(game, &cg_kin_exp[x], 1)) {
+        return 1;                      /* a parent, or the father of the baby carried */
+    }
+    for (k = 0; k < CE_MAX_RECORDS; ++k) {
+        if (k == x || !cg_kin_live[k]) {
+            continue;
+        }
+        if ((cg_kin_is(game, &cg_kin_par[k][0], x, 1) && cg_kin_lost(game, &cg_kin_par[k][1], 0))
+            || (cg_kin_is(game, &cg_kin_par[k][1], x, 0) && cg_kin_lost(game, &cg_kin_par[k][0], 1))) {
+            return 1;                  /* the other recorded parent of one of their children */
+        }
+    }
+    return 0;
 }
 
 static int cg_has_gaps(void) {
@@ -2304,6 +2416,10 @@ static int cg_role_fact(const unsigned char *c, int game) {
     if (c[0] == CGC_SKILL_AT_LEAST) {
         return cg_skill_value(a, r, cg_s(&cg_g, cg_u16(c + 6))) >= (int)cg_u16(c + 4);
     }
+    if (c[0] == CGC_HAS_DEAD_RELATIVE) {
+        cg_kin_read(a, game);
+        return cg_dead_relative(game, cg.record[cg_resolve_role(role)]);
+    }
     /* has_living_child: a living, listed villager whose recorded father (or mother) is this one -- the parent's
        name, head and body on the child's record (none on A New Home's records). */
     {
@@ -2369,7 +2485,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_SPECIAL_PRESENT: return cg_special_present(game, (int)a);
     case CGC_MIN_POPULATION: return cg_population(game, 0) >= (int)a;
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
-    case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD:
+    case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE:
         return cg_role_fact(c, game);
     case CGC_DREW: {
         const cg_pick *pick = cg_find_pick((int)a, (int)cg_u16(c + 4));
@@ -2510,6 +2626,41 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
 }
 
 /* An effect's own roll as its node is reached, into the history (cg_per_game: above the loader). */
+/* cie-v6-binary.md 24: a random like or dislike -- the walk's roll `k` over the game's list, then candidate k % count
+   of the game's preferences (in list order) in NEITHER of the villager's lists now; -1 when there is none (or nobody
+   bound to read). */
+static int cg_random_preference(const ce_adapter *a, int role, int k) {
+    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    const int *likes, *dislikes;
+    int i, s, count = 0;
+    if (r == NULL || a->pref_count <= 0 || k < 0) {
+        return -1;
+    }
+    likes = (const int *)(r + a->off_likes);
+    dislikes = (const int *)(r + a->off_dislikes);
+    for (s = 0; s < 2; ++s) {
+        for (i = 0; i < a->pref_count; ++i) {
+            int slot, held = 0;
+            for (slot = 0; slot < a->pref_slots; ++slot) {
+                held |= likes[slot] == i || dislikes[slot] == i;
+            }
+            if (held) {
+                continue;
+            }
+            if (s == 0) {
+                ++count;
+            } else if (k-- == 0) {
+                return i;
+            }
+        }
+        if (count == 0) {
+            return -1;
+        }
+        k %= count;
+    }
+    return -1;
+}
+
 static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e, cg_history *h) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     int va = 0, vb = 0;
@@ -2551,6 +2702,13 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
            the current row up when the effect is made). */
         va = lo == CG_LOOK_RANDOM ? ce_random_below(a, a->head_count - 1) : lo == CG_LOOK_KEEP ? -1 : lo;
         vb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : hi == CG_LOOK_KEEP ? -1 : hi;
+        break;
+    case CGE_PREF:
+        if (e[2] & CG_PREF_RANDOM) {
+            /* 24: the roll, then the word chosen from the villager as the walk finds them (a fixed word: no roll) */
+            int k = ce_random_below(a, a->pref_count);
+            va = cg_random_preference(a, cg_resolve_role(e[1]), k);
+        }
         break;
     default:
         break;                         /* celebrate, action, mood, die_unrecovered, baby_lost, birth_then_die: no
@@ -4043,6 +4201,35 @@ static int test_graph_structures = -1;  /* the finished structures (bit k), -1 =
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
 #endif
 
+#ifdef VVFP_TEST
+/* "VVFP Head Look.dll" as the test build sees it (cie-v6-binary.md 27): -1 the real one; 0 none; 1 installed, each
+   look set recorded (the record's index, the look). */
+static int test_graph_head_look = -1;
+static int test_graph_head_look_set[16][2];
+static int test_graph_head_looks;
+#endif
+
+/* cie-v6-binary.md 27: the villager in record `index` is drawn with the OLD head from now on -- the per-villager
+   head look Change Appearance offers, kept in "VVFP Head Look.dll"'s own per-save file (never a record field).
+   0 when it cannot be made (the companion is not in the game, its draws do not follow the look, the write failed). */
+static int cg_old_look(int game, const unsigned char *record, int index) {
+    vvfp_head_look_api api;
+#ifdef VVFP_TEST
+    if (test_graph_head_look >= 0) {
+        if (test_graph_head_look == 0) {
+            return 0;
+        }
+        if (test_graph_head_looks < 16) {
+            test_graph_head_look_set[test_graph_head_looks][0] = index;
+            test_graph_head_look_set[test_graph_head_looks++][1] = VVFP_HEAD_LOOK_OLD;
+        }
+        return 1;
+    }
+#endif
+    (void)index;
+    return vvfp_head_look_find(game, &api) && api.set(game, record, VVFP_HEAD_LOOK_OLD) == 1;
+}
+
 /* One more line for the event's log entry ("  <text>\n"), when it fits. */
 static void cg_extra_add(const char *who, const char *what) {
     char line[224];
@@ -4226,6 +4413,15 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         cg.gone |= 1u << role;
         return;
     }
+    if (e[0] == CGE_OLD_LOOK) {
+        /* 27: the old head look, through Head Look's own file (nothing in the save is written) */
+        if (!cg_old_look(game, record, index)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        cg_extra_add(cg.name[role], "'s head look is now Old.");
+        return;
+    }
     if (e[0] == CGE_BABY_LOST) {
         /* 22: the nursing parent's pregnancy ends as the Custom Island Event's "0 babies" ends it (the adapter's
            cancel); the Cause of Death companion is told first, while the record still holds the babies. */
@@ -4267,10 +4463,14 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         c->health = va;
         break;
     case CGE_PREF: {
-        int value = cg_preference(a, cg_s(&cg_g, cg_u16(e + 12)));
+        int random = (e[2] & CG_PREF_RANDOM) != 0;
+        int value = random ? va : cg_preference(a, cg_s(&cg_g, cg_u16(e + 12)));
         int dislike = (e[2] & 4u) != 0;
         const int *list = (const int *)(record + (dislike ? a->off_dislikes : a->off_likes));
         int k, have = 0, free_slot = 0;
+        if (random && (value < 0 || value >= a->pref_count)) {
+            return;                    /* 24: no word left to give: nothing changed, nothing refused */
+        }
         if (!(a->caps & CAP_PREFS) || value < 0) {
             ce_refuse(r, CE_WHY_OTHER);
             return;
@@ -4422,6 +4622,154 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
    popup and the place in it its effects go with. */
 static int cg_group_in_question;       /* the first popup is shown in the answered question's own popup (14) */
 
+/* cie-v6-binary.md 25: the automatic outcome lines.  <R> the effect's role's name placeholder, <P> its his/her, <S>
+   the skill's name and <W> the preference word as the game lists them.  Pinned equal to src/vv_cie_graph.py
+   AUTO_LINES by tests/test_cie_graph_v6.py. */
+static const char *const CG_AUTO_LINES[][2] = {
+    { "food+", "The village gains food." },
+    { "food-", "The village loses food." },
+    { "tech+", "The village gains tech points." },
+    { "tech-", "The village loses tech points." },
+    { "kill", "<R> dies." },
+    { "vanish", "<R> disappears." },
+    { "status", "<R> becomes a Heathen." },
+    { "health", "<R>'s health changes." },
+    { "like", "<R> now likes <W>." },
+    { "dislike", "<R> now dislikes <W>." },
+    { "skill+", "<R> learns more about <S>." },
+    { "skill-", "<R> feels less sure of <P> <S>." },
+    { "sick", "<R> falls sick." },
+    { "celebrate_all", "The village celebrates." },
+    { "celebrate", "<R> celebrates." },
+    { "mood+", "<R> is in a good mood." },
+    { "mood-", "<R> is in a bad mood." },
+    { "health_change+", "<R> feels better." },
+    { "health_change-", "<R> feels worse." },
+    { "set100", "<R> masters <S>." },
+    { "set0", "<R> forgets everything about <S>." },
+    { "set", "<R>'s <S> skill changes." },
+    { "damage", "Something in the village is damaged." },
+    { "hair", "<R>'s hair changes color." },
+    { "look", "<R>'s look changes." },
+    { "die_unrecovered", "<R> dies; the body is not recovered." },
+    { "baby_lost", "<R>'s baby is lost." },
+    { "old_look", "<R> looks older and more worn." },
+};
+
+/* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
+static void cg_auto_add(char *out, int cap, const char *key, int role, const char *skill, const char *word) {
+    char line[256];
+    const char *t = NULL, *id = role >= 0 && role < cg_g.n_role ? cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, role) + 4)) : "";
+    int i, n = 0;
+    for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
+        if (lstrcmpA(CG_AUTO_LINES[i][0], key) == 0) {
+            t = CG_AUTO_LINES[i][1];
+        }
+    }
+    if (t == NULL) {
+        return;
+    }
+    for (; *t != '\0' && n < (int)sizeof line - 1; ++t) {
+        const char *put = NULL, *tail = "";
+        if (t[0] == '<' && t[1] != '\0' && t[2] == '>') {
+            put = t[1] == 'R' ? "(" : t[1] == 'P' ? "(" : t[1] == 'S' ? skill : t[1] == 'W' ? word : NULL;
+            tail = t[1] == 'R' ? ".Name)" : t[1] == 'P' ? ".his/her)" : "";
+        }
+        if (put == NULL) {
+            line[n++] = *t;
+            continue;
+        }
+        if (n + lstrlenA(put) + lstrlenA(id) + lstrlenA(tail) + 1 >= (int)sizeof line) {
+            return;
+        }
+        lstrcpyA(line + n, put);
+        n += lstrlenA(put);
+        if (t[1] == 'R' || t[1] == 'P') {
+            lstrcpyA(line + n, id);
+            n += lstrlenA(id);
+            lstrcpyA(line + n, tail);
+            n += lstrlenA(tail);
+        }
+        t += 2;
+    }
+    line[n] = '\0';
+    if (lstrlenA(out) + 1 + n + 1 < cap) {
+        if (out[0] != '\0') {
+            lstrcatA(out, "\n");
+        }
+        lstrcatA(out, line);
+    }
+}
+
+/* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
+   walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options). */
+static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
+                          char *out, int cap) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int k;
+    for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
+        const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+        int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
+        int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+        int role = e[1] == CG_ROLE_ALIAS_ALL ? -1 : (int)e[1];
+        char word[48];
+        const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
+        switch (e[0]) {
+        case CGE_FOOD: case CGE_TECH:
+            if (!(e[2] & 2u) && va != 0) {
+                cg_auto_add(out, cap, e[0] == CGE_FOOD ? (va > 0 ? "food+" : "food-") : (va > 0 ? "tech+" : "tech-"),
+                            -1, "", "");
+            }
+            break;
+        case CGE_PAY:
+            if (award_kind >= 0 && award != 0) {
+                cg_auto_add(out, cap, award_kind == 0 ? (award > 0 ? "food+" : "food-") : (award > 0 ? "tech+" : "tech-"),
+                            -1, "", "");
+            }
+            break;
+        case CGE_KILL: cg_auto_add(out, cap, "kill", role, "", ""); break;
+        case CGE_VANISH: cg_auto_add(out, cap, "vanish", role, "", ""); break;
+        case CGE_STATUS: cg_auto_add(out, cap, "status", role, "", ""); break;
+        case CGE_HEALTH: cg_auto_add(out, cap, "health", role, "", ""); break;
+        case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", ""); break;
+        case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
+        case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
+        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
+        case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
+        case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
+        case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
+        case CGE_HEALTH_CHANGE:
+            if (va != 0) {
+                cg_auto_add(out, cap, va > 0 ? "health_change+" : "health_change-", role, "", "");
+            }
+            break;
+        case CGE_APPEARANCE: cg_auto_add(out, cap, hi == CG_LOOK_KEEP ? "hair" : "look", role, "", ""); break;
+        case CGE_PREF:
+            if (e[2] & CG_PREF_RANDOM) {
+                if (a == NULL || va < 0 || !ui_list_entry(a->pref_list, va, word, sizeof word)) {
+                    break;
+                }
+            } else {
+                lstrcpynA(word, cg_s(&cg_g, cg_u16(e + 12)), sizeof word);
+            }
+            cg_auto_add(out, cap, (e[2] & 4u) ? "dislike" : "like", role, "", word);
+            break;
+        case CGE_SKILL:
+            if (skill != NULL && vb != 0) {
+                cg_auto_add(out, cap, vb > 0 ? "skill+" : "skill-", role, skill, "");
+            }
+            break;
+        case CGE_SKILL_SET:
+            if (skill != NULL) {
+                cg_auto_add(out, cap, vb == 100 ? "set100" : vb == 0 ? "set0" : "set", role, skill, "");
+            }
+            break;
+        default:
+            break;                     /* action: no line */
+        }
+    }
+}
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
@@ -4435,7 +4783,7 @@ static void cg_group(int game, const cg_history *h, int from) {
     for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        int villager = 0;
+        int villager = 0, fx0 = fx;
         cg_visit(node);
         for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
@@ -4450,6 +4798,9 @@ static void cg_group(int game, const cg_history *h, int from) {
             int start = 0;
             unsigned short nt = cg_node_title(node);
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
+            if (n[3] & CG_NODE_AUTO_TEXT) {
+                cg_auto_lines(game, h, n, fx0, award_kind, award, text, sizeof text);   /* 25 */
+            }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
                 /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
                    a popup of its own (a question, a new popup) after a blank line (src/vv_cie_graph.py one_popup) */
@@ -5879,8 +6230,10 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             /* Version 3: no villagers fit the roles together (an age gap); version 6: or a kinship relation. */
             int q;
             for (q = 0; q < cg_g.n_role; ++q) {
-                static const char *const KIN[5] = { "", "spouses", "a parent and child", "a parent and child",
-                                                    "siblings" };
+                static const char *const KIN[9] = { "", "spouses", "a parent and child", "a parent and child",
+                                                    "siblings", "a grandparent and grandchild",
+                                                    "a grandparent and grandchild",
+                                                    "an aunt or uncle and a niece or nephew", "cousins" };
                 int other = -1, kind = cg_relation(q, &other);
                 if (kind != 0 && (needed & (1u << q)) && (needed & (1u << other))) {
                     wsprintfA(reason, "No villagers in the village can take part together now: two of them must be "
@@ -6614,6 +6967,22 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
 /* Record `record` starts nursing just before the next walk (after the roles are cast), -1 none. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphNurseAtWalk(int record) {
     test_graph_nurse = record;
+}
+
+/* "VVFP Head Look.dll" as the test build sees it (26): `mode` -1 the real one, 0 none, 1 installed (and the record
+   cleared); returns the looks set so far, each (record index, look) into `out` (at most `cap` pairs). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *out, int cap) {
+    int i;
+    if (mode >= -1 && mode <= 1) {
+        test_graph_head_look = mode;
+        test_graph_head_looks = 0;
+        return 0;
+    }
+    for (i = 0; i < test_graph_head_looks && i < cap && out != NULL; ++i) {
+        out[2 * i] = test_graph_head_look_set[i][0];
+        out[2 * i + 1] = test_graph_head_look_set[i][1];
+    }
+    return test_graph_head_looks;
 }
 
 /* A New Home's parentage sidecar as the test build sees it (cie-v6-binary.md 21): record `record`'s father (which 0)

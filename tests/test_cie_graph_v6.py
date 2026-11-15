@@ -326,6 +326,34 @@ BIRTH = {
         "q": {"text": "(Friend) carries the child home."},
     },
 }
+# cie-v6-binary.md 24 and 25: a random like, a fixed dislike, skills and a look told in automatic lines.
+AUTO = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Odd Morning", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 14}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) wakes up feeling odd.", "auto_text": True,
+              "effects": [{"do": "appearance", "role": "subject", "head": "random"},
+                          {"do": "preference", "role": "subject", "like": "random"},
+                          {"do": "preference", "role": "subject", "dislike": "work"},
+                          {"do": "skill", "role": "subject", "skills": ["Farming", "Research"], "min": 5, "max": 10},
+                          {"do": "skill", "role": "subject", "skills": ["Healing"], "min": -10, "max": -5}],
+              "children": [{"next": "q"}]},
+        "q": {"text": "By noon it has passed.", "popup": "append", "join": "paragraph", "auto_text": True,
+              "effects": [{"do": "mood", "role": "subject", "mood": "good"},
+                          {"do": "food", "amount": 40}, {"do": "action", "role": "subject", "action": "Dancing"}]},
+    },
+}
+# cie-v6-binary.md 27: the old head look; and "dislikes running" (every game's list has it).
+OLD = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Long Cough", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 14}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) has been coughing for days.", "auto_text": True,
+                    "effects": [{"do": "old_look", "role": "subject"},
+                                {"do": "preference", "role": "subject", "dislike": "running"}]}},
+}
+AUTO_LIKES = ["likes:subject:ants", "likes:subject:crowds", "dislikes:subject:resting", "harmable:subject"]
 
 
 def binding(spec: dict) -> dict:
@@ -434,6 +462,20 @@ def vector_cases() -> list[dict]:
         {"name": "looks_vv5", "graph": LOOKS, "game": 5, "unicode": False, "rolls": [0, 28],
          "bindings": {"subject": {"name": "Bo", "sex": "m"}, "friend": {"name": "Ana", "sex": "f"}},
          "answers": [], "facts": None},
+        # 24, 25: the random like's word from the villager's lists (facts likes: / dislikes:), the lines told
+        {"name": "auto_lines_vv1", "graph": AUTO, "game": 1, "unicode": False, "rolls": [7, 0, 1, 3, 2],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": AUTO_LIKES},
+        {"name": "auto_lines_vv2", "graph": AUTO, "game": 2, "unicode": False, "rolls": [3, 61, 0, 5, 0],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
+        {"name": "auto_lines_vv3", "graph": AUTO, "game": 3, "unicode": False, "rolls": [12, 2, 1, 0, 5],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": AUTO_LIKES},
+        {"name": "auto_lines_vv4", "graph": AUTO, "game": 4, "unicode": False, "rolls": [0, 78, 0, 2, 1],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": AUTO_LIKES},
+        *[{"name": f"old_look_vv{n}", "graph": OLD, "game": n, "unicode": False, "rolls": [],
+           "bindings": {"subject": {"name": "Ana" if n % 2 else "Bo", "sex": "f" if n % 2 else "m"}}, "answers": [],
+           "facts": None} for n in range(1, 6)],
+        {"name": "auto_lines_vv5", "graph": AUTO, "game": 5, "unicode": False, "rolls": [29, 40, 1, 4, 3],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
     ] + [
         {"name": f"birth_then_die_vv{n}", "graph": BIRTH, "game": n, "unicode": False, "rolls": [],
          "bindings": {"mother": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},
@@ -970,7 +1012,7 @@ class V28Features(unittest.TestCase):
         self.assertEqual((n_rel, zero), (2, 0))
         self.assertEqual([tuple(blob[o_rel + 4 * i:o_rel + 4 * i + 4]) for i in range(2)], [(1, 3, 0, 0), (2, 4, 1, 0)])
         self.assertEqual(struct.unpack_from("<H", cg.compile_graph(cg.load(v6())), 6)[0], 96, "no relation: 96")
-        for bad in ({"spouse_of": "pal"}, {"parent_of": "kin"}, {"cousin_of": "hero"}, {"child_of": "nobody"},
+        for bad in ({"spouse_of": "pal"}, {"parent_of": "kin"}, {"aunt_of": "hero"}, {"child_of": "nobody"},
                     {"child_of": "hero", "parent_of": "hero"}):
             w = copy.deepcopy(d)
             w["roles"]["pal"]["relation"] = bad
@@ -1001,6 +1043,144 @@ class V28Features(unittest.TestCase):
                          "c": {"effects": [{"do": "appearance", "role": "pal", "head": 3}]}}}
         self.assertEqual(cc.allow_on_harm(doc), [("mum", "nursing_parent", ["a: baby_lost", "b: die_unrecovered"]),
                                                  ("pal", "", ["b: die_unrecovered"])])
+
+
+class EngineFollowups(unittest.TestCase):
+    """cie-v6-binary.md 21 (wider kinship), 21a (a dead relative), 23 (a random like or dislike), 24 (automatic
+    outcome lines)."""
+
+    def test_auto_lines_round_trip_and_where_they_may_stand(self):
+        g = cg.load(copy.deepcopy(AUTO), True)
+        self.assertTrue(g["nodes"]["p"]["auto_text"])
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_node = struct.unpack_from("<I", blob, 48)[0]
+        self.assertEqual([blob[o_node + 28 * i + 3] for i in range(2)], [1, 1], "node flags bit 0")
+        off = copy.deepcopy(AUTO)
+        off["nodes"]["p"]["auto_text"] = False
+        self.assertNotIn("auto_text", cg.load(off, True)["nodes"]["p"], "only kept when on")
+        for bad in ({"type": "question", "text": "Well?", "auto_text": True,
+                     "choices": [{"label": "A", "next": "q"}, {"label": "B", "next": "q"}]},
+                    {"type": "branch", "auto_text": True, "children": [{"next": "q"}]},
+                    {"text": "x", "auto_text": "yes", "children": [{"next": "q"}]}):
+            w = copy.deepcopy(AUTO)
+            w["nodes"]["p"] = bad
+            self.assertTrue(any("auto_text" in p for p in t.problems_of(w)), bad)
+
+    def test_the_line_table_is_the_engines(self):
+        native = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph.inc").read_text(encoding="utf-8")
+        block = native[native.index("CG_AUTO_LINES[][2] = {"):]
+        block = block[:block.index("};")]
+        pairs = dict(re.findall(r'\{ "([^"]+)", "([^"]*)" \}', block))
+        self.assertEqual(pairs, cg.AUTO_LINES)
+
+    def test_each_line_in_simulate(self):
+        g = cg.load(copy.deepcopy(AUTO), True)
+        r = cg.simulate(g, 3, [12, 2, 1, 0, 5], binding({"subject": {"name": "Ana", "sex": "f"}}),
+                        facts=frozenset(AUTO_LIKES))
+        words = cg.GAMES[3].preferences
+        free = [w for w in words if w not in ("ants", "crowds", "resting")]
+        self.assertEqual(r["fx"][1], [words.index(free[2 % len(free)]), 0], "candidate k % count")
+        self.assertEqual(r["popups"], [
+            "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes " + free[2] + ".\n"
+            "Ana now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\n"
+            "By noon it has passed.\nAna is in a good mood.\nThe village gains food."])
+
+    def test_the_fit_counts_the_widest_line(self):
+        g = cg.load(copy.deepcopy(AUTO), True)
+        lg = cg.lower(g)
+        for gn in g["games"]:
+            game = cg.GAMES[gn]
+            longest = max(game.preferences, key=len)
+            self.assertEqual(cg.widest_auto_line(lg, AUTO["nodes"]["p"]["effects"][1] | {"list": "likes",
+                                                                                      "preference": "random"},
+                                                 game, None), f"(subject.Name) now likes {longest}.")
+            h = cg.walk(g, cg.contexts(g, [gn])[0])
+            self.assertIn(f"now likes {longest}.", h[0].popups[0].worst)
+            self.assertIn("W" * game.name_room + " feels less sure of", h[0].popups[0].worst)
+        # A text that fits alone but not with its lines is refused (The Secret City's popup holds 1990 bytes).
+        w = copy.deepcopy(AUTO)
+        w["games"] = [3]
+        w["nodes"]["p"]["text"] = "(Name) wakes up feeling odd. " + "It is a very odd morning. " * 70
+        plain = copy.deepcopy(w)
+        for n in plain["nodes"].values():
+            n.pop("auto_text")
+        self.assertEqual(cg.validate(plain, True)[1], [])
+        self.assertTrue(any("longer than 1990 bytes" in p for p in cg.validate(w, True)[1]),
+                        cg.validate(w, True)[1])
+
+    def test_random_preference(self):
+        g = cg.load(copy.deepcopy(AUTO), True)
+        self.assertEqual(g["nodes"]["p"]["effects"][1]["preference"], "random")
+        self.assertEqual(g["nodes"]["p"]["effects"][2], {"do": "preference", "role": "subject", "list": "dislikes",
+                                                         "preference": "work"})
+        blob = cg.compile_graph(g)
+        o_eff = struct.unpack_from("<I", blob, 56)[0]
+        code, _role, flags, _q, a, b, st, _ = struct.unpack_from("<BBBBiiHH", blob, o_eff + 16)
+        self.assertEqual((code, flags, a, b, st), (8, 8, 0, 0, 0xFFFF))
+        self.assertEqual(struct.unpack_from("<BBB", blob, o_eff + 32)[2], 4, "a dislike: bit 4, no random bit")
+        self.assertIn("subject", cg.harm_capable(g), "a dislike is harmful")
+        both = copy.deepcopy(AUTO)
+        both["nodes"]["p"]["effects"][1] = {"do": "preference", "role": "subject", "like": "random", "list": "likes"}
+        self.assertTrue(t.problems_of(both))
+        v5 = t.tiny()
+        v5["nodes"][v5["start"]]["effects"] = [{"do": "preference", "role": "subject", "list": "likes",
+                                                "preference": "random"}]
+        self.assertTrue(any("random preference" in p for p in t.problems_of(v5)))
+        # Every word held: no candidate, no line, nothing changed.
+        held = [f"likes:subject:{w}" for w in cg.GAMES[1].preferences]
+        r = cg.simulate(g, 1, [7, 0, 1, 3, 2], binding({"subject": {"name": "Ana", "sex": "f"}}),
+                        facts=frozenset(held + ["harmable:subject"]))
+        self.assertEqual(r["fx"][1], [-1, 0])
+        self.assertNotIn("now likes", r["popups"][0])
+
+    def test_the_old_look_and_dislikes_running(self):
+        g = cg.load(copy.deepcopy(OLD), True)
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_eff = struct.unpack_from("<I", blob, 56)[0]
+        self.assertEqual(struct.unpack_from("<BBBBiiHH", blob, o_eff), (21, 0, 0, 0, 0, 0, 0xFFFF, 0))
+        harmless = copy.deepcopy(OLD)
+        harmless["nodes"]["p"]["effects"] = harmless["nodes"]["p"]["effects"][:1]
+        self.assertEqual(cg.harm_capable(cg.load(harmless, True)), set(), "the old look is harmless")
+        for n in range(1, 6):
+            self.assertIn("running", cg.GAMES[n].preferences)
+            r = cg.simulate(g, n, [], binding({"subject": {"name": "Ana", "sex": "f"}}))
+            self.assertEqual(r["popups"], ["Ana has been coughing for days.\nAna looks older and more worn.\n"
+                                           "Ana now dislikes running."])
+        v5 = t.tiny()
+        v5["nodes"][v5["start"]]["effects"] = [{"do": "old_look", "role": "subject"}]
+        self.assertTrue(any("version 6" in p for p in t.problems_of(v5)))
+
+    def test_wider_kinship_and_a_dead_relative(self):
+        for kind, code in (("grandparent_of", 5), ("grandchild_of", 6), ("aunt_or_uncle_of", 7), ("cousin_of", 8)):
+            d = v6(roles={"hero": {"kind": "villager"}, "pal": {"kind": "villager", "relation": {kind: "hero"}}})
+            g = cg.load(d)
+            blob = cg.compile_graph(g)
+            o_rel = struct.unpack_from("<I", blob, 96)[0]
+            self.assertEqual(tuple(blob[o_rel:o_rel + 4]), (1, code, 0, 0), kind)
+            self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        d = v6()
+        d["nodes"]["k"]["variants"] = [{"if": {"has_dead_relative": "hero"}, "text": "(Hero) keeps them, for Mother."}]
+        g = cg.load(d)
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_cond = struct.unpack_from("<I", blob, 60)[0]
+        self.assertIn(17, [blob[o_cond + 8 * i] for i in range(struct.unpack_from("<H", blob, 34)[0])])
+        self.assertEqual(len(cg.walk(g, cg.contexts(g, [3])[0])), 2, "the walk takes it either way")
+        lg = cg.lower(g)
+        sim = lambda facts: cg.simulate(g, 3, [0, 0, 0], binding({"hero": {"name": "Ana", "sex": "f"},  # noqa: E731
+                                                                 "pal": {"name": "Bo", "sex": "m"}}), [0],
+                                        facts=frozenset(facts))["popups"][-1]
+        self.assertIn("for Mother", sim(["has_dead_relative:hero", "harmable:hero", "harmable:pal"]))
+        self.assertNotIn("for Mother", sim(["harmable:hero", "harmable:pal"]))
+        self.assertIsNotNone(lg)
+        bad = v6()
+        bad["nodes"]["q"]["choices"][0]["if"] = {"has_dead_relative": "hero"}
+        self.assertTrue(t.problems_of(bad), "never in a choice's if")
+        bad = v6()
+        bad["requirement"] = {"if": {"has_dead_relative": "hero"}}
+        self.assertTrue(t.problems_of(bad), "never in the requirement's")
 
 
 class Answers(unittest.TestCase):
