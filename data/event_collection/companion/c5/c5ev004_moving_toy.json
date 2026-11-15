@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moving Toy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev004_moving_toy",
+  "source": "companion",
+  "lines": [
+   3345,
+   3349
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3345",
+  "ledger": [
+   {
+    "src": "L3349",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A toymaker creates a little fish that wiggles when pulled by a cord.",
+  "cast_only": [
+   "toymaker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "toymaker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A toymaker creates a little fish that wiggles when pulled by a cord.",
+   "src": "L3346",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Children invent races for it.",
+   "src": "L3347"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A builder adapts its mechanism for a useful tool.",
+   "src": "L3348",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3348"
+    }
+   ]
+  }
+ }
+}

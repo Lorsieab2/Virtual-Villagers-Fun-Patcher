@@ -1,0 +1,81 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grain Experiment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev016_grain",
+  "source": "companion",
+  "lines": [
+   3433,
+   3437
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3433",
+  "ledger": [
+   {
+    "src": "L3437",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "Farmers test unfamiliar edible grains and seeds in porridge, flat cakes and toasted snacks.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "Farmers test unfamiliar edible grains and seeds in porridge, flat cakes and toasted snacks.",
+   "src": "L3434",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A new staple emerges.",
+   "src": "L3435"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The first cakes are so hard they become a village joke.",
+   "src": "L3436"
+  }
+ }
+}
