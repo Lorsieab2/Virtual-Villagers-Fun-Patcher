@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parent Who Knew Best",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway27_parent_knew",
+  "source": "living",
+  "lines": [
+   23120,
+   23134
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23120",
+  "ledger": [
+   {
+    "src": "L23134",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A parent forbids a young adult from joining a risky expedition."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A parent forbids a young adult from joining a risky expedition.",
+   "src": "L23121",
+   "choices": [
+    {
+     "label": "Follow the parent's advice.",
+     "next": "a",
+     "src": "L23122"
+    },
+    {
+     "label": "Join the expedition anyway.",
+     "next": "b",
+     "src": "L23125"
+    },
+    {
+     "label": "Negotiate a shorter, safer journey.",
+     "next": "c",
+     "src": "L23128"
+    },
+    {
+     "label": "Ask an experienced explorer to mentor them.",
+     "next": "d",
+     "src": "L23131"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager remains safe and learns a different skill.",
+   "src": "L23123",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23123"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager resents losing a rare opportunity.",
+   "src": "L23124"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager returns with valuable knowledge.",
+   "src": "L23126"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The expedition ends in injury and a difficult homecoming.",
+   "src": "L23127",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": -30,
+     "max": -10,
+     "src": "L23127"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family agrees on precautions.",
+   "src": "L23129"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The compromise satisfies neither person.",
+   "src": "L23130"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Training builds confidence and trust.",
+   "src": "L23132"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The mentor decides the villager is not yet ready.",
+   "src": "L23133"
+  }
+ }
+}

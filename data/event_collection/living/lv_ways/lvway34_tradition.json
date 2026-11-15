@@ -1,0 +1,170 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tradition of Silence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway34_tradition",
+  "source": "living",
+  "lines": [
+   23232,
+   23246
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23232",
+  "ledger": [
+   {
+    "src": "L23246",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The village has always kept silent during planting, but a farmer wants to sing.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has always kept silent during planting, but a farmer wants to sing.",
+   "src": "L23233",
+   "choices": [
+    {
+     "label": "Keep the silent custom.",
+     "next": "a",
+     "src": "L23234"
+    },
+    {
+     "label": "Allow songs in the fields.",
+     "next": "b",
+     "src": "L23237"
+    },
+    {
+     "label": "Sing only after planting.",
+     "next": "c",
+     "src": "L23240"
+    },
+    {
+     "label": "Ask why the custom began.",
+     "next": "d",
+     "src": "L23243"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The work proceeds peacefully.",
+   "src": "L23235"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A young farmer finds the silence lonely.",
+   "src": "L23236"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The workers enjoy the rhythm and finish together.",
+   "src": "L23238"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The noise disturbs nearby nesting birds.",
+   "src": "L23239"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The harvest ritual gains a lively ending.",
+   "src": "L23241"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some workers still wish they could sing while working.",
+   "src": "L23242"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "An elder recalls that silence once helped hear approaching storms.",
+   "src": "L23244"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "No one can verify the story, but the question inspires study.",
+   "src": "L23245"
+  }
+ }
+}

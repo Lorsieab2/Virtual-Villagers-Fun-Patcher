@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family on Both Sides",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl32_family_both",
+  "source": "living",
+  "lines": [
+   22081,
+   22093
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22081",
+  "ledger": [
+   {
+    "src": "L22082",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L22092",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L22093",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager has relatives living among the Heathens and wants to visit them.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager has relatives living among the Isolans and wants to visit them."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager has relatives living among the Heathens and wants to visit them.",
+   "src": "L22082",
+   "choices": [
+    {
+     "label": "Allow an open visit.",
+     "next": "a",
+     "src": "L22083"
+    },
+    {
+     "label": "Arrange a neutral meeting.",
+     "next": "b",
+     "src": "L22086"
+    },
+    {
+     "label": "Forbid the visit.",
+     "next": "c",
+     "src": "L22089"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager has relatives living among the Isolans and wants to visit them.",
+     "src": "L22082"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family reunites and shares news.",
+   "src": "L22084"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Political tension makes the visit awkward but worthwhile.",
+   "src": "L22085"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Both sides meet peacefully near the boundary.",
+   "src": "L22087"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A relative feels hurt that the family cannot visit freely.",
+   "src": "L22088"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager secretly goes anyway and returns angry.",
+   "src": "L22090"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The ban damages trust within the family.",
+   "src": "L22091"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

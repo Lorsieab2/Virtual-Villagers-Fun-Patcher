@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hungry Festival",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway20_hungry",
+  "source": "living",
+  "lines": [
+   23008,
+   23022
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23008",
+  "ledger": [
+   {
+    "src": "L23022",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The village has little food but an important celebration approaches.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has little food but an important celebration approaches.",
+   "src": "L23009",
+   "choices": [
+    {
+     "label": "Hold the feast as tradition demands.",
+     "next": "a",
+     "src": "L23010"
+    },
+    {
+     "label": "Postpone the feast.",
+     "next": "b",
+     "src": "L23013"
+    },
+    {
+     "label": "Hold a smaller shared meal.",
+     "next": "c",
+     "src": "L23016"
+    },
+    {
+     "label": "Ask for a blessing and organize work parties.",
+     "next": "d",
+     "src": "L23019"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "little food",
+     "reason": "the premise: the stores are already low; nothing is lost now",
+     "src": "L23009"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gathering strengthens bonds, but stores run low.",
+   "src": "L23011",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L23011"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The feast inspires neighbors to share hidden supplies.",
+   "src": "L23012"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Food lasts through the lean weeks.",
+   "src": "L23014",
+   "text_only": [
+    {
+     "what": "food lasts",
+     "reason": "the stores last: nothing more is gained or lost",
+     "src": "L23014"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Disappointed villagers feel a cherished date has passed unnoticed.",
+   "src": "L23015"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The modest celebration brings comfort.",
+   "src": "L23017",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L23017"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some families cannot contribute and feel embarrassed.",
+   "src": "L23018"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1",
+     "weight": 20
+    },
+    {
+     "next": "d2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The prayer comforts some while the work secures more food.",
+   "src": "L23020",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L23020"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The harvest fails despite the effort, and the village must ration.",
+   "src": "L23021",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L23021"
+    }
+   ]
+  }
+ }
+}

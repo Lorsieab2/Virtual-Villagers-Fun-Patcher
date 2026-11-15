@@ -1,0 +1,170 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Who Spoke for Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth30_leader_spoke",
+  "source": "living",
+  "lines": [
+   23795,
+   23809
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23795",
+  "ledger": [
+   {
+    "src": "L23809",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "At a gathering with another tribe, the leader claims every villager shares the same beliefs.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a gathering with another tribe, the {@chief} claims every villager shares the same beliefs.",
+   "src": "L23796",
+   "choices": [
+    {
+     "label": "Allow the {@chief} to speak for the village.",
+     "next": "a",
+     "src": "L23797"
+    },
+    {
+     "label": "Invite different voices.",
+     "next": "b",
+     "src": "L23800"
+    },
+    {
+     "label": "Choose a small delegation.",
+     "next": "c",
+     "src": "L23803"
+    },
+    {
+     "label": "Ask the {@chief} to revise the speech.",
+     "next": "d",
+     "src": "L23806"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The speech creates a reassuring sense of unity.",
+   "src": "L23798"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Several villagers feel their convictions were erased.",
+   "src": "L23799"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The visitors learn that Isola holds many perspectives.",
+   "src": "L23801"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The speakers disagree publicly, causing awkwardness.",
+   "src": "L23802"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The delegation explains common goals without demanding agreement.",
+   "src": "L23804"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers feel excluded from the discussion.",
+   "src": "L23805"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} acknowledges differences and earns respect.",
+   "src": "L23807"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} resents the correction and becomes defensive.",
+   "src": "L23808"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rookie's First Rescue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth23_rookie_rescue",
+  "source": "living",
+  "lines": [
+   23683,
+   23697
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23683",
+  "ledger": [
+   {
+    "src": "L23697",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child is stranded across a flooded stream, and a new rescuer proposes a route the leader considers reckless.",
+  "cast_only": [
+   "child",
+   "rookie"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "rookie": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child is stranded across a flooded stream, and a new rescuer proposes a route the {@chief} considers reckless.",
+   "src": "L23684",
+   "choices": [
+    {
+     "label": "Follow the veteran rescuer.",
+     "next": "a",
+     "src": "L23685"
+    },
+    {
+     "label": "Try the rookie's plan with safeguards.",
+     "next": "b",
+     "src": "L23688"
+    },
+    {
+     "label": "Wait for the water to fall.",
+     "next": "c",
+     "src": "L23691"
+    },
+    {
+     "label": "Combine both plans.",
+     "next": "d",
+     "src": "L23694"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child is brought back safely.",
+   "src": "L23686"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The veteran underestimates the current and must retreat.",
+   "src": "L23687"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child is rescued, and the rookie earns trust.",
+   "src": "L23689"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The plan fails, but the team escapes without injury.",
+   "src": "L23690",
+   "text_only": [
+    {
+     "what": "without injury",
+     "reason": "nobody is hurt",
+     "src": "L23690"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child reaches safety when the current weakens.",
+   "src": "L23692"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay leaves the child frightened and cold.",
+   "src": "L23693"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The team finds a safer crossing.",
+   "src": "L23695"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The competing instructions cause confusion until one leader is chosen.",
+   "src": "L23696"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

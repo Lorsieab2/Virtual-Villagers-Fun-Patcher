@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief Who Listened Too Long",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth19_chief",
+  "source": "living",
+  "lines": [
+   23619,
+   23633
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23619",
+  "ledger": [
+   {
+    "src": "L23633",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An approaching storm forces a decision while the council continues debating.",
+  "cast_only": [
+   "scout"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scout": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An approaching storm forces a decision while the council continues debating.",
+   "src": "L23620",
+   "choices": [
+    {
+     "label": "Decide immediately.",
+     "next": "a",
+     "src": "L23621"
+    },
+    {
+     "label": "Wait for consensus.",
+     "next": "b",
+     "src": "L23624"
+    },
+    {
+     "label": "Delegate decisions to experienced teams.",
+     "next": "c",
+     "src": "L23627"
+    },
+    {
+     "label": "Ask a young scout for current conditions.",
+     "next": "d",
+     "src": "L23630"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} moves everyone to safety.",
+   "src": "L23622"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rushed plan leaves supplies exposed.",
+   "src": "L23623"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council agrees on a well-considered plan.",
+   "src": "L23625"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The storm arrives before preparations finish.",
+   "src": "L23626"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The teams act quickly in their areas.",
+   "src": "L23628"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Conflicting orders create confusion.",
+   "src": "L23629"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The scout's report changes the plan in time.",
+   "src": "L23631"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The scout misjudges the storm's direction.",
+   "src": "L23632"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader Who Listened Too Long"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

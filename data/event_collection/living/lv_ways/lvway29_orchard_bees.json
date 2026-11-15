@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Orchard and the Bees",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway29_orchard_bees",
+  "source": "living",
+  "lines": [
+   23152,
+   23166
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23152",
+  "ledger": [
+   {
+    "src": "L23166",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A family wants to remove a hive near its fruit trees.",
+  "cast_only": [
+   "naturalist",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family wants to remove a hive near its fruit trees.",
+   "src": "L23153",
+   "choices": [
+    {
+     "label": "Move the hive carefully.",
+     "next": "a",
+     "src": "L23154"
+    },
+    {
+     "label": "Leave it and change the footpath.",
+     "next": "b",
+     "src": "L23157"
+    },
+    {
+     "label": "Drive the insects away.",
+     "next": "c",
+     "src": "L23160"
+    },
+    {
+     "label": "Ask a naturalist to observe first.",
+     "next": "d",
+     "src": "L23163"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family feels safer, and pollinators continue visiting.",
+   "src": "L23155"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The hive does not survive the move.",
+   "src": "L23156"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "People and insects coexist at a distance.",
+   "src": "L23158"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A frightened child refuses to enter the orchard.",
+   "src": "L23159"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The immediate worry ends, but fewer flowers set fruit.",
+   "src": "L23161"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Other pollinators take their place, complicating the lesson.",
+   "src": "L23162"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villagers learn when the insects are least active.",
+   "src": "L23164"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The observations reveal no simple solution.",
+   "src": "L23165"
+  }
+ }
+}

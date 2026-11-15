@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Word of the Elder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway38_word_elder",
+  "source": "living",
+  "lines": [
+   23296,
+   23310
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23296",
+  "ledger": [
+   {
+    "src": "L23310",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dying elder asks that a controversial custom continue after their death.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dying elder asks that a controversial custom continue after their death.",
+   "src": "L23297",
+   "choices": [
+    {
+     "label": "Promise to preserve it.",
+     "next": "a",
+     "src": "L23298"
+    },
+    {
+     "label": "Explain that future generations must choose.",
+     "next": "b",
+     "src": "L23301"
+    },
+    {
+     "label": "Record the elder's reasons without making a promise.",
+     "next": "c",
+     "src": "L23304"
+    },
+    {
+     "label": "Invite the elder to revise the custom with the family.",
+     "next": "d",
+     "src": "L23307"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "after their death",
+     "reason": "the dying elder's wish: no outcome says they die",
+     "src": "L23297"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in continuity.",
+   "src": "L23299"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Younger villagers struggle with the custom's consequences.",
+   "src": "L23300"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder accepts the uncertainty.",
+   "src": "L23302"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder feels hurt, and the family must reconcile.",
+   "src": "L23303"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The story survives for later generations to consider.",
+   "src": "L23305"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some relatives call the response disrespectful.",
+   "src": "L23306"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A gentler tradition emerges.",
+   "src": "L23308"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elder declines, and the disagreement remains unresolved.",
+   "src": "L23309"
+  }
+ }
+}

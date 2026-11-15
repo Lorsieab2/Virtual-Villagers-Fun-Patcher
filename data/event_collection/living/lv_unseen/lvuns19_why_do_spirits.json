@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do the Spirits Not Come?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns19_why_do_spirits",
+  "source": "living",
+  "lines": [
+   22414,
+   22425
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22414",
+  "ledger": [
+   {
+    "src": "L22425",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A grieving villager asks why the spirits never appear plainly when the village suffers.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A grieving villager asks why the spirits never appear plainly when the village suffers.",
+   "src": "L22415",
+   "choices": [
+    {
+     "label": "Suggest that spirits may trust the villagers.",
+     "next": "a",
+     "src": "L22416"
+    },
+    {
+     "label": "Suggest that spirits may not exist.",
+     "next": "b",
+     "src": "L22419"
+    },
+    {
+     "label": "Admit that no one knows.",
+     "next": "c",
+     "src": "L22422"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The idea comforts the villager for a time.",
+   "src": "L22417"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager asks why trust would require silence.",
+   "src": "L22418"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager appreciates the honesty of uncertainty.",
+   "src": "L22420"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another villager feels that their beliefs have been dismissed.",
+   "src": "L22421"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two sit together without resolving the question.",
+   "src": "L22423"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their conversation becomes a respectful village debate.",
+   "src": "L22424"
+  }
+ }
+}

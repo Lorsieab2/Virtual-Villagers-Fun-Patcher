@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council of Two Fires",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl14_council_two",
+  "source": "living",
+  "lines": [
+   21842,
+   21854
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21842",
+  "ledger": [
+   {
+    "src": "L21843",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21853",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21854",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Leaders from the two communities disagree about a shared gathering place.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Leaders from the two communities disagree about a shared gathering place.",
+   "src": "L21843",
+   "choices": [
+    {
+     "label": "Propose shared access.",
+     "next": "a",
+     "src": "L21844"
+    },
+    {
+     "label": "Divide the space.",
+     "next": "b",
+     "src": "L21847"
+    },
+    {
+     "label": "Avoid contact for now.",
+     "next": "c",
+     "src": "L21850"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A shared schedule allows both communities to gather.",
+   "src": "L21845"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A disagreement over a festival date requires another meeting.",
+   "src": "L21846"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each group gains space but misses chances to cooperate.",
+   "src": "L21848"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The boundary causes arguments over who may cross it.",
+   "src": "L21849"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The pause prevents an immediate quarrel.",
+   "src": "L21851"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Isolation deepens mistrust as rumors spread.",
+   "src": "L21852"
+  }
+ }
+}

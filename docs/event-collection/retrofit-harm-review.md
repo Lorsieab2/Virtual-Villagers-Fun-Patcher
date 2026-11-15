@@ -113,3 +113,39 @@ Every harm case (role ages: 14- is 14 and over; the text is the outcome's line):
 | `lvmed28_unfinished` | B2 | patient (14-) | death (Unknown causes) | very_rare (2) | The patient dies, leaving the healer wondering whether more could have been done. |
 | `lvmed29_last_dose_hope` | C2 | patient (18-) | health -30..-10 | occasional (10) | The delay leaves one patient in pain, and the healer regrets waiting. |
 | `lvmed30_animal_trial` | A2 | patient (14-) | health -30..-10 | occasional (10) | The patient develops complications, and the trial is stopped. |
+
+## Living Event Engine LV-B
+
+Range: the Living Event Engine file's fixed event volumes PEOPLES-01..37 (Colors, Masks, Peoples and Choice),
+UNSEEN-01..39 (The Unseen Horizon, Cryptids, and the Silent Gods), WAYS-01..38 (The Many Ways of Isola) and
+AUTH-01..30 (The Weight of a Name): `living/lv_peoples`, `living/lv_unseen`, `living/lv_ways`, `living/lv_auth`, 144
+events. Line numbers are the living source's. Generator: `scripts/living_vols/gen_lv_b.py`.
+
+**No `protected: "allow"`.** Every harm-capable role keeps `auto`: no nursing parent, Golden Child or VV3 Chief is
+ever harmed, and no child or teen (14-25 roles are young adults) is harmed. The one death is `kill`, "Unknown causes"
+(AUTH-20: an elder near death dies comforted, very rare). The three disappearances are `vanish` (missing for good, no
+grave), rare: the source's own words say the villager never returns or goes missing and the search finds nothing; a
+villager who comes back (UNSEEN-09 A2, UNSEEN-14 B2) is text only. Weights as LV-A: harmless 20, minor setback
+`occasional` 10, serious harm or a disappearance `rare` 5, death `very_rare` 2.
+
+Every harm case (role ages: 14- is 14 and over; the text is the outcome's line):
+
+| Event | Outcome | Villager | Harm | Weight | Text |
+|---|---|---|---|---|---|
+| `lvppl01_red_hair` | C2 | villager (14-) | health -30..-10 | occasional (10) | The pigment irritates the skin, and the villager washes it away. |
+| `lvuns10_footprint` | B2 | explorer (14-) | vanish (missing, no grave) | rare (5) | One explorer fails to return, and the village begins a rescue search. |
+| `lvuns16_scientist` | C2 | scientist (14-25) | vanish (missing, no grave) | rare (5) | The scientist never returns, and the village searches without learning what happened. |
+| `lvuns24_shrine_miracle` | A2 | patient (14-) | health -30..-10 | occasional (10) | The illness worsens, and the healers discuss comfort and treatment choices. |
+| `lvuns32_watcher` | B2 | explorer (14-) | vanish (missing, no grave) | rare (5) | The explorer goes missing, and a rescue party finds only abandoned supplies. |
+| `lvway01_flood_before` | A1 | adept (14-) | health -30..-10 | occasional (10) | The current bends around the huts, but the adept collapses from exhaustion. |
+| `lvway09_elder_wrong` | D2 | villager (14-) | sick | occasional (10) | A villager becomes ill, prompting an urgent review. |
+| `lvway13_magic_failed` | A2 | master (14-) | health -30..-10 | occasional (10) | Repeated attempts exhaust the master. |
+| `lvway19_healing_debate` | A2 | patient (14-) | health -30..-10 | occasional (10) | The remedy causes discomfort and is discontinued. |
+| `lvway27_parent_knew` | B2 | villager (14-25) | health -30..-10 | occasional (10) | The expedition ends in injury and a difficult homecoming. |
+| `lvway31_choice` | B2 | patient (14-) | health -30..-10 | occasional (10) | The patient worsens, and the apprentice asks for help. |
+| `lvway35_cost_miracle` | A1 | healer (14-) | health -30..-10 | occasional (10) | The patient improves, but the healer needs weeks to recover. |
+| `lvway35_cost_miracle` | B2 | patient (14-) | health -30..-10 | occasional (10) | The illness progresses despite careful attention. |
+| `lvauth06_master_healer` | A2 | patient (14-) | health -30..-10 | occasional (10) | The healer overlooks a new complication. |
+| `lvauth20_elder_lesson` | A1 | elder (55-) | death (Unknown causes) | very_rare (2) | The elder dies comforted by the promise. |
+| `lvauth21_master_feared` | A2 | craftsperson (14-) | sick | occasional (10) | Their knowledge risks disappearing when they fall ill. |
+| `lvauth29_apprentice` | A2 | wearer (14-) | sick | occasional (10) | The master dismisses the risk and a wearer becomes ill. |

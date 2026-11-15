@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Day Among the Heathens",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl08_among_heathens",
+  "source": "living",
+  "lines": [
+   21758,
+   21770
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21758",
+  "ledger": [
+   {
+    "src": "L21759",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21769",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21770",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A curious villager wants to see ordinary life among the Heathens.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A curious villager wants to see ordinary life among the Isolans."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A curious villager wants to see ordinary life among the Heathens.",
+   "src": "L21759",
+   "choices": [
+    {
+     "label": "Visit openly.",
+     "next": "a",
+     "src": "L21760"
+    },
+    {
+     "label": "Observe from a distance.",
+     "next": "b",
+     "src": "L21763"
+    },
+    {
+     "label": "Invite a Heathen to visit instead.",
+     "next": "c",
+     "src": "L21766",
+     "if": {
+      "not": {
+       "patch": "guardians_of_isola"
+      }
+     }
+    },
+    {
+     "label": "Invite an Isolan to visit instead.",
+     "next": "c",
+     "src": "L21766",
+     "if": {
+      "patch": "guardians_of_isola"
+     }
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A curious villager wants to see ordinary life among the Isolans.",
+     "src": "L21759"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager shares a meal and discovers familiar family routines.",
+   "src": "L21761"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A political argument interrupts an otherwise friendly afternoon.",
+   "src": "L21762"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager learns something useful but misses the chance to make friends.",
+   "src": "L21764"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A watcher mistakes the villager's curiosity for spying.",
+   "src": "L21765"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The guest finds common ground with the villagers.",
+   "src": "L21767"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some neighbors are nervous about welcoming a visitor.",
+   "src": "L21768"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "A Day Among the Isolans"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trader Who Never Stayed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl36_trader_never",
+  "source": "living",
+  "lines": [
+   22136,
+   22147
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22136",
+  "ledger": [
+   {
+    "src": "L22147",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A traveler visits regularly to trade but refuses every invitation to settle.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A traveler visits regularly to trade but refuses every invitation to settle.",
+   "src": "L22137",
+   "choices": [
+    {
+     "label": "Respect their independence.",
+     "next": "a",
+     "src": "L22138"
+    },
+    {
+     "label": "Offer a place to rest.",
+     "next": "b",
+     "src": "L22141"
+    },
+    {
+     "label": "Question their loyalty.",
+     "next": "c",
+     "src": "L22144"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The trader continues visiting and brings rare materials.",
+   "src": "L22139"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The village learns that friendship does not require permanent belonging.",
+   "src": "L22140"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The trader accepts a night's shelter and shares stories.",
+   "src": "L22142"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The trader declines kindly and leaves at dawn.",
+   "src": "L22143"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The trader feels insulted and avoids the village.",
+   "src": "L22145"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child wonders why movement makes someone seem suspicious.",
+   "src": "L22146"
+  }
+ }
+}

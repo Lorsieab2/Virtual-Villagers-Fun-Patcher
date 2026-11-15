@@ -41,6 +41,10 @@ SECTIONS = (
     ("lv_med", "Living Events: Experimental Medicine, Last Resorts and Comfort Care"),
     ("lv_life", "Living Events: The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams"),
     ("lv_circle", "Living Events: The Circle of Life, Rights, and Remembrance"),
+    ("lv_peoples", "Living Events: Colors, Masks, Peoples and Choice"),
+    ("lv_unseen", "Living Events: The Unseen Horizon, Cryptids, and the Silent Gods"),
+    ("lv_ways", "Living Events: The Many Ways of Isola"),
+    ("lv_auth", "Living Events: The Weight of a Name"),
 )
 SECTION_WORDS = dict(SECTIONS)
 

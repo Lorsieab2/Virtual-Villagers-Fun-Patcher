@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Son",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth10_chief_son",
+  "source": "living",
+  "lines": [
+   23475,
+   23489
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23475",
+  "ledger": [
+   {
+    "src": "L23489",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The leader wants their child to inherit leadership despite a more experienced candidate.",
+  "cast_only": [
+   "candidate"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "candidate": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} wants their child to inherit leadership despite a more experienced candidate.",
+   "src": "L23476",
+   "choices": [
+    {
+     "label": "Honor the family custom.",
+     "next": "a",
+     "src": "L23477"
+    },
+    {
+     "label": "Select the experienced candidate.",
+     "next": "b",
+     "src": "L23480"
+    },
+    {
+     "label": "Let both candidates share responsibilities.",
+     "next": "c",
+     "src": "L23483"
+    },
+    {
+     "label": "Ask the villagers what leadership requires.",
+     "next": "d",
+     "src": "L23486"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child proves a thoughtful leader.",
+   "src": "L23478"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child feels unprepared and makes costly mistakes.",
+   "src": "L23479"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village gains steady leadership.",
+   "src": "L23481"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The {@chief}'s family feels rejected.",
+   "src": "L23482"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They complement each other's skills.",
+   "src": "L23484",
+   "text_only": [
+    {
+     "what": "each other's skills",
+     "reason": "the leaders' skills: none changes",
+     "src": "L23484"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their disagreements confuse the workers.",
+   "src": "L23485"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A fair process produces unexpected agreement.",
+   "src": "L23487"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The debate exposes old rivalries.",
+   "src": "L23488"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Son"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

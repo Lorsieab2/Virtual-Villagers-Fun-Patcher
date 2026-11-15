@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Four Answers to the Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns26_four_answers",
+  "source": "living",
+  "lines": [
+   22505,
+   22516
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22505",
+  "ledger": [
+   {
+    "src": "L22516",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A gathering asks whether the stars were placed by gods, nature, magic, or no one at all.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gathering asks whether the stars were placed by gods, nature, magic, or no one at all.",
+   "src": "L22506",
+   "choices": [
+    {
+     "label": "Invite the four schools to speak.",
+     "next": "a",
+     "src": "L22507"
+    },
+    {
+     "label": "Choose a single official explanation.",
+     "next": "b",
+     "src": "L22510"
+    },
+    {
+     "label": "Leave the question open.",
+     "next": "c",
+     "src": "L22513"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The debate remains civil and inspires new observations.",
+   "src": "L22508"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The speakers discover that their beliefs overlap in surprising ways.",
+   "src": "L22509"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council gains a clear story but alienates some listeners.",
+   "src": "L22511"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The official account changes when new questions arise.",
+   "src": "L22512"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village teaches children several interpretations.",
+   "src": "L22514"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A young student feels frustrated by the lack of a final answer.",
+   "src": "L22515"
+  }
+ }
+}

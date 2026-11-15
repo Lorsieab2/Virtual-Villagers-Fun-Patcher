@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scientist Who Wanted a Monster",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns16_scientist",
+  "source": "living",
+  "lines": [
+   22375,
+   22386
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22375",
+  "ledger": [
+   {
+    "src": "L22386",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young scientist spends seasons trying to prove a feared forest creature exists."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young scientist spends seasons trying to prove a feared forest creature exists.",
+   "src": "L22376",
+   "choices": [
+    {
+     "label": "Fund a careful survey.",
+     "next": "a",
+     "src": "L22377"
+    },
+    {
+     "label": "Ask the scientist to reconsider the hypothesis.",
+     "next": "b",
+     "src": "L22380"
+    },
+    {
+     "label": "Permit one final expedition.",
+     "next": "c",
+     "src": "L22383"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The survey documents several rare ordinary animals.",
+   "src": "L22378"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A blurry silhouette excites the village but proves nothing.",
+   "src": "L22379"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The scientist publishes an honest account of uncertain evidence.",
+   "src": "L22381",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22381"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The scientist feels humiliated and withdraws from the project.",
+   "src": "L22382"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The scientist returns empty-handed and wiser.",
+   "src": "L22384"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The scientist never returns, and the village searches without learning what happened.",
+   "src": "L22385",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "scientist",
+     "src": "L22385"
+    }
+   ]
+  }
+ }
+}

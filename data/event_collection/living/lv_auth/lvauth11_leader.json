@@ -1,0 +1,170 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Who Pretended to Know",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth11_leader",
+  "source": "living",
+  "lines": [
+   23491,
+   23505
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23491",
+  "ledger": [
+   {
+    "src": "L23505",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A newly appointed leader secretly cannot read the village's records.",
+  "cast_only": [
+   "reader"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "reader": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A newly appointed {@chief} secretly cannot read the village's records.",
+   "src": "L23492",
+   "choices": [
+    {
+     "label": "Let the {@chief} keep the secret.",
+     "next": "a",
+     "src": "L23493"
+    },
+    {
+     "label": "Offer private instruction.",
+     "next": "b",
+     "src": "L23496"
+    },
+    {
+     "label": "Assign a trusted reader.",
+     "next": "c",
+     "src": "L23499"
+    },
+    {
+     "label": "Encourage the {@chief} to speak openly.",
+     "next": "d",
+     "src": "L23502"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} relies on memory and manages a small dispute.",
+   "src": "L23494"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An important instruction is misunderstood.",
+   "src": "L23495"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} learns gradually and grows more confident.",
+   "src": "L23497"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The {@chief} fears the lessons will expose their weakness.",
+   "src": "L23498"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The pair work effectively together.",
+   "src": "L23500"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The reader begins controlling information.",
+   "src": "L23501"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers offer help without withdrawing respect.",
+   "src": "L23503"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few question whether the {@chief} is suited to lead.",
+   "src": "L23504"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

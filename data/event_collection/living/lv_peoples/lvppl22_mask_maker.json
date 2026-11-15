@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask Maker's Daughter",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl22_mask_maker",
+  "source": "living",
+  "lines": [
+   21947,
+   21959
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21947",
+  "ledger": [
+   {
+    "src": "L21948",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21958",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21959",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A mask maker's child wants to create a mask unlike the traditional designs.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A mask maker's child wants to create a mask unlike the traditional designs.",
+   "src": "L21948",
+   "choices": [
+    {
+     "label": "Encourage the new design.",
+     "next": "a",
+     "src": "L21949"
+    },
+    {
+     "label": "Teach the old patterns first.",
+     "next": "b",
+     "src": "L21952"
+    },
+    {
+     "label": "Allow both styles.",
+     "next": "c",
+     "src": "L21955"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child makes a striking mask admired by younger villagers.",
+   "src": "L21950"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder worries the new design changes the ceremony's meaning.",
+   "src": "L21951"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns the history behind each motif.",
+   "src": "L21953"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child feels constrained and makes a private design later.",
+   "src": "L21954"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The workshop displays both traditions and inventions.",
+   "src": "L21956"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The family debates which mask belongs at formal gatherings.",
+   "src": "L21957"
+  }
+ }
+}

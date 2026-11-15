@@ -318,7 +318,9 @@ an Isolan character is text only (or a `stranger` role when a pronoun is needed)
 text an event can show there with one of those words (title, page, variant, label, list item, description) gets a
 form with `{"patch": "guardians_of_isola"}` -- a `title_variants` entry, the node's FIRST variant, or a
 `description_variants` entry -- that is the text with the event's pairs of [guardians-wording.md](guardians-wording.md)
-made (check j). Add the pair to that table first; the owner reads it.
+made (check j). Add the pair to that table first; the owner reads it. A choice label cannot have a variant: write
+it twice, the source's label with `"if": {"not": {"patch": "guardians_of_isola"}}` and its Guardians form (same
+`next`, same `src`) with `"if": {"patch": "guardians_of_isola"}`; the pair counts as one button (LV-B's PEOPLES-08).
 
 ## 15b. The third source: the Living Event Engine's fixed event volumes
 
@@ -332,6 +334,9 @@ bank's). Generators: `scripts/living_vols/gen_<chunk>.py` on `living_common.py`,
 (the setup is the question; each choice has its own two weighted outcomes), the weights and the effects. Grammar
 fixes for this source are rows `| living L<line> |` in grammar-fixes.md. A label too wide for a game's screen shows
 its first words on the button, and its whole sentence opens each of its outcome pages (`living_common.build`).
+Four-choice volumes (A-D: WAYS-, AUTH-) are `LIVING_CHOICES`; a heading's "(VV5 ONLY)" tag is the row's games, and a
+setup's "VV5 ONLY:" tag is a structural ledger cut. The source's lower-case "chief" is `{@chief}` with
+`{"3": "chief", "*": "leader"}` (the check's Chief rule accepts "chief" as well as "Chief").
 
 ## 15a. The Pick Island Event sentence
 

@@ -104,6 +104,10 @@ LIVING_CREDIT_BLOCKS = (
     (20202, 20206, "Experimental Medicine, Last Resorts and Comfort Care"),
     (20625, 20627, "The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams"),
     (21229, 21230, "The Circle of Life, Rights, and Remembrance"),
+    (21650, 21650, "Colors, Masks, Peoples and Choice (its heading; no credit line of its own)"),
+    (22165, 22165, "The Unseen Horizon, Cryptids, and the Silent Gods (its heading; no credit line of its own)"),
+    (22689, 22689, "The Many Ways of Isola (its heading; no credit line of its own)"),
+    (23315, 23316, "The Weight of a Name (its heading; no credit line of its own)"),
 )
 
 
