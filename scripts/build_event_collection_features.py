@@ -77,12 +77,30 @@ CREDIT_BLOCKS = (
 )
 
 
-def source_lines() -> list[str]:
-    """The frozen source's lines, each with its own line ending, after checking its SHA-256."""
-    raw = SOURCE.read_bytes()
+# The second source: the owner's Companion Anthology (data/event_collection/companion/<volume>/<id>.json are its
+# events).  Its credits go in the same Credits.txt, verbatim: the anthology's own credit, then each volume's or part's.
+COMPANION = ROOT / "docs" / "more-island-events" / "Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt"
+COMPANION_SHA256 = "D39D14DA81B04225308452425069DB3186A62065A3EE634F5C6AFD074E64FF16"
+COMPANION_CREDIT_BLOCKS = (
+    (1, 5, "the Companion Anthology (its title and credit)"),
+    (25, 29, "Companion Volume 5 (Professions, Everyday Life and Personalities)"),
+    (54, 58, "Companion Volume 5, Part 1 (Professional Specialties and Exploration)"),
+    (1124, 1128, "Companion Volume 5, Part 2 (Everyday Life and Personality)"),
+    (2029, 2032, "Companion Volume 5, Part 3 (Small Lives, Deep Roots)"),
+    (3771, 3777, "The Lives Between Legends"),
+    (5402, 5406, "The Four Ways of Knowing"),
+    (6051, 6053, "Stone, Spirit, Strangers and Ordinary Lives"),
+    (6769, 6771, "Volume II, The Inner Lives of Isola"),
+    (7087, 7088, "The Living Catalogue"),
+)
+
+
+def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
+    """A frozen source's lines, each with its own line ending, after checking its SHA-256."""
+    raw = path.read_bytes()
     digest = hashlib.sha256(raw).hexdigest().upper()
-    if digest != SOURCE_SHA256:
-        raise SystemExit(f"{SOURCE.name}: SHA-256 {digest}, expected {SOURCE_SHA256}")
+    if digest != sha256:
+        raise SystemExit(f"{path.name}: SHA-256 {digest}, expected {sha256}")
     return raw.decode("utf-8").splitlines(keepends=True)
 
 
@@ -137,6 +155,7 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "description": one_line(meta.get("description", "")),
             "description_variants": meta.get("description_variants") or [],
             "lines": meta.get("lines"),
+            "source": meta.get("source", "v28"),
             "cieg": cie.compile_graph(g),
         })
     return sorted(out, key=lambda e: e["id"])
@@ -187,11 +206,20 @@ def credits_text(events: list[dict], lines: list[str] | None = None) -> str:
            "\n"]
     for first, last, what in CREDIT_BLOCKS:
         out += [f"SECTION CREDIT: {what} (source lines {first}-{last})\n", "\n", span(lines, first, last), "\n"]
+    comp = source_lines(COMPANION, COMPANION_SHA256)
+    out += ["THE COMPANION ANTHOLOGY\n",
+            "\n",
+            f"Source: {COMPANION.name} (SHA-256 {COMPANION_SHA256}). The texts below are copied from it verbatim.\n",
+            "\n"]
+    for first, last, what in COMPANION_CREDIT_BLOCKS:
+        out += [f"COMPANION CREDIT: {what} (companion source lines {first}-{last})\n", "\n", span(comp, first, last),
+                "\n"]
     out += ["EACH EVENT'S CREDIT\n", "\n"]
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
-        where = f" (source lines {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
+        which = "companion source lines" if e.get("source") == "companion" else "source lines"
+        where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
     return "".join(out)
 
@@ -236,9 +264,10 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int) -> dict:
             "opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The "
             "roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is "
             "armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble "
-            "guard cancels it. More Island Events and the collection are drawn 1:1, each event of the collection by "
-            "its draw weight, a series as one event; the event is armed as a purchase arms one, so the island timer's "
-            "keeper puts the natural next time back after it.",
+            "guard cancels it. Every event that can happen is equally likely, More Island Events' and the "
+            "collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, "
+            "each collection event by its draw weight (1), a series as one event; the event is armed as a purchase "
+            "arms one, so the island timer's keeper puts the natural next time back after it.",
             f"The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\{FOLDER}\", "
             "listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) "
             "and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a "

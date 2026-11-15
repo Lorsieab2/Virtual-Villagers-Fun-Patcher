@@ -72,11 +72,12 @@ same draws, draw for draw, as the stock code.
    timer's keeper, `native/shared/island_timer_keep.h`), and the roll never arms near one or while
    the rescue predicate holds, so a rescue is never displaced.
 6. **The choice.** More Island Events' events that can happen now (when that patch is installed)
-   and the collection's events for this game (when its patch is installed) are drawn 1:1 when both
-   have candidates. Within More Island Events each event is equally likely; within the collection
-   each event has its draw weight (`manifest.txt`, default 1), and a series (the Golden Child
-   scenes, the contests, the trials, the crises) counts as one event's weight, its members equally
-   likely. A collection event is cast strictly: every requirement must hold, and the protected
+   and the collection's events for this game (when its patch is installed: the Isola Grand Event
+   Collection's and the Companion Anthology's, one `manifest.txt`) are drawn together, EVERY EVENT
+   EQUALLY LIKELY whichever source it comes from (the owner, 2026-11-14): each More Island Events
+   event weight 1, each collection event its draw weight (`manifest.txt`, default 1), and a series
+   (the Golden Child scenes, the contests, the trials, the crises, each Living Catalogue template)
+   counts as one event, its members equally likely. A collection event is cast strictly: every requirement must hold, and the protected
    villagers are never harmed. One that cannot be cast is left out and the draw is made again.
 7. **The arm.** A More Island Events event is armed as Pick Island Event arms it, with no message
    and no charge (a natural arm never leaves a "could not happen" notice for the player). A

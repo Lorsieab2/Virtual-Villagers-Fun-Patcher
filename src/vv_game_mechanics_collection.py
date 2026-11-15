@@ -32,6 +32,11 @@ SECTIONS = (
     ("v13", "Part V13"), ("v14", "Part V14"), ("v17", "Part V17"), ("v18", "Part V18"), ("v20", "Part V20"),
     ("v21", "Part V21"), ("v22", "Part V22"), ("v23", "Part V23"), ("v24", "Part V24"),
     ("vv5_isolan", "Isolan events"),
+    # The Companion Anthology (the owner's second source, data/event_collection/companion/<section>/), its volumes
+    ("c5", "Companion Anthology: Companion Volume 5"), ("lbl", "Companion Anthology: The Lives Between Legends"),
+    ("fwk", "Companion Anthology: The Four Ways of Knowing"),
+    ("sss", "Companion Anthology: Stone, Spirit, Strangers and Mind and Belonging"),
+    ("cat", "Companion Anthology: The Living Catalogue"),
 )
 SECTION_WORDS = dict(SECTIONS)
 
@@ -78,7 +83,8 @@ def _effects(node) -> set[str]:
 def build_index() -> dict:
     """{event id: {"section": ..., "harm": [...]}} from the source graphs (repository only: not shipped)."""
     out = {}
-    for source in sorted((ROOT / "data" / "event_collection").glob("*/*.json")):
+    base = ROOT / "data" / "event_collection"
+    for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json
@@ -145,10 +151,10 @@ def lines(game: int) -> list[tuple[str, bool]]:
         ("It never comes while the village is in trouble: the game's own rescue rule (too few men or women, or fewer "
          "than 3 people counting the babies being carried), food below 10 a villager, half the village sick, or "
          "fewer than 6 villagers of 14 villager years or more. So it never takes a rescue event's place.", True),
-        ("Which one: when More Island Events is installed too and both have an event that can happen, each side is "
-         "chosen half the time. Within the collection each event is equally likely; a series counts as one event, "
-         f"its parts equally likely ({series_count(game)} series in this game). An event whose villagers cannot be "
-         "found is left out and another is drawn.", True),
+        ("Which one: every event that can happen is equally likely, whether it is one of More Island Events', the "
+         "collection's or the Companion Anthology's. A series counts as one event, its parts equally likely "
+         f"({series_count(game)} series in this game). An event whose villagers cannot be found is left out and "
+         "another is drawn.", True),
         ("Pick Island Event lists every event with what it needs, and the Custom Island Event library has them in "
          "its own \"Isola Grand Event Collection\" group.", True),
         ("Needs Story / Cheat Upgrades (it runs the roll and the events) and Scrolling Popups (it keeps every page "

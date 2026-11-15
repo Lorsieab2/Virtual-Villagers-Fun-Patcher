@@ -56,8 +56,9 @@ def rare(game: int) -> str:
             "later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island "
             "events), unless the village is in trouble by then (the "
             "game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 "
-            "or more) or the natural event comes first; the More Island Events that can happen then are equally "
-            "likely (with the Isola Grand Event Collection installed too, half the time one of its events instead); "
+            "or more) or the natural event comes first; every event that can happen then is equally likely (with the "
+            "Isola Grand Event Collection installed too, its events are drawn with More Island Events', each as "
+            "likely as any other); "
             "Pick Island Event can also pick it")
 
 
