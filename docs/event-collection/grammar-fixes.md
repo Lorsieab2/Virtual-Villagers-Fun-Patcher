@@ -245,3 +245,17 @@ Shipped, with the two villagers' names (owner, 2026-11-14):
   archetype lines mention neither villager, so no pronoun is inserted yet.
 - Outside VV3 the seeds that name the chief (CEL-01, GOV-01, GOV-09, ODD-01, EMO-07) use the collection's game word
   (`{@chief}`), as in [authoring-rules.md](authoring-rules.md) section 10; VV3 shows the owner's words.
+- The approach "Ask the chief to decide" (Living L23988) and MC TRA-08 ("the village chief", Living L25530, and "the
+  chief" in two of its outcomes) use the same game words outside VV3.
+
+### Fix `living-doubled-word`: a personality that repeats the role (MIX-050, MIX-054)
+
+| Case | Before | After | Why |
+|---|---|---|---|
+| MIX-050 | `A confident a confident novice` | `(first), a confident novice,` | The personality repeats the role's own word; the repeat is dropped (lead decision, 2026-11-14) |
+| MIX-054 | `A skeptical a skeptical observer` | `(first), a skeptical observer,` | The same |
+
+### Fix `living-title-ampersand`: the MC category titles
+
+The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event
+title writes it `and`: "ISLAND BUSINESSES & MARKETS" is shown "Island Businesses and Markets".

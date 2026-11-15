@@ -98,7 +98,19 @@ SENSITIVITY_RULES = {
           "injury: the choice would read as having driven someone away or hurt them.",
     "S5": "Belief and spirit seeds never call a villager superstitious (a stigma on believers).",
     "S6": "Asking an elder to explain the tradition never leads to an elder's death.",
+    # Part 2 (owner, 2026-11-14): no power imbalance between minors and adults; child labour and cruelty to animals
+    # never implied.
+    "S7": "A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding "
+          "obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a "
+          "child, a teenager or anyone younger than 18 in any role.",
+    "S8": "An injury or exhaustion never lands on a child or a teenager (child labour would be implied).",
+    "S9": "Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied).",
 }
+ADULT_FRAME_SEEDS = {"le_fam_04", "le_gov_08"}      # plus every seed tagged adult_only
+SECRET_CHOICES = {"le_app_withdraw_03"}              # Keep the matter private
+ANIMAL_SEEDS_EXTRA = {"le_cel_09", "le_odd_01", "le_odd_04", "le_odd_09"}
+ANIMAL_NO = {"le_app_act_01", "le_app_act_03"}       # Try a small experiment; Invent a new tool or technique
+ADULT_AGE = 18
 RISK_TAGS = ("insult_risk", "ageist_risk")
 TRIAL_CHOICES = {"le_cs_art_per_a", "le_cs_foo_a", "le_cs_ani_d"}
 CONFRONT = {"le_app_relate_02", "le_app_relate_03", "le_app_relate_05", "le_app_withdraw_02", "le_app_consult_05",
@@ -326,7 +338,35 @@ def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str) -> bool:
         return False
     if "needs_elder" in bank.arc[arc]["tags"] and resolve_role(bank, "elder", a, b) is None:
         return False
+    return cast_ok(bank, arc, a, b)
+
+
+def minor_role(bank: Bank, rid: str) -> bool:
+    """A role whose villager is always under 18 (a child, a teenager)."""
+    return any(t in bank.role[rid]["tags"] for t in ("child", "teen"))
+
+
+def cast_ok(bank: Bank, arc: str, a: str, b: str) -> bool:
+    """S8: no injury or exhaustion on a child or a teenager."""
+    for e in bank.arc[arc]["effects"]:
+        if e["do"] == "health_change" and e.get("min", 0) < 0 and "role" in e:
+            r = resolve_role(bank, e["role"], a, b)
+            if r is not None and minor_role(bank, a if r == "first" else b):
+                return False
     return True
+
+
+def adult_seed(seed: dict) -> bool:
+    return "adult_only" in seed["tags"] or seed["id"] in ADULT_FRAME_SEEDS
+
+
+def adult_frame(seed: dict, choices) -> bool:
+    """S7: a romantic, secret-keeping or coercive frame: both villagers 18 or older."""
+    return adult_seed(seed) or any(ident in SECRET_CHOICES for _kind, ident in choices)
+
+
+def animal_seed(seed: dict) -> bool:
+    return seed["category"] == "le_cat_ani" or seed["id"] in ANIMAL_SEEDS_EXTRA
 
 
 HARMFUL = ("kill", "vanish", "die_unrecovered", "baby_lost", "sick")
@@ -411,11 +451,16 @@ def personality_ok(bank: Bank, seed: dict, role: str, pid: str, sensitive: bool)
     return True
 
 
-def role_spec(bank: Bank, rid: str, allow: bool) -> dict:
+def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> dict:
     cast = dict(bank.role[rid]["cast"])
     if cast["kind"] == "stranger":
         return {"kind": "stranger", "sex": cast.get("sex", "random"), "named": True}
     spec = {k: (dict(v) if isinstance(v, dict) else v) for k, v in cast.items()}
+    if adults_only and not spec.get("special"):
+        # S7: a romantic, secret-keeping or coercive frame casts adults only.
+        if spec.get("max_age") and spec["max_age"] < ADULT_AGE:
+            raise ValueError(f"{rid}: a minor's role in an adults-only frame")
+        spec["min_age"] = max(spec.get("min_age", 14), ADULT_AGE)
     if "skill" in spec:
         spec["skill"] = {k: (list(v) if isinstance(v, list) else v) for k, v in spec["skill"].items()}
     if allow:
@@ -449,9 +494,9 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
         label, w = label_text(bank, kind, ident)
         words.update(w)
         q_choices.append({"label": label, "next": f"c{i + 1}"})
-        kids = [{"next": "o_" + good[4:], "weight": W_GOOD}, {"next": "o_" + adverse[4:], "weight": W_ADVERSE}]
+        kids = [{"next": "o_" + good[7:], "weight": W_GOOD}, {"next": "o_" + adverse[7:], "weight": W_ADVERSE}]
         if rare:
-            kids.append({"next": "o_" + rare[4:], "weight": W_RARE})
+            kids.append({"next": "o_" + rare[7:], "weight": W_RARE})
         for x in (good, adverse, rare):
             if x and x not in used_arcs:
                 used_arcs.append(x)
@@ -466,12 +511,13 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
             for e in effects:
                 if harmful(e) and e.get("role") in allow and bank.arc[arc]["protection"] == "allow":
                     allow[e["role"]] = True
-        nodes["o_" + arc[4:]] = node
+        nodes["o_" + arc[7:]] = node
     graph = {
         "format": "vvfp-cie-graph", "version": 6,
         "title": bank.cat[seed["category"]]["title"],
         "games": sorted(games),
-        "roles": {"first": role_spec(bank, a, allow["first"]), "second": role_spec(bank, b, allow["second"])},
+        "roles": {"first": role_spec(bank, a, allow["first"], adult_frame(seed, choices)),
+                  "second": role_spec(bank, b, allow["second"], adult_frame(seed, choices))},
     }
     if words:
         graph["words"] = words_for(words, games)
@@ -479,7 +525,7 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
         graph["pools"] = pools
     graph["start"] = "setup"
     graph["nodes"] = {"setup": {"type": "question", "text": setup, "choices": q_choices}, **nodes}
-    outs = [("o_" + arc[4:], GROUP_CODE[bank.arc[arc]["group"]], bank.arc_index[arc]) for arc in used_arcs]
+    outs = [("o_" + arc[7:], GROUP_CODE[bank.arc[arc]["group"]], bank.arc_index[arc]) for arc in used_arcs]
     return graph, outs
 
 
@@ -562,7 +608,7 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
     games = variant_games(bank, sdict, a, b)
     for i, ((kind, ident), pair) in enumerate(zip(choices, outs)):
         for j, arc in enumerate(pair):
-            if arc_ok_after(bank, kind, ident, arc):
+            if arc_ok_after(bank, kind, ident, arc) and cast_ok(bank, arc, a, b):
                 continue
             group = ("good",) if bank.arc[arc]["group"] == "good" else ("mixed", "bad")
             same = [x["id"] for x in bank.archetypes if x["group"] in group]
@@ -573,9 +619,10 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
             pair[j] = new
             changes.append({"mix": mix["code"], "what": f"choice {'ABCD'[i]} outcome {'12'[j]} (sensitivity edit)",
                             "before": bank.arc[arc]["text"], "after": bank.arc[new]["text"],
-                            "rule": next(r for r, c in (("S2", "mocking"), ("S3", "trial"), ("S4", "confront"),
-                                                        ("S6", "elder_ask"))
-                                         if c in choice_classes(bank, kind, ident))})
+                            "rule": next((r for r, c in (("S2", "mocking"), ("S3", "trial"), ("S4", "confront"),
+                                                         ("S6", "elder_ask"))
+                                          if c in choice_classes(bank, kind, ident)
+                                          and not arc_ok_after(bank, kind, ident, arc)), "S8")})
     slots = sensitive_slots(bank, [x for p in outs for x in p], a, b, games)
     for slot in ("first", "second"):
         cur, role = (pa, a) if slot == "first" else (pb, b)
@@ -620,7 +667,8 @@ def variant_games(bank: Bank, seed: dict, a: str, b: str) -> list[int]:
 
 def possible_pair(bank: Bank, seed: dict, a: str, b: str) -> bool:
     return (a != b and not is_stranger(bank, a) and bank.seed_allows(seed["id"], "role", a)
-            and bank.seed_allows(seed["id"], "role", b) and bool(variant_games(bank, seed, a, b)))
+            and bank.seed_allows(seed["id"], "role", b) and bool(variant_games(bank, seed, a, b))
+            and not (adult_seed(seed) and (minor_role(bank, a) or minor_role(bank, b))))
 
 
 def choice_set_choices(bank: Bank, seed: dict) -> list[tuple[str, str]]:
@@ -639,10 +687,22 @@ def consent_choice(bank: Bank, kind: str, ident: str) -> bool:
     return "consent" in bank.choice[ident]["tags"]
 
 
-def approach_choices(bank: Bank, seed: dict, n: int, use: Usage, local: Counter, rng: random.Random):
+def approach_allowed(bank: Bank, seed: dict, ident: str, a: str, b: str) -> bool:
+    """The bank's seed x approach exclusions, S7 (no secret-keeping with a child or a teenager) and S9."""
+    if not bank.seed_allows(seed["id"], "approach", ident):
+        return False
+    if ident in SECRET_CHOICES and (minor_role(bank, a) or minor_role(bank, b)):
+        return False
+    if ident in ANIMAL_NO and animal_seed(seed):
+        return False
+    return True
+
+
+def approach_choices(bank: Bank, seed: dict, n: int, use: Usage, local: Counter, rng: random.Random,
+                     a: str, b: str):
     by_fam: dict[str, list[str]] = {f: [] for f in FAMILIES}
     for ap in bank.approaches:
-        if bank.seed_allows(seed["id"], "approach", ap["id"]):
+        if approach_allowed(bank, seed, ap["id"], a, b):
             by_fam[ap["family"]].append(ap["id"])
     fams = [f for f in FAMILIES if by_fam[f]]
     n = min(n, len(fams))
@@ -746,7 +806,7 @@ def le_variants(bank: Bank, seed: dict, k_total: int, use: Usage) -> list[Varian
                 limited += 1
             approaches = k % 2 == 1
             if approaches:
-                choices = approach_choices(bank, seed, APPROACH_COUNT.get(k, 4), use, local, rng)
+                choices = approach_choices(bank, seed, APPROACH_COUNT.get(k, 4), use, local, rng, a, b)
                 family = 0
                 for kind, ident in choices:
                     family |= FAM_BIT[bank.app[ident]["family"]] if kind == "approach" else FAM_CHOICE_SET
@@ -1126,7 +1186,64 @@ def build(bank: Bank | None = None, k_total: int = K) -> tuple[list[Variant], di
     return variants, {game: pack(game, variants, bank) for game in GAMES}
 
 
-def main() -> None:
+# ---- The owner packet's table and the native agent's fixture --------------------------------------------------------
+
+DOC = ROOT / "docs" / "event-collection" / "living-events.md"
+DOC_BEGIN = "<!-- living-mixer: begin (written by python src/vv_living_mixer.py --write-docs) -->"
+DOC_END = "<!-- living-mixer: end -->"
+
+
+def changes_markdown(changes: list[dict] | None = None) -> str:
+    """The block living-events.md section 7 holds: the sensitivity rules and every change variant 0 makes."""
+    changes = MIX_CHANGES if changes is None else changes
+    rows = ["### The sensitivity rules the mixer adds (owner, 2026-11-14)", "",
+            "The bank's rules above are extended with these; every variant obeys them (`scripts/living_check.py`).",
+            "", "| Rule | What is never combined |", "|---|---|"]
+    rows += [f"| {k} | {v} |" for k, v in SENSITIVITY_RULES.items()]
+    rows += ["", "### Variant 0: the MIX examples as shipped, with every change", "",
+             "Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offending piece swapped for "
+             "the nearest compatible one, and the doubled-word grammar fix. Changes marked \"sensitivity edit\" follow "
+             "the owner's content rules (S1-S9) and are listed for the owner's review. The MIX anchor test "
+             "(`tests/test_living_fidelity.py`) reproduces each MIX from the source with exactly these changes.", "",
+             "| MIX | What | Before | After | Why |", "|---|---|---|---|---|"]
+    for c in sorted(changes, key=lambda c: (c["mix"], c["what"])):
+        rows.append(f"| {c['mix']} | {c['what']} | {c['before']} | {c['after']} | {c['rule']} |")
+    return DOC_BEGIN + "\n" + "\n".join(rows) + "\n" + DOC_END
+
+
+def write_docs() -> None:
+    text = DOC.read_text(encoding="utf-8")
+    block = changes_markdown()
+    if DOC_BEGIN in text:
+        text = text[:text.index(DOC_BEGIN)] + block + text[text.index(DOC_END) + len(DOC_END):]
+    else:
+        anchor = "\n## 8. The MC bank"
+        text = text.replace(anchor, "\n" + block + "\n" + anchor, 1)
+    DOC.write_text(text, encoding="utf-8", newline="\n")
+
+
+FIXTURE = ROOT / "tests" / "data" / "living_fixture"
+FIXTURE_SEEDS = ("le_odd_09", "le_cel_01", "le_per_01", "le_art_05", "mc_tra_13", "mc_tra_08")
+FIXTURE_K = 3
+
+
+def fixture_files(variants: list[Variant], bank: Bank | None = None) -> dict[str, bytes]:
+    """A small pack per game for the engine's tests: a few seeds (a MIX, the chief's words, a VV5-only variant, the
+    VV5-only MIX-027, an MC health effect, the MC chief), their first FIXTURE_K variants; and each game's manifest
+    rows for them."""
+    bank = bank or Bank()
+    chosen = [v for v in variants if v.seed in FIXTURE_SEEDS and v.k < FIXTURE_K]
+    out = {}
+    for game in GAMES:
+        out[f"vv{game}.pak"] = pack(game, chosen, bank)
+        rows = [f"{r['id']}\t{r['title']}\t{','.join(map(str, r['games']))}\t1\t{r['series']}\t{r['credit']}\t"
+                f"{r['description']}\t\t" for r in manifest_rows(game, chosen, bank)]
+        out[f"vv{game}_manifest.txt"] = ("\n".join(rows) + "\n").encode("ascii")
+    return out
+
+
+def main(argv: list[str] | None = None) -> None:
+    argv = sys.argv[1:] if argv is None else argv
     bank = Bank()
     variants, packs = build(bank)
     le = sum(1 for v in variants if v.bank == 0)
@@ -1135,6 +1252,14 @@ def main() -> None:
     for game, data in packs.items():
         p = read_pack(data)
         print(f"vv{game}: {len(p['seeds'])} seeds, {len(p['variants'])} variants, {len(data):,} bytes")
+    if "--write-docs" in argv:
+        write_docs()
+        print(f"wrote {DOC.relative_to(ROOT)}")
+    if "--write-fixture" in argv:
+        FIXTURE.mkdir(parents=True, exist_ok=True)
+        for name, data in fixture_files(variants, bank).items():
+            (FIXTURE / name).write_bytes(data)
+        print(f"wrote {FIXTURE.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

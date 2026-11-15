@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 136 events in this game in this build. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 136 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv2_story_cheat_upgrades",
@@ -24,12 +24,17 @@
     {
       "source": "assets/event_collection/vv2/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "6C8D9BB642A4CB03BC6229586C1714797B8892BC3534C74A5043D579BBC39745"
+      "sha256": "2E983DE1C54DBAFF7099F6F81D2278BBB8840E5737737299A0F93DFB90438588"
     },
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "53C14BDF2D9761E9EB38EA2873DFCC376757AD2A1F7D14CD921B39FA4BFE8393"
+      "sha256": "B14A2DAB93E553CFF42074C7DC1608554F9105A12CCE7C647CEA11EE3A8D0183"
+    },
+    {
+      "source": "assets/event_collection/vv2/living.pak",
+      "destination": "Island Event Collection/living.pak",
+      "sha256": "6E136B7EA4380A782CCEBD38582EA8B5A2FD353CB339C7915A3802EDB3A8108C"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",
