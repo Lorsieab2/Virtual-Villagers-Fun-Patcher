@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hiding Place in the Cliff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his46_hiding_place",
+  "source": "draft_his",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-13)"
+   }
+  ],
+  "description": "An elder climbs to the children's cliff fort and knows it was once a hiding place: tell the children, or just let them play.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "High in the cliffs there's a narrow cave with a hidden entrance, and inside, old stone walls and a ledge for sleeping. The children have discovered it and made it their fort. (subject), an elder, has climbed up to see. (subject.He/she) knows what it was: a place where people hid, a very long time ago, when there was danger from the sea.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Tell the Children",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Just Let Them Play",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sits down on the old ledge. (subject.He/she) tells the children, gently, that a long time ago, people hid here when they were frightened, and stayed safe. (friend) looks around the little cave with different eyes. \"Should we leave?\" (subject) shakes (subject.his/her) head. \"I think they'd be glad it's a fort now. Somewhere children play instead of hide.\" The children keep the fort. They're quieter in it than before.",
+   "src": "L554"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything. (subject.He/she) sits on the ledge and watches the children play seals and turtles and storms. It's strange, and a little sad, and also good, to hear laughing in a place that once held people holding their breath. When (subject.he/she) climbs down, (subject.he/she) leaves a little stack of flat stones by the entrance, the way you might for someone you remember.",
+   "src": "L557"
+  }
+ }
+}

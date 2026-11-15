@@ -352,3 +352,23 @@ chosen path, as the drafts wrote it:
 The rest is small and good: food gains (HUM-49, TT-40, DEP-48, DRM-39, DAY-19 both outcomes), small tech gains
 (DRM-27, DRM-44), small skill gains (JUS-05 Farming, DEP-22 Healing, DRM-25 Building, DRM-48 one work skill at
 random), celebrations (DEP-46, DRM-04, DRM-14, DAY-24) and FEA-18's health gain.
+
+## The approved draft event files, group C (DRAFTS-C)
+
+Range: the owner's eight approved draft files of 2026-11-15 (HEA, ADV, FAM2, BLF, NAT, DIV, HIS, LIF; 50 events each,
+`drafts_c/dr_<x>`), 400 events. Generator: `scripts/drafts_c/gen_drafts_c.py`. No `protected: "allow"` anywhere. Each
+choice has one outcome, so a harmful effect is the player's chosen path, as the drafts wrote it; nobody dies or leaves:
+
+| Event | Outcome | Role | Effect |
+|---|---|---|---|
+| `hea28_more_better` | A (Go Back to the Healer) | subject (18+) | health -30..-10 (six spoons of syrup) |
+| `hea33_wrong_leaf` | A, B | friend (18+) | health -30..-10 (the wrong leaf: a rash) |
+| `nat26_shuffle_your` | B (Let Them Find Out) | friend (14-17) | health -30..-10 (a stingray sting) |
+| `nat36_hornets_path` | A (Move It at Night) | friend (18+) | health -30..-10 (one hornet sting) |
+| `nat30_well_tastes_salt` | A | - | small food loss |
+| `nat45_rain_didnt_come` | A, B | - | small food loss |
+
+The rest is small and good: food gains (ADV-33 both outcomes, BLF-25, DIV-09, NAT-04, 06, 09, 13, 21, 22, 23, 40, 48),
+small tech gains (BLF-20, BLF-39, DIV-17, NAT-31, HIS-37), small skill gains (HEA-23 and ADV-40 Healing, HEA-39
+Healing for the child, ADV-20 Building, DIV-27 Research), health gains (HEA-24, HEA-49, DIV-26 both outcomes) and
+celebrations (ADV-29, FAM2-34, BLF-36 both outcomes for both partners, DIV-30). LIF has no effect at all.

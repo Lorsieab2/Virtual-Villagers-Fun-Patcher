@@ -146,7 +146,19 @@ DRAFTS_B_FILES = (   # (source id, topic, SHA-256)
     ("draft_fea", "Fears and Doubts", "3D9320A0ECFD2A73FF03DAEB0C8A2B92E0F84ED2B41CBC211DD75CC55F97ED9E"),
     ("draft_day", "Good, Bad and Ordinary Days", "F2DFD2C82F722F7F7D69218D64ED3D574441EEF34F260C87AEDDC905E1E136AD"),
 )
-SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES})
+# Group C, the same way (data/event_collection/drafts_c/, scripts/drafts_c/).
+DRAFTS_C_FILES = (   # (source id, topic, SHA-256)
+    ("draft_hea", "Healing, Psychology and Medicine", "ED3A9EB0219F81643E6541EA9864F29D2E74EC6AAEC1ED31C7516B430C225E54"),
+    ("draft_adv", "Advice and Decisions", "23B661573D688709C8D1A5DD835BB01B1130148094A14613F865D6451A8620CF"),
+    ("draft_fam2", "Relationships, Singlehood and Family",
+     "DE9AC31AF5065BE355570BE94220D4F03F785796E4BCDD0D333226D0D98C342F"),
+    ("draft_blf", "Belief and Identity", "4F86DBE789C57167E1E9DABBE90F2D176C38444884771E07D557A03605F76250"),
+    ("draft_nat", "Nature, Ecology and Animals", "9748288F9599AE37FAF9C0F8C90E3DAD7D3F7FDAEA6C8FA3F7059686FB9BB4AF"),
+    ("draft_div", "Disability and Diversity", "949C258F820466F38E62D371E3904F16877DB4E364CFD4E2A1E0F83E16EF07C7"),
+    ("draft_his", "History and Collective Memory", "3D379DC35AC8E4E3A6C1A1CE833B3C78DA1628AAE1BFBA743E2B0CA235863529"),
+    ("draft_lif", "Pondering How Life Has Gone", "C2467D9089ECE3FE49249D8269F886ED54BBA827C9F121360AB4468612C31B89"),
+)
+SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES + DRAFTS_C_FILES})
 
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
@@ -296,7 +308,7 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     drafts_b = tuple((f"NEW EVENTS: {topic.upper()}",
                       ROOT / "docs" / "more-island-events" / f"New Events - {topic} (draft for owner).txt", digest,
                       ((1, 3, f"{topic} (its title and introduction)"),))
-                     for _sid, topic, digest in DRAFTS_B_FILES)
+                     for _sid, topic, digest in DRAFTS_B_FILES + DRAFTS_C_FILES)
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
                                         ROLEMODELS_CREDIT_BLOCKS)) + drafts_b:

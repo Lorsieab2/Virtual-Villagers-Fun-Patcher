@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "No Schedule",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif08_schedule",
+  "source": "draft_lif",
+  "lines": [
+   86,
+   95
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L86",
+  "ledger": [
+   {
+    "src": "L87",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult aged 22-30 and an elder)"
+   }
+  ],
+  "description": "A villager in their late twenties feels behind in life: ask an elder if they felt the same, or finish the fence.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 22,
+   "max_age": 30
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is in (subject.his/her) late twenties and has decided, this morning, that (subject.he/she) is behind. Behind on what, (subject.he/she) isn't sure. Other people (subject.his/her) age seem to know what they're doing: they've mastered a craft, or they're raising children, or they've built a hut. (subject) has built half a fence. (subject.He/she) is sitting on it, glumly, when (friend), an elder, sits down next to (subject.him/her).",
+   "src": "L89",
+   "choices": [
+    {
+     "label": "Ask (friend) If (friend.He/she) Felt the Same",
+     "next": "o1",
+     "src": "L91"
+    },
+    {
+     "label": "Finish the Fence",
+     "next": "o2",
+     "src": "L94"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Did you ever feel behind?\" asks (subject). (friend) laughs. \"I felt behind until I was fifty. Then I realized there wasn't a race.\" (friend.He/she) pats the fence. \"Some people do everything early. Some people do everything late. Some people never build a fence at all, and they're fine too.\" (subject) isn't sure (subject.he/she) believes (friend.him/her). (subject.He/she) feels a little better anyway.",
+   "src": "L92"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to stop thinking about it and finish the fence. (friend) helps, mostly by giving bad advice. By evening the fence is done. It's slightly crooked. (subject) is enormously proud of it, out of all proportion. (subject.He/she) doesn't feel less behind, exactly. (subject.He/she) just stops caring so much about what (subject.he/she) is behind.",
+   "src": "L95"
+  }
+ }
+}

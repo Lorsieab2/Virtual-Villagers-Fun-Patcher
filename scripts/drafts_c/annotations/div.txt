@@ -1,0 +1,299 @@
+DIV-01
+DESC: A villager whose wheelchair sinks in the sand has drawn wider wheels: build it their way, or try the builder's idea first.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-02
+DESC: A deaf villager who reads lips is following a whispered argument across the clearing: ask what is funny, or pretend not to notice.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-03
+DESC: A child asks to try an elder's shell ear trumpet: let the child try it, or show how to talk into it.
+ROLES: name1=55+ name2=4-12
+REVIEW: ok
+
+DIV-04
+DESC: A child has named the pale patches of their vitiligo like a map of islands: ask for the tour, or make a map of your own.
+ROLES: name1=5-13 name2=5-13
+REVIEW: ok
+
+DIV-05
+DESC: The tallest villager on Isola is building a hut with an enormous doorway: make it even taller, or ask about other doorways.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+REVIEW: ok
+
+DIV-06
+DESC: The new drying racks are too tall for a villager with dwarfism: ask for racks at different heights, or bring a step.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1 3=1 4=1
+REVIEW: ok
+
+DIV-07
+DESC: A villager with albinism weaves fine sun hats, and a teen eyes the newest one: make the teen one, or teach them to weave.
+ROLES: name1=18+ name2=14-17
+FIX S: 3=1
+REVIEW: ok
+
+DIV-08
+DESC: At the festival face painting, a child has a birthmark across one cheek: ask what they want, or paint the same as everyone.
+ROLES: name1=5-13 name2=18+
+REVIEW: ok
+
+DIV-09
+DESC: A deaf fisher signs across the water while another bellows into the wind: look over at the signer, or keep shouting.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-10
+DESC: A blind villager's cane has found a basket of coconuts left in the path: the child who left it owns up, or quietly moves it.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+DIV-11
+DESC: A villager grabs a blind villager's arm to steer them, unasked: say so plainly, or make a joke of it.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1
+REVIEW: ok
+
+DIV-12
+DESC: A villager's new carved leg rubs, and the carver thinks they will get used to it: show where it rubs, or give it a week.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-13
+DESC: Bonfire smoke at the festival has a villager with a breathing condition wheezing: move the fun upwind, or sit away from it.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+FIX O2: 1=1
+REVIEW: FLAG casting line picks one adult; name2 helps in both outcomes, cast as 18+.
+
+DIV-14
+DESC: A villager with a tiring illness rests halfway up the hill, and a passer-by calls them lucky: explain why, or let it go.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-15
+DESC: A villager has a seizure in the garden, and a friend knows what to do: walk them home after, or let them rest where they are.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-16
+DESC: A child born with a two-fingered hand cannot tie the usual fishing knot: let them find another way, or keep trying the usual way.
+ROLES: name1=6-13 name2=18+
+REVIEW: ok
+
+DIV-17
+DESC: An elder can no longer read carvings up close, and a villager grinds glass discs: offer the glass, or wait to be asked.
+ROLES: name1=55+ name2=18+
+FIX L1: 1=1
+FIX O1: 6=1
+FIX L2: 1=1
+FIX O2: 2=2
+REVIEW: ok
+
+DIV-18
+DESC: A new workmate thinks a villager who avoids their eyes and names the weather dislikes them: ask straight out, or ask a friend.
+ROLES: name1=18+ name2=18-25
+FIX O1: 1=2
+FIG: o=old_friend:18+
+EDIT O2: "asks an old friend of (name1)'s, who laughs" => "asks [o], an old friend of (name1)'s, who laughs"
+REVIEW: ok
+
+DIV-19
+DESC: A villager with thick coiled hair has snapped a third fine-toothed comb: carve a wide-toothed comb, or help get the comb out.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2
+REVIEW: ok
+
+DIV-20
+DESC: A child is working up to a question for a villager who has no hair at all: let the child ask, or offer to let them decorate it.
+ROLES: name1=18+ name2=4-12
+FIX O1: 2=1
+REVIEW: ok
+
+DIV-21
+DESC: On tug-of-war day both teams want the big, strong villager as their anchor: bargain for them, or let them choose.
+ROLES: name1=18+ name2=18+
+FIX L1: 1=1
+FIX L2: 1=1
+REVIEW: ok
+
+DIV-22
+DESC: An elder keeps filling a healthy, very thin villager's bowl: tell them no, kindly, or eat it and suffer.
+ROLES: name1=18+ name2=55+
+FIX S: 2=1 3=1
+FIX L1: 1=2
+REVIEW: ok
+
+DIV-23
+DESC: A younger child asks which of a child's eyes to look at, since one drifts outward: answer back, or ignore it and keep playing.
+ROLES: name1=6-13 name2=4-12
+FIX O2: 3=2
+REVIEW: ok
+
+DIV-24
+DESC: A child with six fingers on each hand counts to twelve when everyone else stops at ten: make it a game, or ask about it.
+ROLES: name1=4-10 name2=18+
+FIX O2: 4=1
+REVIEW: ok
+
+DIV-25
+DESC: A child guards the crutches of a villager who swims like a fish: thank the guard, or invite them swimming.
+ROLES: name1=18+ name2=4-10
+FIX O1: 2=2
+FIX O2: 4=2
+REVIEW: ok
+
+DIV-26
+DESC: A deaf healer's patient keeps telling the story of a sore shoulder while facing the wall: turn them around, or just examine it.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-27
+DESC: The carved tally marks swap and blur for one clever child: try a different way, or let the child show what they know.
+ROLES: name1=7-13 name2=18+
+FIX O2: 3=1
+SKILL: Research
+REVIEW: ok (the draft's "small skill gain for (name1)" names no skill: Research, as the event is about reading the tallies)
+
+DIV-28
+DESC: An elder snaps at a villager who cannot sit still in council meetings: explain, or leave and come back.
+ROLES: name1=14+ name2=55+
+REVIEW: ok
+
+DIV-29
+DESC: A child eats for the first time with a deaf villager's family, who all sign at dinner: teach them a sign, or let them just watch.
+ROLES: name1=18+ name2=6-13
+FIX O1: 1=2 2=2
+FIX O2: 3=2 4=2
+REVIEW: ok
+
+DIV-30
+DESC: A child asks a villager who uses a wheelchair to join the race down the path: race, or judge instead.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+DIV-31
+DESC: An elder potter's hands shake, and the apprentice keeps smoothing the wavy rims: ask them to stop, or let them help.
+ROLES: name1=55+ name2=18-25
+FIX S: 2=1
+REVIEW: ok
+
+DIV-32
+DESC: A villager with a dangerous nut allergy asks what is in the feast stew and is waved off: ask exactly, or skip the stew.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-33
+DESC: An elder mistakes a silver-haired young villager for one of the old folks: sit with the old folks, or point out the mistake.
+ROLES: name1=18-25 name2=55+
+FIX S: 3=2
+REVIEW: ok
+
+DIV-34
+DESC: A villager who cannot tell red from some greens has dyed the new cloth green and green: laugh along, or fix it together.
+ROLES: name1=18+ name2=18+
+FIX O2: 2=1
+REVIEW: ok
+
+DIV-35
+DESC: A child with no freckles announces they will count every one of their friend's: let them count, or offer to share some.
+ROLES: name1=4-12 name2=4-12
+FIX L1: 1=2
+REVIEW: ok
+
+DIV-36
+DESC: A child tells others a villager's flaking skin is catching: say something yourself, or ask a healer to talk to the children.
+ROLES: name1=18+ name2=6-13
+FIG: h=healer:18+
+EDIT L2: "Ask a Healer to Talk to the Children:" => "Ask [h] to Talk to the Children:"
+EDIT O2: "asks a healer to speak to the children instead. The healer sits them down" => "asks [h], a healer, to speak to the children instead. [h] sits them down"
+REVIEW: ok (unkindness from a child, never endorsed)
+
+DIV-37
+DESC: An elder whose sight has dimmed cannot read the small marks on the storehouse baskets: carve them big, or use other baskets.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+DIV-38
+DESC: A deaf villager has chosen a sign name for a young workmate: ask what it means, or guess.
+ROLES: name1=18+ name2=18-25
+REVIEW: ok
+
+DIV-39
+DESC: A villager in one of their grey stretches has missed the fire for three nights: bring food and ask nothing, or ask about company.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2
+REVIEW: ok
+
+DIV-40
+DESC: A teen wants to decorate their plain back brace with shells: the maker helps, or lets them do it alone.
+ROLES: name1=14-17 name2=18+
+FIX L1: 1=1
+FIX L2: 1=1
+REVIEW: ok
+
+DIV-41
+DESC: A villager interpreting for a deaf neighbor in a heated fence argument has gone quiet: translate word for word, or politely.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+FIX O2: 1=1 2=1
+FIG: n=neighbor:18+
+EDIT S: "having a disagreement with a neighbor about a fence" => "having a disagreement with [n], a neighbor, about a fence"
+EDIT O1: "Then the neighbor bursts out laughing." => "Then [n] bursts out laughing."
+EDIT O2: "The neighbor is offended. Then the neighbor looks at the goat." => "[n] is offended. Then [n] looks at the goat."
+REVIEW: ok (the casting line's third adult is the neighbor)
+
+DIV-42
+DESC: A teen asks whether a villager's leather arm cuff could hold other things: experiment together, or ask how they came up with it.
+ROLES: name1=18+ name2=14-17
+FIX L2: 1=1
+FIX O2: 3=1 5=1 6=1
+REVIEW: ok
+
+DIV-43
+DESC: An elder complains all morning about the new walking frame: ask what would make it better, or let them grumble.
+ROLES: name1=55+ name2=18+
+FIX O2: 5=1
+REVIEW: ok
+
+DIV-44
+DESC: A small child stares at a villager whose face is shaped differently, to the parent's dismay: wave, or let the parent see to it.
+ROLES: name1=18+ name2=3-8
+FIX O2: 3=2 4=2 5=2
+REVIEW: ok
+
+DIV-45
+DESC: A ten-year-old as tall as an adult was snapped at to act their age: tell the adult how old they are, or tell someone else.
+ROLES: name1=9-12 name2=18+
+FIX O1: 2=2
+REVIEW: ok
+
+DIV-46
+DESC: A villager brings a deaf friend a strange little hearing device washed up after the storm: let them look, or ask first.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-47
+DESC: Two healers disagree about a villager's aching joints and wait outside for a decision: try both, or ask for time to think.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: ok
+
+DIV-48
+DESC: The goat is missing, and a villager on crutches has a hunch: follow the hunch, or check the gardens first.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DIV-49
+DESC: A child in a little wheeled cart has become the muddiest in the village: join in, or call them in.
+ROLES: name1=5-12 name2=18+
+FIX L2: 1=1
+REVIEW: ok
+
+DIV-50
+DESC: On an early walk to the stream, a villager greets neighbors of every shape and shade on a perfectly ordinary morning.
+ROLES: name1=18+
+REVIEW: ok

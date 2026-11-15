@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Itchy Poultice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea03_itchy_poultice",
+  "source": "draft_hea",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer's poultice eases a villager's sore shoulder but leaves an itchy rash: show the rash, or keep the poultice on.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s shoulder has ached for days, so (friend) packs it with a warm poultice of crushed leaves and wraps it up tight. By the next morning the ache is a little better. Unfortunately, (subject)'s whole shoulder is now bright pink and itching like a nest of ants. (subject.He/she) goes back to (friend), scratching.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Show (friend) the Rash",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Leave the Poultice, It's Working",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) unwraps it, takes one look and washes it off at once. \"You're one of the people that leaf doesn't agree with,\" (friend.he/she) says. \"I should have tried a little patch first. That's my mistake, not yours.\" (friend.He/she) puts on cool mud instead. The itching stops by evening. (friend) adds a note to (friend.his/her) carvings: TRY A SMALL PATCH FIRST. Then underlines it twice.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"But the ache is better!\" says (subject). (friend) shakes (friend.his/her) head. \"Better shoulder, worse skin is not a good trade. We'll find something else for the ache.\" (subject) grumbles but lets it be washed off. The rash fades over two days. The ache comes back a little. They try a warm stone and gentle stretching instead, which is slower, and doesn't itch at all.",
+   "src": "L41"
+  }
+ }
+}

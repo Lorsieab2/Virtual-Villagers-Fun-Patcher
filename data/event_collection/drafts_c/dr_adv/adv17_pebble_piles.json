@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pebble Piles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv17_pebble_piles",
+  "source": "draft_adv",
+  "lines": [
+   194,
+   203
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L194",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's pebble piles for fishing and farming come out exactly even: count again, or kick the piles over.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is trying to decide whether to switch from fishing to farming. (subject.He/she) has made two piles of pebbles: one pebble for each good reason for fishing, and one for each good reason for farming. (friend) wanders by and looks at the piles. They are exactly the same size.",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Count Again",
+     "next": "o1",
+     "src": "L199"
+    },
+    {
+     "label": "Kick the Piles Over",
+     "next": "o2",
+     "src": "L202"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) counts again, carefully. Still the same. (subject.He/she) adds one pebble to fishing \\(\"I like the boats\"\\). Then one to farming \\(\"No sharks\"\\). Then one to fishing \\(\"I'm good at it\"\\). (friend) watches this for a while. \"Do you want me to go and get more pebbles?\" (friend.he/she) asks. \"Yes,\" says (subject), seriously. (subject.He/she) still hasn't decided by nightfall. (subject.He/she) has a lot of pebbles, though.",
+   "src": "L200"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks at the two equal piles, then kicks them both over. \"Fishing,\" (subject.he/she) says. \"I just want to keep fishing.\" (friend) raises an eyebrow. \"So what were the pebbles for?\" \"To find out that I didn't want to stop,\" says (subject), and goes back to (subject.his/her) nets.",
+   "src": "L203"
+  }
+ }
+}

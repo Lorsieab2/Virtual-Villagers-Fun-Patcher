@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "I Just Come for the Singing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf37_i_just_come",
+  "source": "draft_blf",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The loudest singer at every evening song admits they do not believe any of it: the friend is surprised, or says that is fine.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) goes to every evening song gathering, sings louder than anyone \\(and badly\\), and claps along to every rhythm. Today (friend) asks, \"I didn't know you were so devoted.\" (subject) laughs. \"Oh, I don't believe any of it,\" (subject.he/she) says. \"I just love the singing.\"",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "(friend) Is Surprised",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "(friend) Says That's Fine",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Really?\" says (friend). \"But you're always here.\" \"Of course,\" says (subject). \"Where else would I get to sing this loudly without anyone complaining?\" (friend) laughs. \"People do complain,\" (friend.he/she) says. \"Quietly.\" (subject) doesn't care. (subject.He/she) comes to every gathering, sings louder than ever, and nobody ever asks (subject.him/her) to believe anything.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I think that's lovely,\" says (friend). \"People come for all sorts of reasons.\" (subject) seems relieved. \"Nobody minds?\" \"Nobody minds,\" says (friend). \"And if anyone does, they can sing louder than you.\" \"Impossible,\" says (subject). It is, in fact, impossible. (subject.He/she) remains the loudest singer on Isola for years.",
+   "src": "L449"
+  }
+ }
+}

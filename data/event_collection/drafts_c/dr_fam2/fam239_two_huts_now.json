@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Huts Now",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam239_two_huts_now",
+  "source": "draft_fam2",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are separating (where the game records it) and their child aged 6-13 (where the game records it)"
+   }
+  ],
+  "description": "Two parents moving into separate huts tell their child, who asks if it is because of them: both answer, or let the child ask.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13,
+   "relation": {
+    "child_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have decided to live in separate huts. They both love their child (third) very much, and they've agreed that (third) will spend time in both. Tonight they're telling (third) together. (third) is very quiet, then asks: \"Is it because of me?\"",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Both Answer at Once",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Let (third) Ask Everything",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"NO,\" say (subject) and (friend) together, so loudly that (third) jumps. They look at each other and nearly laugh. \"No,\" says (subject), more gently. \"It's nothing to do with you. We just want different things. But we both want you. Always.\" (third) thinks about this. \"Can I have two sleeping mats, then?\" \"You can have two of everything,\" says (friend). (third) is quiet for days. Then, slowly, less quiet.",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Ask us anything,\" says (friend). \"Anything at all.\" (third) asks a lot of questions. Where will (third.he/she) sleep? Who will make breakfast? Can the dog go to both huts? Will they still both come to the fire? They answer every one, honestly. (third) isn't happy about it. That's allowed. But (third.he/she) goes to sleep knowing exactly where (third.he/she) stands.",
+   "src": "L473"
+  }
+ }
+}

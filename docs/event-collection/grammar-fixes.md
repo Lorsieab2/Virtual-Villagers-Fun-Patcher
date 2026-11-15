@@ -258,6 +258,22 @@ where "own" would not read. Nothing else is fixed.
 | draft_jus L245 | `(his/hers)` | `(his/her) own` | JUS-20 | no his/hers placeholder: "his own" / "her own" |
 | draft_hon L305 | `(his/hers) to mention` | `(his/her) place to mention` | HON-25 | no his/hers placeholder; "his own to mention" would not read |
 
+### The approved drafts, group C (each file its own source; rows `| draft_<x> L<line> |`)
+
+The same format limit: the ten `(his/hers)` of DIV, HIS and LIF become `(his/her) own` (one row covers every
+`(his/hers)` of its line), and DIV-39's "it isn't (his/hers)" becomes "(his/her) fault", where "own" would not read.
+Nothing else is fixed.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| draft_div L53 | `(his/hers)` | `(his/her) own` | DIV-04 | no his/hers placeholder: "his own" / "her own" |
+| draft_div L455 | `(his/hers)` | `(his/her) own` | DIV-38 | no his/hers placeholder: "his own" / "her own" |
+| draft_div L467 | `(his/hers)` | `(his/her) fault` | DIV-39 | no his/hers placeholder; "it isn't his own" would not read |
+| draft_his L287 | `(his/hers)` | `(his/her) own` | HIS-24 | no his/hers placeholder: "his own" / "her own" |
+| draft_his L530 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
+| draft_his L533 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
+| draft_lif L470 | `(his/hers)` | `(his/her) own` | LIF-40 | no his/hers placeholder (twice on the line) |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

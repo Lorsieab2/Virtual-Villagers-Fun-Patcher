@@ -92,6 +92,23 @@ DRAFTS_B = {   # source id: (topic, line count, section, event prefix)
 for _sid, (_topic, _n, _sec, _pre) in DRAFTS_B.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
                      COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+
+# The owner-approved draft event files, group C (2026-11-15), wired as group B:
+# data/event_collection/drafts_c/<section>/<id>.json, built by scripts/drafts_c/gen_drafts_c.py.
+DRAFTS_C_DIR = COLLECTION_DIR / "drafts_c"
+DRAFTS_C = {   # source id: (topic, line count, section, event prefix)
+    "draft_hea": ("Healing, Psychology and Medicine", 614, "dr_hea", "HEA"),
+    "draft_adv": ("Advice and Decisions", 597, "dr_adv", "ADV"),
+    "draft_fam2": ("Relationships, Singlehood and Family", 606, "dr_fam2", "FAM2"),
+    "draft_blf": ("Belief and Identity", 605, "dr_blf", "BLF"),
+    "draft_nat": ("Nature, Ecology and Animals", 606, "dr_nat", "NAT"),
+    "draft_div": ("Disability and Diversity", 612, "dr_div", "DIV"),
+    "draft_his": ("History and Collective Memory", 614, "dr_his", "HIS"),
+    "draft_lif": ("Pondering How Life Has Gone", 596, "dr_lif", "LIF"),
+}
+for _sid, (_topic, _n, _sec, _pre) in DRAFTS_C.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / f"New Events - {_topic} (draft for owner).txt",
+                     COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
 _ACTIVE = [SOURCE_ID]
 
 

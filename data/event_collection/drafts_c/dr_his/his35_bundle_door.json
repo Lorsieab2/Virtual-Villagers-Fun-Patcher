@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bundle by the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his35_bundle_door",
+  "source": "draft_his",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-12)"
+   }
+  ],
+  "description": "A child asks why an elder always keeps a packed bundle by the door: tell them why, or say it is just a habit.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) always keeps a bundle by the door of (subject.his/her) hut: a rolled mat, a water gourd, a knife, dried fish, a cord. It's always packed. It has been packed (friend)'s whole life. Today (friend) asks why (subject) keeps a bundle ready if (subject.he/she) never goes anywhere.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) Why",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Say It's Just a Habit",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) is quiet for a moment. \"The people who raised me always kept one,\" (subject.he/she) says. \"Their people had to leave a place in a hurry once, long ago, with nothing. So they always kept one ready, just in case. I've never needed it. I just feel better with it there.\" (friend) looks at the bundle. \"Can I have one too?\" (subject) thinks. \"You don't need one. But if you want one, I'll help you make it.\" (friend) makes one. It's mostly snacks.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Old habit,\" says (subject). \"Don't worry about it.\" (friend) doesn't. But later, watching (subject) check the bundle, retie the cord and set it back exactly where it was, (friend.he/she) sees something on (subject)'s face that isn't just habit. (friend) doesn't ask again. (friend.He/she) just moves (friend.his/her) toys so they're not in the way of the bundle.",
+   "src": "L425"
+  }
+ }
+}

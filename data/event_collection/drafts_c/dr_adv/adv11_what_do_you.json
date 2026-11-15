@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "And What Do YOU Think?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv11_what_do_you",
+  "source": "draft_adv",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has asked seven people whether to paint their hut blue: the friend asks what they think, or gives an opinion.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has asked about seven people whether (subject.he/she) should repaint the front of (subject.his/her) hut blue or leave it plain. (subject.He/she) has gotten seven opinions. (subject.He/she) still hasn't decided. Now (subject.he/she) is asking (friend).",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "(friend) Asks What (subject) Thinks",
+     "next": "o1",
+     "src": "L127"
+    },
+    {
+     "label": "(friend) Gives an Opinion",
+     "next": "o2",
+     "src": "L130"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What do YOU think?\" asks (friend). (subject) opens (subject.his/her) mouth. Closes it. \"I... don't know. That's why I'm asking.\" (friend) waits. (subject) frowns. \"Blue,\" (subject.he/she) says at last, a little surprised. \"I think I want blue.\" (subject.He/she) paints it blue. It looks wonderful. (subject.He/she) tells everybody it was (subject.his/her) own idea, which it was.",
+   "src": "L128"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Plain,\" says (friend). \"Blue would be too much.\" (subject) nods, thanks (friend.him/her), and goes off to ask an eighth person. The hut stays plain for another month. Then one morning (subject) gets up and paints it blue without asking anyone at all. (friend) walks past and stops. \"Huh,\" (friend.he/she) says. \"That's actually nice.\"",
+   "src": "L131"
+  }
+ }
+}

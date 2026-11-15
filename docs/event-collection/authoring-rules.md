@@ -410,6 +410,31 @@ is, the roles' ages, the role figures, the Pick Island Event sentence, the 15-po
 - Grammar fixes are rows `| draft_<x> L<line> |` in grammar-fixes.md (the nine `(his/hers)`: the format has no such
   placeholder).
 
+## 15e. The approved draft event files, group C
+
+Eight more owner-approved draft files of 2026-11-15, wired exactly as group B (15d): "New Events - Healing, Psychology
+and Medicine", "Advice and Decisions", "Relationships, Singlehood and Family", "Belief and Identity", "Nature, Ecology
+and Animals", "Disability and Diversity", "History and Collective Memory" and "Pondering How Life Has Gone" (draft for
+owner).txt, `collection_lib.DRAFTS_C` (source ids `draft_hea`, `draft_adv`, `draft_fam2`, `draft_blf`, `draft_nat`,
+`draft_div`, `draft_his`, `draft_lif`; four of the files keep the owner's CRLF line ends). Files:
+`data/event_collection/drafts_c/dr_<x>/<id>.json`; rows `_drafts_c_rows`; generator
+`scripts/drafts_c/gen_drafts_c.py` on `drafts_c_parse.py` and `scripts/drafts_c/annotations/<x>.txt`. Differences:
+
+- `(name3)` / `(name4)` are the roles `third` / `fourth`; HEA-15 offers three choices.
+- Pronoun owners: `drafts_c_parse.guess` (the last name before the pronoun; for a `(him/her)` whose nearest name is in
+  its own sentence, the last other name), with the annotation's `FIX` lines where a reading found it wrong.
+  `python scripts/drafts_c/drafts_c_parse.py HEA [HEA-01 ...]` prints the review sheet.
+- "(where the game records it)": the annotation's `REL` line makes the cie-v6-binary.md 21 relation (partners are
+  `spouse_of`, the games' co-parents; a "relative" is a recorded parent). The text never changes. The engine has no
+  "prefer" relation, so the rare roll and Pick Island Event draw such an event only where the relation holds; bought
+  through the library, the relation is dropped when nobody meets it and any fitting villager is cast. Where no game
+  records the relation (a dead partner, a new partner's child, who shares a hut, same-sex partners), no relation is
+  cast and the casting is the ages alone.
+- A heading's "(VV5 only)" (BLF-26, BLF-27) makes the row New Believers only and is cut from the title; their Isolan is
+  a named stranger (15). Neither says Heathen or convert, so no Guardians of Isola variant is needed.
+- FAM2-40's carrying or nursing parent is the game's nursing parent (`"special": "nursing_parent"`); FAM2-11/28's teens
+  are at most two years apart (`max_age_gap`).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chant of Nine Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his39_chant_nine_stars",
+  "source": "draft_his",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a navigator, fisher or adult and an elder)"
+   }
+  ],
+  "description": "A villager asks whether the nine places in the canoe-builders' star chant are real: say they are real, or say nobody knows.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's an old chant the canoe-builders sing while they work. It names nine stars, and for each star, a place: a reef, a shoal, an island to the east. Nobody on Isola has sailed to any of those places in many generations. (friend) has been asking (subject) if they're real.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Say They're Real",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Say Nobody Knows",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"They're real,\" says (subject), with total certainty. \"Follow the stars and you'll find them. The chant was made so we'd never forget the way.\" (friend) asks if (subject) ever went. (subject) shakes (subject.his/her) head. \"Nobody's gone in a long time. But the way is still there, in the song.\" (friend) learns the whole chant by heart. Just in case.",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Nobody knows,\" says (subject). \"Maybe they're real. Maybe someone made them up to make the song longer. Maybe they were real and the sea took them.\" (friend) finds this almost more exciting. That night, (friend.he/she) lies on the beach and finds all nine stars, one by one. (friend.He/she) doesn't go anywhere. (friend.He/she) does look east for a very long time.",
+   "src": "L473"
+  }
+ }
+}

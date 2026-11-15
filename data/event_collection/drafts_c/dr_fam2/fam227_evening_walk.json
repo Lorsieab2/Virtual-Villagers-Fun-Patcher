@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Evening Walk Alone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam227_evening_walk",
+  "source": "draft_fam2",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   }
+  ],
+  "description": "A villager walks the beach alone every evening, and their partner starts to worry: ask gently, or let them go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every evening for the last month, (subject) has gone for a walk along the beach by (subject.him/her)self. (friend) is starting to worry. Is something wrong? Is it something (friend.he/she) did? Tonight, as (subject) heads for the door, (friend) asks.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Ask, Gently",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Let (subject.him/her) Go",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Is everything alright?\" asks (friend). \"You go out every night.\" (subject) looks surprised. \"Oh! Yes, everything's fine. I just like being alone for a bit at the end of the day. It's nothing to do with you.\" (friend) breathes out. \"I thought...\" \"I know,\" says (subject). \"I should have said.\" From then on (subject.he/she) goes for the walk and comes back and tells (friend) one thing (subject.he/she) saw. Just one.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) swallows the question and lets (subject.him/her) go. That evening, (subject) comes back with a shell and gives it to (friend). \"This was by the big rock,\" (subject.he/she) says. \"It made me think of you.\" (friend) realizes the walks aren't about getting away from (subject.him/her). They're just walks. (friend.He/she) keeps the shell.",
+   "src": "L329"
+  }
+ }
+}

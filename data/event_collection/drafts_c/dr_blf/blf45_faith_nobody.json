@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Faith Nobody Sees",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf45_faith_nobody",
+  "source": "draft_blf",
+  "lines": [
+   536,
+   539
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult; a single popup, no choice)"
+   }
+  ],
+  "description": "A villager nobody would guess is a believer talks quietly each night to whatever is out there, and falls asleep less alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Nobody in the village would guess that (name1) is a believer. (He/she) doesn't go to the songs, doesn't keep a shrine, doesn't say prayers aloud. But every night, lying in the dark before sleep, (he/she) talks quietly in (his/her) head to whatever (he/she) believes is out there: about the day, about (his/her) worries, about the people (he/she) loves. (He/she) has done it since (he/she) was small. (He/she) has never told anyone, and probably never will. It isn't a secret exactly. It just belongs to (him/her), the way a favorite memory does. Tonight (he/she) says thank you for the good fish, and asks for the rain to hold off, and says goodnight. Whether anything hears (him/her), (he/she) doesn't know. (He/she) falls asleep feeling, as (he/she) always does, a little less alone.",
+   "src": "L539"
+  }
+ }
+}

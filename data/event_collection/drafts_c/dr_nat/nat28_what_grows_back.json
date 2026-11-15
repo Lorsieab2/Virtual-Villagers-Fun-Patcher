@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Grows Back First",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat28_what_grows_back",
+  "source": "draft_nat",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Green shoots are coming up through the ash of the burned hillside: help it along, or let the hill heal itself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A season ago, lightning set the hillside above the stream on fire. Nobody was hurt, but the slope burned black, and it has looked dead ever since. Today (subject) has climbed up to look. Through the black ash, tiny green shoots are coming up: ferns, grass, a few seedlings (subject.he/she) doesn't recognize. (friend) has come up too.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Help It Along",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Let the Hill Heal Itself",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) carry up seedlings from the forest edge and plant them among the ash. It's hard work on the steep ground. Some of the seedlings take. Some don't. A year later the hill is green in patches, a mix of what they planted and what came back on its own, and nobody can quite tell which is which anymore.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) wants to see what comes back on its own. They leave it. Ferns first, then grass, then low bushes with yellow flowers that nobody remembers seeing before. Birds start coming. It isn't the same hillside it was. It's a different one, and in some ways it's livelier. (subject) climbs up every few weeks to see what's new.",
+   "src": "L341"
+  }
+ }
+}

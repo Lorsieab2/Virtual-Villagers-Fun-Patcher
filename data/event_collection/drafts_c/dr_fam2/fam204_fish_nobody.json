@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish Nobody Bought",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam204_fish_nobody",
+  "source": "draft_fam2",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   }
+  ],
+  "description": "A couple each thought it was the other's turn to trade for fish, and there is no dinner: keep arguing, or laugh it off.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was supposed to trade for fish today. (friend) was sure (friend.he/she) said it was (subject)'s turn. (subject) is sure (subject.he/she) said it was (friend)'s. It is now dinnertime, there is no fish, and they are standing in their hut looking at each other with crossed arms.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Keep Arguing",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Laugh It Off",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"You said...\" \"I definitely didn't...\" It goes on for a while. They're both a little hungry and a little cross. Eventually (friend) says, \"We're arguing about a fish that doesn't exist.\" (subject) snorts. They eat breadfruit instead. Neither of them ever admits whose turn it was. The next day, two lots of fish appear.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) opens (subject.his/her) mouth to argue, then looks at the empty pot and starts to laugh. \"We've been together long enough to forget the same thing at the same time,\" (subject.he/she) says. (friend) laughs too. They go out together, find a neighbor with spare fish, and trade a basket of mangoes for it. From then on, they carve a mark on the doorpost on fish days. They still forget sometimes.",
+   "src": "L53"
+  }
+ }
+}

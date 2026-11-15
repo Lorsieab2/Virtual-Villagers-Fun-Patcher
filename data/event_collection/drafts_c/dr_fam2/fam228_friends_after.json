@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Friends, After All",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam228_friends_after",
+  "source": "draft_fam2",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens aged 14-17, within two years of each other in age)"
+   }
+  ],
+  "description": "Two teen sweethearts both say at the same moment that they should just be friends: laugh with relief, or be sad about it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been sweethearts for a whole season, holding hands, sitting together at the fire and being teased by their friends. Today they have both, at the very same moment, said, \"I think we should just be friends.\"",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Laugh with Relief",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Be Sad About It",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "There's a startled silence. Then they both burst out laughing. \"You too?\" \"Me too!\" They sit down on the sand, feeling both very sad and very light. \"Best friends, though,\" says (subject). \"Obviously,\" says (friend). They're both a bit quiet at the fire that night. A week later, they're arguing about fishing as if nothing ever happened.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree, and then they both sit there and feel sad, which surprises them. \"I'm glad we're doing this,\" says (friend). \"Me too,\" says (subject). \"I just feel funny about it.\" They stay a little apart for a few weeks. Then, slowly, it gets easier. They're friends again by the end of the season. Different from before. Still friends.",
+   "src": "L341"
+  }
+ }
+}

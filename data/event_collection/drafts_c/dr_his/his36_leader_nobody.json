@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Nobody Remembers Anything About",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his36_leader_nobody",
+  "source": "draft_his",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-13)"
+   }
+  ],
+  "description": "A child asks an elder about the one leader on the carved post with no story at all: tell what you know, or make up a story.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the long post in the meeting hut, the names of the village's leaders are carved one after another, going back generations. Most of them have stories: the one who built the bridge, the one who survived the flood, the one who fell asleep at their own feast. But one name, about halfway down, has no story at all. (friend) asks (subject) about that one.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Tell What You Know",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Make Up a Story",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) thinks hard. \"Nothing,\" (subject.he/she) says. \"Nobody remembers anything about that one. No floods, no famines, no fights.\" (friend) is disappointed. (subject) isn't. \"Think about it. A whole time when nothing went wrong. That's a very good leader, I'd say.\" (friend) thinks about it. (friend.He/she) decides that's the best story on the post.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) decide that the leader with no story deserves one, and make it up together. In their version, the leader was very fond of naps and solved every problem by sleeping on it. (friend) tells it to the other children, who tell it to others. Within a year, there's a story about that leader. It isn't true. It's very popular.",
+   "src": "L437"
+  }
+ }
+}

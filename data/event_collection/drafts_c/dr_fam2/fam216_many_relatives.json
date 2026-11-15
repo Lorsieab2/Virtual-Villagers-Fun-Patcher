@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Relatives",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam216_many_relatives",
+  "source": "draft_fam2",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder relative (where the game records it)"
+   }
+  ],
+  "description": "At an elder relative's crowded birthday dinner, a villager cannot hear themselves think: slip outside, or find a quiet corner.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's (friend)'s birthday dinner and the whole extended family is crammed into one hut: cousins, aunts, uncles, children, babies, two dogs and a goat that wandered in. Everyone is talking at once. (subject), who loves them all, has hit the point where (subject.he/she) can't hear (subject.him/her)self think.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Slip Outside for a While",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Stay and Find a Corner",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) quietly steps outside and sits on the step, breathing in the cool air. After a few minutes (friend) comes out too, holding (friend.his/her) plate. \"Too loud?\" \"Too loud,\" says (subject). \"Me too,\" says (friend). \"And it's my birthday.\" They sit outside together and eat their dinner in peace. Nobody inside notices for ages.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) finds a corner by the wall and sits with the goat, who is the quietest guest there. (subject.He/she) stays for the whole dinner, mostly listening, sometimes laughing, sometimes just stroking the goat. Afterwards (friend) thanks (subject.him/her) for coming. \"I know you hate the noise,\" (friend.he/she) says. \"I love you more than I hate the noise,\" says (subject). \"Only just.\"",
+   "src": "L197"
+  }
+ }
+}

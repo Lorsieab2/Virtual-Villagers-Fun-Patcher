@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Half",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif14_second_half",
+  "source": "draft_lif",
+  "lines": [
+   158,
+   167
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L158",
+  "ledger": [
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 45-55)"
+   }
+  ],
+  "description": "A villager realizes half their life is probably gone: say out loud what they want from the rest, or keep it to themselves.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 45,
+   "max_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has worked out that (subject.he/she) has probably lived about half (subject.his/her) life. Maybe more. It's a strange thought. Half of it gone already, and (subject.he/she) is still not sure what (subject.he/she) is doing with it. (subject.He/she) is sitting outside, wondering what to do with the second half. (friend) wanders by and asks what (subject.he/she) is thinking about.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Say It Out Loud",
+     "next": "o1",
+     "src": "L163"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L166"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What do I do with the rest of my life?\" says (subject). (friend) thinks about it seriously. \"What do you want to do?\" (subject) thinks. \"Learn to play the drum. Properly. And swim to the far rock. And eat more mango.\" (friend) nods. \"That's a good start.\" They go and eat a mango together right away, to get going.",
+   "src": "L164"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Nothing,\" says (subject). \"Just thinking.\" (friend) leaves. (subject) keeps thinking. The first half had a lot of things (subject.he/she) had to do. The second half, maybe, could have more things (subject.he/she) wants to do. (subject.He/she) doesn't decide anything today. But (subject.he/she) goes and watches the drummers practice, and stays a long time.",
+   "src": "L167"
+  }
+ }
+}

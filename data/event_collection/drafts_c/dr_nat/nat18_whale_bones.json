@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Whale Bones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat18_whale_bones",
+  "source": "draft_nat",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The sea has uncovered the huge bones of a whale on the far beach: use the bones for a shelter, or leave them where they lie.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the far beach, past the rocks, the sea has uncovered the bones of a whale. It must have died long ago; the bones are white and huge and half sunk in the sand. The ribs curve up like the frame of an enormous hut. (subject) sees good building material. (friend) sees something that ought to be left exactly where it is.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Use the Bones",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Leave Them Where They Lie",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It isn't using them,\" says (subject). A few of the long ribs are carried back, with great effort, and become the frame of a new shelter by the canoes. It's strong and beautiful and a little strange to stand under. Some people won't sit there. Others sit there every day. (friend) comes by once, looks up at the ribs for a long time, and says nothing.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives in. The bones stay on the beach. Over the seasons, the children start going out to sit inside the ribcage and tell each other stories. Birds nest in the hollows. Crabs live under the jaw. (subject) has to admit it's become something. (subject.He/she) still thinks it would have made a very good shelter.",
+   "src": "L221"
+  }
+ }
+}

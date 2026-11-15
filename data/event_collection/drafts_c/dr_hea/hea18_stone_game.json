@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea18_stone_game",
+  "source": "draft_hea",
+  "lines": [
+   215,
+   224
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L215",
+  "ledger": [
+   {
+    "src": "L216",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-12)"
+   }
+  ],
+  "description": "A forgetful elder is offered a pebble memory game by a child: play the game, or say it is too childish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been forgetting little things lately: where (subject.he/she) put (subject.his/her) cup, what (subject.he/she) came into the hut for. The healer suggested exercises for the memory, and (subject) thought that sounded dreadfully dull. Then (friend), a young villager, offered to play a game with (subject.him/her): lay out ten pebbles, look, cover them, take one away, guess which.",
+   "src": "L218",
+   "choices": [
+    {
+     "label": "Play the Game",
+     "next": "o1",
+     "src": "L220"
+    },
+    {
+     "label": "Say It's Too Childish",
+     "next": "o2",
+     "src": "L223"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They play every afternoon. (friend) is very strict. (subject) is very competitive. By the end of the week (subject) is winning about half the time and (friend) has started cheating to make it harder. Whether it helps (subject)'s memory is anybody's guess. It certainly helps (subject.his/her) afternoons.",
+   "src": "L221"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'm too old for pebble games,\" says (subject). (friend) looks crushed for a moment. Then: \"Fine. Then tell me a story and I'll test you on it tomorrow.\" (subject) tells a long story about a storm (subject.he/she) remembers. The next day (friend) quizzes (subject.him/her). (subject) gets most of it right, and the bits (subject.he/she) gets wrong, (subject.he/she) argues about. They do this every day for weeks.",
+   "src": "L224"
+  }
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea33_wrong_leaf",
+  "source": "draft_hea",
+  "lines": [
+   395,
+   404
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L395",
+  "ledger": [
+   {
+    "src": "L396",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or elder and an adult)"
+   },
+   {
+    "src": "L401",
+    "kind": "instruction",
+    "text": "[effect: (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L404",
+    "kind": "instruction",
+    "text": "[effect: (name2) loses a little health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A healer realizes they picked the wrong leaf for a villager's cough: tell them straight away, or fix it first and explain after.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) gathered herbs this morning for (friend)'s cough. One of them, it turns out, wasn't the right one. It looked almost the same. By the afternoon (friend) has a rash, a headache and an unhappy stomach. (subject) has worked out what happened and feels sick (subject.him/her)self.",
+   "src": "L398",
+   "choices": [
+    {
+     "label": "Tell (friend) Straight Away",
+     "next": "o1",
+     "src": "L400"
+    },
+    {
+     "label": "Fix It First, Explain After",
+     "next": "o2",
+     "src": "L403"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend) at once. \"It was my mistake. I picked the wrong leaf. Here's what will help.\" (subject.He/she) stays all evening, giving water and cool cloths. (friend) recovers by the next day, cough and all. (subject) tells the other healers too, and for a while (subject.he/she) only gathers with someone checking. (subject.He/she) doesn't argue. (subject.He/she) wants someone checking.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L401"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) rushes to make (friend) a soothing drink and stays until the rash fades. Then, once (friend) is comfortable, (subject.he/she) explains what happened. (friend) is quiet for a moment. \"I'm glad you told me,\" (friend.he/she) says. \"I'm not sure I'm ready to say it's fine yet.\" \"You don't have to,\" says (subject). It isn't, quite. (subject) marks the two plants in the garden so nobody mixes them up again.",
+   "src": "L404",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L404"
+    }
+   ]
+  }
+ }
+}

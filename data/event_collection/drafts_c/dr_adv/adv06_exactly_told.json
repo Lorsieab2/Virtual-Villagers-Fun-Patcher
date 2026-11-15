@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Exactly as Told",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv06_exactly_told",
+  "source": "draft_adv",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager follows a friend's stew recipe exactly and it is dreadful: tell the friend, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) gave (subject) a recipe for the best fish stew on Isola. Every step. How much, how long, when to stir. (subject) followed it exactly, measuring with the same bowl and stirring with the same spoon. The stew is dreadful. Watery, grey and somehow both bland and too salty.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Don't Tell (friend)",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I did everything you said,\" says (subject), holding out the bowl. (friend) tastes it, frowns and tastes again. \"That's my recipe,\" (friend.he/she) says, baffled. \"That's my recipe and it's terrible.\" They never work out what went wrong. Maybe it was the fish. Maybe it was the day. (subject) makes it again a week later and it's lovely. Nobody knows why.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) eats the stew, every grey spoonful, and says nothing. The next week, (friend) asks, \"How was the stew?\" \"Interesting,\" says (subject). (friend) narrows (friend.his/her) eyes, but lets it go. (subject) goes back to (subject.his/her) own stew, which isn't the best on Isola but is at least the right color.",
+   "src": "L77"
+  }
+ }
+}

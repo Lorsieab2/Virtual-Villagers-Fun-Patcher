@@ -213,6 +213,39 @@ class FrozenDraftsB(unittest.TestCase):
                         self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
 
 
+class FrozenDraftsC(unittest.TestCase):
+    """The owner-approved draft event files, group C (2026-11-15), wired as group B: eight files, 50 events each, one
+    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(len(lib.DRAFTS_C), 8)
+        vv5_only = set()
+        for sid, (topic, n, section, prefix) in lib.DRAFTS_C.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                path = lib.SOURCES[sid][0]
+                self.assertEqual(path.read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), 50)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                    if r["games"] != [1, 2, 3, 4, 5]:
+                        self.assertEqual(r["games"], [5], r["id"])
+                        vv5_only.add(r["id"][:5])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+                    for c in doc["nodes"]["setup"].get("choices", []):
+                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+        self.assertEqual(vv5_only, {"blf26", "blf27"})
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

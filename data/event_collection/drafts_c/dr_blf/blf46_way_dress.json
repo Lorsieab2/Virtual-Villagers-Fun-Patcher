@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Different Way to Dress for the Festival",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf46_way_dress",
+  "source": "draft_blf",
+  "lines": [
+   542,
+   551
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L542",
+  "ledger": [
+   {
+    "src": "L543",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager turns up at the festival all in green while everyone else wears red and white: a friend asks why, or does not ask.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For the festival, almost everyone wears the traditional red and white. (subject) has turned up in green, all green, with green feathers in (subject.his/her) hair. (subject.He/she) just likes green. There's no reason beyond that. (friend) comes over, looking puzzled.",
+   "src": "L545",
+   "choices": [
+    {
+     "label": "(friend) Asks Why",
+     "next": "o1",
+     "src": "L547"
+    },
+    {
+     "label": "(friend) Doesn't Ask",
+     "next": "o2",
+     "src": "L550"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Why green?\" asks (friend). \"Because I like green,\" says (subject). \"That's it?\" \"That's it.\" (friend) thinks about it, then shrugs. \"Fair enough.\" By the next festival, three other villagers are wearing green too. (subject) is delighted, and slightly annoyed. (subject.He/she) is thinking about switching to blue.",
+   "src": "L548"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) just smiles and says, \"You look nice.\" (subject) beams. They dance together all evening, red and white beside green, and nobody makes anything of it. It's a festival. People wear what they like. Some of the elders do raise an eyebrow, but the elders raise an eyebrow at most things.",
+   "src": "L551"
+  }
+ }
+}

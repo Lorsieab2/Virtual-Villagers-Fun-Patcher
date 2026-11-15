@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grumpy Leg",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea30_grumpy_leg",
+  "source": "draft_hea",
+  "lines": [
+   359,
+   368
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L359",
+  "ledger": [
+   {
+    "src": "L360",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A villager with a broken leg has become the grumpiest on Isola: find them something to do, or let them be grumpy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) broke (subject.his/her) leg falling off a roof three weeks ago. It's healing well, says (friend). It will be at least three more weeks. (subject), who has never been still for more than an hour in (subject.his/her) life, has become the grumpiest villager on Isola. Today (subject.he/she) has told off a bird.",
+   "src": "L362",
+   "choices": [
+    {
+     "label": "Find (subject.him/her) Something to Do",
+     "next": "o1",
+     "src": "L364"
+    },
+    {
+     "label": "Let (subject.him/her) Be Grumpy",
+     "next": "o2",
+     "src": "L367"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) brings (subject) a basket of tangled fishing line. \"Nobody else can be bothered to untangle these,\" (friend.he/she) says. \"You've got time.\" (subject) glares. Then untangles. All of them. Then asks for more. The leg still takes three more weeks, and (subject) is still grumpy some days. But the village has never had so much untangled line.",
+   "src": "L365"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides grumpiness is reasonable. \"You're allowed to hate this,\" (friend.he/she) says. \"I'd hate it too.\" (subject) stops mid-grumble. \"...I do hate it,\" (subject.he/she) says. \"Good,\" says (friend). \"Hate it all you like. Just keep the leg still while you do.\" Somehow being allowed to be grumpy makes (subject) a little less so. (subject.He/she) apologizes to the bird.",
+   "src": "L368"
+  }
+ }
+}

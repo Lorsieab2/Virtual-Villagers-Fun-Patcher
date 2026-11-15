@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Counting to Twelve",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div24_counting_twelve",
+  "source": "draft_div",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-10 and an adult; in the story (name1) has an extra finger on each hand)"
+   }
+  ],
+  "description": "A child with six fingers on each hand counts to twelve when everyone else stops at ten: make it a game, or ask about it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was born with six fingers on each hand. (subject.He/she) has never thought much about it, until today, when (friend) is teaching the children to count on their fingers, and (subject) gets to twelve while everyone else stops at ten.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Make It a Game",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Ask (subject) About It",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Twelve?\" says (friend). \"Well, you're the best counter we've got.\" The other children all want to count to twelve too. They borrow sticks, toes and each other's fingers. It becomes a game: who can count highest using only what's in front of them. (subject) wins with fingers alone, and is extremely smug about it until dinner.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks if the extra fingers are useful. (subject) thinks hard. \"Holding more mangoes.\" (subject.He/she) demonstrates. It's true; (subject.he/she) can hold one more mango than anyone else. (friend) declares (subject.him/her) the village Mango Carrier. (subject) takes the job very seriously, and for a week every mango in the village is carried by (subject.him/her), personally.",
+   "src": "L293"
+  }
+ }
+}
