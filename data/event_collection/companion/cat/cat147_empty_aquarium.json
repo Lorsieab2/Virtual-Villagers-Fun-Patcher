@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Aquarium",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat147_empty_aquarium",
+  "source": "companion",
+  "lines": [
+   8861,
+   8871
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8861",
+  "ledger": [
+   {
+    "src": "L8871",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A keeper finds an aquarium empty after a storm, with no dead fish in sight.",
+  "cast_only": [
+   "keeper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A keeper finds an aquarium empty after a storm, with no dead fish in sight.",
+   "src": "L8862",
+   "choices": [
+    {
+     "label": "Search drains and channels",
+     "next": "a",
+     "src": "L8863"
+    },
+    {
+     "label": "Ask the village for help",
+     "next": "b",
+     "src": "L8865"
+    },
+    {
+     "label": "Record the loss honestly",
+     "next": "c",
+     "src": "L8867"
+    },
+    {
+     "label": "Investigate a magical explanation",
+     "next": "d",
+     "src": "L8869"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Some fish are recovered alive, others remain missing.",
+   "src": "L8864"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Children find clues but also spread improbable rumors.",
+   "src": "L8866"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The catalogue marks specimens as missing, not dead.",
+   "src": "L8868"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The keeper finds an unusual water mark, but no proof of teleportation.",
+   "src": "L8870"
+  }
+ }
+}

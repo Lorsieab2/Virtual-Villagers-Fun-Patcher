@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Magic Fish of Health: A Question of Cause",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat121_health",
+  "source": "companion",
+  "lines": [
+   8549,
+   8559
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_magic_fish",
+  "title_src": "L8549",
+  "ledger": [
+   {
+    "src": "L8559",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A keeper records a stretch of unusually vigorous swimming near an Orange Snooper, tied in stories to the Magic Fish of Health."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A keeper records a stretch of unusually vigorous swimming near an Orange Snooper, a fish associated in island stories with the Magic Fish of Health. Some call it magic, others point to water, food, chance, or observation error.",
+   "src": "L8550",
+   "choices": [
+    {
+     "label": "Honor the traditional story",
+     "next": "a",
+     "src": "L8551"
+    },
+    {
+     "label": "Compare tanks and conditions",
+     "next": "b",
+     "src": "L8553"
+    },
+    {
+     "label": "Ask a magician to observe",
+     "next": "c",
+     "src": "L8555"
+    },
+    {
+     "label": "Leave the fish undisturbed",
+     "next": "d",
+     "src": "L8557"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "Magic Fish of Health",
+     "reason": "the legend's name; nobody's health changes",
+     "src": "L8550"
+    },
+    {
+     "what": "water, food, chance",
+     "reason": "explanations offered; no food is gained or lost",
+     "src": "L8550"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A small ceremony comforts the keeper and draws attention to the fish, without proving causation.",
+   "src": "L8552"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The keeper controls feeding and water changes; results are suggestive but not decisive.",
+   "src": "L8554",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "keeper",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8554"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The magician reports a meaningful sensation; a skeptical apprentice records only what can be measured.",
+   "src": "L8556",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8556"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The animal thrives or fades according to ordinary conditions; its mystery remains unresolved.",
+   "src": "L8558"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L8550",
+   "before": "a Orange",
+   "after": "an Orange"
+  }
+ ]
+}

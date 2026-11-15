@@ -72,7 +72,7 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v27",
             "c5", "lbl", "fwk", "sss", "cat")    # the Companion Anthology's volumes (data/event_collection/companion/)
-LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
+LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
@@ -460,10 +460,18 @@ def shared_pools() -> dict:
     return {}
 
 
+def _fixed(s: str, pairs: list[tuple[str, str]]) -> str:
+    """A source line with its grammar fixes and sensitivity edits applied (the title's heading)."""
+    for before, after in pairs:
+        s = s.replace(before, after)
+    return s
+
+
 def ledger_maps(doc: dict, rep: Report):
     col = doc.get("collection", {})
     cuts: dict[int, list[str]] = {}
     whole: set[int] = set()
+    sensitivity: dict[int, list[tuple[str, str]]] = {}
     for i, e in enumerate(col.get("ledger", []) or []):
         where = f"ledger entry {i + 1}"
         if not isinstance(e, dict) or e.get("kind") not in LEDGER_KINDS or "src" not in e:
@@ -473,6 +481,18 @@ def ledger_maps(doc: dict, rep: Report):
             lines = lib.src_lines(e["src"])
         except ValueError as ex:
             rep.add("c COVERAGE", f"{where}: {ex}")
+            continue
+        if e["kind"] == "sensitivity":
+            # The owner's content rules (2026-11-14): the smallest piece of the owner's words changed, logged for
+            # the owner's review.  "before" must be on the one line; "after" replaces it wherever the line shows.
+            before, after = e.get("before"), e.get("after")
+            if len(lines) != 1 or not isinstance(before, str) or not before or not isinstance(after, str) \
+                    or not e.get("why"):
+                rep.add("b FIDELITY", f"{where}: a sensitivity edit names one line, before, after and why")
+            elif before not in lib.normalize_source_text(lib.line(lines[0])):
+                rep.add("b FIDELITY", f"{where}: {before!r} is not on L{lines[0]}")
+            else:
+                sensitivity.setdefault(lines[0], []).append((before, after))
             continue
         if e.get("text"):
             if len(lines) != 1:
@@ -501,6 +521,8 @@ def ledger_maps(doc: dict, rep: Report):
             rep.add("b FIDELITY", f"{where}: L{n} {before!r} -> {after!r} is not in docs/event-collection/"
                                   "grammar-fixes.md")
         fixes.setdefault(n, []).append((before, after))
+    for n, pairs in sensitivity.items():
+        fixes.setdefault(n, []).extend(pairs)
     # A bank slot (mapping, rule 4.5): a "(N)" inside a sentence that inserts bank N's item, not a route, so the
     # trailing-route rule must not strip it ("The judges (6)." -> "The judges {JUDGING}.").
     for i, s in enumerate(doc.get("collection", {}).get("bank_slots", []) or []):
@@ -537,7 +559,8 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                     rep.add("b FIDELITY", f"title: {ex}")
                     continue
                 consumed.update(lines)
-                head = " ".join(lib.normalize_source_text(lib.line(n)) for n in lines).lower()
+                head = " ".join(_fixed(lib.normalize_source_text(lib.line(n)), fixes.get(n, []))
+                                for n in lines).lower()
                 if owner is not None:
                     # the owner's rename (owner-title-changes.md): exactly the new title, and the old one is the
                     # heading the rename replaces
@@ -1322,6 +1345,9 @@ def ledger_summary(doc: dict) -> list[str]:
     out = [f"{doc.get('title')} ({col.get('id')}, lines {col.get('lines')})"]
     for f in doc.get("grammar_fixes", []) or []:
         out.append(f"  grammar {f['src']}: {f['before']!r} -> {f['after']!r}")
+    for e in col.get("ledger", []) or []:
+        if e.get("kind") == "sensitivity":
+            out.append(f"  sensitivity {e['src']}: {e.get('before')!r} -> {e.get('after')!r} -- {e.get('why')}")
     for nid, n in doc.get("nodes", {}).items():
         for t in n.get("text_only", []) or []:
             out.append(f"  text only {t['src']} ({nid}): {t.get('what', '')} -- {t['reason']}")

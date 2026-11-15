@@ -601,11 +601,17 @@ COMPANION_IDS: dict[str, str] = {
     "sss006": "sss006_between_names", "sss010": "sss010_reads_slowly", "sss012": "sss012_argument_help",
     "sss055": "sss055_argument_chair", "sss057": "sss057_was_wrong", "sss060": "sss060_changed_mind",
     "sss062": "sss062_shortcut",
+    "sss086": "sss086_heard_too_much", "sss089": "sss089_cheerfulness",
+    "sss094": "sss094_one_instruction", "cat139": "cat139_orchid_memory", "cat146": "cat146_masterpiece",
+    "cat151": "cat151_ants",
 }
 
 # Companion events limited to some games (the lead, 2026-11-14): an event where a magician acts is VV3-VV5 only
 # (magic is VV3-VV5 lore); a magician mentioned in passing keeps every game.
-COMPANION_GAMES: dict[str, list[int]] = {"sss032": [3, 4, 5], "sss043": [3, 4, 5], "sss045": [3, 4, 5]}
+COMPANION_GAMES: dict[str, list[int]] = {"sss032": [3, 4, 5], "sss043": [3, 4, 5], "sss045": [3, 4, 5],
+                                         # K9: the Living Catalogue's magic fish (a magician observes, choice C) and
+                                         # The Conch With Two Voices (a magician claims it answers questions)
+                                         **{f"cat{n}": [3, 4, 5] for n in (117, 118, 119, 120, 121, 122, 123, 150)}}
 
 
 def companion_subject(title: str) -> str:

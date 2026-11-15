@@ -217,6 +217,10 @@ verbatim apart from glaring grammar.
 | companion L7542 | `that a Orange` | `that an Orange` | cat037_orange_fin (Living Catalogue 037, premise) | "a" before a vowel |
 | companion L7554 | `that a Oriental` | `that an Oriental` | cat038_oriental_fin (Living Catalogue 038, premise) | "a" before a vowel |
 | companion L7722 | `that a Angel` | `that an Angel` | cat052_angel_fin (Living Catalogue 052, premise) | "a" before a vowel |
+| companion L8538 | `a Oriental` | `an Oriental` | cat120_growth (Living Catalogue 120, premise) | "an" before a vowel sound |
+| companion L8550 | `a Orange` | `an Orange` | cat121_health (Living Catalogue 121, premise) | "an" before a vowel sound |
+| companion L8574 | `the The Golden Guppy` | `the Golden Guppy` | cat123_golden_guppy (Living Catalogue 123, premise) | a doubled article ("with the The Golden Guppy") |
+| companion L8622 | `a Aureus` | `an Aureus` | cat127_golden_berries (Living Catalogue 127, premise) | "an" before a vowel sound |
 
 Wave 1 chunk 1 (Vol 1 Part 1, Part 3 001-030) needed none. Known candidates for the later chunks (inventory, the
 Living Catalogue templates): "believes its a startling" (22 times), "a Orange / a Oriental / a Angel / a Arthurium /

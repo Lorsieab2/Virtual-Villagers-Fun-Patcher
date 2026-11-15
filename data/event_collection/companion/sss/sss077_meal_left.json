@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Meal Left Untouched",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss077_meal_left",
+  "source": "companion",
+  "lines": [
+   6865,
+   6873
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6865",
+  "ledger": [
+   {
+    "src": "L6873",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager has eaten little since a loss and says nothing tastes good.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager has eaten little since a loss and insists nothing tastes good.",
+   "src": "L6866",
+   "choices": [
+    {
+     "label": "Offer a simple familiar meal",
+     "next": "a",
+     "src": "L6867"
+    },
+    {
+     "label": "Ask a healer to check in",
+     "next": "b",
+     "src": "L6869"
+    },
+    {
+     "label": "Sit together in silence",
+     "next": "c",
+     "src": "L6871"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They eat a little with company and are not pressured to finish.",
+   "src": "L6868"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The healer considers illness, grief, and hydration and arranges follow-up.",
+   "src": "L6870",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6870"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The villager finds comfort even without an appetite.",
+   "src": "L6872"
+  }
+ }
+}

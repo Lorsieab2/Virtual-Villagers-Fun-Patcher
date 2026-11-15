@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worry That Would Not Leave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss070_worry_would",
+  "source": "companion",
+  "lines": [
+   6795,
+   6803
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6795",
+  "ledger": [
+   {
+    "src": "L6803",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An apprentice keeps fearing the workshop fire was left burning, even after checking.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An apprentice repeatedly fears that the workshop fire was left burning even after checking.",
+   "src": "L6796",
+   "choices": [
+    {
+     "label": "Offer calm reassurance once",
+     "next": "a",
+     "src": "L6797"
+    },
+    {
+     "label": "Create a practical closing routine",
+     "next": "b",
+     "src": "L6799"
+    },
+    {
+     "label": "Ask how often the worry returns",
+     "next": "c",
+     "src": "L6801"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The apprentice settles briefly and returns to work.",
+   "src": "L6798"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A short checklist helps, so long as checking does not grow endless.",
+   "src": "L6800"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The apprentice admits the fear consumes their evenings; a healer offers support.",
+   "src": "L6802"
+  }
+ }
+}

@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Needed Distance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss083_friend_needed",
+  "source": "companion",
+  "lines": [
+   6925,
+   6933
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6925",
+  "ledger": [
+   {
+    "src": "L6933",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager has stopped attending gatherings but still enjoys fishing alone.",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager has stopped attending gatherings but continues to enjoy solitary fishing.",
+   "src": "L6926",
+   "choices": [
+    {
+     "label": "Invite without insisting",
+     "next": "a",
+     "src": "L6927"
+    },
+    {
+     "label": "Offer quiet companionship",
+     "next": "b",
+     "src": "L6929"
+    },
+    {
+     "label": "Ask if they are lonely",
+     "next": "c",
+     "src": "L6931"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They decline warmly and remain content.",
+   "src": "L6928"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A friend joins them once a week.",
+   "src": "L6930"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They admit they sometimes are, and choose a small gathering.",
+   "src": "L6932"
+  }
+ }
+}
