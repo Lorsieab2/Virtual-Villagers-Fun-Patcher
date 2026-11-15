@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm27_quiet_apology",
+  "source": "rolemodels",
+  "lines": [
+   57,
+   57
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L57",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "structural",
+    "text": "EVENT RM-27  -  THE QUIET APOLOGY SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A villager realizes that an impatient remark during morning work hurt a friend's feelings.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager realizes that an impatient remark during morning work hurt a friend's feelings.",
+   "src": "L57",
+   "choices": [
+    {
+     "label": "Apologize privately without making excuses.",
+     "next": "a",
+     "src": "L57"
+    },
+    {
+     "label": "Ask how to avoid repeating the mistake.",
+     "next": "b",
+     "src": "L57"
+    },
+    {
+     "label": "Give the friend space before approaching.",
+     "next": "c",
+     "src": "L57"
+    },
+    {
+     "label": "Change the behavior before expecting reconciliation.",
+     "next": "d",
+     "src": "L57"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friend accepts the apology but asks for some time alone.",
+   "src": "L57"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The friend explains why the remark hurt, and the villager listens carefully.",
+   "src": "L57"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The friends agree to speak more clearly when work becomes stressful.",
+   "src": "L57"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The conversation remains awkward, but the villager understands the problem better.",
+   "src": "L57"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They speak calmly later in the day and begin repairing their friendship.",
+   "src": "L57"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friend is not ready to talk, and the villager respects the boundary.",
+   "src": "L57"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Over several workdays, the friend notices the villager becoming more considerate.",
+   "src": "L57"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friendship remains strained, but the villager continues practicing patience.",
+   "src": "L57"
+  }
+ }
+}

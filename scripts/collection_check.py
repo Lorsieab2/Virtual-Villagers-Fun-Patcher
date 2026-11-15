@@ -73,7 +73,9 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "v18", "v20", "v21", "v22", "v23", "v24", "v27",
             "c5", "lbl", "fwk", "sss", "cat",    # the Companion Anthology's volumes (data/event_collection/companion/)
             "lv_med", "lv_life", "lv_circle",    # the Living Event Engine's volumes (data/event_collection/living/)
-            "lv_peoples", "lv_unseen", "lv_ways", "lv_auth")
+            "lv_peoples", "lv_unseen", "lv_ways", "lv_auth",
+            "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
+            "rm")                                # Role Models and Good Examples (data/event_collection/rolemodels/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
@@ -1348,9 +1350,11 @@ def check_shared_pools() -> list[str]:
 
 def collection_files() -> list[Path]:
     """Every event file: data/event_collection/<section>/<id>.json and
-    data/event_collection/companion/<section>/<id>.json and data/event_collection/living/<section>/<id>.json."""
+    data/event_collection/companion/<section>/<id>.json and data/event_collection/living/<section>/<id>.json, and the
+    same under horizon/ and rolemodels/."""
     return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
-                  + list(lib.LIVING_DIR.glob("*/*.json")))
+                  + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
+                  + list(lib.ROLEMODELS_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

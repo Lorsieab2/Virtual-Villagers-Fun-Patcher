@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal Who Is Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz060_animal_family",
+  "source": "horizon",
+  "lines": [
+   815,
+   825
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L815",
+  "ledger": [],
+  "description": "A child wonders whether distant people keep creatures not for meat or work, but because they love their company.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child wonders whether distant people keep creatures not for meat or work, but because they love their company.",
+   "src": "L816",
+   "choices": [
+    {
+     "label": "Imagine companionship.",
+     "next": "a",
+     "src": "L817"
+    },
+    {
+     "label": "Ask about freedom.",
+     "next": "b",
+     "src": "L820"
+    },
+    {
+     "label": "Compare their customs.",
+     "next": "c",
+     "src": "L823"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A shy villager pictures an animal waiting by the door.",
+   "src": "L818"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healer reminds the child that companionship still requires food, care, and safe handling.",
+   "src": "L819",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L819"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A hunter worries about keeping wild animals confined.",
+   "src": "L821"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A gardener distinguishes animals adapted to living with humans from wild creatures.",
+   "src": "L822"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers recount the different ways they already relate to birds, fish, and other island animals.",
+   "src": "L824"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child asks whether affection could exist without ownership.",
+   "src": "L825"
+  }
+ }
+}

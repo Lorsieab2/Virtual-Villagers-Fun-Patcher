@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child and the Butterfly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm26_child_butterfly",
+  "source": "rolemodels",
+  "lines": [
+   55,
+   55
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L55",
+  "ledger": [
+   {
+    "src": "L55",
+    "kind": "structural",
+    "text": "EVENT RM-26  -  THE CHILD AND THE BUTTERFLY SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A child catches a brightly colored butterfly in a soft net and notices that its wings are becoming tangled.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child catches a brightly colored butterfly in a soft net and notices that its wings are becoming tangled.",
+   "src": "L55",
+   "choices": [
+    {
+     "label": "Lower the net and allow the butterfly to escape.",
+     "next": "a",
+     "src": "L55"
+    },
+    {
+     "label": "Ask an experienced gardener for guidance.",
+     "next": "b",
+     "src": "L55"
+    },
+    {
+     "label": "Place the net gently on the ground and loosen the opening.",
+     "next": "c",
+     "src": "L55"
+    },
+    {
+     "label": "Put the net away and draw butterflies instead.",
+     "next": "d",
+     "src": "L55"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The butterfly flies away, leaving the child delighted by its colors.",
+   "src": "L55"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The butterfly rests briefly before taking flight, and the child watches patiently.",
+   "src": "L55"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gardener helps free the butterfly without pulling at its wings.",
+   "src": "L55"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The butterfly escapes before the gardener arrives, and the child decides to observe rather than catch another.",
+   "src": "L55"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The butterfly finds its way out without further disturbance.",
+   "src": "L55"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child struggles with the tangled mesh and calls for assistance.",
+   "src": "L55"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child spends the afternoon sketching patterns from memory.",
+   "src": "L55"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The drawings look imperfect, but the child enjoys watching butterflies among the flowers.",
+   "src": "L55"
+  }
+ }
+}

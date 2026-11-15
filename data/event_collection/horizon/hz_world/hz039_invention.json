@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Invention That Changes Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz039_invention",
+  "source": "horizon",
+  "lines": [
+   502,
+   512
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L502",
+  "ledger": [],
+  "description": "A researcher asks whether distant inventions make life easier while creating problems no one expected.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A researcher asks whether distant peoples possess inventions that make life easier while creating problems their makers never expected.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Imagine a medical breakthrough.",
+     "next": "a",
+     "src": "L504"
+    },
+    {
+     "label": "Imagine a labor-saving machine.",
+     "next": "b",
+     "src": "L507"
+    },
+    {
+     "label": "Imagine a communication breakthrough.",
+     "next": "c",
+     "src": "L510"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Healers dream of preventing suffering that once seemed inevitable.",
+   "src": "L505"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A patient asks who would receive the breakthrough first and who might be left waiting.",
+   "src": "L506"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Farmers celebrate the possibility of less exhausting work.",
+   "src": "L508",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L508"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A craftsperson worries about losing livelihood or traditional knowledge.",
+   "src": "L509"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Families might remain close across great distances, the researchers speculate.",
+   "src": "L511"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager wonders whether constant messages could make solitude harder to find.",
+   "src": "L512"
+  }
+ }
+}

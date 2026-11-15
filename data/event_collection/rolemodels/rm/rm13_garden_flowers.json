@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden's Last Flowers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm13_garden_flowers",
+  "source": "rolemodels",
+  "lines": [
+   29,
+   29
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L29",
+  "ledger": [
+   {
+    "src": "L29",
+    "kind": "structural",
+    "text": "EVENT RM-13  -  THE GARDEN'S LAST FLOWERS SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A child wants to gather flowers for a celebration but finds only a few blooming near the village garden.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child wants to gather flowers for a celebration but finds only a few blooming near the village garden.",
+   "src": "L29",
+   "choices": [
+    {
+     "label": "Pick a small number and leave the rest growing.",
+     "next": "a",
+     "src": "L29"
+    },
+    {
+     "label": "Collect fallen petals instead.",
+     "next": "b",
+     "src": "L29"
+    },
+    {
+     "label": "Ask the gardener which plants can be harvested.",
+     "next": "c",
+     "src": "L29"
+    },
+    {
+     "label": "Make a gift from leaves and shells.",
+     "next": "d",
+     "src": "L29"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration mentioned in the story; no celebration happens in the game",
+     "src": "L29"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child makes a modest decoration while insects continue visiting the remaining flowers.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The arrangement looks sparse, so the child adds fallen leaves and colored fibers.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child creates a colorful pattern without removing any living flowers.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The petals blow away in the breeze, and the child tries a sheltered location.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gardener identifies suitable flowers and explains which should remain.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "None are ready, so the gardener offers spare woven decorations instead.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The recipient treasures the handmade gift despite its simplicity.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The first attempt falls apart, and the child patiently begins again.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "the source puts the whole event on one line: \"celebration\" is in another part of it (another page's words), not this page's",
+     "src": "L29"
+    }
+   ]
+  }
+ }
+}

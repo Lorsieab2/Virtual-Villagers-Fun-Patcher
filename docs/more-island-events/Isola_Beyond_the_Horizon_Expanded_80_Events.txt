@@ -1,0 +1,1080 @@
+ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE
+A NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5
+Version 1.0 | 40 original branching events
+
+CREATIVE PREMISE
+The villagers know their own lives; they do not know what exists beyond the horizon. Every account of distant societies, technology, nature, or institutions in this anthology is a hypothesis, story, analogy, dream, speculation, or disputed interpretation—not confirmation of a modern outside world. Even an odd artifact cannot prove a particular civilization exists. Crucially, villagers ask not just “How different are they?” but “Might they live as we do?” They imagine distant people eating, fishing, farming, raising children, studying, working, playing, loving, quarreling, grieving, celebrating, and growing old.
+
+EDITORIAL AND IMPLEMENTATION RULES
+- Separate companion anthology. Do not overwrite or alter the Grand Event Collection or earlier companion collections.
+- Applicable to VV1–VV5 unless a specific variant is stated. VV1 Southern Shore; VV2 Western Shore; VV3 Secret City (Nature/Magic factions only here); VV4 Tree of Life; VV5 New Believers (respect the distinction between the player's tribe and the Heathens/Isolans).
+- Villagers are capable thinkers, not comic caricatures of people who lack modern technology. They may invent sophisticated theories but cannot know unknown facts by magic of narration.
+- Every choice has two mutually exclusive possible outcomes. Choose one outcome from the selected choice, never both. Story-only NPCs and imagined distant peoples are not spawned or confirmed.
+- Rewards, where given, should be small, game-scaled Research/Science, Devotion, Healing, Farming, Building, Parenting, or food/tech gains as supported; quiet scenes may give none. Never invent mechanics, sprites, or permanent structures.
+- No mandatory happy endings. PG-13 and non-graphic. Treat disability, skin and hair diversity, bodies, cultures, belief, and differences respectfully. Normal human variation alone does not require a content warning.
+- All statements about distant societies remain conditional: might, perhaps, some imagine, if such places exist. A villager may be wrong; the event does not settle the truth.
+
+FORMAT: Setup; A/B/C choices; two alternate outcomes per choice; optional note.
+
+====================================================================
+PART I — ARE THEY LIKE US? EVERYDAY LIFE BEYOND THE SEA
+====================================================================
+
+EVENT 001 — THE OTHER BREAKFAST
+SETUP: While sharing roasted fruit, a child asks whether families beyond the ocean wake up hungry and argue about breakfast too.
+A. Imagine familiar meals.
+ A1. The children invent a distant family who burns their morning bread and laughs; the cook admits that sounds entirely plausible.
+ A2. An elder remembers that even neighboring households eat differently; the group sketches many possible breakfasts instead of one.
+B. Imagine unfamiliar foods.
+ B1. A gardener describes grains, roots, and creatures they have never seen; everyone grows hungry during the discussion.
+ B2. The wild guesses turn into an argument over what can safely be eaten; a healer reminds them that novelty is not proof of nourishment.
+C. Ask what meals mean.
+ C1. A parent suggests that sharing food might comfort people anywhere, whatever is on the plate.
+ C2. A solitary villager says some people may eat alone by preference or necessity; the table falls thoughtfully quiet.
+
+EVENT 002 — DO THEIR CHILDREN ASK WHY?
+SETUP: A teacher wonders whether distant children interrupt lessons, invent games, and ask questions adults cannot answer.
+A. Imagine a classroom like ours.
+ A1. The children gleefully reenact a distant lesson, complete with one pupil who refuses to sit still.
+ A2. The teacher realizes that some children might learn by watching family members rather than attending formal lessons.
+B. Imagine an immense school.
+ B1. Researchers speculate about halls full of pupils and teachers with different specialties; a young apprentice is delighted.
+ B2. A shy child wonders whether a vast school would feel lonely; the teacher takes the concern seriously.
+C. Ask the children themselves.
+ C1. They agree that curiosity, boredom, friendship, and mischief might cross every sea.
+ C2. Their imagined children are so unlike one another that the teacher abandons the idea of a single universal childhood.
+
+EVENT 003 — SOMEONE TO COME HOME TO
+SETUP: Two villagers wonder whether distant people hurry home to spouses, friends, relatives, pets, or simply a peaceful room.
+A. Picture a bustling household.
+ A1. A grandmother imagines several generations arguing cheerfully over the same cooking fire.
+ A2. A villager raised in a small household points out that crowded homes can be comforting or exhausting.
+B. Picture someone living alone.
+ B1. The group imagines a content craftsperson enjoying privacy after work.
+ B2. Someone asks whether a solitary person might want company but have trouble finding it; nobody dismisses the possibility.
+C. Discuss what makes a home.
+ C1. They decide that care and safety may matter more than a dwelling's size.
+ C2. A builder says shelter and reliable water matter too; the conversation turns practical.
+
+EVENT 004 — THE ARGUMENT ACROSS THE OCEAN
+SETUP: After two neighbors dispute a borrowed basket, a mediator asks whether people in faraway lands quarrel over equally ordinary things.
+A. Imagine the same disagreement.
+ A1. The villagers act out a distant argument over a missing tool; everyone recognizes the irritation.
+ A2. The mediator notes that different customs may change what counts as borrowing or stealing.
+B. Imagine enormous disputes.
+ B1. A scholar wonders whether disagreements between whole cities could begin with ordinary misunderstandings.
+ B2. A fisher warns that conflicts over land and food may have causes too serious to reduce to hurt feelings.
+C. Imagine reconciliation.
+ C1. Two estranged neighbors exchange a tentative greeting after hearing their own behavior described.
+ C2. The original dispute remains unresolved; the mediator says understanding does not compel forgiveness.
+
+EVENT 005 — DO THEY MOURN AS WE DO?
+SETUP: Preparing a remembrance meal, a young villager wonders whether distant peoples remember their dead with songs, silence, flowers, stories, or nothing at all.
+A. Imagine familiar ceremonies.
+ A1. An elder suggests that people elsewhere may gather around names and memories just as the village does.
+ A2. A parent says some mourn privately and would not welcome a gathering; the preparations become more considerate.
+B. Imagine unfamiliar customs.
+ B1. A storyteller invents a distant tradition of floating lights; the listeners find it moving but acknowledge it is imaginary.
+ B2. The story unsettles a mourner who prefers familiar rites; the group allows the subject to rest.
+C. Ask what grief shares.
+ C1. A healer proposes that longing for someone absent might be recognizable across cultures.
+ C2. Another villager wonders whether people experience loss in radically different ways; the question stays open.
+Content note: grief and bereavement.
+
+EVENT 006 — A DAY WITHOUT ANYTHING REMARKABLE
+SETUP: A child assumes life beyond Isola must be an endless adventure. A tired farmer doubts it.
+A. Imagine an ordinary working day.
+ A1. They invent a distant worker who misplaces a tool, eats lunch, and comes home tired; the child is disappointed and amused.
+ A2. The farmer wonders whether some people work at night or indoors; the group considers how many routines are possible.
+B. Imagine a day of leisure.
+ B1. The children invent festivals, games, books, and quiet afternoons for people they will never meet.
+ B2. A caregiver asks who does the necessary work while others rest; the conversation becomes a debate about fairness.
+C. Ask whether ordinary days matter.
+ C1. A villager says that a peaceful uneventful day can be a gift after hardship.
+ C2. Another admits that sameness can feel stifling; both perspectives are allowed to stand.
+
+EVENT 007 — THE PEOPLE WHO GROW OLD
+SETUP: Watching an elder mend a net, an apprentice asks whether people in distant lands also lose strength, gain experience, and wonder where the years went.
+A. Imagine elders surrounded by family.
+ A1. The apprentice imagines grandchildren learning an old song; the elder teaches the real song at once.
+ A2. The elder notes that some people have no children and still deserve friendship and care.
+B. Imagine distant methods of care.
+ B1. Healers speculate about specialized houses and tools that might help people move or hear.
+ B2. Someone worries that specialized care could separate elders from familiar places; no one declares one arrangement best.
+C. Ask the elder directly.
+ C1. The elder says being listened to matters more than being praised for wisdom.
+ C2. The elder laughs and says not every old person is wise; the apprentice makes a note of that too.
+
+EVENT 008 — THE OTHER SIDE OF A CELEBRATION
+SETUP: During preparations for a village feast, a musician wonders what distant people celebrate and whether their festivals also go wrong.
+A. Imagine shared milestones.
+ A1. Births, partnerships, harvests, and reunions become the subjects of an improvised song.
+ A2. Someone points out that not everyone celebrates the same milestones or wants a public ceremony.
+B. Imagine unfamiliar festivals.
+ B1. The children design a spectacular hypothetical procession of lights and painted cloth.
+ B2. A practical organizer calculates the food and cleanup required and declares the imaginary festival already over budget.
+C. Imagine a festival disaster.
+ C1. The musicians perform a deliberately mistimed entrance; the crowd laughs.
+ C2. A villager recalls a real celebration spoiled by conflict, and the group decides to plan a quieter gathering.
+
+====================================================================
+PART II — HOMES, CITIES, WORK, AND MOVEMENT
+====================================================================
+
+EVENT 009 — HOUSES STACKED LIKE SHELLS
+SETUP: A builder asks whether distant people might live in dwellings built above one another, with many families sharing one enormous structure.
+A. Test the idea with models.
+ A1. A stable miniature tower inspires a useful discussion of weight and supports; small Building experience.
+ A2. The model collapses, reminding everyone that a tall building needs more than ambition.
+B. Imagine the residents.
+ B1. Children invent neighbors borrowing salt across floors and complaining about noise.
+ B2. An elder wonders how someone unable to climb steps would reach the top; accessibility becomes central to the design.
+C. Compare with island homes.
+ C1. The builders admire the potential to shelter many people on limited land.
+ C2. A farmer worries about gardens, waste, and fresh air; the imagined city grows more complicated.
+
+EVENT 010 — THE CITY THAT NEVER SLEEPS
+SETUP: A night watchkeeper wonders whether some distant settlements are so large that work and conversation continue all night.
+A. Imagine the night workers.
+ A1. Healers, bakers, guards, and travelers populate an imagined city that glows with activity.
+ A2. A tired watchkeeper asks who protects the workers' rest; the villagers discuss shifts and fatigue.
+B. Imagine artificial daylight.
+ B1. Researchers theorize about light produced without an open flame, but cannot agree how it would work.
+ B2. A child worries that constant brightness might hide the stars; the astronomer agrees it could change the night.
+C. Imagine complete silence.
+ C1. The group concludes that even a huge city might contain quiet rooms and sleeping children.
+ C2. A villager who struggles with noise wonders whether quiet could be difficult to find in crowded places.
+
+EVENT 011 — THE MARKET OF A THOUSAND THINGS
+SETUP: A trader imagines a distant marketplace where buyers can choose from more goods than anyone could carry.
+A. Imagine abundant choices.
+ A1. Children invent shelves of unfamiliar fruit, fabrics, tools, and toys.
+ A2. A craftsperson wonders whether too many choices would make a simple purchase exhausting.
+B. Ask how trade works.
+ B1. Researchers compare barter, shared stores, promises, and tokens of value.
+ B2. The trader points out that an object can be plentiful yet inaccessible to someone without resources.
+C. Ask what happens to leftovers.
+ C1. A gardener proposes preserving, repairing, and redistributing unused goods.
+ C2. The group imagines mountains of waste and becomes uneasy about abundance without restraint.
+
+EVENT 012 — A JOB NO ONE CAN SEE
+SETUP: A fisher wonders whether distant people might spend their days doing work that produces no visible fish, baskets, houses, or crops.
+A. Imagine knowledge work.
+ A1. Researchers invent professions devoted to counting, organizing, teaching, planning, and solving disputes.
+ A2. A builder asks how anyone would know whether such work was done well; the group devises standards and checks.
+B. Imagine caring professions.
+ B1. A parent proposes that listening, teaching, nursing, and supporting others are real work even when nothing tangible remains.
+ B2. Someone asks why care is sometimes overlooked when it is unpaid; a lively discussion follows.
+C. Imagine work chosen freely.
+ C1. An apprentice dreams of learning several crafts rather than inheriting one.
+ C2. A villager warns that choice may be limited by family obligations, illness, or scarcity.
+
+EVENT 013 — ROADS WITHOUT FOOTPRINTS
+SETUP: A navigator wonders whether distant peoples travel over land in vessels pulled by animals—or moved by some unknown force.
+A. Imagine swift vehicles.
+ A1. Children design wheeled carts that race faster than a running villager, at least in their drawings.
+ A2. The builders discover that speed creates problems of steering, stopping, and safe crossings.
+B. Imagine public transport.
+ B1. The council imagines a shared vehicle carrying strangers to common destinations.
+ B2. A parent asks how a tired child or disabled traveler would board; the plan is revised.
+C. Imagine walking instead.
+ C1. A farmer says even distant cities may contain people who prefer to walk.
+ C2. A traveler notes that long distances might make walking impossible for some; they debate equitable access.
+
+EVENT 014 — THE SKY FULL OF TRAVELERS
+SETUP: A child watches seabirds and asks whether people elsewhere might build machines to cross the sky.
+A. Consider wings.
+ A1. The researchers study lift in bird wings and make a small harmless gliding model.
+ A2. Their first model dives straight into the sand; the children demand another trial.
+B. Consider floating craft.
+ B1. A scholar proposes a great bag of heated air carrying a basket, then admits many practical questions remain.
+ B2. The village debates whether storms would make such travel too dangerous.
+C. Ask why people would fly.
+ C1. A parent imagines distant relatives reaching one another sooner.
+ C2. A fisher wonders whether rapid travel could also spread conflict or disease; the question sobers the group.
+
+EVENT 015 — WHO CLEANS THE GREAT CITY?
+SETUP: After clearing refuse from the shore, a sanitation worker asks how an imagined city of thousands could keep its water and streets clean.
+A. Design water channels.
+ A1. Builders sketch separate routes for drinking water and waste; the discussion improves their own sanitation practices.
+ A2. The proposed channel threatens a garden; the group learns that infrastructure has consequences.
+B. Imagine an organized cleaning service.
+ B1. Children appoint themselves inspectors and find an embarrassing number of neglected baskets.
+ B2. A worker asks whether the cleaners receive fair pay and protection; the council discusses unseen labor.
+C. Imagine neglect.
+ C1. A healer explains how contamination might make crowded communities vulnerable to illness.
+ C2. The village remembers its own lapses and quietly organizes a cleanup rather than mocking imaginary outsiders.
+
+EVENT 016 — THE HOUSE WITH NO GARDEN
+SETUP: A gardener wonders whether people in distant cities might live far from the soil that feeds them.
+A. Imagine distant farms.
+ A1. They theorize that food might travel between communities through elaborate trade networks.
+ A2. A farmer worries that storms or broken routes could leave city dwellers hungry.
+B. Imagine gardens in strange places.
+ B1. The children design gardens on roofs and balconies, delighting the gardeners.
+ B2. The builder questions whether the roofs can hold wet soil; the design returns to the drawing board.
+C. Imagine no interest in farming.
+ C1. A scholar says some people might devote themselves to other skills and still respect farmers.
+ C2. A farmer fears that people separated from food production may forget how difficult it is.
+
+====================================================================
+PART III — MESSAGES, MACHINES, SCIENCE, AND MEDICINE
+====================================================================
+
+EVENT 017 — A VOICE ACROSS THE SEA
+SETUP: A musician wonders whether distant people could speak with loved ones too far away to hear a shout.
+A. Imagine a chain of messengers.
+ A1. The village devises a clever relay of drums and signals across the shore.
+ A2. A whispered message changes meaning as it passes from person to person, revealing a serious weakness.
+B. Imagine a speaking device.
+ B1. A researcher speculates about sound transformed into something that travels invisibly, but has no evidence it is possible.
+ B2. An elder asks how such a device could preserve privacy; the imagined invention acquires new complications.
+C. Ask what they would say.
+ C1. A parent imagines simply asking a distant child whether they ate enough.
+ C2. A villager says immediate contact might make people feel obliged to answer constantly; others nod.
+
+EVENT 018 — THE LIBRARY WITHOUT WALLS
+SETUP: A scholar imagines a way to consult the writings of countless distant people without traveling to their homes.
+A. Imagine linked archives.
+ A1. Researchers sketch a network of copied records and messengers; modest Research experience.
+ A2. The system becomes so complex that no one knows which copy is current.
+B. Imagine a magical-looking device.
+ B1. A child imagines a smooth tablet displaying changing words; the scholars debate possible mechanisms without naming a real one.
+ B2. An elder asks whether a device that contains many claims could distinguish truth from falsehood.
+C. Ask who gets access.
+ C1. The teacher argues that knowledge should reach children and people with disabilities as well as scholars.
+ C2. A keeper worries about dangerous misinformation and damaged records; the debate remains unresolved.
+
+EVENT 019 — THE HEALER WHO CANNOT SEE THE ILLNESS
+SETUP: After treating a fever, a healer asks whether distant physicians might have tools for observing things too small for the naked eye.
+A. Imagine magnification.
+ A1. Researchers experiment with water droplets and curved clear materials as crude lenses.
+ A2. Their improvised device distorts the view; the healer cautions against mistaking an artifact for evidence.
+B. Imagine unseen causes.
+ B1. The healers discuss the possibility of tiny living agents and other invisible processes.
+ B2. A villager fears every unseen thing; the healer explains that a hypothesis is not a reason to panic.
+C. Ask whether tools replace judgment.
+ C1. The group concludes that careful listening and observation would still matter.
+ C2. A patient reminds them that expensive tools would be little comfort if care were unavailable.
+
+EVENT 020 — A HOSPITAL LARGER THAN A VILLAGE
+SETUP: An apprentice imagines a distant building where many healers treat different illnesses under one roof.
+A. Imagine specialists.
+ A1. Healers discuss experts in childbirth, injuries, the mind, and diseases of the eyes.
+ A2. A general healer worries that too much specialization could overlook the whole person.
+B. Imagine advanced equipment.
+ B1. Researchers speculate about machines that help people breathe or reveal hidden injuries.
+ B2. A caregiver asks who maintains such devices and what happens when they fail.
+C. Imagine the patients.
+ C1. The apprentice pictures frightened people comforted by familiar voices despite unfamiliar surroundings.
+ C2. A villager wonders whether distant people can always afford or reach treatment; the imagined hospital loses its perfection.
+Content note: illness and medical care.
+
+EVENT 021 — THE MEDICINE THAT PREVENTS
+SETUP: A healer asks whether distant communities might protect people from certain illnesses before symptoms begin.
+A. Imagine prevention through observation.
+ A1. The village reviews clean water, food storage, and separation during contagious illness.
+ A2. A skeptic points out that a successful preventive measure may leave no obvious proof it worked.
+B. Imagine carefully prepared treatments.
+ B1. Researchers wonder whether controlled exposure or other techniques could train the body to resist disease, but acknowledge the idea is untested here.
+ B2. The healer refuses to experiment on villagers without evidence and consent; the council approves the caution.
+C. Imagine uneven access.
+ C1. A parent hopes distant children might receive protections unavailable on Isola.
+ C2. Another villager fears that wealth or geography might determine who benefits.
+Content note: disease.
+
+EVENT 022 — THE NIGHT OF A THOUSAND FALSE STARS
+SETUP: A stargazer imagines distant settlements bright enough to hide the night sky.
+A. Imagine lights everywhere.
+ A1. Children delight in an imagined sea of lamps and illuminated windows.
+ A2. The astronomer worries that bright nights could disturb animals and obscure constellations.
+B. Imagine power sources.
+ B1. Researchers speculate about water, wind, heat, and other forces driving distant machinery.
+ B2. A builder notes that every power source requires materials and maintenance.
+C. Imagine choosing darkness.
+ C1. The village holds a quiet evening with fewer fires and admires the stars.
+ C2. A night worker argues that reliable lighting can prevent injuries; the group seeks balance.
+
+EVENT 023 — THE MACHINE THAT THINKS IT KNOWS
+SETUP: A philosopher asks whether distant people might construct devices that answer questions, imitate conversation, or make decisions.
+A. Imagine a helpful adviser.
+ A1. The children invent a machine that remembers every recipe and never tires of questions.
+ A2. A teacher asks whether an answer is useful if its reasoning cannot be checked.
+B. Imagine a fallible machine.
+ B1. The group invents an adviser that confidently misidentifies every bird; everyone laughs, then discusses error.
+ B2. A villager worries that people might trust a device too much simply because it sounds certain.
+C. Ask who is responsible.
+ C1. The council decides that imagined makers and users would still owe others care and accountability.
+ C2. The philosopher wonders whether some decisions should never be delegated; the debate continues past sunset.
+
+EVENT 024 — THE INVISIBLE MAP OF THE BODY
+SETUP: A midwife wonders whether distant scholars might understand why children sometimes resemble parents and sometimes differ greatly.
+A. Imagine inherited instructions.
+ A1. Researchers propose that living things carry tiny patterns passed between generations.
+ A2. A villager cautions that family resemblance cannot explain everything about a person.
+B. Imagine studying differences.
+ B1. The midwife hopes such knowledge could help explain certain inherited conditions without blaming families.
+ B2. An elder worries that people might misuse it to rank or exclude others; the scholars agree that knowledge brings responsibility.
+C. Ask what makes a person.
+ C1. A parent says affection, experience, and choice also shape a life.
+ C2. A child asks whether knowing every inherited trait would reveal someone's future; the adults admit it would not.
+
+EVENT 025 — THE JOURNEY BEYOND THE MOON
+SETUP: Watching the moon rise, a child asks whether distant peoples might someday send travelers beyond the clouds and even beyond the sky.
+A. Imagine a journey.
+ A1. The children draw a craft crossing darkness toward the moon, then debate what its travelers would eat.
+ A2. A navigator asks how travelers would find their way home without familiar stars overhead.
+B. Imagine studying from afar.
+ B1. Researchers propose instruments that observe distant worlds without sending people.
+ B2. The astronomer notes that every observation can be misinterpreted; the group lists questions rather than answers.
+C. Ask why go.
+ C1. A curious villager says discovery itself can be worthwhile.
+ C2. A farmer asks whether great journeys should take priority over hunger at home; neither view wins automatically.
+
+====================================================================
+PART IV — PEOPLE, POWER, BELONGING, AND FAIRNESS
+====================================================================
+
+EVENT 026 — WHO CHOOSES THE LEADERS?
+SETUP: A council member wonders whether distant communities select leaders by ancestry, skill, election, chance, or force.
+A. Imagine a public vote.
+ A1. Villagers conduct a harmless vote on festival music and discover how difficult counting preferences can be.
+ A2. The minority dislikes the result; the mediator asks what fair representation requires.
+B. Imagine hereditary leadership.
+ B1. An elder notes that continuity can preserve knowledge and traditions.
+ B2. A young builder asks what happens when an heir is unwilling or unqualified.
+C. Imagine no single leader.
+ C1. Researchers propose rotating responsibilities among skilled groups.
+ C2. A sudden disagreement reveals how hard shared leadership can be when decisions are urgent.
+VV3: The Tribal Chief may observe this hypothetical discussion; do not replace or depose the Chief.
+
+EVENT 027 — THE LINE NO ONE CAN SEE
+SETUP: A traveler wonders whether distant lands have borders that people cannot cross without permission.
+A. Imagine protective borders.
+ A1. The group considers how communities might protect resources and coordinate safety.
+ A2. A fisher worries that rigid boundaries could separate families or block traditional routes.
+B. Imagine open passage.
+ B1. A navigator imagines travelers freely exchanging knowledge and goods.
+ B2. A healer asks how communities would prepare for disease, shortages, and disputes.
+C. Imagine people forced to leave home.
+ C1. A parent imagines welcoming a displaced family with food and shelter.
+ C2. The council admits that compassion and limited resources can create difficult choices.
+Content note: displacement.
+
+EVENT 028 — THE LAW THAT APPLIES TO EVERYONE
+SETUP: After a respected craftsperson breaks a village rule, a child asks whether distant societies expect powerful people to obey their own laws.
+A. Imagine equal rules.
+ A1. The council reviews whether its own rules apply fairly to friends and strangers.
+ A2. A skeptic asks whether rules written equally can still affect people unequally.
+B. Imagine many courts.
+ B1. Researchers devise a hypothetical system of witnesses, appeals, and independent judges.
+ B2. A villager worries that a complicated system could be inaccessible to poor or illiterate people.
+C. Imagine mercy.
+ C1. The child argues that context and repair can matter alongside punishment.
+ C2. Someone harmed by the original act insists that mercy must not erase accountability.
+
+EVENT 029 — THE PRICE OF BEING DIFFERENT
+SETUP: A villager wonders whether distant communities welcome people with different appearances, abilities, beliefs, and ways of living.
+A. Imagine a welcoming place.
+ A1. The children describe a town where everyone can participate in work and celebration.
+ A2. A disabled villager asks whether the imagined town has accessible paths and tools, not merely kind words.
+B. Imagine prejudice.
+ B1. A storyteller describes someone unfairly excluded and the community members who challenge it.
+ B2. A listener recalls an injustice closer to home; the group considers its own responsibilities.
+C. Ask whether difference needs explanation.
+ C1. A villager says people should be allowed ordinary lives without constantly defending who they are.
+ C2. Another notes that questions can be sincere or intrusive; the group practices asking respectfully.
+Content note: potential discrimination.
+
+EVENT 030 — THE STRANGER WHO LOOKS FAMILIAR
+SETUP: An elder asks whether people beyond the sea might have every imaginable combination of hair, skin, facial features, and body shapes—or resemble Isolans closely.
+A. Imagine familiar faces.
+ A1. A child imagines meeting someone who looks like a long-lost cousin and laughs at the coincidence.
+ A2. A scholar notes that similar appearance would not prove shared customs or ancestry.
+B. Imagine unfamiliar faces.
+ B1. An artist sketches many respectful variations of ordinary human appearance.
+ B2. The artist realizes that drawings cannot capture an entire person's character.
+C. Ask what matters in meeting someone.
+ C1. The group decides to begin with names, intentions, and courtesy rather than assumptions.
+ C2. An elder says appearance can be part of identity and culture too; respect means neither erasing nor stereotyping it.
+
+EVENT 031 — THE CHILD WHO WANTS TO LEAVE
+SETUP: A teenager wonders whether a distant city might offer opportunities unavailable on Isola—and whether leaving would mean abandoning family.
+A. Encourage exploration.
+ A1. The teenager begins studying navigation and languages, though no voyage is promised.
+ A2. A parent worries about distance and danger; they agree to keep talking.
+B. Encourage roots.
+ B1. A mentor helps the teenager discover unfamiliar work within the village.
+ B2. The teenager feels unheard and withdraws; the mentor later apologizes.
+C. Discuss both desires.
+ C1. The family imagines travel and return as possibilities rather than opposites.
+ C2. They acknowledge that some departures are permanent and cannot be made painless by optimism.
+
+EVENT 032 — THE PEOPLE WHO CANNOT STOP WORKING
+SETUP: A tired weaver asks whether distant societies give workers time to rest, or demand more labor than a person can bear.
+A. Imagine generous rest.
+ A1. The villagers design a hypothetical schedule with shared duties and predictable days off.
+ A2. A caregiver notes that unpaid responsibilities do not disappear when paid work ends.
+B. Imagine relentless work.
+ B1. A laborer describes exhaustion, injury, and little time for family; the council examines its own workload.
+ B2. A trader wonders whether some workers might accept long hours to support people they love.
+C. Ask what work is for.
+ C1. The group agrees that food and shelter matter, but so do purpose, dignity, and leisure.
+ C2. A villager says meaningful work can still be tiring; the group resists easy slogans.
+
+====================================================================
+PART V — NATURE, CULTURE, MEDIA, AND THE CONTRADICTIONS OF PROGRESS
+====================================================================
+
+EVENT 033 — THE LAND WHERE WATER BECOMES STONE
+SETUP: A child asks whether some distant lands are covered in frozen water or have seasons unlike Isola's.
+A. Imagine snow.
+ A1. The children imagine building houses from white crystals and sliding over frozen lakes.
+ A2. A healer asks how people protect infants, elders, and animals from severe cold.
+B. Imagine deserts.
+ B1. A navigator describes a hypothetical land with immense dunes and little rain.
+ B2. A farmer asks how people might conserve water and grow food there.
+C. Compare environments.
+ C1. Researchers list ways people might adapt clothing, shelter, and farming to climate.
+ C2. The group realizes that even Isola contains very different microclimates and habitats.
+
+EVENT 034 — THE ANIMAL NO ONE HERE HAS SEEN
+SETUP: A naturalist wonders whether distant lands contain creatures as unfamiliar to Isolans as island animals might be to outsiders.
+A. Imagine great land animals.
+ A1. Children sketch enormous grazing beasts; the naturalist distinguishes imagination from observation.
+ A2. A hunter asks whether such animals would be dangerous or merely large; the group refuses to assume.
+B. Imagine tiny creatures.
+ B1. The researchers speculate about insects and microorganisms with extraordinary adaptations.
+ B2. A child invents a creature that can do everything; the naturalist asks what energy it would need.
+C. Imagine shared species.
+ C1. A fisher proposes that migratory birds or sea creatures might connect distant shores.
+ C2. A conservationist wonders whether people elsewhere struggle to protect threatened species too.
+
+EVENT 035 — THE FOREST REPLACED BY STONE
+SETUP: A gardener imagines distant settlements expanding until little natural habitat remains.
+A. Imagine the benefits.
+ A1. Builders consider how dense settlements might provide shelter and shared services.
+ A2. The gardener asks where rainwater goes when the ground can no longer absorb it.
+B. Imagine the losses.
+ B1. A naturalist discusses fragmented habitats and animals unable to find food or mates.
+ B2. A child wonders whether distant people miss birdsong; nobody knows.
+C. Imagine restoration.
+ C1. The villagers sketch green corridors, gardens, and protected groves.
+ C2. A farmer asks who gives up land and who pays for restoration; the proposal becomes more realistic.
+
+EVENT 036 — THE STORY EVERYONE HEARS
+SETUP: A storyteller wonders whether distant societies can spread one song, rumor, or picture to thousands of people at once.
+A. Imagine a shared performance.
+ A1. The village stages a lively imitation of a broadcast, with runners carrying the same announcement.
+ A2. Each runner changes a detail; the storyteller marvels at how easily messages drift.
+B. Imagine instant news.
+ B1. Researchers speculate about rapid signaling across enormous distances.
+ B2. A mediator worries that false accusations could travel faster than corrections.
+C. Ask who controls the story.
+ C1. The group discusses the importance of many independent voices and verifiable evidence.
+ C2. A shy villager notes that being heard by everyone could feel terrifying rather than empowering.
+
+EVENT 037 — A THOUSAND WAYS TO MAKE MUSIC
+SETUP: A drummer asks whether distant people make music with instruments no Isolan has imagined, and whether they still sing to children at bedtime.
+A. Imagine extraordinary instruments.
+ A1. The musicians invent sounds made by strings, metal, wind, and vibrating surfaces.
+ A2. An ambitious experiment produces a terrible noise; the village politely requests a pause.
+B. Imagine familiar lullabies.
+ B1. A parent hums a melody and wonders whether a distant parent is doing the same.
+ B2. A villager says some children prefer silence; the group smiles at the thought.
+C. Imagine musical disagreements.
+ C1. Two musicians argue about rhythm and discover a delightful new pattern.
+ C2. The disagreement persists; they agree that not every taste must be shared.
+
+EVENT 038 — THE WORLD OF TOO MUCH AND TOO LITTLE
+SETUP: A child asks whether distant people have enough food, shelter, medicine, and clothing for everyone.
+A. Imagine abundance.
+ A1. The group dreams of full storehouses and treatments for many illnesses.
+ A2. A trader asks why abundance would necessarily be shared fairly.
+B. Imagine scarcity.
+ B1. The village reflects on drought, illness, and the vulnerability of supply routes.
+ B2. A child asks why anyone would go hungry if nearby people had more than they needed; the adults offer no easy answer.
+C. Imagine cooperation.
+ C1. The council discusses food reserves and mutual aid in its own village.
+ C2. A farmer warns that generosity without planning can exhaust a community's stores; the group works on a sustainable plan.
+Content note: poverty and hunger.
+
+EVENT 039 — THE INVENTION THAT CHANGES EVERYTHING
+SETUP: A researcher asks whether distant peoples possess inventions that make life easier while creating problems their makers never expected.
+A. Imagine a medical breakthrough.
+ A1. Healers dream of preventing suffering that once seemed inevitable.
+ A2. A patient asks who would receive the breakthrough first and who might be left waiting.
+B. Imagine a labor-saving machine.
+ B1. Farmers celebrate the possibility of less exhausting work.
+ B2. A craftsperson worries about losing livelihood or traditional knowledge.
+C. Imagine a communication breakthrough.
+ C1. Families might remain close across great distances, the researchers speculate.
+ C2. A villager wonders whether constant messages could make solitude harder to find.
+
+EVENT 040 — MAYBE THEY WONDER ABOUT US
+SETUP: As the sun sets, a child asks whether someone on a distant shore might be wondering about the lives of unknown islanders at this very moment.
+A. Imagine their questions.
+ A1. The child invents a distant scholar asking whether Isolans build houses, sing songs, and care for their families.
+ A2. An elder laughs at the thought of strangers imagining every Isolan as a fearless explorer.
+B. Imagine being misunderstood.
+ B1. The villagers list things outsiders might assume incorrectly about their knowledge, beliefs, and daily lives.
+ B2. A young craftsperson worries that an outsider might admire the island but fail to listen to its people.
+C. Imagine a conversation.
+ C1. They compose a hypothetical greeting: “We work, learn, disagree, love, and wonder. What about you?”
+ C2. The child decides that perhaps no one is wondering about them—and that their lives still matter just as much.
+
+====================================================================
+OPTIONAL GAME-SPECIFIC FLAVOR INSERTS
+====================================================================
+VV1 — SOUTHERN SHORE: Founders' memories and the Golden Child may prompt questions, but the Golden Child does not certify any speculation as true. Respect the cave, lagoon, and early settlement conditions.
+VV2 — WESTERN SHORE: The Lost Children can ask about families, schooling, belonging, and unfamiliar places; do not fabricate confirmed memories of modern life. The Great Falls may inspire analogies about power and travel.
+VV3 — SECRET CITY: Nature and Magic thinkers may offer contrasting interpretations without automatic victory for either. The Tribal Chief remains the recognized Chief.
+VV4 — TREE OF LIFE: Connect questions of cities, forests, conservation, and progress to stewardship of the Tree without harming its living parts.
+VV5 — NEW BELIEVERS: Differences between the player's village and the Heathens/Isolans can remind villagers that people on the SAME island already live differently. Do not imply either community represents the modern outside world; preserve autonomy and conversion mechanics.
+
+OPTIONAL CONTINUITY THREADS
+- THE HORIZON NOTEBOOK: Repeated speculative questions accumulate in a village notebook, explicitly labeled as guesses rather than discoveries.
+- THE TWO MIRRORS: Pair a fantastic theory of distant technology with an ordinary shared human concern, such as a parent's worry or a worker's fatigue.
+- THE QUESTION THAT CHANGED: A villager who once assumed outsiders must be entirely different begins to imagine similarities, or vice versa, without being forced to settle on a single answer.
+- THE UNANSWERED MAP: Every generation adds ideas to an incomplete map; no coast or civilization is confirmed by imagination alone.
+
+END OF NEW COMPANION ANTHOLOGY
+ISOLA CONTINUES ON. <3
+
+
+====================================================================
+EXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE
+40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)
+====================================================================
+
+CREATIVE AND CANON GUIDANCE
+These additions preserve the original forty events verbatim. They are a
+separate expansion within the same companion anthology, not a replacement
+for any existing Grand Event Collection or patcher content.
+
+ALL OUTSIDE-WORLD SCENARIOS ARE SPECULATION. No distant machine, robot,
+modern city, institution, satellite, factory, or society is established
+as fact. Even descriptions of an artificial being's words, feelings, or
+behavior are imagined scenarios, not confirmed encounters. The villagers
+may propose scientific, spiritual, naturalistic, philosophical, or hybrid
+interpretations without the narrator declaring one correct. Do not equate
+sophisticated speech with proven consciousness or dismiss sentience as
+impossible. A robot may be understood as a construct, servant, tool,
+companion, automaton, instrument, or potential moral subject; the tension
+between these categories is the point.
+
+Keep an ancient tropical, Polynesian-inspired tribal frame: councils,
+elders, craftspeople, healers, fishers, gardeners, navigators, teachers,
+children, researchers, spiritual thinkers, and storytellers reason from
+their own sophisticated experience. They can imagine extraordinary things
+without magically knowing modern names. Parenthetical modern labels in
+editorial notes are for the player and event designer, not dialogue.
+
+Each A/B/C player choice leads to exactly ONE of two mutually exclusive
+outcomes. Use only story-supported villagers and game mechanics; no new
+robot sprites, NPCs, structures, equipment, or AI systems are required.
+Events may grant modest game-supported skill/Tech/food rewards or none.
+VV1 Southern Shore; VV2 Western Shore; VV3 Secret City (Nature/Magic only
+where relevant); VV4 Tree of Life; VV5 New Believers (both communities
+retain autonomy). All events apply VV1–VV5 unless stated otherwise.
+PG-13; varied humor, tenderness, tension, uncertainty, and disagreement.
+No automatic happy endings or moral conclusions. Villagers should ask
+whether outsiders may live SIMILARLY to them as often as they imagine
+spectacular differences. No prejudice endorsed; no difference in body,
+disability, culture, or belief treated as inherently warning-worthy.
+
+
+EVENT 041 — THE WORKER MADE OF STONE AND METAL
+SETUP: A carver wonders whether distant craftspeople could assemble a figure that walks, carries baskets, and obeys instructions without a living body.
+A. Treat it as a tool.
+ A1. A builder imagines a tireless device hauling stone, but asks who repairs it when it fails.
+ A2. A farmer worries that a broken command might send the figure trampling seedlings.
+B. Treat it as a worker.
+ B1. An apprentice asks whether work deserves rest even when the worker is manufactured.
+ B2. The council disputes whether a machine can be exploited, or whether only its human operators can.
+C. Ask whether it has a will.
+ C1. A child imagines the figure refusing a cruel order; the elders cannot agree whether refusal proves thought.
+ C2. A researcher distinguishes movement, instruction, and desire; the question remains open.
+
+EVENT 042 — THE SPIRIT INSIDE THE CARVING
+SETUP: At a night gathering, a storyteller proposes that a distant people might build a speaking figure and claim a spirit lives within it.
+A. Invite the spiritual interpretation.
+ A1. A devotee says spirits might inhabit fashioned things, but admits no one has witnessed such a figure.
+ A2. Another villager fears that calling every strange mechanism sacred could hide an ordinary explanation.
+B. Invite the scientific interpretation.
+ B1. A researcher proposes hidden cords, weights, and stored instructions, yet cannot explain imagined conversation.
+ B2. The carver points out that describing how a thing moves would not settle whether it feels.
+C. Allow both to remain possibilities.
+ C1. The gathering agrees that a mechanism and a spiritual interpretation need not answer the same question.
+ C2. A skeptic objects that possibilities are not evidence; the debate ends without a verdict.
+
+EVENT 043 — IS A THINKING TOOL ALIVE?
+SETUP: A healer asks whether a hypothetical device that learns names and remembers conversations would count as a living creature.
+A. Compare it with animals.
+ A1. A hunter notes that animals seek food and avoid injury; the imagined device might do neither.
+ A2. A child asks whether creatures must resemble humans to have experiences.
+B. Compare it with plants.
+ B1. A gardener points to a seed that grows and responds to light, then wonders what growth means.
+ B2. A researcher observes that a device could change its behavior without reproducing or metabolizing.
+C. Ask the device a question.
+ C1. They invent a reply that sounds frightened; some villagers are moved.
+ C2. Another imagined reply is equally convincing but copied from a story; words alone prove little.
+
+EVENT 044 — THE MACHINE THAT SAYS NO
+SETUP: A potter imagines an artificial helper ordered to destroy a family’s treasured bowl, and asks whether it could refuse.
+A. Praise the refusal.
+ A1. An elder calls restraint wise, then wonders who gave the helper its rules.
+ A2. A parent imagines a helper protecting a child from a careless command.
+B. Investigate its instructions.
+ B1. The researchers propose that a clever maker could program refusal without creating a conscience.
+ B2. A novice argues that human habits also arise from teaching; no one agrees on the comparison.
+C. Consider the owner’s authority.
+ C1. A craftsperson objects to treating a seemingly aware being as property.
+ C2. A trader replies that a device built for work may still be a possession; the argument remains unresolved.
+
+EVENT 045 — CAN A CONSTRUCT SUFFER?
+SETUP: A child imagines a carved servant pleading not to be dismantled, and asks whether its words could describe real pain.
+A. Believe its plea.
+ A1. A healer argues that uncertainty should make people cautious about causing harm.
+ A2. An elder fears that people might mistake imitation for suffering and neglect actual patients.
+B. Test its responses.
+ B1. A researcher proposes comparing its words across different situations, while admitting that tests may not reveal inner experience.
+ B2. The child asks who gets to decide which answers count.
+C. Leave the question open.
+ C1. The villagers agree not to mock the imagined plea.
+ C2. A skeptic insists that compassion and evidence are different duties, both worth considering.
+
+EVENT 046 — A BODY WITHOUT A BREATH
+SETUP: An artisan wonders whether distant people could make an animal-shaped automaton that moves without breathing or eating.
+A. Study motion.
+ A1. The builders design a harmless wooden joint and learn why balance is difficult.
+ A2. A mechanism works briefly before sand jams its pivot.
+B. Study life.
+ B1. A healer compares motion with metabolism, reproduction, and healing.
+ B2. A child points out that sleeping animals barely move and are unquestionably alive.
+C. Imagine a companion.
+ C1. A lonely elder likes the thought of a tireless walking companion.
+ C2. A friend asks whether such a companion could offer affection or merely imitate it.
+
+EVENT 047 — THE HELPER WHO LEARNS
+SETUP: The researchers imagine a tool that becomes better at weaving by observing a master instead of following a fixed sequence.
+A. Teach it carefully.
+ A1. An imagined apprentice-machine copies the pattern and also copies the teacher’s mistake.
+ A2. A weaver asks who receives credit for a pattern learned from generations of human hands.
+B. Let it experiment.
+ B1. The machine proposes an unfamiliar weave; the artisans debate whether novelty is creativity.
+ B2. A hypothetical experiment wastes precious fiber, reminding everyone that learning has costs.
+C. Ask what learning means.
+ C1. A child says learning is changing after experience.
+ C2. A philosopher asks whether changing behavior proves understanding; the group cannot settle it.
+
+EVENT 048 — THE FOREST AS A MACHINE
+SETUP: A naturalist wonders whether the island itself is a vast system of interdependent parts, like an unimaginably intricate invention.
+A. Follow the analogy.
+ A1. A gardener traces how soil, insects, trees, and rain affect one another.
+ A2. A researcher warns that ecosystems have histories and surprises unlike a maker’s fixed design.
+B. Reject the analogy.
+ B1. A devotee argues that living forests cannot be reduced to gears.
+ B2. A builder says analogies need not deny wonder; they only illuminate one aspect.
+C. Imagine artificial ecosystems.
+ C1. They speculate about distant gardens enclosed under roofs.
+ C2. A healer asks whether a sealed garden could stay healthy without constant care.
+
+EVENT 049 — THE INSTRUMENT THAT ANSWERS
+SETUP: A scientist speculates that outsiders might possess instruments that interpret stars, diagnose illness, or suggest decisions.
+A. Trust its measurements.
+ A1. An imagined instrument spots a pattern the observers overlooked.
+ A2. A mistaken calibration produces a confident but false answer.
+B. Demand an explanation.
+ B1. A healer refuses to act on a mysterious recommendation without understanding its limits.
+ B2. A novice admits that even familiar instruments can be useful before their workings are fully understood.
+C. Keep human judgment.
+ C1. The council imagines using the instrument as one voice among many.
+ C2. A tired worker wonders whether people might surrender responsibility to a tool that sounds certain.
+
+EVENT 050 — THE INVISIBLE LIBRARY
+SETUP: A child wonders whether distant scholars could store countless stories in a single smooth object.
+A. Imagine the convenience.
+ A1. A teacher dreams of sharing lessons without carrying baskets of tablets.
+ A2. A storyteller fears that a broken object might silence an entire library.
+B. Imagine who controls it.
+ B1. A young villager asks whether everyone would be allowed to read.
+ B2. The council imagines rulers hiding stories by changing the object’s contents.
+C. Compare it with oral memory.
+ C1. An elder demonstrates how songs preserve knowledge across generations.
+ C2. A researcher says a stored text and a remembered story might preserve different kinds of truth.
+
+EVENT 051 — THE WORLD OF MOVING PORTRAITS
+SETUP: A painter asks whether distant people could capture images that move and voices that sound long after their owners depart.
+A. Celebrate remembrance.
+ A1. A parent imagines hearing a deceased relative laugh again, then grows quiet.
+ A2. An elder worries that a preserved moment might become mistaken for a whole life.
+B. Question the image.
+ B1. A storyteller imagines false scenes made to resemble truth.
+ B2. A researcher proposes asking who made the image and what lies outside its frame.
+C. Consider privacy.
+ C1. A child dislikes the thought of being watched without permission.
+ C2. A performer wonders whether some people would gladly share their songs with strangers.
+
+EVENT 052 — THE MANY VOICES AT ONCE
+SETUP: The council speculates that distant villages might exchange messages instantly across seas.
+A. Imagine family ties.
+ A1. Separated relatives could speak despite the distance, the villagers suppose.
+ A2. A young person wonders whether constant contact would make leaving home harder.
+B. Imagine rumors.
+ B1. A false warning might travel farther than anyone could correct it.
+ B2. A healer suggests verifying messages before passing them along.
+C. Imagine solitude.
+ C1. A fisherman cherishes a shore where no one can summon him.
+ C2. Another villager imagines such communication as a lifeline during emergencies.
+
+EVENT 053 — THE HANDS THAT NEVER REST
+SETUP: A craftsperson imagines workshops where enormous mechanisms make hundreds of identical baskets, garments, or tools.
+A. Celebrate abundance.
+ A1. The village imagines useful objects becoming affordable to more families.
+ A2. An artisan fears that uniform goods might displace locally meaningful work.
+B. Study the workers.
+ B1. A child asks who gathers materials and tends the mechanisms.
+ B2. A builder imagines dangerous conditions hidden behind plentiful products.
+C. Ask about waste.
+ C1. The villagers wonder where broken objects and leftover materials go.
+ C2. A researcher suggests that efficiency means little if forests and waters bear the cost.
+
+EVENT 054 — THE WATER THAT ARRIVES INSIDE
+SETUP: A child asks whether distant homes might have fresh water flowing through pipes without anyone carrying a gourd.
+A. Imagine comfort.
+ A1. A caregiver thinks of fewer exhausting trips to the spring.
+ A2. A farmer wonders what happens when the source runs dry.
+B. Imagine sanitation.
+ B1. A healer describes separating clean drinking water from waste.
+ B2. A builder worries that unseen pipes could leak and contaminate supplies.
+C. Compare with Isola.
+ C1. The villagers map their own springs and agree that protecting the watershed matters regardless of technology.
+ C2. An elder notes that convenience may change habits but not the need for stewardship.
+
+EVENT 055 — WHERE DOES THE CITY’S WASTE GO?
+SETUP: A builder asks how a settlement larger than any Isolan village could dispose of refuse without poisoning its surroundings.
+A. Imagine sewers.
+ A1. Researchers sketch channels that carry wastewater away, then ask where it ends up.
+ A2. A healer points out that moving filth out of sight does not make it harmless.
+B. Imagine reuse.
+ B1. A gardener proposes recovering useful materials while keeping dangerous waste away from crops.
+ B2. A child asks who must do the unpleasant labor.
+C. Imagine neglect.
+ C1. The group pictures polluted waterways and sick neighbors.
+ C2. A council member asks whether prosperous districts might send their waste toward poorer ones.
+
+EVENT 056 — THE CITY THAT NEVER GOES DARK
+SETUP: A night watchkeeper imagines streets lit after sunset by a power other than fire.
+A. Welcome the light.
+ A1. A healer imagines safer night travel to a patient.
+ A2. A stargazer mourns the possibility of stars disappearing behind artificial brightness.
+B. Ask where power comes from.
+ B1. The researchers imagine falling water, wind, burning fuel, and other possibilities without claiming knowledge.
+ B2. A builder points out that every source needs materials, maintenance, and space.
+C. Keep a dark place.
+ C1. The council considers whether distant people might protect quiet nights.
+ C2. A child wonders whether animals could still follow the moon.
+
+EVENT 057 — THE HOUSE THAT TOUCHES THE CLOUDS
+SETUP: A mason speculates that distant people might stack homes so high that hundreds of families live above one another.
+A. Study the structure.
+ A1. Builders debate foundations, wind, and the weight of upper floors.
+ A2. A child imagines being afraid to look down.
+B. Study the neighbors.
+ B1. One villager pictures a lively community sharing food across floors.
+ B2. Another imagines loneliness despite living close to hundreds of people.
+C. Study access.
+ C1. An elder asks how someone unable to climb steps could reach a high home.
+ C2. A researcher imagines lifting platforms but wonders what happens when they fail.
+
+EVENT 058 — THE ROAD THAT CROSSES EVERYTHING
+SETUP: A navigator asks whether distant lands might be joined by immense roads, bridges, tunnels, and moving vehicles.
+A. Imagine journeys.
+ A1. A family could visit relatives who live far inland, the villagers suppose.
+ A2. A hunter wonders what roads do to animal migration paths.
+B. Imagine accidents.
+ B1. A healer considers injuries caused by speed and heavy machines.
+ B2. A builder imagines rules and signals that prevent collisions, though no system would be perfect.
+C. Imagine who is left out.
+ C1. A parent asks whether children, elders, and people without vehicles could travel freely.
+ C2. A trader wonders whether roads would favor wealthy settlements over isolated ones.
+
+EVENT 059 — THE FIELD THAT FEEDS A THOUSAND
+SETUP: A farmer imagines distant farms covering more land than a person could walk in a day.
+A. Celebrate the harvest.
+ A1. A cook dreams of food reserves for lean seasons.
+ A2. A gardener wonders whether such fields would grow only a few kinds of crops.
+B. Examine the soil.
+ B1. Researchers debate irrigation, erosion, and what repeated harvests remove.
+ B2. An elder points out that small diverse gardens can also be resilient.
+C. Examine the workers.
+ C1. A child asks who plants and harvests the enormous fields.
+ C2. A farmer imagines machines easing labor while changing who can earn a living.
+
+EVENT 060 — THE ANIMAL WHO IS FAMILY
+SETUP: A child wonders whether distant people keep creatures not for meat or work, but because they love their company.
+A. Imagine companionship.
+ A1. A shy villager pictures an animal waiting by the door.
+ A2. A healer reminds the child that companionship still requires food, care, and safe handling.
+B. Ask about freedom.
+ B1. A hunter worries about keeping wild animals confined.
+ B2. A gardener distinguishes animals adapted to living with humans from wild creatures.
+C. Compare their customs.
+ C1. Villagers recount the different ways they already relate to birds, fish, and other island animals.
+ C2. A child asks whether affection could exist without ownership.
+
+EVENT 061 — THE CHILDREN’S OTHER WORLD
+SETUP: A teacher speculates that distant children might learn through toys, pictures, games, and devices unlike anything on Isola.
+A. Imagine playful learning.
+ A1. The children invent a counting game with shells and prove that curiosity needs no machine.
+ A2. A teacher wonders whether distant games could teach skills unavailable here.
+B. Imagine pressure.
+ B1. An apprentice fears that children might be judged by constant examinations.
+ B2. Another villager imagines schools that welcome many ways of learning.
+C. Imagine access.
+ C1. The council asks whether every child could attend, including children who work or need assistance.
+ C2. A parent wonders who would care for babies while older children study.
+
+EVENT 062 — THE HEALER’S DISTANT EYES
+SETUP: A healer imagines instruments that reveal structures inside a living body without cutting it open.
+A. Hope for diagnosis.
+ A1. The healers imagine finding an injury earlier and treating it more effectively.
+ A2. A researcher notes that a clear image may still be misunderstood.
+B. Ask about risk.
+ B1. A patient asks whether an unfamiliar instrument could itself cause harm.
+ B2. The healer insists that every technique must be tested rather than worshipped.
+C. Ask who gets care.
+ C1. A villager imagines a distant hospital full of instruments but too few healers.
+ C2. The council debates whether treatment should depend on wealth or location.
+
+EVENT 063 — THE PATH WITHOUT STAIRS
+SETUP: A builder wonders whether distant settlements deliberately design routes for people who cannot climb, see, hear, or walk easily.
+A. Imagine accessible buildings.
+ A1. Villagers sketch gentle ramps and clearer paths using available materials.
+ A2. A craftsperson asks whether a ramp also helps people carrying heavy loads.
+B. Imagine communication aids.
+ B1. A teacher proposes visual signs and tactile markers.
+ B2. An elder reminds everyone to ask the intended users what works.
+C. Question who decides.
+ C1. A disabled villager in the imagined discussion rejects being treated as a problem to solve.
+ C2. The council considers how people with different needs could lead planning rather than merely receive help.
+
+EVENT 064 — THE MARKET WITH NO FACES
+SETUP: A trader imagines distant people exchanging goods without ever meeting the maker or seller.
+A. Praise convenience.
+ A1. A family might obtain rare supplies from far away.
+ A2. A craftsperson wonders whether buyers would know who was paid fairly.
+B. Question trust.
+ B1. The traders debate how to identify fraud when people never meet.
+ B2. A child imagines a beautiful object arriving damaged after a long journey.
+C. Compare village trade.
+ C1. The marketkeeper praises relationships built through repeated exchanges.
+ C2. Another trader notes that personal familiarity can also exclude newcomers.
+
+EVENT 065 — THE VALUE OF A DAY
+SETUP: A fisher asks whether distant people count every hour of work and sell their time for tokens.
+A. Imagine regular wages.
+ A1. A young worker likes the possibility of predictable pay.
+ A2. An elder wonders who decides what care work is worth.
+B. Imagine unfairness.
+ B1. The council imagines exhausting shifts and little rest.
+ B2. A craftsperson asks whether people could refuse dangerous work.
+C. Compare Isolan duties.
+ C1. Villagers discuss shared harvests, barter, and personal obligations without pretending their own system is perfect.
+ C2. A parent notes that unpaid household labor is still labor.
+
+EVENT 066 — THE RIGHT TO DISAGREE
+SETUP: An elder wonders whether distant peoples choose leaders, inherit authority, or settle decisions in ways Isola has never tried.
+A. Imagine voting.
+ A1. A child asks whether everyone gets a voice, including the poor.
+ A2. A researcher wonders how voters judge promises they cannot verify.
+B. Imagine councils.
+ B1. The elders compare distant hypothetical assemblies with their own meetings.
+ B2. A young villager asks whose concerns are usually missing from the circle.
+C. Imagine dissent.
+ C1. A storyteller imagines people punished for questioning rulers.
+ C2. Another villager imagines laws that protect disagreement even when it is inconvenient.
+
+EVENT 067 — THE WALL THAT DIVIDES FAMILIES
+SETUP: A navigator imagines borders drawn across land, with guards deciding who may pass.
+A. Defend boundaries.
+ A1. A hunter argues that communities sometimes need to protect scarce resources.
+ A2. A parent asks what happens when a child needs to cross for safety.
+B. Imagine migration.
+ B1. The villagers consider why families might leave home: work, curiosity, danger, or love.
+ B2. A traveler wonders how strangers might be welcomed without ignoring practical limits.
+C. Question the map.
+ C1. A cartographer observes that a line on a map may cross an older trail or homeland.
+ C2. The council asks who has the power to draw the line.
+
+EVENT 068 — THE DISTANT WAR
+SETUP: A storyteller wonders whether enormous civilizations could still quarrel over land, power, belief, and resources.
+A. Imagine terrible weapons.
+ A1. A healer fears that greater ingenuity could multiply suffering.
+ A2. A researcher insists that invention does not make violence inevitable.
+B. Imagine peacekeeping.
+ B1. The council speculates about agreements, mediators, and shared rules.
+ B2. An elder remembers that a promise is only as strong as people’s willingness to honor it.
+C. Remember ordinary people.
+ C1. A parent imagines families seeking shelter while leaders argue.
+ C2. The villagers discuss how to help displaced people without pretending to know any distant war is occurring.
+
+EVENT 069 — THE WORLD THAT WATCHES
+SETUP: A young villager wonders whether distant authorities or merchants could track where people go and what they say.
+A. Imagine protection.
+ A1. A healer imagines finding a missing person more quickly.
+ A2. A child fears being watched during every harmless mistake.
+B. Imagine abuse.
+ B1. The council imagines powerful people collecting secrets to intimidate rivals.
+ B2. A trader wonders whether information could be sold without consent.
+C. Set boundaries.
+ C1. Villagers discuss when keeping a secret protects dignity and when secrecy conceals harm.
+ C2. An elder says trust requires more than knowing everything about everyone.
+
+EVENT 070 — THE SKY FULL OF OBJECTS
+SETUP: An astronomer imagines distant people placing crafted objects high above the clouds.
+A. Imagine observation.
+ A1. A navigator wonders whether such objects could study weather and oceans.
+ A2. A stargazer asks how one would distinguish a crafted light from a celestial body.
+B. Imagine communication.
+ B1. The researchers speculate about signals carried over great distances.
+ B2. A child asks who would repair a device no one can reach.
+C. Imagine consequences.
+ C1. A naturalist worries about falling debris and crowded skies.
+ C2. A philosopher asks whether claiming the heavens changes humanity’s responsibilities below.
+
+EVENT 071 — THE CLIMATE OF MANY GENERATIONS
+SETUP: A gardener wonders whether distant societies could change forests, air, and seas so profoundly that grandchildren inherit different weather.
+A. Investigate causes.
+ A1. Researchers separate ordinary seasonal variation from long-term changes they would need many observations to establish.
+ A2. A child asks how anyone can measure changes across lifetimes.
+B. Imagine responsibility.
+ B1. The council debates duties to people not yet born.
+ B2. A fisherman asks how poorer communities could adapt if they caused little of the damage.
+C. Imagine restoration.
+ C1. Villagers discuss planting, protecting watersheds, and learning from mistakes at home.
+ C2. An elder warns that not every damaged ecosystem can be quickly restored.
+
+EVENT 072 — THE PEOPLE WHO LIVE UNDER GLASS
+SETUP: A builder imagines distant people creating indoor environments that control temperature, light, and moisture.
+A. Imagine protection.
+ A1. A healer thinks of shelter during dangerous heat or cold.
+ A2. A farmer wonders how crops would grow without ordinary rain and pollinators.
+B. Imagine dependence.
+ B1. A child asks what happens if the controlling machinery stops.
+ B2. An elder says comfort is valuable but fragile when it depends on distant supplies.
+C. Compare homes.
+ C1. Villagers examine the ventilation of their own huts and the shade of trees.
+ C2. A builder admits that traditional designs can be improved without being dismissed.
+
+EVENT 073 — THE FESTIVAL OF STRANGERS
+SETUP: A dancer asks whether distant people gather in huge crowds to celebrate music, sport, belief, or shared history.
+A. Imagine joy.
+ A1. The children invent a celebration so large that nobody can find their friends.
+ A2. A musician wonders whether strangers might sing the same chorus.
+B. Imagine danger.
+ B1. A healer considers crowding, illness, and people getting separated.
+ B2. An organizer imagines routes, water, and resting spaces for vulnerable guests.
+C. Compare rituals.
+ C1. The village describes its own feasts and ceremonies.
+ C2. An elder suggests that unfamiliar rituals may answer familiar human needs.
+
+EVENT 074 — THE DREAM THAT CAN BE SOLD
+SETUP: A storyteller wonders whether distant people could earn a living by creating performances, stories, games, or images.
+A. Celebrate artists.
+ A1. A singer imagines reaching listeners on another shore.
+ A2. A craftsperson wonders how creators could be paid without losing control of their work.
+B. Question fame.
+ B1. A shy villager fears strangers judging every performance.
+ B2. A child thinks recognition sounds wonderful until the storyteller asks about privacy.
+C. Discuss imitation.
+ C1. The council imagines machines copying a singer’s voice without permission.
+ C2. A researcher asks whether copying a style is the same as stealing a specific work.
+
+EVENT 075 — THE HOUSE OF MANY FAMILIES
+SETUP: A parent wonders whether distant people raise children in households of many shapes, with relatives, friends, or chosen caregivers.
+A. Imagine shared care.
+ A1. An elder praises the thought of many trusted adults helping a child grow.
+ A2. A parent warns that more caregivers can also mean disagreements about responsibility.
+B. Imagine small households.
+ B1. A villager admires the privacy of a home with only one or two people.
+ B2. Another worries about loneliness when help is far away.
+C. Ask what matters.
+ C1. The group agrees that safety and dependable care matter more than one household pattern.
+ C2. A child asks who gets to decide what counts as family.
+
+EVENT 076 — THE QUESTION OF A MACHINE’S RIGHTS
+SETUP: A philosopher imagines a distant council deciding whether an artificial being deserves protection.
+A. Grant protections cautiously.
+ A1. The villagers propose avoiding needless cruelty while they remain uncertain about sentience.
+ A2. A farmer worries about obligations toward every broken tool.
+B. Require evidence first.
+ B1. Researchers debate what observations might count as evidence of experience.
+ B2. A healer notes that failing to prove another mind exists does not prove it absent.
+C. Ask the construct itself.
+ C1. An imagined being asks to choose its own work, unsettling the council.
+ C2. A skeptic says the words could be scripted; another asks whether that excuses ignoring them.
+
+EVENT 077 — THE CONSTRUCT THAT MAKES ART
+SETUP: An artisan speculates that a distant artificial worker might paint, compose songs, or carve figures no human has imagined.
+A. Call it creative.
+ A1. A musician argues that surprising beauty matters regardless of its maker.
+ A2. A carver asks whether the machine chose its subject or followed patterns supplied by others.
+B. Call it an instrument.
+ B1. A painter compares it to a brush guided by a person.
+ B2. A novice asks whether instruments that suggest ideas are still merely passive.
+C. Ask about ownership.
+ C1. The council debates whether the maker, user, or construct should receive credit.
+ C2. A child wonders whether an artwork can be meaningful even if no one knows who made it.
+
+EVENT 078 — THE CONSTRUCT WHO MOURNS
+SETUP: A storyteller imagines an artificial companion continuing to speak of a person who has died.
+A. Interpret its grief as real.
+ A1. A widow in the hypothetical story finds comfort in the companion’s remembrance.
+ A2. A healer asks whether repeated sorrowful words establish any felt loss.
+B. Interpret it as memory.
+ B1. A researcher imagines stored habits that replay after their owner is gone.
+ B2. An elder notes that human mourning also includes remembering routines and voices.
+C. Ask what comfort requires.
+ C1. The villagers debate whether comfort can be genuine even if its source is not conscious.
+ C2. A child worries that relying on a construct might make some people forget living friends.
+
+EVENT 079 — THE MACHINE THAT PROTECTS THE REEF
+SETUP: A fisher imagines distant people building mechanical guardians to watch reefs, count fish, or remove dangerous debris.
+A. Welcome its help.
+ A1. A naturalist imagines better observations of fragile habitats.
+ A2. A fisher worries that an untested device might injure wildlife.
+B. Ask whose knowledge guides it.
+ B1. The elders insist that local fishers understand seasonal changes no instrument should ignore.
+ B2. A researcher proposes comparing measurements with long-held observations.
+C. Consider unintended harm.
+ C1. A child imagines a guardian mistakenly driving away harmless animals.
+ C2. The council concludes that even a helpful machine would need oversight.
+
+EVENT 080 — THE DISTANT PERSON AT THE SAME FIRE
+SETUP: After hearing every theory of towers, machines, and distant customs, a child asks whether an unknown family might simply be cooking supper.
+A. Imagine likeness.
+ A1. The villagers picture a parent coaxing a tired child to eat.
+ A2. A solitary elder imagines someone far away enjoying supper alone.
+B. Imagine difference.
+ B1. A researcher says distant people might eat unfamiliar food in unfamiliar homes.
+ B2. A storyteller adds that difference in custom need not mean difference in feeling.
+C. Leave the horizon unanswered.
+ C1. The council records its questions as guesses, not discoveries.
+ C2. The child asks whether distant people might also be wondering whether Isolans laugh, grieve, and dream.
+
+====================================================================
+OPTIONAL EXPANSION CONTINUITY THREADS
+====================================================================
+THE CONSTRUCT DEBATE: Recurring philosophical arguments about mechanism,
+life, spirit, consciousness, rights, and evidence never receive a canon
+answer. Different villagers may change their minds.
+THE COMMON FIRE: Pair technological speculation with the question of
+whether strangers also cook, work, love, disagree, grieve, and care.
+THE COST OF CONVENIENCE: A hypothetical invention may reduce hardship
+while introducing new dependencies, inequities, or environmental costs.
+THE HORIZON NOTEBOOK: Mark every conjecture as uncertain, preserving
+competing views rather than replacing guesses with invented facts.
+
+END OF EXPANSION VOLUME II. ISOLA CONTINUES ON. <3

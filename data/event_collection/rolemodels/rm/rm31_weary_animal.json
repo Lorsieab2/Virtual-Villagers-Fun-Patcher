@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weary Animal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm31_weary_animal",
+  "source": "rolemodels",
+  "lines": [
+   65,
+   65
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L65",
+  "ledger": [
+   {
+    "src": "L65",
+    "kind": "structural",
+    "text": "EVENT RM-31  -  THE WEARY ANIMAL SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A farmer notices that an animal helping carry supplies has become tired during the afternoon's work.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A farmer notices that an animal helping carry supplies has become tired during the afternoon's work.",
+   "src": "L65",
+   "choices": [
+    {
+     "label": "Stop and allow the animal to rest.",
+     "next": "a",
+     "src": "L65"
+    },
+    {
+     "label": "Reduce the load.",
+     "next": "b",
+     "src": "L65"
+    },
+    {
+     "label": "Examine the animal for discomfort.",
+     "next": "c",
+     "src": "L65"
+    },
+    {
+     "label": "Ask other workers to share the remaining supplies.",
+     "next": "d",
+     "src": "L65"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The animal recovers its energy before returning at an easier pace.",
+   "src": "L65"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The animal remains tired, so the farmer ends its work for the day.",
+   "src": "L65"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The animal moves more comfortably with a lighter burden.",
+   "src": "L65"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The animal still seems reluctant, and the farmer decides that rest is necessary.",
+   "src": "L65"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The farmer discovers a poorly positioned strap and adjusts it.",
+   "src": "L65"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nothing obvious explains the fatigue, so the farmer seeks experienced help.",
+   "src": "L65"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villagers carry the final bundles themselves while the animal rests.",
+   "src": "L65"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The work takes longer, but the animal is not pressed to continue.",
+   "src": "L65"
+  }
+ }
+}

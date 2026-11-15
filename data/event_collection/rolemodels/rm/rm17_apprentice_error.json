@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's Error",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm17_apprentice_error",
+  "source": "rolemodels",
+  "lines": [
+   37,
+   37
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L37",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "structural",
+    "text": "EVENT RM-17  -  THE APPRENTICE'S ERROR SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A healer's apprentice mixes up two storage labels before any medicine has been prepared."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer's apprentice mixes up two storage labels before any medicine has been prepared.",
+   "src": "L37",
+   "choices": [
+    {
+     "label": "Tell the supervising healer immediately.",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Compare the containers with the written records.",
+     "next": "b",
+     "src": "L37"
+    },
+    {
+     "label": "Ask another apprentice to check the labels independently.",
+     "next": "c",
+     "src": "L37"
+    },
+    {
+     "label": "Suggest a clearer labeling arrangement.",
+     "next": "d",
+     "src": "L37"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The labels are corrected, and the apprentice learns a safer checking routine.",
+   "src": "L37",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L37"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The healer temporarily removes the apprentice from preparation duties until the containers are verified.",
+   "src": "L37"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice identifies the mistake and asks the healer to confirm the correction.",
+   "src": "L37"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The records are unclear, so both containers are set aside for inspection.",
+   "src": "L37"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The second apprentice catches the mismatch and helps prevent confusion.",
+   "src": "L37"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The apprentices disagree, so they seek the healer's judgment before proceeding.",
+   "src": "L37"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The healer adopts a simple method that makes similar containers easier to distinguish.",
+   "src": "L37"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The proposal needs refinement, but the healer welcomes the apprentice's attention to safety.",
+   "src": "L37"
+  }
+ }
+}

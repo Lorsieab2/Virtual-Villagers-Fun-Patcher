@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Chooses the Leaders?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz026_chooses_leaders",
+  "source": "horizon",
+  "lines": [
+   338,
+   349
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L338",
+  "ledger": [
+   {
+    "src": "L349",
+    "kind": "note",
+    "why": "VV3: the designer's game note (the Tribal Chief only observes; no event replaces or deposes the Chief): nothing in the event casts or changes the Chief, so it holds in every game"
+   }
+  ],
+  "description": "A council member wonders whether distant communities select leaders by ancestry, skill, election, chance, or force.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A council member wonders whether distant communities select leaders by ancestry, skill, election, chance, or force.",
+   "src": "L339",
+   "choices": [
+    {
+     "label": "Imagine a public vote.",
+     "next": "a",
+     "src": "L340"
+    },
+    {
+     "label": "Imagine hereditary leadership.",
+     "next": "b",
+     "src": "L343"
+    },
+    {
+     "label": "Imagine no single leader.",
+     "next": "c",
+     "src": "L346"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "src": "L339"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers conduct a harmless vote on festival music and discover how difficult counting preferences can be.",
+   "src": "L341"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The minority dislikes the result; the mediator asks what fair representation requires.",
+   "src": "L342",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike",
+     "src": "L342"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder notes that continuity can preserve knowledge and traditions.",
+   "src": "L344"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A young builder asks what happens when an heir is unwilling or unqualified.",
+   "src": "L345"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Researchers propose rotating responsibilities among skilled groups.",
+   "src": "L347"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A sudden disagreement reveals how hard shared leadership can be when decisions are urgent.",
+   "src": "L348"
+  }
+ }
+}

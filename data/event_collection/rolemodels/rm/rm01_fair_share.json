@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fair Share",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm01_fair_share",
+  "source": "rolemodels",
+  "lines": [
+   5,
+   5
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5",
+  "ledger": [
+   {
+    "src": "L5",
+    "kind": "structural",
+    "text": "EVENT RM-01  -  THE FAIR SHARE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "After a difficult harvest, a farmer notices that the food portions are uneven, and several families are still waiting.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a difficult harvest, a farmer notices that the food portions are uneven, and several families are still waiting.",
+   "src": "L5",
+   "choices": [
+    {
+     "label": "Divide the remaining food into equal portions.",
+     "next": "a",
+     "src": "L5"
+    },
+    {
+     "label": "Ask each household what it needs.",
+     "next": "b",
+     "src": "L5"
+    },
+    {
+     "label": "Give the largest portion to the household that worked hardest.",
+     "next": "c",
+     "src": "L5"
+    },
+    {
+     "label": "Invite another farmer to check the distribution.",
+     "next": "d",
+     "src": "L5"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L5"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Every waiting family receives something, though the portions are smaller than hoped.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The farmer discovers that equal portions leave a larger household struggling and reconsiders the distribution.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The families agree on portions that account for their different circumstances.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The discussion takes longer than expected, but nobody is overlooked.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The workers appreciate the recognition but ask that the youngest children be fed first.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder points out that some villagers contributed in ways the farmer did not see.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The second farmer notices a counting mistake, and the portions are corrected.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The two disagree over what is fairest and agree to consult the waiting families.",
+   "src": "L5",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L5"
+    }
+   ]
+  }
+ }
+}

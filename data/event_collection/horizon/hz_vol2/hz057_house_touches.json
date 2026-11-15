@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The House That Touches the Clouds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz057_house_touches",
+  "source": "horizon",
+  "lines": [
+   779,
+   789
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L779",
+  "ledger": [],
+  "description": "A mason speculates that distant people might stack homes so high that hundreds of families live above one another.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A mason speculates that distant people might stack homes so high that hundreds of families live above one another.",
+   "src": "L780",
+   "choices": [
+    {
+     "label": "Study the structure.",
+     "next": "a",
+     "src": "L781"
+    },
+    {
+     "label": "Study the neighbors.",
+     "next": "b",
+     "src": "L784"
+    },
+    {
+     "label": "Study access.",
+     "next": "c",
+     "src": "L787"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Builders debate foundations, wind, and the weight of upper floors.",
+   "src": "L782"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child imagines being afraid to look down.",
+   "src": "L783"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "One villager pictures a lively community sharing food across floors.",
+   "src": "L785",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L785"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another imagines loneliness despite living close to hundreds of people.",
+   "src": "L786"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An elder asks how someone unable to climb steps could reach a high home.",
+   "src": "L788"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A researcher imagines lifting platforms but wonders what happens when they fail.",
+   "src": "L789"
+  }
+ }
+}

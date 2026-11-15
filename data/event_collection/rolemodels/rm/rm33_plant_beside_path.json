@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Plant Beside the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm33_plant_beside_path",
+  "source": "rolemodels",
+  "lines": [
+   69,
+   69
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L69",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "structural",
+    "text": "EVENT RM-33  -  THE PLANT BESIDE THE PATH SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A builder preparing to repair a walkway discovers a small flowering plant growing directly beside the work area.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A builder preparing to repair a walkway discovers a small flowering plant growing directly beside the work area.",
+   "src": "L69",
+   "choices": [
+    {
+     "label": "Adjust the repair to avoid the plant.",
+     "next": "a",
+     "src": "L69"
+    },
+    {
+     "label": "Ask a gardener whether the plant can be moved safely.",
+     "next": "b",
+     "src": "L69"
+    },
+    {
+     "label": "Delay the work briefly while inspecting the area.",
+     "next": "c",
+     "src": "L69"
+    },
+    {
+     "label": "Invite apprentices to suggest a solution.",
+     "next": "d",
+     "src": "L69"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The walkway is repaired without disturbing the flowers.",
+   "src": "L69"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The change requires extra work, but the builder finds a suitable arrangement.",
+   "src": "L69"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gardener recommends leaving it undisturbed until flowering ends.",
+   "src": "L69"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The gardener identifies a suitable place nearby and carefully relocates it.",
+   "src": "L69"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The builder discovers that only a small section needs immediate repair.",
+   "src": "L69"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The walkway is unsafe to leave unfinished, so the builder protects the plant as well as possible.",
+   "src": "L69"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "An apprentice proposes a simple adjustment that preserves the plant.",
+   "src": "L69"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The apprentices learn that practical building decisions sometimes involve competing needs.",
+   "src": "L69"
+  }
+ }
+}

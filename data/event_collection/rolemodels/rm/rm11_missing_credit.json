@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Credit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm11_missing_credit",
+  "source": "rolemodels",
+  "lines": [
+   25,
+   25
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L25",
+  "ledger": [
+   {
+    "src": "L25",
+    "kind": "structural",
+    "text": "EVENT RM-11  -  THE MISSING CREDIT SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A builder receives praise for repairing a difficult roof, although a quiet apprentice devised the most useful solution."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A builder receives praise for repairing a difficult roof, although a quiet apprentice devised the most useful solution.",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Explain the apprentice's contribution.",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Invite the apprentice to describe the repair.",
+     "next": "b",
+     "src": "L25"
+    },
+    {
+     "label": "Thank the apprentice privately.",
+     "next": "c",
+     "src": "L25"
+    },
+    {
+     "label": "Suggest that future repairs record everyone's contributions.",
+     "next": "d",
+     "src": "L25"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The apprentice receives deserved recognition and grows more confident.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The apprentice becomes embarrassed by the attention but thanks the builder afterward.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice explains the technique and gains a little building experience.",
+   "src": "L25",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L25"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apprentice struggles to speak publicly, so the builder offers to explain together.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice appreciates the gratitude but still wishes others knew about the work.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The apprentice says the repair itself matters more than public praise.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The work group begins acknowledging each person's part in completed projects.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The builders debate how to recognize contributions without turning cooperation into competition.",
+   "src": "L25",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L25"
+    }
+   ]
+  }
+ }
+}

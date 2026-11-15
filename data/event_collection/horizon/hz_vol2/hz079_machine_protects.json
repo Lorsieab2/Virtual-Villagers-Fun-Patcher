@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Machine That Protects the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz079_machine_protects",
+  "source": "horizon",
+  "lines": [
+   1043,
+   1053
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L1043",
+  "ledger": [],
+  "description": "A fisher imagines distant people building mechanical guardians to watch reefs, count fish, or remove dangerous debris.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher imagines distant people building mechanical guardians to watch reefs, count fish, or remove dangerous debris.",
+   "src": "L1044",
+   "choices": [
+    {
+     "label": "Welcome its help.",
+     "next": "a",
+     "src": "L1045"
+    },
+    {
+     "label": "Ask whose knowledge guides it.",
+     "next": "b",
+     "src": "L1048"
+    },
+    {
+     "label": "Consider unintended harm.",
+     "next": "c",
+     "src": "L1051"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A naturalist imagines better observations of fragile habitats.",
+   "src": "L1046"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A fisher worries that an untested device might injure wildlife.",
+   "src": "L1047",
+   "text_only": [
+    {
+     "what": "\"injure\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L1047"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elders insist that local fishers understand seasonal changes no instrument should ignore.",
+   "src": "L1049"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A researcher proposes comparing measurements with long-held observations.",
+   "src": "L1050"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child imagines a guardian mistakenly driving away harmless animals.",
+   "src": "L1052"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council concludes that even a helpful machine would need oversight.",
+   "src": "L1053"
+  }
+ }
+}

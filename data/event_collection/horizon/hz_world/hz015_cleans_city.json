@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Cleans the Great City?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz015_cleans_city",
+  "source": "horizon",
+  "lines": [
+   196,
+   206
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L196",
+  "ledger": [],
+  "description": "A sanitation worker asks how an imagined city of thousands could keep its water and streets clean.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After clearing refuse from the shore, a sanitation worker asks how an imagined city of thousands could keep its water and streets clean.",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Design water channels.",
+     "next": "a",
+     "src": "L198"
+    },
+    {
+     "label": "Imagine an organized cleaning service.",
+     "next": "b",
+     "src": "L201"
+    },
+    {
+     "label": "Imagine neglect.",
+     "next": "c",
+     "src": "L204"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Builders sketch separate routes for drinking water and waste; the discussion improves their own sanitation practices.",
+   "src": "L199"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The proposed channel threatens a garden; the group learns that infrastructure has consequences.",
+   "src": "L200"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children appoint themselves inspectors and find an embarrassing number of neglected baskets.",
+   "src": "L202"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A worker asks whether the cleaners receive fair pay and protection; the council discusses unseen labor.",
+   "src": "L203"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A healer explains how contamination might make crowded communities vulnerable to illness.",
+   "src": "L205"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village remembers its own lapses and quietly organizes a cleanup rather than mocking imaginary outsiders.",
+   "src": "L206"
+  }
+ }
+}

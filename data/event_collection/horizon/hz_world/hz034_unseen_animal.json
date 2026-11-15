@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal No One Here Has Seen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz034_unseen_animal",
+  "source": "horizon",
+  "lines": [
+   441,
+   451
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L441",
+  "ledger": [],
+  "description": "A naturalist wonders whether distant lands contain creatures as unfamiliar to Isolans as island animals might be to outsiders.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A naturalist wonders whether distant lands contain creatures as unfamiliar to Isolans as island animals might be to outsiders.",
+   "src": "L442",
+   "choices": [
+    {
+     "label": "Imagine great land animals.",
+     "next": "a",
+     "src": "L443"
+    },
+    {
+     "label": "Imagine tiny creatures.",
+     "next": "b",
+     "src": "L446"
+    },
+    {
+     "label": "Imagine shared species.",
+     "next": "c",
+     "src": "L449"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children sketch enormous grazing beasts; the naturalist distinguishes imagination from observation.",
+   "src": "L444"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A hunter asks whether such animals would be dangerous or merely large; the group refuses to assume.",
+   "src": "L445"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The researchers speculate about insects and microorganisms with extraordinary adaptations.",
+   "src": "L447"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child invents a creature that can do everything; the naturalist asks what energy it would need.",
+   "src": "L448"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A fisher proposes that migratory birds or sea creatures might connect distant shores.",
+   "src": "L450"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A conservationist wonders whether people elsewhere struggle to protect threatened species too.",
+   "src": "L451"
+  }
+ }
+}

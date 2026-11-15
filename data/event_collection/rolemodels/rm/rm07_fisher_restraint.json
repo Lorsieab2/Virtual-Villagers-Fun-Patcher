@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher's Restraint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm07_fisher_restraint",
+  "source": "rolemodels",
+  "lines": [
+   17,
+   17
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L17",
+  "ledger": [
+   {
+    "src": "L17",
+    "kind": "structural",
+    "text": "EVENT RM-07  -  THE FISHER'S RESTRAINT SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A fisher finds a shallow pool crowded with small fish and realizes that taking them all would be easy.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher finds a shallow pool crowded with small fish and realizes that taking them all would be easy.",
+   "src": "L17",
+   "choices": [
+    {
+     "label": "Catch only enough for the household's meal.",
+     "next": "a",
+     "src": "L17"
+    },
+    {
+     "label": "Examine whether the fish are mature.",
+     "next": "b",
+     "src": "L17"
+    },
+    {
+     "label": "Teach an apprentice how to choose a suitable catch.",
+     "next": "c",
+     "src": "L17"
+    },
+    {
+     "label": "Share the discovery with other fishers.",
+     "next": "d",
+     "src": "L17"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher returns with a modest catch and leaves the remaining fish undisturbed.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The catch is smaller than expected, and the household supplements supper with stored food.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L17"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Most appear young, so the fisher chooses another fishing place.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The fisher cannot judge their age confidently and decides to leave the pool alone.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice learns that catching everything available is not always wise.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The apprentice asks difficult questions, and the fisher admits there is still much to learn.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The fishers agree to avoid exhausting the small pool.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some disagree about the best approach and arrange to observe the pool together.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L17"
+    }
+   ]
+  }
+ }
+}

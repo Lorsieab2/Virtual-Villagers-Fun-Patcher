@@ -50,10 +50,30 @@ LIVING_LINES = 26867
 LIVING_ID = "living"
 LIVING_DIR = COLLECTION_DIR / "living"
 
+# The fourth source: the owner's separate companion anthology "Isola - Beyond the Horizon" (The World We Imagine,
+# EVENT 001-040, and Expansion Volume II, EVENT 041-080), frozen byte for byte (2026-11-15):
+# data/event_collection/horizon/<section>/<id>.json, "source": "horizon".
+HORIZON = ROOT / "docs" / "more-island-events" / "Isola_Beyond_the_Horizon_Expanded_80_Events.txt"
+HORIZON_HASH_FILE = COLLECTION_DIR / "HORIZON.sha256"
+HORIZON_LINES = 1080
+HORIZON_ID = "horizon"
+HORIZON_DIR = COLLECTION_DIR / "horizon"
+
+# The fifth source: the owner's "Role Models and Good Examples - 40 New Isola Events" (RM-01..RM-40), frozen byte for
+# byte (2026-11-15; the owner's file has CRLF line ends and one event per line):
+# data/event_collection/rolemodels/<section>/<id>.json, "source": "rolemodels".
+ROLEMODELS = ROOT / "docs" / "more-island-events" / "Role_Models_and_Good_Examples_40_Events.txt"
+ROLEMODELS_HASH_FILE = COLLECTION_DIR / "ROLEMODELS.sha256"
+ROLEMODELS_LINES = 85
+ROLEMODELS_ID = "rolemodels"
+ROLEMODELS_DIR = COLLECTION_DIR / "rolemodels"
+
 # source id -> (frozen file, its SHA-256 record, its line count)
 SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
            COMPANION_ID: (COMPANION, COMPANION_HASH_FILE, COMPANION_LINES),
-           LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES)}
+           LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES),
+           HORIZON_ID: (HORIZON, HORIZON_HASH_FILE, HORIZON_LINES),
+           ROLEMODELS_ID: (ROLEMODELS, ROLEMODELS_HASH_FILE, ROLEMODELS_LINES)}
 _ACTIVE = [SOURCE_ID]
 
 

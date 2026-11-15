@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sea's Small Gifts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm28_sea_small_gifts",
+  "source": "rolemodels",
+  "lines": [
+   59,
+   59
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L59",
+  "ledger": [
+   {
+    "src": "L59",
+    "kind": "structural",
+    "text": "EVENT RM-28  -  THE SEA'S SMALL GIFTS SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A young gatherer discovers a rocky shore crowded with shells, living creatures, and unusual stones.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young gatherer discovers a rocky shore crowded with shells, living creatures, and unusual stones.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Collect only empty shells.",
+     "next": "a",
+     "src": "L59"
+    },
+    {
+     "label": "Observe the creatures without collecting them.",
+     "next": "b",
+     "src": "L59"
+    },
+    {
+     "label": "Teach a younger villager how to recognize occupied shells.",
+     "next": "c",
+     "src": "L59"
+    },
+    {
+     "label": "Ask whether the village actually needs more shells.",
+     "next": "d",
+     "src": "L59"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gatherer returns with a few beautiful shells and leaves the living creatures undisturbed.",
+   "src": "L59"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Few shells are empty, so the gatherer returns with almost nothing.",
+   "src": "L59"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gatherer notices how several animals shelter beneath the rocks.",
+   "src": "L59"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Rising water ends the observation early, and the gatherer retreats safely.",
+   "src": "L59"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The younger villager learns to look carefully before picking anything up.",
+   "src": "L59"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about one shell and decide to leave it where it lies.",
+   "src": "L59"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The craft workers have enough materials, so the gatherer leaves the shore untouched.",
+   "src": "L59"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few shells are needed for repairs, and the gatherer collects only suitable empty ones.",
+   "src": "L59"
+  }
+ }
+}

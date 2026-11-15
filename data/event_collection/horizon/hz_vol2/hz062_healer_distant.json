@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Distant Eyes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz062_healer_distant",
+  "source": "horizon",
+  "lines": [
+   839,
+   849
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L839",
+  "ledger": [],
+  "description": "A healer imagines instruments that reveal structures inside a living body without cutting it open.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer imagines instruments that reveal structures inside a living body without cutting it open.",
+   "src": "L840",
+   "choices": [
+    {
+     "label": "Hope for diagnosis.",
+     "next": "a",
+     "src": "L841"
+    },
+    {
+     "label": "Ask about risk.",
+     "next": "b",
+     "src": "L844"
+    },
+    {
+     "label": "Ask who gets care.",
+     "next": "c",
+     "src": "L847"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healers imagine finding an injury earlier and treating it more effectively.",
+   "src": "L842",
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L842"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A researcher notes that a clear image may still be misunderstood.",
+   "src": "L843"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A patient asks whether an unfamiliar instrument could itself cause harm.",
+   "src": "L845"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The healer insists that every technique must be tested rather than worshipped.",
+   "src": "L846"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A villager imagines a distant hospital full of instruments but too few healers.",
+   "src": "L848"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council debates whether treatment should depend on wealth or location.",
+   "src": "L849"
+  }
+ }
+}

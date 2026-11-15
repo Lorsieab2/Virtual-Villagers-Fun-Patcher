@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall That Divides Families",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz067_wall_divides",
+  "source": "horizon",
+  "lines": [
+   899,
+   909
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L899",
+  "ledger": [],
+  "description": "A navigator imagines borders drawn across land, with guards deciding who may pass.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A navigator imagines borders drawn across land, with guards deciding who may pass.",
+   "src": "L900",
+   "choices": [
+    {
+     "label": "Defend boundaries.",
+     "next": "a",
+     "src": "L901"
+    },
+    {
+     "label": "Imagine migration.",
+     "next": "b",
+     "src": "L904"
+    },
+    {
+     "label": "Question the map.",
+     "next": "c",
+     "src": "L907"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A hunter argues that communities sometimes need to protect scarce resources.",
+   "src": "L902"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent asks what happens when a child needs to cross for safety.",
+   "src": "L903"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers consider why families might leave home: work, curiosity, danger, or love.",
+   "src": "L905"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A traveler wonders how strangers might be welcomed without ignoring practical limits.",
+   "src": "L906"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A cartographer observes that a line on a map may cross an older trail or homeland.",
+   "src": "L908"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council asks who has the power to draw the line.",
+   "src": "L909"
+  }
+ }
+}

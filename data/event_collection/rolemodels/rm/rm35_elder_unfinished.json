@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Unfinished Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm35_elder_unfinished",
+  "source": "rolemodels",
+  "lines": [
+   73,
+   73
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L73",
+  "ledger": [
+   {
+    "src": "L73",
+    "kind": "structural",
+    "text": "EVENT RM-35  -  THE ELDER'S UNFINISHED STORY SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "An elder begins recounting an old village custom but admits that some details have been forgotten.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder begins recounting an old village custom but admits that some details have been forgotten.",
+   "src": "L73",
+   "choices": [
+    {
+     "label": "Record only what the elder remembers confidently.",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Ask other elders what they remember.",
+     "next": "b",
+     "src": "L73"
+    },
+    {
+     "label": "Invite younger villagers to ask questions.",
+     "next": "c",
+     "src": "L73"
+    },
+    {
+     "label": "Preserve several versions of the story.",
+     "next": "d",
+     "src": "L73"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The account preserves useful history without pretending to be complete.",
+   "src": "L73"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder recalls another detail after seeing the written notes.",
+   "src": "L73"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their accounts overlap in some places and differ in others.",
+   "src": "L73"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No one remembers the missing detail, and the uncertainty remains part of the record.",
+   "src": "L73"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child's question prompts a thoughtful discussion about how traditions change.",
+   "src": "L73"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder cannot answer every question but enjoys the children's curiosity.",
+   "src": "L73"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The scholars keep the differing accounts for future generations to examine.",
+   "src": "L73"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some villagers prefer one version, but the others are not discarded.",
+   "src": "L73"
+  }
+ }
+}

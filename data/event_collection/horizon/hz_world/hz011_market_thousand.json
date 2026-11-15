@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Market of a Thousand Things",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz011_market_thousand",
+  "source": "horizon",
+  "lines": [
+   148,
+   158
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L148",
+  "ledger": [],
+  "description": "A trader imagines a distant marketplace where buyers can choose from more goods than anyone could carry.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader imagines a distant marketplace where buyers can choose from more goods than anyone could carry.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Imagine abundant choices.",
+     "next": "a",
+     "src": "L150"
+    },
+    {
+     "label": "Ask how trade works.",
+     "next": "b",
+     "src": "L153"
+    },
+    {
+     "label": "Ask what happens to leftovers.",
+     "next": "c",
+     "src": "L156"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children invent shelves of unfamiliar fruit, fabrics, tools, and toys.",
+   "src": "L151"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A craftsperson wonders whether too many choices would make a simple purchase exhausting.",
+   "src": "L152"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers compare barter, shared stores, promises, and tokens of value.",
+   "src": "L154"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The trader points out that an object can be plentiful yet inaccessible to someone without resources.",
+   "src": "L155"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A gardener proposes preserving, repairing, and redistributing unused goods.",
+   "src": "L157"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group imagines mountains of waste and becomes uneasy about abundance without restraint.",
+   "src": "L158"
+  }
+ }
+}

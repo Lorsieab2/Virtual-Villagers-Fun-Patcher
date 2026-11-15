@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Strangers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz073_festival",
+  "source": "horizon",
+  "lines": [
+   971,
+   981
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L971",
+  "ledger": [],
+  "description": "A dancer asks whether distant people gather in huge crowds to celebrate music, sport, belief, or shared history.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dancer asks whether distant people gather in huge crowds to celebrate music, sport, belief, or shared history.",
+   "src": "L972",
+   "choices": [
+    {
+     "label": "Imagine joy.",
+     "next": "a",
+     "src": "L973"
+    },
+    {
+     "label": "Imagine danger.",
+     "next": "b",
+     "src": "L976"
+    },
+    {
+     "label": "Compare rituals.",
+     "next": "c",
+     "src": "L979"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L972"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a celebration so large that nobody can find their friends.",
+   "src": "L974",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L974"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A musician wonders whether strangers might sing the same chorus.",
+   "src": "L975"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A healer considers crowding, illness, and people getting separated.",
+   "src": "L977"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An organizer imagines routes, water, and resting spaces for vulnerable guests.",
+   "src": "L978"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village describes its own feasts and ceremonies.",
+   "src": "L980"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder suggests that unfamiliar rituals may answer familiar human needs.",
+   "src": "L981"
+  }
+ }
+}

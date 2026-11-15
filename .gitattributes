@@ -128,6 +128,8 @@ assets/island_events_scale/*.txt -text
 /docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt -text
 /docs/more-island-events/Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt -text
 /docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt -text
+/docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt -text
+/docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt -text
 /data/event_collection/** text eol=lf
 # The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
 assets/event_collection/** -text

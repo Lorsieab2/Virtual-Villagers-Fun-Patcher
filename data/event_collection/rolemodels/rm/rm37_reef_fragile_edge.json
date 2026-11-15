@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reef's Fragile Edge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm37_reef_fragile_edge",
+  "source": "rolemodels",
+  "lines": [
+   77,
+   77
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L77",
+  "ledger": [
+   {
+    "src": "L77",
+    "kind": "structural",
+    "text": "EVENT RM-37  -  THE REEF'S FRAGILE EDGE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A fisher notices that several villagers are gathering shellfish close to a delicate reef exposed by the low tide.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher notices that several villagers are gathering shellfish close to a delicate reef exposed by the low tide.",
+   "src": "L77",
+   "choices": [
+    {
+     "label": "Suggest harvesting from a less sensitive area.",
+     "next": "a",
+     "src": "L77"
+    },
+    {
+     "label": "Explain what the fisher has observed about the reef.",
+     "next": "b",
+     "src": "L77"
+    },
+    {
+     "label": "Ask experienced gatherers to compare their knowledge.",
+     "next": "c",
+     "src": "L77"
+    },
+    {
+     "label": "Leave the reef alone for the day.",
+     "next": "d",
+     "src": "L77"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gatherers find enough shellfish elsewhere and leave the reef undisturbed.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The alternative area offers little food, so they return with a smaller catch.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L77"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers notice fragile growths they had previously overlooked.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some remain uncertain, and the fisher suggests observing the area over time.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group agrees on places where gathering causes less disturbance.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their observations differ, and they decide to proceed cautiously.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villagers gather food from another part of the shore.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L77"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The day's harvest is reduced, but the reef remains undisturbed.",
+   "src": "L77",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L77"
+    }
+   ]
+  }
+ }
+}

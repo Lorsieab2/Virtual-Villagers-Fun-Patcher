@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family's Shared Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm36_family_shared",
+  "source": "rolemodels",
+  "lines": [
+   75,
+   75
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L75",
+  "ledger": [
+   {
+    "src": "L75",
+    "kind": "structural",
+    "text": "EVENT RM-36  -  THE FAMILY'S SHARED WORK SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Two parents are preparing supper after a tiring day while their children want to help with the household chores."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two parents are preparing supper after a tiring day while their children want to help with the household chores.",
+   "src": "L75",
+   "choices": [
+    {
+     "label": "Give the older children safe, manageable tasks.",
+     "next": "a",
+     "src": "L75"
+    },
+    {
+     "label": "Invite everyone to help according to their abilities.",
+     "next": "b",
+     "src": "L75"
+    },
+    {
+     "label": "Finish the most difficult work before involving the children.",
+     "next": "c",
+     "src": "L75"
+    },
+    {
+     "label": "Simplify the meal and rest together.",
+     "next": "d",
+     "src": "L75"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children sort vegetables and feel proud of their contribution.",
+   "src": "L75"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child becomes frustrated, and a parent patiently demonstrates the task again.",
+   "src": "L75",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L75"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The work is divided fairly without expecting identical contributions.",
+   "src": "L75"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A family member needs rest, and the others adjust their plans.",
+   "src": "L75"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children help arrange the meal once the preparations are safe.",
+   "src": "L75"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Supper is delayed, but the parents avoid rushing the children into unsuitable tasks.",
+   "src": "L75"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The family enjoys a modest supper and a peaceful evening.",
+   "src": "L75"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One parent still feels overwhelmed, and the other offers to handle the remaining cleanup.",
+   "src": "L75"
+  }
+ }
+}

@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Land Where Water Becomes Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz033_land_where_water",
+  "source": "horizon",
+  "lines": [
+   429,
+   439
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L429",
+  "ledger": [],
+  "description": "A child asks whether some distant lands are covered in frozen water or have seasons unlike Isola's.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks whether some distant lands are covered in frozen water or have seasons unlike Isola's.",
+   "src": "L430",
+   "choices": [
+    {
+     "label": "Imagine snow.",
+     "next": "a",
+     "src": "L431"
+    },
+    {
+     "label": "Imagine deserts.",
+     "next": "b",
+     "src": "L434"
+    },
+    {
+     "label": "Compare environments.",
+     "next": "c",
+     "src": "L437"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine building houses from white crystals and sliding over frozen lakes.",
+   "src": "L432"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healer asks how people protect infants, elders, and animals from severe cold.",
+   "src": "L433"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A navigator describes a hypothetical land with immense dunes and little rain.",
+   "src": "L435"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A farmer asks how people might conserve water and grow food there.",
+   "src": "L436",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L436"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Researchers list ways people might adapt clothing, shelter, and farming to climate.",
+   "src": "L438"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group realizes that even Isola contains very different microclimates and habitats.",
+   "src": "L439"
+  }
+ }
+}

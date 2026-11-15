@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promise to the Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm39_promise_shore",
+  "source": "rolemodels",
+  "lines": [
+   81,
+   81
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L81",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "structural",
+    "text": "EVENT RM-39  -  THE PROMISE TO THE SHORE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Several friends once agreed to keep a favorite stretch of beach clean, but their visits have become less frequent.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several friends once agreed to keep a favorite stretch of beach free of discarded materials, but their visits have become less frequent.",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Gather the friends and renew the agreement.",
+     "next": "a",
+     "src": "L81"
+    },
+    {
+     "label": "Begin caring for the beach independently.",
+     "next": "b",
+     "src": "L81"
+    },
+    {
+     "label": "Discuss why the original promise became difficult to keep.",
+     "next": "c",
+     "src": "L81"
+    },
+    {
+     "label": "Invite other villagers to share responsibility.",
+     "next": "d",
+     "src": "L81"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They organize a modest cleanup and enjoy spending time together again.",
+   "src": "L81"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some cannot participate regularly, so the group adopts a more realistic arrangement.",
+   "src": "L81"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager removes several scraps and leaves the shore cleaner.",
+   "src": "L81"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The work proves larger than expected, and the villager asks others for help.",
+   "src": "L81"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The friends admit that changing responsibilities made their earlier plan impractical.",
+   "src": "L81"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One friend feels guilty, but the others focus on what they can reasonably do now.",
+   "src": "L81"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "More households contribute small amounts of time without depending on a single group.",
+   "src": "L81"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Few volunteers are available, so the friends concentrate on the most affected area.",
+   "src": "L81"
+  }
+ }
+}

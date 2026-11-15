@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Line No One Can See",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz027_unseen_line",
+  "source": "horizon",
+  "lines": [
+   351,
+   362
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L351",
+  "ledger": [
+   {
+    "src": "L362",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "A traveler wonders whether distant lands have borders that people cannot cross without permission.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A traveler wonders whether distant lands have borders that people cannot cross without permission.",
+   "src": "L352",
+   "choices": [
+    {
+     "label": "Imagine protective borders.",
+     "next": "a",
+     "src": "L353"
+    },
+    {
+     "label": "Imagine open passage.",
+     "next": "b",
+     "src": "L356"
+    },
+    {
+     "label": "Imagine people forced to leave home.",
+     "next": "c",
+     "src": "L359"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The group considers how communities might protect resources and coordinate safety.",
+   "src": "L354"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A fisher worries that rigid boundaries could separate families or block traditional routes.",
+   "src": "L355"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A navigator imagines travelers freely exchanging knowledge and goods.",
+   "src": "L357"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A healer asks how communities would prepare for disease, shortages, and disputes.",
+   "src": "L358"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent imagines welcoming a displaced family with food and shelter.",
+   "src": "L360",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L360"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council admits that compassion and limited resources can create difficult choices.",
+   "src": "L361"
+  }
+ }
+}

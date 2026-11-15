@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Can a Construct Suffer?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz045_construct_suffer",
+  "source": "horizon",
+  "lines": [
+   635,
+   645
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L635",
+  "ledger": [],
+  "description": "A child imagines a carved servant pleading not to be dismantled, and asks whether its words could describe real pain.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child imagines a carved servant pleading not to be dismantled, and asks whether its words could describe real pain.",
+   "src": "L636",
+   "choices": [
+    {
+     "label": "Believe its plea.",
+     "next": "a",
+     "src": "L637"
+    },
+    {
+     "label": "Test its responses.",
+     "next": "b",
+     "src": "L640"
+    },
+    {
+     "label": "Leave the question open.",
+     "next": "c",
+     "src": "L643"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A healer argues that uncertainty should make people cautious about causing harm.",
+   "src": "L638"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder fears that people might mistake imitation for suffering and neglect actual patients.",
+   "src": "L639"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A researcher proposes comparing its words across different situations, while admitting that tests may not reveal inner experience.",
+   "src": "L641",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "src": "L641"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child asks who gets to decide which answers count.",
+   "src": "L642"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers agree not to mock the imagined plea.",
+   "src": "L644"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A skeptic insists that compassion and evidence are different duties, both worth considering.",
+   "src": "L645"
+  }
+ }
+}

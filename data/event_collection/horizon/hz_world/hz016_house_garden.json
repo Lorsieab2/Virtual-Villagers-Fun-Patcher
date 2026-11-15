@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The House with No Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz016_house_garden",
+  "source": "horizon",
+  "lines": [
+   208,
+   218
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L208",
+  "ledger": [],
+  "description": "A gardener wonders whether people in distant cities might live far from the soil that feeds them.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gardener wonders whether people in distant cities might live far from the soil that feeds them.",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Imagine distant farms.",
+     "next": "a",
+     "src": "L210"
+    },
+    {
+     "label": "Imagine gardens in strange places.",
+     "next": "b",
+     "src": "L213"
+    },
+    {
+     "label": "Imagine no interest in farming.",
+     "next": "c",
+     "src": "L216"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They theorize that food might travel between communities through elaborate trade networks.",
+   "src": "L211",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L211"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A farmer worries that storms or broken routes could leave city dwellers hungry.",
+   "src": "L212"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children design gardens on roofs and balconies, delighting the gardeners.",
+   "src": "L214"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The builder questions whether the roofs can hold wet soil; the design returns to the drawing board.",
+   "src": "L215"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A scholar says some people might devote themselves to other skills and still respect farmers.",
+   "src": "L217"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer fears that people separated from food production may forget how difficult it is.",
+   "src": "L218",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L218"
+    }
+   ]
+  }
+ }
+}

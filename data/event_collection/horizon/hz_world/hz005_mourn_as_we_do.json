@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do They Mourn as We Do?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz005_mourn_as_we_do",
+  "source": "horizon",
+  "lines": [
+   71,
+   82
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L71",
+  "ledger": [
+   {
+    "src": "L82",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "A young villager wonders whether distant peoples remember their dead with songs, silence, flowers or stories.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Preparing a remembrance meal, a young villager wonders whether distant peoples remember their dead with songs, silence, flowers, stories, or nothing at all.",
+   "src": "L72",
+   "choices": [
+    {
+     "label": "Imagine familiar ceremonies.",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Imagine unfamiliar customs.",
+     "next": "b",
+     "src": "L76"
+    },
+    {
+     "label": "Ask what grief shares.",
+     "next": "c",
+     "src": "L79"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An elder suggests that people elsewhere may gather around names and memories just as the village does.",
+   "src": "L74"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent says some mourn privately and would not welcome a gathering; the preparations become more considerate.",
+   "src": "L75"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller invents a distant tradition of floating lights; the listeners find it moving but acknowledge it is imaginary.",
+   "src": "L77"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The story unsettles a mourner who prefers familiar rites; the group allows the subject to rest.",
+   "src": "L78"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A healer proposes that longing for someone absent might be recognizable across cultures.",
+   "src": "L80"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager wonders whether people experience loss in radically different ways; the question stays open.",
+   "src": "L81",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "src": "L81"
+    }
+   ]
+  }
+ }
+}

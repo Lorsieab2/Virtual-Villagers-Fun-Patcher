@@ -122,6 +122,48 @@ class FrozenLiving(unittest.TestCase):
         self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
 
 
+class FrozenHorizonAndRoleModels(unittest.TestCase):
+    """The fourth and fifth sources (2026-11-15): Beyond the Horizon and Role Models and Good Examples, frozen byte
+    for byte (the Role Models file keeps the owner's CRLF line ends)."""
+
+    SOURCES = ((lib.HORIZON_ID, lib.HORIZON, lib.HORIZON_HASH_FILE, lib.HORIZON_DIR,
+                "8ebae8de40a13179ac908777e4d02f43d2dcb4f397d77a367c3a75878a266f1c",
+                {"hz_world": 40, "hz_vol2": 40}),
+               (lib.ROLEMODELS_ID, lib.ROLEMODELS, lib.ROLEMODELS_HASH_FILE, lib.ROLEMODELS_DIR,
+                "688010b259dda145cb9b7e3afb78658be5fc960ce323da9c0bb9c241b26a14ad", {"rm": 40}))
+
+    def test_sha256_and_lines(self):
+        for sid, path, hash_file, _d, digest, _by in self.SOURCES:
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), digest)
+                self.assertEqual(lib.source_sha256(sid), digest)
+                rel = hash_file.read_text(encoding="ascii").split(None, 1)[1].strip()
+                self.assertEqual(ROOT / rel, path)
+                self.assertEqual(len(lib.source_lines(sid)), lib.SOURCES[sid][2])
+        with lib.use_source(lib.HORIZON_ID):
+            self.assertTrue(lib.line(23).startswith("EVENT 001"))
+        with lib.use_source(lib.ROLEMODELS_ID):
+            self.assertTrue(lib.line(5).startswith("EVENT RM-01"))
+
+    def test_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        for sid, _p, _h, folder, _d, want in self.SOURCES:
+            with self.subTest(sid):
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                by = {}
+                for r in rows:
+                    by[r["section"]] = by.get(r["section"], 0) + 1
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                self.assertEqual(by, want)
+                files = [p for p in cc.collection_files() if folder in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+        # one series per PART of volume I, and Expansion Volume II as one (each counts as one in the rare roll)
+        self.assertEqual(data["horizon"]["counts"]["series"], {"hz_part1": 8, "hz_part2": 8, "hz_part3": 9,
+                                                               "hz_part4": 7, "hz_part5": 8, "hz_vol2": 40})
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

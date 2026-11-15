@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Defender",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm04_quiet_defender",
+  "source": "rolemodels",
+  "lines": [
+   11,
+   11
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L11",
+  "ledger": [
+   {
+    "src": "L11",
+    "kind": "structural",
+    "text": "EVENT RM-04  -  THE QUIET DEFENDER SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A child hears several friends dismiss a shy classmate's ideas during a group activity.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child hears several friends dismiss a shy classmate's ideas during a group activity.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask everyone to hear the classmate's suggestion.",
+     "next": "a",
+     "src": "L11"
+    },
+    {
+     "label": "Speak privately with the classmate.",
+     "next": "b",
+     "src": "L11"
+    },
+    {
+     "label": "Suggest taking turns contributing.",
+     "next": "c",
+     "src": "L11"
+    },
+    {
+     "label": "Ask the teacher for guidance without naming anyone publicly.",
+     "next": "d",
+     "src": "L11"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The suggestion solves a problem the group had overlooked.",
+   "src": "L11"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The classmate chooses not to speak, but appreciates being offered the opportunity.",
+   "src": "L11"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns that the classmate would rather contribute through drawing.",
+   "src": "L11"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The classmate admits feeling excluded and agrees to try again tomorrow.",
+   "src": "L11"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children discover that several quiet classmates have useful ideas.",
+   "src": "L11"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new arrangement feels awkward initially, but the group continues practicing.",
+   "src": "L11"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The teacher introduces a cooperative activity that gives everyone a role.",
+   "src": "L11"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The teacher observes the group and later addresses the exclusion privately.",
+   "src": "L11"
+  }
+ }
+}

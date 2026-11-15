@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do Their Children Ask Why?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz002_children_ask_why",
+  "source": "horizon",
+  "lines": [
+   35,
+   45
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L35",
+  "ledger": [],
+  "description": "A teacher wonders whether distant children interrupt lessons, invent games, and ask questions adults cannot answer.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teacher wonders whether distant children interrupt lessons, invent games, and ask questions adults cannot answer.",
+   "src": "L36",
+   "choices": [
+    {
+     "label": "Imagine a classroom like ours.",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Imagine an immense school.",
+     "next": "b",
+     "src": "L40"
+    },
+    {
+     "label": "Ask the children themselves.",
+     "next": "c",
+     "src": "L43"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children gleefully reenact a distant lesson, complete with one pupil who refuses to sit still.",
+   "src": "L38"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The teacher realizes that some children might learn by watching family members rather than attending formal lessons.",
+   "src": "L39"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers speculate about halls full of pupils and teachers with different specialties; a young apprentice is delighted.",
+   "src": "L41"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A shy child wonders whether a vast school would feel lonely; the teacher takes the concern seriously.",
+   "src": "L42"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They agree that curiosity, boredom, friendship, and mischief might cross every sea.",
+   "src": "L44"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their imagined children are so unlike one another that the teacher abandons the idea of a single universal childhood.",
+   "src": "L45"
+  }
+ }
+}

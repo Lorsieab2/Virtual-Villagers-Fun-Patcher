@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Thousand Ways to Make Music",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz037_thousand_ways",
+  "source": "horizon",
+  "lines": [
+   477,
+   487
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L477",
+  "ledger": [],
+  "description": "A drummer asks whether distant people make unimagined music, and whether they still sing to children at bedtime.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A drummer asks whether distant people make music with instruments no Isolan has imagined, and whether they still sing to children at bedtime.",
+   "src": "L478",
+   "choices": [
+    {
+     "label": "Imagine extraordinary instruments.",
+     "next": "a",
+     "src": "L479"
+    },
+    {
+     "label": "Imagine familiar lullabies.",
+     "next": "b",
+     "src": "L482"
+    },
+    {
+     "label": "Imagine musical disagreements.",
+     "next": "c",
+     "src": "L485"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The musicians invent sounds made by strings, metal, wind, and vibrating surfaces.",
+   "src": "L480"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An ambitious experiment produces a terrible noise; the village politely requests a pause.",
+   "src": "L481"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A parent hums a melody and wonders whether a distant parent is doing the same.",
+   "src": "L483"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A villager says some children prefer silence; the group smiles at the thought.",
+   "src": "L484"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Two musicians argue about rhythm and discover a delightful new pattern.",
+   "src": "L486"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The disagreement persists; they agree that not every taste must be shared.",
+   "src": "L487"
+  }
+ }
+}

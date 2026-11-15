@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest Replaced by Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz035_forest_replaced",
+  "source": "horizon",
+  "lines": [
+   453,
+   463
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L453",
+  "ledger": [],
+  "description": "A gardener imagines distant settlements expanding until little natural habitat remains.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gardener imagines distant settlements expanding until little natural habitat remains.",
+   "src": "L454",
+   "choices": [
+    {
+     "label": "Imagine the benefits.",
+     "next": "a",
+     "src": "L455"
+    },
+    {
+     "label": "Imagine the losses.",
+     "next": "b",
+     "src": "L458"
+    },
+    {
+     "label": "Imagine restoration.",
+     "next": "c",
+     "src": "L461"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Builders consider how dense settlements might provide shelter and shared services.",
+   "src": "L456"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The gardener asks where rainwater goes when the ground can no longer absorb it.",
+   "src": "L457"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A naturalist discusses fragmented habitats and animals unable to find food or mates.",
+   "src": "L459",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L459"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child wonders whether distant people miss birdsong; nobody knows.",
+   "src": "L460"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers sketch green corridors, gardens, and protected groves.",
+   "src": "L462"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer asks who gives up land and who pays for restoration; the proposal becomes more realistic.",
+   "src": "L463"
+  }
+ }
+}

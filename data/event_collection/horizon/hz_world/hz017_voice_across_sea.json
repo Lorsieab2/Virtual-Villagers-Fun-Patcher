@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Voice Across the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz017_voice_across_sea",
+  "source": "horizon",
+  "lines": [
+   224,
+   234
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L224",
+  "ledger": [],
+  "description": "A musician wonders whether distant people could speak with loved ones too far away to hear a shout.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A musician wonders whether distant people could speak with loved ones too far away to hear a shout.",
+   "src": "L225",
+   "choices": [
+    {
+     "label": "Imagine a chain of messengers.",
+     "next": "a",
+     "src": "L226"
+    },
+    {
+     "label": "Imagine a speaking device.",
+     "next": "b",
+     "src": "L229"
+    },
+    {
+     "label": "Ask what they would say.",
+     "next": "c",
+     "src": "L232"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village devises a clever relay of drums and signals across the shore.",
+   "src": "L227"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A whispered message changes meaning as it passes from person to person, revealing a serious weakness.",
+   "src": "L228"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A researcher speculates about sound transformed into something that travels invisibly, but has no evidence it is possible.",
+   "src": "L230"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder asks how such a device could preserve privacy; the imagined invention acquires new complications.",
+   "src": "L231"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent imagines simply asking a distant child whether they ate enough.",
+   "src": "L233"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager says immediate contact might make people feel obliged to answer constantly; others nod.",
+   "src": "L234"
+  }
+ }
+}

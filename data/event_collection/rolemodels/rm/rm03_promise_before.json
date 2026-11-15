@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Promise Before Sunset",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm03_promise_before",
+  "source": "rolemodels",
+  "lines": [
+   9,
+   9
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "structural",
+    "text": "EVENT RM-03  -  A PROMISE BEFORE SUNSET SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "An older sibling promised to help a younger child finish a woven bracelet but has been assigned an unexpected chore.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An older sibling promised to help a younger child finish a woven bracelet but has been assigned an unexpected chore.",
+   "src": "L9",
+   "choices": [
+    {
+     "label": "Explain the delay and arrange another time.",
+     "next": "a",
+     "src": "L9"
+    },
+    {
+     "label": "Ask another family member to help with the chore.",
+     "next": "b",
+     "src": "L9"
+    },
+    {
+     "label": "Work on the bracelet for a few minutes first.",
+     "next": "c",
+     "src": "L9"
+    },
+    {
+     "label": "Invite the child to help with an age-appropriate part of the chore.",
+     "next": "d",
+     "src": "L9"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child is disappointed but agrees to continue after supper.",
+   "src": "L9"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sibling finishes the chore early and keeps the revised promise.",
+   "src": "L9"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "With the work shared, the siblings finish the bracelet before sunset.",
+   "src": "L9"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nobody is available, so the older sibling returns to explain the situation.",
+   "src": "L9"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child learns a difficult knot and happily practices while waiting.",
+   "src": "L9"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The chore begins late, and the sibling must explain the delay to the work leader.",
+   "src": "L9"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They carry light bundles together and spend the afternoon talking.",
+   "src": "L9"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child becomes tired, so the sibling takes them home before returning to work.",
+   "src": "L9"
+  }
+ }
+}

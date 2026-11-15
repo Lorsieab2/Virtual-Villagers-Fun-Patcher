@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Side of a Celebration",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz008_celebration",
+  "source": "horizon",
+  "lines": [
+   108,
+   118
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L108",
+  "ledger": [],
+  "description": "A musician wonders what distant people celebrate and whether their festivals also go wrong.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During preparations for a village feast, a musician wonders what distant people celebrate and whether their festivals also go wrong.",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Imagine shared milestones.",
+     "next": "a",
+     "src": "L110"
+    },
+    {
+     "label": "Imagine unfamiliar festivals.",
+     "next": "b",
+     "src": "L113"
+    },
+    {
+     "label": "Imagine a festival disaster.",
+     "next": "c",
+     "src": "L116"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L109"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Births, partnerships, harvests, and reunions become the subjects of an improvised song.",
+   "src": "L111"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Someone points out that not everyone celebrates the same milestones or wants a public ceremony.",
+   "src": "L112",
+   "text_only": [
+    {
+     "what": "\"celebrates\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L112"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children design a spectacular hypothetical procession of lights and painted cloth.",
+   "src": "L114"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A practical organizer calculates the food and cleanup required and declares the imaginary festival already over budget.",
+   "src": "L115",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L115"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The musicians perform a deliberately mistimed entrance; the crowd laughs.",
+   "src": "L117"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager recalls a real celebration spoiled by conflict, and the group decides to plan a quieter gathering.",
+   "src": "L118",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration imagined or discussed (or a feeling of joy); no celebration happens in the game",
+     "src": "L118"
+    }
+   ]
+  }
+ }
+}

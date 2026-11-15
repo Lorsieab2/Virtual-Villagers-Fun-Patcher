@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Law That Applies to Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz028_law_applies",
+  "source": "horizon",
+  "lines": [
+   364,
+   374
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L364",
+  "ledger": [],
+  "description": "After a respected craftsperson breaks a village rule, a child asks whether powerful people obey their own laws.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a respected craftsperson breaks a village rule, a child asks whether distant societies expect powerful people to obey their own laws.",
+   "src": "L365",
+   "choices": [
+    {
+     "label": "Imagine equal rules.",
+     "next": "a",
+     "src": "L366"
+    },
+    {
+     "label": "Imagine many courts.",
+     "next": "b",
+     "src": "L369"
+    },
+    {
+     "label": "Imagine mercy.",
+     "next": "c",
+     "src": "L372"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The council reviews whether its own rules apply fairly to friends and strangers.",
+   "src": "L367"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A skeptic asks whether rules written equally can still affect people unequally.",
+   "src": "L368"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers devise a hypothetical system of witnesses, appeals, and independent judges.",
+   "src": "L370"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A villager worries that a complicated system could be inaccessible to poor or illiterate people.",
+   "src": "L371"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child argues that context and repair can matter alongside punishment.",
+   "src": "L373"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Someone harmed by the original act insists that mercy must not erase accountability.",
+   "src": "L374"
+  }
+ }
+}

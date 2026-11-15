@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Young Example",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm30_young_example",
+  "source": "rolemodels",
+  "lines": [
+   63,
+   63
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L63",
+  "ledger": [
+   {
+    "src": "L63",
+    "kind": "structural",
+    "text": "EVENT RM-30  -  THE YOUNG EXAMPLE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A child notices that a communal drinking vessel has been left beside the path where someone might trip over it.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child notices that a communal drinking vessel has been left beside the path where someone might trip over it.",
+   "src": "L63",
+   "choices": [
+    {
+     "label": "Move it carefully to its usual place.",
+     "next": "a",
+     "src": "L63"
+    },
+    {
+     "label": "Warn approaching villagers.",
+     "next": "b",
+     "src": "L63"
+    },
+    {
+     "label": "Ask who is responsible for the vessel.",
+     "next": "c",
+     "src": "L63"
+    },
+    {
+     "label": "Suggest keeping the path clear during busy hours.",
+     "next": "d",
+     "src": "L63"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An adult notices the thoughtful act and thanks the child.",
+   "src": "L63"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The vessel is too heavy, so the child asks an adult to move it.",
+   "src": "L63"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Several people step around the vessel until someone can move it.",
+   "src": "L63"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child grows tired of waiting and asks a nearby worker for assistance.",
+   "src": "L63"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The keeper retrieves it and explains where it should be stored.",
+   "src": "L63"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nobody knows who left it, but the child helps ensure it is put away.",
+   "src": "L63"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The workers agree to check the path when carrying supplies.",
+   "src": "L63"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The suggestion is forgotten initially, but the child continues setting a careful example.",
+   "src": "L63"
+  }
+ }
+}

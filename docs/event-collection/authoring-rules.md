@@ -338,6 +338,23 @@ Four-choice volumes (A-D: WAYS-, AUTH-) are `LIVING_CHOICES`; a heading's "(VV5 
 setup's "VV5 ONLY:" tag is a structural ledger cut. The source's lower-case "chief" is `{@chief}` with
 `{"3": "chief", "*": "leader"}` (the check's Chief rule accepts "chief" as well as "Chief").
 
+## 15c. The fourth and fifth sources: Beyond the Horizon, Role Models and Good Examples
+
+Two owner files of 2026-11-15, each its own frozen source (byte for byte, SHA-256 in `data/event_collection/
+HORIZON.sha256` / `ROLEMODELS.sha256`, `-text` in .gitattributes): "Isola - Beyond the Horizon"
+(`docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt`, `collection.source` `"horizon"`, files
+in `data/event_collection/horizon/hz_world|hz_vol2/`) and "Role Models and Good Examples"
+(`docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt`, the owner's CRLF ends kept, `"rolemodels"`,
+files in `data/event_collection/rolemodels/rm/`). Rows: `_horizon_rows` / `_rolemodel_rows` in
+`scripts/collection_manifest.py` (the manifest's `horizon` and `rolemodels` blocks check every line of each file).
+Generators: `scripts/horizon_rm/gen_hz.py`, `gen_rm.py` on `hzrm_common.py` (living_common's roles, effects and
+weights), which documents the shape: the setup is the question, each choice has its own two equally likely
+alternative outcomes. Beyond the Horizon's PARTs I-V are one series each and its Expansion Volume II is one more;
+its "Content note:" / "VV3:" lines are ledger notes. A Role Models event is ONE source line: every page's `src` is
+that line (the fidelity check finds each page's text inside it), the heading "EVENT RM-nn - TITLE SETUP:" is a
+structural cut, and a node whose line carries an effect-table word from another page has a text_only entry saying
+so. Grammar fixes would be rows `| horizon L<line> |` / `| rolemodels L<line> |` in grammar-fixes.md (none yet).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

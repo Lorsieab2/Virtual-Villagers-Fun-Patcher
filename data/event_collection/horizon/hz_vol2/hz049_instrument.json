@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Instrument That Answers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz049_instrument",
+  "source": "horizon",
+  "lines": [
+   683,
+   693
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L683",
+  "ledger": [],
+  "description": "A scientist speculates that outsiders might possess instruments that interpret stars, diagnose illness, or suggest decisions.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A scientist speculates that outsiders might possess instruments that interpret stars, diagnose illness, or suggest decisions.",
+   "src": "L684",
+   "choices": [
+    {
+     "label": "Trust its measurements.",
+     "next": "a",
+     "src": "L685"
+    },
+    {
+     "label": "Demand an explanation.",
+     "next": "b",
+     "src": "L688"
+    },
+    {
+     "label": "Keep human judgment.",
+     "next": "c",
+     "src": "L691"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An imagined instrument spots a pattern the observers overlooked.",
+   "src": "L686"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A mistaken calibration produces a confident but false answer.",
+   "src": "L687"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A healer refuses to act on a mysterious recommendation without understanding its limits.",
+   "src": "L689"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A novice admits that even familiar instruments can be useful before their workings are fully understood.",
+   "src": "L690"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council imagines using the instrument as one voice among many.",
+   "src": "L692"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A tired worker wonders whether people might surrender responsibility to a tool that sounds certain.",
+   "src": "L693"
+  }
+ }
+}

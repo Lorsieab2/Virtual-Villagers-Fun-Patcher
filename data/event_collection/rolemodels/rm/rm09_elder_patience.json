@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Patience",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm09_elder_patience",
+  "source": "rolemodels",
+  "lines": [
+   21,
+   21
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "structural",
+    "text": "EVENT RM-09  -  THE ELDER'S PATIENCE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "An elder is teaching several apprentices to tie strong knots, but one learner repeatedly loses track of the steps.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder is teaching several apprentices to tie strong knots, but one learner repeatedly loses track of the steps.",
+   "src": "L21",
+   "choices": [
+    {
+     "label": "Demonstrate the knot slowly again.",
+     "next": "a",
+     "src": "L21"
+    },
+    {
+     "label": "Let the apprentice practice with a wider cord.",
+     "next": "b",
+     "src": "L21"
+    },
+    {
+     "label": "Invite an experienced apprentice to assist.",
+     "next": "c",
+     "src": "L21"
+    },
+    {
+     "label": "Offer a rest before continuing.",
+     "next": "d",
+     "src": "L21"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The apprentice finally completes the knot and proudly checks its strength.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The apprentice still struggles, so the elder breaks the lesson into smaller movements.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The larger cord makes the pattern easier to follow.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The change helps only slightly, but the apprentice appreciates the effort.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two learners discover a way of explaining the knot that works better.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The experienced apprentice learns that teaching requires patience as well as skill.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in its everyday sense (what a teacher can do), not a skill gain",
+     "src": "L21"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "After a short break, the apprentice returns with renewed concentration.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The apprentice decides to practice tomorrow, and the elder respects the decision.",
+   "src": "L21",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "the source puts the whole event on one line: \"skill\" is in another part of it (another page's words), not this page's",
+     "src": "L21"
+    }
+   ]
+  }
+ }
+}

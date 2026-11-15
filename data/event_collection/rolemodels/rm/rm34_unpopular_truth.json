@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unpopular Truth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm34_unpopular_truth",
+  "source": "rolemodels",
+  "lines": [
+   71,
+   71
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L71",
+  "ledger": [
+   {
+    "src": "L71",
+    "kind": "structural",
+    "text": "EVENT RM-34  -  THE UNPOPULAR TRUTH SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A teenager discovers that a friend has accidentally counted several food baskets twice in the harvest record.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teenager discovers that a friend has accidentally counted several food baskets twice in the harvest record.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Explain the mistake privately.",
+     "next": "a",
+     "src": "L71"
+    },
+    {
+     "label": "Check the entire record together.",
+     "next": "b",
+     "src": "L71"
+    },
+    {
+     "label": "Inform the harvest keeper without assigning blame.",
+     "next": "c",
+     "src": "L71"
+    },
+    {
+     "label": "Encourage the friend to report the mistake personally.",
+     "next": "d",
+     "src": "L71"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L71"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friend corrects the record before the food is distributed.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L71"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The friend feels embarrassed but agrees that the count must be accurate.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They uncover two additional errors and correct them.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The remaining figures are accurate, giving both teenagers confidence in the record.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The keeper verifies the count and thanks them for raising the concern.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The keeper asks the teenagers to help recount the baskets.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friend admits the error and learns that honesty can be uncomfortable but necessary.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friend hesitates, so the teenager offers to accompany them.",
+   "src": "L71",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L71"
+    }
+   ]
+  }
+ }
+}

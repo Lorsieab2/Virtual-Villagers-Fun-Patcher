@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Helper Who Learns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz047_helper_learns",
+  "source": "horizon",
+  "lines": [
+   659,
+   669
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L659",
+  "ledger": [],
+  "description": "The researchers imagine a tool that becomes better at weaving by observing a master instead of following a fixed sequence.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The researchers imagine a tool that becomes better at weaving by observing a master instead of following a fixed sequence.",
+   "src": "L660",
+   "choices": [
+    {
+     "label": "Teach it carefully.",
+     "next": "a",
+     "src": "L661"
+    },
+    {
+     "label": "Let it experiment.",
+     "next": "b",
+     "src": "L664"
+    },
+    {
+     "label": "Ask what learning means.",
+     "next": "c",
+     "src": "L667"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An imagined apprentice-machine copies the pattern and also copies the teacher's mistake.",
+   "src": "L662"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A weaver asks who receives credit for a pattern learned from generations of human hands.",
+   "src": "L663"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The machine proposes an unfamiliar weave; the artisans debate whether novelty is creativity.",
+   "src": "L665"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A hypothetical experiment wastes precious fiber, reminding everyone that learning has costs.",
+   "src": "L666"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child says learning is changing after experience.",
+   "src": "L668",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"experience\" in its everyday sense (what a person has lived through), not a skill gain",
+     "src": "L668"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A philosopher asks whether changing behavior proves understanding; the group cannot settle it.",
+   "src": "L669"
+  }
+ }
+}

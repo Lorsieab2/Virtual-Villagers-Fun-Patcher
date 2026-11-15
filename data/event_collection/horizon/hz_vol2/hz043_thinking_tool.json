@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Is a Thinking Tool Alive?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz043_thinking_tool",
+  "source": "horizon",
+  "lines": [
+   611,
+   621
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L611",
+  "ledger": [],
+  "description": "A healer asks whether a hypothetical device that learns names and remembers conversations would count as a living creature.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer asks whether a hypothetical device that learns names and remembers conversations would count as a living creature.",
+   "src": "L612",
+   "choices": [
+    {
+     "label": "Compare it with animals.",
+     "next": "a",
+     "src": "L613"
+    },
+    {
+     "label": "Compare it with plants.",
+     "next": "b",
+     "src": "L616"
+    },
+    {
+     "label": "Ask the device a question.",
+     "next": "c",
+     "src": "L619"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A hunter notes that animals seek food and avoid injury; the imagined device might do neither.",
+   "src": "L614",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L614"
+    },
+    {
+     "what": "\"injury\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L614"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child asks whether creatures must resemble humans to have experiences.",
+   "src": "L615"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A gardener points to a seed that grows and responds to light, then wonders what growth means.",
+   "src": "L617"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A researcher observes that a device could change its behavior without reproducing or metabolizing.",
+   "src": "L618"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They invent a reply that sounds frightened; some villagers are moved.",
+   "src": "L620"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another imagined reply is equally convincing but copied from a story; words alone prove little.",
+   "src": "L621"
+  }
+ }
+}

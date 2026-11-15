@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Field That Feeds a Thousand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz059_field_feeds",
+  "source": "horizon",
+  "lines": [
+   803,
+   813
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L803",
+  "ledger": [],
+  "description": "A farmer imagines distant farms covering more land than a person could walk in a day.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A farmer imagines distant farms covering more land than a person could walk in a day.",
+   "src": "L804",
+   "choices": [
+    {
+     "label": "Celebrate the harvest.",
+     "next": "a",
+     "src": "L805"
+    },
+    {
+     "label": "Examine the soil.",
+     "next": "b",
+     "src": "L808"
+    },
+    {
+     "label": "Examine the workers.",
+     "next": "c",
+     "src": "L811"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A cook dreams of food reserves for lean seasons.",
+   "src": "L806",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L806"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A gardener wonders whether such fields would grow only a few kinds of crops.",
+   "src": "L807"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers debate irrigation, erosion, and what repeated harvests remove.",
+   "src": "L809"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder points out that small diverse gardens can also be resilient.",
+   "src": "L810"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child asks who plants and harvests the enormous fields.",
+   "src": "L812"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer imagines machines easing labor while changing who can earn a living.",
+   "src": "L813"
+  }
+ }
+}

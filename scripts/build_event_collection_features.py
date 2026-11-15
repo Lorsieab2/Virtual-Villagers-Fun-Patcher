@@ -110,6 +110,24 @@ LIVING_CREDIT_BLOCKS = (
     (23315, 23316, "The Weight of a Name (its heading; no credit line of its own)"),
 )
 
+# The fourth and fifth sources (2026-11-15): the owner's separate companion anthology "Isola - Beyond the Horizon"
+# (data/event_collection/horizon/) and "Role Models and Good Examples" (data/event_collection/rolemodels/).  Their
+# credits go in the same Credits.txt, verbatim: each file's title lines (neither names an author).  The Role Models
+# file has CRLF line ends; Credits.txt is LF, so its lines are copied with LF ends.
+HORIZON = ROOT / "docs" / "more-island-events" / "Isola_Beyond_the_Horizon_Expanded_80_Events.txt"
+HORIZON_SHA256 = "8EBAE8DE40A13179AC908777E4D02F43D2DCB4F397D77A367C3A75878A266F1C"
+HORIZON_CREDIT_BLOCKS = (
+    (1, 3, "Beyond the Horizon: The World We Imagine (its title lines)"),
+    (546, 547, "Beyond the Horizon: Expansion Volume II (its heading)"),
+)
+ROLEMODELS = ROOT / "docs" / "more-island-events" / "Role_Models_and_Good_Examples_40_Events.txt"
+ROLEMODELS_SHA256 = "688010B259DDA145CB9B7E3AFB78658BE5FC960CE323DA9C0BB9C241B26A14AD"
+ROLEMODELS_CREDIT_BLOCKS = (
+    (1, 3, "Role Models and Good Examples (its title and introduction)"),
+)
+SOURCE_LINE_WORDS = {"companion": "companion source lines", "living": "living source lines",
+                     "horizon": "Beyond the Horizon source lines", "rolemodels": "Role Models source lines"}
+
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
     """A frozen source's lines, each with its own line ending, after checking its SHA-256."""
@@ -237,12 +255,19 @@ def credits_text(events: list[dict], lines: list[str] | None = None) -> str:
             "\n"]
     for first, last, what in LIVING_CREDIT_BLOCKS:
         out += [f"LIVING CREDIT: {what} (living source lines {first}-{last})\n", "\n", span(liv, first, last), "\n"]
+    for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
+                                       ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
+                                        ROLEMODELS_CREDIT_BLOCKS)):
+        src = [s.replace("\r\n", "\n") for s in source_lines(path, digest)]
+        out += [f"{name}\n", "\n",
+                f"Source: {path.name} (SHA-256 {digest}). The texts below are copied from it verbatim.\n", "\n"]
+        for first, last, what in blocks:
+            out += [f"{name} CREDIT: {what} (source lines {first}-{last})\n", "\n", span(src, first, last), "\n"]
     out += ["EACH EVENT'S CREDIT\n", "\n"]
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
-        which = {"companion": "companion source lines", "living": "living source lines"}.get(e.get("source"),
-                                                                                              "source lines")
+        which = SOURCE_LINE_WORDS.get(e.get("source"), "source lines")
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")
     return "".join(out)

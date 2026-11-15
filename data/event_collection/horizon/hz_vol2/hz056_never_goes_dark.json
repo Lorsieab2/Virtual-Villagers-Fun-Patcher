@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The City That Never Goes Dark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz056_never_goes_dark",
+  "source": "horizon",
+  "lines": [
+   767,
+   777
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L767",
+  "ledger": [],
+  "description": "A night watchkeeper imagines streets lit after sunset by a power other than fire.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A night watchkeeper imagines streets lit after sunset by a power other than fire.",
+   "src": "L768",
+   "choices": [
+    {
+     "label": "Welcome the light.",
+     "next": "a",
+     "src": "L769"
+    },
+    {
+     "label": "Ask where power comes from.",
+     "next": "b",
+     "src": "L772"
+    },
+    {
+     "label": "Keep a dark place.",
+     "next": "c",
+     "src": "L775"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A healer imagines safer night travel to a patient.",
+   "src": "L770"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A stargazer mourns the possibility of stars disappearing behind artificial brightness.",
+   "src": "L771"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The researchers imagine falling water, wind, burning fuel, and other possibilities without claiming knowledge.",
+   "src": "L773"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A builder points out that every source needs materials, maintenance, and space.",
+   "src": "L774"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council considers whether distant people might protect quiet nights.",
+   "src": "L776"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child wonders whether animals could still follow the moon.",
+   "src": "L777"
+  }
+ }
+}

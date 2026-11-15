@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Someone to Come Home to",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz003_come_home",
+  "source": "horizon",
+  "lines": [
+   47,
+   57
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L47",
+  "ledger": [],
+  "description": "Two villagers wonder whether distant people hurry home to spouses, friends, relatives, pets, or simply a peaceful room.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two villagers wonder whether distant people hurry home to spouses, friends, relatives, pets, or simply a peaceful room.",
+   "src": "L48",
+   "choices": [
+    {
+     "label": "Picture a bustling household.",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Picture someone living alone.",
+     "next": "b",
+     "src": "L52"
+    },
+    {
+     "label": "Discuss what makes a home.",
+     "next": "c",
+     "src": "L55"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A grandmother imagines several generations arguing cheerfully over the same cooking fire.",
+   "src": "L50"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A villager raised in a small household points out that crowded homes can be comforting or exhausting.",
+   "src": "L51"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The group imagines a content craftsperson enjoying privacy after work.",
+   "src": "L53"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Someone asks whether a solitary person might want company but have trouble finding it; nobody dismisses the possibility.",
+   "src": "L54"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They decide that care and safety may matter more than a dwelling's size.",
+   "src": "L56"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A builder says shelter and reliable water matter too; the conversation turns practical.",
+   "src": "L57"
+  }
+ }
+}
