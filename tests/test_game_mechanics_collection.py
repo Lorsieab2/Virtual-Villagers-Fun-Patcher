@@ -49,9 +49,13 @@ class ThePage(unittest.TestCase):
                 self.assertTrue(rows)
                 for event_id, _title, _series in rows:
                     self.assertIn(event_id, gc.index())
-                    self.assertTrue((ROOT / "assets" / "event_collection" / f"{event_id}.cieg").is_file(), event_id)
+                    # A Living Event Engine seed's event is in the game's living.pak (living-pack.md 1), never a .cieg.
+                    shipped = (f"vv{game}/living.pak" if event_id.startswith("living_") else f"{event_id}.cieg")
+                    self.assertTrue((ROOT / "assets" / "event_collection" / shipped).is_file(), event_id)
                 listed = [title for _words, titles in gc.sections(game) for title in titles]
-                self.assertEqual(sorted(listed), sorted(title for _id, title, _s in rows))
+                living = {title for event_id, title, _s in rows if event_id.startswith("living_")}
+                self.assertEqual(sorted(listed), sorted([title for event_id, title, _s in rows
+                                                         if not event_id.startswith("living_")] + list(living)))
                 text = " ".join(t for t, _ in gc.lines(game))
                 self.assertIn(f"{len(rows)} events in this game", text)
                 for words, titles in gc.sections(game):

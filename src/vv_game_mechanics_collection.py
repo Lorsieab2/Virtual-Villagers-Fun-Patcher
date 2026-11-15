@@ -37,7 +37,10 @@ SECTIONS = (
     ("fwk", "Companion Anthology: The Four Ways of Knowing"),
     ("sss", "Companion Anthology: Stone, Spirit, Strangers and Mind and Belonging"),
     ("cat", "Companion Anthology: The Living Catalogue"),
+    # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
+    ("living_engine", "The Living Event Engine"),
 )
+LIVING_SECTION = "living_engine"
 SECTION_WORDS = dict(SECTIONS)
 
 
@@ -92,6 +95,14 @@ def build_index() -> dict:
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
         if _allows(graph):
             out[source.stem]["allow"] = True
+    # The Living Event Engine's seeds (docs/event-collection/living-pack.md): one manifest row per seed, its event one
+    # of the seed's variants in living.pak -- the seed can make what any of its variants makes.
+    import vv_living_mixer as living
+    for variant in living.generate():
+        entry = out.setdefault(variant.manifest_id, {"section": LIVING_SECTION, "harm": []})
+        entry["harm"] = sorted(set(entry["harm"]) | _effects(variant.graph))
+        if _allows(variant.graph):
+            entry["allow"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
 
@@ -110,7 +121,9 @@ def sections(game: int) -> list[tuple[str, list[str]]]:
     """[(section words, [titles])] for this game, sections in the source's order, titles in the manifest's."""
     grouped: dict[str, list[str]] = {}
     for event_id, title, _series in manifest(game):
-        grouped.setdefault(event_info(event_id)[0], []).append(title)
+        titles = grouped.setdefault(event_info(event_id)[0], [])
+        if event_info(event_id)[0] != LIVING_SECTION or title not in titles:   # a Living category's title once
+            titles.append(title)
     order = [key for key, _ in SECTIONS] + sorted(set(grouped) - set(SECTION_WORDS))
     return [(SECTION_WORDS.get(key, key), grouped[key]) for key in order if key in grouped]
 
