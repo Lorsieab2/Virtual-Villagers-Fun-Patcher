@@ -224,6 +224,7 @@ BEGIN
     LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 33, 210, 300, 10, SS_CENTER
     PUSHBUTTON  "Undo changes", 3500, 16, 224, 64, 16
     PUSHBUTTON  "Reset to original", 3501, 84, 224, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 166, 224, 62, 16
     DEFPUSHBUTTON "OK", 1, 236, 224, 54, 14
     PUSHBUTTON    "Cancel", 2, 294, 224, 54, 14
 END
@@ -271,6 +272,7 @@ BEGIN
     LTEXT       "OK deducts 5,000 tech points, for the head look too. Cancel changes nothing.", -1, 33, 236, 300, 10, SS_CENTER
     PUSHBUTTON  "Undo changes", 3500, 17, 250, 64, 16
     PUSHBUTTON  "Reset to original", 3501, 85, 250, 78, 16
+    PUSHBUTTON  "Change sex...", 3506, 167, 250, 62, 16
     DEFPUSHBUTTON "OK", 1, 237, 250, 54, 14
     PUSHBUTTON    "Cancel", 2, 295, 250, 54, 14
 END

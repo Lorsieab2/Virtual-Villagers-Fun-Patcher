@@ -1031,6 +1031,69 @@ int main(int argc, char **argv) {
         vv_rekey_count = 0;
     }
 
+    printf("a sex change (VvfpVillagerSexChanged, native/shared/sex_change.h)\n");
+    {
+        static unsigned char before[MAX_STRIDE], kept[OL_FILE_MAX];
+        char log[MAX_PATH];
+        const ol_layout *l = &LAYOUT[5];
+        int sexv = 1;
+        DWORD n;
+        fresh_disk();
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        founders(10, "Sx");                      /* Sx2: male (0), original 20020 */
+        settle();
+        game_saves(1);
+        check(g_state == OL_BOUND && original(2) == 20020, "a bound village's original");
+        memcpy(before, rec(2), l->stride);
+        memcpy(rec(2) + l->sex, &sexv, 4);      /* the sex field written, as sex_change.h writes it */
+        check(ol_sex_changed(1, rec(2), before) == 1, "the change is carried");
+        check(original(2) == 20020 && tick() && g_state == OL_BOUND && original(2) == 20020,
+              "in play the original stays theirs (no new villager, no first sight)");
+        file_path(1, path);
+        n = read_file(path, kept, sizeof kept);
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        settle();
+        check(g_state == OL_BOUND && original(2) == 20020, "written at once: a reload with the new sex finds it");
+        lstrcpynA((char *)rec(2) + l->name, "Sx2 Kalani", (int)l->name_bytes);
+        check(tick() && original(2) == 20020, "a later rename in play is still one (the stable part was carried)");
+        lstrcpynA((char *)rec(2) + l->name, "Sx2", (int)l->name_bytes);
+
+        /* The save was not saved after the change: the save holds the old sex, the file the new identity. */
+        sexv = 0;
+        memcpy(rec(2) + l->sex, &sexv, 4);
+        set_look(2, 18, 8);                      /* what a first sight would take instead */
+        write_file(path, kept, n);
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        settle();
+        check(g_state == OL_BOUND && original(2) == 180080, "without the log the original is not found");
+        write_file(path, kept, n);
+        check(vv_sex_log_path(1, log), "the log's path");
+        write_file(log, (const unsigned char *)"M\tF\tSx2\r\n", 9);
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        settle();
+        check(g_state == OL_BOUND && original(2) == 20020, "with the slot's log naming them, it is");
+
+        /* Two living villagers of that name: never a guess. */
+        write_file(path, kept, n);
+        villager(10, "Sx2", 0, "", "", 4, 4);
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        settle();
+        check(original(2) != 20020 && original(10) != 20020, "a namesake: the log is not used, nobody guessed");
+        DeleteFileA(log);
+        new_session();
+        vv_rekey_count = 0;
+    }
+
     printf("no village\n");
     new_session();
     g_game_slot = 0;

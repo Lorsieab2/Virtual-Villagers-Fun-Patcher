@@ -37,6 +37,10 @@
     11. 50:50 is a fair draw for each child, twins born in the same tick too.
     12. "From the mother" is the mother's: triplets, a renamed or numbered
         mother, a mother with no last name, an unknown mother, own rules.
+    15. A sex change (VvfpVillagerSexChanged): the villager's own line takes
+        the new sex, every other byte kept; a parent recorded in the father's
+        (mother's) place whose line now has the other sex still has their own
+        rule -- only when the slot's "Sex Changes" log names them.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -672,6 +676,61 @@ int main(int argc, char **argv) {
             DeleteFileA(g_path);
         }
         g_game = 3;
+    }
+
+    printf("15. A sex change keeps the villager's own rule (VvfpVillagerSexChanged, the Sex Changes log)\n");
+    {
+        static unsigned char rec[0x1F8C], was[0x1F8C];
+        static const char before[] = "VVFP LAST NAMES v1 game=3\nrule\tfather\n"
+                                     "villager\tAgo Bahati\t5\t6\tM\tmother\n"
+                                     "villager\tAgo Bahati\t1\t1\tM\trandom\n"
+                                     "villager\tAipi Wanjiko\t7\t8\tF\tfather\n";
+        static const char after[] = "VVFP LAST NAMES v1 game=3\nrule\tfather\n"
+                                    "villager\tAgo Bahati\t5\t6\tF\tmother\n"
+                                    "villager\tAgo Bahati\t1\t1\tM\trandom\n"
+                                    "villager\tAipi Wanjiko\t7\t8\tF\tfather\n";
+        char got[1024], log_folder[MAX_PATH * 2], log_path[MAX_PATH * 2];
+        const vv_sex_layout *l = &VV_SEX_LAYOUT[3];
+        int six = 6, five = 5, female = 1;
+        FILE *fp;
+        size_t n;
+        g_game = 3;
+        _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers 3 Last Names - Save 1.dat", folder);
+        _snprintf(log_folder, sizeof log_folder, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Sex Changes",
+                  g_docs, base);
+        SHCreateDirectoryExA(NULL, log_folder, NULL);
+        _snprintf(log_path, sizeof log_path, "%s\\Sex Changes - Save 1.txt", log_folder);
+        DeleteFileA(log_path);
+        fp = fopen(g_path, "wb");
+        fputs(before, fp);
+        fclose(fp);
+        /* Ago Bahati, head 5 body 6, male (0) -> female (1). */
+        memset(rec, 0, sizeof rec);
+        memcpy(rec + l->name, "Ago Bahati", 10);
+        memcpy(rec + l->head, &five, 4);
+        memcpy(rec + l->body, &six, 4);
+        memcpy(was, rec, sizeof rec);
+        memcpy(rec + l->sex, &female, 4);
+        check(VvfpVillagerSexChanged(3, 1, rec, was) == 1, "the change is carried");
+        fp = fopen(g_path, "rb");
+        n = fread(got, 1, sizeof got - 1, fp);
+        fclose(fp);
+        got[n] = '\0';
+        check(strcmp(got, after) == 0, "only that line's sex is rewritten, every other byte kept");
+        check(VvfpVillagerSexChanged(3, 1, rec, was) == 0, "done again: nothing more");
+        check(VvfpVillagerSexChanged(4, 1, rec, was) == 0, "another game's: nothing");
+        /* A child conceived before the change: Ago Bahati is still in the father's place. */
+        check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 70, 80), "Kid Bahati") == 0,
+              "without the log, a father's line of the other sex is never his: the village's rule");
+        fp = fopen(log_path, "wb");
+        fputs("M\tF\tAgo Bahati\r\n", fp);
+        fclose(fp);
+        check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 70, 80), "Kid Wanjiko") == 0,
+              "with the log naming them, the recorded father's own rule (mother) still applies");
+        check(strcmp(born("Ago Bahatix", 5, 6, "Aipi Wanjiko", 70, 80), "Kid Bahatix") == 0,
+              "a name the log does not name: the village's rule");
+        DeleteFileA(log_path);
+        DeleteFileA(g_path);
     }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);

@@ -4178,8 +4178,11 @@ static void tell_cause_of_death_birth(int game_id, const void *child_record);
    the mother's own litter field (VV2-VV5: the exe's birth splice calls
    WriteParentageBirth at the creation, between the litter compares that
    guard the twin and triplet creations, so the field is this delivery's).
-   The mother is the one living female villager with this name, head and
-   body; none, or two, and the count is not known (-1).  The games write
+   The mother is the one living villager carrying (the pregnancy field, the
+   dword before the litter, still set: it is cleared after the last creation)
+   with this name, head and body -- whatever their sex now, as a carrier's sex
+   may be changed mid-pregnancy and an island event can make a man carry; none,
+   or two, and the count is not known (-1).  The games write
    nothing for a single birth in VV1/VV2 (0 = one baby). */
 static int delivery_litter(int game_id, const struct game_layout *g, const char *mother_name,
                            int mother_head, int mother_body) {
@@ -4194,7 +4197,7 @@ static int delivery_litter(int game_id, const struct game_layout *g, const char 
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *r = records + g->record_base + (size_t)index * g->stride;
         if (*(const unsigned char *)(r + g->active) != 1 || vv_lookalike(g->stride, r)
-            || *(const int *)(r + g->sex) != g->sex_female
+            || *(const int *)(r + g->litter - 4u) == 0
             || (mother_head >= 0 && *(const int *)(r + g->head) != mother_head)
             || (mother_body >= 0 && *(const int *)(r + g->body) != mother_body)) {
             continue;
@@ -4670,6 +4673,36 @@ __declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const v
         body = look_notes[next].nb;
     }
     return head == new_head && body == new_body && step > 0;   /* a cycle or a dead end is a miss */
+}
+
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live (the new sex), `before` as it was.  The
+   "Appearance changed" records noted for them (name and sex) stay theirs, so VVFP Cause of Death's save-time
+   roster does not log a look change already in the log a second time.  (The change's own "Appearance changed"
+   record, with its "Old sex" / "New sex" lines, comes through WriteVillageRecord after this.)  1 when a note
+   was carried. */
+__declspec(dllexport) int __stdcall VvfpVillagerSexChanged(int game_id, int slot, const void *record,
+                                                           const void *before) {
+    char name[MAX_NAME_BYTES];
+    const struct game_layout *g = game_id >= GAME_VV1 && game_id <= GAME_VV5 ? layout_of(game_id) : NULL;
+    int i, was, now, carried = 0;
+    (void)slot;
+    if (g == NULL || record == NULL || before == NULL || !layout_is_usable(g)
+        || !memory_is_readable(record, g->stride) || !memory_is_readable(before, g->stride)) {
+        return 0;
+    }
+    copy_villager_name(g, (const unsigned char *)record, name, sizeof name);
+    was = *(const int *)((const unsigned char *)before + g->sex);
+    now = *(const int *)((const unsigned char *)record + g->sex);
+    if (was == now) {
+        return 0;
+    }
+    for (i = 0; i < LOOK_NOTES; ++i) {
+        if (look_notes[i].game == game_id && look_notes[i].sex == was && strcmp(look_notes[i].name, name) == 0) {
+            look_notes[i].sex = now;
+            carried = 1;
+        }
+    }
+    return carried;
 }
 
 /* VVFP Cause of Death, right after a save: an "Appearance changed" record for a look the game itself

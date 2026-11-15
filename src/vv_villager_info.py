@@ -266,9 +266,12 @@ def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
         looks = {v.at: vv_titles_file.looks_from_save(game, data, v.at) for v in held}
     except (OSError, ln.LastNamesError, ValueError, IndexError, struct.error):
         return None
+    import vv_sex_changes
+    sex_changed = vv_sex_changes.changed_names(folder, slot)
     chosen: dict[int, list[str]] = {}
     for e in entries:
-        could = [v for v in held if ids[v.at] == e.identity and vv_titles_file.could_be(game, e, looks[v.at])]
+        could = [v for v in held if ids[v.at] == e.identity
+                 and vv_titles_file.could_be(game, e, looks[v.at], v.name in sex_changed)]
         could = vv_titles_file.narrow(e, could, lambda v: looks[v.at])   # the looks only break a tie
         if len(could) == 1:
             chosen.setdefault(could[0].at, []).append(e.title.strip())

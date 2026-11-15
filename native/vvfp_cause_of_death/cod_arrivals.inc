@@ -390,6 +390,31 @@ static int who_still(const struct report_who *w, const unsigned char *record) {
     return changed == 1 && now.age - w->age >= 0 && now.age - w->age <= 1;
 }
 
+/* A SEX CHANGE in play (native/shared/sex_change.h): the arrival reported for the record is still theirs. */
+static int report_sex_changed(int index, const unsigned char *record, const unsigned char *before) {
+    if (index < 0 || index >= RECORDS_MAX || !report_who[index].known
+        || report_who[index].sex != *(const int *)(before + REC[g_game].sex)) {
+        return 0;
+    }
+    report_who[index].sex = *(const int *)(record + REC[g_game].sex);
+    return 1;
+}
+
+/* VvfpVillagerSexChanged (native/shared/sex_change.h): `record` live (the new sex), `before` as it was.  The
+   villager is the same one: an arrival reported for their record stays theirs, and New Believers' Former Heathens
+   roster follows them.  The save-to-save roster needs nothing now: at the save the slot's "Sex Changes" log says
+   whose sex changed (cod_roster.inc roster_sex_follow).  1 when anything was carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    int index, carried;
+    if (game != g_game || record == NULL || before == NULL || slot <= 0 || slot != cod_slot()) {
+        return 0;
+    }
+    index = cod_index_of((const unsigned char *)record);
+    carried = report_sex_changed(index, (const unsigned char *)record, (const unsigned char *)before);
+    carried |= former_sex_changed(index, (const unsigned char *)record);
+    return carried;
+}
+
 static void report_follow(void) {
     unsigned char *records = cod_records();
     int i;

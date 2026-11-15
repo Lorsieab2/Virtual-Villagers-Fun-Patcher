@@ -88,6 +88,9 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
     people = ln.living(folder, game, slot)
     blocks = additions.person_blocks(folder, slot, game)
     living_names = {v.name for v in people}
+    import vv_sex_changes
+    # A villager whose sex changed is logged under both sexes (vv_sex_changes).
+    sex_changed = vv_sex_changes.logged_names(folder, game, slot)
     # Gone: a Death / Disappeared / Left / Unaccounted record -- unless a living snapshot lists them at
     # or past their age at death, so they were brought back (New Believers' Reanimate, a Custom Island
     # Event's revived skeleton; Codex, #566).
@@ -136,7 +139,8 @@ def find_cut(folder: Path, game: int, slot: int) -> tuple[list[Cut], list[str]]:
                         if (head, body) == (v.head, v.body) and len(name) > len(v.name) and name.startswith(v.name)
                         and len(name) <= fits and ln.storable(name)
                         and not still_gone((name, head, body), v.identity) and name not in living_names
-                        and sexes.get((name, head, body), {v.sex}) == {v.sex}
+                        and (sexes.get((name, head, body), {v.sex}) == {v.sex}
+                             or bool({name, v.name} & sex_changed))
                         and _likes_agree(blocks, v.identity, (name, head, body))})
         if not found:
             continue

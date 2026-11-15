@@ -27,6 +27,8 @@
 #ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
 #endif
+#include "../shared/sex_change.h"    /* a villager's sex changed: the mask follows (VvfpVillagerSexChanged) */
+#include "../shared/sex_change_ui.h" /* Change Appearance's "Change sex..." button */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
@@ -691,6 +693,38 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     return kept;
 }
 
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live with the new sex, `before` a copy as it
+   was.  The mask stays theirs: the pair is kept for the slot's file, a converting Heathen's waiting mask goes
+   with them, and a table held for the slot is carried (the roster, each entry's identity and the stable part,
+   so a later rename is still told as one) and written now.  1 when carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    const unsigned char *r = (const unsigned char *)record;
+    unsigned int from, to;
+    int k, i;
+    if (game != 5 || r == NULL || before == NULL
+        || !vv_sex_changed_note(slot, r, (const unsigned char *)before, vv5_slots(), vv5_rekey_record,
+                                vv5_rekey_present, vv5_identity, &from, &to)) {
+        return 0;
+    }
+    for (k = 0; k < g_vv5_keep_count; ++k) {
+        if (g_vv5_keep[k].slot == slot && vv_rekey_follow(slot, g_vv5_keep[k].id) == to) {
+            g_vv5_keep[k].id = to;
+            g_vv5_keep[k].stable = vv5_stable(r);
+        }
+    }
+    if (g_vv5_have_roster && g_vv5_slot == slot) {
+        (void)vv_rekey_apply(slot, g_vv5_roster, VV5_RECORD_COUNT);
+        (void)vv_rekey_apply(slot, g_vv5_mask_id, VV5_MAX_VILLAGERS);
+        for (i = 0; i < vv5_slots(); ++i) {
+            if (vv5_rekey_record(i) == r) {
+                g_vv5_stable[i] = vv5_stable(r);
+            }
+        }
+        (void)vv5_write_mask_sidecar((const unsigned char *)VV5_MASK_TABLE);
+    }
+    return 1;
+}
+
 /* Move the masks in `table` from the records `stored` names to where those
    villagers are in `live` (native/shared/mask_follow.h).  `weak` for a
    name-only roster: then a mask only moves DOWN a record.  Returns 1 when
@@ -796,8 +830,11 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     weak = magic == VV5_MASK_SIDECAR_MAGIC || magic == VV5_MASK_SIDECAR_MAGIC_256;
     renamed = 0;
     if (!weak) {
-        /* Villagers another companion renamed as the village loaded (villager_rekey.h): the identities
-           the file keeps for them read as the ones they have now, and the file is written so. */
+        /* Villagers another companion renamed as the village loaded (villager_rekey.h), and those whose
+           sex changed (sex_change.h, the slot's "Sex Changes" log): the identities the file keeps for them
+           read as the ones they have now, and the file is written so. */
+        (void)vv_sex_log_note(5, VV5_MASK_SLOT_NOW, vv5_slots(), vv5_rekey_record, vv5_rekey_present,
+                              vv5_identity);
         renamed = vv_rekey_apply(VV5_MASK_SLOT_NOW, filesnap, kept);
     }
     if (weak) {
@@ -1304,6 +1341,14 @@ static const unsigned char *appearance_pending_record;
 static int appearance_pending_look;
 static int appearance_hair_head(int colour);
 static int appearance_charge_look_only(void);
+/* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once on the
+   selected villager's record, so an OK with nothing else changed is no change for the router. */
+static int appearance_sex_changed;
+
+/* The selected villager (a native harness stands its own in: the game object is game memory). */
+#ifndef VV5_SELECTED_RECORD
+#define VV5_SELECTED_RECORD vv5_selected_record
+#endif
 
 static const unsigned char *vv5_selected_record(int sex, int age) {
     typedef void *(__cdecl *getter_fn)(void);
@@ -1724,6 +1769,21 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_show(window);
             return TRUE;
         }
+        if (command == VVFP_AX_CHANGE_SEX) {
+            /* Made at once on Yes, on the selected villager's own record (the router writes only the head,
+               body and mask back); the preview then draws the other sex's sheets with the same rows.  Undo
+               changes and Cancel leave it. */
+            unsigned char *villager = (unsigned char *)VV5_SELECTED_RECORD(appearance_sex, appearance_age);
+            if (villager == NULL) {
+                MessageBoxA(window, "This villager's sex could not be changed.", VVFP_AX_CHANGE_SEX_TITLE,
+                            MB_OK | MB_ICONINFORMATION);
+            } else if (vvfp_ax_change_sex(window, 5, villager, -1)) {
+                appearance_sex = *(const int *)(villager + VV5_SEX_OFFSET) ? 1 : 0;
+                appearance_sex_changed = 1;
+                appearance_show(window);
+            }
+            return TRUE;
+        }
         if (command == IDC_BODY_PREV) {
             appearance_body = (appearance_body + APPEARANCE_BODY_COUNT - 1) % APPEARANCE_BODY_COUNT;
             appearance_repaint(window, IDC_BODY_PREVIEW);
@@ -1804,6 +1864,7 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     appearance_open_mask = appearance_mask;
     appearance_open_look = appearance_look;
     appearance_rng = GetTickCount() | 1u;
+    appearance_sex_changed = 0;
 
     /* GetOriginsOwner, not GetForegroundWindow. The emitted owner contract
        promises "same-process HWND only; ... no foreground fallback", and a raw
@@ -1829,6 +1890,8 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
             }
             appearance_pending_record = appearance_record;   /* kept when the router keeps the rest */
             appearance_pending_look = appearance_look;
+        } else if (same && appearance_sex_changed) {
+            return 0;               /* only the sex, made at once and free: the router has nothing to keep */
         }
         if (head) {
             *head = appearance_head;

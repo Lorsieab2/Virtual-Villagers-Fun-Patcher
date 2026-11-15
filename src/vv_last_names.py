@@ -810,10 +810,13 @@ def indistinguishable(people: list[Living]) -> dict[tuple, list[Living]]:
 
 def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> dict[tuple, str]:
     """The record's own rules, each under the villager's key now: a line whose looks a living
-    villager has since changed from (the logs' "Appearance changed" records) is theirs."""
+    villager has since changed from (the logs' "Appearance changed" records) is theirs, and so is a line
+    under the other sex for a villager whose sex changed (vv_sex_changes: the save's log names them)."""
     stored = read_own(folder, game, slot)
     if not stored:
         return {}
+    import vv_sex_changes
+    sex_changed = vv_sex_changes.changed_names(folder, slot)
     import vv_genealogy as gen
     looks = gen._Registry()
     try:
@@ -829,14 +832,24 @@ def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> d
             # A "Name changed" record (VVFP Last Names.dll names New Believers' Heathens with no last name as
             # the village loads, and logs it so): the villager of these looks and sex under the new name.
             named = (renamed.get(moved[:3], moved[0]), *moved[1:])
+            other = "Female" if moved[3] == "Male" else "Male"
+            flipped = [k for k in ((*moved[:3], other), (*named[:3], other)) if k[0] in sex_changed]
             if moved in living_keys and moved not in stored:
                 key = moved
             elif named in living_keys and named not in stored:
                 key = named
+            elif any(k in living_keys and k not in stored for k in flipped):
+                key = next(k for k in flipped if k in living_keys and k not in stored)
             else:
                 key = _relooked(key, stored, living_keys)
         out[key] = rule
     return out
+
+
+def _sex_changed(folder: Path, slot: int) -> set[str]:
+    """The names whose sex changed (vv_sex_changes: the save's log)."""
+    import vv_sex_changes
+    return vv_sex_changes.changed_names(folder, slot)
 
 
 def logged_renames(folder: Path, game: int, slot: int) -> dict[tuple, str]:
@@ -886,14 +899,19 @@ def _relooked(key: tuple, stored, living_keys: set[tuple]) -> tuple:
 
 
 def _parent_rule(own_rules: dict[tuple, str], parent: tuple | None, sex: str,
-                 living_keys: set[tuple]) -> str | None:
-    """A parent's own rule at a birth: their line; else, for a parent whose looks changed with no record,
-    the one line of their name and sex whose looks no living villager has."""
+                 living_keys: set[tuple], sex_changed=frozenset()) -> str | None:
+    """A parent's own rule at a birth: their line; for a parent whose sex changed since (`sex_changed`, the
+    names vv_sex_changes reads: the father slot keeps them whatever their sex now), their line under the
+    other sex; else, for a parent whose looks changed with no record, the one line of their name and sex
+    whose looks no living villager has."""
     if parent is None:
         return None
     key = (*parent, sex)
     if key in own_rules:
         return own_rules[key]
+    other = (*parent, "Female" if sex == "Male" else "Male")
+    if parent[0] in sex_changed and other in own_rules:
+        return own_rules[other]
     lines = [k for k in own_rules if (k[0], k[3]) == (parent[0], sex)]
     if len(lines) == 1 and lines[0] not in living_keys:
         return own_rules[lines[0]]
@@ -954,8 +972,9 @@ def save_own_rules(folder: Path, game: int, slot: int, rule: str, own: dict[tupl
                 f"{key[0]} has the same name, looks and sex as another living villager, so a birth could not "
                 "tell whose rule it is. Number the duplicate names first; nothing was changed.")
     expected = _expected_fathers(folder, game, slot)
+    sex_changed = _sex_changed(folder, slot)
     kept = {key: r for key, r in own_rules_now(folder, game, slot, people).items()
-            if key not in alive and key[3] == "Male" and key[0] in expected}
+            if key not in alive and (key[3] == "Male" or key[0] in sex_changed) and key[0] in expected}
     kept.update(wanted)
     _old_rule, fixed = read_record(folder, game, slot)
     write_record(folder, game, slot, rule, fixed, own=kept, used=_used_now(folder, game, slot))
@@ -1051,7 +1070,7 @@ def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str],
 def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
               pool: list[str] | None = None, fixed: dict[tuple, str] | None = None,
               carried=own_last_name, own_rules: dict[tuple, str] | None = None,
-              used: set[str] | None = None, fits=None) -> dict[tuple, str]:
+              used: set[str] | None = None, fits=None, sex_changed=frozenset()) -> dict[tuple, str]:
     """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
@@ -1084,8 +1103,8 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
 
     def parent_rules(v: Living) -> tuple[str | None, str | None]:
         father, mother = parents.get(v.identity, (None, None))
-        return (_parent_rule(own_rules, father, "Male", living_keys),
-                _parent_rule(own_rules, mother, "Female", living_keys))
+        return (_parent_rule(own_rules, father, "Male", living_keys, sex_changed),
+                _parent_rule(own_rules, mother, "Female", living_keys, sex_changed))
 
     listed = set(pool or ())
 
@@ -1480,7 +1499,8 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # second dword of either (native/shared/custom_titles.h, src/vv_titles_file.py).
     _plan_u32_file(result, _data_file(folder, "Custom Titles", f"Custom Titles - Save {slot}.dat"),
                    b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", {},
-                   _split_titles_resolver(game, original, title_split, title_conflicts))
+                   _split_titles_resolver(game, original, title_split, title_conflicts,
+                                          _sex_changed(folder, slot)))
     if game == 5:
         _plan_u32_file(result, _data_file(folder, "Former Heathens", f"Former Heathens - Save {slot}.dat"),
                        b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
@@ -1642,7 +1662,8 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]], names: dict[int, str]):
+def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]], names: dict[int, str],
+                           sex_changed=frozenset()):
     """For the titles file: the new identity of the entry number `k` whose identity `old` two or more
     villagers share (and are given different new ones), when exactly one of them could be it by the
     looks the entry keeps -- else the refusal."""
@@ -1662,7 +1683,8 @@ def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]]
         if not e.known or e.contested:
             raise refuse
         could = [(v, new) for v, new in split[old]
-                 if vv_titles_file.could_be(game, e, vv_titles_file.looks_from_save(game, save, v.at))]
+                 if vv_titles_file.could_be(game, e, vv_titles_file.looks_from_save(game, save, v.at),
+                                            v.name in sex_changed)]
         could = [new for _v, new in vv_titles_file.narrow(
             e, could, lambda item: vv_titles_file.looks_from_save(game, save, item[0].at))]   # looks break a tie
         if len(could) != 1:
@@ -1724,9 +1746,13 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
     its looks (`asked`: a "yes" to a look-alike question too), or, in an entry written before looks
     were kept, by a name every living holder and no dead villager shares."""
     by_scalar: dict[tuple, set] = {}
+    sex_changed = _sex_changed(folder, slot)
     for v in people:
         by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(
             renames.get(v.identity, v.name))
+        if v.name in sex_changed:       # a villager whose sex changed: the entry may hold the other one
+            by_scalar.setdefault((v.name, 2 if v.sex == "Male" else 1, v.family), set()).add(
+                renames.get(v.identity, v.name))
     dead = _dead_names(folder, 1, slot)
     for path in (layout.route(data_dir.parent, f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
                                               f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"),
@@ -2294,7 +2320,8 @@ def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str,
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
     want = expected_last_names(people, parents, rule or DEFAULT_RULE, list(tools.load_checker().LAST_NAMES[game]),
                                with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people),
-                               village_names(folder, game, slot, people, parents, known), fitter(game, known))
+                               village_names(folder, game, slot, people, parents, known), fitter(game, known),
+                               _sex_changed(folder, slot))
     out = []
     for v in people:
         now = carried(v.name)
@@ -2321,13 +2348,13 @@ def check_rules(recorded: dict[tuple, str], pending: dict[tuple, str], living_ke
 def expected_last_names(people: list[Living], parents: dict[tuple, tuple], rule: str,
                         pool: list[str] | None, fixed: dict[tuple, str], carried,
                         own_rules: dict[tuple, str], used: set[str] | None = None,
-                        fits=None) -> dict[tuple, tuple[str, str, tuple]]:
+                        fits=None, sex_changed=frozenset()) -> dict[tuple, tuple[str, str, tuple]]:
     """identity -> (the last name the rules give, the rule that gave it, (either, or) or ()): the one
     reading both the last-names window's marks and Check Saves & Logs' wrong last names use, so the two
     never disagree.  The rule is decide()'s from the parents' own rules and the village's `rule`; under
     50:50 both parents' last names are right, and so they are when the parents' own rules disagree and
     each gives one of them (the game's coin at the birth).  `used`, `fits`: inherited()'s."""
-    given = inherited(people, parents, rule, pool, fixed, carried, own_rules, used, fits)
+    given = inherited(people, parents, rule, pool, fixed, carried, own_rules, used, fits, sex_changed)
     living_keys = {own_key(v) for v in people if v.alive}
 
     def last_of(key) -> str:
@@ -2335,8 +2362,8 @@ def expected_last_names(people: list[Living], parents: dict[tuple, tuple], rule:
     out = {}
     for v in people:
         father, mother = parents.get(v.identity, (None, None))
-        father_rule = _parent_rule(own_rules, father, "Male", living_keys)
-        mother_rule = _parent_rule(own_rules, mother, "Female", living_keys)
+        father_rule = _parent_rule(own_rules, father, "Male", living_keys, sex_changed)
+        mother_rule = _parent_rule(own_rules, mother, "Female", living_keys, sex_changed)
         rule_used = decide(father_rule, mother_rule, rule, v.identity)
         both = father is not None and mother is not None
         if father_rule and mother_rule and father_rule != mother_rule and both:
@@ -2639,7 +2666,8 @@ def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     given = inherited(people, parents, rule or DEFAULT_RULE, pool, with_siblings(mine, parents), carried,
                       own_rules_now(folder, game, slot, people),
-                      village_names(folder, game, slot, people, parents, known), fitter(game, known))
+                      village_names(folder, game, slot, people, parents, known), fitter(game, known),
+                      _sex_changed(folder, slot))
     taken = {carried(v.name) for v in alive} - {""}
     dead = {carried(v.name) for v in people if not v.alive} - {""}
     unique = read_arrivals(folder, game, slot)

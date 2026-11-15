@@ -14,8 +14,8 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "04319C5F6752D31D69C47464F9AC1F6AEDA795BF894E3B8B097220C0695DFEB2",
-      "size": 1891840
+      "sha256": "244853E1D5E919C48A84C13FD30754FB3E8A10560871F888B3400D6256F3CD72",
+      "size": 1899520
     },
     {
       "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -32,8 +32,8 @@
     {
       "source": "assets/head_look/VVFP Head Look.dll",
       "destination": "VVFP Head Look.dll",
-      "sha256": "512EC538AAF37C915DA98FE61E248C0131C8FABA7A19B28D67117182C710EF31",
-      "size": 131072
+      "sha256": "600EC18CC09157F45B0550C7514EBEBAAF2E61E7C4E7B527D13A3B8A5CE9F25D",
+      "size": 135168
     }
   ],
   "doubler_evidence": {
@@ -527,15 +527,15 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "F595B5A67559911EB6F6EDA591AFCB9BAA663BA178CB6725AF33C5309A33E401"
+      "source_text_sha256": "1944CEE4EE847CCA45B64FDF4DCFC46FD994BCD162220E1CBC642CADA93C62C1"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "2A4CAE436493D6C7B0EBF2E200BDC62798086F535753AF9DF6D49B1529EDB856"
+      "source_text_sha256": "6BAE8584022CC7B60E79D812BD25B25CE279663A34A67780036BF196B7F24353"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "4CB3958F27010823B2E17380BD79031B985C56DB8A64E24C4D8D4DDA7441D9FE"
+      "source_text_sha256": "ACD52A7D96D099B2B70246603256084637B69C5DAAA68EDDFC19EA59010C48A6"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -807,5 +807,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "A6A1A6E19EC490410F4F4936FD9BDC4287BDE4104A95E641118BCDB4EE342057"
+  "task9_map_canonical_sha256": "8045F6B4D356BC59DE15CDC8C001FDC20421C1DD3993D49457FE85FF8DC74E02"
 }

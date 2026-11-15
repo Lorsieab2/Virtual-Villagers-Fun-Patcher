@@ -5927,6 +5927,7 @@ class App(tk.Tk):
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
         recorded_own = vv_last_names.own_rules_now(folder, number, info.slot, people)
+        sex_changed = vv_last_names._sex_changed(folder, info.slot)   # a parent whose sex changed keeps their rule
         saved_own = {k: r for k, r in recorded_own.items() if k in living_keys}
         # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
         written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
@@ -6066,7 +6067,7 @@ class App(tk.Tk):
             return vv_last_names.expected_last_names(
                 people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
                 vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,
-                lambda v, last: not too_long(v, last))
+                lambda v, last: not too_long(v, last), sex_changed)
 
         def given() -> dict:
             return {key: should for key, (should, _used, _either) in expected().items()}

@@ -124,8 +124,11 @@ FOUNDATION_OUTPUT = (
 # Recertified for the Story buttons in the player's language (native/shared/story_bridge.h, live French
 # TEST, 2026-11-04): each button's name, its price wrapper and the zeroed price lines are their own rows,
 # asked for by key, set as UTF-16, and a longer label widens its button (vvfp_to_wide, native/shared/vvfp_translate.h); its buy prompts and the names and speeds they show are their own rows too, and every message box is shown as UTF-16 (vvfp_message_box).
-SOURCE_SHA256 = "C0683BC6045C4D412319D3759124B21B00F12E85C25961F842437AEFA2EE760C"
-SOURCE_SIZE = 2011648
+# Recertified for a villager's sex change (native/shared/sex_change.h, the owner, 2026-11-15): the export
+# VvfpVillagerSexChanged stores a mask again under the fingerprint the villager has now, the save's "Sex Changes"
+# log is read once per load, and Change Appearance has the "Change sex..." button (native/shared/sex_change_ui.h).
+SOURCE_SHA256 = "4F1F01E6C588FD0BB8F70AAA5CC14ADEBDB54EFA81DAA49C8945536DDF0801A7"
+SOURCE_SIZE = 2018816
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
