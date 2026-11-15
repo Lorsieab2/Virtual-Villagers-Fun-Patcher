@@ -44,7 +44,7 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "EB3A319E85D624BE8D845F8069BDE5FBCD8715BA3E40AF7CFBE87AFE62B617D8"
+      "sha256": "A9B1052B1109A65D0CE3FAFB5E92D17077F4A6E2BCDAABDDCFBFE537D879CF1D"
     },
     {
       "source": "assets/event_collection/all_everybodys_winner.cieg",
@@ -634,7 +634,7 @@
     {
       "source": "assets/event_collection/vv2_cooking_contest.cieg",
       "destination": "Island Event Collection/vv2_cooking_contest.cieg",
-      "sha256": "4896E0591AE8B420AD225EB136EE9A4EED0EDF7D9E52BB5C091418A44DDF826A"
+      "sha256": "9CEE7AF783789B2EC28A558DB5F73E69EAD0ECD5D681399A00569E186CBB51B7"
     },
     {
       "source": "assets/event_collection/vv2_experimental_remedy.cieg",
@@ -649,7 +649,7 @@
     {
       "source": "assets/event_collection/vv2_hut_sharing_negotiation.cieg",
       "destination": "Island Event Collection/vv2_hut_sharing_negotiation.cieg",
-      "sha256": "FBDEB998309AFF75B3ACFBD3BC7ABC269543E0982763D22A2FC6162B98D712AE"
+      "sha256": "A2534C21DBD4BF45263522BA1D9A3BBC63115768782F2F5BB6FEA9046ED1CE05"
     },
     {
       "source": "assets/event_collection/vv2_packed_hospital.cieg",
@@ -674,7 +674,7 @@
     {
       "source": "assets/event_collection/vv2_timid_child.cieg",
       "destination": "Island Event Collection/vv2_timid_child.cieg",
-      "sha256": "656A0DEDA5AA5450086C84BA4612D04173D0EC30A14033E96A7AB88BFD9EDF36"
+      "sha256": "C209FDCE84BE17727A80B5CB5FF2D35FA5B33E6CF02ED3D2863ED83C96C46218"
     },
     {
       "source": "assets/event_collection/vv2_v17_building.cieg",

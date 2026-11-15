@@ -44,7 +44,7 @@
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
       "destination": "Island Event Collection/all_doctors_dilemma.cieg",
-      "sha256": "EB3A319E85D624BE8D845F8069BDE5FBCD8715BA3E40AF7CFBE87AFE62B617D8"
+      "sha256": "A9B1052B1109A65D0CE3FAFB5E92D17077F4A6E2BCDAABDDCFBFE537D879CF1D"
     },
     {
       "source": "assets/event_collection/all_everybodys_winner.cieg",
@@ -644,7 +644,7 @@
     {
       "source": "assets/event_collection/vv1_last_song_before.cieg",
       "destination": "Island Event Collection/vv1_last_song_before.cieg",
-      "sha256": "96F4EA28579E95F7659FA3481C9EB3CF06FAC9B3160379029557406CB60B2E8A"
+      "sha256": "254AF8324116D698E935642B7E8099404D3EECE112B373B6210B7B74D1AEFCC6"
     },
     {
       "source": "assets/event_collection/vv1_masters_small.cieg",
