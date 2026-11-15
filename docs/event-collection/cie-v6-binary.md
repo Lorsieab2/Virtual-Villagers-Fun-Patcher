@@ -630,7 +630,10 @@ optional, not a stranger, alias or other role); one relation a role.
   first (`VvfpCauseBabyLost`): the Births and Conceptions log closes the open Conception with a "Lost before
   birth" record ("What happened: the baby was lost in <title>; never born"). Babies Made stays as counted (the games
   count at conception). The role MUST be `"special": "nursing_parent"`, so it needs `protected: "allow"` (section
-  7). A parent no longer nursing when the page is shown (the baby was born since) is a refusal ("N changes could
+  7). **Children never carry in events (the owner, 2026-11-15):** a `nursing_parent` role has `min_age` 18 or more
+  (the compiler refuses less; `NURSING_PARENT_MIN_AGE`), and the engine never casts anyone under 18 years (360 age
+  units) for it, strict or preferred, whatever the role says (`story_graph.inc CG_NURSING_MIN_AGE`, a safety rule:
+  never relaxed). So `baby_lost` never reaches a child. A parent no longer nursing when the page is shown (the baby was born since) is a refusal ("N changes could
   not be made"). Harmful. The Island Events log's entry says "<name>'s baby was lost."
 
 ## 21a. A dead relative (gap C3)
@@ -781,23 +784,35 @@ stay as recorded.
 | The Tree of Life | +0x1B90 | 0 / 1 | `story_c4.inc` C4_ADAPTER (the render path's compare, `vv4_origins_icons.c`) |
 | New Believers | +0x1B90 | 0 / 1 | `story_c5.inc` C5_ADAPTER |
 
-- **Refused** ("N changes could not be made"; the text still shows, nothing is written):
-  - carrying or nursing: the game's countdown (`off_pregnant`) or the babies after it (+4) non-zero (A New Home
-    +0x358/+0x35C, The Lost Children +0x540/+0x544, The Secret City +0xE8C/+0xE90, the later two +0x1C4C/+0x1C50),
-    or A New Home's parentage sidecar holding an expected father for them;
-  - a special villager (`cg_special`, `cg_never_harmed`): the Golden Child, The Secret City's Tribal Chief and
-    stand-in, New Believers' story villagers;
-  - **any companion in the game that keeps per-villager data by an identity holding the sex** (`CG_SEX_KEEPERS`:
-    Head Look, Original Look, the Origins masks, Cause of Death, Faith Loss, Last Names, Heathens Keep Masks, the VV1
-    Parentage, Parentage / Population / Statistics Export). Their identities hash the sex, and none of them follows a
-    sex change yet (their rename follow needs the rest of the identity unchanged), so the villager would lose their
-    mask, head look, title and log identity. **An owner decision:** each of them must learn to follow the change
-    before it leaves the list; until then the effect is made only in a game with none of them.
+- **Made** through `native/shared/sex_change.h` `vv_sex_change_apply`, the same call Change Appearance's "Change
+  sex..." button makes in all five games (`sex_change_ui.h`): the field written; a line added to the save's own
+  "Sex Changes - Save S.txt" (`<old>\t<new>\t<name>`, M or F); every companion that keeps data by the sex told through
+  its export `VvfpVillagerSexChanged(game, slot, record, before)` (the Story Upgrades' custom titles, Head Look,
+  Original Look, the Origins masks of all five games and Heathens Keep Masks' waiting masks, Cause of Death, Faith
+  Loss, Last Names, the VV1 Parentage, Parentage Export), each carrying what it keeps to the villager's new identity
+  and writing its own file; and an "Appearance changed" record in the Births and Conceptions log with "Old sex" /
+  "New sex" lines (the history line Repair Logs keeps). As each companion reads its own file it also reads the log,
+  so a file written after the change still finds the villager when the save was not saved after it. The Python tools
+  (Repair Saves, Repair Logs and the rest) follow a villager the log or the history line names (`src/vv_sex_changes.py`).
+  Statistics Export and Population Export keep nothing by the sex.
+- **Carrying or nursing is no refusal** (the owner, 2026-11-15): the villager goes on carrying, and stays the carrying
+  parent (the mother's place) on the babies' records. Each game's own delivery runs the same with a male carrier
+  (`tests/test_sex_change_carrier_all.py`: the same babies on the same tick, the same parent fields, the pregnancy
+  fields cleared; the carrier's sex is read only by the small-village sex balance that picks a NEW baby's sex).
+- **Refused** ("N changes could not be made"; the text still shows, nothing is written): a special villager
+  (`cg_special`, `cg_never_harmed`): The Secret City's Tribal Chief and stand-in, New Believers' story villagers.
+- **The Golden Child is never cast** for a role a `sex_change` effect names (`cg_sex_change_role`, even with
+  protected `allow`), and Change Appearance hides its button for him (the owner: "breaks things"); an alias's member
+  drawn as him is refused.
 - **The run** keeps the villager by their new identity (`cg.identity`), so later effects of the event still reach
   them. Pronouns in the event stay the sex they were cast with (the pages are laid out before the change is made).
 - **The log:** "<name>'s sex is now male." / "female."; the automatic line (section 24): `R's sex changes.`
-- **Known limits:** `has_living_child` and the kinship relations read a recorded father as a male role and a mother as
-  a female one, so a parent whose sex changed after a child was born is found by neither.
+- **Kinship** finds a parent by the parent FIELD on the child's record, never by the parent's sex now: the relation
+  roles (section 21) always did; `has_living_child` now reads the same kinship table (either parent field; A New Home
+  through its parentage sidecar), so a parent whose sex changed after the birth still has their children.
+- **Parent words:** the role-sex word pairs of section 5 (`(parent.mother/father)`, `(parent.mom/dad)`, add `'s` for
+  the possessive) give the word of the role's sex as cast, so an event about a carrying father says "father" with no
+  other change. Text written with the plain word "mother" stays as written (an owner's sentence is never rewritten).
 - **A cross-sex body look** (code 23, keeping the sex field) is NOT built: the games choose each villager's head and
   body sheets from the sex field at every draw (The Tree of Life alone reads +0x1B90 at about 100 places), so it
   needs a draw-hook companion like Head Look's for every game. An owner question.

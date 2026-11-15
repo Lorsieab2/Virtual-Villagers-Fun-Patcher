@@ -1499,6 +1499,23 @@ static int cg_skills_known(const ce_adapter *a, const char *list) {
 static unsigned int cg_relax_mask;
 static int cg_cast_now = CG_CAST_STRICT;
 
+/* Is `role` the one a sex_change effect names (cie-v6-binary.md 28)?  Such a role never casts the Golden Child (the
+   owner, 2026-11-15: "breaks things"); an alias's member drawn as him is refused when the effect is made. */
+static int cg_sex_change_role(int role) {
+    int i;
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_SEX_CHANGE && (int)e[1] == role) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The youngest a nursing parent is cast, in age units (20 a year): children never carry in events (the owner,
+   2026-11-15).  baby_lost acts only on a nursing_parent role (the compiler's rule), so it never reaches a child. */
+#define CG_NURSING_MIN_AGE (18 * 20)
+
 /* Whether record `index` may be role `role` (any binding aside). */
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
@@ -1516,6 +1533,12 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r)) {
         return 0;
+    }
+    if (cg_g.version >= 6 && spec[9] == 3 && ce_age(a, r) < CG_NURSING_MIN_AGE) {
+        return 0;                      /* a nursing parent is an adult of 18 or more */
+    }
+    if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)) {
+        return 0;                      /* the Golden Child is never cast for a sex change */
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
         return 0;
@@ -2589,7 +2612,7 @@ static const cg_pick *cg_find_pick(int pool, int instance);
 static int cg_role_fact(const unsigned char *c, int game) {
     const ce_adapter *a = ce_adapter_for(game);
     const unsigned char *r;
-    int role = (int)cg_u16(c + 2), i;
+    int role = (int)cg_u16(c + 2);
     if (a == NULL || role >= cg_g.n_role || (r = cg_villager(a, cg_resolve_role(role))) == NULL) {
         return 0;
     }
@@ -2604,27 +2627,18 @@ static int cg_role_fact(const unsigned char *c, int game) {
         cg_kin_read(a, game);
         return cg_dead_relative(game, cg.record[cg_resolve_role(role)]);
     }
-    /* has_living_child: a living, listed villager whose recorded father (or mother) is this one -- the parent's
-       name, head and body on the child's record (none on A New Home's records). */
+    /* has_living_child: a living, listed villager whose recorded father OR mother is this one -- by the parent
+       field, never by this one's sex now (a parent whose sex changed after the birth is still that child's parent,
+       cie-v6-binary.md 28): the kinship table (cg_kin_read: the name, head and body on the child's record; A New
+       Home's from its parentage sidecar). */
     {
-        int female = ce_sex(a, r) == STORY_SEX_FEMALE;
-        unsigned int off_name = female ? a->off_mother_name : a->off_father_name;
-        unsigned int off_head = female ? a->off_mother_head : a->off_father_head;
-        unsigned int off_body = female ? a->off_mother_body : a->off_father_body;
-        char name[CG_NAME_BYTES], parent[CG_NAME_BYTES];
-        if (off_name == 0u) {
+        int me = cg.record[cg_resolve_role(role)], k;
+        cg_kin_read(a, game);
+        if (me < 0 || me >= CE_MAX_RECORDS) {
             return 0;
         }
-        ce_copy_name(name, CG_NAME_BYTES, r + a->off_name, a->name_bytes);
-        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
-            const unsigned char *kid = a->record(i);
-            if (kid == NULL || kid == r || !a->listed(kid)) {
-                continue;
-            }
-            ce_copy_name(parent, CG_NAME_BYTES, kid + off_name, a->name_bytes);
-            if (parent[0] != '\0' && lstrcmpA(parent, name) == 0
-                && *(const int *)(kid + off_head) == *(const int *)(r + a->off_head)
-                && *(const int *)(kid + off_body) == *(const int *)(r + a->off_body)) {
+        for (k = 0; k < a->record_count && k < CE_MAX_RECORDS; ++k) {
+            if (k != me && cg_kin(game, CG_REL_CHILD, k, me)) {
                 return 1;
             }
         }
@@ -4400,59 +4414,14 @@ static int cg_old_look(int game, const unsigned char *record, int index) {
 
 /* ---- The sex field changed (docs/event-collection/cie-v6-binary.md 28) ------------------------------------ */
 
-/* The companions that keep a villager's data in their own files by an identity that holds the sex field (the
-   Origins masks, the Head and Original Looks, Cause of Death's rosters and Former Heathens, Faith Loss, a Last
-   Names rule, the parentage and population records).  None of them yet follows a villager whose sex changed: the
-   change would cut the villager off from what was kept for them, so while any of them is in the game the change is
-   refused (the owner decides when each one follows it). */
-static const char *const CG_SEX_KEEPERS[] = {
-    "VVFP Head Look.dll", "VVFP Original Look.dll", "VVFP Origins Icons.dll", "VVFP VV1 Origins Icons.dll",
-    "VVFP VV2 Origins Icons.dll", "VVFP VV4 Origins Icons.dll", "VVFP Cause of Death.dll", "VVFP Faith Loss.dll",
-    "VVFP Last Names.dll", "VVFP Heathens Keep Masks.dll", "VVFP VV1 Parentage.dll", "VVFP Parentage Export.dll",
-    "VVFP Population Export.dll", "VVFP Statistics Export.dll",
-};
-
-#ifdef VVFP_TEST
-static int test_graph_sex_keepers = -1;  /* -1 the real check; 0 none in the game; 1 one is */
-#endif
-
-/* The first companion in the game that keeps data by the sex, or NULL. */
-static const char *cg_sex_keeper(void) {
-    int i;
-#ifdef VVFP_TEST
-    if (test_graph_sex_keepers >= 0) {
-        return test_graph_sex_keepers ? CG_SEX_KEEPERS[0] : NULL;
-    }
-#endif
-    for (i = 0; i < (int)(sizeof CG_SEX_KEEPERS / sizeof CG_SEX_KEEPERS[0]); ++i) {
-        if (GetModuleHandleA(CG_SEX_KEEPERS[i]) != NULL) {
-            return CG_SEX_KEEPERS[i];
-        }
-    }
-    return NULL;
-}
-
-/* Why villager `record` (index `index`) cannot have their sex changed now (a CE_WHY_*), or -1 when they can:
-   carrying or nursing (the game's own countdown, or babies on the record: off_pregnant and the litter after it,
-   as the adapter's cancel clears them), A New Home's parentage sidecar holding a baby they carry, a special
-   villager (the Golden Child, The Secret City's Tribal Chief and stand-in, New Believers' story villagers), or a
-   companion that keeps data by the sex in the game. */
-static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned char *record, int index) {
-    if (*(const int *)(record + a->off_pregnant) != 0 || *(const int *)(record + a->off_pregnant + 4u) != 0) {
-        return CE_WHY_EXPECTING;
-    }
-    if (game == 1) {
-        typedef int (__stdcall *expected_fn)(int, int *, char *, int);
-        HMODULE module = GetModuleHandleA("VVFP VV1 Parentage.dll");
-        expected_fn expected = module != NULL
-            ? (expected_fn)(void *)GetProcAddress(module, "Vv1ParentageQueryExpectedFather") : NULL;
-        char name[CG_NAME_BYTES];
-        int looks[4];
-        if (expected != NULL && expected(index, looks, name, CG_NAME_BYTES)) {
-            return CE_WHY_EXPECTING;
-        }
-    }
-    if (cg_special(a, game, record) || cg_never_harmed(game, record) || cg_sex_keeper() != NULL) {
+/* Why villager `record` cannot have their sex changed now (a CE_WHY_*), or -1 when they can: a special villager
+   (cg_special, cg_never_harmed: the Golden Child, The Secret City's Tribal Chief and stand-in, New Believers' story
+   villagers; native/shared/sex_change.h vv_sex_change_refusal the same).  Carrying or nursing is no refusal (the
+   owner, 2026-11-15): no game's delivery depends on the carrier's sex (tests/test_sex_change_carrier_all.py), so
+   they go on carrying, the carrying parent on the babies' records.  Every companion that keeps data by the sex
+   follows the change (sex_change.h, VvfpVillagerSexChanged). */
+static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned char *record) {
+    if (cg_special(a, game, record) || cg_never_harmed(game, record)) {
         return CE_WHY_OTHER;
     }
     return -1;
@@ -4607,13 +4576,12 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     if (e[0] == CGE_SEX_CHANGE) {
         /* 28: the game's own sex field, the other value; nothing else (the looks' rows, the parents recorded on
            anyone's record, the names) changes.  The run keeps the villager by their new identity. */
-        int why = cg_sex_change_refusal(a, game, record, index);
+        int why = cg_sex_change_refusal(a, game, record);
         int female = ce_sex(a, record) == STORY_SEX_FEMALE;
-        if (why >= 0) {
-            ce_refuse(r, why);
+        if (why >= 0 || vv_sex_change_apply(game, record, index) != VV_SEX_OK) {
+            ce_refuse(r, why >= 0 ? why : CE_WHY_OTHER);
             return;
         }
-        *(int *)(record + a->off_sex) = female ? a->sex_male : a->sex_female;
         cg.identity[role] = ce_identity(a, record);
         cg_extra_add(cg.name[role], female ? "'s sex is now male." : "'s sex is now female.");
         return;
@@ -7192,10 +7160,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
     return test_graph_head_looks;
 }
 
-/* The sex keepers (28) and "VVFP Last Names.dll" (27) as the test build sees them: -1 the real check, 0 none, 1 in. */
-__declspec(dllexport) void __stdcall VvfpStoryProbeGraphSexLast(int keepers, int last_names) {
-    test_graph_sex_keepers = keepers;
+/* "VVFP Last Names.dll" (27) as the test build sees it: -1 the real check, 0 none, 1 in.  Returns how many sex
+   changes (28) told the companions and wrote the history record so far: told * 1000 + history. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphSexLast(int unused, int last_names) {
+    (void)unused;
     test_graph_last_names = last_names;
+    return test_graph_sex_told * 1000 + test_graph_sex_history;
 }
 
 /* A New Home's parentage sidecar as the test build sees it (cie-v6-binary.md 21): record `record`'s father (which 0)

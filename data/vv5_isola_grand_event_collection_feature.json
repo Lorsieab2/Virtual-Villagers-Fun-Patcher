@@ -339,27 +339,27 @@
     {
       "source": "assets/event_collection/all_v27_01_cry.cieg",
       "destination": "Island Event Collection/all_v27_01_cry.cieg",
-      "sha256": "4F7E8F085DAAC3ED8616770DF86538251E07FD493F1DC00E9ABD740FFD433649"
+      "sha256": "9565880D3134AF7FCE2D80E325F9AAC60796335F7B038867BA0CCB8B525CC843"
     },
     {
       "source": "assets/event_collection/all_v27_02_little_grip.cieg",
       "destination": "Island Event Collection/all_v27_02_little_grip.cieg",
-      "sha256": "F475FD3A6E93D8F9C7B3DE32C3BFFF9244913E948FEBC4239A68847AB4030625"
+      "sha256": "879E70E910582B28F7D8714C5326FBC37F0DE5606525D83BEF5BDC0D37834123"
     },
     {
       "source": "assets/event_collection/all_v27_03_recognition.cieg",
       "destination": "Island Event Collection/all_v27_03_recognition.cieg",
-      "sha256": "AE486ACD7E4A40C2BB44B04B567DD9A931B88ACADDC14FE92BBB814463F23F4A"
+      "sha256": "1561F0BC9CC2BA138D15BE931FD4308A99299BC2108EA9ECFD3BCA8E30E2D9C9"
     },
     {
       "source": "assets/event_collection/all_v27_04_crawling.cieg",
       "destination": "Island Event Collection/all_v27_04_crawling.cieg",
-      "sha256": "651356FB8D56A5A462BFC047EF48ACC80994A715F216924E10DFBAC83CA215F0"
+      "sha256": "8EBCA44EFBA48EBF2B9A1AF98ECB07BDA502C0E6CDA229CCDB5422343A6E31BC"
     },
     {
       "source": "assets/event_collection/all_v27_05_lullaby.cieg",
       "destination": "Island Event Collection/all_v27_05_lullaby.cieg",
-      "sha256": "A256EBA13440507C24CEB8AEDE28BC8F8F3D0182A75AF6CDBF84FFD88518C409"
+      "sha256": "569F2D916F43883D966CAFB7944FA7F318855A3B27036B051A9C004A4836A9FB"
     },
     {
       "source": "assets/event_collection/all_v27_06_grove.cieg",
@@ -674,7 +674,7 @@
     {
       "source": "assets/event_collection/vv5_little_things_remember.cieg",
       "destination": "Island Event Collection/vv5_little_things_remember.cieg",
-      "sha256": "D9E238A74F39CB4014FA98CE3F166D420CDD955D2B92FC23B7ED87A8C26A43CC"
+      "sha256": "9609C06939C939946644C91FA217A702EF6C227DCFD672C40FA0C260C084668A"
     },
     {
       "source": "assets/event_collection/vv5_meaning_of_faith.cieg",

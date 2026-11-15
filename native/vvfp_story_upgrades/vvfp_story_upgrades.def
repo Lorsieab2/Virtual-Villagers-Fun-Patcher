@@ -28,3 +28,4 @@ EXPORTS
     VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpOnePopupRows=_VvfpOnePopupRows@8
     VvfpOnePopupPick=_VvfpOnePopupPick@8
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

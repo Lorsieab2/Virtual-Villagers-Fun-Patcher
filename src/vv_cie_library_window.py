@@ -326,7 +326,7 @@ def describe_effect(e: dict) -> str:
     if do == "old_look":
         return f"{who} is shown with the old head look from now on"
     if do == "sex_change":
-        return f"{who}'s sex changes (never while carrying or nursing a baby)"
+        return f"{who}'s sex changes (a carrying parent goes on carrying; never the Golden Child)"
     if do == "appearance":
         parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
                  if e.get(part) is not None]

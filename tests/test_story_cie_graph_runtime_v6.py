@@ -1151,7 +1151,7 @@ def v28_graph(game: str) -> dict:
     """A lost baby, a new look and a death with no body, each on its own page."""
     return {
         "format": "vvfp-cie-graph", "version": 6, "title": "The Long Night", "games": [int(game[2])],
-        "roles": {"mum": {"kind": "villager", "min_age": 14, "special": "nursing_parent", "protected": "allow"},
+        "roles": {"mum": {"kind": "villager", "min_age": 18, "special": "nursing_parent", "protected": "allow"},
                   "subject": {"kind": "villager", "min_age": 14}, "friend": {"kind": "villager", "min_age": 14}},
         "start": "p0",
         "nodes": {
@@ -1562,7 +1562,7 @@ class EngineFollowups(unittest.TestCase):
                     graph = copy.deepcopy(NEW_NAME_GRAPH)
                     graph["roles"]["chosen"]["last_name"] = last
                     r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana Bandele", 0, False)])
-                    r.p.export("VvfpStoryProbeGraphSexLast", 1, on)    # a keeper in: nothing is changed
+                    r.p.export("VvfpStoryProbeGraphSexLast", 0, on)
                     r.rolls([1] * 40)
                     self.assertIsNone(r.queue6(compiled(graph), strict=True, origin=2))
                     text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())   # unwrapped
@@ -1582,20 +1582,20 @@ class EngineFollowups(unittest.TestCase):
                             self.assertNotEqual(words[1], "Bandele")
                     self.assertTrue(r.p.read(r.v.record(1) + r.v.L["name"], 12) == b"Ana Bandele\0",
                                     "nobody is renamed")
-                    self.assertIn("could not be made", text, "the keeper refused the sex change")
-                    self.assertEqual(r.v.i32(1, r.v.L["sex"][0]), r.v.L["sex"][2], "the sex field is unchanged")
+                    self.assertNotIn("could not be made", text)
+                    self.assertEqual(r.v.i32(1, r.v.L["sex"][0]), r.v.L["sex"][1], "the sex change is made")
 
     def test_the_sex_change_in_every_game(self):
-        # cie-v6-binary.md 28: the game's sex field, refused while carrying or with a keeper in the game.
+        # cie-v6-binary.md 28: the game's sex field, made through native/shared/sex_change.h (the companions told,
+        # the history record written); a villager carrying or nursing changes too and goes on carrying.
         for game in GAME_IDS:
             if not have_stock(game):
                 continue
-            off, male, female = None, None, None
-            for case in ("made", "keeper", "nursing"):
+            for case in ("made", "nursing"):
                 with self.subTest(game=game, case=case):
                     r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
-                    off, male, female = r.v.L["sex"]
-                    r.p.export("VvfpStoryProbeGraphSexLast", 1 if case == "keeper" else 0, 0)
+                    off, male, _female = r.v.L["sex"]
+                    before = r.p.export("VvfpStoryProbeGraphSexLast", 0, 0)
                     if case == "nursing":
                         r.p.export("VvfpStoryProbeGraphNurseAtWalk", 1)   # carrying by the time it is made
                     r.rolls([1] * 40)
@@ -1605,14 +1605,18 @@ class EngineFollowups(unittest.TestCase):
                     self.assertIn("Ana's sex changes.", text)
                     self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
                     words = cg.GAMES[int(game[2])].preferences
+                    self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")
+                    self.assertEqual(r.p.export("VvfpStoryProbeGraphSexLast", 0, 0) - before, 1001,
+                                     "the companions told once, the history record written once")
                     if case == "made":
-                        self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")
                         self.assertNotIn("could not be made", text)
                         self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"),
                                       "the run still knows Ana after the change")
                     else:
-                        self.assertEqual(r.v.i32(1, off), female, "nothing changed")
-                        self.assertIn("could not be made", text)
+                        # The sex change is made; only the dislike is refused, as for anyone who starts nursing
+                        # between the event's queue and its walk (the harm guard), whatever the sex.
+                        self.assertIn("1 change could not be made", " ".join(text.split()))
+                        self.assertNotEqual(r.v.i32(1, r.v.L["pregnant"]), 0, "still carrying")
 
 
 VECTOR_AUTO = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "auto_lines_vv1")

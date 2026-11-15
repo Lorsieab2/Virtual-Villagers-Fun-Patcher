@@ -852,6 +852,23 @@ static int story_title_skills_float(int game) {
     return a != NULL && a->skills_float;
 }
 
+#ifdef VVFP_TEST
+/* The test build: the companions told and the history record counted, never looked for (cie-v6-binary.md 28). */
+static int test_graph_sex_told, test_graph_sex_history;
+static int test_sex_tell(int game, int slot, const unsigned char *record, const unsigned char *before) {
+    (void)game; (void)slot; (void)record; (void)before;
+    ++test_graph_sex_told;
+    return 0;
+}
+static void test_sex_history(int game, const unsigned char *record) {
+    (void)game; (void)record;
+    ++test_graph_sex_history;
+}
+#define VV_SEX_TELL_OWNERS test_sex_tell
+#define VV_SEX_HISTORY test_sex_history
+#endif
+#include "../shared/villager_rekey.h"
+#include "../shared/sex_change.h"         /* a villager's sex changed (cie-v6-binary.md 28) */
 #include "story_titles.inc"
 
 /* Villagers renamed as the village loaded (story_titles.inc titles_renamed): the game's name field. */
@@ -863,6 +880,16 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     return titles_renamed(game, slot, count, records, old_names, (unsigned int)a->off_name,
                           (unsigned int)a->name_bytes);
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): the custom title's fingerprint holds no sex, so it stays
+   theirs; the looks kept with it take the new sex now (titles_sex_changed). */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    (void)before;
+    if (ce_adapter_for(game) == NULL || record == NULL) {
+        return 0;
+    }
+    return titles_sex_changed(game, slot, (const unsigned char *)record);
 }
 
 #include "story_outcomes.inc"

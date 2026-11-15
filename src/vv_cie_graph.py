@@ -422,6 +422,7 @@ def fact_role(op: str, arg: Any) -> str | None:
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
 TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if": known before anyone is cast
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
+NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (cie-v6-binary.md 22)
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
 PRESENT_CODES = {"golden_child": 1, "tribal_chief": 2}
 PROTECTED_MODES = ("auto", "exclude", "allow")
@@ -1141,7 +1142,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             sex = r.get("sex", "any")
             if sex not in ("any", "male", "female"):
                 problems.append(f"{where}: a villager's sex is any, male or female")
-            min_age = r.get("min_age", 14)
+            min_age = r.get("min_age", NURSING_PARENT_MIN_AGE if r.get("special") == "nursing_parent" else 14)
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
@@ -1434,6 +1435,10 @@ def _norm_role_v6(r: dict, where: str, problems: list[str], sex: str, min_age: A
     if special is not None and special not in SPECIAL_CODES:
         problems.append(f"{where}: special is golden_child, tribal_chief or nursing_parent")
         special = None
+    if special == "nursing_parent" and _int_in(min_age, 0, 80) and min_age < NURSING_PARENT_MIN_AGE:
+        # Children never carry in events (the owner, 2026-11-15); the engine never casts one either
+        # (story_graph.inc CG_NURSING_MIN_AGE).  baby_lost acts only on such a role.
+        problems.append(f"{where}: a nursing_parent role has min_age {NURSING_PARENT_MIN_AGE} or more")
     return {"kind": "villager", "optional": bool(r.get("optional", False)), "sex": sex, "min_age": min_age,
             "max_age": max_age, "skill": skill, "special": special, "protected": protected,
             "believers_only": bool(r.get("believers_only", True))}

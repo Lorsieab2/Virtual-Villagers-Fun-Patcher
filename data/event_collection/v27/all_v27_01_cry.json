@@ -41,7 +41,7 @@
  "roles": {
   "parent": {
    "kind": "villager",
-   "min_age": 14,
+   "min_age": 18,
    "special": "nursing_parent"
   }
  },
