@@ -520,6 +520,918 @@
    "harm": [],
    "section": "v10"
   },
+  "c5a001_kiln_secret": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a002_talking_vessel": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a003_potter_rival": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a004_misplaced_label": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a005_potion_many": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a006_brewer_promise": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a007_transmutation": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a008_sealed_reagent": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a009_alchemist_debt": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a010_leaf_closes": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a011_traveling_seed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a012_great_herbarium": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a013_world_drop": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a014_crystal_lens": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a015_hidden_garden": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a016_color_change": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a017_curious_crystal": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a018_lab_spill": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a019_falling_contest": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a020_floating_stone": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a021_sounding_cavern": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a022_second_shadow": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a023_wandering_light": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a024_eclipse_watch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a025_endless_pattern": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a026_bridge_calc": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a027_unfair_division": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a028_diagnosis": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a029_first_patient": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a030_village_health": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a031_shield_dance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a032_trial_balance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a033_warrior_oath": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a034_two_chronicles": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a035_elder_memory": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a036_buried_archive": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a037_skyborne_canoe": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a038_deepwater_shell": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a039_outrigger": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a040_cloud_sail": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a041_hidden_harbor": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a042_vessel_no_oars": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a043_weaver_equation": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a044_interpreter": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a045_cartographer": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a046_mechanist": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a047_conservator": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5a048_congress": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b001_fireside_chorus": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b002_old_story": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b003_small_gift": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b004_patient_teacher": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b005_song_sleep": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b006_hard_question": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b007_meaning_enough": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b008_beyond_horizon": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b009_reach_stars": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b010_where_spirits": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b011_watching_over": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b012_life_ahead": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b013_old_mistake": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b014_unfair_blame": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b015_braided_hair": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b016_laundry_day": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b017_day_rest": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b018_wandering": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b019_little_wiser": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b020_quiet_meal": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b021_forgotten_name": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b022_borrowed_comb": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b023_compliment": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b024_unsent_apology": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b025_long_goodbye": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b026_new_neighbor": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b027_secret_talent": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b028_shared_blanket": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b029_broken_toy": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b030_fairness": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b031_smallest_helper": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b032_missing_hug": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b033_growing_child": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b034_old_lullaby": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b035_resemblance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b036_handmade": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b037_honest_answer": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b038_first_rain": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b039_sound_waves": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b040_morning_stretch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b041_afternoon_nap": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b042_little_joke": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b043_shared_secret": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b044_letter": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b045_quiet_birthday": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b046_familiar_scent": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b047_unfinished_song": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b048_opinion": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b049_long_walk": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b050_lucky_pebble": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b051_new_hairstyle": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b052_mended_shirt": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b053_extra_portion": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b054_quiet_triumph": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b055_failed_attempt": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b056_kindness": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b057_cloud_shapes": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b058_night_watch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b059_future_village": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b060_absent_friend": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b061_old_rival": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b062_responsibility": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b063_unwelcome": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b064_favorite_place": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b065_first_gray_hair": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b066_oldest_tree": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b067_passing_season": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b068_stolen_moment": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b069_tears": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b070_fear_failure": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b071_fear_success": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b072_tradition": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b073_silent_thank": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b074_last_ember": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b075_sudden_insight": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b076_question_home": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b077_story_stars": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b078_unspoken_worry": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b079_lost_argument": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b080_forgiveness": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b081_beautiful": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b082_child_drawing": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b083_future_elder": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b084_difficult": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b085_unusual_dream": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b086_evening_dance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b087_thankful": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b088_weathered_hands": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b089_uncertain": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b090_name_remembered": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b091_promise_return": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b092_warm_welcome": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b093_moment_courage": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b094_reconciliation": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b095_celebration": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b096_unhurried": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b097_borrowed_story": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b098_first_lesson": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b099_evening": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5b100_one_stayed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c001_second_bowl": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c002_rain_apology": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c003_crooked_braid": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c004_empty_nest": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c005_letter_never": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c006_friend_friend": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c007_tiny_funeral": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c008_good_day_reason": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c009_pebbles": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c010_goodbye": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c011_name_bark": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c012_ordinary_win": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c013_borrowed_laugh": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c014_seatmates": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c015_empty_hammock": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c016_last_mango": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c017_brave": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c018_night_watch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c019_forgotten_tune": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c020_missing_tooth": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c021_tidy_doorsteps": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c022_day_two_sunsets": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c023_lost_recipe": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c024_real_friend": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c025_small_sandals": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c026_unasked": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c027_sea_no_answer": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c028_anniversary": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c029_apology_worked": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c030_apology_didnt": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c031_little_inventor": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c032_same_gesture": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c033_pot_washer": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c034_warm_stone": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c035_great_nothing": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c036_old_argument": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c037_new_scar": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c038_after_festival": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c039_one_remembers": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c040_inherited_habit": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c041_bad_drawing": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c042_long_walk_home": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c043_wrong_name": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c044_candle_hope": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c045_future_stranger": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c046_morning_after": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c047_last_stitch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c048_guest_knows": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c049_unspoken_thank": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5c050_better_tomorrow": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev001_pattern_keeper": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev002_rainproof": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev003_doll_three": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev004_moving_toy": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev005_wall_memories": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev006_tailor_dilemma": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev007_carver_mistake": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev008_welcome_mat": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev009_unfinished_hut": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev010_borrowed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev011_island_table": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev012_shellfish_tide": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev013_fisher": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev014_egg_debate": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev015_pig_feast": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev016_grain": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev017_tropical_fruit": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev018_sea_garden": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev019_smoked_catch": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev020_delicacy": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev021_swimming": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev022_diver": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev023_coral_boundary": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev024_canoe_two_bows": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev025_sail_trial": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev026_coolest_hut": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev027_cold_night": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev028_storm_listener": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev029_flood_marker": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev030_lost_paddle": {
+   "harm": [],
+   "section": "c5"
+  },
   "vv1_child_of_legend": {
    "harm": [],
    "section": "original"

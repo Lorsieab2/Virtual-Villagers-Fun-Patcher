@@ -14,9 +14,10 @@ tests/story_emulator.py, the villagers laid out by tests/story_custom_fixtures.p
   * THE TROUBLE GUARD in every game on the game's own records: the stock rescue predicate (both sexes' rules, the
     population with the babies carried below 3), food below 10 a villager or none, half the village sick, fewer than
     6 villagers of 14 or more -- and New Believers' heathens never count;
-  * THE CHOICE: More Island Events and the collection 1:1 when both have candidates; within the collection each event
-    its draw weight and a series one event's weight; a candidate that cannot be armed is left out and the draw made
-    again; nothing armed when nothing can happen;
+  * THE CHOICE: every event equally likely across More Island Events and the collection (the Grand collection and
+    the Companion Anthology, one manifest; the owner, 2026-11-14): one draw over all of them, each More Island Events
+    event weight 1, each collection event its draw weight and a series one event's weight; a candidate that cannot
+    be armed is left out and the draw made again; nothing armed when nothing can happen;
   * THE SAVE'S FILE: the due roll is kept (in memory in the TEST build) and deleted once delivered or cancelled;
   * ONE FRAME AT A TIME through VvfpStoryInstall's own call (The Tree of Life, its clock stood in for).
 
@@ -335,17 +336,27 @@ class TheChoice(unittest.TestCase):
         self.assertFalse(armed)
         self.assertEqual(sorted(t & 0xFFFF for t in trace), [0, 1, 2, 3])   # every event tried once
 
-    def test_the_two_sources_one_to_one(self) -> None:
+    def test_every_event_equally_likely_across_the_sources(self) -> None:
+        # More Island Events' possible entries 0 and 2 (weight 1 each) and the collection's a_solo 1, b_heavy 3, the
+        # series 1: one draw over 2 + 5 = 7.  Draws 0-1 are More Island Events' (each refused here, as the emulated
+        # registry cannot arm: then 1 + 5, then the collection's 5), 2-6 the collection's.
+        for draw, expected in ((0, [0, 2, 0x10000 | 0]), (1, [2, 0, 0x10000 | 0]), (2, [0x10000 | 0]),
+                               (3, [0x10000 | 1]), (5, [0x10000 | 1]), (6, [0x10000 | 2])):
+            with self.subTest(draw=draw):
+                r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
+                r.rolls(draw, 0, 0)
+                armed, trace = self.choose(r)
+                self.assertTrue(armed)
+                self.assertEqual(trace, expected)
+        # No draw between the sources first: a refused More Island Events event leaves 1 + 5, drawn again.
         r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
-        r.rolls(0, 1, 1, 0, 0)                                 # source 0: More Island Events, its 2nd possible
-        armed, trace = self.choose(r)                          # (refused here), then the collection's first
-        self.assertTrue(armed)
-        self.assertEqual(trace, [2, 0x10000 | 0])              # registry entry 2 (entry 1 is not possible now)
-        r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
-        r.rolls(1, 0, 0)                                       # source 1: the collection
+        r.rolls(1, 1, 0)                                       # registry entry 2 (refused), then the collection's first
         armed, trace = self.choose(r)
         self.assertTrue(armed)
-        self.assertEqual(trace, [0x10000 | 0])
+        self.assertEqual(trace, [2, 0x10000 | 0])
+        r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
+        r.rolls(6, 1)                                          # the series, then its second member
+        self.assertEqual(self.choose(r), (True, [0x10000 | 3]))
 
     def test_more_island_events_alone(self) -> None:
         r = self.roll(more=[1, 1], more_ok=0, coll_ok=0, manifest="")

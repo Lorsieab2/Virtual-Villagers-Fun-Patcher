@@ -50,23 +50,39 @@ CREDITS = {
     "v27": ("mixed", [(10436, 10438)]),
     "v28": ("mixed", [(10950, 10951)]),
     "ledger": ("ledger", [(1, 91)]),
+    # The Companion Anthology (its own lines): the anthology's credit (L4-5) and each volume's or part's own.
+    "comp_ledger": ("ledger", [(1, 16)], "companion"),
+    "comp_c5a": ("mixed", [(4, 5), (57, 58)], "companion"),
+    "comp_c5b": ("mixed", [(4, 5), (1127, 1128)], "companion"),
+    "comp_c5c": ("mixed", [(4, 5), (2031, 2032)], "companion"),
+    "comp_c5": ("mixed", [(4, 5), (28, 29)], "companion"),
+    "comp_lbl": ("mixed", [(4, 5), (3775, 3776)], "companion"),
+    "comp_fwk": ("mixed", [(4, 5), (5404, 5405)], "companion"),
+    "comp_sss": ("mixed", [(4, 5), (6053, 6053)], "companion"),
+    "comp_sss2": ("mixed", [(4, 5), (6771, 6771)], "companion"),
+    "comp_cat": ("mixed", [(4, 5), (7088, 7088)], "companion"),
 }
 
 SERIES = ("v14_golden_child", "v17_contests", "v18_trials", "v20_crises")
+# The Living Catalogue's templates (the same text, the species swapped): each group is one series (the owner,
+# 2026-11-14: "Series, such as the Living Catalogue templates, still count as one").
+COMPANION_SERIES = ("cat_bodies", "cat_fins", "cat_foliage", "cat_flowers", "cat_magic_fish", "cat_magic_plants",
+                    "cat_creatures")
 ALL = [1, 2, 3, 4, 5]
 
 ROWS: list[dict] = []
 
 
 def R(id, title, games, a, b, kind, section, credit, choices=0, pools=None, effects=(), deaths=False, series=None,
-      **extra):
+      source=lib.SOURCE_ID, **extra):
     """One manifest row.  pools: {label: n} -- n an int (a bank under that heading), or (n, line) for an inline
-    "(a/b/c)" bank on that line, or (n, None) for a count the script cannot locate (unverified)."""
+    "(a/b/c)" bank on that line, or (n, None) for a count the script cannot locate (unverified).  `source`: the
+    frozen source whose lines `a`..`b` are (collection_lib.SOURCES)."""
     if games:
         id = short_id(id, VV1_ID_MAX if 1 in games else ID_MAX)     # its .cieg's path must fit a deep game folder
     ROWS.append(dict(id=id, title=title, games=list(games), lines=[a, b], kind=kind, section=section, credit=credit,
                      choices=choices, pools=dict(pools or {}), effects=list(effects), deaths=deaths, series=series,
-                     **extra))
+                     source=source, **extra))
 
 
 ID_MAX = 30          # an event id's longest (scripts/build_event_collection_features.py ID_MAX)
@@ -105,8 +121,8 @@ def short_id(id: str, cap: int = ID_MAX) -> str:
     return id
 
 
-def N(id, title, a, b, section, credit="ledger", pools=None):
-    R(id, title, [], a, b, "notes", section, credit, pools=pools)
+def N(id, title, a, b, section, credit="ledger", pools=None, source=lib.SOURCE_ID):
+    R(id, title, [], a, b, "notes", section, credit, pools=pools, source=source)
 
 
 # ---- Part 1 (lines 1-3519) --------------------------------------------------------------------------------------------
@@ -499,6 +515,183 @@ N("notes_v27_end", "END OF V27 ADDITION", 10945, 10945, "v27", "v27")
 N("notes_v28_addendum", "V28 Addendum - consequences that follow the villagers, and the retrofit instructions", 10948,
   11125, "v28", "v28")
 
+# ---- The Companion Anthology (the second source, collection_lib.COMPANION; its own line numbers) ----------------------
+#
+# Five volumes, 749 events (the anthology's contents, L7-14).  Its notes sections (headers, rules, credits, the
+# implementation prompts) are the rows below, by hand; its events are found by their headings inside each volume's
+# lines.  An event runs from its heading -- or from the group heading just above it ("POTTERY", "TEXTILES, CRAFTS AND
+# HOMES" with its rule lines), which its file's ledger takes as structural -- to its last line before the next event,
+# the next notes row or the volume's end.  Files go in data/event_collection/companion/<section>/<id>.json.
+
+COMP = lib.COMPANION_ID
+COMPANION_NOTES = [
+    ("cnotes_header", "Companion anthology: title, credits and contents", 1, 16, "c5", "comp_ledger"),
+    ("cnotes_c5_rules", "Companion Volume 5: header, contents and rules", 20, 47, "c5", "comp_c5"),
+    ("cnotes_c5a_notes", "Vol 1 Part 1: credits, canon and the event format", 51, 84, "c5", "comp_c5a"),
+    ("cnotes_c5a_end", "Vol 1 Part 1: end", 1117, 1117, "c5", "comp_c5a"),
+    ("cnotes_c5b_notes", "Vol 1 Part 2: credits and design notes", 1121, 1140, "c5", "comp_c5b"),
+    ("cnotes_c5b_end", "Vol 1 Part 2: end", 2017, 2017, "c5", "comp_c5b"),
+    ("cnotes_c5c_notes", "Vol 1 Part 3: credits and the volume's rules", 2021, 2038, "c5", "comp_c5c"),
+    ("cnotes_c5c_end", "Vol 1 Part 3: end", 2653, 2653, "c5", "comp_c5c"),
+    ("cnotes_c5d_header", "Vol 1 Part 4: heading", 2657, 2659, "c5", "comp_c5"),
+    ("cnotes_c5d_end", "Vol 1 Part 4: end", 3310, 3310, "c5", "comp_c5"),
+    ("cnotes_c5e_header", "Vol 1 Part 5: heading", 3313, 3317, "c5", "comp_c5"),
+    ("cnotes_c5e_pool_engine", "Vol 1 Part 5: further tribal activity pool and engine notes", 3745, 3762, "c5",
+     "comp_c5"),
+    ("cnotes_lbl_rules", "The Lives Between Legends: credits, engine rules and implementation prompt", 3766, 3790,
+     "lbl", "comp_lbl"),
+    ("cnotes_lbl_end", "The Lives Between Legends: end", 5393, 5393, "lbl", "comp_lbl"),
+    ("cnotes_fwk_rules", "The Four Ways of Knowing: credits, rules and Part I", 5397, 5415, "fwk", "comp_fwk"),
+    ("cnotes_fwk_part2", "The Four Ways of Knowing: Part II", 5857, 5858, "fwk", "comp_fwk"),
+    ("cnotes_fwk_part3", "The Four Ways of Knowing: Part III retrofit prompt", 6040, 6043, "fwk", "comp_fwk"),
+    ("cnotes_sss_notes", "Stone, Spirit, Strangers: credits and integration notes", 6046, 6067, "sss", "comp_sss"),
+    ("cnotes_sss_prompt", "Stone, Spirit, Strangers: expansion prompt", 6759, 6765, "sss", "comp_sss"),
+    ("cnotes_sss2_rules", "Volume II, The Inner Lives of Isola: credits and narration rules", 6768, 6773, "sss",
+     "comp_sss2"),
+    ("cnotes_sss2_end", "Volume II: retroactive integration note", 7075, 7079, "sss", "comp_sss2"),
+    ("cnotes_cat_rules", "The Living Catalogue: credits, rules and taxonomy", 7082, 7107, "cat", "comp_cat"),
+    ("cnotes_cat_prompt", "The Living Catalogue: implementation prompt", 8957, 8961, "cat", "comp_cat"),
+]
+
+# (key, first line, last line, heading regex, id prefix, section, credit, choice_re or None, expected choices)
+# expected choices: an int, or a function of the event's lines (the format the event uses).
+_NONE = r"^(?!)"
+_LETTERS = r"^[A-D]\.\s"          # an indented " A. ..." choice line (the line is stripped first)
+
+
+def _p2_choices(text: str) -> int:
+    return 2 if "TWO CHOICES:" in text else 3 if "THREE CHOICES:" in text else 0
+
+
+def _p3_choices(text: str) -> int:
+    return 2 if re.search(r"^CHOICES:\s*$", text, re.M) else 0
+
+
+COMPANION_VOLUMES = [
+    ("c5a", 85, 1116, r"^EVENT (\d{3}) — (.+)$", "c5a", "c5", "comp_c5a", _LETTERS, 3),
+    ("c5b", 1141, 2016, r"^EVENT (\d{3}) — (.+)$", "c5b", "c5", "comp_c5b", _LETTERS, _p2_choices),
+    ("c5c", 2039, 2652, r"^SMALL LIFE EVENT (\d{3}) — (.+)$", "c5c", "c5", "comp_c5c", _LETTERS, _p3_choices),
+    ("c5d", 2660, 3309, r"^EVENT N(\d{3}) — (.+)$", "c5dn", "c5", "comp_c5", None, 0),
+    ("c5e", 3318, 3744, r"^EVENT V(\d{3}) — (.+)$", "c5ev", "c5", "comp_c5", _NONE, 0),
+    ("lbl", 3791, 5392, r"^EVENT (\d{3}) — (.+)$", "lbl", "lbl", "comp_lbl", r"^PLAYER RESPONSE [A-C]\b", 3),
+    ("fwk", 5416, 6039, r"^EVENT (\d{3}) — (.+)$", "fwk", "fwk", "comp_fwk", None, 4),
+    ("sss", 6068, 7074, r"^EVENT (\d{3}): (.+)$", "sss", "sss", "comp_sss", None, 3),
+    ("cat", 7108, 8956, r"^EVENT (\d{3}) — (.+)$", "cat", "cat", "comp_cat", None, 4),
+]
+# Part 5's V060 offers three numbered player options (L3728-3731).
+COMPANION_CHOICES = {"c5ev060": (r"^[1-3]\.\s", 3)}
+CAT_SERIES = [(1, 28, "cat_bodies"), (29, 56, "cat_fins"), (57, 79, "cat_foliage"), (80, 116, "cat_flowers"),
+              (117, 123, "cat_magic_fish"), (124, 129, "cat_magic_plants"), (130, 134, "cat_creatures")]
+# The source's title where it carries a designer suffix (the owner may rename it: inventory Q7).
+COMPANION_TITLES = {"c5ev060": "How Did We Get Here?"}
+# Where the word rule (companion_slug) would leave an id that no longer names its event: the id to use instead.
+COMPANION_IDS: dict[str, str] = {
+    "c5a007": "c5a007_transmutation", "c5a015": "c5a015_hidden_garden", "c5a018": "c5a018_lab_spill",
+    "c5a026": "c5a026_bridge_calc", "c5a028": "c5a028_diagnosis", "c5a029": "c5a029_first_patient",
+    "c5a039": "c5a039_outrigger", "c5a042": "c5a042_vessel_no_oars", "c5a044": "c5a044_interpreter",
+    "c5a045": "c5a045_cartographer", "c5a046": "c5a046_mechanist", "c5a048": "c5a048_congress",
+    "c5c004": "c5c004_empty_nest", "c5c009": "c5c009_pebbles", "c5c010": "c5c010_goodbye",
+    "c5c012": "c5c012_ordinary_win", "c5c014": "c5c014_seatmates", "c5c017": "c5c017_brave",
+    "c5c021": "c5c021_tidy_doorsteps", "c5c024": "c5c024_real_friend", "c5c025": "c5c025_small_sandals",
+    "c5c026": "c5c026_unasked", "c5c027": "c5c027_sea_no_answer", "c5c028": "c5c028_anniversary",
+    "c5b006": "c5b006_hard_question", "c5b011": "c5b011_watching_over", "c5b030": "c5b030_fairness",
+    "c5b035": "c5b035_resemblance", "c5c032": "c5c032_same_gesture", "c5c033": "c5c033_pot_washer",
+    "c5c038": "c5c038_after_festival", "c5c046": "c5c046_morning_after",
+    "cat125": "cat125_knowledge", "cat132": "cat132_pufferfish",
+}
+
+
+def companion_subject(title: str) -> str:
+    """The words an id names: the species of a Living Catalogue template, else the title."""
+    for rx in (r"^A Record of the (.+)$", r"^The (.+?)(?: Fin)? Fin Question$", r"^The (.+) (?:Study|Bloom)$",
+               r"^Magic (?:Fish|Plant) of (.+?):", r"^([^:]+): (?:A Question of Cause|The Uncertain Gift|"
+               r"A Living Record)$"):
+        m = re.match(rx, title)
+        if m:
+            return m.group(1) + (" fin" if "Fin Question" in title and not m.group(1).endswith("Fin") else "")
+    return title
+SMALL_WORDS = {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "with", "from", "into"}
+
+
+def title_case(t: str) -> str:
+    """An all-capitals heading (The Four Ways of Knowing) in title case; any other title as written."""
+    if t != t.upper():
+        return t
+    words = t.lower().split(" ")
+    return " ".join(w if (i and w in SMALL_WORDS) else w[:1].upper() + w[1:] for i, w in enumerate(words))
+
+
+SLUG_STOP = {"the", "a", "an", "of", "in", "that", "to", "and", "who", "with", "for", "on", "at", "by", "from", "is",
+             "it", "its", "was", "be", "into", "or", "as", "than", "no", "not"}
+SLUG_GENERIC = {"great", "first", "little", "small", "new", "old", "very", "unexpected", "quiet", "day", "one",
+                "almost", "too", "last", "different", "kind", "real", "unlikely", "strange", "secret", "single"}
+
+
+def companion_slug(title: str, room: int) -> str:
+    """The title's words for an id: no little words, then no generic ones while too long, then cut at a word; at
+    most `room` characters (an A New Home id is at most 22 with its prefix)."""
+    t = lib.normalize_source_text(title).lower().replace("'s ", " ").replace("'", "")
+    t = re.sub(r"\(.*?\)", "", t)
+    words = [w for w in re.split(r"[^a-z0-9]+", t) if w]
+    words = [w for w in words if w not in SLUG_STOP] or words
+    if len("_".join(words)) > room:
+        words = [w for w in words if w not in SLUG_GENERIC] or words
+    while len(words) > 1 and len("_".join(words)) > room:
+        words = words[:-1]
+    return "_".join(words)[:room]
+
+
+def _is_heading_line(s: str) -> bool:
+    """A group heading's line (capitals only, or a separator): part of the next event's block."""
+    s = s.strip()
+    return bool(s) and (lib.is_separator(s) or (s == s.upper() and re.search(r"[A-Z]", s) is not None))
+
+
+def _companion_rows() -> None:
+    with lib.use_source(COMP):
+        notes = sorted((a, b) for _, _, a, b, _, _ in COMPANION_NOTES)
+        in_notes = {n for a, b in notes for n in range(a, b + 1)}
+        for nid, title, a, b, section, credit in COMPANION_NOTES:
+            N(nid, title, a, b, section, credit, source=COMP)
+        for key, first, last, heading, prefix, section, credit, choice_re, want in COMPANION_VOLUMES:
+            rx = re.compile(heading)
+            heads = [n for n in range(first, last + 1) if rx.match(lib.line(n))]
+            starts = []
+            for h in heads:                       # the block: the group heading above the event belongs to it
+                s, n = h, h - 1
+                while n >= first and n not in in_notes and n not in heads and (
+                        not lib.line(n).strip() or _is_heading_line(lib.line(n))):
+                    if lib.line(n).strip():
+                        s = n
+                    n -= 1
+                starts.append(s)
+            for i, h in enumerate(heads):
+                stop = starts[i + 1] if i + 1 < len(heads) else last + 1
+                stop = min([stop] + [a for a, _ in notes if h < a < stop])
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = rx.match(lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{prefix}{num.lower()}"
+                title = COMPANION_TITLES.get(eid, title_case(src_title))
+                text = "\n".join(lib.line(n) for n in range(h, e + 1))
+                c_re, c_want = COMPANION_CHOICES.get(eid, (choice_re, want))
+                series = None
+                if key == "cat":
+                    series = next(s for lo, hi, s in CAT_SERIES if lo <= int(num) <= hi) \
+                        if int(num) <= CAT_SERIES[-1][1] else None
+                cr = "comp_sss2" if key == "sss" and int(num) >= 68 else credit
+                extra = {"choice_re": c_re} if c_re else {}
+                subject = companion_subject(COMPANION_TITLES.get(eid, src_title))
+                R(COMPANION_IDS.get(eid) or f"{eid}_{companion_slug(subject, VV1_ID_MAX - len(eid) - 1)}",
+                  title, ALL, starts[i], e,
+                  "event", section, cr, c_want(text) if callable(c_want) else c_want, series=series, source=COMP,
+                  **extra)
+
+
+_companion_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -511,7 +704,7 @@ def title_found(row: dict) -> bool | None:
     if row["kind"] in ("notes", "bank"):
         return None
     a = row["lines"][0]
-    head = " ".join(_norm(lib.line(n)) for n in range(a, min(a + 8, lib.SOURCE_LINES + 1)))
+    head = " ".join(_norm(lib.line(n)) for n in range(a, min(a + 8, lib.n_lines() + 1)))
     want = _norm(row["title"].split(":")[-1].split(" / ")[0])
     want = re.sub(r"^the ", "", want)
     return want in head
@@ -535,7 +728,7 @@ def boundary_problems(row: dict) -> list[str]:
         out.append(f"line {b} (last) is blank")
     if a > 1 and not lib.is_blank_or_separator(a - 1) and not lib.is_separator(lib.line(a)):
         out.append(f"line {a - 1} before the row is not blank")
-    if b < lib.SOURCE_LINES and not lib.is_blank_or_separator(b + 1):
+    if b < lib.n_lines() and not lib.is_blank_or_separator(b + 1):
         out.append(f"line {b + 1} after the row is not blank")
     return out
 
@@ -610,7 +803,7 @@ def _logical_line(n: int) -> str:
     """Line n with the indented lines that continue it."""
     s = lib.normalize_source_text(lib.line(n))
     m = n + 1
-    while m <= lib.SOURCE_LINES and re.match(r"^\s+\S", lib.line(m)):
+    while m <= lib.n_lines() and re.match(r"^\s+\S", lib.line(m)):
         s += " " + lib.normalize_source_text(lib.line(m)).strip()
         m += 1
     return s
@@ -716,9 +909,10 @@ def verify(row: dict) -> tuple[dict, list[str]]:
 
 
 def credit_text(key: str) -> dict:
-    who, ranges = CREDITS[key]
-    return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
-            "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
+    who, ranges, *src = CREDITS[key]
+    with lib.use_source(src[0] if src else lib.SOURCE_ID):
+        return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
+                "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
 
 
 def uncovered(rows: list[dict]) -> list[str]:
@@ -726,7 +920,7 @@ def uncovered(rows: list[dict]) -> list[str]:
     for r in rows:
         covered.update(range(r["lines"][0], r["lines"][1] + 1))
     out, run = [], None
-    for n in range(1, lib.SOURCE_LINES + 1):
+    for n in range(1, lib.n_lines() + 1):
         miss = n not in covered and not lib.is_blank_or_separator(n)
         if miss and run is None:
             run = [n, n]
@@ -768,7 +962,8 @@ def build() -> dict:
     for r in ROWS:
         row = json.loads(json.dumps(r, default=list))
         row["pools"] = dict(r["pools"])
-        checks, dis = verify(row)       # against the source's own heading
+        with lib.use_source(row["source"]):
+            checks, dis = verify(row)       # against the source's own heading
         owner = lib.owner_titles().get(row["id"])
         if owner is not None:
             # the owner's rename (docs/event-collection/owner-title-changes.md): the title every game shows; the
@@ -783,19 +978,35 @@ def build() -> dict:
         row["source_check"] = checks
         rows.append(row)
         all_dis.extend({"id": row["id"], "lines": lib.fmt_src(*row["lines"]), "what": d} for d in dis)
-    events = [r for r in rows if r["kind"] in ("event", "addon")]
+
+    def counts(mine: list[dict], series: tuple) -> dict:
+        return {"rows": len(mine), "events": sum(r["kind"] == "event" for r in mine),
+                "addons": sum(r["kind"] == "addon" for r in mine), "banks": sum(r["kind"] == "bank" for r in mine),
+                "notes": sum(r["kind"] == "notes" for r in mine),
+                "events_and_addons": sum(r["kind"] in ("event", "addon") for r in mine),
+                "series": {s: sum(r["series"] == s for r in mine) for s in series}}
+
+    grand = [r for r in rows if r["source"] == lib.SOURCE_ID]
+    comp = [r for r in rows if r["source"] == lib.COMPANION_ID]
+    with lib.use_source(lib.COMPANION_ID):
+        companion = {
+            "source": str(lib.COMPANION.relative_to(lib.ROOT)).replace("\\", "/"),
+            "source_sha256": lib.source_sha256(lib.COMPANION_ID),
+            "counts": counts(comp, COMPANION_SERIES),
+            "uncovered_lines": uncovered(comp),
+            "overlaps": overlaps(comp),
+        }
     return {
         "format": "vvfp-event-collection-manifest", "version": 1,
         "source": str(lib.SOURCE.relative_to(lib.ROOT)).replace("\\", "/"),
         "source_sha256": lib.source_sha256(),
-        "counts": {"rows": len(rows), "events": sum(r["kind"] == "event" for r in rows),
-                   "addons": sum(r["kind"] == "addon" for r in rows), "banks": sum(r["kind"] == "bank" for r in rows),
-                   "notes": sum(r["kind"] == "notes" for r in rows), "events_and_addons": len(events),
-                   "series": {s: sum(r["series"] == s for r in rows) for s in SERIES}},
+        "counts": counts(grand, SERIES),
         "disagreements": all_dis,
         "inventory_disagreements": INVENTORY_DISAGREEMENTS,
-        "uncovered_lines": uncovered(rows),
-        "overlaps": overlaps(rows),
+        "uncovered_lines": uncovered(grand),
+        "overlaps": overlaps(grand),
+        # The second source (collection_lib.COMPANION): its rows are in "rows" with "source": "companion".
+        "companion": companion,
         "rows": rows,
     }
 
@@ -819,6 +1030,8 @@ def main(argv=None) -> int:
     data = json.loads(text)
     print(f"wrote {lib.MANIFEST.relative_to(lib.ROOT)}: {data['counts']}")
     print(f"{len(data['disagreements'])} disagreements, uncovered {data['uncovered_lines']}, overlaps {data['overlaps']}")
+    c = data["companion"]
+    print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     return 0
 
 

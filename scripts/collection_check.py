@@ -70,7 +70,8 @@ ALL_SKILLS = {1: ("Parenting", "Building", "Farming", "Healing", "Research"),
               5: ("Farming", "Parenting", "Healing", "Research", "Building", "Devotion")}
 SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
-            "v18", "v20", "v21", "v22", "v23", "v24", "v27")
+            "v18", "v20", "v21", "v22", "v23", "v24", "v27",
+            "c5", "lbl", "fwk", "sss", "cat")    # the Companion Anthology's volumes (data/event_collection/companion/)
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
@@ -437,14 +438,16 @@ def manifest_rows() -> dict[str, dict]:
     return {r["id"]: r for r in json.loads(lib.MANIFEST.read_text(encoding="utf-8"))["rows"]}
 
 
-def grammar_doc_fixes() -> set[tuple[int, str, str]]:
-    """(line, before, after) of every fix in docs/event-collection/grammar-fixes.md (table rows
-    "| L104 | `before` | `after` | ... |")."""
+def grammar_doc_fixes(source: str = lib.SOURCE_ID) -> set[tuple[int, str, str]]:
+    """(line, before, after) of every fix of `source` in docs/event-collection/grammar-fixes.md (table rows
+    "| L104 | `before` | `after` | ... |" for the Grand collection's source, "| companion L7542 | ..." for the
+    Companion Anthology's)."""
     out = set()
     if not lib.GRAMMAR_FIXES_DOC.exists():
         return out
+    prefix = "" if source == lib.SOURCE_ID else re.escape(source) + r"\s+"
     for row in lib.GRAMMAR_FIXES_DOC.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^\|\s*L(\d+)\s*\|\s*`(.*?)`\s*\|\s*`(.*?)`\s*\|", row)
+        m = re.match(r"^\|\s*" + prefix + r"L(\d+)\s*\|\s*`(.*?)`\s*\|\s*`(.*?)`\s*\|", row)
         if m:
             out.add((int(m.group(1)), m.group(2), m.group(3)))
     return out
@@ -482,7 +485,7 @@ def ledger_maps(doc: dict, rep: Report):
         if e["kind"] in ("note", "instruction") and not e.get("why") and e["kind"] == "note":
             pass
     fixes: dict[int, list[tuple[str, str]]] = {}
-    doc_fixes = grammar_doc_fixes()
+    doc_fixes = grammar_doc_fixes(lib.active_source())
     for i, f in enumerate(doc.get("grammar_fixes", []) or []):
         where = f"grammar fix {i + 1}"
         try:
@@ -615,7 +618,8 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
             shared.update(lib.src_lines(spec))
         except ValueError as ex:
             rep.add("c COVERAGE", f"shared_lines: {ex}")
-    notes_lines = {n for r in manifest_rows().values() if r["kind"] == "notes"
+    notes_lines = {n for r in manifest_rows().values()
+                   if r["kind"] == "notes" and r.get("source", lib.SOURCE_ID) == lib.active_source()
                    for n in range(r["lines"][0], r["lines"][1] + 1)}
     if shared - notes_lines:
         rep.add("c COVERAGE", f"shared_lines outside a notes section: {compress(sorted(shared - notes_lines))}")
@@ -1199,8 +1203,8 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
         rep.add("a SCHEMA", f"file is in {path.parent.name}/, the manifest's section is {row['section']}/")
     if col.get("lines") != row["lines"]:
         rep.add("a SCHEMA", f"collection.lines {col.get('lines')} is not the manifest's {row['lines']}")
-    if col.get("source") != lib.SOURCE_ID:
-        rep.add("a SCHEMA", f"collection.source is {lib.SOURCE_ID!r}")
+    if col.get("source") != row.get("source", lib.SOURCE_ID):
+        rep.add("a SCHEMA", f"collection.source is {row.get('source', lib.SOURCE_ID)!r} (the manifest row's source)")
     if col.get("credit") != row["credit"]["text"]:
         rep.add("a SCHEMA", "collection.credit is not the verbatim credit text of the manifest row")
     if col.get("series") != row["series"]:
@@ -1228,6 +1232,15 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
     return row
 
 
+def file_source(doc: dict, rows: dict) -> str:
+    """The source a file's src tags mean: its manifest row's (the file's own collection.source when it has no row;
+    check_shape reports any mismatch)."""
+    col = doc.get("collection") if isinstance(doc.get("collection"), dict) else {}
+    row = rows.get(col.get("id"))
+    src = row.get("source", lib.SOURCE_ID) if row else col.get("source")
+    return src if src in lib.SOURCES else lib.SOURCE_ID
+
+
 def check_file(path: Path, rows: dict | None = None) -> Report:
     rows = manifest_rows() if rows is None else rows
     rep = Report(str(path.relative_to(lib.ROOT)) if path.is_relative_to(lib.ROOT) else str(path))
@@ -1236,15 +1249,16 @@ def check_file(path: Path, rows: dict | None = None) -> Report:
     except (OSError, ValueError) as ex:
         rep.add("a SCHEMA", f"not readable JSON: {ex}")
         return rep
-    row = check_shape(doc, path, rows, rep)
-    check_fidelity_and_coverage(doc, row, rep)
-    check_tokens(doc, row, rep)
-    check_effects(doc, rep)
-    check_safety(doc, rep)
-    check_chances(doc, rep)
-    check_engine(doc, rep)
-    check_description(doc, rep)
-    check_guardians(doc, rep)
+    with lib.use_source(file_source(doc, rows)):     # every src tag of the file means its source's lines
+        row = check_shape(doc, path, rows, rep)
+        check_fidelity_and_coverage(doc, row, rep)
+        check_tokens(doc, row, rep)
+        check_effects(doc, rep)
+        check_safety(doc, rep)
+        check_chances(doc, rep)
+        check_engine(doc, rep)
+        check_description(doc, rep)
+        check_guardians(doc, rep)
     text = path.read_text(encoding="utf-8")
     if text != canonical(doc):
         rep.add("g ROUND", "the file is not in canonical form (python scripts/collection_check.py --format FILE)")
@@ -1258,7 +1272,8 @@ def fill_from_manifest(doc: dict, rows: dict) -> None:
     row = rows.get(col.get("id")) if isinstance(col, dict) else None
     if row is None:
         return
-    fresh = {"id": row["id"], "source": lib.SOURCE_ID, "lines": row["lines"], "section": row["section"],
+    fresh = {"id": row["id"], "source": row.get("source", lib.SOURCE_ID), "lines": row["lines"],
+             "section": row["section"],
              "credit": row["credit"]["text"], "draw_weight": col.get("draw_weight", 1), "series": row["series"]}
     rest = {k: v for k, v in col.items() if k not in fresh}
     doc["collection"] = {**fresh, **rest}
@@ -1295,7 +1310,9 @@ def check_shared_pools() -> list[str]:
 
 
 def collection_files() -> list[Path]:
-    return sorted(p for p in lib.COLLECTION_DIR.glob("*/*.json"))
+    """Every event file: data/event_collection/<section>/<id>.json and
+    data/event_collection/companion/<section>/<id>.json."""
+    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:
@@ -1307,10 +1324,11 @@ def ledger_summary(doc: dict) -> list[str]:
         for t in n.get("text_only", []) or []:
             out.append(f"  text only {t['src']} ({nid}): {t.get('what', '')} -- {t['reason']}")
     subs = set()
-    for f in text_fields(doc):
-        if f.src:
-            for n in lib.src_lines(f.src):
-                subs.update(lib.substitutions_in(lib.line(n)))
+    with lib.use_source(file_source(doc, manifest_rows())):
+        for f in text_fields(doc):
+            if f.src:
+                for n in lib.src_lines(f.src):
+                    subs.update(lib.substitutions_in(lib.line(n)))
     if subs:
         out.append(f"  authoring substitutions: {', '.join(sorted(subs))}")
     fallback = sorted({c for f in text_fields(doc) for c in f.text if c in ";&%"} |

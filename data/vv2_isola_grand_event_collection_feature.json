@@ -5,14 +5,14 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 136 events in this game in this build. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\\Credits.txt\"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 364 events in this game in this build. Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv2_story_cheat_upgrades",
     "vv2_scrolling_popups"
   ],
   "behavior_changes": [
-    "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. More Island Events and the collection are drawn 1:1, each event of the collection by its draw weight, a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it.",
+    "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it.",
     "The events of this game are compiled .cieg files in \"Virtual Villagers Fun Patcher Files\\Island Event Collection\", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's \"Isola Grand Event Collection\" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never)."
   ],
   "explicit_non_changes": [
@@ -24,12 +24,12 @@
     {
       "source": "assets/event_collection/vv2/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "6C8D9BB642A4CB03BC6229586C1714797B8892BC3534C74A5043D579BBC39745"
+      "sha256": "E7CC6921C03A579DD5FE1953AA09BF2C2A67A2C9ADD1F9B80BA8D91F4CAEB0D3"
     },
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "53C14BDF2D9761E9EB38EA2873DFCC376757AD2A1F7D14CD921B39FA4BFE8393"
+      "sha256": "23BFB5562CAFE1B38BCF051B3D0FC1AE3C8E8111632144CA461327962D4B0F4D"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",
@@ -630,6 +630,1146 @@
       "source": "assets/event_collection/all_very_bad_day.cieg",
       "destination": "Island Event Collection/all_very_bad_day.cieg",
       "sha256": "04B3F5ACC654C116332D445ED6CE8BBB5C0C6822B24668640668192F2ADDB477"
+    },
+    {
+      "source": "assets/event_collection/c5a001_kiln_secret.cieg",
+      "destination": "Island Event Collection/c5a001_kiln_secret.cieg",
+      "sha256": "070E036FFA35797677987B2852A5F78DA6F0BA91EF11EB9CD8211D86DF97B00D"
+    },
+    {
+      "source": "assets/event_collection/c5a002_talking_vessel.cieg",
+      "destination": "Island Event Collection/c5a002_talking_vessel.cieg",
+      "sha256": "11325A2A218CCCFF09554C2653714837963549BFBC25F8CC843FBA61996A0A41"
+    },
+    {
+      "source": "assets/event_collection/c5a003_potter_rival.cieg",
+      "destination": "Island Event Collection/c5a003_potter_rival.cieg",
+      "sha256": "812DCA088807EB0D2E737F996C8BDBFDFF653DC6E4F90F584444CEE2668B90C9"
+    },
+    {
+      "source": "assets/event_collection/c5a004_misplaced_label.cieg",
+      "destination": "Island Event Collection/c5a004_misplaced_label.cieg",
+      "sha256": "7FD3120193325B2BD92B12A14FA16FABF369CB04C827990AC6F39BC09BB89442"
+    },
+    {
+      "source": "assets/event_collection/c5a005_potion_many.cieg",
+      "destination": "Island Event Collection/c5a005_potion_many.cieg",
+      "sha256": "F96375EE0E60B80519D3428FFA79F7FF774FB62EEA72B8DBA23907ECDC046C99"
+    },
+    {
+      "source": "assets/event_collection/c5a006_brewer_promise.cieg",
+      "destination": "Island Event Collection/c5a006_brewer_promise.cieg",
+      "sha256": "93900B6BF44EB5406EA04E69960D3B1A1029FE4D2EADB217ACF4455EFB0B569D"
+    },
+    {
+      "source": "assets/event_collection/c5a007_transmutation.cieg",
+      "destination": "Island Event Collection/c5a007_transmutation.cieg",
+      "sha256": "F7D2A850D79ECAE06E14F48D0D9BC7D659A1610469014C14F8F7B0116F32F598"
+    },
+    {
+      "source": "assets/event_collection/c5a008_sealed_reagent.cieg",
+      "destination": "Island Event Collection/c5a008_sealed_reagent.cieg",
+      "sha256": "16717BD819008D574B7E012345407272A1126A2CF45A009746957113F1265F97"
+    },
+    {
+      "source": "assets/event_collection/c5a009_alchemist_debt.cieg",
+      "destination": "Island Event Collection/c5a009_alchemist_debt.cieg",
+      "sha256": "12E5803DE14B11355EF891DB21CAA540405F2B6FAB5999D4F1AB219980720BFF"
+    },
+    {
+      "source": "assets/event_collection/c5a010_leaf_closes.cieg",
+      "destination": "Island Event Collection/c5a010_leaf_closes.cieg",
+      "sha256": "1C33AA892CAB30AC484FFB6CF4ABD8DB096ED63E80A40BE4B877151883426887"
+    },
+    {
+      "source": "assets/event_collection/c5a011_traveling_seed.cieg",
+      "destination": "Island Event Collection/c5a011_traveling_seed.cieg",
+      "sha256": "A352FAE5CE2CA11CA44C8493DB23A67CCA99282B528C1EF626E1689F0A9906CF"
+    },
+    {
+      "source": "assets/event_collection/c5a012_great_herbarium.cieg",
+      "destination": "Island Event Collection/c5a012_great_herbarium.cieg",
+      "sha256": "A9E2E9A30E28A8C522FF3242D421C1D7BEFFE41D042CF148CAE602AB1E1CA632"
+    },
+    {
+      "source": "assets/event_collection/c5a013_world_drop.cieg",
+      "destination": "Island Event Collection/c5a013_world_drop.cieg",
+      "sha256": "75F1A3DA1847A3544D38E0EB93DABE671141096BAF4904FD5CF6F3BF43BEF922"
+    },
+    {
+      "source": "assets/event_collection/c5a014_crystal_lens.cieg",
+      "destination": "Island Event Collection/c5a014_crystal_lens.cieg",
+      "sha256": "B48AB310990B1FF473F331CB4A50B72419022472CFDA0EAF3A6D773AF26612F6"
+    },
+    {
+      "source": "assets/event_collection/c5a015_hidden_garden.cieg",
+      "destination": "Island Event Collection/c5a015_hidden_garden.cieg",
+      "sha256": "D7E41193A253929AA292DB9CC9B8AEB12B0722C75401B6F1FC1B99C7B8BBA4BC"
+    },
+    {
+      "source": "assets/event_collection/c5a016_color_change.cieg",
+      "destination": "Island Event Collection/c5a016_color_change.cieg",
+      "sha256": "74567FEA5826E0851FB2E097ADFC01B114BCD7E869C2E4114C996B428ABBEB59"
+    },
+    {
+      "source": "assets/event_collection/c5a017_curious_crystal.cieg",
+      "destination": "Island Event Collection/c5a017_curious_crystal.cieg",
+      "sha256": "A17447BB00CC14377C436E132FEE663B1F1762D16AC2762BF07F3F2CDAD6DC15"
+    },
+    {
+      "source": "assets/event_collection/c5a018_lab_spill.cieg",
+      "destination": "Island Event Collection/c5a018_lab_spill.cieg",
+      "sha256": "ECA0DF466E8F4D88A7E85E5E31F44519F9B3093F277AB631020E32B9AF6340E2"
+    },
+    {
+      "source": "assets/event_collection/c5a019_falling_contest.cieg",
+      "destination": "Island Event Collection/c5a019_falling_contest.cieg",
+      "sha256": "450B34375D12CD920494F47A77602EB8E526EA3719761477E50550018267B4B1"
+    },
+    {
+      "source": "assets/event_collection/c5a020_floating_stone.cieg",
+      "destination": "Island Event Collection/c5a020_floating_stone.cieg",
+      "sha256": "6347AB6353AEEEA14D2FD63F84CC2088FF85372B19C6031FF6A2EE6D4D0A84C9"
+    },
+    {
+      "source": "assets/event_collection/c5a021_sounding_cavern.cieg",
+      "destination": "Island Event Collection/c5a021_sounding_cavern.cieg",
+      "sha256": "708448254F7C1A525C8D083C517740610F9D743FAFAEEEF4D77D8BC3BFE3492A"
+    },
+    {
+      "source": "assets/event_collection/c5a022_second_shadow.cieg",
+      "destination": "Island Event Collection/c5a022_second_shadow.cieg",
+      "sha256": "ECDBF9DF3E43992AFC2F00653CF7C547CC51024C365EA97D4973A67689BD561F"
+    },
+    {
+      "source": "assets/event_collection/c5a023_wandering_light.cieg",
+      "destination": "Island Event Collection/c5a023_wandering_light.cieg",
+      "sha256": "29D5BFF75344627E05883E8D9CF64B033D17F3A797A5580D459649DDDB829716"
+    },
+    {
+      "source": "assets/event_collection/c5a024_eclipse_watch.cieg",
+      "destination": "Island Event Collection/c5a024_eclipse_watch.cieg",
+      "sha256": "650E5FCF76C620F024C7F40E41F33EE1A760D5B15482A770270981CC7BBE087A"
+    },
+    {
+      "source": "assets/event_collection/c5a025_endless_pattern.cieg",
+      "destination": "Island Event Collection/c5a025_endless_pattern.cieg",
+      "sha256": "C8F32A31EF03C3B0E2E4307567FD10DE7BA8E03B31008B595D6B058BA45365D2"
+    },
+    {
+      "source": "assets/event_collection/c5a026_bridge_calc.cieg",
+      "destination": "Island Event Collection/c5a026_bridge_calc.cieg",
+      "sha256": "56DCB3790E3EE763172E697F84190F72E88536CC0CC7547F7FC8EE7FD0D72860"
+    },
+    {
+      "source": "assets/event_collection/c5a027_unfair_division.cieg",
+      "destination": "Island Event Collection/c5a027_unfair_division.cieg",
+      "sha256": "F1ACB55966EC126912E538071B6F613956B6D33E416A3828AA099E4E75AC2BFB"
+    },
+    {
+      "source": "assets/event_collection/c5a028_diagnosis.cieg",
+      "destination": "Island Event Collection/c5a028_diagnosis.cieg",
+      "sha256": "7283D8DE47D1D5EDC076E322D447C36B76EFB4B52B231116FD883D57ADDB22FE"
+    },
+    {
+      "source": "assets/event_collection/c5a029_first_patient.cieg",
+      "destination": "Island Event Collection/c5a029_first_patient.cieg",
+      "sha256": "D5E70DA133FFC92EEEE11F1D1075F78ED7E72CAAE5793E64D033E6E18E391AD3"
+    },
+    {
+      "source": "assets/event_collection/c5a030_village_health.cieg",
+      "destination": "Island Event Collection/c5a030_village_health.cieg",
+      "sha256": "6E12B803C53063596A4DCC0E4B1C273DEB1767046B8D9B7899FB7125368D5A5E"
+    },
+    {
+      "source": "assets/event_collection/c5a031_shield_dance.cieg",
+      "destination": "Island Event Collection/c5a031_shield_dance.cieg",
+      "sha256": "4CB023E22C77DE21364E60712E9A5D8C2E96C43D82CC2DAD80718924212A5F40"
+    },
+    {
+      "source": "assets/event_collection/c5a032_trial_balance.cieg",
+      "destination": "Island Event Collection/c5a032_trial_balance.cieg",
+      "sha256": "C318F11565961E8997B5D6BAD5C52EC06C40A304D329D4AB0DEFAF7190E8A2A1"
+    },
+    {
+      "source": "assets/event_collection/c5a033_warrior_oath.cieg",
+      "destination": "Island Event Collection/c5a033_warrior_oath.cieg",
+      "sha256": "9A0EC39D50869047D8C01003FEEA17E3E42491CBB2389501E01F3211DCCC2720"
+    },
+    {
+      "source": "assets/event_collection/c5a034_two_chronicles.cieg",
+      "destination": "Island Event Collection/c5a034_two_chronicles.cieg",
+      "sha256": "9B0640E60700F3B9A6B8525C8A39078CA406A58A296ABE367011766A4F65AF45"
+    },
+    {
+      "source": "assets/event_collection/c5a035_elder_memory.cieg",
+      "destination": "Island Event Collection/c5a035_elder_memory.cieg",
+      "sha256": "F2D397F7CEF2ECC72B51FCCEB9FE42EBC4231D1A36DF76B09B9394D38DF52C1D"
+    },
+    {
+      "source": "assets/event_collection/c5a036_buried_archive.cieg",
+      "destination": "Island Event Collection/c5a036_buried_archive.cieg",
+      "sha256": "F6043005F416B761F45BA910351A10F0EF097D9067F504C94035F2F5F75D235E"
+    },
+    {
+      "source": "assets/event_collection/c5a037_skyborne_canoe.cieg",
+      "destination": "Island Event Collection/c5a037_skyborne_canoe.cieg",
+      "sha256": "A91B76768CFD382E82EF79A957F39B1156C06AEB033FB0151449AFDF4813ABDE"
+    },
+    {
+      "source": "assets/event_collection/c5a038_deepwater_shell.cieg",
+      "destination": "Island Event Collection/c5a038_deepwater_shell.cieg",
+      "sha256": "B25B704DDE3C6534476E4FBB6C6D03E8BC277912DA36477A84DAE9FA240F9FB6"
+    },
+    {
+      "source": "assets/event_collection/c5a039_outrigger.cieg",
+      "destination": "Island Event Collection/c5a039_outrigger.cieg",
+      "sha256": "41B310B9EF2F978A1BBA6E0CCFE4888735892B07118EBAE10E2418FA4CA19C43"
+    },
+    {
+      "source": "assets/event_collection/c5a040_cloud_sail.cieg",
+      "destination": "Island Event Collection/c5a040_cloud_sail.cieg",
+      "sha256": "2EE8B267208D717671A20183FE3FFC34589126EE4BD4E90EBC5718AC2F2835D0"
+    },
+    {
+      "source": "assets/event_collection/c5a041_hidden_harbor.cieg",
+      "destination": "Island Event Collection/c5a041_hidden_harbor.cieg",
+      "sha256": "DFD5D98DCDE9DDB6A322365F1A5EEEA464DCB5C07B4152FC453F8550C575027C"
+    },
+    {
+      "source": "assets/event_collection/c5a042_vessel_no_oars.cieg",
+      "destination": "Island Event Collection/c5a042_vessel_no_oars.cieg",
+      "sha256": "DDC2B2E45B4BE337ADB695784EAE7B0282A998985D3B3EA30A7E0662F4959B00"
+    },
+    {
+      "source": "assets/event_collection/c5a043_weaver_equation.cieg",
+      "destination": "Island Event Collection/c5a043_weaver_equation.cieg",
+      "sha256": "0D376301A5AED72409BD4A06F10B718F4ECE4B088D5DF8615740A66CA4AA0ED4"
+    },
+    {
+      "source": "assets/event_collection/c5a044_interpreter.cieg",
+      "destination": "Island Event Collection/c5a044_interpreter.cieg",
+      "sha256": "18D8C922CAEFF7306CE0B8EEADB1D16EC2199E06BD8DE9645D49BE8AD5F91A05"
+    },
+    {
+      "source": "assets/event_collection/c5a045_cartographer.cieg",
+      "destination": "Island Event Collection/c5a045_cartographer.cieg",
+      "sha256": "7A5B3A08A90BC57723559AA0B5514E3144382AD9073C3E1C2C569C4666BF8BE8"
+    },
+    {
+      "source": "assets/event_collection/c5a046_mechanist.cieg",
+      "destination": "Island Event Collection/c5a046_mechanist.cieg",
+      "sha256": "01C6D273FC8BE93ACDD0C46C2AA400021D902AB5F6F739B7CD49660EF0DB6326"
+    },
+    {
+      "source": "assets/event_collection/c5a047_conservator.cieg",
+      "destination": "Island Event Collection/c5a047_conservator.cieg",
+      "sha256": "2413627CAF4D84E0E2883845D960AD2970C84BA3226B874810C69AE36DE47D10"
+    },
+    {
+      "source": "assets/event_collection/c5a048_congress.cieg",
+      "destination": "Island Event Collection/c5a048_congress.cieg",
+      "sha256": "72C026655B844C474E795219454F6FA614362EB17245B649DE1A9BE861F4736B"
+    },
+    {
+      "source": "assets/event_collection/c5b001_fireside_chorus.cieg",
+      "destination": "Island Event Collection/c5b001_fireside_chorus.cieg",
+      "sha256": "04CF0E1D3883F005BFD6D8E34E6ABD2D3CBDCB8EE9C2F5372EEC0E25E85183A1"
+    },
+    {
+      "source": "assets/event_collection/c5b002_old_story.cieg",
+      "destination": "Island Event Collection/c5b002_old_story.cieg",
+      "sha256": "E087D5836EE5A97C2D697BEA2C257BE006F78FB25DCA93F18F53EDB4B2E57F75"
+    },
+    {
+      "source": "assets/event_collection/c5b003_small_gift.cieg",
+      "destination": "Island Event Collection/c5b003_small_gift.cieg",
+      "sha256": "B871302E33C1094374FE2E3E79BCA2E1278539A86D304C7CE863E021786DE8B7"
+    },
+    {
+      "source": "assets/event_collection/c5b004_patient_teacher.cieg",
+      "destination": "Island Event Collection/c5b004_patient_teacher.cieg",
+      "sha256": "62BA2F0E23B2FE2ADA431F6C83B91A1D9D0E6F0C7EF436DB580693ECB2A7B015"
+    },
+    {
+      "source": "assets/event_collection/c5b005_song_sleep.cieg",
+      "destination": "Island Event Collection/c5b005_song_sleep.cieg",
+      "sha256": "AC081463199C8E5EC3391A83F62BC4C5E1E8AE746FD644374ABD92311F7DA807"
+    },
+    {
+      "source": "assets/event_collection/c5b006_hard_question.cieg",
+      "destination": "Island Event Collection/c5b006_hard_question.cieg",
+      "sha256": "CFEEA9558D29E84FC04D2C2BD22F2216355786746124A73431977BBE6C3C1EBF"
+    },
+    {
+      "source": "assets/event_collection/c5b007_meaning_enough.cieg",
+      "destination": "Island Event Collection/c5b007_meaning_enough.cieg",
+      "sha256": "0F8A1149F958E9BCE38E08F8666C429783800F3E956193EE90D06C6C87678E30"
+    },
+    {
+      "source": "assets/event_collection/c5b008_beyond_horizon.cieg",
+      "destination": "Island Event Collection/c5b008_beyond_horizon.cieg",
+      "sha256": "E97D16F271747FB1D91D50D99E5B4CBBCF063D1383D8E3B9DEF084D2DFF4843C"
+    },
+    {
+      "source": "assets/event_collection/c5b009_reach_stars.cieg",
+      "destination": "Island Event Collection/c5b009_reach_stars.cieg",
+      "sha256": "AE21828FABD1DDBA41880EB928EE480FDB83760F90D5413BE6E4233689FAC28C"
+    },
+    {
+      "source": "assets/event_collection/c5b010_where_spirits.cieg",
+      "destination": "Island Event Collection/c5b010_where_spirits.cieg",
+      "sha256": "E97671CBF3B1CC0675B5C90957573BC998F866AFCC01130BEE9E61BB9FF8598D"
+    },
+    {
+      "source": "assets/event_collection/c5b011_watching_over.cieg",
+      "destination": "Island Event Collection/c5b011_watching_over.cieg",
+      "sha256": "9FC0D2DA2414D2081FB03491CE0B7255FA9AC1AF9BBECB675812E953F556EF0A"
+    },
+    {
+      "source": "assets/event_collection/c5b012_life_ahead.cieg",
+      "destination": "Island Event Collection/c5b012_life_ahead.cieg",
+      "sha256": "DD488B9344BC2AC8D289CBAA20C21117AAFDE54014474369F753A18B724E1803"
+    },
+    {
+      "source": "assets/event_collection/c5b013_old_mistake.cieg",
+      "destination": "Island Event Collection/c5b013_old_mistake.cieg",
+      "sha256": "9D9B056BA26065488FA021172153A3C24F9E7AB30D386A8144FE3290411DA1F8"
+    },
+    {
+      "source": "assets/event_collection/c5b014_unfair_blame.cieg",
+      "destination": "Island Event Collection/c5b014_unfair_blame.cieg",
+      "sha256": "2271B1AAB7546A37EAD21AF8C035EE6A4931CD0DA53EC53E73985074A333CB76"
+    },
+    {
+      "source": "assets/event_collection/c5b015_braided_hair.cieg",
+      "destination": "Island Event Collection/c5b015_braided_hair.cieg",
+      "sha256": "5179D734F15FF64500789B04BE0EC2DB523C44FE4DB51F563E3F142EB47077B0"
+    },
+    {
+      "source": "assets/event_collection/c5b016_laundry_day.cieg",
+      "destination": "Island Event Collection/c5b016_laundry_day.cieg",
+      "sha256": "525CA2CAE29A3943E4E03E7552C9625FBD60F9B3F0541044552C7061D3DF7087"
+    },
+    {
+      "source": "assets/event_collection/c5b017_day_rest.cieg",
+      "destination": "Island Event Collection/c5b017_day_rest.cieg",
+      "sha256": "B4DBAFB37FA88FD2E70CB6E15C80F750512F18F43B2DC9C27DB7269CACD24DC2"
+    },
+    {
+      "source": "assets/event_collection/c5b018_wandering.cieg",
+      "destination": "Island Event Collection/c5b018_wandering.cieg",
+      "sha256": "988BE3CB8D0A19E5CB3684D1F7800D64742AB9EB1B05FEF6EF28ED8C52D23E62"
+    },
+    {
+      "source": "assets/event_collection/c5b019_little_wiser.cieg",
+      "destination": "Island Event Collection/c5b019_little_wiser.cieg",
+      "sha256": "5138039075BA7801BA9625B53D82B61613BB20FBE1CDBEAA066EB2F7364629DD"
+    },
+    {
+      "source": "assets/event_collection/c5b020_quiet_meal.cieg",
+      "destination": "Island Event Collection/c5b020_quiet_meal.cieg",
+      "sha256": "ED82973C08972FB56088C6E30BD90E6B3069993CB499AAC1E4D81E68072C6F14"
+    },
+    {
+      "source": "assets/event_collection/c5b021_forgotten_name.cieg",
+      "destination": "Island Event Collection/c5b021_forgotten_name.cieg",
+      "sha256": "F055D3962956DE827874F28F9FF60BC65580410900673C6ECC44660E41AF9257"
+    },
+    {
+      "source": "assets/event_collection/c5b022_borrowed_comb.cieg",
+      "destination": "Island Event Collection/c5b022_borrowed_comb.cieg",
+      "sha256": "A7984B71EFA3FEA15D3E13FAE82FE816E600CB25F0EE83D518C83418AA1875C8"
+    },
+    {
+      "source": "assets/event_collection/c5b023_compliment.cieg",
+      "destination": "Island Event Collection/c5b023_compliment.cieg",
+      "sha256": "54FC14FF429D906B796164B4AFCF7EEC3346F44E2737E9929F4DE79F65FA4445"
+    },
+    {
+      "source": "assets/event_collection/c5b024_unsent_apology.cieg",
+      "destination": "Island Event Collection/c5b024_unsent_apology.cieg",
+      "sha256": "6000C031C32F8D32FB9C8F9E145FA0D4DEA0060AF9246DC2361967DFF4CFD437"
+    },
+    {
+      "source": "assets/event_collection/c5b025_long_goodbye.cieg",
+      "destination": "Island Event Collection/c5b025_long_goodbye.cieg",
+      "sha256": "F4BDC86BC9033C98FA94D1B5B579F1A78DC2B8BB4D08352CDBAFDA968A4F73FB"
+    },
+    {
+      "source": "assets/event_collection/c5b026_new_neighbor.cieg",
+      "destination": "Island Event Collection/c5b026_new_neighbor.cieg",
+      "sha256": "DFB90A0E20856CCC068EE3D75B27B4198D8EF0110F27DA962582D00CB0D494D3"
+    },
+    {
+      "source": "assets/event_collection/c5b027_secret_talent.cieg",
+      "destination": "Island Event Collection/c5b027_secret_talent.cieg",
+      "sha256": "00477AAFD9391986A24D39997DC94DB8DD88B0E9010EAACABB1F4654E5459240"
+    },
+    {
+      "source": "assets/event_collection/c5b028_shared_blanket.cieg",
+      "destination": "Island Event Collection/c5b028_shared_blanket.cieg",
+      "sha256": "443DE542A8D49C6B0F0190D9EE0DEABE3686B81584DDA98E34BDEADDA96E8701"
+    },
+    {
+      "source": "assets/event_collection/c5b029_broken_toy.cieg",
+      "destination": "Island Event Collection/c5b029_broken_toy.cieg",
+      "sha256": "C3CA23B2A06F25A34C04EF50B5215301F548EACB081BA6BAE75A9B827AD60D3C"
+    },
+    {
+      "source": "assets/event_collection/c5b030_fairness.cieg",
+      "destination": "Island Event Collection/c5b030_fairness.cieg",
+      "sha256": "ACDF93FBE33C479C3C10EAD3F2A8DDC8D8FD354A305B95B04483809AEC1519F3"
+    },
+    {
+      "source": "assets/event_collection/c5b031_smallest_helper.cieg",
+      "destination": "Island Event Collection/c5b031_smallest_helper.cieg",
+      "sha256": "1B321A15C501343C823AD8D241D0AE189200531F0CE0C18E5428991529E9A021"
+    },
+    {
+      "source": "assets/event_collection/c5b032_missing_hug.cieg",
+      "destination": "Island Event Collection/c5b032_missing_hug.cieg",
+      "sha256": "8BEB5EB36F3C13577A06D00EEA096E53AA229A263D997B76022E7FC420C9FCEF"
+    },
+    {
+      "source": "assets/event_collection/c5b033_growing_child.cieg",
+      "destination": "Island Event Collection/c5b033_growing_child.cieg",
+      "sha256": "189E75601AF43567B4E7822F4CD6FEC0363B446AC77B715185F820B0F709CD84"
+    },
+    {
+      "source": "assets/event_collection/c5b034_old_lullaby.cieg",
+      "destination": "Island Event Collection/c5b034_old_lullaby.cieg",
+      "sha256": "C63AF4FD658697CA895F3CB76909D9E181753552C8B30C51FE09E885027F887C"
+    },
+    {
+      "source": "assets/event_collection/c5b035_resemblance.cieg",
+      "destination": "Island Event Collection/c5b035_resemblance.cieg",
+      "sha256": "02DE77D84F262F5293EEF8D01D7293823247AA639A6635A3DC317B409C994E30"
+    },
+    {
+      "source": "assets/event_collection/c5b036_handmade.cieg",
+      "destination": "Island Event Collection/c5b036_handmade.cieg",
+      "sha256": "0FC2DD07119608DD7E75A7386EEC4FDB145704853B1FFE3A8C6FD79F007233C7"
+    },
+    {
+      "source": "assets/event_collection/c5b037_honest_answer.cieg",
+      "destination": "Island Event Collection/c5b037_honest_answer.cieg",
+      "sha256": "1C8AB22C174FB816DE7DC822FC8DF8E71A9D441B823CE74B05EDC29E60B115C4"
+    },
+    {
+      "source": "assets/event_collection/c5b038_first_rain.cieg",
+      "destination": "Island Event Collection/c5b038_first_rain.cieg",
+      "sha256": "9736C1157F2B4C80FA2B78E83D77EF40A8C52A86C07FB844872BA92C76E74EE9"
+    },
+    {
+      "source": "assets/event_collection/c5b039_sound_waves.cieg",
+      "destination": "Island Event Collection/c5b039_sound_waves.cieg",
+      "sha256": "D99B2B19AE283F7048EA381A3AB6FB697D8E163D916C262E92513A9764B2E708"
+    },
+    {
+      "source": "assets/event_collection/c5b040_morning_stretch.cieg",
+      "destination": "Island Event Collection/c5b040_morning_stretch.cieg",
+      "sha256": "C46E538E2E35249AE53AD8166DCFDF6D1E469A3E15EC17486C73767F976ABCF5"
+    },
+    {
+      "source": "assets/event_collection/c5b041_afternoon_nap.cieg",
+      "destination": "Island Event Collection/c5b041_afternoon_nap.cieg",
+      "sha256": "FF5ACE1F04FEB3A0DA6103A37E9C61C321C820E5BE447222402A8D323ACEEF05"
+    },
+    {
+      "source": "assets/event_collection/c5b042_little_joke.cieg",
+      "destination": "Island Event Collection/c5b042_little_joke.cieg",
+      "sha256": "F33FEECA44E20E0B07FF800DC4249302B6AE06BAB262C0446310130C28A281EB"
+    },
+    {
+      "source": "assets/event_collection/c5b043_shared_secret.cieg",
+      "destination": "Island Event Collection/c5b043_shared_secret.cieg",
+      "sha256": "27925C9659F2D44304303ED2D32063D7EA3B7021FCDFE5EBC19AC7DD08502E2C"
+    },
+    {
+      "source": "assets/event_collection/c5b044_letter.cieg",
+      "destination": "Island Event Collection/c5b044_letter.cieg",
+      "sha256": "0EE83B2593CB70600FBD4EF64FE9C6418D68A5EC77A38F0D675B3D05AED72407"
+    },
+    {
+      "source": "assets/event_collection/c5b045_quiet_birthday.cieg",
+      "destination": "Island Event Collection/c5b045_quiet_birthday.cieg",
+      "sha256": "9095F8DFA6CCF433526A21A1542E88A976641BCB06C06D253DBDF272BBE07D5B"
+    },
+    {
+      "source": "assets/event_collection/c5b046_familiar_scent.cieg",
+      "destination": "Island Event Collection/c5b046_familiar_scent.cieg",
+      "sha256": "96DD0D834EB1D1D2C4F5B219E966901C3EF2F55DA37F3BCA6525B5F2471F752B"
+    },
+    {
+      "source": "assets/event_collection/c5b047_unfinished_song.cieg",
+      "destination": "Island Event Collection/c5b047_unfinished_song.cieg",
+      "sha256": "94D5150DF0D159300B38E758D148B0305523BFE44E69AA08377042B9D0087162"
+    },
+    {
+      "source": "assets/event_collection/c5b048_opinion.cieg",
+      "destination": "Island Event Collection/c5b048_opinion.cieg",
+      "sha256": "E90424FB2EB7040CBD188701943751C005F494D02CD6A7A88EE32D4DEBE35B91"
+    },
+    {
+      "source": "assets/event_collection/c5b049_long_walk.cieg",
+      "destination": "Island Event Collection/c5b049_long_walk.cieg",
+      "sha256": "4AF9EEBA0B950B05AA661BB486C0EAE956FA2D136F23A0A219316F35B4094E43"
+    },
+    {
+      "source": "assets/event_collection/c5b050_lucky_pebble.cieg",
+      "destination": "Island Event Collection/c5b050_lucky_pebble.cieg",
+      "sha256": "1335B08645EBFAF3BC5FF072B0E46FAFD5DA3047B9B17B269AB02357B03E8AC9"
+    },
+    {
+      "source": "assets/event_collection/c5b051_new_hairstyle.cieg",
+      "destination": "Island Event Collection/c5b051_new_hairstyle.cieg",
+      "sha256": "8CDD23F24364A47A3DCB96513B45C67DC4B0C4D1A68FDE0685097E5876878045"
+    },
+    {
+      "source": "assets/event_collection/c5b052_mended_shirt.cieg",
+      "destination": "Island Event Collection/c5b052_mended_shirt.cieg",
+      "sha256": "FE9A9F9450B3DD5E0209661C5F2186D9F95A037C5F8EC8FCC0C02EABDCF8425A"
+    },
+    {
+      "source": "assets/event_collection/c5b053_extra_portion.cieg",
+      "destination": "Island Event Collection/c5b053_extra_portion.cieg",
+      "sha256": "F5025C26C12187A6C06D7ED95F1BF6701508262D192AB8C8C7CD80C52423A22E"
+    },
+    {
+      "source": "assets/event_collection/c5b054_quiet_triumph.cieg",
+      "destination": "Island Event Collection/c5b054_quiet_triumph.cieg",
+      "sha256": "A36FFD6C5B7A3982019F73688A706AE50AEEE3994654364C139F9DD5352E2CA8"
+    },
+    {
+      "source": "assets/event_collection/c5b055_failed_attempt.cieg",
+      "destination": "Island Event Collection/c5b055_failed_attempt.cieg",
+      "sha256": "07E7FD3713DCEB6825E5BD88E01080D16C03A70DB28B9AD65CE1371E41DD6736"
+    },
+    {
+      "source": "assets/event_collection/c5b056_kindness.cieg",
+      "destination": "Island Event Collection/c5b056_kindness.cieg",
+      "sha256": "DC06F1551DB3A3C51829F2E6EBA55A916D32B923D326F4C32B883D30C05716CC"
+    },
+    {
+      "source": "assets/event_collection/c5b057_cloud_shapes.cieg",
+      "destination": "Island Event Collection/c5b057_cloud_shapes.cieg",
+      "sha256": "DD5F357E8608FFF1CCBC25AF818FD4744D4A55A7AC9CDD8D73595920D800B246"
+    },
+    {
+      "source": "assets/event_collection/c5b058_night_watch.cieg",
+      "destination": "Island Event Collection/c5b058_night_watch.cieg",
+      "sha256": "F667C1531E607C558D35FB07399F1B29ACE9BBC5A1DFEC778D9EC2F5F8194013"
+    },
+    {
+      "source": "assets/event_collection/c5b059_future_village.cieg",
+      "destination": "Island Event Collection/c5b059_future_village.cieg",
+      "sha256": "49D761BBEA572C8C0B155EDDC0E8F054853A3A1B6FFB8D2FD629ECDE30943294"
+    },
+    {
+      "source": "assets/event_collection/c5b060_absent_friend.cieg",
+      "destination": "Island Event Collection/c5b060_absent_friend.cieg",
+      "sha256": "CDDF15AD349BE9EEC4AAA940DBB3121C46F2E241A0CE3D12EAEA3F66852CBB42"
+    },
+    {
+      "source": "assets/event_collection/c5b061_old_rival.cieg",
+      "destination": "Island Event Collection/c5b061_old_rival.cieg",
+      "sha256": "B59AC03A81A8AF259CC05C5AFE25C2562186DAFE0385573450AD3216E9004AB3"
+    },
+    {
+      "source": "assets/event_collection/c5b062_responsibility.cieg",
+      "destination": "Island Event Collection/c5b062_responsibility.cieg",
+      "sha256": "FD3F7AED5EB7485230A07AE3753580E7F6E94CEA4519BC5E5A2BD256FEEA78FD"
+    },
+    {
+      "source": "assets/event_collection/c5b063_unwelcome.cieg",
+      "destination": "Island Event Collection/c5b063_unwelcome.cieg",
+      "sha256": "ADCD77B27E04DCCA1946FD39B27009C23128CAB4BD37AEA08D4C38EA2BD4E0A1"
+    },
+    {
+      "source": "assets/event_collection/c5b064_favorite_place.cieg",
+      "destination": "Island Event Collection/c5b064_favorite_place.cieg",
+      "sha256": "2819EBDC3E6BB355A20F823146E7B2401F5D8CF19D89A5FAB4081D8E36E3BB7F"
+    },
+    {
+      "source": "assets/event_collection/c5b065_first_gray_hair.cieg",
+      "destination": "Island Event Collection/c5b065_first_gray_hair.cieg",
+      "sha256": "4F503C280DC88A680EB8A25E81A119AF3D614AC0409B48BDB4969CFC29F4306E"
+    },
+    {
+      "source": "assets/event_collection/c5b066_oldest_tree.cieg",
+      "destination": "Island Event Collection/c5b066_oldest_tree.cieg",
+      "sha256": "CC3C8B4CC0191266BCCD30ED1BA06860ADBC895B8FA6487FFCBD03AFE526F469"
+    },
+    {
+      "source": "assets/event_collection/c5b067_passing_season.cieg",
+      "destination": "Island Event Collection/c5b067_passing_season.cieg",
+      "sha256": "89488C4F78359567A4BBEDEC863BBB66BA2447312568BFF68934715C3D08689A"
+    },
+    {
+      "source": "assets/event_collection/c5b068_stolen_moment.cieg",
+      "destination": "Island Event Collection/c5b068_stolen_moment.cieg",
+      "sha256": "9C43ABACB36CA7B44D6E875FFFF085BF55F1941B972686CD65748721FC3C4A05"
+    },
+    {
+      "source": "assets/event_collection/c5b069_tears.cieg",
+      "destination": "Island Event Collection/c5b069_tears.cieg",
+      "sha256": "9B5BDA9ADA953AFAC2840597EBD5AC05EA9B0C71CAC61BD1869BB76240A20DED"
+    },
+    {
+      "source": "assets/event_collection/c5b070_fear_failure.cieg",
+      "destination": "Island Event Collection/c5b070_fear_failure.cieg",
+      "sha256": "FA0559FE54B69D70B8969643CDA140F181778A4450C66C9C418B6ED42659E2B2"
+    },
+    {
+      "source": "assets/event_collection/c5b071_fear_success.cieg",
+      "destination": "Island Event Collection/c5b071_fear_success.cieg",
+      "sha256": "721EB0AD60C9C6EB15F26121368E0D6676F04C0186B7FDD98E4E3928E0163056"
+    },
+    {
+      "source": "assets/event_collection/c5b072_tradition.cieg",
+      "destination": "Island Event Collection/c5b072_tradition.cieg",
+      "sha256": "DF77F8C5D2412A8AD21D4C6D57AD7DE996BDC9761551594FBF951C839CBAD626"
+    },
+    {
+      "source": "assets/event_collection/c5b073_silent_thank.cieg",
+      "destination": "Island Event Collection/c5b073_silent_thank.cieg",
+      "sha256": "7CFEE328AE15CF5B75EE6CC720E8255AE2C4CD9B852DF17EB2123E6A57A6D0A3"
+    },
+    {
+      "source": "assets/event_collection/c5b074_last_ember.cieg",
+      "destination": "Island Event Collection/c5b074_last_ember.cieg",
+      "sha256": "F2A65BDA3133842F5EAEB5AD9BADB5AEDAD60D61933339C559D6AC769E64E3B1"
+    },
+    {
+      "source": "assets/event_collection/c5b075_sudden_insight.cieg",
+      "destination": "Island Event Collection/c5b075_sudden_insight.cieg",
+      "sha256": "19699C7564404D8626A7789A865CC6F30DC8EB3484CDC81F14B43B125E86F8A7"
+    },
+    {
+      "source": "assets/event_collection/c5b076_question_home.cieg",
+      "destination": "Island Event Collection/c5b076_question_home.cieg",
+      "sha256": "AFA54FF40E293FE36E1A09D5F03298E52E2339F2CEEF7357BF2EC22856B03639"
+    },
+    {
+      "source": "assets/event_collection/c5b077_story_stars.cieg",
+      "destination": "Island Event Collection/c5b077_story_stars.cieg",
+      "sha256": "D3CF80E04C776673DDCB65261531AB02E38CC3B107CD171815279FA699600100"
+    },
+    {
+      "source": "assets/event_collection/c5b078_unspoken_worry.cieg",
+      "destination": "Island Event Collection/c5b078_unspoken_worry.cieg",
+      "sha256": "62EA6501FA184707747318843B326D51EDB3505DD7ED7CA6D5492B759B819B68"
+    },
+    {
+      "source": "assets/event_collection/c5b079_lost_argument.cieg",
+      "destination": "Island Event Collection/c5b079_lost_argument.cieg",
+      "sha256": "6A258721E9AB331834C229A51E4CF390269AEA10C9B14256138985D37E64CEF0"
+    },
+    {
+      "source": "assets/event_collection/c5b080_forgiveness.cieg",
+      "destination": "Island Event Collection/c5b080_forgiveness.cieg",
+      "sha256": "5B57DC6E886B1BEC58B00E1E9CAE1F9C82E8319C8A1C4D14F6302D5D61C098BF"
+    },
+    {
+      "source": "assets/event_collection/c5b081_beautiful.cieg",
+      "destination": "Island Event Collection/c5b081_beautiful.cieg",
+      "sha256": "A077F37FA086A86D18FF39C80A8EC1D3198D8F9A6C12B84F69C28ADEC3FB2805"
+    },
+    {
+      "source": "assets/event_collection/c5b082_child_drawing.cieg",
+      "destination": "Island Event Collection/c5b082_child_drawing.cieg",
+      "sha256": "3CDB12766537F37CDE7D5C66DB150EEF6C7DEE7B0CF19F097B5738030DF8096F"
+    },
+    {
+      "source": "assets/event_collection/c5b083_future_elder.cieg",
+      "destination": "Island Event Collection/c5b083_future_elder.cieg",
+      "sha256": "A1516778253FE2314B0B825E06532CC407937268F8880FC9DA5C8394EFF90E79"
+    },
+    {
+      "source": "assets/event_collection/c5b084_difficult.cieg",
+      "destination": "Island Event Collection/c5b084_difficult.cieg",
+      "sha256": "AEED0BA393355C94695E0B4D03F763F261B017BF065C93D88908A892528A07BF"
+    },
+    {
+      "source": "assets/event_collection/c5b085_unusual_dream.cieg",
+      "destination": "Island Event Collection/c5b085_unusual_dream.cieg",
+      "sha256": "9D1303032B3568AA821CD6A056535B7D5F643200AD3A80A7652E47C1E39FE06F"
+    },
+    {
+      "source": "assets/event_collection/c5b086_evening_dance.cieg",
+      "destination": "Island Event Collection/c5b086_evening_dance.cieg",
+      "sha256": "9334620A84EFD6E2466EA99A5305CA6EC2509D7A85133CDBB1CDF6AA1D7D4EB9"
+    },
+    {
+      "source": "assets/event_collection/c5b087_thankful.cieg",
+      "destination": "Island Event Collection/c5b087_thankful.cieg",
+      "sha256": "1C59AC45C89D6C366CAD87A51159854F13493F71A5144A18560A3190AC86C5DB"
+    },
+    {
+      "source": "assets/event_collection/c5b088_weathered_hands.cieg",
+      "destination": "Island Event Collection/c5b088_weathered_hands.cieg",
+      "sha256": "4EE5100910498DEF4F2A6F6C93A8436243DC500D7D4D60F5AC6F3A1FB3BFD618"
+    },
+    {
+      "source": "assets/event_collection/c5b089_uncertain.cieg",
+      "destination": "Island Event Collection/c5b089_uncertain.cieg",
+      "sha256": "FD2F8F57C90521E3B36DF88C915402126B262B312CB40DBBE7132748EBEE984B"
+    },
+    {
+      "source": "assets/event_collection/c5b090_name_remembered.cieg",
+      "destination": "Island Event Collection/c5b090_name_remembered.cieg",
+      "sha256": "3B1941948D9E7A1A3ED4C9635FD8ABCFCD43239D402C7F2A0E445979D907AEA7"
+    },
+    {
+      "source": "assets/event_collection/c5b091_promise_return.cieg",
+      "destination": "Island Event Collection/c5b091_promise_return.cieg",
+      "sha256": "27597088A27FBD6DEC1E35FC5FAFFFD00740A98D503EBD5A4938C0D0771014EE"
+    },
+    {
+      "source": "assets/event_collection/c5b092_warm_welcome.cieg",
+      "destination": "Island Event Collection/c5b092_warm_welcome.cieg",
+      "sha256": "E9CC034D7AFF84C0E03779564EA6568C74B1F9D2DA38374F08BD3A0ED284E6BE"
+    },
+    {
+      "source": "assets/event_collection/c5b093_moment_courage.cieg",
+      "destination": "Island Event Collection/c5b093_moment_courage.cieg",
+      "sha256": "ED2A2D30B77AB3398884E5B69413DF585E39413F49E6ED9DCC3EE0368B05CC20"
+    },
+    {
+      "source": "assets/event_collection/c5b094_reconciliation.cieg",
+      "destination": "Island Event Collection/c5b094_reconciliation.cieg",
+      "sha256": "5C46C718D68012AE4A0BDF391D3300447C079FC053D3AB2F3A6F40D9E5E6A0A0"
+    },
+    {
+      "source": "assets/event_collection/c5b095_celebration.cieg",
+      "destination": "Island Event Collection/c5b095_celebration.cieg",
+      "sha256": "E72DD9BD05B50A86BD70B91C8C85BF8008632785291396152330F92368B043FF"
+    },
+    {
+      "source": "assets/event_collection/c5b096_unhurried.cieg",
+      "destination": "Island Event Collection/c5b096_unhurried.cieg",
+      "sha256": "56117D01F5F51A89CEC5D17EDDA43A9E4EED5D46EA9287E8B76E055434F54F5E"
+    },
+    {
+      "source": "assets/event_collection/c5b097_borrowed_story.cieg",
+      "destination": "Island Event Collection/c5b097_borrowed_story.cieg",
+      "sha256": "CCA5D13B46EFE8AB4211A31711FFBDFC35824EF133ECF1BB820A214F7F5CA051"
+    },
+    {
+      "source": "assets/event_collection/c5b098_first_lesson.cieg",
+      "destination": "Island Event Collection/c5b098_first_lesson.cieg",
+      "sha256": "9BC6EC726EB9F28100DB6BE4542604896D66DE35DAF0BB3CBB8FADEE4B8A2E2E"
+    },
+    {
+      "source": "assets/event_collection/c5b099_evening.cieg",
+      "destination": "Island Event Collection/c5b099_evening.cieg",
+      "sha256": "51C6324DFE3CF469B4C51705A3C6B9177C2DCBFFFAE863A92F916C8248A882A0"
+    },
+    {
+      "source": "assets/event_collection/c5b100_one_stayed.cieg",
+      "destination": "Island Event Collection/c5b100_one_stayed.cieg",
+      "sha256": "33472363F5F9551F8D828A45CFFE9B5E80A272B0B544C9AF7E7CFF555AAD92FF"
+    },
+    {
+      "source": "assets/event_collection/c5c001_second_bowl.cieg",
+      "destination": "Island Event Collection/c5c001_second_bowl.cieg",
+      "sha256": "E5A19A7D483DFD3D99A66D96CDB4FE8B027590BC8BF507BD9B88AFD4591BC94D"
+    },
+    {
+      "source": "assets/event_collection/c5c002_rain_apology.cieg",
+      "destination": "Island Event Collection/c5c002_rain_apology.cieg",
+      "sha256": "E832AFCCA1DF12D1C76AA61E6232B63AAFA4F90F0097457F20AA75E20B9C7107"
+    },
+    {
+      "source": "assets/event_collection/c5c003_crooked_braid.cieg",
+      "destination": "Island Event Collection/c5c003_crooked_braid.cieg",
+      "sha256": "0855E576FAB32ACDD8EE77A7E5A974AB1BBFA06BD89FDB0CD8E38BDD027F569E"
+    },
+    {
+      "source": "assets/event_collection/c5c004_empty_nest.cieg",
+      "destination": "Island Event Collection/c5c004_empty_nest.cieg",
+      "sha256": "42F10E50F408E1BEE4D6F91F9EDF2B6D2F14FC6C738AD8705771BBA63CD2A06A"
+    },
+    {
+      "source": "assets/event_collection/c5c005_letter_never.cieg",
+      "destination": "Island Event Collection/c5c005_letter_never.cieg",
+      "sha256": "647B8E59AFBD79AC2289B5E0B9163025F2E8074888BAD43683168ED4AFA54DC1"
+    },
+    {
+      "source": "assets/event_collection/c5c006_friend_friend.cieg",
+      "destination": "Island Event Collection/c5c006_friend_friend.cieg",
+      "sha256": "072D2F181100EC7AB54F9F3FEE0DE232B37558A13EA5B13145ECD04F2D69F969"
+    },
+    {
+      "source": "assets/event_collection/c5c007_tiny_funeral.cieg",
+      "destination": "Island Event Collection/c5c007_tiny_funeral.cieg",
+      "sha256": "05D0E3B4CA7F037FB2848157905FAFA9C127F5865ACD4BC1A26508B16287B1C4"
+    },
+    {
+      "source": "assets/event_collection/c5c008_good_day_reason.cieg",
+      "destination": "Island Event Collection/c5c008_good_day_reason.cieg",
+      "sha256": "C0821E8CE82FBC3A4492E5DF5C24A40C0E1D6E2F7E1A929D315B29F27892F290"
+    },
+    {
+      "source": "assets/event_collection/c5c009_pebbles.cieg",
+      "destination": "Island Event Collection/c5c009_pebbles.cieg",
+      "sha256": "E33B68D485D9BE39B9697F385A362593A140BF77C72214B548323C4B2548A850"
+    },
+    {
+      "source": "assets/event_collection/c5c010_goodbye.cieg",
+      "destination": "Island Event Collection/c5c010_goodbye.cieg",
+      "sha256": "597B125608C6A4498CFB07233B33568D985F17332DA97AA80E87948304A27E37"
+    },
+    {
+      "source": "assets/event_collection/c5c011_name_bark.cieg",
+      "destination": "Island Event Collection/c5c011_name_bark.cieg",
+      "sha256": "841553EE409800652C5F4E98AF5CBA62B117476CBBF9A0CB8732A30C4F8CD8F7"
+    },
+    {
+      "source": "assets/event_collection/c5c012_ordinary_win.cieg",
+      "destination": "Island Event Collection/c5c012_ordinary_win.cieg",
+      "sha256": "08DB064E656CE9897D8B9240C77A066B6A91D81878D1710E9C86200562803422"
+    },
+    {
+      "source": "assets/event_collection/c5c013_borrowed_laugh.cieg",
+      "destination": "Island Event Collection/c5c013_borrowed_laugh.cieg",
+      "sha256": "1A947EBFCC2C12C35864424A93353A0FA6E217BAE39B89453466A01C8F9F0D63"
+    },
+    {
+      "source": "assets/event_collection/c5c014_seatmates.cieg",
+      "destination": "Island Event Collection/c5c014_seatmates.cieg",
+      "sha256": "46517AD8E041E832F6E167064728BBEC9CDA5F6D755C0E240FE7A04D24BDCF41"
+    },
+    {
+      "source": "assets/event_collection/c5c015_empty_hammock.cieg",
+      "destination": "Island Event Collection/c5c015_empty_hammock.cieg",
+      "sha256": "36DCD29B8731F6F4A8DEED1CF715473CA9A09479EF4EC6778EE53FDC3A1DD88F"
+    },
+    {
+      "source": "assets/event_collection/c5c016_last_mango.cieg",
+      "destination": "Island Event Collection/c5c016_last_mango.cieg",
+      "sha256": "8DA839B125F6000B34F0659CD62F7CA322BD294EC0E5A429B7BD065EAC8495D0"
+    },
+    {
+      "source": "assets/event_collection/c5c017_brave.cieg",
+      "destination": "Island Event Collection/c5c017_brave.cieg",
+      "sha256": "D54AD99876D8B8D80BE2D7804F3218E6666605E53BBBA10FC3322D2523F96AE9"
+    },
+    {
+      "source": "assets/event_collection/c5c018_night_watch.cieg",
+      "destination": "Island Event Collection/c5c018_night_watch.cieg",
+      "sha256": "79D951EA77F12BB93F1E3F1CC0E89D36E8319DD4B4981DCF688B092ACA78E325"
+    },
+    {
+      "source": "assets/event_collection/c5c019_forgotten_tune.cieg",
+      "destination": "Island Event Collection/c5c019_forgotten_tune.cieg",
+      "sha256": "9F4EAED72F2419E04F9AE1AAE4AD86F42B48BF01C1B413D3D9802C2374B61228"
+    },
+    {
+      "source": "assets/event_collection/c5c020_missing_tooth.cieg",
+      "destination": "Island Event Collection/c5c020_missing_tooth.cieg",
+      "sha256": "34433CF4F485E511FA911B03C040ACE9CB4A306C0FBC7B80C7CC57EAC0F92D5B"
+    },
+    {
+      "source": "assets/event_collection/c5c021_tidy_doorsteps.cieg",
+      "destination": "Island Event Collection/c5c021_tidy_doorsteps.cieg",
+      "sha256": "9F92106AE03F6B5F919AECE2B0062E6E2802DE7AB130861F8D990899EA1B8DE4"
+    },
+    {
+      "source": "assets/event_collection/c5c022_day_two_sunsets.cieg",
+      "destination": "Island Event Collection/c5c022_day_two_sunsets.cieg",
+      "sha256": "D4B10F00F39A651D3C10E24FA54D27ED350AD0276CFBC3DC799C5533B84CEF48"
+    },
+    {
+      "source": "assets/event_collection/c5c023_lost_recipe.cieg",
+      "destination": "Island Event Collection/c5c023_lost_recipe.cieg",
+      "sha256": "5ACC04B54ADEA08C5CEC483762B6520385EC544D266D82513ED46551AF83EDF5"
+    },
+    {
+      "source": "assets/event_collection/c5c024_real_friend.cieg",
+      "destination": "Island Event Collection/c5c024_real_friend.cieg",
+      "sha256": "5757A577A8BDBAE4419C5624E7CA622DEA69D1316A2F31339B9DE238BBDA14CC"
+    },
+    {
+      "source": "assets/event_collection/c5c025_small_sandals.cieg",
+      "destination": "Island Event Collection/c5c025_small_sandals.cieg",
+      "sha256": "5B58D02B4752E147F6E49B8AC35AC68BEAA3EB68F399F98F60C58E26B3DD8456"
+    },
+    {
+      "source": "assets/event_collection/c5c026_unasked.cieg",
+      "destination": "Island Event Collection/c5c026_unasked.cieg",
+      "sha256": "D4F1950E92EE28F514E3BEE054C4A0E68C000278E6A750EC624F08ECE5D7EFE4"
+    },
+    {
+      "source": "assets/event_collection/c5c027_sea_no_answer.cieg",
+      "destination": "Island Event Collection/c5c027_sea_no_answer.cieg",
+      "sha256": "C2D9C8EB59051E9B67A1F2409F676E31A2A25EBD35607A3199C77616BD6F550E"
+    },
+    {
+      "source": "assets/event_collection/c5c028_anniversary.cieg",
+      "destination": "Island Event Collection/c5c028_anniversary.cieg",
+      "sha256": "59517D3261417C39EA0DDDB61A3D08854D17C81A7ED5FF16D88D5B5FDAAE129C"
+    },
+    {
+      "source": "assets/event_collection/c5c029_apology_worked.cieg",
+      "destination": "Island Event Collection/c5c029_apology_worked.cieg",
+      "sha256": "E6E2CEC30DA103901A9188EFDA0F377F3441791D20953453ABF18BCDEBDAB657"
+    },
+    {
+      "source": "assets/event_collection/c5c030_apology_didnt.cieg",
+      "destination": "Island Event Collection/c5c030_apology_didnt.cieg",
+      "sha256": "E541A4CAEAFC788252057879AAACA4A1FFA6F278444433EB77CEC6C198BC6CFA"
+    },
+    {
+      "source": "assets/event_collection/c5c031_little_inventor.cieg",
+      "destination": "Island Event Collection/c5c031_little_inventor.cieg",
+      "sha256": "E6836F529C17165F7D2D624EACB97981715325098282B41F9F978DFDDBB8BD45"
+    },
+    {
+      "source": "assets/event_collection/c5c032_same_gesture.cieg",
+      "destination": "Island Event Collection/c5c032_same_gesture.cieg",
+      "sha256": "8AEDD34FB8D02DEBAEF38BF0D4B7CC5004E07E0B4483DBE5F23590A9BEBFF0BC"
+    },
+    {
+      "source": "assets/event_collection/c5c033_pot_washer.cieg",
+      "destination": "Island Event Collection/c5c033_pot_washer.cieg",
+      "sha256": "AB026C7CD8B8614E7970C1411045D74B3C2C037D19FAAEE49D11A8AAEBA404D2"
+    },
+    {
+      "source": "assets/event_collection/c5c034_warm_stone.cieg",
+      "destination": "Island Event Collection/c5c034_warm_stone.cieg",
+      "sha256": "8337B053545068BC73A2662CA61AC51126504F5476E58EB02BDDC1B622BFC89A"
+    },
+    {
+      "source": "assets/event_collection/c5c035_great_nothing.cieg",
+      "destination": "Island Event Collection/c5c035_great_nothing.cieg",
+      "sha256": "FEF0AA023C5FCF93BB9277CC880E0F1BDA3B7D4DF1BCC5DE36D8B48578CB42A7"
+    },
+    {
+      "source": "assets/event_collection/c5c036_old_argument.cieg",
+      "destination": "Island Event Collection/c5c036_old_argument.cieg",
+      "sha256": "78FF0CF725534A6FB4C49CB1D301CB895918918B9BC5CDB4F0ABE833EFDDBF47"
+    },
+    {
+      "source": "assets/event_collection/c5c037_new_scar.cieg",
+      "destination": "Island Event Collection/c5c037_new_scar.cieg",
+      "sha256": "EEC1B889BFD3DC132BE1AE384A814BF70CE880D458F81B7FBAAAB3C096BCA5FB"
+    },
+    {
+      "source": "assets/event_collection/c5c038_after_festival.cieg",
+      "destination": "Island Event Collection/c5c038_after_festival.cieg",
+      "sha256": "85654847985ABA7FC355864115FC83748CBBC9E5E32D89D4E535C4511B53746E"
+    },
+    {
+      "source": "assets/event_collection/c5c039_one_remembers.cieg",
+      "destination": "Island Event Collection/c5c039_one_remembers.cieg",
+      "sha256": "9E139D5B8ABA8ECA4F512486B90C9B59D1C670EC623280AA6DEAFB4746349548"
+    },
+    {
+      "source": "assets/event_collection/c5c040_inherited_habit.cieg",
+      "destination": "Island Event Collection/c5c040_inherited_habit.cieg",
+      "sha256": "C2055C2FA45C9A34CBC66D297AF4829C2F7312337D01C59ED4B537CA5B7C42A6"
+    },
+    {
+      "source": "assets/event_collection/c5c041_bad_drawing.cieg",
+      "destination": "Island Event Collection/c5c041_bad_drawing.cieg",
+      "sha256": "FF25A800BC660EC37454406918AADCF75F8EE81981904D0E4C08DF5DF3590E2A"
+    },
+    {
+      "source": "assets/event_collection/c5c042_long_walk_home.cieg",
+      "destination": "Island Event Collection/c5c042_long_walk_home.cieg",
+      "sha256": "CC82588B100F7AA42AF0C8F721D771B3871A36023890B7065EBD10B956D108BB"
+    },
+    {
+      "source": "assets/event_collection/c5c043_wrong_name.cieg",
+      "destination": "Island Event Collection/c5c043_wrong_name.cieg",
+      "sha256": "1590B81827682CD39C59EAA498A8B990228BED008DB11D770BE1D686BB1AD85B"
+    },
+    {
+      "source": "assets/event_collection/c5c044_candle_hope.cieg",
+      "destination": "Island Event Collection/c5c044_candle_hope.cieg",
+      "sha256": "F1EBE6937720B7F5907263AE9287EF8A16646E552B16FC42814EE02851B8355A"
+    },
+    {
+      "source": "assets/event_collection/c5c045_future_stranger.cieg",
+      "destination": "Island Event Collection/c5c045_future_stranger.cieg",
+      "sha256": "DB8C4BB067C9B6C118D9D3CF963FA27411DE8B22A6026F15E130BD42448639C6"
+    },
+    {
+      "source": "assets/event_collection/c5c046_morning_after.cieg",
+      "destination": "Island Event Collection/c5c046_morning_after.cieg",
+      "sha256": "5AB48187B60137EB8CA2B30E85CD0F9DD93BE84583EF8820E676960D6E98C2D8"
+    },
+    {
+      "source": "assets/event_collection/c5c047_last_stitch.cieg",
+      "destination": "Island Event Collection/c5c047_last_stitch.cieg",
+      "sha256": "92365FEE3CD4DC80591616A31AE45FFBACDED8E88045D0BF5399FC92746F2DE1"
+    },
+    {
+      "source": "assets/event_collection/c5c048_guest_knows.cieg",
+      "destination": "Island Event Collection/c5c048_guest_knows.cieg",
+      "sha256": "C6DE914DFC02BBBF67D5B2A4AA861F27D2D13DFCB0956B31D8384D35E5895CE7"
+    },
+    {
+      "source": "assets/event_collection/c5c049_unspoken_thank.cieg",
+      "destination": "Island Event Collection/c5c049_unspoken_thank.cieg",
+      "sha256": "BF13037898D6C8511377846AB26F2B4879E7F3BB68EF9039E61854E2899EC7FB"
+    },
+    {
+      "source": "assets/event_collection/c5c050_better_tomorrow.cieg",
+      "destination": "Island Event Collection/c5c050_better_tomorrow.cieg",
+      "sha256": "4A4B1A44AD09CFB44E8A9E95D8C7956EB4E23C8DFDFB8A5A3CE614FD1546B10F"
+    },
+    {
+      "source": "assets/event_collection/c5ev001_pattern_keeper.cieg",
+      "destination": "Island Event Collection/c5ev001_pattern_keeper.cieg",
+      "sha256": "7FD74A39C8A6CCEE05CBA0C998EF8A1B53341C85F0C2204E960D8F5EEE854FAD"
+    },
+    {
+      "source": "assets/event_collection/c5ev002_rainproof.cieg",
+      "destination": "Island Event Collection/c5ev002_rainproof.cieg",
+      "sha256": "525BF8F774BE6ECAEB0FFDE6EA8D173E09D416686F7100DFA95CA0CE9C8145C8"
+    },
+    {
+      "source": "assets/event_collection/c5ev003_doll_three.cieg",
+      "destination": "Island Event Collection/c5ev003_doll_three.cieg",
+      "sha256": "9D326475989921B68E11CC5E2D2C2BEA4F1AEB2719D34D51F6348BA96AD93A6A"
+    },
+    {
+      "source": "assets/event_collection/c5ev004_moving_toy.cieg",
+      "destination": "Island Event Collection/c5ev004_moving_toy.cieg",
+      "sha256": "7AF81B4EF41D11A3CBEF37492AD893A8E2E8B09C9121A7571A85DDF05EB6E11B"
+    },
+    {
+      "source": "assets/event_collection/c5ev005_wall_memories.cieg",
+      "destination": "Island Event Collection/c5ev005_wall_memories.cieg",
+      "sha256": "D8ED42A6C1EF2E0E6E190CC349552A89C3C93326C0000C2D8D8F663CD69B5E8D"
+    },
+    {
+      "source": "assets/event_collection/c5ev006_tailor_dilemma.cieg",
+      "destination": "Island Event Collection/c5ev006_tailor_dilemma.cieg",
+      "sha256": "0939F41C9EDE380AB845DCF5BD8ECA7755B793FF7FD5F8714AEC317F730A719F"
+    },
+    {
+      "source": "assets/event_collection/c5ev007_carver_mistake.cieg",
+      "destination": "Island Event Collection/c5ev007_carver_mistake.cieg",
+      "sha256": "AF423F04A1AF6A835EAF7B63EEBB832D9E9C45ED0B574E48875139CE1FF04D95"
+    },
+    {
+      "source": "assets/event_collection/c5ev008_welcome_mat.cieg",
+      "destination": "Island Event Collection/c5ev008_welcome_mat.cieg",
+      "sha256": "595928437D217EFA05A062FA7F7C9BECA17E9C1E0F3C2A262806894D6860014B"
+    },
+    {
+      "source": "assets/event_collection/c5ev009_unfinished_hut.cieg",
+      "destination": "Island Event Collection/c5ev009_unfinished_hut.cieg",
+      "sha256": "217368A756348C152C1F96D34A53DB3EAB2BB0DF4D110344F0A41E2255937904"
+    },
+    {
+      "source": "assets/event_collection/c5ev010_borrowed.cieg",
+      "destination": "Island Event Collection/c5ev010_borrowed.cieg",
+      "sha256": "B95F71937FB36ED74F64ABE3CE7D448474B7559CF48B29B878FBEA4CA0DAA9C0"
+    },
+    {
+      "source": "assets/event_collection/c5ev011_island_table.cieg",
+      "destination": "Island Event Collection/c5ev011_island_table.cieg",
+      "sha256": "B2221BF90D829B24DA1DFE872F971AE1553BE00E80F63DAB125CBDBCD2237DE0"
+    },
+    {
+      "source": "assets/event_collection/c5ev012_shellfish_tide.cieg",
+      "destination": "Island Event Collection/c5ev012_shellfish_tide.cieg",
+      "sha256": "88964AA68EF79895F36C10D46DA9A54941E1A57A6BC09C4EB4BDBB1FC5F87B02"
+    },
+    {
+      "source": "assets/event_collection/c5ev013_fisher.cieg",
+      "destination": "Island Event Collection/c5ev013_fisher.cieg",
+      "sha256": "DB78E0281126D2D75BA40425F057494DE1EB0B4C4F41A7E6AE37E8B7828A9447"
+    },
+    {
+      "source": "assets/event_collection/c5ev014_egg_debate.cieg",
+      "destination": "Island Event Collection/c5ev014_egg_debate.cieg",
+      "sha256": "5DB0EC6AD269ADBF9EDBFA6552720D821729A3342BD737D6DA4B1D4B0C610F9B"
+    },
+    {
+      "source": "assets/event_collection/c5ev015_pig_feast.cieg",
+      "destination": "Island Event Collection/c5ev015_pig_feast.cieg",
+      "sha256": "85FEE690206FAD54A6508C1A441E5B3E14670863E11EF544A1ACF4419CDFA6AE"
+    },
+    {
+      "source": "assets/event_collection/c5ev016_grain.cieg",
+      "destination": "Island Event Collection/c5ev016_grain.cieg",
+      "sha256": "E489267DB33F95C532987152F263A5E932C9D3B38C7F8FF08FE0C1AD0D8FE244"
+    },
+    {
+      "source": "assets/event_collection/c5ev017_tropical_fruit.cieg",
+      "destination": "Island Event Collection/c5ev017_tropical_fruit.cieg",
+      "sha256": "3100CC541BB46648705510E051732E729C862E63690180137ED96E8ABEB56600"
+    },
+    {
+      "source": "assets/event_collection/c5ev018_sea_garden.cieg",
+      "destination": "Island Event Collection/c5ev018_sea_garden.cieg",
+      "sha256": "FB9E1359F0D8B7A5F9819C452241E355249B4DAF998AB9C71B96671FFD472BFF"
+    },
+    {
+      "source": "assets/event_collection/c5ev019_smoked_catch.cieg",
+      "destination": "Island Event Collection/c5ev019_smoked_catch.cieg",
+      "sha256": "5E97A96F8D7BB7A7315FBAACC289D8DD1CD7553CC4E9D1F9250E753AF5E9537E"
+    },
+    {
+      "source": "assets/event_collection/c5ev020_delicacy.cieg",
+      "destination": "Island Event Collection/c5ev020_delicacy.cieg",
+      "sha256": "195A10EFF2BB0642483D0522F8F17F80C756B7E95DB9D7AD3AA5BDC4AB737E65"
+    },
+    {
+      "source": "assets/event_collection/c5ev021_swimming.cieg",
+      "destination": "Island Event Collection/c5ev021_swimming.cieg",
+      "sha256": "80260C99D8D53553026290C104C2632D4157A23ECDBCCA62A142AED53402171B"
+    },
+    {
+      "source": "assets/event_collection/c5ev022_diver.cieg",
+      "destination": "Island Event Collection/c5ev022_diver.cieg",
+      "sha256": "8E0EBD2AED453EBDC6C4F58181D85A5000EE5E3C4E4799688BF7EAF8944960D1"
+    },
+    {
+      "source": "assets/event_collection/c5ev023_coral_boundary.cieg",
+      "destination": "Island Event Collection/c5ev023_coral_boundary.cieg",
+      "sha256": "B11B1A8933B4D049B95573BA77AB9F6BA75B554414A97660FA9F0EF350AC4CAE"
+    },
+    {
+      "source": "assets/event_collection/c5ev024_canoe_two_bows.cieg",
+      "destination": "Island Event Collection/c5ev024_canoe_two_bows.cieg",
+      "sha256": "A4656403D0FE10F1303ECCD41982DAA77BEF496DC9DCB5BCCBE46B1AA53391CA"
+    },
+    {
+      "source": "assets/event_collection/c5ev025_sail_trial.cieg",
+      "destination": "Island Event Collection/c5ev025_sail_trial.cieg",
+      "sha256": "F0CAD893EA6CF03F00D0C48F6F028ABB9D90F6B0501994D20A483FD0B0F70376"
+    },
+    {
+      "source": "assets/event_collection/c5ev026_coolest_hut.cieg",
+      "destination": "Island Event Collection/c5ev026_coolest_hut.cieg",
+      "sha256": "03E851797F0A18B57375ADA4D5A666F225951AEBF0578D96D0806DE28E03B05B"
+    },
+    {
+      "source": "assets/event_collection/c5ev027_cold_night.cieg",
+      "destination": "Island Event Collection/c5ev027_cold_night.cieg",
+      "sha256": "AE564E47F90135D496F42F0B0F4E979DB5D7B52C9FE83A93EC78B8D9245D77F8"
+    },
+    {
+      "source": "assets/event_collection/c5ev028_storm_listener.cieg",
+      "destination": "Island Event Collection/c5ev028_storm_listener.cieg",
+      "sha256": "FF1653EEE292F8302535894BA6288293FA722244D95E2AB27DEF068BA440F988"
+    },
+    {
+      "source": "assets/event_collection/c5ev029_flood_marker.cieg",
+      "destination": "Island Event Collection/c5ev029_flood_marker.cieg",
+      "sha256": "A70AA3A49914EE9B2E36FCA70A8B6B7EAD2F668B4C131E94EF64473C01F760E2"
+    },
+    {
+      "source": "assets/event_collection/c5ev030_lost_paddle.cieg",
+      "destination": "Island Event Collection/c5ev030_lost_paddle.cieg",
+      "sha256": "9FD4D41FC39E40516E4A866A2C8B32CDFF2A0DE9A89B3B4A61B9249642030BE4"
     },
     {
       "source": "assets/event_collection/vv2_cooking_contest.cieg",

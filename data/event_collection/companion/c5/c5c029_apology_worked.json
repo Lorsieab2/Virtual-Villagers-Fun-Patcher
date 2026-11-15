@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apology That Worked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c029_apology_worked",
+  "source": "companion",
+  "lines": [
+   2385,
+   2396
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2385",
+  "ledger": [
+   {
+    "src": "L2388",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L2392",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2396",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "Two friends talk about a mistake that strained their friendship: apologize, or ask what would help.",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two friends finally talk about a mistake that strained their friendship.",
+   "src": "L2386",
+   "choices": [
+    {
+     "label": "Apologize without excuses.",
+     "next": "ending",
+     "src": "L2389"
+    },
+    {
+     "label": "Ask what would help repair things.",
+     "next": "ending",
+     "src": "L2390"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "The apology is accepted, though trust will take time.",
+   "src": "L2393"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They agree they can care about each other and still disagree.",
+   "src": "L2394"
+  }
+ }
+}

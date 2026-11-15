@@ -6,12 +6,19 @@ its line numbers are stable.  Every collection event file (data/event_collection
 those lines with "src" tags ("L3070-3071", "L104,L106"); scripts/collection_check.py proves the file's text is the
 source's text, word for word, apart from the mappings listed in docs/event-collection/authoring-rules.md.
 
+TWO SOURCES (2026-11-14).  The owner's Companion Anthology (749 events in five volumes) is a second frozen source,
+COMPANION (its SHA-256 in data/event_collection/COMPANION.sha256).  Each collection file's `collection.source` names
+its source ("v28" or "companion": the manifest row's `source`), and every "src" tag of that file means lines of THAT
+source.  The functions below read the ACTIVE source: SOURCE_ID unless a caller wraps its work in
+`with use_source("companion"):` (scripts/collection_check.py does so per file, collection_manifest.py per row).
+
 This module only reads files.  Nothing here touches a game, a save or an exe.
 """
 from __future__ import annotations
 
 import hashlib
 import re
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -24,8 +31,45 @@ MANIFEST = COLLECTION_DIR / "manifest.json"
 SHARED_POOLS = COLLECTION_DIR / "shared_pools.json"
 GRAMMAR_FIXES_DOC = ROOT / "docs" / "event-collection" / "grammar-fixes.md"
 SOURCE_LINES = 11125
-SOURCE_ID = "v28"           # every collection file's collection.source
+SOURCE_ID = "v28"           # the Grand collection's files' collection.source
 OWNER_TITLES_DOC = ROOT / "docs" / "event-collection" / "owner-title-changes.md"
+
+# The second source: the owner's Companion Anthology (frozen byte for byte from the owner's file, 2026-11-14).
+COMPANION = ROOT / "docs" / "more-island-events" / "Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt"
+COMPANION_HASH_FILE = COLLECTION_DIR / "COMPANION.sha256"
+COMPANION_LINES = 8961
+COMPANION_ID = "companion"  # the companion files' collection.source
+COMPANION_DIR = COLLECTION_DIR / "companion"     # data/event_collection/companion/<volume>/<id>.json
+
+# source id -> (frozen file, its SHA-256 record, its line count)
+SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
+           COMPANION_ID: (COMPANION, COMPANION_HASH_FILE, COMPANION_LINES)}
+_ACTIVE = [SOURCE_ID]
+
+
+@contextmanager
+def use_source(source_id: str):
+    """Within the block, line(), src tags and the structural markers mean `source_id`'s lines."""
+    if source_id not in SOURCES:
+        raise ValueError(f"unknown source {source_id!r} (known: {', '.join(SOURCES)})")
+    _ACTIVE.append(source_id)
+    try:
+        yield
+    finally:
+        _ACTIVE.pop()
+
+
+def active_source() -> str:
+    return _ACTIVE[-1]
+
+
+def n_lines(source_id: str | None = None) -> int:
+    """The active (or named) source's line count."""
+    return SOURCES[source_id or active_source()][2]
+
+
+def source_path(source_id: str | None = None) -> Path:
+    return SOURCES[source_id or active_source()][0]
 
 
 @lru_cache(maxsize=None)
@@ -55,19 +99,24 @@ def guardians_pairs() -> dict[str, list[tuple[str, str, str]]]:
     return out
 
 
-def source_sha256() -> str:
-    return hashlib.sha256(SOURCE.read_bytes()).hexdigest()
+def source_sha256(source_id: str = SOURCE_ID) -> str:
+    return hashlib.sha256(SOURCES[source_id][0].read_bytes()).hexdigest()
 
 
-def recorded_sha256() -> str:
-    """The hash recorded in SOURCE.sha256 ("<hex>  <path>")."""
-    return SOURCE_HASH_FILE.read_text(encoding="ascii").split()[0].lower()
+def recorded_sha256(source_id: str = SOURCE_ID) -> str:
+    """The hash recorded in SOURCE.sha256 / COMPANION.sha256 ("<hex>  <path>")."""
+    return SOURCES[source_id][1].read_text(encoding="ascii").split()[0].lower()
 
 
-@lru_cache(maxsize=1)
-def source_lines() -> tuple[str, ...]:
-    """The source's lines; index 0 is line 1."""
-    return tuple(SOURCE.read_text(encoding="utf-8").split("\n")[:SOURCE_LINES])
+@lru_cache(maxsize=None)
+def _lines_of(source_id: str) -> tuple[str, ...]:
+    path, _, count = SOURCES[source_id]
+    return tuple(path.read_text(encoding="utf-8").split("\n")[:count])
+
+
+def source_lines(source_id: str | None = None) -> tuple[str, ...]:
+    """The active (or named) source's lines; index 0 is line 1."""
+    return _lines_of(source_id or active_source())
 
 
 def line(n: int) -> str:
@@ -90,8 +139,8 @@ def parse_src(spec: str) -> list[tuple[int, int]]:
             raise ValueError(f"src {spec!r}: {part.strip()!r} is not 'L<line>' or 'L<first>-<last>'")
         a = int(m.group(1))
         b = int(m.group(2) or a)
-        if not 1 <= a <= b <= SOURCE_LINES:
-            raise ValueError(f"src {spec!r}: lines {a}-{b} are outside 1..{SOURCE_LINES}")
+        if not 1 <= a <= b <= n_lines():
+            raise ValueError(f"src {spec!r}: lines {a}-{b} are outside 1..{n_lines()} of the {active_source()} source")
         out.append((a, b))
     return out
 
@@ -156,12 +205,30 @@ STRUCTURAL_INLINE = [
 ]
 
 
+# The Companion Anthology's own structural markers (its event formats, docs/event-collection/companion-authoring.md),
+# used only for that source so no Grand collection line changes meaning.  Each is a label in front of the owner's
+# words, never words of the scene: an outcome's or response's number, a page label, a bullet.
+COMPANION_STRUCTURAL = [
+    re.compile(r"^\s*•\s+"),                                                 # • bullets (Vol 1 Parts 2 and 3)
+    re.compile(r"^\s*RANDOM OUTCOME \d+\s+-\s+"),                            # Vol 1 Part 1: RANDOM OUTCOME 1 -
+    re.compile(r"^\s*WEIGHTED OUTCOME \d+\s*:\s*"),                          # Vol 2: WEIGHTED OUTCOME 1:
+    re.compile(r"^\s*PLAYER RESPONSE [A-D]\s+-\s+"),                         # Vol 2: PLAYER RESPONSE A -
+    re.compile(r"^\s*(?:SCENE|Premise|OUTCOME|Outcome)\s*:\s*"),             # Vol 2 SCENE:, Vols 3-5 Premise: / Outcome:
+    re.compile(r"^\s*\d{1,2}\.\s+(?=\S)"),                                   # Vol 1 Parts 4-5: numbered outcomes, options
+]
+
+
+def structural_markers() -> list[re.Pattern]:
+    """The structural markers of the active source."""
+    return STRUCTURAL_INLINE + (COMPANION_STRUCTURAL if active_source() == COMPANION_ID else [])
+
+
 def strip_structural(text: str) -> str:
     """One source line (already normalised) without its structural markers."""
     prev = None
     while prev != text:
         prev = text
-        for rx in STRUCTURAL_INLINE:
+        for rx in structural_markers():
             text = rx.sub(" " if rx.pattern.startswith(r"\b") else "", text)
     return text
 

@@ -31,3 +31,33 @@ Notes:
   (`all_v18_decathlon`). Both are kept as the owner wrote them.
 - With Guardians of Isola Rewrite installed, New Believers shows "The Homesick Convert" as "The Homesick Newcomer"
   (a title variant; [guardians-wording.md](guardians-wording.md)).
+
+## OPEN owner questions: the same title on two different events (Companion Anthology, 2026-11-14)
+
+Nothing below is renamed. Each pair is two different events of the Companion Anthology
+(`docs/more-island-events/Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt`, its own line numbers) with the
+same title, so Pick Island Event and the library would list the same name twice. The owner decides: rename one (or
+both), or keep both titles. A rename the owner gives goes in the table above, with its date; until then each event
+keeps its source heading. These rows have no date, so `owner_titles()` does not read them.
+
+| Title | First event | Second event | How alike |
+|---|---|---|---|
+| The Gods' Silence | `c5ev048_gods_silence` (Vol 1 Part 5 V048, L3669) | `lbl112_gods_silence` (The Lives Between Legends 112, L5276) | the same premise, the outcomes reworded (the closest pair in the anthology) |
+| The Shared River | `c5ev046_shared_river` (V046, L3655) | `lbl110_shared_river` (Lives Between Legends 110, L5250) | the same premise, different outcomes |
+| The Quiet Leader | `c5ev033_quiet_leader` (V033, L3560) | `fwk049_quiet_leader` (The Four Ways of Knowing 049, L5932) | a similar idea |
+| The Night Watch | `c5b058_night_watch` (Vol 1 Part 2 058, L1642) | `c5c018_night_watch` (Vol 1 Part 3 018, L2251) | different plots |
+| The Unsent Apology | `c5b024_unsent_apology` (Part 2 024, L1345) | `sss056_unsent_apology` (Stone, Spirit, Strangers 056, L6639) | a similar theme |
+| The Family Resemblance | `c5b035_resemblance` (Part 2 035, L1439) | `c5c032_same_gesture` (Part 3 032, L2423) | different plots |
+| The Forgotten Name | `c5b021_forgotten_name` (Part 2 021, L1317) | `fwk034_forgotten_name` (Four Ways of Knowing 034, L5780) | different plots |
+
+Also OPEN: the same title in the Companion Anthology and in the Isola Grand Event Collection (the V28 source's own line
+numbers on the left). Some are near the same premise (marked).
+
+| Title | Grand collection event | Companion event | How alike |
+|---|---|---|---|
+| The False Alarm | `all_v23_5_false_alarm` (L10077) | `c5dn054_false_alarm` (L3162) | different plots |
+| The Cruel Joke | `all_v27_08_cruel_joke` (L10545) | `lbl029_cruel_joke` (L4169) | similar: a child or teen mocks another's voice |
+| The Midnight Raft | `all_v27_13_raft` (L10585) | `lbl026_midnight_raft` (L4130) | near the same premise: teenagers launch a homemade raft after dark |
+| The Dangerous Proof | `all_v27_14_proof` (L10593) | `lbl082_dangerous_proof` (L4874) | similar: a teen tries to prove a legend |
+| The Public Embarrassment | `all_v27_15_embarrass` (L10601) | `lbl017_public` (L4009) | different plots |
+| The Special Friend | `all_v27_42_special` (L10817) | `lbl014_special_friend` (L3970) | near the same premise: two inseparable villagers |

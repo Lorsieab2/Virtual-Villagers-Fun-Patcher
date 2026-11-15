@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Future Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b059_future_village",
+  "source": "companion",
+  "lines": [
+   1649,
+   1658
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1649",
+  "ledger": [
+   {
+    "src": "L1651",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1655",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1658",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two young villagers imagine what their village might look like in a hundred years.",
+  "cast_only": [
+   "young1",
+   "young2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "young1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  },
+  "young2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two young villagers imagine what their village might look like in a hundred years.",
+   "src": "L1650",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1652"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1653"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1654"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They dream of towering buildings.",
+   "src": "L1656"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They hope the old trees remain.",
+   "src": "L1657"
+  }
+ }
+}

@@ -29,11 +29,12 @@
    we never arm near one or while the rescue predicate holds.
 
    CHOICE.  The candidates are More Island Events' entries that can happen now (when that row is installed) and the
-   collection's files for this game (when its row is installed) whose STRICT cast and requirement hold now.  The two
-   sources are 1:1 when both have candidates; within More Island Events each event is equally likely; within the
-   collection each event has its draw weight (manifest, default 1), and a series counts as ONE event's weight, its
-   members equally likely (collection_decisions.md Q7).  A candidate that cannot be cast is left out and the draw
-   made again among the rest.
+   collection's files for this game (when its row is installed: the Isola Grand Event Collection's and the Companion
+   Anthology's events, one manifest) whose STRICT cast and requirement hold now.  EVERY EVENT IS EQUALLY LIKELY,
+   whichever source it comes from (the owner, 2026-11-14): one draw over all of them, each More Island Events event
+   weight 1, each collection event its draw weight (manifest, default 1), and a series (the V14, V17, V18 and V20
+   series, the Living Catalogue's templates) counts as ONE event, its members equally likely (collection_decisions.md
+   Q7).  A candidate that cannot be cast is left out and the draw made again among the rest.
 
    ARM.  A More Island Events event is armed as Pick Island Event arms it (sm_arm), with no message and no charge,
    and marked natural (no "could not happen" notice is ever kept for it); a collection event is queued by the
@@ -44,12 +45,12 @@
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
 #define SC_FOLDER "Island Event Collection"
-#define SC_MAX 256                                       /* collection entries of one game */
+#define SC_MAX 2048                                      /* collection entries of one game */
 #define SC_GAP 60u                                       /* seconds kept clear of a natural event */
 #define SC_FRAC_MIN 300                                  /* the due point, per mille of the gap: 300..700 */
 #define SC_FRAC_SPAN 401
 #define SC_MIN_GROWN 6                                   /* villagers of 14 or more */
-#define SC_MANIFEST_BYTES 262144
+#define SC_MANIFEST_BYTES 1048576
 #define SC_MAGIC 0x52435356u                             /* 'V' 'S' 'C' 'R' */
 #define SC_VERSION 1u
 
@@ -551,11 +552,17 @@ static int sc_arm_collection(int game, int i) {
     return sc_load_entry(i, &size) && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
-/* The draw (see the header): 1 when an event was armed. */
+/* The draw (see the header): 1 when an event was armed.  One draw over every candidate at once -- each More Island
+   Events event weight 1, each collection event its weight (1 unless its manifest says otherwise), each series 1 with
+   its members equally likely -- so every event is as likely as any other, whichever source it comes from.  A
+   candidate that cannot be armed is left out and the draw made again.  Linear in the candidates per draw: a series
+   is found by its first member (head), counted once while any member is left. */
 static int sc_choose_and_arm(int game) {
     static int more[SM_MAX];
     static unsigned char left[SC_MAX];
-    int n_more = 0, n_coll = 0, i;
+    static short head[SC_MAX];         /* the first entry of the same series (itself when none) */
+    static short members_left[SC_MAX]; /* at a series' head: its members still left */
+    int n_more = 0, n_coll = 0, i, k;
     if (sc_more_on(game)) {
         sm_fill_more(game);
         for (i = 0; i < sm_list.count; ++i) {
@@ -569,81 +576,69 @@ static int sc_choose_and_arm(int game) {
     }
     for (i = 0; i < n_coll; ++i) {
         left[i] = 1;
+        head[i] = (short)i;
+        members_left[i] = 0;
+        if (sc_list[i].series[0] != '\0') {
+            for (k = 0; k < i; ++k) {
+                if (head[k] == k && lstrcmpA(sc_list[k].series, sc_list[i].series) == 0) {
+                    head[i] = (short)k;
+                    break;
+                }
+            }
+        }
+        ++members_left[head[i]];
     }
     while (n_more > 0 || n_coll > 0) {
-        int source = n_more > 0 && n_coll > 0 ? sc_rand(game, 2) : (n_more > 0 ? 0 : 1);
-        if (source == 0) {
-            int j = sc_rand(game, n_more);
-            if (sc_arm_more(game, more[j])) {
+        int coll_total = 0, pick, chosen = -1;
+        for (i = 0; i < sc_count && n_coll > 0; ++i) {
+            if (sc_list[i].series[0] != '\0') {
+                coll_total += head[i] == i && members_left[i] > 0;
+            } else if (left[i]) {
+                coll_total += sc_list[i].weight;
+            }
+        }
+        if (n_more + coll_total <= 0) {
+            return 0;
+        }
+        pick = sc_rand(game, n_more + coll_total);
+        if (pick < n_more) {
+            if (sc_arm_more(game, more[pick])) {
                 return 1;
             }
-            more[j] = more[--n_more];
+            more[pick] = more[--n_more];
             continue;
         }
-        {
-            /* The groups: each event its own (its weight), a series one (weight 1, members equally likely). */
-            int total = 0, pick, chosen = -1, members = 0, m;
-            for (i = 0; i < sc_count; ++i) {
-                int first = 1, k;
-                if (!left[i]) {
-                    continue;
-                }
-                if (sc_list[i].series[0] != '\0') {
-                    for (k = 0; k < i; ++k) {
-                        if (left[k] && lstrcmpA(sc_list[k].series, sc_list[i].series) == 0) {
-                            first = 0;
-                            break;
-                        }
-                    }
-                    total += first;
-                } else {
-                    total += sc_list[i].weight;
-                }
+        pick -= n_more;
+        for (i = 0; i < sc_count && chosen < 0; ++i) {
+            int w;
+            if (sc_list[i].series[0] != '\0') {
+                w = head[i] == i && members_left[i] > 0;
+            } else {
+                w = left[i] ? sc_list[i].weight : 0;
             }
-            pick = sc_rand(game, total);
-            for (i = 0; i < sc_count && chosen < 0; ++i) {
-                int w, k, first = 1;
-                if (!left[i]) {
-                    continue;
-                }
-                if (sc_list[i].series[0] != '\0') {
-                    for (k = 0; k < i; ++k) {
-                        if (left[k] && lstrcmpA(sc_list[k].series, sc_list[i].series) == 0) {
-                            first = 0;
-                            break;
-                        }
-                    }
-                    w = first;
-                } else {
-                    w = sc_list[i].weight;
-                }
-                if (pick < w) {
-                    chosen = i;
-                }
-                pick -= w;
+            if (pick < w) {
+                chosen = i;
             }
-            if (chosen < 0) {
-                return 0;
-            }
-            if (sc_list[chosen].series[0] != '\0') {
-                int series_pick;
-                for (m = 0; m < sc_count; ++m) {
-                    members += left[m] && lstrcmpA(sc_list[m].series, sc_list[chosen].series) == 0;
-                }
-                series_pick = sc_rand(game, members);
-                for (m = 0; m < sc_count; ++m) {
-                    if (left[m] && lstrcmpA(sc_list[m].series, sc_list[chosen].series) == 0 && series_pick-- == 0) {
-                        chosen = m;
-                        break;
-                    }
-                }
-            }
-            if (sc_arm_collection(game, chosen)) {
-                return 1;
-            }
-            left[chosen] = 0;
-            --n_coll;
+            pick -= w;
         }
+        if (chosen < 0) {
+            return 0;
+        }
+        if (sc_list[chosen].series[0] != '\0') {
+            int series_pick = sc_rand(game, members_left[chosen]), m;
+            for (m = chosen; m < sc_count; ++m) {
+                if (left[m] && head[m] == chosen && series_pick-- == 0) {
+                    chosen = m;
+                    break;
+                }
+            }
+        }
+        if (sc_arm_collection(game, chosen)) {
+            return 1;
+        }
+        left[chosen] = 0;
+        --members_left[head[chosen]];
+        --n_coll;
     }
     return 0;
 }

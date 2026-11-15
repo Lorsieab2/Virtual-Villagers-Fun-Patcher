@@ -180,6 +180,22 @@ None. The V27 lines needed no glaring grammar fix. Their designer words inside a
 small appropriate skill gain", "no grave is created and a search/missing-person state persists", "selected by weighted
 sub-branch" and the like) are ledger cuts, never shown, not grammar fixes (scripts/collection_v27.py lists each).
 
+### Companion Anthology (its own lines)
+
+The second source, `docs/more-island-events/Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt` (SHA-256 in
+`data/event_collection/COMPANION.sha256`), has its own line numbers. Its rows start with `companion L<line>` instead
+of `L<line>` (for example a row for line 7542 starts `| companion L7542 |`); `grammar_doc_fixes("companion")` in
+`scripts/collection_check.py` reads only those, and a companion file may use only them. The owner's rule of 2026-11-14 is the same:
+verbatim apart from glaring grammar.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+
+Wave 1 chunk 1 (Vol 1 Part 1, Part 3 001-030) needed none. Known candidates for the later chunks (inventory, the
+Living Catalogue templates): "believes its a startling" (22 times), "a Orange / a Oriental / a Angel / a Arthurium /
+a Anagallis / a Indigoberry / a Aureus" (9 times: companion L7542, 7554, 7722, 7902, 8022, 8034, 8538, 8550, 8622) and
+"with the The Golden Guppy" (L8574). The chunk that builds them adds its rows here.
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

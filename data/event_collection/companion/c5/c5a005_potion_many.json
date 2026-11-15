@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Potion of Many Colors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a005_potion_many",
+  "source": "companion",
+  "lines": [
+   177,
+   194
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L177",
+  "ledger": [
+   {
+    "src": "L179",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L183",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L188",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L190",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L192",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L194",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "A potionmaker sees an unusual colour shift in a mixture of fruit pigment and mineral extract."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "potionmaker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A potionmaker observes an unusual color shift in a mixture of fruit pigment and mineral extract.",
+   "src": "L181",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L184"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L185"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L186"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "The color change becomes a useful experimental indicator.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "potionmaker",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L188"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The demonstration stains everyone's clothing.",
+   "src": "L190"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A scholar realizes the color depends on the vessel rather than the potion.",
+   "src": "L192"
+  }
+ }
+}
