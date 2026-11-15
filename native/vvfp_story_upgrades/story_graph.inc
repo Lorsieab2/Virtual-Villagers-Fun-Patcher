@@ -6236,7 +6236,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
                                                     "an aunt or uncle and a niece or nephew", "cousins" };
                 int other = -1, kind = cg_relation(q, &other);
                 if (kind != 0 && (needed & (1u << q)) && (needed & (1u << other))) {
-                    wsprintfA(reason, "No villagers in the village can take part together now: two of them must be "
+                    wsprintfA(reason, "No villagers in the village can take part together now: it needs two who are "
                               "%s. Nothing has been queued.", KIN[kind]);
                     return reason;
                 }

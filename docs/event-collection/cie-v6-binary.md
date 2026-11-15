@@ -587,7 +587,7 @@ optional, not a stranger, alias or other role); one relation a role.
   - **Per game:** The Lost Children to New Believers: all eight, from their records. A New Home: only with the
     parentage log patch ("VVFP VV1 Parentage.dll" loaded); without it no A New Home villager has a recorded parent,
     so only `spouse_of` through an expected father can hold, and a kinship event is never drawn there otherwise.
-  - The refusal ("two of them must be ...") names them: "spouses", "a parent and child", "siblings", "a grandparent
+  - The refusal ("it needs two who are ...") names them: "spouses", "a parent and child", "siblings", "a grandparent
     and grandchild", "an aunt or uncle and a niece or nephew", "cousins".
 - **Python:** `simulate` takes the bindings as given (no casting), so relations change nothing there;
   `compile_graph` / `decompile_graph` round-trip them.
