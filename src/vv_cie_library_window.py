@@ -114,13 +114,14 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
 # Changes, in the order the Add menu offers them, with their plain names.
 EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
                 "celebrate", "action", "mood", "health_change", "damage", "appearance", "die_unrecovered",
-                "baby_lost")
+                "baby_lost", "birth_then_die")
 NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage",      # these make the event version 6
-             "appearance", "die_unrecovered", "baby_lost")
+             "appearance", "die_unrecovered", "baby_lost", "birth_then_die")
 EFFECT_NAMES = {
     "appearance": "Give a villager a new look (head or body)",
     "die_unrecovered": "A villager dies and the body is never found (no grave)",
     "baby_lost": "A nursing parent loses the baby",
+    "birth_then_die": "A nursing parent's baby is born now, then the parent dies",
     "celebrate": "Villagers celebrate",
     "action": "A villager does something (an action of the game's own)",
     "mood": "A villager looks pleased or upset",
@@ -145,6 +146,9 @@ RISKY = {
     "die_unrecovered": "Cannot be undone: the villager dies with no grave; the Deaths log records the death.",
     "baby_lost": "Cannot be undone: the baby is lost. The role must be a nursing parent, with protected villagers "
                  "allowed.",
+    "birth_then_die": "Cannot be undone: the parent dies and gets a grave; the baby lives on, born early (younger "
+                      "and weaker the earlier it is). The role must be a nursing parent, with protected villagers "
+                      "allowed.",
 }
 LOOK_WORDS = "(keep)"                  # an appearance effect's head or body left as it is
 RELATION_WORDS = {"": "(none)", "spouse_of": "the spouse of", "parent_of": "a parent of", "child_of": "a child of",
@@ -309,6 +313,9 @@ def describe_effect(e: dict) -> str:
         return f"{who} dies and the body is never found (no grave; recorded as \"Unknown causes\")"
     if do == "baby_lost":
         return f"{who} loses the baby"
+    if do == "birth_then_die":
+        cause = e.get("cause", "unknown")
+        return f"{who}'s baby is born now, then {who} dies (recorded as \"{CAUSE_WORDS.get(cause, cause)}\")"
     if do == "appearance":
         parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
                  if e.get(part) is not None]
@@ -616,7 +623,7 @@ def new_effect(kind: str, games, role: str = "subject") -> dict:
         e.update(min=10, max=20)
     elif kind == "appearance":
         e["head"] = "random"
-    elif kind == "die_unrecovered":
+    elif kind in ("die_unrecovered", "birth_then_die"):
         e["cause"] = "unknown"
     elif kind == "damage":
         return {"do": "damage", "structures": cg.DAMAGE_ANY, "min": 10, "max": 30}
@@ -2489,8 +2496,8 @@ class Library:
                 ttk.Label(form, text="The death is recorded as: Unknown causes.").grid(row=row, column=0,
                                                                                       columnspan=3, sticky="w")
                 row += 1
-            elif do == "kill":
-                cause = e.get("cause", "custom")
+            elif do in ("kill", "birth_then_die"):
+                cause = e.get("cause", "custom" if do == "kill" else "unknown")
                 choice = var_of(cause if cause in CAUSE_WORDS else "own")
                 own = var_of("" if cause in CAUSE_WORDS else cause)
                 count = ttk.Label(form, text="")
@@ -2627,6 +2634,11 @@ class Library:
                 row += 1
             elif do == "baby_lost":
                 ttk.Label(form, text="Ends the nursing: the baby is lost (never born, no grave). Give the role "
+                                     "\"a nursing parent\" and allow protected villagers.").grid(
+                    row=row, column=0, columnspan=3, sticky="w")
+                row += 1
+            if do == "birth_then_die":
+                ttk.Label(form, text="The game's own birth comes now, then the parent dies. Give the role "
                                      "\"a nursing parent\" and allow protected villagers.").grid(
                     row=row, column=0, columnspan=3, sticky="w")
                 row += 1

@@ -367,15 +367,17 @@ SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
 # ---- Version 6 (docs/event-collection/cie-v6-binary.md is the engine's contract) ---------------------------------
 
 V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # the new "do" words
-              "appearance", "die_unrecovered", "baby_lost")                  # cie-v6-binary.md 22
+              "appearance", "die_unrecovered", "baby_lost",                  # cie-v6-binary.md 22
+              "birth_then_die")                                              # cie-v6-binary.md 23
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
-                     "appearance": 17, "die_unrecovered": 18, "baby_lost": 19})
+                     "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
+                     "birth_then_die": 20})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
-                    "baby_lost": CAP_CANCEL})
+                    "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL})
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
-                                          "baby_lost")
-GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered",)
+                                          "baby_lost", "birth_then_die")
+GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
 BODY_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -871,12 +873,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             if e.get("cause", "unknown") != "unknown":
                 problems.append(f"{where}: die_unrecovered is always \"Unknown causes\" (cause is unknown or left out)")
             out["cause"] = "unknown"
-        elif do == "kill":
+        elif do in ("kill", "birth_then_die"):
             known.add("cause")
-            cause = e.get("cause", "custom")
+            cause = e.get("cause", "custom" if do == "kill" else "unknown")
             if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
-                problems.append(f"{where}: kill cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")
+                problems.append(f"{where}: {do} cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")
             out["cause"] = cause
         elif do == "status":
             known.add("status")
@@ -2063,7 +2065,7 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
@@ -2983,10 +2985,10 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
                     if isinstance(v, int) and any(v >= rows[gn] for gn in g["games"]):
                         problems.append(f"{where}: {part} {v} is not a row in every game of the event (0.."
                                         f"{min(rows[gn] for gn in g['games']) - 1})")
-            if e["do"] == "baby_lost":
+            if e["do"] in ("baby_lost", "birth_then_die"):
                 role = g["roles"].get(e["role"], {})
                 if role.get("kind") != "villager" or role.get("special") != "nursing_parent":
-                    problems.append(f"{where}: baby_lost acts on a role with special nursing_parent")
+                    problems.append(f"{where}: {e['do']} acts on a role with special nursing_parent")
 
 
 def _check_text(where: str, text: str, problems: list[str], version: int = 1, g: dict | None = None,
@@ -3466,7 +3468,7 @@ def _compile_v6(g: dict) -> bytes:
             elif do == "appearance":
                 a, b = (LOOK_KEEP if e.get(p) is None else LOOK_RANDOM if e[p] == "random" else e[p]
                         for p in ("head", "body"))
-            elif do == "die_unrecovered":
+            elif do in ("die_unrecovered", "birth_then_die"):
                 st = s(e["cause"])
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
@@ -3681,7 +3683,7 @@ def _decompile_v6(data: bytes) -> dict:
                     for part, v in (("head", a), ("body", b)):
                         if v != LOOK_KEEP:
                             e[part] = "random" if v == LOOK_RANDOM else v
-                elif do == "die_unrecovered":
+                elif do in ("die_unrecovered", "birth_then_die"):
                     e["cause"] = s(st)
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
@@ -4242,6 +4244,8 @@ def default_outcome(effects: list[tuple[str, dict]]) -> str:
                 return "disappears"
             if e["do"] == "die_unrecovered":
                 return "dies (body not recovered)"
+            if e["do"] == "birth_then_die":
+                return "dies (the baby is born)"
             if e["do"] == "status":
                 return "becomes a Heathen"
     return "lives"

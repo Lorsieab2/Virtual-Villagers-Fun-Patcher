@@ -939,6 +939,18 @@ static const ce_probe_field C2_PROBE[] = {
     { 0x30, 1, 1, 1 }, { 0x52C, 4, 90, 90 }, { 0x558, 1, 0, 0 }, { 0x540, 4, 0, 0 },
 };
 
+/* The Lost Children's villager tick 0x43B690 (from 0x4369FF, 0x42EBBC and the loading screen 0x431DC3), on a tick
+   object made by the game's own constructor 0x43B280 (as A New Home's: the world, the villager array). */
+static void c2_catch_up(void) {
+    unsigned char tick[16];
+    memset(tick, 0, sizeof tick);
+    TC0(0x43B280u, tick);
+    TC0(0x43B690u, tick);
+}
+
+static const ce_birth_layout C2_BIRTH = { 0x530u, 0x534u, 0x540u, 0x52Cu, c2_catch_up };
+static int c2_deliver(int index, int *early);
+
 static const ce_adapter C2_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -998,8 +1010,9 @@ static const ce_adapter C2_ADAPTER = {
    shows whole (story_label_widths.h). */
     46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
-    NULL, NULL, 0, c2_set_health
-};
+    NULL, NULL, 0, c2_set_health,
+    c2_deliver
+ };
 
 /* ---- Delivery ----------------------------------------------------------- */
 
@@ -1225,4 +1238,9 @@ static int __fastcall c2_title(void *label, void *unused_edx, const char *text) 
         custom = titles_lookup(2, c2_record(*(int *)(world + VV2_SELECTED)));
     }
     return TC1(0x40C510u, label, custom != NULL ? custom : text);
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c2_deliver(int index, int *early) {
+    return ce_birth_now(&C2_ADAPTER, &C2_BIRTH, index, early);
 }

@@ -53,7 +53,8 @@ def manifest(game: int) -> tuple[tuple[str, str, str], ...]:
 
 
 INDEX_PATH = ROOT / "data" / "event_collection_index.json"
-HARMFUL = ("kill", "vanish", "die_unrecovered", "baby_lost")   # the effects listed on the page (cie-v6-binary.md 22)
+HARMFUL = ("kill", "vanish", "die_unrecovered", "baby_lost", "birth_then_die")   # the effects listed on the page
+# (cie-v6-binary.md 22, 23)
 
 
 def _allows(graph: dict) -> bool:
@@ -167,6 +168,10 @@ def lines(game: int) -> list[tuple[str, bool]]:
                     "\"Unknown causes\"): " + ", ".join(unrecovered) + ".", True))
     if baby:
         out.append(("Can make a nursing mother or father lose the baby: " + ", ".join(baby) + ".", True))
+    born = titles_with(game, "birth_then_die")
+    if born:
+        out.append(("Can make a nursing mother or father give birth early and then die (the baby lives on as its own "
+                    "villager; the parent gets a grave): " + ", ".join(born) + ".", True))
     if allowed:
         who = {1: ", the Golden Child", 3: ", the Tribal Chief"}.get(game, "")
         out.append((f"Where the story calls for it, these may harm a nursing mother or father{who}: "

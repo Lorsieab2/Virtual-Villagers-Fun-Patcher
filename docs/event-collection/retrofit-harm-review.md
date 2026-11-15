@@ -36,22 +36,20 @@ and the Tribal Chief are never cast in it).
 - **Why:** the whole event is about this risk: "A pregnant villager lies gravely ill; the healers fear for both
   mother and unborn child." The V28 addendum asks for exactly this case ("A nursing mother may lose her baby through
   illness, accident, or another event-specific tragedy"; "both may die only if the event truly endangers both").
-  Every effect follows an outcome the owner wrote. The two deaths (A4, B4) are very rare (2 against a normal
+  Every effect follows an outcome the owner wrote. The three deaths (A3, A4, B4) are very rare (2 against a normal
   20; the source gives no odds), per V28's global rule; the other outcomes keep equal weight.
 - **Requirement:** the event is now drawn only when a villager is carrying a baby.
 
 | Outcome | Exact text | Effect | Chance |
 |---|---|---|---|
-| A2 | "The mother survives but the child dies; a solemn mourning follows." | `baby_lost` (the pregnancy ends; the Births and Conceptions log records "Lost before birth") | 20 of 82 in choice A |
-| A4 | "Neither survives; the healer questions whether the decision was right." | `kill`, cause Unknown causes (the baby she carries is lost with her) | very rare: 2 of 82 in choice A |
-| A5 | "Both survive, though the mother requires prolonged care." | `health_change` -30..-10 | 20 of 82 in choice A |
+| A2 | "The mother survives but the child dies; a solemn mourning follows." | `baby_lost` (the pregnancy ends; the Births and Conceptions log records "Lost before birth") | 20 of 64 in choice A |
+| A3 | "The child survives but the mother dies; the family remembers her courage." | `birth_then_die`, cause Unknown causes (the game's own delivery brings the baby now, early if need be; then she dies with a grave) | very rare: 2 of 64 in choice A |
+| A4 | "Neither survives; the healer questions whether the decision was right." | `kill`, cause Unknown causes (the baby she carries is lost with her) | very rare: 2 of 64 in choice A |
+| A5 | "Both survive, though the mother requires prolonged care." | `health_change` -30..-10 | 20 of 64 in choice A |
 | B2 | "The mother survives but loses the baby." | `baby_lost` | 20 of 62 in choice B |
 | B3 | "The condition worsens, demanding a desperate intervention." | `health_change` -30..-10 | 20 of 62 in choice B |
 | B4 | "Both die; villagers disagree about whether waiting was a mistake." | `kill`, cause Unknown causes (and the baby) | very rare: 2 of 62 in choice B |
 | C2 | "She chooses gentler care; her recovery is prolonged and uncertain." | `health_change` -30..-10 | 1 in 3 of choice C |
 
-- **Not made yet:** A3, "The child survives but the mother dies; the family remembers her courage." The games
-  keep an unborn baby only as the mother's own state, so killing her would end the baby too. **Owner (2026-11-14):**
-  A3 must change so the child really survives; that needs an engine feature (being researched). TODO: until it
-  lands, A3 stays told only and harms no one.
-- **Owner decision (2026-11-14): APPROVED as built** -- the cast pregnant villager, `baby_lost` and the very rare kills.
+- **Done:** A3, "The child survives but the mother dies; the family remembers her courage." **Owner (2026-11-14):** A3 must change so the child really survives. It now uses the `birth_then_die` effect (cie-v6-binary.md 23): the game's own delivery brings the baby, then the mother dies; very rare, as a death.
+- **Owner decision (2026-11-14): APPROVED as built** -- the cast pregnant villager, `baby_lost` and the very rare kills; A3's `birth_then_die` is approved with the rest of D1.

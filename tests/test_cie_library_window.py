@@ -215,11 +215,12 @@ class Helpers(unittest.TestCase):
                 w.to_v6(g)                                   # the new changes make the event version 6
             g["nodes"]["start"]["effects"] = [e] if kind != "pay_award" else [
                 {"do": "food", "amount": 5, "scaled": False, "defer": True}, e]
-            if kind == "baby_lost":                          # only a nursing parent, allowed (cie-v6-binary.md 22)
+            if kind in ("baby_lost", "birth_then_die"):  # only a nursing parent, allowed (cie-v6-binary.md 22, 23)
                 g["roles"]["subject"].update(special="nursing_parent", protected="allow")
             self.assertEqual(cg.validate(g)[1], [], kind)
         # The risky ones are marked.
-        self.assertEqual(set(w.RISKY), {"kill", "vanish", "sick", "status", "die_unrecovered", "baby_lost"})
+        self.assertEqual(set(w.RISKY), {"kill", "vanish", "sick", "status", "die_unrecovered", "baby_lost",
+                                          "birth_then_die"})
         self.assertEqual(w.CAUSE_WORDS, {"custom": "Died in a custom island event", "unknown": "Unknown causes"})
 
     def test_the_fit_meter_counts_pages_or_only_the_text_limit(self) -> None:
@@ -481,7 +482,7 @@ lib._role_form()
 out["role_widgets"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
 lib.select_node(ends[0], "Changes")
 for kind in w.NEW_KINDS:
-    if kind not in ("die_unrecovered", "baby_lost"):   # gone for good / only a nursing parent (own tests)
+    if kind not in ("die_unrecovered", "baby_lost", "birth_then_die"):   # gone for good / a nursing parent
         lib.add_effect(kind)
 lib.add_effect("skill")
 lib.g["nodes"][ends[0]]["effects"][-1].pop("min")

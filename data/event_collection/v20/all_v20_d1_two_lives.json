@@ -90,11 +90,12 @@
   "a3": {
    "text": "The child survives but the mother dies; the family remembers her courage.",
    "src": "L8957",
-   "text_only": [
+   "effects": [
     {
-     "src": "L8957",
-     "what": "dies",
-     "reason": "the games keep the unborn baby only as the mother's own state, so her death would end it: this outcome (the child survives) is told only, and no one is harmed"
+     "do": "birth_then_die",
+     "role": "mother",
+     "cause": "unknown",
+     "src": "L8957"
     }
    ]
   },
@@ -136,7 +137,8 @@
     },
     {
      "next": "a3",
-     "weight": 20
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
      "next": "a4",

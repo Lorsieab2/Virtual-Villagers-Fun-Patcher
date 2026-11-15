@@ -371,6 +371,19 @@ __declspec(dllexport) void __stdcall VvfpCauseBabyLost(int game, int index, cons
     lost_record_what(record, babies, words);
 }
 
+/* The branching Custom Island Event's "birth, then the parent dies" (story_graph.inc cg_tell_delivered,
+   cie-v6-binary.md 23): the game's own delivery has just made the babies of the villager in record `index`, in the
+   middle of a frame, and the parent's death follows at once.  The per-frame copy of the parent's nursing state
+   (lost_tick) still holds the pregnancy, and a Death record reads it while the field shows the delivery cannot
+   have come yet (lost_babies) -- so it is forgotten here: the babies were born, never lost with the parent. */
+__declspec(dllexport) void __stdcall VvfpCauseDelivered(int game, int index) {
+    if (install_state != 1 || game != g_game || index < 0 || index >= RECORDS_MAX) {
+        return;
+    }
+    lost_due[index] = 0;
+    lost_litter[index] = 0;
+}
+
 /* ---- THE LATER THREE'S GRAVES (the owner, v1.35.97) ----------------------------------------------------------
 
    The Secret City, The Tree of Life and New Believers word a grave's cause from their own string table: the grave

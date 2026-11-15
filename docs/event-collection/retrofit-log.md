@@ -733,16 +733,18 @@ Retrofit agent B: the V13, V14, game-exclusive, V17, V18, V20-V24 and V27 events
 
 - Reweighted: node `a4` (kill) from equal weight to very rare 2 -- the source gives it no odds; V28's global rule makes a death very rare (2 against a normal 20) and a disappearance rare (5 against 20).
 - Reweighted: node `b4` (kill) from equal weight to very rare 2 -- the source gives it no odds; V28's global rule makes a death very rare (2 against a normal 20) and a disappearance rare (5 against 20).
-- Node `a2`: baby_lost on `mother`. Weight: weight 20 of 82 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "The mother survives but the child dies" -- the unborn child is lost; the mother lives.
-- Node `a4`: kill `mother` (cause: Unknown causes). Weight: weight 2 of 82 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "Neither survives" -- the mother dies, and the unborn child with her.
-- Node `a5`: health_change -30..-10 on `mother`. Weight: weight 20 of 82 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "the mother requires prolonged care" -- a minor health loss.
+- Reweighted: node `a3` (birth_then_die) from equal weight to very rare 2 -- a death, so V28's global rule makes it very rare (2 against a normal 20).
+- Node `a2`: baby_lost on `mother`. Weight: weight 20 of 64 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "The mother survives but the child dies" -- the unborn child is lost; the mother lives.
+- Node `a3`: birth_then_die on `mother` (cause: Unknown causes). Weight: weight 2 of 64 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "The child survives but the mother dies" -- the game's own delivery brings the baby now (early if the nursing is not done), then the mother dies with a grave.
+- Node `a4`: kill `mother` (cause: Unknown causes). Weight: weight 2 of 64 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "Neither survives" -- the mother dies, and the unborn child with her.
+- Node `a5`: health_change -30..-10 on `mother`. Weight: weight 20 of 64 of choice "Attempt the dangerous intervention." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "the mother requires prolonged care" -- a minor health loss.
 - Node `b2`: baby_lost on `mother`. Weight: weight 20 of 62 of choice "Choose the gentler treatment." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "The mother survives but loses the baby" -- the unborn child is lost; the mother lives.
 - Node `b3`: health_change -30..-10 on `mother`. Weight: weight 20 of 62 of choice "Choose the gentler treatment." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "The condition worsens" -- a minor health loss.
 - Node `b4`: kill `mother` (cause: Unknown causes). Weight: weight 2 of 62 of choice "Choose the gentler treatment." (normal 20, rare 5, very rare 2, exceptionally rare 1). Why: "Both die" -- the mother dies, and the unborn child with her.
 - Node `c2`: health_change -30..-10 on `mother`. Weight: 1 in 3 of choice "Explain the risks and ask the mother." (equal weights, the source gives no odds). Why: "her recovery is prolonged and uncertain" -- a minor health loss.
-- Role: the pregnant villager is now cast as `mother` (female, special nursing_parent, protected allow); before, decision Q11 kept her an uncast stranger. A3 ("The child survives but the mother dies") stays told only: the games keep the unborn baby as the mother's own state, so her death would end it too. Listed in retrofit-harm-review.md.
-- **TODO (the owner, 2026-11-14):** A3 must change so the child really survives its mother's death. That needs an engine feature (another agent is researching it); until then A3 stays told only.
-- Approved by the owner (2026-11-14) as built: the cast pregnant villager, `baby_lost`, and the very rare kills.
+- Role: the pregnant villager is now cast as `mother` (female, special nursing_parent, protected allow); before, decision Q11 kept her an uncast stranger. A3 ("The child survives but the mother dies") uses the `birth_then_die` effect (cie-v6-binary.md 23): the baby is born, then the mother dies. Listed in retrofit-harm-review.md.
+- Done (the owner, 2026-11-14): A3 now makes the child really survive its mother's death, with the `birth_then_die` effect; very rare (2 of 64).
+- Approved by the owner (2026-11-14) as built: the cast pregnant villager, `baby_lost`, the very rare kills, and A3's very rare `birth_then_die` (approved with the rest of D1).
 
 #### The Treatment That Does Not Exist (`all_v20_d2_no_such`)
 

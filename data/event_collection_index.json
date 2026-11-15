@@ -145,7 +145,12 @@
    "section": "v20"
   },
   "all_v20_d1_two_lives": {
-   "harm": [],
+   "allow": true,
+   "harm": [
+    "baby_lost",
+    "birth_then_die",
+    "kill"
+   ],
    "section": "v20"
   },
   "all_v20_d2_no_such": {
