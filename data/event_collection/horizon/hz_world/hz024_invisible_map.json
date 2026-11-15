@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Invisible Map of the Body",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz024_invisible_map",
+  "source": "horizon",
+  "lines": [
+   310,
+   320
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L310",
+  "ledger": [],
+  "description": "A midwife wonders whether distant scholars might understand why children sometimes resemble parents and sometimes differ greatly.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A midwife wonders whether distant scholars might understand why children sometimes resemble parents and sometimes differ greatly.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Imagine Inherited Instructions.",
+     "next": "a",
+     "src": "L312"
+    },
+    {
+     "label": "Imagine Studying Differences.",
+     "next": "b",
+     "src": "L315"
+    },
+    {
+     "label": "Ask What Makes a Person.",
+     "next": "c",
+     "src": "L318"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Researchers propose that living things carry tiny patterns passed between generations.",
+   "src": "L313"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A villager cautions that family resemblance cannot explain everything about a person.",
+   "src": "L314"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The midwife hopes such knowledge could help explain certain inherited conditions without blaming families.",
+   "src": "L316"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder worries that people might misuse it to rank or exclude others; the scholars agree that knowledge brings responsibility.",
+   "src": "L317"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent says affection, experience, and choice also shape a life.",
+   "src": "L319",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense (what a person has lived through or can do), not a skill gain",
+     "src": "L319"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child asks whether knowing every inherited trait would reveal someone's future; the adults admit it would not.",
+   "src": "L320"
+  }
+ }
+}

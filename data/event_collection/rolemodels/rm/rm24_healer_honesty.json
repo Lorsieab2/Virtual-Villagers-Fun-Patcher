@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Honesty",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm24_healer_honesty",
+  "source": "rolemodels",
+  "lines": [
+   51,
+   51
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L51",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "structural",
+    "text": "EVENT RM-24  -  THE HEALER'S HONESTY SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A healer is asked whether an unfamiliar plant will certainly relieve a villager's persistent discomfort.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer is asked whether an unfamiliar plant will certainly relieve a villager's persistent discomfort.",
+   "src": "L51",
+   "choices": [
+    {
+     "label": "Explain What Is Known and What Remains Uncertain.",
+     "next": "a",
+     "src": "L51"
+    },
+    {
+     "label": "Consult Another Experienced Healer.",
+     "next": "b",
+     "src": "L51"
+    },
+    {
+     "label": "Review Earlier Notes About the Plant.",
+     "next": "c",
+     "src": "L51"
+    },
+    {
+     "label": "Focus First on the Villager's Immediate Comfort.",
+     "next": "d",
+     "src": "L51"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager appreciates the honesty and agrees to discuss available care.",
+   "src": "L51"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager feels disappointed, but the healer does not offer false reassurance.",
+   "src": "L51"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Together they identify a familiar treatment with better-understood effects.",
+   "src": "L51"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Neither healer has sufficient evidence, and they recommend observation and supportive care.",
+   "src": "L51"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The notes reveal conflicting observations that warrant caution.",
+   "src": "L51"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healer discovers that the plant was previously confused with another species.",
+   "src": "L51"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Rest and appropriate care ease some discomfort without resolving its cause.",
+   "src": "L51"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The symptoms persist, and the healer continues monitoring the villager carefully.",
+   "src": "L51"
+  }
+ }
+}

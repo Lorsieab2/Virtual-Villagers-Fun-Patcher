@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Body Without a Breath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz046_body_without",
+  "source": "horizon",
+  "lines": [
+   647,
+   657
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L647",
+  "ledger": [],
+  "description": "An artisan wonders whether distant people could make an animal-shaped automaton that moves without breathing or eating.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An artisan wonders whether distant people could make an animal-shaped automaton that moves without breathing or eating.",
+   "src": "L648",
+   "choices": [
+    {
+     "label": "Study Motion.",
+     "next": "a",
+     "src": "L649"
+    },
+    {
+     "label": "Study Life.",
+     "next": "b",
+     "src": "L652"
+    },
+    {
+     "label": "Imagine a Companion.",
+     "next": "c",
+     "src": "L655"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The builders design a harmless wooden joint and learn why balance is difficult.",
+   "src": "L650"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A mechanism works briefly before sand jams its pivot.",
+   "src": "L651"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A healer compares motion with metabolism, reproduction, and healing.",
+   "src": "L653"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child points out that sleeping animals barely move and are unquestionably alive.",
+   "src": "L654"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A lonely elder likes the thought of a tireless walking companion.",
+   "src": "L656"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A friend asks whether such a companion could offer affection or merely imitate it.",
+   "src": "L657"
+  }
+ }
+}

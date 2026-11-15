@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children's Other World",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz061_children_other",
+  "source": "horizon",
+  "lines": [
+   827,
+   837
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L827",
+  "ledger": [],
+  "description": "A teacher speculates that distant children might learn through toys, pictures, games, and devices unlike anything on Isola.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teacher speculates that distant children might learn through toys, pictures, games, and devices unlike anything on Isola.",
+   "src": "L828",
+   "choices": [
+    {
+     "label": "Imagine Playful Learning.",
+     "next": "a",
+     "src": "L829"
+    },
+    {
+     "label": "Imagine Pressure.",
+     "next": "b",
+     "src": "L832"
+    },
+    {
+     "label": "Imagine Access.",
+     "next": "c",
+     "src": "L835"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a counting game with shells and prove that curiosity needs no machine.",
+   "src": "L830"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A teacher wonders whether distant games could teach skills unavailable here.",
+   "src": "L831"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An apprentice fears that children might be judged by constant examinations.",
+   "src": "L833"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another villager imagines schools that welcome many ways of learning.",
+   "src": "L834"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council asks whether every child could attend, including children who work or need assistance.",
+   "src": "L836"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A parent wonders who would care for babies while older children study.",
+   "src": "L837"
+  }
+ }
+}

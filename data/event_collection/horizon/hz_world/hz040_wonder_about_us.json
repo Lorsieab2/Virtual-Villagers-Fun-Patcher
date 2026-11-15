@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Maybe They Wonder About Us",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz040_wonder_about_us",
+  "source": "horizon",
+  "lines": [
+   514,
+   524
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L514",
+  "ledger": [],
+  "description": "As the sun sets, a child asks whether someone on a distant shore might be wondering about the islanders.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "As the sun sets, a child asks whether someone on a distant shore might be wondering about the lives of unknown islanders at this very moment.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Imagine Their Questions.",
+     "next": "a",
+     "src": "L516"
+    },
+    {
+     "label": "Imagine Being Misunderstood.",
+     "next": "b",
+     "src": "L519"
+    },
+    {
+     "label": "Imagine a Conversation.",
+     "next": "c",
+     "src": "L522"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child invents a distant scholar asking whether Isolans build houses, sing songs, and care for their families.",
+   "src": "L517"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder laughs at the thought of strangers imagining every Isolan as a fearless explorer.",
+   "src": "L518"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers list things outsiders might assume incorrectly about their knowledge, beliefs, and daily lives.",
+   "src": "L520"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A young craftsperson worries that an outsider might admire the island but fail to listen to its people.",
+   "src": "L521"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They compose a hypothetical greeting: \"We work, learn, disagree, love, and wonder. What about you?\"",
+   "src": "L523"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child decides that perhaps no one is wondering about them - and that their lives still matter just as much.",
+   "src": "L524"
+  }
+ }
+}

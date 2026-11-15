@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Hospital Larger Than a Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz020_hospital_larger",
+  "source": "horizon",
+  "lines": [
+   260,
+   271
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L271",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "An apprentice imagines a distant building where many healers treat different illnesses under one roof.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An apprentice imagines a distant building where many healers treat different illnesses under one roof.",
+   "src": "L261",
+   "choices": [
+    {
+     "label": "Imagine Specialists.",
+     "next": "a",
+     "src": "L262"
+    },
+    {
+     "label": "Imagine Advanced Equipment.",
+     "next": "b",
+     "src": "L265"
+    },
+    {
+     "label": "Imagine the Patients.",
+     "next": "c",
+     "src": "L268"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Healers discuss experts in childbirth, injuries, the mind, and diseases of the eyes.",
+   "src": "L263",
+   "text_only": [
+    {
+     "what": "\"injuries\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L263"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A general healer worries that too much specialization could overlook the whole person.",
+   "src": "L264"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers speculate about machines that help people breathe or reveal hidden injuries.",
+   "src": "L266",
+   "text_only": [
+    {
+     "what": "\"injuries\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L266"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A caregiver asks who maintains such devices and what happens when they fail.",
+   "src": "L267"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice pictures frightened people comforted by familiar voices despite unfamiliar surroundings.",
+   "src": "L269"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager wonders whether distant people can always afford or reach treatment; the imagined hospital loses its perfection.",
+   "src": "L270"
+  }
+ }
+}

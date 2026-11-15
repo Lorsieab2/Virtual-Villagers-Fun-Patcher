@@ -50,10 +50,30 @@ LIVING_LINES = 26867
 LIVING_ID = "living"
 LIVING_DIR = COLLECTION_DIR / "living"
 
+# The fourth source: the owner's separate companion anthology "Isola - Beyond the Horizon" (The World We Imagine,
+# EVENT 001-040, and Expansion Volume II, EVENT 041-080), frozen byte for byte (2026-11-15):
+# data/event_collection/horizon/<section>/<id>.json, "source": "horizon".
+HORIZON = ROOT / "docs" / "more-island-events" / "Isola_Beyond_the_Horizon_Expanded_80_Events.txt"
+HORIZON_HASH_FILE = COLLECTION_DIR / "HORIZON.sha256"
+HORIZON_LINES = 1080
+HORIZON_ID = "horizon"
+HORIZON_DIR = COLLECTION_DIR / "horizon"
+
+# The fifth source: the owner's "Role Models and Good Examples - 40 New Isola Events" (RM-01..RM-40), frozen byte for
+# byte (2026-11-15; the owner's file has CRLF line ends and one event per line):
+# data/event_collection/rolemodels/<section>/<id>.json, "source": "rolemodels".
+ROLEMODELS = ROOT / "docs" / "more-island-events" / "Role_Models_and_Good_Examples_40_Events.txt"
+ROLEMODELS_HASH_FILE = COLLECTION_DIR / "ROLEMODELS.sha256"
+ROLEMODELS_LINES = 85
+ROLEMODELS_ID = "rolemodels"
+ROLEMODELS_DIR = COLLECTION_DIR / "rolemodels"
+
 # source id -> (frozen file, its SHA-256 record, its line count)
 SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
            COMPANION_ID: (COMPANION, COMPANION_HASH_FILE, COMPANION_LINES),
-           LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES)}
+           LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES),
+           HORIZON_ID: (HORIZON, HORIZON_HASH_FILE, HORIZON_LINES),
+           ROLEMODELS_ID: (ROLEMODELS, ROLEMODELS_HASH_FILE, ROLEMODELS_LINES)}
 _ACTIVE = [SOURCE_ID]
 
 
@@ -241,6 +261,31 @@ def strip_structural(text: str) -> str:
         for rx in structural_markers():
             text = rx.sub(" " if rx.pattern.startswith(r"\b") else "", text)
     return text
+
+
+# ---- Title-case choice labels (the owner, 2026-11-15: titles and choice options are always title case) -------------
+#
+# A file whose collection.label_case is "title" shows each choice label in title case: every word's first letter a
+# capital (each part of a hyphenated word too), except these small words when neither first nor last; a word that
+# already has capitals keeps them.  Used by the 2026-11-15 sources (Beyond the Horizon, Role Models); the older
+# sources switch after the merge.  The fidelity check compares such a label with the source words case-blind and
+# then requires exactly this form of them.
+
+LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
+                     "the", "to", "with"}
+
+
+def title_case_label(text: str) -> str:
+    words = text.split(" ")
+    idx = [i for i, w in enumerate(words) if re.search(r"[A-Za-z]", w)]
+    out = []
+    for i, w in enumerate(words):
+        core = re.sub(r"^[^A-Za-z]+|[^A-Za-z]+$", "", w)
+        if not core or (core.lower() in LABEL_SMALL_WORDS and i not in (idx[0], idx[-1]) and core == core.lower()):
+            out.append(w)
+            continue
+        out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
+    return " ".join(out)
 
 
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'\-]*[A-Za-z]|[A-Za-z]")

@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Builder's Example",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm25_builder_example",
+  "source": "rolemodels",
+  "lines": [
+   53,
+   53
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L53",
+  "ledger": [
+   {
+    "src": "L53",
+    "kind": "structural",
+    "text": "EVENT RM-25  -  THE BUILDER'S EXAMPLE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A skilled builder notices that an apprentice has been assigned a difficult repair without adequate guidance.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A skilled builder notices that an apprentice has been assigned a difficult repair without adequate guidance.",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Demonstrate the Safest Method.",
+     "next": "a",
+     "src": "L53"
+    },
+    {
+     "label": "Ask What the Apprentice Already Understands.",
+     "next": "b",
+     "src": "L53"
+    },
+    {
+     "label": "Work Beside the Apprentice.",
+     "next": "c",
+     "src": "L53"
+    },
+    {
+     "label": "Reassign the Task Until Proper Instruction Is Available.",
+     "next": "d",
+     "src": "L53"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The apprentice completes the repair and gains a little building experience.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L53"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The task proves more complicated than expected, so the builder takes responsibility for the difficult portion.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The builder discovers that only one step needs clarification.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apprentice admits uncertainty, allowing the lesson to begin at a more suitable level.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They complete the repair together and compare their techniques.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Progress is slow, but the apprentice learns without being rushed.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The repair is delayed, but nobody is pressured into unsafe work.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Another experienced builder volunteers to supervise the apprentice.",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "the source puts the whole event on one line: \"experience\" is in another part of it (another page's words), not this page's",
+     "src": "L53"
+    }
+   ]
+  }
+ }
+}

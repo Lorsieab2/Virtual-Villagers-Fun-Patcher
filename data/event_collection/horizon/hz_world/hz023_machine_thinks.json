@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Machine That Thinks It Knows",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz023_machine_thinks",
+  "source": "horizon",
+  "lines": [
+   298,
+   308
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L298",
+  "ledger": [],
+  "description": "A philosopher asks whether distant people might construct devices that answer questions, imitate conversation, or make decisions.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A philosopher asks whether distant people might construct devices that answer questions, imitate conversation, or make decisions.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Imagine a Helpful Adviser.",
+     "next": "a",
+     "src": "L300"
+    },
+    {
+     "label": "Imagine a Fallible Machine.",
+     "next": "b",
+     "src": "L303"
+    },
+    {
+     "label": "Ask Who Is Responsible.",
+     "next": "c",
+     "src": "L306"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a machine that remembers every recipe and never tires of questions.",
+   "src": "L301"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A teacher asks whether an answer is useful if its reasoning cannot be checked.",
+   "src": "L302"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The group invents an adviser that confidently misidentifies every bird; everyone laughs, then discusses error.",
+   "src": "L304"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A villager worries that people might trust a device too much simply because it sounds certain.",
+   "src": "L305"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council decides that imagined makers and users would still owe others care and accountability.",
+   "src": "L307"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The philosopher wonders whether some decisions should never be delegated; the debate continues past sunset.",
+   "src": "L308"
+  }
+ }
+}

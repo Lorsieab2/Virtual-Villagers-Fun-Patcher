@@ -2655,6 +2655,326 @@
    "harm": [],
    "section": "fwk"
   },
+  "hz001_other_breakfast": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz002_children_ask_why": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz003_come_home": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz004_argument_across": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz005_mourn_as_we_do": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz006_day_unremarkable": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz007_people_grow_old": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz008_celebration": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz009_houses_stacked": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz010_city_never": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz011_market_thousand": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz012_job_no_one_sees": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz013_roads_without": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz014_sky_travelers": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz015_cleans_city": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz016_house_garden": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz017_voice_across_sea": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz018_library_without": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz019_unseen_illness": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz020_hospital_larger": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz021_prevention": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz022_false_stars": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz023_machine_thinks": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz024_invisible_map": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz025_journey_beyond": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz026_chooses_leaders": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz027_unseen_line": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz028_law_applies": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz029_being_different": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz030_stranger_looks": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz031_wants_to_leave": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz032_cannot_stop": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz033_land_where_water": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz034_unseen_animal": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz035_forest_replaced": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz036_story_everyone": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz037_thousand_ways": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz038_too_much_little": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz039_invention": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz040_wonder_about_us": {
+   "harm": [],
+   "section": "hz_world"
+  },
+  "hz041_worker_made": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz042_spirit_inside": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz043_thinking_tool": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz044_machine_says": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz045_construct_suffer": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz046_body_without": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz047_helper_learns": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz048_forest_machine": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz049_instrument": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz050_invisible": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz051_moving_portraits": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz052_many_voices_once": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz053_hands_never_rest": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz054_water_arrives": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz055_city_waste": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz056_never_goes_dark": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz057_house_touches": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz058_road_crosses": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz059_field_feeds": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz060_animal_family": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz061_children_other": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz062_healer_distant": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz063_path_without": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz064_market_faces": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz065_value_day": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz066_right_disagree": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz067_wall_divides": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz068_distant_war": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz069_world_watches": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz070_sky_full_objects": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz071_climate_many": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz072_under_glass": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz073_festival": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz074_dream_sold": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz075_many_families": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz076_machine_rights": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz077_construct_makes": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz078_construct_mourns": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz079_machine_protects": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
+  "hz080_distant_person": {
+   "harm": [],
+   "section": "hz_vol2"
+  },
   "lbl001_unopened_letter": {
    "harm": [],
    "section": "lbl"
@@ -5236,6 +5556,166 @@
   "lvway38_word_elder": {
    "harm": [],
    "section": "lv_ways"
+  },
+  "rm01_fair_share": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm02_broken_water_jar": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm03_promise_before": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm04_quiet_defender": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm05_nest_above_path": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm06_stream_after_rain": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm07_fisher_restraint": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm08_unfamiliar_custom": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm09_elder_patience": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm10_tired_parent": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm11_missing_credit": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm12_smaller_voice": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm13_garden_flowers": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm14_stranded_crab": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm15_different_answer": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm16_newcomer_place": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm17_apprentice_error": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm18_tree_fruit": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm19_promise_forgotten": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm20_turtle_crossing": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm21_fair_contest": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm22_gift_without_name": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm23_shoreline_after": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm24_healer_honesty": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm25_builder_example": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm26_child_butterfly": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm27_quiet_apology": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm28_sea_small_gifts": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm29_different_prayer": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm30_young_example": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm31_weary_animal": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm32_leader_listened": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm33_plant_beside_path": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm34_unpopular_truth": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm35_elder_unfinished": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm36_family_shared": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm37_reef_fragile_edge": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm38_apprentice": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm39_promise_shore": {
+   "harm": [],
+   "section": "rm"
+  },
+  "rm40_example_no_one": {
+   "harm": [],
+   "section": "rm"
   },
   "sss001_cartographer": {
    "harm": [],

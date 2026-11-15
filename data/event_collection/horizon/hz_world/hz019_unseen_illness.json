@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Cannot See the Illness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz019_unseen_illness",
+  "source": "horizon",
+  "lines": [
+   248,
+   258
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L248",
+  "ledger": [],
+  "description": "A healer asks whether distant physicians might have tools for observing things too small for the naked eye.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After treating a fever, a healer asks whether distant physicians might have tools for observing things too small for the naked eye.",
+   "src": "L249",
+   "choices": [
+    {
+     "label": "Imagine Magnification.",
+     "next": "a",
+     "src": "L250"
+    },
+    {
+     "label": "Imagine Unseen Causes.",
+     "next": "b",
+     "src": "L253"
+    },
+    {
+     "label": "Ask Whether Tools Replace Judgment.",
+     "next": "c",
+     "src": "L256"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Researchers experiment with water droplets and curved clear materials as crude lenses.",
+   "src": "L251"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Their improvised device distorts the view; the healer cautions against mistaking an artifact for evidence.",
+   "src": "L252"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The healers discuss the possibility of tiny living agents and other invisible processes.",
+   "src": "L254"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A villager fears every unseen thing; the healer explains that a hypothesis is not a reason to panic.",
+   "src": "L255"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group concludes that careful listening and observation would still matter.",
+   "src": "L257"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A patient reminds them that expensive tools would be little comfort if care were unavailable.",
+   "src": "L258"
+  }
+ }
+}

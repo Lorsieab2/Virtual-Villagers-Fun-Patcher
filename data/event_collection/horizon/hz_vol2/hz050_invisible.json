@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Invisible Library",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz050_invisible",
+  "source": "horizon",
+  "lines": [
+   695,
+   705
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L695",
+  "ledger": [],
+  "description": "A child wonders whether distant scholars could store countless stories in a single smooth object.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child wonders whether distant scholars could store countless stories in a single smooth object.",
+   "src": "L696",
+   "choices": [
+    {
+     "label": "Imagine the Convenience.",
+     "next": "a",
+     "src": "L697"
+    },
+    {
+     "label": "Imagine Who Controls It.",
+     "next": "b",
+     "src": "L700"
+    },
+    {
+     "label": "Compare It with Oral Memory.",
+     "next": "c",
+     "src": "L703"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A teacher dreams of sharing lessons without carrying baskets of tablets.",
+   "src": "L698"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A storyteller fears that a broken object might silence an entire library.",
+   "src": "L699"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A young villager asks whether everyone would be allowed to read.",
+   "src": "L701"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The council imagines rulers hiding stories by changing the object's contents.",
+   "src": "L702"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An elder demonstrates how songs preserve knowledge across generations.",
+   "src": "L704"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A researcher says a stored text and a remembered story might preserve different kinds of truth.",
+   "src": "L705"
+  }
+ }
+}

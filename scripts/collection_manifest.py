@@ -801,6 +801,111 @@ def _living_rows() -> None:
 
 _living_rows()
 
+# ---- Beyond the Horizon (the fourth source, collection_lib.HORIZON; its own line numbers) ------------------------------
+#
+# The owner's separate companion anthology "Isola - Beyond the Horizon" (2026-11-15): The World We Imagine (EVENT
+# 001-040, in five PARTs) and Expansion Volume II (EVENT 041-080).  Each event: a heading "EVENT 001 — THE OTHER
+# BREAKFAST", "SETUP: ...", three choices A-C, each with two alternate outcomes (" A1. ...", " A2. ..."), and at times a
+# "Content note: ..." or "VV3: ..." line.  The PART headings, the rules and the flavor/continuity notes are notes rows.
+# Series (the lead, 2026-11-15: "one series per Part, so each Part counts as one in the rare roll"): each of the five
+# PARTs of volume I is a series, and Expansion Volume II (which has no PARTs) is one more.
+
+HZ = lib.HORIZON_ID
+CREDITS.update({
+    "hz_world": ("mixed", [(1, 3)], HZ),
+    "hz_vol2": ("mixed", [(1, 3), (546, 547)], HZ),
+})
+HORIZON_NOTES = [
+    ("hznotes_intro", "Beyond the Horizon: title, creative premise, editorial and implementation rules, format", 1, 17,
+     "hz_world", "hz_world"),
+    ("hznotes_part1", "Beyond the Horizon: Part I heading", 20, 20, "hz_world", "hz_world"),
+    ("hznotes_part2", "Beyond the Horizon: Part II heading", 121, 121, "hz_world", "hz_world"),
+    ("hznotes_part3", "Beyond the Horizon: Part III heading", 221, 221, "hz_world", "hz_world"),
+    ("hznotes_part4", "Beyond the Horizon: Part IV heading", 335, 335, "hz_world", "hz_world"),
+    ("hznotes_part5", "Beyond the Horizon: Part V heading", 426, 426, "hz_world", "hz_world"),
+    ("hznotes_flavor", "Beyond the Horizon: game-specific flavor inserts, continuity threads and the volume's end",
+     527, 542, "hz_world", "hz_world"),
+    ("hznotes_vol2", "Beyond the Horizon: Expansion Volume II heading and creative and canon guidance", 546, 584,
+     "hz_vol2", "hz_vol2"),
+    ("hznotes_vol2_end", "Beyond the Horizon: Expansion Volume II continuity threads and end", 1068, 1080,
+     "hz_vol2", "hz_vol2"),
+]
+# (first line of the PART's events, series) in source order; Expansion Volume II from L587
+HORIZON_SERIES = [(23, "hz_part1"), (124, "hz_part2"), (224, "hz_part3"), (338, "hz_part4"), (429, "hz_part5"),
+                  (587, "hz_vol2")]
+HORIZON_SERIES_NAMES = tuple(s for _, s in HORIZON_SERIES)
+HORIZON_EVENTS = (23, 1065)
+# Where the title's first words would not name the event: the id to use instead (at most 22 characters).
+HORIZON_IDS = {
+    "hz002": "hz002_children_ask_why", "hz003": "hz003_come_home", "hz005": "hz005_mourn_as_we_do",
+    "hz006": "hz006_day_unremarkable", "hz008": "hz008_celebration", "hz010": "hz010_city_never_sleeps",
+    "hz012": "hz012_job_no_one_sees", "hz014": "hz014_sky_travelers", "hz019": "hz019_unseen_illness",
+    "hz021": "hz021_prevention", "hz022": "hz022_false_stars", "hz027": "hz027_unseen_line",
+    "hz029": "hz029_being_different", "hz031": "hz031_wants_to_leave", "hz032": "hz032_cannot_stop",
+    "hz034": "hz034_unseen_animal", "hz038": "hz038_too_much_little", "hz040": "hz040_wonder_about_us",
+    "hz045": "hz045_construct_suffer", "hz050": "hz050_invisible_library", "hz051": "hz051_moving_portraits",
+    "hz055": "hz055_city_waste", "hz056": "hz056_never_goes_dark", "hz072": "hz072_under_glass",
+    "hz073": "hz073_festival_strangers", "hz074": "hz074_dream_sold", "hz075": "hz075_many_families",
+    "hz076": "hz076_machine_rights",
+}
+
+
+def _horizon_rows() -> None:
+    with lib.use_source(HZ):
+        for nid, title, a, b, section, credit in HORIZON_NOTES:
+            N(nid, title, a, b, section, credit, source=HZ)
+        starts = sorted(a for _, _, a, _, _, _ in HORIZON_NOTES)
+        rx = re.compile(r"^EVENT (\d{3}) — (.+)$")
+        first, last = HORIZON_EVENTS
+        heads = [n for n in range(first, last + 1) if rx.match(lib.line(n))]
+        for i, h in enumerate(heads):
+            stop = heads[i + 1] if i + 1 < len(heads) else last + 1
+            stop = min([stop] + [a for a in starts if h < a < stop])
+            e = stop - 1
+            while lib.is_blank_or_separator(e):
+                e -= 1
+            m = rx.match(lib.line(h))
+            num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+            eid = f"hz{num}"
+            vol2 = int(num) > 40
+            series = [s for a, s in HORIZON_SERIES if a <= h][-1]
+            R(HORIZON_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+              title_case(src_title), ALL, h, e,
+              "event", "hz_vol2" if vol2 else "hz_world", "hz_vol2" if vol2 else "hz_world", 3, series=series,
+              source=HZ, choice_re=r"^[A-C]\.\s")
+
+
+_horizon_rows()
+
+# ---- Role Models and Good Examples (the fifth source, collection_lib.ROLEMODELS; its own line numbers) --------------
+#
+# The owner's "Role Models and Good Examples — 40 New Isola Events" (2026-11-15): one event per line, "EVENT RM-01 —
+# THE FAIR SHARE SETUP: ... A. ... A1. ... A2. ... B. ... D2. ..." (four choices A-D, two outcomes each).  Lines 1-3
+# (title and introduction) and 85 (closing) are notes rows.  No series: every event is drawn on its own.
+
+RMS = lib.ROLEMODELS_ID
+CREDITS.update({"rm": ("mixed", [(1, 3)], RMS)})
+ROLEMODEL_IDS = {"rm38": "rm38_apprentice_noticed", "rm40": "rm40_example_no_one"}
+
+
+def _rolemodel_rows() -> None:
+    with lib.use_source(RMS):
+        N("rmnotes_intro", "Role Models and Good Examples: title and introduction", 1, 3, "rm", "rm", source=RMS)
+        N("rmnotes_end", "Role Models and Good Examples: closing note", 85, 85, "rm", "rm", source=RMS)
+        rx = re.compile(r"^EVENT RM-(\d{2}) — (.+?) SETUP: ")
+        for n in range(4, 85):
+            m = rx.match(lib.line(n))
+            if not m:
+                continue
+            num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+            eid = f"rm{num}"
+            R(ROLEMODEL_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+              title_case(src_title), ALL, n, n,
+              "event", "rm", "rm", 4, source=RMS)
+
+
+_rolemodel_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1117,6 +1222,14 @@ def build() -> dict:
             "uncovered_lines": [u for u in uncovered(liv) if lib.src_lines(u)[0] in inside],
             "overlaps": overlaps(liv),
         }
+
+    def whole_file(source: str, path, series: tuple) -> dict:
+        """A source whose every line belongs to a row (Beyond the Horizon, Role Models and Good Examples)."""
+        mine = [r for r in rows if r["source"] == source]
+        with lib.use_source(source):
+            return {"source": str(path.relative_to(lib.ROOT)).replace("\\", "/"),
+                    "source_sha256": lib.source_sha256(source), "counts": counts(mine, series),
+                    "uncovered_lines": uncovered(mine), "overlaps": overlaps(mine)}
     return {
         "format": "vvfp-event-collection-manifest", "version": 1,
         "source": str(lib.SOURCE.relative_to(lib.ROOT)).replace("\\", "/"),
@@ -1130,6 +1243,10 @@ def build() -> dict:
         "companion": companion,
         # The third source (collection_lib.LIVING): its rows are in "rows" with "source": "living".
         "living": living,
+        # The fourth and fifth sources (collection_lib.HORIZON, collection_lib.ROLEMODELS): rows with "source"
+        # "horizon" / "rolemodels".
+        "horizon": whole_file(lib.HORIZON_ID, lib.HORIZON, HORIZON_SERIES_NAMES),
+        "rolemodels": whole_file(lib.ROLEMODELS_ID, lib.ROLEMODELS, ()),
         "rows": rows,
     }
 
@@ -1157,6 +1274,9 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
+    for key in ("horizon", "rolemodels"):
+        s = data[key]
+        print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     return 0
 
 

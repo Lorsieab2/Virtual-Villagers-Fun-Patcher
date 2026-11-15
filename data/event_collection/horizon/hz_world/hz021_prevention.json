@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Medicine That Prevents",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz021_prevention",
+  "source": "horizon",
+  "lines": [
+   273,
+   284
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L273",
+  "ledger": [
+   {
+    "src": "L284",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the coming per-event content-notes feature shows it; listed in the build report's content-note table), never part of a page"
+   }
+  ],
+  "description": "A healer asks whether distant communities might protect people from certain illnesses before symptoms begin.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer asks whether distant communities might protect people from certain illnesses before symptoms begin.",
+   "src": "L274",
+   "choices": [
+    {
+     "label": "Imagine Prevention Through Observation.",
+     "next": "a",
+     "src": "L275"
+    },
+    {
+     "label": "Imagine Carefully Prepared Treatments.",
+     "next": "b",
+     "src": "L278"
+    },
+    {
+     "label": "Imagine Uneven Access.",
+     "next": "c",
+     "src": "L281"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village reviews clean water, food storage, and separation during contagious illness.",
+   "src": "L276",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L276"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A skeptic points out that a successful preventive measure may leave no obvious proof it worked.",
+   "src": "L277"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers wonder whether controlled exposure or other techniques could train the body to resist disease, but acknowledge the idea is untested here.",
+   "src": "L279"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The healer refuses to experiment on villagers without evidence and consent; the council approves the caution.",
+   "src": "L280"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent hopes distant children might receive protections unavailable on Isola.",
+   "src": "L282"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager fears that wealth or geography might determine who benefits.",
+   "src": "L283"
+  }
+ }
+}

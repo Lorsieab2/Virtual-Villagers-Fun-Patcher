@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Different Answer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm15_different_answer",
+  "source": "rolemodels",
+  "lines": [
+   33,
+   33
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "structural",
+    "text": "EVENT RM-15  -  THE DIFFERENT ANSWER SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Two young scholars disagree about an unusual mark found on a stone, and their classmates expect one to be declared correct.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two young scholars disagree about an unusual mark found on a stone, and their classmates expect one to be declared correct.",
+   "src": "L33",
+   "choices": [
+    {
+     "label": "Compare the Evidence for Both Explanations.",
+     "next": "a",
+     "src": "L33"
+    },
+    {
+     "label": "Record Both Interpretations.",
+     "next": "b",
+     "src": "L33"
+    },
+    {
+     "label": "Ask a Third Scholar to Examine the Stone Independently.",
+     "next": "c",
+     "src": "L33"
+    },
+    {
+     "label": "Set the Stone Aside Until Better Evidence Appears.",
+     "next": "d",
+     "src": "L33"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The scholars discover that neither interpretation accounts for every detail.",
+   "src": "L33"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A closer examination supports one explanation, and the other scholar accepts the finding.",
+   "src": "L33"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Future observers will be able to compare the competing ideas.",
+   "src": "L33"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The scholars realize they need a clearer description of the original mark.",
+   "src": "L33"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The new observer notices a feature both scholars overlooked.",
+   "src": "L33"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The third interpretation differs from both, leaving the question unresolved.",
+   "src": "L33"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The scholars return to their work without treating uncertainty as failure.",
+   "src": "L33"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One scholar remains frustrated but agrees that guessing would not settle the question.",
+   "src": "L33"
+  }
+ }
+}

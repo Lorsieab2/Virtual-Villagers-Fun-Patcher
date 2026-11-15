@@ -234,3 +234,15 @@ Every harm case (role ages: 14- is 14 and over; the text is the outcome's line):
 | `lvauth20_elder_lesson` | A1 | elder (55-) | death (Unknown causes) | very_rare (2) | The elder dies comforted by the promise. |
 | `lvauth21_master_feared` | A2 | craftsperson (14-) | sick | occasional (10) | Their knowledge risks disappearing when they fall ill. |
 | `lvauth29_apprentice` | A2 | wearer (14-) | sick | occasional (10) | The master dismisses the risk and a wearer becomes ill. |
+
+## Beyond the Horizon and Role Models and Good Examples (HZ-RM)
+
+Range: the owner's 2026-11-15 sources "Isola - Beyond the Horizon" EVENT 001-080 (`horizon/hz_world`,
+`horizon/hz_vol2`) and "Role Models and Good Examples" RM-01..RM-40 (`rolemodels/rm`), 120 events. Generators:
+`scripts/horizon_rm/gen_hz.py`, `gen_rm.py`.
+
+**No harmful effect anywhere, no `protected: "allow"`.** Every outcome of both sources is talk, imagination, a small
+harmless trial, a success, a compromise or a delay; injuries, illness, war and hunger appear only as the villagers'
+speculation about distant peoples (text only). The only effects are six small skill gains (Horizon 009 A1 Building,
+018 A1 Research; RM-11 B1 and RM-25 A1 Building, RM-17 A1 Healing, RM-36 A2 Parenting). Both outcomes of every
+choice are equally likely.

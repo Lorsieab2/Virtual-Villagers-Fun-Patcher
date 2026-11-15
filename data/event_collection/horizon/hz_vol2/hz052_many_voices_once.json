@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Many Voices at Once",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz052_many_voices_once",
+  "source": "horizon",
+  "lines": [
+   719,
+   729
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L719",
+  "ledger": [],
+  "description": "The council speculates that distant villages might exchange messages instantly across seas.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The council speculates that distant villages might exchange messages instantly across seas.",
+   "src": "L720",
+   "choices": [
+    {
+     "label": "Imagine Family Ties.",
+     "next": "a",
+     "src": "L721"
+    },
+    {
+     "label": "Imagine Rumors.",
+     "next": "b",
+     "src": "L724"
+    },
+    {
+     "label": "Imagine Solitude.",
+     "next": "c",
+     "src": "L727"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Separated relatives could speak despite the distance, the villagers suppose.",
+   "src": "L722"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A young person wonders whether constant contact would make leaving home harder.",
+   "src": "L723"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A false warning might travel farther than anyone could correct it.",
+   "src": "L725"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A healer suggests verifying messages before passing them along.",
+   "src": "L726"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A fisherman cherishes a shore where no one can summon him.",
+   "src": "L728"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager imagines such communication as a lifeline during emergencies.",
+   "src": "L729"
+  }
+ }
+}

@@ -45,6 +45,10 @@ SECTIONS = (
     ("lv_unseen", "Living Events: The Unseen Horizon, Cryptids, and the Silent Gods"),
     ("lv_ways", "Living Events: The Many Ways of Isola"),
     ("lv_auth", "Living Events: The Weight of a Name"),
+    # The owner's 2026-11-15 sources (data/event_collection/horizon/<section>/, data/event_collection/rolemodels/rm/)
+    ("hz_world", "Beyond the Horizon: The World We Imagine"),
+    ("hz_vol2", "Beyond the Horizon: The Constructs, the Cities, and the Common Fire"),
+    ("rm", "Role Models and Good Examples"),
     # The Living Event Engine (living.pak): one row per seed, a category's seeds sharing its title (one series).
     ("living_engine", "The Living Event Engine"),
 )
@@ -97,7 +101,8 @@ def build_index() -> dict:
     out = {}
     base = ROOT / "data" / "event_collection"
     for source in sorted(list(base.glob("*/*.json")) + list((base / "companion").glob("*/*.json"))
-                         + list((base / "living").glob("*/*.json"))):
+                         + list((base / "living").glob("*/*.json")) + list((base / "horizon").glob("*/*.json"))
+                         + list((base / "rolemodels").glob("*/*.json"))):
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json

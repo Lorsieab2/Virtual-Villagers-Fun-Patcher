@@ -92,6 +92,43 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "horizon": {
+  "source": "docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt",
+  "source_sha256": "8ebae8de40a13179ac908777e4d02f43d2dcb4f397d77a367c3a75878a266f1c",
+  "counts": {
+   "rows": 89,
+   "events": 80,
+   "addons": 0,
+   "banks": 0,
+   "notes": 9,
+   "events_and_addons": 80,
+   "series": {
+    "hz_part1": 8,
+    "hz_part2": 8,
+    "hz_part3": 9,
+    "hz_part4": 7,
+    "hz_part5": 8,
+    "hz_vol2": 40
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
+ "rolemodels": {
+  "source": "docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt",
+  "source_sha256": "688010b259dda145cb9b7e3afb78658be5fc960ce323da9c0bb9c241b26a14ad",
+  "counts": {
+   "rows": 42,
+   "events": 40,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 40,
+   "series": {}
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "rows": [
   {
    "id": "notes_credit_ledger",
@@ -48097,6 +48134,4687 @@
    "source": "living",
    "source_check": {
     "heading": "L23795: AUTH-30  -  THE LEADER WHO SPOKE FOR EVERYONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hznotes_intro",
+   "title": "Beyond the Horizon: title, creative premise, editorial and implementation rules, format",
+   "games": [],
+   "lines": [
+    1,
+    17
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1: ISOLA  -  BEYOND THE HORIZON: THE WORLD WE IMAGINE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_part1",
+   "title": "Beyond the Horizon: Part I heading",
+   "games": [],
+   "lines": [
+    20,
+    20
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L20: PART I  -  ARE THEY LIKE US? EVERYDAY LIFE BEYOND THE SEA",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_part2",
+   "title": "Beyond the Horizon: Part II heading",
+   "games": [],
+   "lines": [
+    121,
+    121
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L121: PART II  -  HOMES, CITIES, WORK, AND MOVEMENT",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_part3",
+   "title": "Beyond the Horizon: Part III heading",
+   "games": [],
+   "lines": [
+    221,
+    221
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L221: PART III  -  MESSAGES, MACHINES, SCIENCE, AND MEDICINE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_part4",
+   "title": "Beyond the Horizon: Part IV heading",
+   "games": [],
+   "lines": [
+    335,
+    335
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L335: PART IV  -  PEOPLE, POWER, BELONGING, AND FAIRNESS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_part5",
+   "title": "Beyond the Horizon: Part V heading",
+   "games": [],
+   "lines": [
+    426,
+    426
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L426: PART V  -  NATURE, CULTURE, MEDIA, AND THE CONTRADICTIONS OF PROGRESS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_flavor",
+   "title": "Beyond the Horizon: game-specific flavor inserts, continuity threads and the volume's end",
+   "games": [],
+   "lines": [
+    527,
+    542
+   ],
+   "kind": "notes",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L527: OPTIONAL GAME-SPECIFIC FLAVOR INSERTS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_vol2",
+   "title": "Beyond the Horizon: Expansion Volume II heading and creative and canon guidance",
+   "games": [],
+   "lines": [
+    546,
+    584
+   ],
+   "kind": "notes",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L546: EXPANSION VOLUME II  -  THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hznotes_vol2_end",
+   "title": "Beyond the Horizon: Expansion Volume II continuity threads and end",
+   "games": [],
+   "lines": [
+    1068,
+    1080
+   ],
+   "kind": "notes",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1068: OPTIONAL EXPANSION CONTINUITY THREADS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "hz001_other_breakfast",
+   "title": "The Other Breakfast",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23,
+    33
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L23: EVENT 001  -  THE OTHER BREAKFAST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz002_children_ask_why",
+   "title": "Do Their Children Ask Why?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    35,
+    45
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L35: EVENT 002  -  DO THEIR CHILDREN ASK WHY?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz003_come_home",
+   "title": "Someone to Come Home to",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    47,
+    57
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L47: EVENT 003  -  SOMEONE TO COME HOME TO",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz004_argument_across",
+   "title": "The Argument Across the Ocean",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    59,
+    69
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L59: EVENT 004  -  THE ARGUMENT ACROSS THE OCEAN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz005_mourn_as_we_do",
+   "title": "Do They Mourn as We Do?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    71,
+    82
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L71: EVENT 005  -  DO THEY MOURN AS WE DO?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz006_day_unremarkable",
+   "title": "A Day Without Anything Remarkable",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    84,
+    94
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L84: EVENT 006  -  A DAY WITHOUT ANYTHING REMARKABLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz007_people_grow_old",
+   "title": "The People Who Grow Old",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    96,
+    106
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L96: EVENT 007  -  THE PEOPLE WHO GROW OLD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz008_celebration",
+   "title": "The Other Side of a Celebration",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    108,
+    118
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part1",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L108: EVENT 008  -  THE OTHER SIDE OF A CELEBRATION",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz009_houses_stacked",
+   "title": "Houses Stacked Like Shells",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    124,
+    134
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L124: EVENT 009  -  HOUSES STACKED LIKE SHELLS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz010_city_never",
+   "title": "The City That Never Sleeps",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    136,
+    146
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L136: EVENT 010  -  THE CITY THAT NEVER SLEEPS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz011_market_thousand",
+   "title": "The Market of a Thousand Things",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    148,
+    158
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L148: EVENT 011  -  THE MARKET OF A THOUSAND THINGS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz012_job_no_one_sees",
+   "title": "A Job No One Can See",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    160,
+    170
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L160: EVENT 012  -  A JOB NO ONE CAN SEE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz013_roads_without",
+   "title": "Roads Without Footprints",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    172,
+    182
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L172: EVENT 013  -  ROADS WITHOUT FOOTPRINTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz014_sky_travelers",
+   "title": "The Sky Full of Travelers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    184,
+    194
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L184: EVENT 014  -  THE SKY FULL OF TRAVELERS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz015_cleans_city",
+   "title": "Who Cleans the Great City?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    196,
+    206
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L196: EVENT 015  -  WHO CLEANS THE GREAT CITY?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz016_house_garden",
+   "title": "The House with No Garden",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    208,
+    218
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L208: EVENT 016  -  THE HOUSE WITH NO GARDEN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz017_voice_across_sea",
+   "title": "A Voice Across the Sea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    224,
+    234
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L224: EVENT 017  -  A VOICE ACROSS THE SEA",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz018_library_without",
+   "title": "The Library Without Walls",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    236,
+    246
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L236: EVENT 018  -  THE LIBRARY WITHOUT WALLS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz019_unseen_illness",
+   "title": "The Healer Who Cannot See the Illness",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    248,
+    258
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L248: EVENT 019  -  THE HEALER WHO CANNOT SEE THE ILLNESS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz020_hospital_larger",
+   "title": "A Hospital Larger Than a Village",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    260,
+    271
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L260: EVENT 020  -  A HOSPITAL LARGER THAN A VILLAGE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz021_prevention",
+   "title": "The Medicine That Prevents",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    273,
+    284
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L273: EVENT 021  -  THE MEDICINE THAT PREVENTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz022_false_stars",
+   "title": "The Night of a Thousand False Stars",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    286,
+    296
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L286: EVENT 022  -  THE NIGHT OF A THOUSAND FALSE STARS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz023_machine_thinks",
+   "title": "The Machine That Thinks It Knows",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    298,
+    308
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L298: EVENT 023  -  THE MACHINE THAT THINKS IT KNOWS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz024_invisible_map",
+   "title": "The Invisible Map of the Body",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    310,
+    320
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L310: EVENT 024  -  THE INVISIBLE MAP OF THE BODY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz025_journey_beyond",
+   "title": "The Journey Beyond the Moon",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    322,
+    332
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part3",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L322: EVENT 025  -  THE JOURNEY BEYOND THE MOON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz026_chooses_leaders",
+   "title": "Who Chooses the Leaders?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    338,
+    349
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L338: EVENT 026  -  WHO CHOOSES THE LEADERS?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz027_unseen_line",
+   "title": "The Line No One Can See",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    351,
+    362
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L351: EVENT 027  -  THE LINE NO ONE CAN SEE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz028_law_applies",
+   "title": "The Law That Applies to Everyone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    364,
+    374
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L364: EVENT 028  -  THE LAW THAT APPLIES TO EVERYONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz029_being_different",
+   "title": "The Price of Being Different",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    376,
+    387
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L376: EVENT 029  -  THE PRICE OF BEING DIFFERENT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz030_stranger_looks",
+   "title": "The Stranger Who Looks Familiar",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    389,
+    399
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L389: EVENT 030  -  THE STRANGER WHO LOOKS FAMILIAR",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz031_wants_to_leave",
+   "title": "The Child Who Wants to Leave",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    401,
+    411
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L401: EVENT 031  -  THE CHILD WHO WANTS TO LEAVE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz032_cannot_stop",
+   "title": "The People Who Cannot Stop Working",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    413,
+    423
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part4",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L413: EVENT 032  -  THE PEOPLE WHO CANNOT STOP WORKING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz033_land_where_water",
+   "title": "The Land Where Water Becomes Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    429,
+    439
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L429: EVENT 033  -  THE LAND WHERE WATER BECOMES STONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz034_unseen_animal",
+   "title": "The Animal No One Here Has Seen",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    441,
+    451
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L441: EVENT 034  -  THE ANIMAL NO ONE HERE HAS SEEN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz035_forest_replaced",
+   "title": "The Forest Replaced by Stone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    453,
+    463
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L453: EVENT 035  -  THE FOREST REPLACED BY STONE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz036_story_everyone",
+   "title": "The Story Everyone Hears",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    465,
+    475
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L465: EVENT 036  -  THE STORY EVERYONE HEARS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz037_thousand_ways",
+   "title": "A Thousand Ways to Make Music",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    477,
+    487
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L477: EVENT 037  -  A THOUSAND WAYS TO MAKE MUSIC",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz038_too_much_little",
+   "title": "The World of Too Much and Too Little",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    489,
+    500
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L489: EVENT 038  -  THE WORLD OF TOO MUCH AND TOO LITTLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz039_invention",
+   "title": "The Invention That Changes Everything",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    502,
+    512
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L502: EVENT 039  -  THE INVENTION THAT CHANGES EVERYTHING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz040_wonder_about_us",
+   "title": "Maybe They Wonder About Us",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    514,
+    524
+   ],
+   "kind": "event",
+   "section": "hz_world",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_part5",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L514: EVENT 040  -  MAYBE THEY WONDER ABOUT US",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz041_worker_made",
+   "title": "The Worker Made of Stone and Metal",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    587,
+    597
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L587: EVENT 041  -  THE WORKER MADE OF STONE AND METAL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz042_spirit_inside",
+   "title": "The Spirit Inside the Carving",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    599,
+    609
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L599: EVENT 042  -  THE SPIRIT INSIDE THE CARVING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz043_thinking_tool",
+   "title": "Is a Thinking Tool Alive?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    611,
+    621
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L611: EVENT 043  -  IS A THINKING TOOL ALIVE?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz044_machine_says",
+   "title": "The Machine That Says No",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    623,
+    633
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L623: EVENT 044  -  THE MACHINE THAT SAYS NO",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz045_construct_suffer",
+   "title": "Can a Construct Suffer?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    635,
+    645
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L635: EVENT 045  -  CAN A CONSTRUCT SUFFER?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz046_body_without",
+   "title": "A Body Without a Breath",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    647,
+    657
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L647: EVENT 046  -  A BODY WITHOUT A BREATH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz047_helper_learns",
+   "title": "The Helper Who Learns",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    659,
+    669
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L659: EVENT 047  -  THE HELPER WHO LEARNS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz048_forest_machine",
+   "title": "The Forest as a Machine",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    671,
+    681
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L671: EVENT 048  -  THE FOREST AS A MACHINE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz049_instrument",
+   "title": "The Instrument That Answers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    683,
+    693
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L683: EVENT 049  -  THE INSTRUMENT THAT ANSWERS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz050_invisible",
+   "title": "The Invisible Library",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    695,
+    705
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L695: EVENT 050  -  THE INVISIBLE LIBRARY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz051_moving_portraits",
+   "title": "The World of Moving Portraits",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    707,
+    717
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L707: EVENT 051  -  THE WORLD OF MOVING PORTRAITS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz052_many_voices_once",
+   "title": "The Many Voices at Once",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    719,
+    729
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L719: EVENT 052  -  THE MANY VOICES AT ONCE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz053_hands_never_rest",
+   "title": "The Hands That Never Rest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    731,
+    741
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L731: EVENT 053  -  THE HANDS THAT NEVER REST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz054_water_arrives",
+   "title": "The Water That Arrives Inside",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    743,
+    753
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L743: EVENT 054  -  THE WATER THAT ARRIVES INSIDE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz055_city_waste",
+   "title": "Where Does the City's Waste Go?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    755,
+    765
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L755: EVENT 055  -  WHERE DOES THE CITY'S WASTE GO?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz056_never_goes_dark",
+   "title": "The City That Never Goes Dark",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    767,
+    777
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L767: EVENT 056  -  THE CITY THAT NEVER GOES DARK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz057_house_touches",
+   "title": "The House That Touches the Clouds",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    779,
+    789
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L779: EVENT 057  -  THE HOUSE THAT TOUCHES THE CLOUDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz058_road_crosses",
+   "title": "The Road That Crosses Everything",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    791,
+    801
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L791: EVENT 058  -  THE ROAD THAT CROSSES EVERYTHING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz059_field_feeds",
+   "title": "The Field That Feeds a Thousand",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    803,
+    813
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L803: EVENT 059  -  THE FIELD THAT FEEDS A THOUSAND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz060_animal_family",
+   "title": "The Animal Who Is Family",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    815,
+    825
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L815: EVENT 060  -  THE ANIMAL WHO IS FAMILY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz061_children_other",
+   "title": "The Children's Other World",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    827,
+    837
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L827: EVENT 061  -  THE CHILDREN'S OTHER WORLD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz062_healer_distant",
+   "title": "The Healer's Distant Eyes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    839,
+    849
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L839: EVENT 062  -  THE HEALER'S DISTANT EYES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz063_path_without",
+   "title": "The Path Without Stairs",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    851,
+    861
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L851: EVENT 063  -  THE PATH WITHOUT STAIRS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz064_market_faces",
+   "title": "The Market with No Faces",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    863,
+    873
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L863: EVENT 064  -  THE MARKET WITH NO FACES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz065_value_day",
+   "title": "The Value of a Day",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    875,
+    885
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L875: EVENT 065  -  THE VALUE OF A DAY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz066_right_disagree",
+   "title": "The Right to Disagree",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    887,
+    897
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L887: EVENT 066  -  THE RIGHT TO DISAGREE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz067_wall_divides",
+   "title": "The Wall That Divides Families",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    899,
+    909
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L899: EVENT 067  -  THE WALL THAT DIVIDES FAMILIES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz068_distant_war",
+   "title": "The Distant War",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    911,
+    921
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L911: EVENT 068  -  THE DISTANT WAR",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz069_world_watches",
+   "title": "The World That Watches",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    923,
+    933
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L923: EVENT 069  -  THE WORLD THAT WATCHES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz070_sky_full_objects",
+   "title": "The Sky Full of Objects",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    935,
+    945
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L935: EVENT 070  -  THE SKY FULL OF OBJECTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz071_climate_many",
+   "title": "The Climate of Many Generations",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    947,
+    957
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L947: EVENT 071  -  THE CLIMATE OF MANY GENERATIONS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz072_under_glass",
+   "title": "The People Who Live Under Glass",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    959,
+    969
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L959: EVENT 072  -  THE PEOPLE WHO LIVE UNDER GLASS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz073_festival",
+   "title": "The Festival of Strangers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    971,
+    981
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L971: EVENT 073  -  THE FESTIVAL OF STRANGERS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz074_dream_sold",
+   "title": "The Dream That Can Be Sold",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    983,
+    993
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L983: EVENT 074  -  THE DREAM THAT CAN BE SOLD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz075_many_families",
+   "title": "The House of Many Families",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    995,
+    1005
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L995: EVENT 075  -  THE HOUSE OF MANY FAMILIES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz076_machine_rights",
+   "title": "The Question of a Machine's Rights",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1007,
+    1017
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1007: EVENT 076  -  THE QUESTION OF A MACHINE'S RIGHTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz077_construct_makes",
+   "title": "The Construct That Makes Art",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1019,
+    1029
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1019: EVENT 077  -  THE CONSTRUCT THAT MAKES ART",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz078_construct_mourns",
+   "title": "The Construct Who Mourns",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1031,
+    1041
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1031: EVENT 078  -  THE CONSTRUCT WHO MOURNS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz079_machine_protects",
+   "title": "The Machine That Protects the Reef",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1043,
+    1053
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1043: EVENT 079  -  THE MACHINE THAT PROTECTS THE REEF",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "hz080_distant_person",
+   "title": "The Distant Person at the Same Fire",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    1055,
+    1065
+   ],
+   "kind": "event",
+   "section": "hz_vol2",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3",
+     "L546-547"
+    ],
+    "text": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)"
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "hz_vol2",
+   "source": "horizon",
+   "source_check": {
+    "heading": "L1055: EVENT 080  -  THE DISTANT PERSON AT THE SAME FIRE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rmnotes_intro",
+   "title": "Role Models and Good Examples: title and introduction",
+   "games": [],
+   "lines": [
+    1,
+    3
+   ],
+   "kind": "notes",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L1: 🌴 Role Models and Good Examples  -  40 New Isola Events",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "rmnotes_end",
+   "title": "Role Models and Good Examples: closing note",
+   "games": [],
+   "lines": [
+    85,
+    85
+   ],
+   "kind": "notes",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L85: All 40 events are written as standalone story events, with no new mechanics required. The outcomes deliberately include successes, compromises, delays, uncertainty, and imperfect resolutions - because being a good example doesn't mean always getting the result you hoped for. 🌺",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "rm01_fair_share",
+   "title": "The Fair Share",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    5,
+    5
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L5: EVENT RM-01  -  THE FAIR SHARE SETUP: After a difficult harvest, a farmer notices that the food portions are uneven, and several families are still waiting. A. Divide the remaining food into equal portions. A1. Every waiting family receives something, though the portions are smaller than hoped. A2. The farmer discovers that equal portions leave a larger household struggling and reconsiders the distribution. B. Ask each household what it needs. B1. The families agree on portions that account for their different circumstances. B2. The discussion takes longer than expected, but nobody is overlooked. C. Give the largest portion to the household that worked hardest. C1. The workers appreciate the recognition but ask that the youngest children be fed first. C2. An elder points out that some villagers contributed in ways the farmer did not see. D. Invite another farmer to check the distribution. D1. The second farmer notices a counting mistake, and the portions are corrected. D2. The two disagree over what is fairest and agree to consult the waiting families.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm02_broken_water_jar",
+   "title": "The Broken Water Jar",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    7,
+    7
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L7: EVENT RM-02  -  THE BROKEN WATER JAR SETUP: A young apprentice accidentally cracks a communal water jar while moving supplies, and nobody sees what happened. A. Tell the keeper immediately. A1. The keeper is disappointed but appreciates the honesty and helps arrange a repair. A2. The apprentice spends the afternoon replacing the damaged jar's bindings. B. Quietly attempt a repair before reporting it. B1. The repair holds, and the apprentice explains both the accident and the work afterward. B2. The crack spreads, reminding the apprentice why damaged containers should be reported promptly. C. Ask a friend for advice. C1. The friend accompanies the apprentice to the keeper, making the admission less frightening. C2. The friend offers to take responsibility, but the apprentice declines and tells the truth. D. Leave a note beside the jar. D1. The keeper reads the explanation and asks the apprentice to help inspect the damage. D2. The note is overlooked, and the apprentice realizes a direct conversation is still needed.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm03_promise_before",
+   "title": "A Promise Before Sunset",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    9,
+    9
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L9: EVENT RM-03  -  A PROMISE BEFORE SUNSET SETUP: An older sibling promised to help a younger child finish a woven bracelet but has been assigned an unexpected chore. A. Explain the delay and arrange another time. A1. The child is disappointed but agrees to continue after supper. A2. The sibling finishes the chore early and keeps the revised promise. B. Ask another family member to help with the chore. B1. With the work shared, the siblings finish the bracelet before sunset. B2. Nobody is available, so the older sibling returns to explain the situation. C. Work on the bracelet for a few minutes first. C1. The child learns a difficult knot and happily practices while waiting. C2. The chore begins late, and the sibling must explain the delay to the work leader. D. Invite the child to help with an age-appropriate part of the chore. D1. They carry light bundles together and spend the afternoon talking. D2. The child becomes tired, so the sibling takes them home before returning to work.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm04_quiet_defender",
+   "title": "The Quiet Defender",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    11,
+    11
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L11: EVENT RM-04  -  THE QUIET DEFENDER SETUP: A child hears several friends dismiss a shy classmate's ideas during a group activity. A. Ask everyone to hear the classmate's suggestion. A1. The suggestion solves a problem the group had overlooked. A2. The classmate chooses not to speak, but appreciates being offered the opportunity. B. Speak privately with the classmate. B1. The child learns that the classmate would rather contribute through drawing. B2. The classmate admits feeling excluded and agrees to try again tomorrow. C. Suggest taking turns contributing. C1. The children discover that several quiet classmates have useful ideas. C2. The new arrangement feels awkward initially, but the group continues practicing. D. Ask the teacher for guidance without naming anyone publicly. D1. The teacher introduces a cooperative activity that gives everyone a role. D2. The teacher observes the group and later addresses the exclusion privately.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm05_nest_above_path",
+   "title": "The Nest Above the Path",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    13,
+    13
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L13: EVENT RM-05  -  THE NEST ABOVE THE PATH SETUP: A gardener discovers that a pair of birds has built a nest in branches over a frequently used path. A. Ask villagers to use another route temporarily. A1. The birds continue nesting undisturbed while villagers take a slightly longer walk. A2. Some villagers forget the change, so the gardener places a visible marker nearby. B. Observe the nest from a respectful distance. B1. The gardener records the birds' habits without disturbing them. B2. A curious child learns why watching quietly is better than approaching the nest. C. Delay pruning the nearby branches. C1. The gardener completes other work until the nesting season passes. C2. A falling branch creates concern, and the gardener carefully redirects foot traffic. D. Consult an experienced bird watcher. D1. The watcher suggests a safer distance for observing the nest. D2. Neither knows how long the birds will remain, so they agree to be patient.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm06_stream_after_rain",
+   "title": "The Stream After Rain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    15,
+    15
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L15: EVENT RM-06  -  THE STREAM AFTER RAIN SETUP: Heavy rain washes scraps of cloth, broken cord, and discarded containers into a stream used by the village. A. Organize a careful cleanup along the bank. A1. Volunteers remove much of the debris without disturbing the streambed. A2. The current remains strong, so the group postpones the deeper cleanup. B. Trace where the discarded materials came from. B1. Villagers discover that poorly secured storage baskets allowed scraps to wash away. B2. The source remains uncertain, but several households improve how they store waste. C. Ask the children to help from dry ground. C1. The children sort safe, dry materials while adults handle the water's edge. C2. A teacher turns the work into a lesson about how rain carries objects downhill. D. Discuss ways to prevent another accumulation. D1. The villagers agree to secure loose materials before storms. D2. The first proposal proves inconvenient, and the group continues searching for a practical solution.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm07_fisher_restraint",
+   "title": "The Fisher's Restraint",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    17,
+    17
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L17: EVENT RM-07  -  THE FISHER'S RESTRAINT SETUP: A fisher finds a shallow pool crowded with small fish and realizes that taking them all would be easy. A. Catch only enough for the household's meal. A1. The fisher returns with a modest catch and leaves the remaining fish undisturbed. A2. The catch is smaller than expected, and the household supplements supper with stored food. B. Examine whether the fish are mature. B1. Most appear young, so the fisher chooses another fishing place. B2. The fisher cannot judge their age confidently and decides to leave the pool alone. C. Teach an apprentice how to choose a suitable catch. C1. The apprentice learns that catching everything available is not always wise. C2. The apprentice asks difficult questions, and the fisher admits there is still much to learn. D. Share the discovery with other fishers. D1. The fishers agree to avoid exhausting the small pool. D2. Some disagree about the best approach and arrange to observe the pool together.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm08_unfamiliar_custom",
+   "title": "The Unfamiliar Custom",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    19,
+    19
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L19: EVENT RM-08  -  THE UNFAMILIAR CUSTOM SETUP: A villager notices that a new neighbor observes a quiet personal custom before beginning the day's work. A. Respect the neighbor's privacy. A1. The neighbor completes the custom peacefully, and the two begin working together. A2. The villager remains curious but decides that an explanation is not owed. B. Ask politely whether the neighbor wishes to explain. B1. The neighbor shares a family tradition, and the villager listens with interest. B2. The neighbor prefers not to discuss it, and the villager accepts the answer. C. Offer a quiet place nearby. C1. The neighbor appreciates the consideration but says the current place is suitable. C2. The neighbor accepts, and the morning work begins a little later. D. Discuss how different customs can fit into shared work. D1. The neighbors arrange their tasks without requiring either to change personal beliefs. D2. They discover a scheduling difficulty and agree to revisit it after trying an adjustment.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm09_elder_patience",
+   "title": "The Elder's Patience",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21,
+    21
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L21: EVENT RM-09  -  THE ELDER'S PATIENCE SETUP: An elder is teaching several apprentices to tie strong knots, but one learner repeatedly loses track of the steps. A. Demonstrate the knot slowly again. A1. The apprentice finally completes the knot and proudly checks its strength. A2. The apprentice still struggles, so the elder breaks the lesson into smaller movements. B. Let the apprentice practice with a wider cord. B1. The larger cord makes the pattern easier to follow. B2. The change helps only slightly, but the apprentice appreciates the effort. C. Invite an experienced apprentice to assist. C1. The two learners discover a way of explaining the knot that works better. C2. The experienced apprentice learns that teaching requires patience as well as skill. D. Offer a rest before continuing. D1. After a short break, the apprentice returns with renewed concentration. D2. The apprentice decides to practice tomorrow, and the elder respects the decision.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm10_tired_parent",
+   "title": "The Tired Parent",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23,
+    23
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L23: EVENT RM-10  -  THE TIRED PARENT SETUP: A parent has spent the morning caring for a restless toddler and discovers that the family's cat has overturned its water bowl. A. Refill the bowl before resting. A1. The cat drinks contentedly while the parent finally sits down. A2. The toddler becomes restless again, and the parent asks another adult for help. B. Ask a trusted family member to watch the toddler briefly. B1. The parent tends to the cat and returns feeling a little less overwhelmed. B2. The family member is busy, so the parent settles the toddler nearby before helping the cat. C. Move the bowl to a more stable place. C1. The cat drinks without tipping it over again. C2. The new location proves inconvenient, and the parent tries a different arrangement. D. Admit feeling exhausted and request a short break. D1. Another adult takes over for a while, allowing the parent to recover. D2. Help is delayed, but the parent makes a simpler plan for the afternoon.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm11_missing_credit",
+   "title": "The Missing Credit",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    25,
+    25
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L25: EVENT RM-11  -  THE MISSING CREDIT SETUP: A builder receives praise for repairing a difficult roof, although a quiet apprentice devised the most useful solution. A. Explain the apprentice's contribution. A1. The apprentice receives deserved recognition and grows more confident. A2. The apprentice becomes embarrassed by the attention but thanks the builder afterward. B. Invite the apprentice to describe the repair. B1. The apprentice explains the technique and gains a little building experience. B2. The apprentice struggles to speak publicly, so the builder offers to explain together. C. Thank the apprentice privately. C1. The apprentice appreciates the gratitude but still wishes others knew about the work. C2. The apprentice says the repair itself matters more than public praise. D. Suggest that future repairs record everyone's contributions. D1. The work group begins acknowledging each person's part in completed projects. D2. The builders debate how to recognize contributions without turning cooperation into competition.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm12_smaller_voice",
+   "title": "The Smaller Voice",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    27,
+    27
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L27: EVENT RM-12  -  THE SMALLER VOICE SETUP: During a village discussion, a young teenager notices that an elderly villager with a soft voice cannot make themselves heard. A. Ask the group to pause and listen. A1. The elder shares a practical suggestion that changes the discussion. A2. The elder declines to speak further but appreciates the consideration. B. Move closer and offer to repeat the elder's words. B1. With permission, the teenager helps the group hear the suggestion accurately. B2. The elder prefers to speak independently, and the teenager makes room instead. C. Suggest speaking one at a time. C1. The conversation becomes calmer, allowing several people to participate. C2. Some villagers continue interrupting, and the discussion leader must reinforce the arrangement. D. Speak with the elder afterward. D1. The teenager learns that the elder had an important concern left unaddressed. D2. The elder says they were content to listen but appreciates being noticed.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm13_garden_flowers",
+   "title": "The Garden's Last Flowers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    29,
+    29
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L29: EVENT RM-13  -  THE GARDEN'S LAST FLOWERS SETUP: A child wants to gather flowers for a celebration but finds only a few blooming near the village garden. A. Pick a small number and leave the rest growing. A1. The child makes a modest decoration while insects continue visiting the remaining flowers. A2. The arrangement looks sparse, so the child adds fallen leaves and colored fibers. B. Collect fallen petals instead. B1. The child creates a colorful pattern without removing any living flowers. B2. The petals blow away in the breeze, and the child tries a sheltered location. C. Ask the gardener which plants can be harvested. C1. The gardener identifies suitable flowers and explains which should remain. C2. None are ready, so the gardener offers spare woven decorations instead. D. Make a gift from leaves and shells. D1. The recipient treasures the handmade gift despite its simplicity. D2. The first attempt falls apart, and the child patiently begins again.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm14_stranded_crab",
+   "title": "The Stranded Crab",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    31,
+    31
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L31: EVENT RM-14  -  THE STRANDED CRAB SETUP: Two children find a small crab trapped beneath a fallen basket near the shore. A. Lift the basket carefully. A1. The crab scuttles toward the water while the children watch from a distance. A2. The crab remains motionless briefly before moving into the shade. B. Ask an older villager for help. B1. The older villager frees the crab and shows how to avoid its claws. B2. By the time help arrives, the crab has escaped through a narrow opening. C. Clear nearby debris without touching the crab. C1. The crab finds a route out, and the children leave it undisturbed. C2. The basket remains wedged, so the children seek assistance. D. Observe quietly before acting. D1. The children discover that the crab is already working its way free. D2. The crab appears unable to escape, prompting the children to fetch help.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm15_different_answer",
+   "title": "The Different Answer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    33,
+    33
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L33: EVENT RM-15  -  THE DIFFERENT ANSWER SETUP: Two young scholars disagree about an unusual mark found on a stone, and their classmates expect one to be declared correct. A. Compare the evidence for both explanations. A1. The scholars discover that neither interpretation accounts for every detail. A2. A closer examination supports one explanation, and the other scholar accepts the finding. B. Record both interpretations. B1. Future observers will be able to compare the competing ideas. B2. The scholars realize they need a clearer description of the original mark. C. Ask a third scholar to examine the stone independently. C1. The new observer notices a feature both scholars overlooked. C2. The third interpretation differs from both, leaving the question unresolved. D. Set the stone aside until better evidence appears. D1. The scholars return to their work without treating uncertainty as failure. D2. One scholar remains frustrated but agrees that guessing would not settle the question.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm16_newcomer_place",
+   "title": "The Newcomer's Place",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    35,
+    35
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L35: EVENT RM-16  -  THE NEWCOMER'S PLACE SETUP: A recently arrived villager stands apart during a communal meal, unsure where to sit. A. Offer an invitation without insisting. A1. The newcomer joins a small group and gradually relaxes. A2. The newcomer prefers to sit alone, and the invitation is accepted with gratitude. B. Introduce the newcomer to someone with a shared interest. B1. The two begin discussing fishing techniques and forget their initial awkwardness. B2. Their interests differ, but the conversation remains friendly. C. Explain how the meal is organized. C1. The newcomer learns where to find food and chooses a comfortable place. C2. The explanation reveals a confusing custom that the organizers decide to clarify. D. Sit nearby and begin an ordinary conversation. D1. The newcomer appreciates being treated as another villager rather than a curiosity. D2. Conversation comes slowly, but the two share a peaceful meal.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm17_apprentice_error",
+   "title": "The Apprentice's Error",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    37,
+    37
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L37: EVENT RM-17  -  THE APPRENTICE'S ERROR SETUP: A healer's apprentice mixes up two storage labels before any medicine has been prepared. A. Tell the supervising healer immediately. A1. The labels are corrected, and the apprentice learns a safer checking routine. A2. The healer temporarily removes the apprentice from preparation duties until the containers are verified. B. Compare the containers with the written records. B1. The apprentice identifies the mistake and asks the healer to confirm the correction. B2. The records are unclear, so both containers are set aside for inspection. C. Ask another apprentice to check the labels independently. C1. The second apprentice catches the mismatch and helps prevent confusion. C2. The apprentices disagree, so they seek the healer's judgment before proceeding. D. Suggest a clearer labeling arrangement. D1. The healer adopts a simple method that makes similar containers easier to distinguish. D2. The proposal needs refinement, but the healer welcomes the apprentice's attention to safety.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm18_tree_fruit",
+   "title": "The Tree with Fruit",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    39,
+    39
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L39: EVENT RM-18  -  THE TREE WITH FRUIT SETUP: A family finds a tree heavy with ripe fruit, while several branches also shelter feeding birds. A. Gather only the fruit within easy reach. A1. The family collects enough for supper without disturbing the birds. A2. Much of the fruit remains high above them, and they decide to return another day. B. Collect fallen fruit that is still sound. B1. The family fills a small basket and leaves the branches untouched. B2. Most fallen fruit is spoiled, so they seek food elsewhere. C. Ask an experienced gatherer how much to take. C1. The gatherer explains how to harvest without damaging the tree. C2. The gatherer recommends waiting until more fruit ripens. D. Share the harvest with neighboring households. D1. Several families enjoy a small portion of fresh fruit. D2. The fruit is insufficient for everyone, and the family agrees to gather more when available.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm19_promise_forgotten",
+   "title": "The Promise Forgotten",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    41,
+    41
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L41: EVENT RM-19  -  THE PROMISE FORGOTTEN SETUP: A teenager remembers too late that they promised to help an elder carry weaving materials earlier that morning. A. Apologize and offer help now. A1. The elder accepts the apology and asks for assistance with the remaining bundles. A2. The work is already finished, and the teenager must accept that the missed help mattered. B. Explain honestly why the promise was forgotten. B1. The elder listens but asks the teenager to plan more carefully next time. B2. The explanation feels uncomfortable, yet the teenager is relieved to have told the truth. C. Offer to help with tomorrow's work instead. C1. The elder agrees, and the teenager makes a careful effort to remember. C2. The elder declines because tomorrow's tasks require someone else. D. Ask how to make amends without assuming forgiveness. D1. The elder suggests repairing a worn carrying strap. D2. The elder needs time before discussing it, and the teenager respects that.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm20_turtle_crossing",
+   "title": "The Turtle's Crossing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    43,
+    43
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L43: EVENT RM-20  -  THE TURTLE'S CROSSING SETUP: A turtle begins crossing a busy stretch of shore while villagers carry supplies toward the huts. A. Ask everyone to slow down and give it space. A1. The turtle crosses safely, and the workers resume their journey. A2. The turtle stops for a long time, requiring the villagers to take another route. B. Place a visible marker near the crossing. B1. The marker helps approaching villagers notice the turtle in time. B2. Wind knocks the marker aside, so a worker remains nearby to warn others. C. Watch from a distance until the turtle moves on. C1. The turtle eventually reaches quieter ground without interference. C2. The crossing takes longer than expected, and the observer misses part of the afternoon's work. D. Ask an experienced villager whether intervention is necessary. D1. The villager recommends leaving the turtle undisturbed and redirecting foot traffic. D2. The villager notices a genuine obstruction and carefully clears the path ahead.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm21_fair_contest",
+   "title": "The Fair Contest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    45,
+    45
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L45: EVENT RM-21  -  THE FAIR CONTEST SETUP: Several children prepare for a running contest, but one child worries that the uneven ground gives some runners an advantage. A. Inspect the course together. A1. The children agree on a clearer route before the race begins. A2. The ground remains uneven, so they choose a different activity. B. Let the children decide on reasonable adjustments. B1. The runners agree on a course everyone considers acceptable. B2. The discussion reveals different ideas of fairness, and the contest is postponed. C. Ask a neutral adult to supervise. C1. The adult helps settle the disagreement without choosing a favorite. C2. The children discover that they can resolve most of the issue themselves. D. Offer several ways to participate. D1. Some children race while others help mark the route and record results. D2. One child still feels left out, prompting the organizers to reconsider the plan.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm22_gift_without_name",
+   "title": "The Gift Without a Name",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    47,
+    47
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L47: EVENT RM-22  -  THE GIFT WITHOUT A NAME SETUP: A villager notices that an elderly neighbor's carrying basket is badly worn and quietly begins weaving a replacement. A. Leave the finished basket as an anonymous gift. A1. The neighbor finds it useful and wonders who made it. A2. The neighbor worries it belongs to someone else and asks around before using it. B. Offer the basket directly. B1. The neighbor accepts with gratitude and offers to share an old weaving pattern. B2. The neighbor politely declines, preferring to repair the original basket. C. Ask whether the neighbor would prefer a repair. C1. Together they strengthen the old basket, preserving its familiar shape. C2. The damage proves extensive, and the neighbor accepts the new basket instead. D. Invite other villagers to contribute materials. D1. Several small contributions make the replacement especially sturdy. D2. Few materials are available, so the weaver finishes a simpler design.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm23_shoreline_after",
+   "title": "The Shoreline After the Feast",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    49,
+    49
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L49: EVENT RM-23  -  THE SHORELINE AFTER THE FEAST SETUP: After a village celebration, a fisher notices scraps of food and discarded decorations scattered near the tide line. A. Begin collecting the debris. A1. Other villagers notice the effort and join without being asked. A2. The fisher works alone for a while and leaves the shore noticeably cleaner. B. Invite the celebration organizers to help. B1. The organizers acknowledge the oversight and arrange a cleanup. B2. Some are exhausted, so the work is divided between the evening and morning. C. Separate reusable materials from waste. C1. Several lengths of cord and woven decorations are saved for future use. C2. Much of the material is damaged, but the shore is cleared safely. D. Suggest a cleanup plan for future celebrations. D1. The organizers agree to include tidying in their preparations. D2. The first plan proves too demanding, and the villagers develop a simpler one.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm24_healer_honesty",
+   "title": "The Healer's Honesty",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    51,
+    51
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L51: EVENT RM-24  -  THE HEALER'S HONESTY SETUP: A healer is asked whether an unfamiliar plant will certainly relieve a villager's persistent discomfort. A. Explain what is known and what remains uncertain. A1. The villager appreciates the honesty and agrees to discuss available care. A2. The villager feels disappointed, but the healer does not offer false reassurance. B. Consult another experienced healer. B1. Together they identify a familiar treatment with better-understood effects. B2. Neither healer has sufficient evidence, and they recommend observation and supportive care. C. Review earlier notes about the plant. C1. The notes reveal conflicting observations that warrant caution. C2. The healer discovers that the plant was previously confused with another species. D. Focus first on the villager's immediate comfort. D1. Rest and appropriate care ease some discomfort without resolving its cause. D2. The symptoms persist, and the healer continues monitoring the villager carefully.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm25_builder_example",
+   "title": "The Builder's Example",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    53,
+    53
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L53: EVENT RM-25  -  THE BUILDER'S EXAMPLE SETUP: A skilled builder notices that an apprentice has been assigned a difficult repair without adequate guidance. A. Demonstrate the safest method. A1. The apprentice completes the repair and gains a little building experience. A2. The task proves more complicated than expected, so the builder takes responsibility for the difficult portion. B. Ask what the apprentice already understands. B1. The builder discovers that only one step needs clarification. B2. The apprentice admits uncertainty, allowing the lesson to begin at a more suitable level. C. Work beside the apprentice. C1. They complete the repair together and compare their techniques. C2. Progress is slow, but the apprentice learns without being rushed. D. Reassign the task until proper instruction is available. D1. The repair is delayed, but nobody is pressured into unsafe work. D2. Another experienced builder volunteers to supervise the apprentice.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm26_child_butterfly",
+   "title": "The Child and the Butterfly",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    55,
+    55
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L55: EVENT RM-26  -  THE CHILD AND THE BUTTERFLY SETUP: A child catches a brightly colored butterfly in a soft net and notices that its wings are becoming tangled. A. Lower the net and allow the butterfly to escape. A1. The butterfly flies away, leaving the child delighted by its colors. A2. The butterfly rests briefly before taking flight, and the child watches patiently. B. Ask an experienced gardener for guidance. B1. The gardener helps free the butterfly without pulling at its wings. B2. The butterfly escapes before the gardener arrives, and the child decides to observe rather than catch another. C. Place the net gently on the ground and loosen the opening. C1. The butterfly finds its way out without further disturbance. C2. The child struggles with the tangled mesh and calls for assistance. D. Put the net away and draw butterflies instead. D1. The child spends the afternoon sketching patterns from memory. D2. The drawings look imperfect, but the child enjoys watching butterflies among the flowers.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm27_quiet_apology",
+   "title": "The Quiet Apology",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    57,
+    57
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L57: EVENT RM-27  -  THE QUIET APOLOGY SETUP: A villager realizes that an impatient remark during morning work hurt a friend's feelings. A. Apologize privately without making excuses. A1. The friend accepts the apology but asks for some time alone. A2. The friend explains why the remark hurt, and the villager listens carefully. B. Ask how to avoid repeating the mistake. B1. The friends agree to speak more clearly when work becomes stressful. B2. The conversation remains awkward, but the villager understands the problem better. C. Give the friend space before approaching. C1. They speak calmly later in the day and begin repairing their friendship. C2. The friend is not ready to talk, and the villager respects the boundary. D. Change the behavior before expecting reconciliation. D1. Over several workdays, the friend notices the villager becoming more considerate. D2. The friendship remains strained, but the villager continues practicing patience.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm28_sea_small_gifts",
+   "title": "The Sea's Small Gifts",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    59,
+    59
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L59: EVENT RM-28  -  THE SEA'S SMALL GIFTS SETUP: A young gatherer discovers a rocky shore crowded with shells, living creatures, and unusual stones. A. Collect only empty shells. A1. The gatherer returns with a few beautiful shells and leaves the living creatures undisturbed. A2. Few shells are empty, so the gatherer returns with almost nothing. B. Observe the creatures without collecting them. B1. The gatherer notices how several animals shelter beneath the rocks. B2. Rising water ends the observation early, and the gatherer retreats safely. C. Teach a younger villager how to recognize occupied shells. C1. The younger villager learns to look carefully before picking anything up. C2. They disagree about one shell and decide to leave it where it lies. D. Ask whether the village actually needs more shells. D1. The craft workers have enough materials, so the gatherer leaves the shore untouched. D2. A few shells are needed for repairs, and the gatherer collects only suitable empty ones.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm29_different_prayer",
+   "title": "The Different Prayer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    61,
+    61
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L61: EVENT RM-29  -  THE DIFFERENT PRAYER SETUP: Two friends prepare for a remembrance gathering but discover that their families observe the occasion in different ways. A. Make room for both customs. A1. Each friend participates according to personal belief without disrupting the other. A2. The arrangements require compromise, but both families feel respected. B. Ask what each custom means to the person observing it. B1. The friends understand one another better without needing to share the same beliefs. B2. One friend prefers not to explain, and the other accepts the boundary. C. Hold a shared period of quiet reflection. C1. Villagers with different beliefs find their own meaning in the silence. C2. Some prefer separate observances, and the organizers accommodate them. D. Let each family observe the occasion independently. D1. The families gather afterward for a peaceful meal. D2. The friends spend less time together that evening but remain comfortable with their differences.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm30_young_example",
+   "title": "The Young Example",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    63,
+    63
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L63: EVENT RM-30  -  THE YOUNG EXAMPLE SETUP: A child notices that a communal drinking vessel has been left beside the path where someone might trip over it. A. Move it carefully to its usual place. A1. An adult notices the thoughtful act and thanks the child. A2. The vessel is too heavy, so the child asks an adult to move it. B. Warn approaching villagers. B1. Several people step around the vessel until someone can move it. B2. The child grows tired of waiting and asks a nearby worker for assistance. C. Ask who is responsible for the vessel. C1. The keeper retrieves it and explains where it should be stored. C2. Nobody knows who left it, but the child helps ensure it is put away. D. Suggest keeping the path clear during busy hours. D1. The workers agree to check the path when carrying supplies. D2. The suggestion is forgotten initially, but the child continues setting a careful example.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm31_weary_animal",
+   "title": "The Weary Animal",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    65,
+    65
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L65: EVENT RM-31  -  THE WEARY ANIMAL SETUP: A farmer notices that an animal helping carry supplies has become tired during the afternoon's work. A. Stop and allow the animal to rest. A1. The animal recovers its energy before returning at an easier pace. A2. The animal remains tired, so the farmer ends its work for the day. B. Reduce the load. B1. The animal moves more comfortably with a lighter burden. B2. The animal still seems reluctant, and the farmer decides that rest is necessary. C. Examine the animal for discomfort. C1. The farmer discovers a poorly positioned strap and adjusts it. C2. Nothing obvious explains the fatigue, so the farmer seeks experienced help. D. Ask other workers to share the remaining supplies. D1. The villagers carry the final bundles themselves while the animal rests. D2. The work takes longer, but the animal is not pressed to continue.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm32_leader_listened",
+   "title": "The Leader Who Listened",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    67,
+    67
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L67: EVENT RM-32  -  THE LEADER WHO LISTENED SETUP: A village leader proposes changing the work schedule, but several villagers worry that the new hours will interfere with family responsibilities. A. Invite those affected to explain their concerns. A1. The leader discovers a practical adjustment that had not been considered. A2. The concerns conflict, and the group agrees that further discussion is necessary. B. Try the schedule for a short period. B1. The trial reveals which tasks benefit from the change. B2. Several families struggle with the arrangement, and the leader restores the earlier hours. C. Ask workers to propose alternatives. C1. A quiet farmer suggests a compromise that accommodates most households. C2. No single proposal satisfies everyone, but the discussion clarifies the tradeoffs. D. Keep the existing schedule until a better plan is ready. D1. The villagers appreciate being given time to consider the change. D2. Some work remains inconvenient, and the leader acknowledges the unresolved problem.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm33_plant_beside_path",
+   "title": "The Plant Beside the Path",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    69,
+    69
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L69: EVENT RM-33  -  THE PLANT BESIDE THE PATH SETUP: A builder preparing to repair a walkway discovers a small flowering plant growing directly beside the work area. A. Adjust the repair to avoid the plant. A1. The walkway is repaired without disturbing the flowers. A2. The change requires extra work, but the builder finds a suitable arrangement. B. Ask a gardener whether the plant can be moved safely. B1. The gardener recommends leaving it undisturbed until flowering ends. B2. The gardener identifies a suitable place nearby and carefully relocates it. C. Delay the work briefly while inspecting the area. C1. The builder discovers that only a small section needs immediate repair. C2. The walkway is unsafe to leave unfinished, so the builder protects the plant as well as possible. D. Invite apprentices to suggest a solution. D1. An apprentice proposes a simple adjustment that preserves the plant. D2. The apprentices learn that practical building decisions sometimes involve competing needs.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm34_unpopular_truth",
+   "title": "The Unpopular Truth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    71,
+    71
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L71: EVENT RM-34  -  THE UNPOPULAR TRUTH SETUP: A teenager discovers that a friend has accidentally counted several food baskets twice in the harvest record. A. Explain the mistake privately. A1. The friend corrects the record before the food is distributed. A2. The friend feels embarrassed but agrees that the count must be accurate. B. Check the entire record together. B1. They uncover two additional errors and correct them. B2. The remaining figures are accurate, giving both teenagers confidence in the record. C. Inform the harvest keeper without assigning blame. C1. The keeper verifies the count and thanks them for raising the concern. C2. The keeper asks the teenagers to help recount the baskets. D. Encourage the friend to report the mistake personally. D1. The friend admits the error and learns that honesty can be uncomfortable but necessary. D2. The friend hesitates, so the teenager offers to accompany them.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm35_elder_unfinished",
+   "title": "The Elder's Unfinished Story",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    73,
+    73
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L73: EVENT RM-35  -  THE ELDER'S UNFINISHED STORY SETUP: An elder begins recounting an old village custom but admits that some details have been forgotten. A. Record only what the elder remembers confidently. A1. The account preserves useful history without pretending to be complete. A2. The elder recalls another detail after seeing the written notes. B. Ask other elders what they remember. B1. Their accounts overlap in some places and differ in others. B2. No one remembers the missing detail, and the uncertainty remains part of the record. C. Invite younger villagers to ask questions. C1. A child's question prompts a thoughtful discussion about how traditions change. C2. The elder cannot answer every question but enjoys the children's curiosity. D. Preserve several versions of the story. D1. The scholars keep the differing accounts for future generations to examine. D2. Some villagers prefer one version, but the others are not discarded.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm36_family_shared",
+   "title": "The Family's Shared Work",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    75,
+    75
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L75: EVENT RM-36  -  THE FAMILY'S SHARED WORK SETUP: Two parents are preparing supper after a tiring day while their children want to help with the household chores. A. Give the older children safe, manageable tasks. A1. The children sort vegetables and feel proud of their contribution. A2. One child becomes frustrated, and a parent patiently demonstrates the task again. B. Invite everyone to help according to their abilities. B1. The work is divided fairly without expecting identical contributions. B2. A family member needs rest, and the others adjust their plans. C. Finish the most difficult work before involving the children. C1. The children help arrange the meal once the preparations are safe. C2. Supper is delayed, but the parents avoid rushing the children into unsuitable tasks. D. Simplify the meal and rest together. D1. The family enjoys a modest supper and a peaceful evening. D2. One parent still feels overwhelmed, and the other offers to handle the remaining cleanup.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm37_reef_fragile_edge",
+   "title": "The Reef's Fragile Edge",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    77,
+    77
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L77: EVENT RM-37  -  THE REEF'S FRAGILE EDGE SETUP: A fisher notices that several villagers are gathering shellfish close to a delicate reef exposed by the low tide. A. Suggest harvesting from a less sensitive area. A1. The gatherers find enough shellfish elsewhere and leave the reef undisturbed. A2. The alternative area offers little food, so they return with a smaller catch. B. Explain what the fisher has observed about the reef. B1. The villagers notice fragile growths they had previously overlooked. B2. Some remain uncertain, and the fisher suggests observing the area over time. C. Ask experienced gatherers to compare their knowledge. C1. The group agrees on places where gathering causes less disturbance. C2. Their observations differ, and they decide to proceed cautiously. D. Leave the reef alone for the day. D1. The villagers gather food from another part of the shore. D2. The day's harvest is reduced, but the reef remains undisturbed.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm38_apprentice",
+   "title": "The Apprentice Who Noticed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    79,
+    79
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L79: EVENT RM-38  -  THE APPRENTICE WHO NOTICED SETUP: During a busy repair, a young apprentice notices that an experienced craftsperson has become unusually tired and unsteady. A. Quietly ask whether the craftsperson needs a rest. A1. The craftsperson accepts and resumes lighter work after recovering. A2. The craftsperson insists on finishing, but agrees to pause when the apprentice expresses concern. B. Offer to take over a suitable part of the task. B1. The apprentice completes the simpler work while the craftsperson rests. B2. The task exceeds the apprentice's training, so they seek another experienced worker. C. Bring water and suggest moving into the shade. C1. The craftsperson feels somewhat better after resting and drinking. C2. The unsteadiness persists, and the apprentice calls for a healer. D. Inform the work leader discreetly. D1. The leader adjusts the assignments without embarrassing the craftsperson. D2. The leader asks a healer to assess whether continuing work would be appropriate.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm39_promise_shore",
+   "title": "The Promise to the Shore",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    81,
+    81
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L81: EVENT RM-39  -  THE PROMISE TO THE SHORE SETUP: Several friends once agreed to keep a favorite stretch of beach free of discarded materials, but their visits have become less frequent. A. Gather the friends and renew the agreement. A1. They organize a modest cleanup and enjoy spending time together again. A2. Some cannot participate regularly, so the group adopts a more realistic arrangement. B. Begin caring for the beach independently. B1. The villager removes several scraps and leaves the shore cleaner. B2. The work proves larger than expected, and the villager asks others for help. C. Discuss why the original promise became difficult to keep. C1. The friends admit that changing responsibilities made their earlier plan impractical. C2. One friend feels guilty, but the others focus on what they can reasonably do now. D. Invite other villagers to share responsibility. D1. More households contribute small amounts of time without depending on a single group. D2. Few volunteers are available, so the friends concentrate on the most affected area.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "rm40_example_no_one",
+   "title": "The Example No One Saw",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    83,
+    83
+   ],
+   "kind": "event",
+   "section": "rm",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-3"
+    ],
+    "text": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "rolemodels",
+   "source_check": {
+    "heading": "L83: EVENT RM-40  -  THE EXAMPLE NO ONE SAW SETUP: A quiet villager finds a damaged communal basket, scattered seeds, and a loose stone beside a path after everyone else has gone home. A. Repair the basket and return it to storage. A1. The basket is ready for use the next morning, though nobody knows who repaired it. A2. The damage proves too extensive, so the villager leaves it safely aside for inspection. B. Gather the spilled seeds. B1. Most are recovered and returned to a clean container. B2. Some seeds are spoiled, and the villager records the loss for the keeper. C. Move the loose stone away from the walking path. C1. The path is safer for the villagers who use it at dawn. C2. The stone is too heavy, so the villager marks the obstruction for the morning workers. D. Leave a short note explaining what needs attention. D1. The morning workers understand the situation and finish the remaining tasks. D2. The note receives no public acknowledgment, but the villager is satisfied that the problems were reported.",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

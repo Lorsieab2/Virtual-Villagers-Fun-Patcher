@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shoreline After the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm23_shoreline_after",
+  "source": "rolemodels",
+  "lines": [
+   49,
+   49
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L49",
+  "ledger": [
+   {
+    "src": "L49",
+    "kind": "structural",
+    "text": "EVENT RM-23  -  THE SHORELINE AFTER THE FEAST SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "After a village celebration, a fisher notices scraps of food and discarded decorations scattered near the tide line.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a village celebration, a fisher notices scraps of food and discarded decorations scattered near the tide line.",
+   "src": "L49",
+   "choices": [
+    {
+     "label": "Begin Collecting the Debris.",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Invite the Celebration Organizers to Help.",
+     "next": "b",
+     "src": "L49"
+    },
+    {
+     "label": "Separate Reusable Materials from Waste.",
+     "next": "c",
+     "src": "L49"
+    },
+    {
+     "label": "Suggest a Cleanup Plan for Future Celebrations.",
+     "next": "d",
+     "src": "L49"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L49"
+    },
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration mentioned in the story; no celebration happens in the game",
+     "src": "L49"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Other villagers notice the effort and join without being asked.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The fisher works alone for a while and leaves the shore noticeably cleaner.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The organizers acknowledge the oversight and arrange a cleanup.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some are exhausted, so the work is divided between the evening and morning.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Several lengths of cord and woven decorations are saved for future use.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Much of the material is damaged, but the shore is cleared safely.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The organizers agree to include tidying in their preparations.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The first plan proves too demanding, and the villagers develop a simpler one.",
+   "src": "L49",
+   "text_only": [
+    {
+     "what": "\"food\", \"celebration\", \"celebrations\"",
+     "reason": "the source puts the whole event on one line: \"food\", \"celebration\", \"celebrations\" is in another part of it (another page's words), not this page's",
+     "src": "L49"
+    }
+   ]
+  }
+ }
+}

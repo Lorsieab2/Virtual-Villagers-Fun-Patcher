@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Construct That Makes Art",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz077_construct_makes",
+  "source": "horizon",
+  "lines": [
+   1019,
+   1029
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L1019",
+  "ledger": [],
+  "description": "An artisan speculates that a distant artificial worker might paint, compose songs, or carve figures no human has imagined.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An artisan speculates that a distant artificial worker might paint, compose songs, or carve figures no human has imagined.",
+   "src": "L1020",
+   "choices": [
+    {
+     "label": "Call It Creative.",
+     "next": "a",
+     "src": "L1021"
+    },
+    {
+     "label": "Call It an Instrument.",
+     "next": "b",
+     "src": "L1024"
+    },
+    {
+     "label": "Ask About Ownership.",
+     "next": "c",
+     "src": "L1027"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A musician argues that surprising beauty matters regardless of its maker.",
+   "src": "L1022"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A carver asks whether the machine chose its subject or followed patterns supplied by others.",
+   "src": "L1023"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A painter compares it to a brush guided by a person.",
+   "src": "L1025"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A novice asks whether instruments that suggest ideas are still merely passive.",
+   "src": "L1026"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council debates whether the maker, user, or construct should receive credit.",
+   "src": "L1028"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child wonders whether an artwork can be meaningful even if no one knows who made it.",
+   "src": "L1029"
+  }
+ }
+}
