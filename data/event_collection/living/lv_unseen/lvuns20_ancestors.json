@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestors' Unpaid Debt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns20_ancestors",
+  "source": "living",
+  "lines": [
+   22427,
+   22438
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22427",
+  "ledger": [
+   {
+    "src": "L22438",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder fears that a forgotten wrong committed by ancestors explains the gods' silence.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder fears that a forgotten wrong committed by ancestors explains the gods' silence.",
+   "src": "L22428",
+   "choices": [
+    {
+     "label": "Investigate the old stories.",
+     "next": "a",
+     "src": "L22429"
+    },
+    {
+     "label": "Perform a ceremony of remembrance.",
+     "next": "b",
+     "src": "L22432"
+    },
+    {
+     "label": "Reject inherited blame.",
+     "next": "c",
+     "src": "L22435"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The records reveal a past dispute but no supernatural cause.",
+   "src": "L22430"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Contradictory accounts leave the accusation unsettled.",
+   "src": "L22431"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village reflects on harms it can repair today.",
+   "src": "L22433"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some object to accepting guilt for an unproven story.",
+   "src": "L22434"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Young villagers feel free to shape their own choices.",
+   "src": "L22436"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder feels unheard until someone listens more carefully.",
+   "src": "L22437"
+  }
+ }
+}

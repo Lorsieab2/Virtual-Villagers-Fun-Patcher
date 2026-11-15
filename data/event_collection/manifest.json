@@ -70,15 +70,23 @@
    "L20624-20639",
    "L20642-21225",
    "L21228-21242",
-   "L21244-21645"
+   "L21244-21645",
+   "L21649-21663",
+   "L21665-22160",
+   "L22164-22177",
+   "L22180-22685",
+   "L22688-22702",
+   "L22704-23310",
+   "L23314-23329",
+   "L23331-23809"
   ],
   "counts": {
-   "rows": 110,
-   "events": 107,
+   "rows": 258,
+   "events": 251,
    "addons": 0,
    "banks": 0,
-   "notes": 3,
-   "events_and_addons": 107,
+   "notes": 7,
+   "events_and_addons": 251,
    "series": {}
   },
   "uncovered_lines": [],
@@ -42865,6 +42873,5230 @@
    "source": "living",
    "source_check": {
     "heading": "L21634: CIRCLE-31  -  THE WHALE THAT DID NOT RETURN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_peoples_rules",
+   "title": "Colors, Masks, Peoples and Choice: heading and implementation rules",
+   "games": [],
+   "lines": [
+    21649,
+    21663
+   ],
+   "kind": "notes",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21650: NEW COMPANION VOLUME  -  COLORS, MASKS, PEOPLES AND CHOICE",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvppl01_red_hair",
+   "title": "The Red Hair Experiment",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21665,
+    21676
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21665: PEOPLES-01  -  THE RED HAIR EXPERIMENT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl02_blue_cloth",
+   "title": "The Blue Cloth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21678,
+    21689
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21678: PEOPLES-02  -  THE BLUE CLOTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl03_cloth_changed",
+   "title": "The Cloth That Changed Its Mind",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21691,
+    21702
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21691: PEOPLES-03  -  THE CLOTH THAT CHANGED ITS MIND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl04_grey_hair",
+   "title": "The Grey Hair Question",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21704,
+    21715
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21704: PEOPLES-04  -  THE GREY HAIR QUESTION",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl05_spiderweb",
+   "title": "The Spiderweb Pattern",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21717,
+    21728
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21717: PEOPLES-05  -  THE SPIDERWEB PATTERN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl06_mask_felt_safe",
+   "title": "The Mask That Felt Safe",
+   "games": [
+    5
+   ],
+   "lines": [
+    21730,
+    21742
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21730: PEOPLES-06  -  THE MASK THAT FELT SAFE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl07_mask_felt",
+   "title": "The Mask That Felt Wrong",
+   "games": [
+    5
+   ],
+   "lines": [
+    21744,
+    21756
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21744: PEOPLES-07  -  THE MASK THAT FELT WRONG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl08_among_heathens",
+   "title": "A Day Among the Heathens",
+   "games": [
+    5
+   ],
+   "lines": [
+    21758,
+    21770
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21758: PEOPLES-08  -  A DAY AMONG THE HEATHENS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl09_friend_across",
+   "title": "The Friend Across the Path",
+   "games": [
+    5
+   ],
+   "lines": [
+    21772,
+    21784
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21772: PEOPLES-09  -  THE FRIEND ACROSS THE PATH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl10_two_children",
+   "title": "The Two Children and the Shell",
+   "games": [
+    5
+   ],
+   "lines": [
+    21786,
+    21798
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21786: PEOPLES-10  -  THE TWO CHILDREN AND THE SHELL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl11_heathen_helped",
+   "title": "The Heathen Who Helped",
+   "games": [
+    5
+   ],
+   "lines": [
+    21800,
+    21812
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21800: PEOPLES-11  -  THE HEATHEN WHO HELPED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl12_tribe_someone",
+   "title": "The Tribe Someone Chose",
+   "games": [
+    5
+   ],
+   "lines": [
+    21814,
+    21826
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21814: PEOPLES-12  -  THE TRIBE SOMEONE CHOSE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl13_villager",
+   "title": "The Villager Who Wanted to Leave",
+   "games": [
+    5
+   ],
+   "lines": [
+    21828,
+    21840
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21828: PEOPLES-13  -  THE VILLAGER WHO WANTED TO LEAVE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl14_council_two",
+   "title": "The Council of Two Fires",
+   "games": [
+    5
+   ],
+   "lines": [
+    21842,
+    21854
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21842: PEOPLES-14  -  THE COUNCIL OF TWO FIRES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl15_stranger_water",
+   "title": "The Stranger at the Water",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21856,
+    21867
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21856: PEOPLES-15  -  THE STRANGER AT THE WATER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl16_first_words",
+   "title": "The First Words",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21869,
+    21880
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21869: PEOPLES-16  -  THE FIRST WORDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl17_other_way",
+   "title": "The Other Way to Mourn",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21882,
+    21893
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21882: PEOPLES-17  -  THE OTHER WAY TO MOURN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl18_hunter",
+   "title": "The Hunter and the Gardener",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21895,
+    21906
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21895: PEOPLES-18  -  THE HUNTER AND THE GARDENER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl19_story_two",
+   "title": "The Story with Two Beginnings",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21908,
+    21919
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21908: PEOPLES-19  -  THE STORY WITH TWO BEGINNINGS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl20_foreign_loom",
+   "title": "The Foreign Loom",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21921,
+    21932
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21921: PEOPLES-20  -  THE FOREIGN LOOM",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl21_color",
+   "title": "The Color of Belonging",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21934,
+    21945
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21934: PEOPLES-21  -  THE COLOR OF BELONGING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl22_mask_maker",
+   "title": "The Mask Maker's Daughter",
+   "games": [
+    5
+   ],
+   "lines": [
+    21947,
+    21959
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21947: PEOPLES-22  -  THE MASK MAKER'S DAUGHTER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl23_quiet_border",
+   "title": "The Quiet Border",
+   "games": [
+    5
+   ],
+   "lines": [
+    21961,
+    21973
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21961: PEOPLES-23  -  THE QUIET BORDER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl24_stolen_harvest",
+   "title": "The Stolen Harvest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    21975,
+    21986
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21975: PEOPLES-24  -  THE STOLEN HARVEST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl25_isolan_stayed",
+   "title": "The Isolan Who Stayed",
+   "games": [
+    5
+   ],
+   "lines": [
+    21988,
+    22000
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L21988: PEOPLES-25  -  THE ISOLAN WHO STAYED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl26_peace_offering",
+   "title": "The Peace Offering",
+   "games": [
+    5
+   ],
+   "lines": [
+    22002,
+    22014
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22002: PEOPLES-26  -  THE PEACE OFFERING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl27_cost_hostility",
+   "title": "The Cost of Hostility",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22016,
+    22027
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22016: PEOPLES-27  -  THE COST OF HOSTILITY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl28_shared_song",
+   "title": "The Shared Song",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22029,
+    22040
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22029: PEOPLES-28  -  THE SHARED SONG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl29_circle_people",
+   "title": "The Circle of Different People",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22042,
+    22053
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22042: PEOPLES-29  -  THE CIRCLE OF DIFFERENT PEOPLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl30_visitor",
+   "title": "The Visitor's Festival Cloth",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22055,
+    22066
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22055: PEOPLES-30  -  THE VISITOR'S FESTIVAL CLOTH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl31_color_would",
+   "title": "The Color That Would Not Wash Out",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22068,
+    22079
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22068: PEOPLES-31  -  THE COLOR THAT WOULD NOT WASH OUT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl32_family_both",
+   "title": "The Family on Both Sides",
+   "games": [
+    5
+   ],
+   "lines": [
+    22081,
+    22093
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22081: PEOPLES-32  -  THE FAMILY ON BOTH SIDES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl33_mask_festival",
+   "title": "The Mask at the Festival",
+   "games": [
+    5
+   ],
+   "lines": [
+    22095,
+    22107
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22095: PEOPLES-33  -  THE MASK AT THE FESTIVAL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl34_word_heathen",
+   "title": "The Word Heathen",
+   "games": [
+    5
+   ],
+   "lines": [
+    22109,
+    22121
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22109: PEOPLES-34  -  THE WORD HEATHEN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl35_old_promise",
+   "title": "The Old Promise",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22123,
+    22134
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22123: PEOPLES-35  -  THE OLD PROMISE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl36_trader_never",
+   "title": "The Trader Who Never Stayed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22136,
+    22147
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22136: PEOPLES-36  -  THE TRADER WHO NEVER STAYED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvppl37_three_ways",
+   "title": "The Three Ways to Meet",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22149,
+    22160
+   ],
+   "kind": "event",
+   "section": "lv_peoples",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22149: PEOPLES-37  -  THE THREE WAYS TO MEET",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_unseen_rules",
+   "title": "The Unseen Horizon, Cryptids, and the Silent Gods: heading and canon rules",
+   "games": [],
+   "lines": [
+    22164,
+    22177
+   ],
+   "kind": "notes",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22165: NEW COMPANION VOLUME  -  THE UNSEEN HORIZON, CRYPTIDS, AND THE SILENT GODS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvuns01_object_maker",
+   "title": "The Object with No Maker",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22180,
+    22191
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22180: UNSEEN-01  -  THE OBJECT WITH NO MAKER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns02_boat_never",
+   "title": "The Boat That Never Came",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22193,
+    22204
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22193: UNSEEN-02  -  THE BOAT THAT NEVER CAME",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns03_council_closed",
+   "title": "The Council of Closed Shores",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22206,
+    22217
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22206: UNSEEN-03  -  THE COUNCIL OF CLOSED SHORES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns04_map_broken",
+   "title": "The Map on the Broken Board",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22219,
+    22230
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22219: UNSEEN-04  -  THE MAP ON THE BROKEN BOARD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns05_stranger",
+   "title": "The Stranger in the Stories",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22232,
+    22243
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22232: UNSEEN-05  -  THE STRANGER IN THE STORIES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns06_unopened_chest",
+   "title": "The Unopened Chest",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22245,
+    22256
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22245: UNSEEN-06  -  THE UNOPENED CHEST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns07_fear_being",
+   "title": "The Fear of Being Found",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22258,
+    22269
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22258: UNSEEN-07  -  THE FEAR OF BEING FOUND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns08_gift_might",
+   "title": "The Gift That Might Be a Warning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22271,
+    22282
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22271: UNSEEN-08  -  THE GIFT THAT MIGHT BE A WARNING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns09_creature_red",
+   "title": "The Creature of the Red Eyes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22284,
+    22295
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22284: UNSEEN-09  -  THE CREATURE OF THE RED EYES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns10_footprint",
+   "title": "The Footprint Larger Than a Bear",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22297,
+    22308
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22297: UNSEEN-10  -  THE FOOTPRINT LARGER THAN A BEAR",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns11_whistle_cave",
+   "title": "The Whistle from the Cave",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22310,
+    22321
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22310: UNSEEN-11  -  THE WHISTLE FROM THE CAVE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns12_feather",
+   "title": "The Feather of the Impossible Bird",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22323,
+    22334
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22323: UNSEEN-12  -  THE FEATHER OF THE IMPOSSIBLE BIRD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns13_lake_two",
+   "title": "The Lake with Two Shadows",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22336,
+    22347
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22336: UNSEEN-13  -  THE LAKE WITH TWO SHADOWS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns14_biggles_second",
+   "title": "Biggles and the Second Set of Footsteps",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22349,
+    22360
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22349: UNSEEN-14  -  BIGGLES AND THE SECOND SET OF FOOTSTEPS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns15_mask_forest",
+   "title": "The Mask of the Forest Watcher",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22362,
+    22373
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22362: UNSEEN-15  -  THE MASK OF THE FOREST WATCHER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns16_scientist",
+   "title": "The Scientist Who Wanted a Monster",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22375,
+    22386
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22375: UNSEEN-16  -  THE SCIENTIST WHO WANTED A MONSTER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns17_child_saw_sky",
+   "title": "The Child Who Saw the Sky Stag",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22388,
+    22399
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22388: UNSEEN-17  -  THE CHILD WHO SAW THE SKY STAG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns18_whale_island",
+   "title": "The Whale with the Island on Its Back",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22401,
+    22412
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22401: UNSEEN-18  -  THE WHALE WITH THE ISLAND ON ITS BACK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns19_why_do_spirits",
+   "title": "Why Do the Spirits Not Come?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22414,
+    22425
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22414: UNSEEN-19  -  WHY DO THE SPIRITS NOT COME?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns20_ancestors",
+   "title": "The Ancestors' Unpaid Debt",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22427,
+    22438
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22427: UNSEEN-20  -  THE ANCESTORS' UNPAID DEBT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns21_gods_need",
+   "title": "The Gods Who Need Nothing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22440,
+    22451
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22440: UNSEEN-21  -  THE GODS WHO NEED NOTHING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns22_are_we_spirits",
+   "title": "Are We the Spirits?",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22453,
+    22464
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22453: UNSEEN-22  -  ARE WE THE SPIRITS?",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns23_silence_after",
+   "title": "The Silence After the Storm",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22466,
+    22477
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22466: UNSEEN-23  -  THE SILENCE AFTER THE STORM",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns24_shrine_miracle",
+   "title": "The Shrine with No Miracle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22479,
+    22490
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22479: UNSEEN-24  -  THE SHRINE WITH NO MIRACLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns25_prayer_seemed",
+   "title": "The Prayer That Seemed Answered",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22492,
+    22503
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22492: UNSEEN-25  -  THE PRAYER THAT SEEMED ANSWERED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns26_four_answers",
+   "title": "The Four Answers to the Stars",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22505,
+    22516
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22505: UNSEEN-26  -  THE FOUR ANSWERS TO THE STARS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns27_dream_dead",
+   "title": "The Dream of the Dead Grandmother",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22518,
+    22529
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22518: UNSEEN-27  -  THE DREAM OF THE DEAD GRANDMOTHER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns28_empty_temple",
+   "title": "The Empty Temple",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22531,
+    22542
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22531: UNSEEN-28  -  THE EMPTY TEMPLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns29_legend_fire",
+   "title": "The Legend of the First Fire",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22544,
+    22555
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22544: UNSEEN-29  -  THE LEGEND OF THE FIRST FIRE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns30_creature",
+   "title": "The Creature That Needed a Name",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22557,
+    22568
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22557: UNSEEN-30  -  THE CREATURE THAT NEEDED A NAME",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns31_price_legend",
+   "title": "The Price of a Legend",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22570,
+    22581
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22570: UNSEEN-31  -  THE PRICE OF A LEGEND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns32_watcher",
+   "title": "The Watcher at the Waterfall",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22583,
+    22594
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22583: UNSEEN-32  -  THE WATCHER AT THE WATERFALL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns33_island_beyond",
+   "title": "The Island Beyond the Clouds",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22596,
+    22607
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22596: UNSEEN-33  -  THE ISLAND BEYOND THE CLOUDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns34_god_may_have",
+   "title": "The God Who May Have Been a Person",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22609,
+    22620
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22609: UNSEEN-34  -  THE GOD WHO MAY HAVE BEEN A PERSON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns35_question_elder",
+   "title": "The Last Question of the Elder",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22622,
+    22633
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22622: UNSEEN-35  -  THE LAST QUESTION OF THE ELDER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns36_empty_place",
+   "title": "The Empty Place at the Feast",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22635,
+    22646
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22635: UNSEEN-36  -  THE EMPTY PLACE AT THE FEAST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns37_unproven",
+   "title": "The Unproven Promise",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22648,
+    22659
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22648: UNSEEN-37  -  THE UNPROVEN PROMISE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns38_night_thousand",
+   "title": "The Night of a Thousand Eyes",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22661,
+    22672
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22661: UNSEEN-38  -  THE NIGHT OF A THOUSAND EYES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvuns39_relic_world",
+   "title": "The Relic of a World Unseen",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22674,
+    22685
+   ],
+   "kind": "event",
+   "section": "lv_unseen",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 3,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22674: UNSEEN-39  -  THE RELIC OF A WORLD UNSEEN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_ways_rules",
+   "title": "The Many Ways of Isola: heading and rules",
+   "games": [],
+   "lines": [
+    22688,
+    22702
+   ],
+   "kind": "notes",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22689: COMPANION EXPANSION: THE MANY WAYS OF ISOLA",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvway01_flood_before",
+   "title": "The Flood Before Dawn",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22704,
+    22718
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22704: WAYS-01  -  THE FLOOD BEFORE DAWN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway02_dry_well",
+   "title": "The Dry Well",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22720,
+    22734
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22720: WAYS-02  -  THE DRY WELL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway03_bridge_roots",
+   "title": "The Bridge of Roots",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22736,
+    22750
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22736: WAYS-03  -  THE BRIDGE OF ROOTS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway04_sick_orchard",
+   "title": "The Sick Orchard",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22752,
+    22766
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22752: WAYS-04  -  THE SICK ORCHARD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway05_fish_shortage",
+   "title": "The Great Fish Shortage",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22768,
+    22782
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22768: WAYS-05  -  THE GREAT FISH SHORTAGE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway06_mystery",
+   "title": "The Mystery of the Spoiled Grain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22784,
+    22798
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22784: WAYS-06  -  THE MYSTERY OF THE SPOILED GRAIN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway07_new_plow",
+   "title": "The New Plow",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22800,
+    22814
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22800: WAYS-07  -  THE NEW PLOW",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway08_wall_ancestors",
+   "title": "The Wall of the Ancestors",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22816,
+    22830
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22816: WAYS-08  -  THE WALL OF THE ANCESTORS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway09_elder_wrong",
+   "title": "The Elder Who Was Wrong",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22832,
+    22846
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22832: WAYS-09  -  THE ELDER WHO WAS WRONG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway10_daughter_would",
+   "title": "The Daughter Who Would Not Fish",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22848,
+    22862
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22848: WAYS-10  -  THE DAUGHTER WHO WOULD NOT FISH",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway11_son_questioned",
+   "title": "The Son Who Questioned the Shrine",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22864,
+    22878
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22864: WAYS-11  -  THE SON WHO QUESTIONED THE SHRINE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway12_prayer_did",
+   "title": "The Prayer That Did Not Work",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22880,
+    22894
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22880: WAYS-12  -  THE PRAYER THAT DID NOT WORK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway13_magic_failed",
+   "title": "The Magic That Failed",
+   "games": [
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22896,
+    22910
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22896: WAYS-13  -  THE MAGIC THAT FAILED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway14_animal_would",
+   "title": "The Animal That Would Not Work",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22912,
+    22926
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22912: WAYS-14  -  THE ANIMAL THAT WOULD NOT WORK",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway15_seeds_stranger",
+   "title": "The Seeds of the Stranger",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22928,
+    22942
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22928: WAYS-15  -  THE SEEDS OF THE STRANGER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway16_song_dead",
+   "title": "The Song for the Dead",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22944,
+    22958
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22944: WAYS-16  -  THE SONG FOR THE DEAD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway17_hands_built",
+   "title": "The Hands That Built the Hut",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22960,
+    22974
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22960: WAYS-17  -  THE HANDS THAT BUILT THE HUT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway18_forest_path",
+   "title": "The Forest Path or the Stone Road",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22976,
+    22990
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22976: WAYS-18  -  THE FOREST PATH OR THE STONE ROAD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway19_healing_debate",
+   "title": "The Great Healing Debate",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    22992,
+    23006
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L22992: WAYS-19  -  THE GREAT HEALING DEBATE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway20_hungry",
+   "title": "The Hungry Festival",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23008,
+    23022
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23008: WAYS-20  -  THE HUNGRY FESTIVAL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway21_argument_over",
+   "title": "The Argument Over a Map",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23024,
+    23038
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23024: WAYS-21  -  THE ARGUMENT OVER A MAP",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway22_child_asked",
+   "title": "The Child Who Asked for Proof",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23040,
+    23054
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23040: WAYS-22  -  THE CHILD WHO ASKED FOR PROOF",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway23_river",
+   "title": "The River of Offerings",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23056,
+    23070
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23056: WAYS-23  -  THE RIVER OF OFFERINGS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway24_council_four",
+   "title": "The Council of Four Voices",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23072,
+    23086
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23072: WAYS-24  -  THE COUNCIL OF FOUR VOICES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway25_villager_did",
+   "title": "The Villager Who Did Not Believe",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23088,
+    23102
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23088: WAYS-25  -  THE VILLAGER WHO DID NOT BELIEVE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway26_elder_changed",
+   "title": "The Elder Who Changed Their Mind",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23104,
+    23118
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23104: WAYS-26  -  THE ELDER WHO CHANGED THEIR MIND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway27_parent_knew",
+   "title": "The Parent Who Knew Best",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23120,
+    23134
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23120: WAYS-27  -  THE PARENT WHO KNEW BEST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway28_cloth_isola",
+   "title": "The New Cloth of Isola",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23136,
+    23150
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23136: WAYS-28  -  THE NEW CLOTH OF ISOLA",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway29_orchard_bees",
+   "title": "The Orchard and the Bees",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23152,
+    23166
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23152: WAYS-29  -  THE ORCHARD AND THE BEES",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway30_firewood_tree",
+   "title": "The Last Firewood Tree",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23168,
+    23182
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23168: WAYS-30  -  THE LAST FIREWOOD TREE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway31_choice",
+   "title": "The Choice of the Apprentice",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23184,
+    23198
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23184: WAYS-31  -  THE CHOICE OF THE APPRENTICE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway32_night_without",
+   "title": "The Night Without a Sign",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23200,
+    23214
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23200: WAYS-32  -  THE NIGHT WITHOUT A SIGN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway33_four_ways_make",
+   "title": "The Four Ways to Make Light",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23216,
+    23230
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23216: WAYS-33  -  THE FOUR WAYS TO MAKE LIGHT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway34_tradition",
+   "title": "The Tradition of Silence",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23232,
+    23246
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23232: WAYS-34  -  THE TRADITION OF SILENCE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway35_cost_miracle",
+   "title": "The Cost of a Miracle",
+   "games": [
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23248,
+    23262
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23248: WAYS-35  -  THE COST OF A MIRACLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway36_young",
+   "title": "The Young Scientist and the Sacred Pool",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23264,
+    23278
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23264: WAYS-36  -  THE YOUNG SCIENTIST AND THE SACRED POOL",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway37_bell_divided",
+   "title": "The Bell That Divided the Village",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23280,
+    23294
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23280: WAYS-37  -  THE BELL THAT DIVIDED THE VILLAGE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvway38_word_elder",
+   "title": "The Last Word of the Elder",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23296,
+    23310
+   ],
+   "kind": "event",
+   "section": "lv_ways",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23296: WAYS-38  -  THE LAST WORD OF THE ELDER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lnotes_auth_rules",
+   "title": "The Weight of a Name: heading and implementation notes",
+   "games": [],
+   "lines": [
+    23314,
+    23329
+   ],
+   "kind": "notes",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23315: NEW COMPANION VOLUME  -  THE WEIGHT OF A NAME: MASTERS, CHIEFS,",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "lvauth01_chief_did",
+   "title": "The Chief Who Did Not Know",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23331,
+    23345
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23331: AUTH-01  -  THE CHIEF WHO DID NOT KNOW",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth02_rookie",
+   "title": "The Rookie and the Collapsing Bridge",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23347,
+    23361
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23347: AUTH-02  -  THE ROOKIE AND THE COLLAPSING BRIDGE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth03_master_never",
+   "title": "The Master Who Never Failed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23363,
+    23377
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23363: AUTH-03  -  THE MASTER WHO NEVER FAILED",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth04_chief_sacred",
+   "title": "The Chief's Sacred Dream",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23379,
+    23393
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23379: AUTH-04  -  THE CHIEF'S SACRED DREAM",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth05_leader",
+   "title": "The Leader's Favorite",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23395,
+    23409
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23395: AUTH-05  -  THE LEADER'S FAVORITE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth06_master_healer",
+   "title": "The Master Healer's Hands",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23411,
+    23425
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23411: AUTH-06  -  THE MASTER HEALER'S HANDS",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth07_chief_could",
+   "title": "The Chief Who Could Not Say Sorry",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23427,
+    23441
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23427: AUTH-07  -  THE CHIEF WHO COULD NOT SAY SORRY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth08_apprentice",
+   "title": "The Apprentice Who Corrected the Elder",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23443,
+    23457
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23443: AUTH-08  -  THE APPRENTICE WHO CORRECTED THE ELDER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth09_villager",
+   "title": "The Quiet Villager's Warning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23459,
+    23473
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23459: AUTH-09  -  THE QUIET VILLAGER'S WARNING",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth10_chief_son",
+   "title": "The Chief's Son",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23475,
+    23489
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23475: AUTH-10  -  THE CHIEF'S SON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth11_leader",
+   "title": "The Leader Who Pretended to Know",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23491,
+    23505
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23491: AUTH-11  -  THE LEADER WHO PRETENDED TO KNOW",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth12_chief_rain",
+   "title": "The Chief and the Rain Dance",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23507,
+    23521
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23507: AUTH-12  -  THE CHIEF AND THE RAIN DANCE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth13_animal_keeper",
+   "title": "The Animal Keeper's Doubt",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23523,
+    23537
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23523: AUTH-13  -  THE ANIMAL KEEPER'S DOUBT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth14_young",
+   "title": "The Young Cartographer's Map",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23539,
+    23553
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23539: AUTH-14  -  THE YOUNG CARTOGRAPHER'S MAP",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth15_scientist",
+   "title": "The Scientist Who Was Too Certain",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23555,
+    23569
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23555: AUTH-15  -  THE SCIENTIST WHO WAS TOO CERTAIN",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth16_healer_asked",
+   "title": "The Healer Who Asked a Child",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23571,
+    23585
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23571: AUTH-16  -  THE HEALER WHO ASKED A CHILD",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth17_masked",
+   "title": "The Masked Adviser",
+   "games": [
+    5
+   ],
+   "lines": [
+    23587,
+    23601
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23587: AUTH-17  -  THE MASKED ADVISER (VV5 ONLY)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth18_guardians",
+   "title": "The Guardians' Council",
+   "games": [
+    5
+   ],
+   "lines": [
+    23603,
+    23617
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23603: AUTH-18  -  THE GUARDIANS' COUNCIL (GUARDIANS OF ISOLA VV5 ONLY)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth19_chief",
+   "title": "The Chief Who Listened Too Long",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23619,
+    23633
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23619: AUTH-19  -  THE CHIEF WHO LISTENED TOO LONG",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth20_elder_lesson",
+   "title": "The Elder's Last Lesson",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23635,
+    23649
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23635: AUTH-20  -  THE ELDER'S LAST LESSON",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth21_master_feared",
+   "title": "The Master Who Feared Replacement",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23651,
+    23665
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23651: AUTH-21  -  THE MASTER WHO FEARED REPLACEMENT",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth22_chief_false",
+   "title": "The Chief's False Miracle",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23667,
+    23681
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23667: AUTH-22  -  THE CHIEF'S FALSE MIRACLE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth23_rookie_rescue",
+   "title": "The Rookie's First Rescue",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23683,
+    23697
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23683: AUTH-23  -  THE ROOKIE'S FIRST RESCUE",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth24_council",
+   "title": "The Council's Unwelcome Answer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23699,
+    23713
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23699: AUTH-24  -  THE COUNCIL'S UNWELCOME ANSWER",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth25_teacher",
+   "title": "The Teacher Who Changed Their Mind",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23715,
+    23729
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23715: AUTH-25  -  THE TEACHER WHO CHANGED THEIR MIND",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth26_chief_wanted",
+   "title": "The Chief Who Wanted to Be Ordinary",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23731,
+    23745
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23731: AUTH-26  -  THE CHIEF WHO WANTED TO BE ORDINARY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth27_spiritual",
+   "title": "The Spiritual Elder and the Atheist",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23747,
+    23761
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23747: AUTH-27  -  THE SPIRITUAL ELDER AND THE ATHEIST",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth28_chief_claimed",
+   "title": "The Chief Who Claimed the Sea",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23763,
+    23777
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23763: AUTH-28  -  THE CHIEF WHO CLAIMED THE SEA",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth29_apprentice",
+   "title": "The Apprentice's Dangerous Discovery",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23779,
+    23793
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23779: AUTH-29  -  THE APPRENTICE'S DANGEROUS DISCOVERY",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "lvauth30_leader_spoke",
+   "title": "The Leader Who Spoke for Everyone",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    23795,
+    23809
+   ],
+   "kind": "event",
+   "section": "lv_auth",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI)."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "living",
+   "source_check": {
+    "heading": "L23795: AUTH-30  -  THE LEADER WHO SPOKE FOR EVERYONE",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

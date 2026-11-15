@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fear of Being Found",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns07_fear_being",
+  "source": "living",
+  "lines": [
+   22258,
+   22269
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22258",
+  "ledger": [
+   {
+    "src": "L22269",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young villager dreams of enormous ships arriving to claim the island.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young villager dreams of enormous ships arriving to claim the island.",
+   "src": "L22259",
+   "choices": [
+    {
+     "label": "Reassure them with what is known.",
+     "next": "a",
+     "src": "L22260"
+    },
+    {
+     "label": "Plan for hypothetical contact.",
+     "next": "b",
+     "src": "L22263"
+    },
+    {
+     "label": "Discuss dreams and stories.",
+     "next": "c",
+     "src": "L22266"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager feels calmer, though the dream returns.",
+   "src": "L22261"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The discussion inspires a careful inventory of vulnerable resources.",
+   "src": "L22262"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council agrees that visitors must respect island customs.",
+   "src": "L22264"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Arguments erupt over whether visitors could ever be trusted.",
+   "src": "L22265"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager finds comfort in hearing others' fears.",
+   "src": "L22267"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder cautions against treating dreams as predictions.",
+   "src": "L22268"
+  }
+ }
+}

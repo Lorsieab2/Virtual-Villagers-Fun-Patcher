@@ -116,7 +116,8 @@ class FrozenLiving(unittest.TestCase):
         for r in rows:
             by[r["section"]] = by.get(r["section"], 0) + 1
             self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
-        self.assertEqual(by, {"lv_med": 31, "lv_life": 45, "lv_circle": 31})
+        self.assertEqual(by, {"lv_med": 31, "lv_life": 45, "lv_circle": 31, "lv_peoples": 37, "lv_unseen": 39,
+                              "lv_ways": 38, "lv_auth": 30})
         files = [p for p in cc.collection_files() if lib.LIVING_DIR in p.parents]
         self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
 

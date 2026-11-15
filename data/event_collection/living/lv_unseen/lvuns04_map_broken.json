@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Map on the Broken Board",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns04_map_broken",
+  "source": "living",
+  "lines": [
+   22219,
+   22230
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22219",
+  "ledger": [
+   {
+    "src": "L22230",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A plank with unfamiliar lines washes ashore and may depict a coast beyond Isola.",
+  "cast_only": [
+   "cartographer",
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cartographer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A plank with unfamiliar lines washes ashore and may depict a coast beyond Isola.",
+   "src": "L22220",
+   "choices": [
+    {
+     "label": "Treat it as a possible map.",
+     "next": "a",
+     "src": "L22221"
+    },
+    {
+     "label": "Treat it as decoration.",
+     "next": "b",
+     "src": "L22224"
+    },
+    {
+     "label": "Leave it untouched.",
+     "next": "c",
+     "src": "L22227"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A cartographer copies it with notes about uncertainty.",
+   "src": "L22222"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A novice mistakes scratches for rivers and later corrects the drawing.",
+   "src": "L22223"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An artist turns its pattern into a tapestry.",
+   "src": "L22225"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A sailor recognizes a familiar current mark and challenges the artist.",
+   "src": "L22226"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The board slowly weathers on the beach.",
+   "src": "L22228"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Children argue over whether leaving it preserves or destroys its story.",
+   "src": "L22229"
+  }
+ }
+}

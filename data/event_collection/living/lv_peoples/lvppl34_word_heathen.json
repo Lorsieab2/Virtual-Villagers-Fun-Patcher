@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Word Heathen",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl34_word_heathen",
+  "source": "living",
+  "lines": [
+   22109,
+   22121
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22109",
+  "ledger": [
+   {
+    "src": "L22110",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L22120",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L22121",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager asks whether the word used for the neighboring people describes them fairly.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager asks whether the word used for the neighboring people describes them fairly.",
+   "src": "L22110",
+   "choices": [
+    {
+     "label": "Discuss the word's history.",
+     "next": "a",
+     "src": "L22111"
+    },
+    {
+     "label": "Ask neighbors what they call themselves.",
+     "next": "b",
+     "src": "L22114"
+    },
+    {
+     "label": "Keep using familiar language.",
+     "next": "c",
+     "src": "L22117"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers discover that names can carry old grievances.",
+   "src": "L22112"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder explains why the word once seemed natural.",
+   "src": "L22113"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The neighbors share the names they prefer.",
+   "src": "L22115"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some villagers struggle to remember the new terms but keep trying.",
+   "src": "L22116"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The familiar term persists, though one villager questions it.",
+   "src": "L22118"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A misunderstanding prompts another conversation.",
+   "src": "L22119"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Word Isolan"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

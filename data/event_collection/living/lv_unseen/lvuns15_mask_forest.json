@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask of the Forest Watcher",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns15_mask_forest",
+  "source": "living",
+  "lines": [
+   22362,
+   22373
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22362",
+  "ledger": [
+   {
+    "src": "L22373",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A ceremonial mask is discovered hanging from a branch no one remembers visiting.",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A ceremonial mask is discovered hanging from a branch no one remembers visiting.",
+   "src": "L22363",
+   "choices": [
+    {
+     "label": "Ask who made it.",
+     "next": "a",
+     "src": "L22364"
+    },
+    {
+     "label": "Leave an offering of flowers.",
+     "next": "b",
+     "src": "L22367"
+    },
+    {
+     "label": "Study the branch and knots.",
+     "next": "c",
+     "src": "L22370"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A craftsperson recognizes familiar weaving techniques.",
+   "src": "L22365"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "No one claims it, and the mask remains mysterious.",
+   "src": "L22366"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The flowers vanish overnight, perhaps taken by animals.",
+   "src": "L22368",
+   "text_only": [
+    {
+     "what": "vanish",
+     "reason": "the flowers, not a villager",
+     "src": "L22368"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The flowers remain untouched, disappointing a believer.",
+   "src": "L22369"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The knots suggest a human hand, though the maker is unknown.",
+   "src": "L22371"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A storm destroys the evidence before it can be examined.",
+   "src": "L22372"
+  }
+ }
+}

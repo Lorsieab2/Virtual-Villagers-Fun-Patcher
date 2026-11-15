@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Harvest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl24_stolen_harvest",
+  "source": "living",
+  "lines": [
+   21975,
+   21986
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21975",
+  "ledger": [
+   {
+    "src": "L21986",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Someone from a neighboring group is accused of taking fruit, but the evidence is uncertain.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone from a neighboring group is accused of taking fruit, but the evidence is uncertain.",
+   "src": "L21976",
+   "choices": [
+    {
+     "label": "Investigate carefully.",
+     "next": "a",
+     "src": "L21977"
+    },
+    {
+     "label": "Demand repayment.",
+     "next": "b",
+     "src": "L21980"
+    },
+    {
+     "label": "Offer food and discuss access.",
+     "next": "c",
+     "src": "L21983"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Tracks reveal an animal caused much of the damage.",
+   "src": "L21978"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The investigation finds wrongdoing by someone unexpected.",
+   "src": "L21979"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The accused group protests the accusation.",
+   "src": "L21981"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Repayment is arranged, though resentment remains.",
+   "src": "L21982"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The offer eases hunger and prevents further theft.",
+   "src": "L21984",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21984"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers resent sharing food without an explanation.",
+   "src": "L21985",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21985"
+    }
+   ]
+  }
+ }
+}

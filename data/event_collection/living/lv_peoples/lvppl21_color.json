@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Color of Belonging",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl21_color",
+  "source": "living",
+  "lines": [
+   21934,
+   21945
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21934",
+  "ledger": [
+   {
+    "src": "L21945",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager adopts a clothing color associated with another community.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager adopts a clothing color associated with another community.",
+   "src": "L21935",
+   "choices": [
+    {
+     "label": "Let them wear it.",
+     "next": "a",
+     "src": "L21936"
+    },
+    {
+     "label": "Ask about its meaning.",
+     "next": "b",
+     "src": "L21939"
+    },
+    {
+     "label": "Discourage the color.",
+     "next": "c",
+     "src": "L21942"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager enjoys the color without changing their allegiance.",
+   "src": "L21937"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A stranger mistakes the villager for a visitor.",
+   "src": "L21938"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager explains a personal reason for the choice.",
+   "src": "L21940"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The discussion reveals that colors carry different meanings to different people.",
+   "src": "L21941"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager feels unfairly judged.",
+   "src": "L21943"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village later revisits whether clothing should signal loyalty.",
+   "src": "L21944"
+  }
+ }
+}

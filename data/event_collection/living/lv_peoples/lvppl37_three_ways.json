@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Ways to Meet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl37_three_ways",
+  "source": "living",
+  "lines": [
+   22149,
+   22160
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22149",
+  "ledger": [
+   {
+    "src": "L22160",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A council debates how to respond to an unfamiliar canoe approaching Isola.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A council debates how to respond to an unfamiliar canoe approaching Isola.",
+   "src": "L22150",
+   "choices": [
+    {
+     "label": "Offer a cautious welcome.",
+     "next": "a",
+     "src": "L22151"
+    },
+    {
+     "label": "Maintain neutral distance.",
+     "next": "b",
+     "src": "L22154"
+    },
+    {
+     "label": "Prepare a hostile defense.",
+     "next": "c",
+     "src": "L22157"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The visitors trade food and stories after careful introductions.",
+   "src": "L22152",
+   "text_only": [
+    {
+     "what": "trade food",
+     "reason": "an exchange: nothing is gained or lost overall",
+     "src": "L22152"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A misunderstanding is resolved before anyone is harmed.",
+   "src": "L22153"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The canoe passes peacefully without contact.",
+   "src": "L22155"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitors mistake the silence for rejection.",
+   "src": "L22156"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The visitors turn away at the sight of armed villagers.",
+   "src": "L22158"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council later debates whether fear prevented a friendship.",
+   "src": "L22159"
+  }
+ }
+}

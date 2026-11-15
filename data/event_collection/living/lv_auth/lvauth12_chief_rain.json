@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief and the Rain Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth12_chief_rain",
+  "source": "living",
+  "lines": [
+   23507,
+   23521
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23507",
+  "ledger": [
+   {
+    "src": "L23521",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The crops are failing, and the leader promises a ritual will bring rain.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The crops are failing, and the {@chief} promises a ritual will bring rain.",
+   "src": "L23508",
+   "choices": [
+    {
+     "label": "Hold the ritual.",
+     "next": "a",
+     "src": "L23509"
+    },
+    {
+     "label": "Build irrigation channels.",
+     "next": "b",
+     "src": "L23512"
+    },
+    {
+     "label": "Try both approaches.",
+     "next": "c",
+     "src": "L23515"
+    },
+    {
+     "label": "Ask farmers to decide locally.",
+     "next": "d",
+     "src": "L23518"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Rain follows, though no one can prove why.",
+   "src": "L23510"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The skies remain clear, and the {@chief} faces difficult questions.",
+   "src": "L23511"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The channels save part of the crop.",
+   "src": "L23513"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The work exhausts villagers and leaves other tasks unfinished.",
+   "src": "L23514"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers find comfort while repairing water supplies.",
+   "src": "L23516"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some argue over whether the ritual or labor deserves credit.",
+   "src": "L23517"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Different fields test different methods.",
+   "src": "L23519"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Unequal results spark accusations of favoritism.",
+   "src": "L23520"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader and the Rain Dance"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

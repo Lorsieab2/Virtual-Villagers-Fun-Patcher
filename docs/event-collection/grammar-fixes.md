@@ -236,6 +236,10 @@ a Anagallis / a Indigoberry / a Aureus" (9 times: companion L7542, 7554, 7722, 7
 LV-A (MED-01..31, LIFE-01..45, CIRCLE-01..31, living L20219-21645): none. Not fixed (not glaring): MED-19's "A Magic
 practitioner" (living L20454) keeps the source's capital, the volume's name for one of its four ways of knowing.
 
+LV-B (PEOPLES-01..37, UNSEEN-01..39, WAYS-01..38, AUTH-01..30, living L21665-23809): none. Not fixed (not glaring):
+WAYS' and UNSEEN's capitalised ways of knowing ("a Magic adept", "the Nature master", "the Science master", "Nature
+knowledge") keep the source's capitals, as MED-19.
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

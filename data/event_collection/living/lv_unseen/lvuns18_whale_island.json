@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Whale with the Island on Its Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns18_whale_island",
+  "source": "living",
+  "lines": [
+   22401,
+   22412
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22401",
+  "ledger": [
+   {
+    "src": "L22412",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A sailor tells of a whale carrying a tiny forest on its back.",
+  "cast_only": [
+   "sailor",
+   "naturalist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "sailor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A sailor tells of a whale carrying a tiny forest on its back.",
+   "src": "L22402",
+   "choices": [
+    {
+     "label": "Compare the tale with known whales.",
+     "next": "a",
+     "src": "L22403"
+    },
+    {
+     "label": "Make a tapestry of the creature.",
+     "next": "b",
+     "src": "L22406"
+    },
+    {
+     "label": "Keep the tale as an open mystery.",
+     "next": "c",
+     "src": "L22409"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A naturalist suggests barnacles and drifting plants inspired it.",
+   "src": "L22404"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sailor insists the trees were real, and no one can verify the claim.",
+   "src": "L22405"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tapestry delights children and visitors.",
+   "src": "L22407"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The design becomes mistaken for an eyewitness record.",
+   "src": "L22408"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The story survives without being declared fact.",
+   "src": "L22410"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Future storytellers add details that scholars struggle to untangle.",
+   "src": "L22411"
+  }
+ }
+}

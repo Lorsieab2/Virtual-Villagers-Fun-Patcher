@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prayer That Seemed Answered",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns25_prayer_seemed",
+  "source": "living",
+  "lines": [
+   22492,
+   22503
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22492",
+  "ledger": [
+   {
+    "src": "L22503",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A lost child returns just after the village holds a ceremony.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A lost child returns just after the village holds a ceremony.",
+   "src": "L22493",
+   "choices": [
+    {
+     "label": "Celebrate without claiming certainty.",
+     "next": "a",
+     "src": "L22494"
+    },
+    {
+     "label": "Investigate how the child returned.",
+     "next": "b",
+     "src": "L22497"
+    },
+    {
+     "label": "Record both accounts.",
+     "next": "c",
+     "src": "L22500"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family is grateful and leaves the mystery open.",
+   "src": "L22495"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some villagers insist the timing proves divine help.",
+   "src": "L22496"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child describes following a familiar stream home.",
+   "src": "L22498"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child remembers a distant light that no one can identify.",
+   "src": "L22499"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The archive preserves the family's experience and the known facts.",
+   "src": "L22501",
+   "text_only": [
+    {
+     "what": "experience",
+     "reason": "the family's experience of the night: no skill is meant",
+     "src": "L22501"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A later scribe mistakenly writes the legend as established history.",
+   "src": "L22502"
+  }
+ }
+}

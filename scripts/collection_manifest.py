@@ -726,6 +726,11 @@ CREDITS.update({
     "liv_med": ("mixed", [(1, 2), (20206, 20206)], LIV),
     "liv_life": ("mixed", [(1, 2), (20625, 20627)], LIV),
     "liv_circle": ("mixed", [(1, 2), (21229, 21230)], LIV),
+    # LV-B's volumes credit nobody in their own headings: the file's credit only
+    "liv_peoples": ("mixed", [(1, 2)], LIV),
+    "liv_unseen": ("mixed", [(1, 2)], LIV),
+    "liv_ways": ("mixed", [(1, 2)], LIV),
+    "liv_auth": ("mixed", [(1, 2)], LIV),
 })
 # (prefix in the source, first and last line of the volume's events, id prefix, section, credit, its notes rows)
 LIVING_VOLUMES = [
@@ -737,9 +742,25 @@ LIVING_VOLUMES = [
        20624, 20639)]),
     ("CIRCLE", 21244, 21645, "lvcir", "lv_circle", "liv_circle",
      [("lnotes_circle_rules", "The Circle of Life, Rights, and Remembrance: heading and guidance", 21228, 21242)]),
+    ("PEOPLES", 21665, 22160, "lvppl", "lv_peoples", "liv_peoples",
+     [("lnotes_peoples_rules", "Colors, Masks, Peoples and Choice: heading and implementation rules", 21649, 21663)]),
+    ("UNSEEN", 22180, 22685, "lvuns", "lv_unseen", "liv_unseen",
+     [("lnotes_unseen_rules", "The Unseen Horizon, Cryptids, and the Silent Gods: heading and canon rules",
+       22164, 22177)]),
+    ("WAYS", 22704, 23310, "lvway", "lv_ways", "liv_ways",
+     [("lnotes_ways_rules", "The Many Ways of Isola: heading and rules", 22688, 22702)]),
+    ("AUTH", 23331, 23809, "lvauth", "lv_auth", "liv_auth",
+     [("lnotes_auth_rules", "The Weight of a Name: heading and implementation notes", 23314, 23329)]),
 ]
+# Volumes whose events have four choices (A-D); the others have three (A-C).
+LIVING_CHOICES: dict[str, int] = {"WAYS": 4, "AUTH": 4}
 # Events limited to some games: a Magic practitioner acts (magic is VV3-VV5 lore; the lead, 2026-11-14).
 LIVING_GAMES: dict[str, list[int]] = {"lvmed19": [3, 4, 5]}
+# LV-B: a Magic master or healer acts in the setup itself (VV3-VV5; an event whose magic is only one choice keeps every
+# game and limits that choice); the source's "VV5 ONLY" events (masks, Heathens, the neighbouring community).
+LIVING_GAMES.update({"lvway13": [3, 4, 5], "lvway35": [3, 4, 5]})
+LIVING_GAMES.update({f"lvppl{n:02d}": [5] for n in (6, 7, 8, 9, 10, 11, 12, 13, 14, 22, 23, 25, 26, 32, 33, 34)})
+LIVING_GAMES.update({"lvauth17": [5], "lvauth18": [5]})
 LIVING_IDS: dict[str, str] = {
     "lvmed04": "lvmed04_draught", "lvmed30": "lvmed30_animal_trial", "lvmed31": "lvmed31_choose_healer",
     "lvlife02": "lvlife02_draught", "lvlife03": "lvlife03_reed_breath", "lvlife29": "lvlife29_new_clothes",
@@ -769,10 +790,13 @@ def _living_rows() -> None:
                     e -= 1
                 m = rx.match(lib.line(h))
                 num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                # a game tag on the heading ("(VV5 ONLY)", "(GUARDIANS OF ISOLA VV5 ONLY)") is the row's games
+                src_title = re.sub(r"\s*\((?:GUARDIANS OF ISOLA )?VV\d ONLY\)$", "", src_title)
                 eid = f"{prefix}{num}"
+                nc = LIVING_CHOICES.get(key, 3)
                 R(LIVING_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
-                  title_case(src_title), LIVING_GAMES.get(eid, ALL), h, e, "event", section, credit, 3,
-                  source=LIV, choice_re=r"^[A-C]\.\s")
+                  title_case(src_title), LIVING_GAMES.get(eid, ALL), h, e, "event", section, credit, nc,
+                  source=LIV, choice_re=r"^[A-C]\.\s" if nc == 3 else r"^[A-D]\.\s")
 
 
 _living_rows()

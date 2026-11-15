@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Border",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl23_quiet_border",
+  "source": "living",
+  "lines": [
+   21961,
+   21973
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21961",
+  "ledger": [
+   {
+    "src": "L21962",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21972",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21973",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Several villagers want to avoid all contact with the Heathens after a tense encounter.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Several villagers want to avoid all contact with the Isolans after a tense encounter."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several villagers want to avoid all contact with the Heathens after a tense encounter.",
+   "src": "L21962",
+   "choices": [
+    {
+     "label": "Close the path temporarily.",
+     "next": "a",
+     "src": "L21963"
+    },
+    {
+     "label": "Keep the path open.",
+     "next": "b",
+     "src": "L21966"
+    },
+    {
+     "label": "Organize a meeting.",
+     "next": "c",
+     "src": "L21969"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "Several villagers want to avoid all contact with the Isolans after a tense encounter.",
+     "src": "L21962"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The pause allows tempers to cool.",
+   "src": "L21964"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Families separated by the border become distressed.",
+   "src": "L21965"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Trade and friendship continue despite suspicion.",
+   "src": "L21967"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An argument at the crossing prompts clearer rules.",
+   "src": "L21968"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both groups agree to hear grievances.",
+   "src": "L21970"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The meeting ends without agreement but avoids violence.",
+   "src": "L21971"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

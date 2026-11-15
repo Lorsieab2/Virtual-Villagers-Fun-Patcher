@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Who Did Not Believe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway25_villager_did",
+  "source": "living",
+  "lines": [
+   23088,
+   23102
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23088",
+  "ledger": [
+   {
+    "src": "L23102",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An atheist villager volunteers to repair the shrine roof despite not sharing its beliefs.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An atheist villager volunteers to repair the shrine roof despite not sharing its beliefs.",
+   "src": "L23089",
+   "choices": [
+    {
+     "label": "Accept the help gratefully.",
+     "next": "a",
+     "src": "L23090"
+    },
+    {
+     "label": "Ask the villager to join the prayers.",
+     "next": "b",
+     "src": "L23093"
+    },
+    {
+     "label": "Assign a different community task.",
+     "next": "c",
+     "src": "L23096"
+    },
+    {
+     "label": "Discuss what shared service means.",
+     "next": "d",
+     "src": "L23099"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The shrine is repaired and trust grows across differences.",
+   "src": "L23091"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A worshipper mistakes the gesture for a change of belief.",
+   "src": "L23092"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager politely declines but keeps working.",
+   "src": "L23094"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The request creates an awkward silence before reconciliation.",
+   "src": "L23095"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager helps restore the public well.",
+   "src": "L23097"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villager wonders why help at the shrine was unwelcome.",
+   "src": "L23098"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The conversation reveals common values without shared theology.",
+   "src": "L23100"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The villagers disagree but continue working side by side.",
+   "src": "L23101"
+  }
+ }
+}

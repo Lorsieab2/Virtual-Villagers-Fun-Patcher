@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Place at the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns36_empty_place",
+  "source": "living",
+  "lines": [
+   22635,
+   22646
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22635",
+  "ledger": [
+   {
+    "src": "L22646",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A family leaves a seat for someone who died years ago, and younger villagers ask why.",
+  "cast_only": [
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family leaves a seat for someone who died years ago, and younger villagers ask why.",
+   "src": "L22636",
+   "choices": [
+    {
+     "label": "Keep the seat as remembrance.",
+     "next": "a",
+     "src": "L22637"
+    },
+    {
+     "label": "Change the tradition gently.",
+     "next": "b",
+     "src": "L22640"
+    },
+    {
+     "label": "Let each relative remember differently.",
+     "next": "c",
+     "src": "L22643"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family shares affectionate stories at dinner.",
+   "src": "L22638"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One relative finds the empty place painful and steps outside.",
+   "src": "L22639"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family creates a small woven memorial instead.",
+   "src": "L22641"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder feels the old custom is being lost.",
+   "src": "L22642"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The meal becomes a tender gathering without one required ritual.",
+   "src": "L22644"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A disagreement remains, but relatives promise to listen.",
+   "src": "L22645"
+  }
+ }
+}

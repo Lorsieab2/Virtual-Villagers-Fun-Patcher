@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Saw the Sky Stag",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns17_child_saw_sky",
+  "source": "living",
+  "lines": [
+   22388,
+   22399
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22388",
+  "ledger": [
+   {
+    "src": "L22399",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child says an antlered shape crossed the moon.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child says an antlered shape crossed the moon.",
+   "src": "L22389",
+   "choices": [
+    {
+     "label": "Listen without judgment.",
+     "next": "a",
+     "src": "L22390"
+    },
+    {
+     "label": "Search for a natural explanation.",
+     "next": "b",
+     "src": "L22393"
+    },
+    {
+     "label": "Turn the story into a song.",
+     "next": "c",
+     "src": "L22396"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child draws the shape and feels heard.",
+   "src": "L22391"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An adult notices clouds resembling antlers that night.",
+   "src": "L22392"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A large bird passing the moon explains one possible sighting.",
+   "src": "L22394"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No explanation satisfies the child, who keeps wondering.",
+   "src": "L22395"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The legend becomes a favorite at festivals.",
+   "src": "L22397"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child worries that nobody takes the sighting seriously.",
+   "src": "L22398"
+  }
+ }
+}

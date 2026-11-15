@@ -72,7 +72,8 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v27",
             "c5", "lbl", "fwk", "sss", "cat",    # the Companion Anthology's volumes (data/event_collection/companion/)
-            "lv_med", "lv_life", "lv_circle")    # the Living Event Engine's volumes (data/event_collection/living/)
+            "lv_med", "lv_life", "lv_circle",    # the Living Event Engine's volumes (data/event_collection/living/)
+            "lv_peoples", "lv_unseen", "lv_ways", "lv_auth")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only")
@@ -198,7 +199,9 @@ def text_fields(doc: dict) -> list[Field]:
             out.append(Field(f"node {nid} variant {i + 1}", v.get("text", ""), v.get("src"), nid,
                              "guardians" if v.get("if") == GUARDIANS_IF else "variant"))
         for i, c in enumerate(n.get("choices", []) or []):
-            out.append(Field(f"node {nid} choice {i + 1}", c.get("label", ""), c.get("src"), nid, "label"))
+            # j: a choice shown only with Guardians of Isola Rewrite is its sibling's form, checked against it
+            out.append(Field(f"node {nid} choice {i + 1}", c.get("label", ""), c.get("src"), nid,
+                             "guardians" if c.get("if") == GUARDIANS_IF else "label"))
     for pname, p in doc.get("pools", {}).items():
         for i, it in enumerate(p.get("items", [])):
             if isinstance(it, dict):
@@ -296,7 +299,7 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
             elif s.startswith("@"):
                 # the source has one of the word's own values, or (the mapping rule) the Chief it replaces
                 vals = sorted({v for v in words.get(s[1:], {}).values()}, key=len, reverse=True)
-                alts = [re.escape(v) for v in vals] + [r"(?:[Tt]he |[Aa] )?Chiefs?"]
+                alts = [re.escape(v) for v in vals] + [r"(?:[Tt]he |[Aa] )?[Cc]hiefs?"]   # the source may write "chief"
                 parts.append("(?:" + "|".join(alts) + ")" if vals else r"(?!x)x")
             elif is_pool_ref(s):
                 # one source parenthesis group, or the pool's own items as the source's bare "a/b/c" list
@@ -1191,8 +1194,17 @@ def check_guardians(doc: dict, rep: Report) -> None:
                     rep.add("j GUARDIANS", f"node {nid} variant {i + 1} (Guardians) says Heathen or convert")
             elif GUARDIANS_WORDS.search(v.get("text", "")):
                 want(f"node {nid} variant {i + 1}", v["text"], [])
-        for i, c in enumerate(n.get("choices") or []):
-            want(f"node {nid} choice {i + 1}", c.get("label", ""), [])
+        chs = n.get("choices") or []
+        for i, c in enumerate(chs):
+            if c.get("if") == GUARDIANS_IF:
+                if GUARDIANS_WORDS.search(c.get("label", "")):
+                    rep.add("j GUARDIANS", f"node {nid} choice {i + 1} (Guardians) says Heathen or convert")
+                continue
+            # a label shown only without the patch: its Guardians form is the sibling choice (same next) shown
+            # only with it
+            forms = [o.get("label") for o in chs if o.get("if") == GUARDIANS_IF and o.get("next") == c.get("next")] \
+                if c.get("if") == {"not": GUARDIANS_IF} else []
+            want(f"node {nid} choice {i + 1}", c.get("label", ""), forms)
     for pname, p in (doc.get("pools") or {}).items():
         for i, it in enumerate(p.get("items", [])):
             t = it.get("text", "") if isinstance(it, dict) else it
@@ -1237,7 +1249,9 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
         rep.add("a SCHEMA", f"collection.series {col.get('series')!r} is not the manifest's {row['series']!r}")
     if sorted(doc.get("games", [])) != sorted(row["games"]):
         rep.add("a SCHEMA", f"games {doc.get('games')} are not the manifest's {row['games']}")
-    choices = max((len(n.get("choices", []) or []) for n in doc.get("nodes", {}).values()), default=0)
+    # a Guardians of Isola Rewrite form of a choice stands in for its sibling: not one more button
+    choices = max((len([c for c in n.get("choices", []) or [] if c.get("if") != GUARDIANS_IF])
+                   for n in doc.get("nodes", {}).values()), default=0)
     widest = max([row["choices"]] + [rows[a]["choices"] for a in (col.get("addons", []) or []) if a in rows])
     if choices != widest:
         rep.add("d TOKENS", f"the widest question has {choices} choices; the source has {widest}")

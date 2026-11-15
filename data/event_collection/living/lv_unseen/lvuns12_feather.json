@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feather of the Impossible Bird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns12_feather",
+  "source": "living",
+  "lines": [
+   22323,
+   22334
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22323",
+  "ledger": [
+   {
+    "src": "L22334",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A brilliant feather appears after reports of a bird larger than any heron."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A brilliant feather appears after reports of a bird larger than any heron.",
+   "src": "L22324",
+   "choices": [
+    {
+     "label": "Catalogue the feather.",
+     "next": "a",
+     "src": "L22325"
+    },
+    {
+     "label": "Search for the legendary bird.",
+     "next": "b",
+     "src": "L22328"
+    },
+    {
+     "label": "Make it part of a ceremonial headdress.",
+     "next": "c",
+     "src": "L22331"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A skilled naturalist identifies an unusual but ordinary bird.",
+   "src": "L22326",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22326"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The feather resembles no known species, but its origin is uncertain.",
+   "src": "L22327"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A distant silhouette disappears into mist.",
+   "src": "L22329",
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "a distant silhouette, not a villager",
+     "src": "L22329"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The search party returns exhausted without a sighting.",
+   "src": "L22330"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The feather becomes a symbol of wonder.",
+   "src": "L22332"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A scientist protests that the specimen can no longer be studied.",
+   "src": "L22333"
+  }
+ }
+}

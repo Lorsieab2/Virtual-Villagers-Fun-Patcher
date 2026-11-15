@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tribe Someone Chose",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl12_tribe_someone",
+  "source": "living",
+  "lines": [
+   21814,
+   21826
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21814",
+  "ledger": [
+   {
+    "src": "L21815",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21825",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21826",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A Heathen asks whether they may live among the villagers without renouncing their past.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan asks whether they may live among the villagers without renouncing their past."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A Heathen asks whether they may live among the villagers without renouncing their past.",
+   "src": "L21815",
+   "choices": [
+    {
+     "label": "Welcome them voluntarily.",
+     "next": "a",
+     "src": "L21816"
+    },
+    {
+     "label": "Offer a trial stay.",
+     "next": "b",
+     "src": "L21819"
+    },
+    {
+     "label": "Ask them to remain with their community.",
+     "next": "c",
+     "src": "L21822"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "An Isolan asks whether they may live among the villagers without renouncing their past.",
+     "src": "L21815"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The newcomer joins the tribe while retaining treasured customs.",
+   "src": "L21817"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some villagers need time to adjust to the new neighbor.",
+   "src": "L21818"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The visitor learns village routines before making a decision.",
+   "src": "L21820"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The visitor chooses to return home but keeps new friendships.",
+   "src": "L21821"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The visitor feels rejected and leaves sadly.",
+   "src": "L21823"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager proposes an agreement for visiting and trading instead.",
+   "src": "L21824"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

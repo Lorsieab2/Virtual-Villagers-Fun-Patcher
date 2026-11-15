@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Biggles and the Second Set of Footsteps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns14_biggles_second",
+  "source": "living",
+  "lines": [
+   22349,
+   22360
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22349",
+  "ledger": [
+   {
+    "src": "L22360",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager finds tracks matching the old Biggles tales beside their own footprints.",
+  "cast_only": [
+   "villager",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager finds tracks matching the old Biggles tales beside their own footprints.",
+   "src": "L22350",
+   "choices": [
+    {
+     "label": "Measure the prints.",
+     "next": "a",
+     "src": "L22351"
+    },
+    {
+     "label": "Follow them alone.",
+     "next": "b",
+     "src": "L22354"
+    },
+    {
+     "label": "Tell the village the story.",
+     "next": "c",
+     "src": "L22357"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The second tracks turn out to be distorted by rain.",
+   "src": "L22352"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The prints stop abruptly at bare stone.",
+   "src": "L22353"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager returns with a strange twig and no answers.",
+   "src": "L22355"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager disappears for a day, and friends search anxiously.",
+   "src": "L22356",
+   "text_only": [
+    {
+     "what": "disappears for a day",
+     "reason": "the villager comes back: nobody is lost",
+     "src": "L22356"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children invent a playful Biggles game.",
+   "src": "L22358"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder warns that not every mystery should become a joke.",
+   "src": "L22359"
+  }
+ }
+}

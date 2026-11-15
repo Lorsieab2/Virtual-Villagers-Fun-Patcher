@@ -43,6 +43,32 @@ The whole sentences, as New Believers shows them with the patch:
 Every other collection event New Believers shows already says "Isolan" (the source's own word from the Guardians of
 Harmony naming on) and needs no change.
 
+<!-- LV-B Guardians rows: written by scripts/living_vols/gen_lv_b.py -->
+
+## The Living Event Engine's Colors, Masks, Peoples and Choice (LV-B)
+
+Its VV5 ONLY events say "Heathen". The source's own rule for each ("GUARDIANS OF ISOLA VARIANT:
+Replace Heathens with the other Isolan tribe") is made with the pairs below, in this order, in every text
+the event shows: the title, the pages, a label (PEOPLES-08's "Invite an Isolan to visit instead.", a
+choice shown only with the patch) and the Pick Island Event sentence. No event says "convert". The
+masks stay (narrative only); AUTH-17 The Masked Adviser is vanilla New Believers only, and AUTH-18 The
+Guardians' Council shows only with the patch.
+
+| Event | Where | Before | After |
+|---|---|---|---|
+| `lvppl06_mask_felt_safe` | its texts | Heathens | Isolans |
+| `lvppl08_among_heathens` | its texts | a Heathen | an Isolan |
+| `lvppl08_among_heathens` | its texts | Heathens | Isolans |
+| `lvppl09_friend_across` | its texts | a Heathen | an Isolan |
+| `lvppl11_heathen_helped` | its texts | A Heathen | An Isolan |
+| `lvppl11_heathen_helped` | its texts | Heathen | Isolan |
+| `lvppl12_tribe_someone` | its texts | A Heathen | An Isolan |
+| `lvppl23_quiet_border` | its texts | Heathens | Isolans |
+| `lvppl32_family_both` | its texts | Heathens | Isolans |
+| `lvppl34_word_heathen` | its texts | Heathen | Isolan |
+
+<!-- end of the LV-B Guardians rows -->
+
 ## More Island Events (New Believers)
 
 These switch by the game's own "left the tribe" words, as The Aspiring Adventurer's "heathens' tribe" line already did

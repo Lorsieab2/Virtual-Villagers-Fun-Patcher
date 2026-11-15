@@ -4197,6 +4197,128 @@
    "harm": [],
    "section": "living_engine"
   },
+  "lvauth01_chief_did": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth02_rookie": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth03_master_never": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth04_chief_sacred": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth05_leader": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth06_master_healer": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth07_chief_could": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth08_apprentice": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth09_villager": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth10_chief_son": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth11_leader": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth12_chief_rain": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth13_animal_keeper": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth14_young": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth15_scientist": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth16_healer_asked": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth17_masked": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth18_guardians": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth19_chief": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth20_elder_lesson": {
+   "harm": [
+    "kill"
+   ],
+   "section": "lv_auth"
+  },
+  "lvauth21_master_feared": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth22_chief_false": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth23_rookie_rescue": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth24_council": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth25_teacher": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth26_chief_wanted": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth27_spiritual": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth28_chief_claimed": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth29_apprentice": {
+   "harm": [],
+   "section": "lv_auth"
+  },
+  "lvauth30_leader_spoke": {
+   "harm": [],
+   "section": "lv_auth"
+  },
   "lvcir01_child_beneath": {
    "harm": [],
    "section": "lv_circle"
@@ -4652,6 +4774,468 @@
   "lvmed31_choose_healer": {
    "harm": [],
    "section": "lv_med"
+  },
+  "lvppl01_red_hair": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl02_blue_cloth": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl03_cloth_changed": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl04_grey_hair": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl05_spiderweb": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl06_mask_felt_safe": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl07_mask_felt": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl08_among_heathens": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl09_friend_across": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl10_two_children": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl11_heathen_helped": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl12_tribe_someone": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl13_villager": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl14_council_two": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl15_stranger_water": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl16_first_words": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl17_other_way": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl18_hunter": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl19_story_two": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl20_foreign_loom": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl21_color": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl22_mask_maker": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl23_quiet_border": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl24_stolen_harvest": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl25_isolan_stayed": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl26_peace_offering": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl27_cost_hostility": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl28_shared_song": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl29_circle_people": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl30_visitor": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl31_color_would": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl32_family_both": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl33_mask_festival": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl34_word_heathen": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl35_old_promise": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl36_trader_never": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvppl37_three_ways": {
+   "harm": [],
+   "section": "lv_peoples"
+  },
+  "lvuns01_object_maker": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns02_boat_never": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns03_council_closed": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns04_map_broken": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns05_stranger": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns06_unopened_chest": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns07_fear_being": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns08_gift_might": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns09_creature_red": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns10_footprint": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "lv_unseen"
+  },
+  "lvuns11_whistle_cave": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns12_feather": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns13_lake_two": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns14_biggles_second": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns15_mask_forest": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns16_scientist": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "lv_unseen"
+  },
+  "lvuns17_child_saw_sky": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns18_whale_island": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns19_why_do_spirits": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns20_ancestors": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns21_gods_need": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns22_are_we_spirits": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns23_silence_after": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns24_shrine_miracle": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns25_prayer_seemed": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns26_four_answers": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns27_dream_dead": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns28_empty_temple": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns29_legend_fire": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns30_creature": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns31_price_legend": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns32_watcher": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "lv_unseen"
+  },
+  "lvuns33_island_beyond": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns34_god_may_have": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns35_question_elder": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns36_empty_place": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns37_unproven": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns38_night_thousand": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvuns39_relic_world": {
+   "harm": [],
+   "section": "lv_unseen"
+  },
+  "lvway01_flood_before": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway02_dry_well": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway03_bridge_roots": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway04_sick_orchard": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway05_fish_shortage": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway06_mystery": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway07_new_plow": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway08_wall_ancestors": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway09_elder_wrong": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway10_daughter_would": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway11_son_questioned": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway12_prayer_did": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway13_magic_failed": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway14_animal_would": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway15_seeds_stranger": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway16_song_dead": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway17_hands_built": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway18_forest_path": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway19_healing_debate": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway20_hungry": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway21_argument_over": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway22_child_asked": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway23_river": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway24_council_four": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway25_villager_did": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway26_elder_changed": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway27_parent_knew": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway28_cloth_isola": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway29_orchard_bees": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway30_firewood_tree": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway31_choice": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway32_night_without": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway33_four_ways_make": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway34_tradition": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway35_cost_miracle": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway36_young": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway37_bell_divided": {
+   "harm": [],
+   "section": "lv_ways"
+  },
+  "lvway38_word_elder": {
+   "harm": [],
+   "section": "lv_ways"
   },
   "sss001_cartographer": {
    "harm": [],

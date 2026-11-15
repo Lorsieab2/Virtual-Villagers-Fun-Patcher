@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bell That Divided the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway37_bell_divided",
+  "source": "living",
+  "lines": [
+   23280,
+   23294
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23280",
+  "ledger": [
+   {
+    "src": "L23294",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A new bell could warn of danger but disrupt ceremonies and wildlife.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A new bell could warn of danger but disrupt ceremonies and wildlife.",
+   "src": "L23281",
+   "choices": [
+    {
+     "label": "Install it at the central square.",
+     "next": "a",
+     "src": "L23282"
+    },
+    {
+     "label": "Keep traditional messengers.",
+     "next": "b",
+     "src": "L23285"
+    },
+    {
+     "label": "Use the bell only for emergencies.",
+     "next": "c",
+     "src": "L23288"
+    },
+    {
+     "label": "Ask each neighborhood to choose.",
+     "next": "d",
+     "src": "L23291"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Its warning helps families during a storm.",
+   "src": "L23283"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sound startles animals and annoys neighbors.",
+   "src": "L23284"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The familiar network spreads news reliably.",
+   "src": "L23286"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A distant household receives a warning too late.",
+   "src": "L23287"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees on a clear signal.",
+   "src": "L23289"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A false alarm causes panic and debate.",
+   "src": "L23290"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Different areas adopt different methods.",
+   "src": "L23292"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Conflicting signals confuse travelers.",
+   "src": "L23293"
+  }
+ }
+}
