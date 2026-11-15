@@ -235,10 +235,11 @@ def cast_roles(text: str, two: bool) -> dict:
 class Pron:
     """Pronoun resolution across an event: the last name seen, per-node overrides."""
 
-    def __init__(self, two: bool, overrides: dict):
+    def __init__(self, two: bool, overrides: dict, extra: tuple = ()):
         self.two = two
         self.last = "subject"
         self.over = overrides
+        self.extra = {r.lower(): r for r in extra}     # roles the casting edits name: "(visitor)"
         self.log: list[tuple[str, int, str, str]] = []
 
     def render(self, node: str, text: str, carry: bool = True) -> str:
@@ -254,13 +255,19 @@ class Pron:
             if low in ROLE_OF:
                 last = ROLE_OF[low]
                 out.append(f"({last})" if self.two else m.group(0))
+            elif low.split(".")[0] in self.extra and "." not in low:
+                last = self.extra[low]
+                out.append(m.group(0))
             elif low in PRONOUN_FORMS or low == "his/hers":
                 ov = self.over.get(node, {})
                 role = ov if isinstance(ov, str) else ov.get(k, last)
                 self.log.append((node, k, inner, role))
                 k += 1
-                before = "".join(out).rstrip(" \"'")
-                start = not before or before[-1] in ".!?"
+                before = "".join(out).rstrip(" ")
+                # a sentence's start is a capital; after a closing quote ("...?" he asks) the source's case stands
+                inq = before.rstrip("\"'")
+                start = (not before or before[-1] in ".!?"
+                         or (before[-1] in "\"'" and (inner[:1].isupper() or inq.endswith("."))))
                 word = inner
                 if start:
                     word = "/".join(w[:1].upper() + w[1:] for w in word.split("/"))
@@ -292,8 +299,8 @@ def keywords_uncovered(text: str, effects: list[dict]) -> list[dict]:
 
 # ---- Building ---------------------------------------------------------------------------------------------------------
 
-DESC_SUBS = [(r"\(name1\)'s", "a villager's"), (r"\(name2\)'s", "another villager's"),
-             (r"\(name1\)", "a villager"), (r"\(name2\)", "another villager")]
+DESC_SUBS = [(r"\((?:name1|subject)\)'s", "a villager's"), (r"\((?:name2|friend)\)'s", "another villager's"),
+             (r"\((?:name1|subject)\)", "a villager"), (r"\((?:name2|friend)\)", "another villager")]
 
 
 def auto_description(setup: str) -> str | None:
@@ -318,6 +325,11 @@ def build(row: dict, opts: dict) -> tuple[dict, list]:
       sens [(line, before, after, why)]  sensitivity edits (a hard-rule break only)
       fixes [(line, before, after)] grammar fixes (rows of grammar-fixes.md)
       chief True                    "chief" in the text is the game word
+      cast [(line, before, after)]  the owner's naming rule (2026-11-15): a person the draft names only by role
+                                    ("a visitor", "the old fisher") is a cast villager, named at the first mention:
+                                    after = "(visitor), a visitor" (or just "(visitor)" where that reads naturally);
+                                    the role ("visitor") goes in roles, and later pronouns follow it (ledger kind
+                                    "casting": the line's words with the name added, nothing else)
     Returns (doc, pronoun log)."""
     p = parse(row)
     h = p["head"]
@@ -336,7 +348,13 @@ def build(row: dict, opts: dict) -> tuple[dict, list]:
     for n, b, a, why in sens:
         fix_map.setdefault(n, []).append((b, a))
         ledger.append({"src": L(n), "kind": "sensitivity", "before": b, "after": a, "why": why})
-    pron = Pron(len(roles) > 1, opts.get("pron", {}))
+    for n, b, a in opts.get("cast", []):
+        fix_map.setdefault(n, []).append((b, a))
+        ledger.append({"src": L(n), "kind": "casting", "before": b, "after": a,
+                       "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast "
+                              "villager, named at the first mention"})
+    extra = tuple(r for r in roles if r not in ("subject", "friend"))
+    pron = Pron(len(roles) > 1, opts.get("pron", {}), extra)
     fx = {k: list(v) for k, v in opts.get("fx", {}).items()}
     to_extra = opts.get("to", {})
     instr: dict[str, list[int]] = {}

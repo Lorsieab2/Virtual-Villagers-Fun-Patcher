@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Best Nappers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il183_two_best_nappers",
+  "source": "da_il10",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The best napper in the village finds a very small child already asleep in the shade: lie down too, or admit defeat.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 6
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is, in (subject.his/her) own opinion, the best napper in the village. (subject.He/She) can nap anywhere: under a tree, by the fire, once standing up. Today (subject.he/she) settles down in the shade and finds (friend), a very small child, already asleep there, flat on (friend.his/her) back with (friend.his/her) arms flung out like a starfish.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Lie Down Beside (friend.him/her)",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Admit Defeat",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) lies down beside (friend), at a respectful distance, and closes (subject.his/her) eyes. When the grown-ups come looking, they find the two of them asleep side by side in exactly the same position, arms out, mouths open, both snoring softly. Somebody fetches a blanket for each. Nobody wakes either of them.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) studies (friend) for a while: the perfect stillness, the tiny snore, the leaf stuck to (friend.his/her) cheek that (friend.he/she) hasn't even noticed. \"Well,\" (subject) murmurs, \"you're better than me.\" (subject.He/She) finds another tree and naps there instead. It's a good nap. But (subject.he/she) knows, in (subject.his/her) heart, it isn't the best one in the village today.",
+   "src": "L41"
+  }
+ }
+}

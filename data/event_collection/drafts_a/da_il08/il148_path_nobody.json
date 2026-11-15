@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path Nobody Notices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il148_path_nobody",
+  "source": "da_il08",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who sweeps the main path every morning before anyone is up is found at it by a friend.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every morning, before anyone is up, (subject) sweeps the fallen leaves off the main path through the village. (subject.He/She) has done it for years. Nobody asked. Nobody has ever mentioned it. This morning (friend), up early for once, comes round the corner and finds (subject.him/her) at it.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Shrug It Off",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I just like it clean,\" says (subject), a little embarrassed. (friend) looks at the path, then at (subject.him/her). \"I always wondered why it was so tidy. I thought it was the wind.\" \"The wind's terrible at it,\" says (subject). The next morning (friend) is up early again, with a second broom.",
+   "src": "L98"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Somebody has to,\" says (subject), and keeps sweeping. (friend) watches for a while, then walks on. (subject) assumes that's that. But that evening, at the fire, (friend) says out loud, \"Has anyone ever noticed how clean the path is?\" and several villagers turn to look at (subject). (subject.He/She) goes very pink and very pleased.",
+   "src": "L101"
+  }
+ }
+}

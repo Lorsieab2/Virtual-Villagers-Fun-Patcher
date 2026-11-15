@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child's Pretty Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo39_child_pretty",
+  "source": "da_lo",
+  "lines": [
+   470,
+   479
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L479",
+    "kind": "instruction",
+    "text": "[no effect]",
+    "why": "the draft's effect note, never shown: no effect"
+   }
+  ],
+  "description": "A child has found a pretty orange stone on the beach, and an adult sees that it is a lavastone.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has found a pretty orange stone on the beach and has been carrying it around all morning. (friend) takes one look and recognizes it: it's a small lavastone, faintly warm, faintly glowing. Nobody knows what a lavastone might do to a child. (subject) is holding it very tightly and looking up at (friend) with enormous eyes.",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Swap It for Something Else",
+     "next": "a",
+     "src": "L475"
+    },
+    {
+     "label": "Let (subject.him/her) Keep It, Watched",
+     "next": "b",
+     "src": "L478"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) kneels down and explains, gently, that this stone is a bit special, and that grown-ups need to look after it until they know more. \"But I found it,\" says (subject). \"You did,\" says (friend), \"and that makes you very lucky.\" (friend.He/She) gives (subject) a beautiful shell in exchange, and lets (subject.him/her) choose where the lavastone should be kept. (subject) chooses a high shelf. (subject.He/She) checks on it every day.",
+   "src": "L476"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) lets (subject) keep it for now, but watches closely. Nothing happens. The stone stays faintly warm. (subject) sleeps with it, plays with it, talks to it. After a week, it goes cold and dull, and (subject) is very upset, until (friend) points out that it might just be asleep. (subject) wraps it carefully in a leaf, so it can sleep better.",
+   "src": "L479"
+  }
+ }
+}

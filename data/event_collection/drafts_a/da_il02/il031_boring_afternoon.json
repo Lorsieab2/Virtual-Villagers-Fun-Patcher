@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boring Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il031_boring_afternoon",
+  "source": "da_il02",
+  "lines": [
+   337,
+   351
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L337",
+  "ledger": [
+   {
+    "src": "L339",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L351",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A child is terribly, monumentally bored and has told every adult in the village at least twice.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is bored. Terribly bored. Monumentally bored. (subject.He/She) has informed every adult in the village of this fact at least twice. (friend) is beginning to suspect that boredom may be the only subject (subject) intends to discuss today.",
+   "src": "L341",
+   "choices": [
+    {
+     "label": "Suggest Finding Something to Do",
+     "next": "a",
+     "src": "L343"
+    },
+    {
+     "label": "Allow (subject) to Be Bored",
+     "next": "b",
+     "src": "L347"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) considers gathering shells, drawing pictures, climbing a tree, and making a toy boat. None sounds interesting. Then (subject.he/she) notices two ants carrying an enormous crumb. For the next hour (subject) follows them with intense scientific curiosity.",
+   "src": "L345"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Alright,\" says (friend). \"You can be bored.\" (subject) stares in disbelief. After a while (subject.he/she) begins drawing patterns in the sand with a stick. Soon the patterns become roads, then houses, then an entire imaginary village. (subject) forgets to complain.",
+   "src": "L349"
+  }
+ }
+}

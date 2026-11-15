@@ -330,17 +330,24 @@ smallest fix that reads the same is listed here.
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| da_il06 L221 | `(name1) tips (his/hers) too` | `(name1) tips (his/her) own too` | il119_how_do_i_look | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il07 L185 | `moves (his/hers)` | `moves (his/her) flower` | il135_matching_flower | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+| da_il07 L218 | `drops all of (his/hers) too` | `drops all of (his/her) coconuts too` | il138_carrying_contest | `(his/hers)` has no placeholder; the noun it stands for reads the same |
+| da_il08 L167 | `This one is (his/hers), knots and all.` | `This one is (his/her) own, knots and all.` | il154_work_i_might | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il09 L125 | `It's (his/hers).` | `It's (his/her) own.` | il170_shortcut | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
+| da_il09 L170 | `falls out of (his/hers) too` | `falls out of (his/her) canoe too` | il174_canoe_race | `(his/hers)` has no placeholder; the noun it stands for reads the same |
 
 #### Group 3 (Inner Life X, What's That Doing Here)
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| da_wd L326 | `(his/hers)` | `(his/her) bowl` | wd27_what_bowl_fruit | `(his/hers)` has no placeholder; the noun it stands for reads the same |
 
 #### Group 4 (Luck, Omens and Lavastones)
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
-
+| da_lo L590 | `It's still (his/hers).` | `It's still (his/her) own.` | lo48_stone_went_cold | `(his/hers)` has no placeholder; `(his/her) own` reads the same |
 ### Fix `living-title-ampersand`: the MC category titles
 
 The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event

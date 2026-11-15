@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carving in the Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il090_carving_tree",
+  "source": "da_il05",
+  "lines": [
+   116,
+   119
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager finds a little fish they carved into a tree as a child, now at about the height of their waist.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Walking through the grove, (name1) stops at a tree and finds, carved into the bark, a wobbly little fish and a mark that is unmistakably (his/her) own. (He/She) carved it as a child, standing on tiptoe, reaching as high as (he/she) possibly could. It's still there. It's still exactly where (he/she) put it. It is now at about the height of (his/her) waist. For a moment (name1) is confused, as though the tree has shrunk. Then (he/she) understands: the tree didn't move the carving down. (He/She) grew up past it. (name1) crouches to look at the little fish properly, eye to eye, the way (he/she) did all those years ago. It's a terrible fish. (He/She) loves it.",
+   "src": "L119"
+  }
+ }
+}

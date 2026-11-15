@@ -179,6 +179,37 @@ class FrozenHorizonAndRoleModels(unittest.TestCase):
                                                                "hz_part4": 7, "hz_part5": 8, "hz_vol2": 40})
 
 
+class FrozenDraftsA(unittest.TestCase):
+    """The owner-approved drafts of 2026-11-15, set A: twelve frozen sources, one series each."""
+
+    EVENTS = {"da_il01": 10, "da_il02": 30, "da_il03": 20, "da_il04": 20, "da_il05": 20, "da_il06": 20,
+              "da_il07": 20, "da_il08": 20, "da_il09": 20, "da_il10": 20, "da_wd": 50, "da_lo": 50}
+
+    def test_sha256_and_lines(self):
+        self.assertEqual(set(lib.DRAFTS_A), set(self.EVENTS))
+        for sid in lib.DRAFTS_A:
+            with self.subTest(sid):
+                self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+                rel = lib.SOURCES[sid][1].read_text(encoding="ascii").split(None, 1)[1].strip()
+                self.assertEqual(ROOT / rel, lib.SOURCES[sid][0])
+                self.assertEqual(len(lib.source_lines(sid)), lib.SOURCES[sid][2])
+
+    def test_rows_files_and_series(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        for sid, want in self.EVENTS.items():
+            with self.subTest(sid):
+                block = data["drafts_a"][sid]
+                self.assertEqual(block["uncovered_lines"], [])
+                self.assertEqual(block["overlaps"], [])
+                self.assertEqual(block["counts"]["series"], {sid: want})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), want)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                files = [p for p in cc.collection_files() if (lib.DRAFTS_A_DIR / sid) in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

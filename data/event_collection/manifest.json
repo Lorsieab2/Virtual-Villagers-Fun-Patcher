@@ -61364,7 +61364,8 @@
   },
   {
    "id": "wd14_what_melon_doing",
-   "title": "What's a Melon Doing in the Middle of the Path?",
+   "title": "What's a Melon Doing in the Path?",
+   "source_title": "What's a Melon Doing in the Middle of the Path?",
    "games": [
     1,
     2,
@@ -62300,7 +62301,8 @@
   },
   {
    "id": "wd40_what_walking",
-   "title": "What's a Walking Stick Doing in the Middle of the Beach?",
+   "title": "What's a Walking Stick Doing on the Beach?",
+   "source_title": "What's a Walking Stick Doing in the Middle of the Beach?",
    "games": [
     1,
     2,

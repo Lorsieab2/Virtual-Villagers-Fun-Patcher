@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cracked Lavastone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo35_cracked_lavastone",
+  "source": "da_lo",
+  "lines": [
+   420,
+   429
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L420",
+  "ledger": [
+   {
+    "src": "L421",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A family lavastone that has glowed by the fire for generations cracks in two, and light leaks out.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1)'s family has kept the same lavastone for as long as anyone can remember. It sits by the fire and glows gently, and the hut has always felt warm and calm because of it, or so everyone says. Tonight there is a sharp crack, like a stick breaking. (name1) looks over. A thin line has split the stone in two, and light is leaking out of it like water.",
+   "src": "L423",
+   "choices": [
+    {
+     "label": "Hold the Pieces Together",
+     "next": "a",
+     "src": "L425"
+    },
+    {
+     "label": "Let It Go",
+     "next": "b",
+     "src": "L428"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) holds the two halves together, hard. The light seeps out between (his/her) fingers, warm and gold, filling the whole hut for one long, beautiful moment. Then it fades, and the stone is just two pieces of reddish rock, cold and dull. (name1) sits holding them for a long time. The hut is the same hut. It feels a little different anyway.",
+   "src": "L426"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) sits back and watches. The light rises out of the crack like mist, curls round the hut, and drifts out through the smoke hole into the night sky. Some neighbors see a soft glow rise from the roof and wonder what it was. The two halves of the stone are cold by morning. (name1) buries them under the doorstep, which feels like the right thing to do. Nobody can say why.",
+   "src": "L429"
+  }
+ }
+}

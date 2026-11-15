@@ -339,6 +339,104 @@ ROLE MODELS AND GOOD EXAMPLES CREDIT: Role Models and Good Examples (its title a
 
 Forty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.
 
+INNER LIFE (DRAFT FOR OWNER)
+
+Source: New Events - Inner Life (draft for owner).txt (SHA-256 A6A903A3A3EE2713037CE4B76FEF4A309F0F10ACE6A6C04F0F5831A2A1608A37). The texts below are copied from it verbatim.
+
+INNER LIFE (DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+
+INNER LIFE PART II (11-40)
+
+Source: New Events - Inner Life Part II (11-40).txt (SHA-256 837C8DFD9567693CB4127B815BA059D48958D842723997EF11E23682E34E00FE). The texts below are copied from it verbatim.
+
+INNER LIFE PART II (11-40) CREDIT: the draft's title (source lines 15-17)
+
+Owner review draft · November 15, 2026 · All established Isola rules apply
+
+11. The Great Inventor
+
+INNER LIFE PART III (41-60, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part III (41-60, draft for owner).txt (SHA-256 BD45D863A9DA6A819FB190A91F49B807428B1036D346382922CEAF73EB288126). The texts below are copied from it verbatim.
+
+INNER LIFE PART III (41-60, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+
+INNER LIFE PART IV (61-80, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part IV (61-80, draft for owner).txt (SHA-256 DD8473C48EAB339E8DB6B75BB1361239E6C6637D22B92ABFCC3DA5089821B8EB). The texts below are copied from it verbatim.
+
+INNER LIFE PART IV (61-80, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+
+INNER LIFE PART V (81-100, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part V (81-100, draft for owner).txt (SHA-256 5A10615A7EABE08DD58CADE401A8EA509BBF2B975D700809BB48713AD78941EC). The texts below are copied from it verbatim.
+
+INNER LIFE PART V (81-100, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+
+INNER LIFE PART VI (101-120, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part VI (101-120, draft for owner).txt (SHA-256 A0DE39C3EBA6428F8C6E940890737C46EEC9EAB2173F00D5AECC3FF62C70BC91). The texts below are copied from it verbatim.
+
+INNER LIFE PART VI (101-120, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+
+INNER LIFE PART VII (121-140, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part VII (121-140, draft for owner).txt (SHA-256 5978E7E648DC6783D07C4D98EEFA491CBA4740FF04963FFA6697A5E593FC0195). The texts below are copied from it verbatim.
+
+INNER LIFE PART VII (121-140, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+
+INNER LIFE PART VIII (141-160, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part VIII (141-160, draft for owner).txt (SHA-256 1A2C4D4D12E77D22805D8BF97C522236C7E33A0E8A22B9EC35B08D044E5EBF3E). The texts below are copied from it verbatim.
+
+INNER LIFE PART VIII (141-160, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+
+INNER LIFE PART IX (161-180, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part IX (161-180, draft for owner).txt (SHA-256 0AE91F044D21E5AB77BF436A5A5088B773F677521D687ADA0BE11F5A4DA1CF11). The texts below are copied from it verbatim.
+
+INNER LIFE PART IX (161-180, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+
+INNER LIFE PART X (181-200, DRAFT FOR OWNER)
+
+Source: New Events - Inner Life Part X (181-200, draft for owner).txt (SHA-256 5AD3259A1D5DBE2A27C5E922685EB4058F74F763C0C23582C7EA57A0F50B3F17). The texts below are copied from it verbatim.
+
+INNER LIFE PART X (181-200, DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+
+WHAT'S THAT DOING HERE (DRAFT FOR OWNER)
+
+Source: New Events - What's That Doing Here (draft for owner).txt (SHA-256 1D8B40DC62D975341A1581FDE563E8ACE74B239F13D4E1DCAABFA67AC51AAFEF). The texts below are copied from it verbatim.
+
+WHAT'S THAT DOING HERE (DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+
+LUCK, OMENS AND LAVASTONES (DRAFT FOR OWNER)
+
+Source: New Events - Luck, Omens and Lavastones (draft for owner).txt (SHA-256 3E9CD8E4ED6CF0C6612D1478166342D0DF70BA2AA0B4225699ED7CE05C39FF8E). The texts below are copied from it verbatim.
+
+LUCK, OMENS AND LAVASTONES (DRAFT FOR OWNER) CREDIT: the draft's title (source lines 1-1)
+
+NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+
 EACH EVENT'S CREDIT
 
 The Great Beautification Project (source lines 1331-1472): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan Storytelling Contest): event prose and branching written by ChatGPT, developed in response to Lorsieab2's requested scope and themes.
@@ -1073,6 +1171,206 @@ The Construct That Makes Art (Beyond the Horizon source lines 1019-1029): ISOLA 
 The Construct Who Mourns (Beyond the Horizon source lines 1031-1041): ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE A NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5 Version 1.0 | 40 original branching events EXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE 40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)
 The Machine That Protects the Reef (Beyond the Horizon source lines 1043-1053): ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE A NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5 Version 1.0 | 40 original branching events EXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE 40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)
 The Distant Person at the Same Fire (Beyond the Horizon source lines 1055-1065): ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE A NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5 Version 1.0 | 40 original branching events EXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE 40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)
+Mister Pebbles (Inner Life (draft for owner) source lines 8-20): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Villager Who Talks to the Fish (Inner Life (draft for owner) source lines 23-32): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Quiet Hands (Inner Life (draft for owner) source lines 35-44): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+What (name1) Didn't Say (Inner Life (draft for owner) source lines 47-56): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+Somewhere Else Entirely (Inner Life (draft for owner) source lines 59-68): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Talking-To (Inner Life (draft for owner) source lines 71-80): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Big Maybe (Inner Life (draft for owner) source lines 83-92): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Worry Stone (Inner Life (draft for owner) source lines 95-104): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+Night Thoughts (Inner Life (draft for owner) source lines 107-110): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Little Voice (Inner Life (draft for owner) source lines 113-122): NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)
+The Great Inventor (Inner Life Part II (11-40) source lines 17-31): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Wrong Dream (Inner Life Part II (11-40) source lines 33-47): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Very Important List (Inner Life Part II (11-40) source lines 49-63): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Bravest Person in the Village (Inner Life Part II (11-40) source lines 65-79): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Almost Perfect Day (Inner Life Part II (11-40) source lines 81-95): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Secret Ambition (Inner Life Part II (11-40) source lines 97-111): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Unanswered Question (Inner Life Part II (11-40) source lines 113-127): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Other Path (Inner Life Part II (11-40) source lines 129-143): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Unexpected Compliment (Inner Life Part II (11-40) source lines 145-159): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Mystery of the Missing Thought (Inner Life Part II (11-40) source lines 161-175): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Small Envy (Inner Life Part II (11-40) source lines 177-191): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Famous Last Words (Inner Life Part II (11-40) source lines 193-207): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Thing Under the Bed (Inner Life Part II (11-40) source lines 209-223): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Day of No Decisions (Inner Life Part II (11-40) source lines 225-239): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Most Important Discovery (Inner Life Part II (11-40) source lines 241-255): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Long-Awaited Moment (Inner Life Part II (11-40) source lines 257-271): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Terrible Poet (Inner Life Part II (11-40) source lines 273-287): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Fear of Success (Inner Life Part II (11-40) source lines 289-303): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Private Celebration (Inner Life Part II (11-40) source lines 305-319): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Worst-Case Scenario (Inner Life Part II (11-40) source lines 321-335): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Boring Afternoon (Inner Life Part II (11-40) source lines 337-351): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Old Song (Inner Life Part II (11-40) source lines 353-367): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Unreasonable Grudge (Inner Life Part II (11-40) source lines 369-383): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Impossible Question (Inner Life Part II (11-40) source lines 385-399): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Reluctant Hero (Inner Life Part II (11-40) source lines 401-415): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Terrible Premonition (Inner Life Part II (11-40) source lines 417-431): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Little Lie (Inner Life Part II (11-40) source lines 433-447): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Quiet Dreamer (Inner Life Part II (11-40) source lines 449-463): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Unexpected Tears (Inner Life Part II (11-40) source lines 465-479): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+The Dream That Can Wait (Inner Life Part II (11-40) source lines 481-493): Owner review draft · November 15, 2026 · All established Isola rules apply 11. The Great Inventor
+Thirty-Seven Steps (Inner Life Part III (41-60, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Shell That Wasn't Quite Right (Inner Life Part III (41-60, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+Have I Done This Before? (Inner Life Part III (41-60, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Adventure That Got Bigger (Inner Life Part III (41-60, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+What Is (name2) Thinking? (Inner Life Part III (41-60, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+Too Old for This (Inner Life Part III (41-60, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Hidden Talent (Inner Life Part III (41-60, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Bad Day That Wasn't (Inner Life Part III (41-60, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+What Does a Coconut Think About? (Inner Life Part III (41-60, draft for owner) source lines 104-107): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Argument with the Bird (Inner Life Part III (41-60, draft for owner) source lines 110-119): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Favorite Place (Inner Life Part III (41-60, draft for owner) source lines 122-131): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Morning Song (Inner Life Part III (41-60, draft for owner) source lines 134-143): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Changed Mind (Inner Life Part III (41-60, draft for owner) source lines 146-155): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+A Little Older Inside (Inner Life Part III (41-60, draft for owner) source lines 158-167): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Letter (name1) Never Sent (Inner Life Part III (41-60, draft for owner) source lines 170-179): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Nothing-Much Afternoon (Inner Life Part III (41-60, draft for owner) source lines 182-185): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Important Ritual (Inner Life Part III (41-60, draft for owner) source lines 188-197): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Perfect Comeback (Inner Life Part III (41-60, draft for owner) source lines 200-209): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+The Smell of Rain (Inner Life Part III (41-60, draft for owner) source lines 212-221): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+Who Am I Today? (Inner Life Part III (41-60, draft for owner) source lines 224-233): NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)
+Old Wobbly and Friends (Inner Life Part IV (61-80, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Same Breakfast (Inner Life Part IV (61-80, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Hummer (Inner Life Part IV (61-80, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+Goodnight, Trees (Inner Life Part IV (61-80, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+One Stone a Day (Inner Life Part IV (61-80, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Knotted String (Inner Life Part IV (61-80, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Weather Guess (Inner Life Part IV (61-80, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Emergency Snack (Inner Life Part IV (61-80, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The First Cold Swim (Inner Life Part IV (61-80, draft for owner) source lines 104-113): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+Today's Word (Inner Life Part IV (61-80, draft for owner) source lines 116-125): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Nose Scratch (Inner Life Part IV (61-80, draft for owner) source lines 128-137): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Good Spoon (Inner Life Part IV (61-80, draft for owner) source lines 140-149): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+Thank You, Water (Inner Life Part IV (61-80, draft for owner) source lines 152-161): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Once-a-Year Haircut (Inner Life Part IV (61-80, draft for owner) source lines 164-173): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Last Bite (Inner Life Part IV (61-80, draft for owner) source lines 176-185): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Same Story Every Night (Inner Life Part IV (61-80, draft for owner) source lines 188-197): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+Waving at the Canoes (Inner Life Part IV (61-80, draft for owner) source lines 200-209): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Three Sneezes (Inner Life Part IV (61-80, draft for owner) source lines 212-215): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Tidy Stack (Inner Life Part IV (61-80, draft for owner) source lines 218-227): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+The Lucky Side of the Bed (Inner Life Part IV (61-80, draft for owner) source lines 230-239): NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)
+Who Fell in the Stream (Inner Life Part V (81-100, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Oldest Thing I Own (Inner Life Part V (81-100, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+Where the Old Tree Stood (Inner Life Part V (81-100, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Name on the Tip of the Tongue (Inner Life Part V (81-100, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Toy in the Thatch (Inner Life Part V (81-100, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Great Crab Story (Inner Life Part V (81-100, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Good Old Rainy Year (Inner Life Part V (81-100, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Giant Rock (Inner Life Part V (81-100, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The First Thing You Remember (Inner Life Part V (81-100, draft for owner) source lines 104-113): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Carving in the Tree (Inner Life Part V (81-100, draft for owner) source lines 116-119): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+Remember This for Me (Inner Life Part V (81-100, draft for owner) source lines 122-131): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+Who Taught Whom to Swim (Inner Life Part V (81-100, draft for owner) source lines 134-143): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Person I Was at Twenty (Inner Life Part V (81-100, draft for owner) source lines 146-155): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Marks on the Post (Inner Life Part V (81-100, draft for owner) source lines 158-167): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Leaf Whistle (Inner Life Part V (81-100, draft for owner) source lines 170-179): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+Halfway Along (Inner Life Part V (81-100, draft for owner) source lines 182-191): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Memory That Wasn't Mine (Inner Life Part V (81-100, draft for owner) source lines 194-203): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Old Game (Inner Life Part V (81-100, draft for owner) source lines 206-215): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The List from Ages Ago (Inner Life Part V (81-100, draft for owner) source lines 218-227): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+The Path in the Grass (Inner Life Part V (81-100, draft for owner) source lines 230-233): NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)
+Where Do the Waves Come From? (Inner Life Part VI (101-120, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Do Fish Sleep? (Inner Life Part VI (101-120, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Why Does the Fire Crackle? (Inner Life Part VI (101-120, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Where Did the Puddle Go? (Inner Life Part VI (101-120, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Sea in the Shell (Inner Life Part VI (101-120, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Stars Go Round (Inner Life Part VI (101-120, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Blue Sea, Clear Water (Inner Life Part VI (101-120, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Which Way Is Up? (Inner Life Part VI (101-120, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Glowing Sea (Inner Life Part VI (101-120, draft for owner) source lines 104-107): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Biggest Living Thing (Inner Life Part VI (101-120, draft for owner) source lines 110-119): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Where Does the Wind Live? (Inner Life Part VI (101-120, draft for owner) source lines 122-131): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+How Many Leaves? (Inner Life Part VI (101-120, draft for owner) source lines 134-143): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Spirals Everywhere (Inner Life Part VI (101-120, draft for owner) source lines 146-155): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The End of the Rainbow (Inner Life Part VI (101-120, draft for owner) source lines 158-167): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Counting the Thunder (Inner Life Part VI (101-120, draft for owner) source lines 170-179): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+Why Are Yawns Catching? (Inner Life Part VI (101-120, draft for owner) source lines 182-191): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Birds That Leave (Inner Life Part VI (101-120, draft for owner) source lines 194-203): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Tide (Inner Life Part VI (101-120, draft for owner) source lines 206-215): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+How Do I Look to a Bird? (Inner Life Part VI (101-120, draft for owner) source lines 218-221): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+What's Inside a Stone? (Inner Life Part VI (101-120, draft for owner) source lines 224-233): NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)
+The Coconut (Inner Life Part VII (121-140, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The One Free Afternoon (Inner Life Part VII (121-140, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Visitor Who Knows Your Name (Inner Life Part VII (121-140, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Gift (Inner Life Part VII (121-140, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+One More Thing (Inner Life Part VII (121-140, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Step-Aside Dance (Inner Life Part VII (121-140, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The New Face at the Fire (Inner Life Part VII (121-140, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Same Story Twice (Inner Life Part VII (121-140, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Friend Who Loves Nets (Inner Life Part VII (121-140, draft for owner) source lines 104-113): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Laugh That Wasn't Welcome (Inner Life Part VII (121-140, draft for owner) source lines 116-125): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Last to Know (Inner Life Part VII (121-140, draft for owner) source lines 128-137): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Surprise That Isn't (Inner Life Part VII (121-140, draft for owner) source lines 140-149): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+Under One Leaf (Inner Life Part VII (121-140, draft for owner) source lines 152-161): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+Help Not Wanted (Inner Life Part VII (121-140, draft for owner) source lines 164-173): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Matching Flower (Inner Life Part VII (121-140, draft for owner) source lines 176-185): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Secret (name1) Was Trusted With (Inner Life Part VII (121-140, draft for owner) source lines 188-197): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Friend Across the Village (Inner Life Part VII (121-140, draft for owner) source lines 200-209): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Carrying Contest (Inner Life Part VII (121-140, draft for owner) source lines 212-221): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+One Thing (Inner Life Part VII (121-140, draft for owner) source lines 224-233): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Giggles (Inner Life Part VII (121-140, draft for owner) source lines 236-245): NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)
+The Straightest Row (Inner Life Part VIII (141-160, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+Looking Busy (Inner Life Part VIII (141-160, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+Measuring the Beans (Inner Life Part VIII (141-160, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Shelling Song (Inner Life Part VIII (141-160, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Tool That Fit (Inner Life Part VIII (141-160, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Five-Minute Job (Inner Life Part VIII (141-160, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Creak (Inner Life Part VIII (141-160, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Path Nobody Notices (Inner Life Part VIII (141-160, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Experiment That Smelled (Inner Life Part VIII (141-160, draft for owner) source lines 104-113): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Snail (Inner Life Part VIII (141-160, draft for owner) source lines 116-119): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Enormous Basket (Inner Life Part VIII (141-160, draft for owner) source lines 122-131): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+Three Coconuts in the Air (Inner Life Part VIII (141-160, draft for owner) source lines 134-143): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+Faster Than Yesterday (Inner Life Part VIII (141-160, draft for owner) source lines 146-155): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Work I Might Have Chosen (Inner Life Part VIII (141-160, draft for owner) source lines 158-167): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Stew Nobody Mentioned (Inner Life Part VIII (141-160, draft for owner) source lines 170-179): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Wrong Tool (Inner Life Part VIII (141-160, draft for owner) source lines 182-191): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Woodpile (Inner Life Part VIII (141-160, draft for owner) source lines 194-203): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The Rainy Day (Inner Life Part VIII (141-160, draft for owner) source lines 206-215): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+What Did I Do All Day? (Inner Life Part VIII (141-160, draft for owner) source lines 218-227): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+The End of the Day (Inner Life Part VIII (141-160, draft for owner) source lines 230-233): NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)
+All by Myself (Inner Life Part IX (161-180, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Almost Dance (Inner Life Part IX (161-180, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Mud Bakery (Inner Life Part IX (161-180, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+Dinner by (name1) (Inner Life Part IX (161-180, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+Not Tired (Inner Life Part IX (161-180, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Big One (Inner Life Part IX (161-180, draft for owner) source lines 68-77): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The First Day with the Builders (Inner Life Part IX (161-180, draft for owner) source lines 80-89): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Scary Tree (Inner Life Part IX (161-180, draft for owner) source lines 92-101): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Night of the Turtles (Inner Life Part IX (161-180, draft for owner) source lines 104-113): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Shortcut (Inner Life Part IX (161-180, draft for owner) source lines 116-125): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Great Chore Trade (Inner Life Part IX (161-180, draft for owner) source lines 128-137): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+What Will You Be? (Inner Life Part IX (161-180, draft for owner) source lines 140-149): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Hermit Crab Hotel (Inner Life Part IX (161-180, draft for owner) source lines 152-161): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Canoe Race (Inner Life Part IX (161-180, draft for owner) source lines 164-173): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Treasure Map (Inner Life Part IX (161-180, draft for owner) source lines 176-185): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Secret Language (Inner Life Part IX (161-180, draft for owner) source lines 188-197): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Grown-Up's Long Stories (Inner Life Part IX (161-180, draft for owner) source lines 200-209): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Tallest Sandcastle (Inner Life Part IX (161-180, draft for owner) source lines 212-221): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+Nearly Fourteen (Inner Life Part IX (161-180, draft for owner) source lines 224-227): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Grown-Up Job of Waiting (Inner Life Part IX (161-180, draft for owner) source lines 230-239): NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)
+The Oldest One (Inner Life Part X (181-200, draft for owner) source lines 8-17): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+How Old Are You, Exactly? (Inner Life Part X (181-200, draft for owner) source lines 20-29): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Two Best Nappers (Inner Life Part X (181-200, draft for owner) source lines 32-41): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Things I Never Did (Inner Life Part X (181-200, draft for owner) source lines 44-53): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Fifty Years of Melons (Inner Life Part X (181-200, draft for owner) source lines 56-65): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+These Hands (Inner Life Part X (181-200, draft for owner) source lines 68-71): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Confident Advice (Inner Life Part X (181-200, draft for owner) source lines 74-83): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Not Today, Thank You (Inner Life Part X (181-200, draft for owner) source lines 86-95): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Too Many Things (Inner Life Part X (181-200, draft for owner) source lines 98-107): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+A New Old Friend (Inner Life Part X (181-200, draft for owner) source lines 110-119): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Same Stars (Inner Life Part X (181-200, draft for owner) source lines 122-125): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Back in the Water (Inner Life Part X (181-200, draft for owner) source lines 128-137): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Sixty Years of Being Wrong About a Bird (Inner Life Part X (181-200, draft for owner) source lines 140-149): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+Words (name1) Doesn't Remember Saying (Inner Life Part X (181-200, draft for owner) source lines 152-161): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Before-Dawn Club (Inner Life Part X (181-200, draft for owner) source lines 164-173): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Same Argument for Forty Years (Inner Life Part X (181-200, draft for owner) source lines 176-185): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+When Did I Get Old? (Inner Life Part X (181-200, draft for owner) source lines 188-197): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Wall That's Still Standing (Inner Life Part X (181-200, draft for owner) source lines 200-209): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The New Collection (Inner Life Part X (181-200, draft for owner) source lines 212-221): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
+The Long Evening (Inner Life Part X (181-200, draft for owner) source lines 224-227): NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)
 The Unopened Letter (companion source lines 3793-3807): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
 The Child Who Looked Alike (companion source lines 3810-3820): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
 The Parent Who Stayed (companion source lines 3823-3833): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
@@ -1193,6 +1491,56 @@ The Animal Treaty (companion source lines 5341-5351): Creative direction, origin
 The Honest Election (companion source lines 5354-5364): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
 The Old Enemy's Child (companion source lines 5367-5377): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
 The Unanswered Origin (companion source lines 5380-5390): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and original requested themes: Lorsieab2 New event writing, branches and organization: ChatGPT (OpenAI)
+The Fishing Song (Luck, Omens and Lavastones (draft for owner) source lines 9-18): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Birds in Threes (Luck, Omens and Lavastones (draft for owner) source lines 21-30): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Itchy Palm (Luck, Omens and Lavastones (draft for owner) source lines 33-42): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Never Step Over a Digging Stick (Luck, Omens and Lavastones (draft for owner) source lines 45-54): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Same Dream (Luck, Omens and Lavastones (draft for owner) source lines 57-66): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Speak of Them and They Appear (Luck, Omens and Lavastones (draft for owner) source lines 69-78): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Lucky Sandals (Luck, Omens and Lavastones (draft for owner) source lines 81-90): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Salt Over the Shoulder (Luck, Omens and Lavastones (draft for owner) source lines 93-102): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Unlucky Number (Luck, Omens and Lavastones (draft for owner) source lines 105-114): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Shooting Star (Luck, Omens and Lavastones (draft for owner) source lines 117-126): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+One of Those Days (Luck, Omens and Lavastones (draft for owner) source lines 129-138): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Knock on Wood (Luck, Omens and Lavastones (draft for owner) source lines 141-150): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Lucky Seat (Luck, Omens and Lavastones (draft for owner) source lines 153-162): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Moth in the Hut (Luck, Omens and Lavastones (draft for owner) source lines 165-174): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Double Coconut (Luck, Omens and Lavastones (draft for owner) source lines 177-186): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Sneeze That Means It's True (Luck, Omens and Lavastones (draft for owner) source lines 189-198): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Left Foot First (Luck, Omens and Lavastones (draft for owner) source lines 201-210): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The First Fish Goes Back (Luck, Omens and Lavastones (draft for owner) source lines 213-222): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Whistling After Dark (Luck, Omens and Lavastones (draft for owner) source lines 225-234): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Coin Face Up (Luck, Omens and Lavastones (draft for owner) source lines 237-246): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Rain on the Wedding Day (Luck, Omens and Lavastones (draft for owner) source lines 249-258): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Ringing in the Ear (Luck, Omens and Lavastones (draft for owner) source lines 261-270): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Same Gift (Luck, Omens and Lavastones (draft for owner) source lines 273-282): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Lucky Hands (Luck, Omens and Lavastones (draft for owner) source lines 285-294): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Path (name1) Never Takes (Luck, Omens and Lavastones (draft for owner) source lines 297-306): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Spider Over the Door (Luck, Omens and Lavastones (draft for owner) source lines 309-318): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Swapping Charms (Luck, Omens and Lavastones (draft for owner) source lines 321-330): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Don't Say It Until It's in the Canoe (Luck, Omens and Lavastones (draft for owner) source lines 333-342): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Hiccup Cure (Luck, Omens and Lavastones (draft for owner) source lines 345-354): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+A Lucky Day (Luck, Omens and Lavastones (draft for owner) source lines 357-366): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Warm Stone in the Stream (Luck, Omens and Lavastones (draft for owner) source lines 369-378): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Lavastone in the Garden (Luck, Omens and Lavastones (draft for owner) source lines 381-390): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Lavastone at the Sickbed (Luck, Omens and Lavastones (draft for owner) source lines 393-405): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Two Theories (Luck, Omens and Lavastones (draft for owner) source lines 408-417): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Cracked Lavastone (Luck, Omens and Lavastones (draft for owner) source lines 420-429): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Lost Over the Side (Luck, Omens and Lavastones (draft for owner) source lines 432-441): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone That Chose (Luck, Omens and Lavastones (draft for owner) source lines 444-453): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Dark Lavastone (Luck, Omens and Lavastones (draft for owner) source lines 456-467): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Child's Pretty Stone (Luck, Omens and Lavastones (draft for owner) source lines 470-479): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Tireless Necklace (Luck, Omens and Lavastones (draft for owner) source lines 482-491): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone That Points to Water (Luck, Omens and Lavastones (draft for owner) source lines 494-503): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone That Burned Too Bright (Luck, Omens and Lavastones (draft for owner) source lines 506-519): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone That Took the Years (Luck, Omens and Lavastones (draft for owner) source lines 522-531): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Night the Stone Kept Them Warm (Luck, Omens and Lavastones (draft for owner) source lines 534-543): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone Nobody Will Touch (Luck, Omens and Lavastones (draft for owner) source lines 546-555): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone Under the Floor (Luck, Omens and Lavastones (draft for owner) source lines 558-567): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Shattered Stone (Luck, Omens and Lavastones (draft for owner) source lines 570-581): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Stone That Went Cold (Luck, Omens and Lavastones (draft for owner) source lines 584-593): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+The Visitor's Gift (Luck, Omens and Lavastones (draft for owner) source lines 596-605): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
+Where Do Lavastones Come From? (Luck, Omens and Lavastones (draft for owner) source lines 608-617): NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)
 The Chief Who Did Not Know (living source lines 23331-23345): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
 The Rookie and the Collapsing Bridge (living source lines 23347-23361): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
 The Master Who Never Failed (living source lines 23363-23377): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
@@ -1694,6 +2042,56 @@ The Harvest and the Border (source lines 8444-8450): CREDITS: Lorsieab2 proposed
 Who Owns a Discovery? (source lines 8412-8420): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
 The Two Faces of Isola (source lines 8422-8430): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
 Who Gets to Tell Isola's History? (source lines 8432-8442): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
+What's a Penguin Doing on the Beach? (What's That Doing Here (draft for owner) source lines 8-17): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Seal Doing in the Stream? (What's That Doing Here (draft for owner) source lines 20-29): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Crab Doing in the Cooking Pot? (What's That Doing Here (draft for owner) source lines 32-41): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Coconut Doing on the Roof? (What's That Doing Here (draft for owner) source lines 44-53): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Fish Doing in the Water Jar? (What's That Doing Here (draft for owner) source lines 56-65): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Starfish Doing on the Doorpost? (What's That Doing Here (draft for owner) source lines 68-77): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Pelican Doing in the Canoe? (What's That Doing Here (draft for owner) source lines 80-89): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Frog Doing in the Fruit Bowl? (What's That Doing Here (draft for owner) source lines 92-101): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Sandal Doing Up a Tree? (What's That Doing Here (draft for owner) source lines 104-113): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Flower Doing on the Roof? (What's That Doing Here (draft for owner) source lines 116-125): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's That Crab Wearing? (What's That Doing Here (draft for owner) source lines 128-137): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Bat Doing in the Hut? (What's That Doing Here (draft for owner) source lines 140-149): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's an Owl Doing in the Storehouse? (What's That Doing Here (draft for owner) source lines 152-161): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Melon Doing in the Path? (What's That Doing Here (draft for owner) source lines 164-173): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's That Heron Looking At? (What's That Doing Here (draft for owner) source lines 176-185): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What Are the Birds Doing in the Bathing Pool? (What's That Doing Here (draft for owner) source lines 188-197): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Spoon Doing in a Nest? (What's That Doing Here (draft for owner) source lines 200-209): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Pig Doing in the Hammock? (What's That Doing Here (draft for owner) source lines 212-221): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Lizard Doing on My Pillow? (What's That Doing Here (draft for owner) source lines 224-233): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Chicken Doing on the Roof? (What's That Doing Here (draft for owner) source lines 236-245): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Duck Doing Under the Bed? (What's That Doing Here (draft for owner) source lines 248-257): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Seaweed Doing on the Carving? (What's That Doing Here (draft for owner) source lines 260-269): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Leaf That Big Doing in My Hut? (What's That Doing Here (draft for owner) source lines 272-281): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Mushroom Ring Doing in the Garden? (What's That Doing Here (draft for owner) source lines 284-293): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's an Egg Doing in the Fruit Basket? (What's That Doing Here (draft for owner) source lines 296-305): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+Who Wrote "HELLO" on the Beach? (What's That Doing Here (draft for owner) source lines 308-317): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Bowl of Fruit Doing on the Beach? (What's That Doing Here (draft for owner) source lines 320-329): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Fishing Net Doing in a Tree? (What's That Doing Here (draft for owner) source lines 332-341): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Crab Doing in the Drum? (What's That Doing Here (draft for owner) source lines 344-353): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What Are Pebbles Doing on Every Doorstep? (What's That Doing Here (draft for owner) source lines 356-365): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Kite Doing in the Tree? (What's That Doing Here (draft for owner) source lines 368-377): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Ice Doing Falling from the Sky? (What's That Doing Here (draft for owner) source lines 380-383): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Fish Doing on the Roof? (What's That Doing Here (draft for owner) source lines 386-395): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Shrimp Doing in My Tea? (What's That Doing Here (draft for owner) source lines 398-407): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Bird Doing in the Spare Pot? (What's That Doing Here (draft for owner) source lines 410-419): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Moth That Size Doing on the Door? (What's That Doing Here (draft for owner) source lines 422-431): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Growing in the Seed Basket? (What's That Doing Here (draft for owner) source lines 434-443): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Walking on the Roof? (What's That Doing Here (draft for owner) source lines 446-455): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Seashell Doing on Top of the Hill? (What's That Doing Here (draft for owner) source lines 458-461): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Walking Stick Doing on the Beach? (What's That Doing Here (draft for owner) source lines 464-473): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Coconut Doing in the Drinking Pool? (What's That Doing Here (draft for owner) source lines 476-485): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Butterfly Doing on (name1)'s Nose? (What's That Doing Here (draft for owner) source lines 488-497): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What Are Feathers Doing All Over the Hut? (What's That Doing Here (draft for owner) source lines 500-509): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Making That Music? (What's That Doing Here (draft for owner) source lines 512-521): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's That Crab Doing with a Leaf? (What's That Doing Here (draft for owner) source lines 524-533): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Bright Fish Doing in a Puddle? (What's That Doing Here (draft for owner) source lines 536-545): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Seahorse Doing in the Net? (What's That Doing Here (draft for owner) source lines 548-557): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's Chirping in the Basket? (What's That Doing Here (draft for owner) source lines 560-569): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What Are the Ants Doing with That Flower? (What's That Doing Here (draft for owner) source lines 572-581): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
+What's a Seabird Doing at Dinner? (What's That Doing Here (draft for owner) source lines 584-593): NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)
 
 THE LIVING EVENT ENGINE (source: Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt, SHA-256 CBB46FCBBDB594F54B69DA9297CA21242B51D15EE7B41080C795E8555ADDF31C, line 23815, verbatim)
 

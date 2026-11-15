@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shelling Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il144_shelling_song",
+  "source": "da_il08",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Shelling nuts all morning, a villager starts making up a song: keep singing, or stop when someone looks.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been shelling nuts all morning. It is the most boring job on Isola, and (subject.he/she) has done it for so long (subject.his/her) fingers have gone numb. To pass the time, (subject.he/she) starts making up a song: \"One for the basket, one for the pile, one for me when nobody's looking...\"",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Keep Singing",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Stop When Someone Looks Over",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The people working nearby start joining in. Somebody adds a verse about a crab who stole the nuts. Somebody else adds a verse about the crab getting caught. By lunchtime the whole group has a song with fourteen verses and a dance in the middle, and the nuts are all shelled. Nobody is quite sure how.",
+   "src": "L50"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) looks over, eyebrows raised, and (subject) stops singing, embarrassed. The shelling goes on in silence. After a while, from the other end of the row, (subject) hears someone humming the tune, very quietly. \"One for the basket...\" (subject) grins and keeps shelling.",
+   "src": "L53"
+  }
+ }
+}

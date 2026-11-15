@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One More Thing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il125_one_more_thing",
+  "source": "da_il07",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two friends have said goodbye nine times and the sun is setting: really go this time, or sit back down.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have been chatting all afternoon, and now (subject) really has to go. \"Right, I'll see you tomorrow.\" \"See you tomorrow.\" (subject) takes two steps. \"Oh, one more thing...\" That was some time ago. They have now said goodbye nine times. The sun is setting.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Really Go This Time",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Give Up and Sit Back Down",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) says goodbye very firmly, turns, and walks away without looking back. (subject.He/She) gets almost all the way home before remembering the most important thing (subject.he/she) wanted to say. (subject.He/She) stands in the doorway for a moment, decides it can wait until tomorrow, and goes inside, grinning.",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I'm never going to leave, am I?\" says (subject). \"Not at this rate,\" says (friend). (subject) sits back down. They talk until the stars come out, and when (subject) finally goes home, it's because (friend) has fallen asleep sitting up.",
+   "src": "L65"
+  }
+ }
+}

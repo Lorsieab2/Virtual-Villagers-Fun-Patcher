@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Changed Mind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il053_changed_mind",
+  "source": "da_il03",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L152",
+    "kind": "instruction",
+    "text": "[effect: (name1) now likes fruit, where the game has a fitting like]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager who has always hated mangoes bites one and likes it, and someone saw: admit it, or deny everything.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For as long as anyone can remember, (subject) has loudly hated mangoes. Hated them. Wouldn't touch them. Today, without thinking, (subject.he/she) picks one up, bites into it, and realizes that (subject.he/she) actually likes it quite a lot. (friend) saw everything.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Admit It",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Deny Everything",
+     "next": "b",
+     "src": "L154"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Fine,\" says (subject), mouth full. \"They're good. Mangoes are good.\" (friend) is delighted. By evening the whole village knows, and three different people have brought (subject) a mango. (subject.He/She) eats all three.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "fruit",
+     "src": "L152"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"That never happened,\" (subject) says, and puts the half-eaten mango down very calmly. (friend) raises an eyebrow. The next morning, though, the mango is gone, and (subject) has juice on (subject.his/her) chin.",
+   "src": "L155"
+  }
+ }
+}

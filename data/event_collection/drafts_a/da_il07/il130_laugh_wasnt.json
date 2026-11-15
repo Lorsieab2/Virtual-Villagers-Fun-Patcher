@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Laugh That Wasn't Welcome",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il130_laugh_wasnt",
+  "source": "da_il07",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager laughs without thinking when a quiet friend says they would like to learn to drum.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) confides that (friend.he/she) would like to learn to drum for the festivals. (subject), without thinking, laughs. Not because it's funny: (subject) just pictured (friend), who is always so quiet, banging away on a big drum, and the laugh came out before (subject.he/she) could catch it. (friend)'s face falls.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Apologize Straight Away",
+     "next": "a",
+     "src": "L121"
+    },
+    {
+     "label": "Let the Moment Pass and Make It Up Later",
+     "next": "b",
+     "src": "L124"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm sorry,\" says (subject) quickly. \"That wasn't at you. I just never pictured it, and now I can, and I think you'd be wonderful.\" (friend) isn't sure whether to believe (subject.him/her). (subject) doesn't push. A few days later (subject.he/she) finds (friend) practicing behind the huts, and quietly sits down to listen. (friend) doesn't stop.",
+   "src": "L122"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) changes the subject, but the laugh sits between them all afternoon. That evening (subject) brings (friend) a small hollow log, perfect for practicing on. \"I'm sorry I laughed,\" (subject.he/she) says. \"I was surprised, that's all. I'd like to hear you play.\" (friend) takes the log. (friend.He/She) doesn't say (friend.he/she) forgives (subject.him/her) yet. But (friend.he/she) keeps the log.",
+   "src": "L125"
+  }
+ }
+}

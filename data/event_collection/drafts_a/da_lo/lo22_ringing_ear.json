@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Ringing in the Ear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo22_ringing_ear",
+  "source": "da_lo",
+  "lines": [
+   261,
+   270
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L261",
+  "ledger": [
+   {
+    "src": "L262",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's left ear has been ringing all morning, which means somebody is saying something nice.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject)'s left ear has been ringing all morning. In (subject.his/her) family, that means somebody is talking about (subject.him/her). Left ear, something nice. Right ear, something not so nice. (subject) has been walking round the village all morning, trying to work out who it is.",
+   "src": "L264",
+   "choices": [
+    {
+     "label": "Ask Around",
+     "next": "a",
+     "src": "L266"
+    },
+    {
+     "label": "Ignore It",
+     "next": "b",
+     "src": "L269"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) asks everyone (subject.he/she) meets whether they've been talking about (subject.him/her). Most say no. Two say yes: one was telling a story about the time (subject) fell in the stream, and one was saying (subject) makes good bowls. \"Left ear,\" says (subject), satisfied. \"The bowls.\" (subject.He/She) ignores the stream story completely.",
+   "src": "L267"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) gets on with (subject.his/her) day. By the afternoon, the ringing has stopped. At dinner, (friend) mentions in passing that the elders were all saying earlier how helpful (subject) has been lately. (subject) almost drops (subject.his/her) bowl. \"Left ear,\" (subject.he/she) whispers. (friend) has no idea what (subject.he/she) is talking about.",
+   "src": "L270"
+  }
+ }
+}

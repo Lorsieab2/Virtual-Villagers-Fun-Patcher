@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Seashell Doing on Top of the Hill?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd39_what_seashell",
+  "source": "da_wd",
+  "lines": [
+   458,
+   461
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L458",
+  "ledger": [
+   {
+    "src": "L459",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "At the very top of the highest hill, far from the sea, a villager finds a seashell set in the rock.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "At the very top of the highest hill on Isola, far from the sea, (name1) finds a seashell. Not one somebody dropped: it's stuck in the rock itself, part of the stone, as if the hill grew around it. (He/She) traces its ridges with a fingertip. It's a shell. There's no doubt about it. But the sea is a long way below, and the hill is very old, and (name1) cannot for the life of (him/her) think how a shell got up here and into the rock. Was the sea once here? Was the hill once under the sea? Did a bird bring it, and the rock grow round it? (name1) sits beside it for a long time, looking down at the faraway waves, feeling very small and very curious, and then walks home without an answer.",
+   "src": "L461"
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Wrote \"HELLO\" on the Beach?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd26_wrote_hello_beach",
+  "source": "da_wd",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L317",
+    "kind": "casting",
+    "before": "A small child at the back",
+    "after": "(child), a small child at the back",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "Someone has written a greeting in huge letters on the beach overnight: write back, or ask around.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Early in the morning, (subject) walks down to the beach and finds, written in the sand in letters as tall as a person, the word HELLO. There are no footprints near it. The tide must have washed them away. But it hasn't washed away the word, which sits there, perfectly clear, waiting for someone to read it.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Write Back",
+     "next": "a",
+     "src": "L313"
+    },
+    {
+     "label": "Ask Around",
+     "next": "b",
+     "src": "L316"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) picks up a stick and writes, underneath, in letters just as big: HELLO. WHO ARE YOU? (subject.He/She) checks the next morning. The tide has been in, and both words are gone. Nobody ever owns up. (subject) privately thinks it was a child. (subject.He/She) also privately hopes it wasn't.",
+   "src": "L314"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) asks everyone. Nobody wrote it. Everyone comes down to look at it. Everybody has a theory. By lunchtime the tide has washed it away, and all that's left is a village full of people looking slightly suspiciously at each other. (child), a small child at the back, with very sandy knees, says nothing at all.",
+   "src": "L317"
+  }
+ }
+}

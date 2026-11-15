@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moth in the Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo14_moth_hut",
+  "source": "da_lo",
+  "lines": [
+   165,
+   174
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L165",
+  "ledger": [
+   {
+    "src": "L166",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A moth settles in a villager's hut, and an old family saying says that news is coming.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A large brown moth has flown into (subject)'s hut and settled on the wall. (subject)'s grandmother always said that a moth indoors means news is coming. Good news or bad news, she never said. (subject) watches the moth all evening, half expecting a knock on the door.",
+   "src": "L168",
+   "choices": [
+    {
+     "label": "Wait Up for the News",
+     "next": "a",
+     "src": "L170"
+    },
+    {
+     "label": "Let the Moth Out",
+     "next": "b",
+     "src": "L173"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) waits up. The moth waits too. Nothing happens. At last (subject) falls asleep sitting up. In the morning, (friend) comes over with news: the baby goats have been born. Well, there was news, (subject) thinks. Ordinary, lovely news. (subject.He/She) lets the moth out of the door with some ceremony.",
+   "src": "L171"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) gently guides the moth out of the door, so as not to have to wonder. The next day there's no news at all, good or bad. (subject) can't decide whether the moth took the news away with it or whether there was never any news to begin with. Either way, it's a quiet, pleasant day.",
+   "src": "L174"
+  }
+ }
+}

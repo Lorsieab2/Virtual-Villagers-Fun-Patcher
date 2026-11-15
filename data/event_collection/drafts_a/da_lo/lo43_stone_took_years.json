@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Took the Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo43_stone_took_years",
+  "source": "da_lo",
+  "lines": [
+   522,
+   531
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L522",
+  "ledger": [
+   {
+    "src": "L523",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L531",
+    "kind": "casting",
+    "before": "One of them, with grey hair",
+    "after": "One of them, (elder), with grey hair",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L528",
+    "kind": "instruction",
+    "text": "[effect: (name1) gets the old head look (lasting)]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L531",
+    "kind": "instruction",
+    "text": "[effect: (name1) gets the old head look (lasting)]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager picks up an old lavastone bare-handed, and walks out into the light looking years older.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 54
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) was cleaning out an old storage hut when (subject.he/she) found a lavastone wrapped in faded cloth, and, without thinking, picked it up with (subject.his/her) bare hand. It flashed, silver-white, and went dark. Nothing hurt. But when (subject) walked out into the light, (friend) stopped and stared. (subject)'s hair has turned grey, and (subject.his/her) face looks years older than it did this morning.",
+   "src": "L525",
+   "choices": [
+    {
+     "label": "Look in the Water",
+     "next": "a",
+     "src": "L527"
+    },
+    {
+     "label": "Ask the Elders",
+     "next": "b",
+     "src": "L530"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) goes to the pool and looks at (subject.his/her) reflection for a long time. (subject.He/She) feels the same. (subject.He/She) is the same, inside. (subject.He/She) just looks like (subject.his/her) own grandparent now. (subject.He/She) isn't sure how (subject.he/she) feels about it. (friend) sits with (subject.him/her). \"You look like you,\" (friend.he/she) says. \"Just more.\" (subject) laughs, a bit shakily. It's a start.",
+   "src": "L528",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject",
+     "src": "L528"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) goes to the elders. They have heard of such stones, but none of them knows any way to undo what happened. One of them, (elder), with grey hair of (elder.his/her) own, takes (subject)'s hand and says, \"Welcome. It's not so bad over here.\" (subject) isn't ready to agree. (subject.He/She) also isn't ready to be sad about it. (subject.He/She) goes home and thinks.",
+   "src": "L531",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject",
+     "src": "L531"
+    }
+   ]
+  }
+ }
+}

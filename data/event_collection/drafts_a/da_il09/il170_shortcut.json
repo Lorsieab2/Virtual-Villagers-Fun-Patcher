@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shortcut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il170_shortcut",
+  "source": "da_il09",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child has found a shortcut to the beach that takes much longer and is very muddy, and is extremely proud of it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has found a shortcut to the beach. It goes over a fallen log, under some bushes, round a big rock and through a patch of mud. It takes much longer than the normal path, and (subject) arrives covered in leaves and mud. (subject.He/She) is extremely proud of it.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Show (friend)",
+     "next": "a",
+     "src": "L121"
+    },
+    {
+     "label": "Keep It a Secret",
+     "next": "b",
+     "src": "L124"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) leads (friend) along the shortcut. (friend) gets stuck under the bushes, slips in the mud, and arrives at the beach looking like a swamp creature. \"Isn't it quicker?\" says (subject). (friend), picking a leaf out of (friend.his/her) ear, decides that it doesn't matter whether it's quicker. It was definitely more interesting.",
+   "src": "L122"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) tells nobody about the shortcut. It's (subject.his/her) own. Every day (subject.he/she) takes it to the beach, and every day (subject.he/she) arrives late and muddy, and every day the grown-ups wonder why. (subject) never explains. A child has to have some secrets.",
+   "src": "L125"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L125",
+   "before": "It's (his/hers).",
+   "after": "It's (his/her) own."
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lucky Sandals",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo07_lucky_sandals",
+  "source": "da_lo",
+  "lines": [
+   81,
+   90
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L81",
+  "ledger": [
+   {
+    "src": "L82",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's old lucky sandals snap in half on the morning of the harvest feast: mend them, or go without.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) wears (his/her) lucky sandals for every important thing: festivals, the first day of planting, every difficult conversation. They are very old. They are held together mostly by hope. Today, on the morning of the harvest feast, one of them snaps clean in half.",
+   "src": "L84",
+   "choices": [
+    {
+     "label": "Mend Them",
+     "next": "a",
+     "src": "L86"
+    },
+    {
+     "label": "Go Without Them",
+     "next": "b",
+     "src": "L89"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) spends a frantic hour binding the sandal back together with cord. It's lumpy. It flaps. (He/She) wears them to the feast anyway, flapping, and the feast is lovely. Was it the sandals? Was it just a lovely feast? (name1) decides not to take any chances, and mends them again properly the next day.",
+   "src": "L87"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) puts on (his/her) ordinary sandals and goes to the feast, feeling strangely bare. It's a good feast. Nothing goes wrong. Halfway through, (name1) realizes (he/she) hasn't thought about the sandals for an hour. (He/She) isn't sure whether to feel freed or a little bit lost. (He/She) keeps the broken ones on the shelf anyway.",
+   "src": "L90"
+  }
+ }
+}

@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Walking on the Roof?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd38_what_walking_roof",
+  "source": "da_wd",
+  "lines": [
+   446,
+   455
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L446",
+  "ledger": [
+   {
+    "src": "L447",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Something has walked on a villager's roof every night for a week: go out with a torch, or decide not to know.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every night for a week, something has been walking on (name1)'s roof. Pat, pat, pat. Then a pause. Then pat, pat, pat. Then a strange, soft, gurgling noise. (name1) lies awake listening, imagining all sorts of things. Tonight (he/she) has decided to find out.",
+   "src": "L449",
+   "choices": [
+    {
+     "label": "Go Outside with a Torch",
+     "next": "a",
+     "src": "L451"
+    },
+    {
+     "label": "Decide Not to Know",
+     "next": "b",
+     "src": "L454"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) creeps out with a torch and holds it up to the roof. Two seabirds are standing on the thatch, side by side, looking down at (him/her) in the torchlight like a pair of affronted elders. One of them makes the gurgling noise. (name1) goes back to bed. (He/She) sleeps very well, now that (he/she) knows it's just two very rude birds.",
+   "src": "L452"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) decides that whatever it is, it's not doing any harm. (He/She) lies in bed and listens: pat, pat, pat, pause, gurgle. After a few nights (he/she) starts to find it comforting. When it stops, a few weeks later, (name1) lies awake missing it. (He/She) never does find out what it was.",
+   "src": "L455"
+  }
+ }
+}

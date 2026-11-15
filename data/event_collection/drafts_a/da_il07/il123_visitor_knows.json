@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor Who Knows Your Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il123_visitor_knows",
+  "source": "da_il07",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L35",
+    "kind": "casting",
+    "before": "A visitor from another village walks",
+    "after": "(visitor), a visitor from another village, walks",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L38",
+    "kind": "casting",
+    "before": "The visitor laughs.",
+    "after": "(visitor) laughs.",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L41",
+    "kind": "casting",
+    "before": "The visitor talks happily",
+    "after": "(visitor) talks happily",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L41",
+    "kind": "casting",
+    "before": "Just as the visitor leaves",
+    "after": "Just as (visitor) leaves",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L41",
+    "kind": "casting",
+    "before": "The visitor is already gone.",
+    "after": "(visitor) is already gone.",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A visitor from another village hugs a villager like an old friend, and the villager has no idea who they are.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "visitor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(visitor), a visitor from another village, walks up to (subject), beaming, and hugs (subject.him/her). \"(subject)! It's been so long! How are you? How's your knee?\" (subject) has absolutely no idea who this person is. (subject.His/Her) knee is fine. (subject.He/She) thinks.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Admit You Don't Remember",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Bluff",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm so sorry,\" says (subject). \"I'm terrible with faces. Remind me?\" (visitor) laughs. \"The harvest feast, years ago! You helped me carry a pot of stew, and you fell over, and we both ended up covered in it.\" (subject) remembers instantly. They spend the afternoon catching up. (subject.His/Her) knee, it turns out, was the one (subject.he/she) landed on.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Oh, it's fine, thank you! And you?\" (visitor) talks happily for some time about people and places (subject) doesn't recognize. (subject) nods in all the right places. Just as (visitor) leaves, (visitor.he/she) says, \"Give my love to the stew pot!\" and (subject) suddenly remembers everything. (visitor) is already gone.",
+   "src": "L41"
+  }
+ }
+}

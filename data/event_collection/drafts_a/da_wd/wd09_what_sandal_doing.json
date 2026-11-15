@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Sandal Doing Up a Tree?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd09_what_sandal_doing",
+  "source": "da_wd",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L110",
+    "kind": "casting",
+    "before": "a child starts",
+    "after": "(child), a child, starts",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A single sandal hangs in the tree outside a villager's hut, and nobody is missing one: get it down, or leave it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a sandal in the tree outside (subject)'s hut. Just one. It's caught on a branch, well above head height, swinging gently in the breeze. (subject) checks (subject.his/her) own feet. Both sandals. (subject.He/She) checks with (friend). Both sandals. Nobody in the village seems to be missing a sandal. It just hangs there.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Climb Up and Get It",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Leave It There",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) climbs the tree and fetches it down. It's a perfectly good sandal. It doesn't fit anybody. (subject.He/She) puts it by the path in case its owner comes looking. Nobody ever does. After a week, (child), a child, starts using it as a boat for a crab. That, everyone agrees, is a good use for a sandal with no story.",
+   "src": "L110"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides the sandal has chosen its spot. Soon the whole village knows it as \"the sandal tree,\" and gives directions by it: \"past the sandal tree, then left.\" When a storm finally knocks the sandal down months later, people keep calling it the sandal tree anyway.",
+   "src": "L113"
+  }
+ }
+}

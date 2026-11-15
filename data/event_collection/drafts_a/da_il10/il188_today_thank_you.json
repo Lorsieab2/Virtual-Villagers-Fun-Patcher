@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Today, Thank You",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il188_today_thank_you",
+  "source": "da_il10",
+  "lines": [
+   86,
+   95
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L86",
+  "ledger": [
+   {
+    "src": "L87",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder wakes up grumpy for no reason, and a cheerful villager arrives with a flower, a joke and some fruit.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is in a bad mood. There's no particular reason. Nothing went wrong. (subject.He/She) just woke up feeling cross and has stayed that way. (friend), who is very cheerful, has noticed, and has brought (subject.him/her) a flower, a joke and a plate of fruit.",
+   "src": "L89",
+   "choices": [
+    {
+     "label": "Tell (friend) Kindly to Let It Be",
+     "next": "a",
+     "src": "L91"
+    },
+    {
+     "label": "Accept the Joke",
+     "next": "b",
+     "src": "L94"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Thank you,\" says (subject). \"I'm just grumpy today. I'd like to stay grumpy, if that's alright.\" (friend) blinks, then nods. \"Alright.\" (friend.He/She) leaves the fruit and goes. (subject) eats the fruit, still grumpy. The next morning (subject.he/she) wakes up in a perfectly good mood, for no particular reason either.",
+   "src": "L92"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sighs. \"Go on, then. Tell me the joke.\" (friend) tells it. It's a very bad joke about a fish. (subject) doesn't laugh. (subject.He/She) does, however, tell (friend) a much better joke about a fish. (friend) laughs so hard (friend.he/she) drops the fruit. (subject) is still grumpy, but now (subject.he/she) is grumpy with company, which is a little better.",
+   "src": "L95"
+  }
+ }
+}

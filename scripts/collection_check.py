@@ -77,7 +77,7 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
             "rm",                                # Role Models and Good Examples (data/event_collection/rolemodels/)
             *lib.DRAFTS_A)                       # the owner's drafts, set A (data/event_collection/drafts_a/)
-LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
+LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
@@ -489,7 +489,7 @@ def ledger_maps(doc: dict, rep: Report):
         except ValueError as ex:
             rep.add("c COVERAGE", f"{where}: {ex}")
             continue
-        if e["kind"] == "sensitivity":
+        if e["kind"] in ("sensitivity", "casting"):
             # The owner's content rules (2026-11-14): the smallest piece of the owner's words changed, logged for
             # the owner's review.  "before" must be on the one line; "after" replaces it wherever the line shows.
             before, after = e.get("before"), e.get("after")
@@ -1382,7 +1382,7 @@ def ledger_summary(doc: dict) -> list[str]:
     for f in doc.get("grammar_fixes", []) or []:
         out.append(f"  grammar {f['src']}: {f['before']!r} -> {f['after']!r}")
     for e in col.get("ledger", []) or []:
-        if e.get("kind") == "sensitivity":
+        if e.get("kind") in ("sensitivity", "casting"):
             out.append(f"  sensitivity {e['src']}: {e.get('before')!r} -> {e.get('after')!r} -- {e.get('why')}")
     for nid, n in doc.get("nodes", {}).items():
         for t in n.get("text_only", []) or []:
