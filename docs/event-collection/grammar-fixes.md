@@ -191,6 +191,7 @@ verbatim apart from glaring grammar.
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | companion L2875 | `villager dies` | `the villager dies` | c5dn023_false_delicacy (Part 4 N023, outcome 2) | a missing article: with the designer tag "RARE FATAL:" and the instruction "if the fatal branch is enabled" cut, the line reads "Villager dies." |
+| companion L3286 | `diffuses it` | `defuses it` | c5dn067_argument (Part 4 N067, outcome 1) | the wrong word: a joke defuses (calms) a quarrel; "diffuses" means spreads it |
 
 Wave 1 chunk 1 (Vol 1 Part 1, Part 3 001-030) needed none. Known candidates for the later chunks (inventory, the
 Living Catalogue templates): "believes its a startling" (22 times), "a Orange / a Oriental / a Angel / a Arthurium /

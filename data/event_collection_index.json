@@ -1514,6 +1514,82 @@
    "harm": [],
    "section": "c5"
   },
+  "c5dn051_overheard": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn052_third_friend": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn053_lost_child": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn054_false_alarm": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn055_secret_club": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn056_child_never": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn057_baby_favorite": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn058_elder": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn059_sleepover": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn060_accidental": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn061_shared": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn062_name_nobody": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn063_strange_gift": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn064_last_seat": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn065_new_tradition": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn066_awkward": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn067_argument": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn068_broken": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn069_unimportant": {
+   "harm": [],
+   "section": "c5"
+  },
   "c5ev001_pattern_keeper": {
    "harm": [],
    "section": "c5"
@@ -1717,6 +1793,251 @@
   "c5ev060_how_did_we_get": {
    "harm": [],
    "section": "c5"
+  },
+  "lbl001_unopened_letter": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl002_child_looked": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl003_parent_stayed": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl004_favorite_child": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl005_second_marriage": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl006_unwelcome": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl007_long_silence": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl008_caregiver": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl009_family_recipe": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl010_shared_birthday": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl011_family_portrait": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl012_adoption": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl013_confession_low": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl014_special_friend": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl015_forgotten": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl016_rival_injury": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl017_public": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl018_roommates": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl019_third_wheel": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl020_interrupted": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl021_former_friend": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl022_secret_admirer": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl023_honest_critic": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl024_wedding_without": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl025_expedition": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl026_midnight_raft": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "lbl"
+  },
+  "lbl027_daring_climb": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl028_stolen_trinket": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl029_cruel_joke": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl030_first_crush": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl031_know_all": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl032_unfair_rule": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl033_missing_sibling": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl034_unfinished_toy": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl035_dare_tell_truth": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl036_responsibility": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl037_baby_laugh": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl038_sleepless": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl039_tiny_grip": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl040_wrong_cradle": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl041_first_steps": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl042_father_song": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl043_nursing_mother": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl044_sudden_fever": {
+   "allow": true,
+   "harm": [
+    "baby_lost"
+   ],
+   "section": "lbl"
+  },
+  "lbl045_curious_hands": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl046_many_caregivers": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl047_word_debate": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl048_empty_cradle": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl049_elder_voyage": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl050_unreliable": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl051_last_apprentice": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl052_hobby_eighty": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl053_missing_name": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl054_inherited_fear": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl055_old_rival_gift": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl056_retirement": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl057_ancestor_tool": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl058_final_lesson": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl059_elder_wouldnt": {
+   "harm": [],
+   "section": "lbl"
+  },
+  "lbl060_village": {
+   "harm": [],
+   "section": "lbl"
   },
   "vv1_child_of_legend": {
    "harm": [],

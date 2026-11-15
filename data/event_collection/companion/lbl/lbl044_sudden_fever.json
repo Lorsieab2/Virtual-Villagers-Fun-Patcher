@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sudden Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl044_sudden_fever",
+  "source": "companion",
+  "lines": [
+   4368,
+   4378
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4368",
+  "ledger": [
+   {
+    "src": "L4369",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4377",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4378",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A baby becomes ill during a difficult season."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "female",
+   "special": "nursing_parent",
+   "protected": "allow"
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A baby becomes ill during a difficult season.",
+   "src": "L4370",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4371"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4372"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4373"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 20
+    },
+    {
+     "next": "e3",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "Prompt care brings recovery.",
+   "src": "L4374",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "mother",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4374"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The baby remains ill and needs ongoing attention.",
+   "src": "L4375",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "mother",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4375"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "remains ill",
+     "reason": "a nursing baby is its parent's state, not a villager: no sick effect can reach it",
+     "src": "L4375"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A rare fatal outcome leaves the family mourning.",
+   "src": "L4376",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "mother",
+     "src": "L4376"
+    }
+   ]
+  }
+ }
+}

@@ -53,3 +53,29 @@ and the Tribal Chief are never cast in it).
 
 - **Done:** A3, "The child survives but the mother dies; the family remembers her courage." **Owner (2026-11-14):** A3 must change so the child really survives. It now uses the `birth_then_die` effect (cie-v6-binary.md 23): the game's own delivery brings the baby, then the mother dies; very rare, as a death.
 - **Owner decision (2026-11-14): APPROVED as built** -- the cast pregnant villager, `baby_lost` and the very rare kills; A3's `birth_then_die` is approved with the rest of D1.
+
+## Companion K5
+
+Range: Companion Anthology Vol 1 Part 4 N051-N069 (`companion/c5/c5dn051`-`c5dn069`) and The Lives Between Legends
+001-060 (`companion/lbl/lbl001`-`lbl060`), 79 events. Line numbers are the companion source's.
+
+One event harms a protected villager. Every other harm-capable role in this range keeps the default `auto`
+protection, so nursing parents, the Golden Child and the Tribal Chief are never cast in it: LBL 016's hurt
+apprentice, 025's child who falls ill, 026's injured and missing teens, 027's child who falls and 059's straining
+elder. The other baby scenes (LBL 037-040, 042, 045 and N057) cast a nursing parent only harmlessly (Parenting or
+nothing), and 043's bereaved mother is a woman who is not nursing (the baby is text).
+
+### The Sudden Fever (`lbl044_sudden_fever`, LBL 044, companion L4368-4378)
+
+- **Villager:** role `mother`, a female villager carrying a baby (special `nursing_parent`, `protected: "allow"`).
+  A nursing baby is its parent's state in every game, so the baby can be reached only through her.
+- **Why:** the event is about the baby's illness, and the owner wrote its fatal branch: "A baby becomes ill during a
+  difficult season." The engine rules say nursing mothers and infants "are not immune to plausible fatal events"
+  (L3784). The mother herself is never hurt: only her baby is lost.
+- **Requirement:** the event is drawn only when a villager is carrying a baby.
+
+| Outcome | Exact text | Effect | Chance |
+|---|---|---|---|
+| 1 | "Prompt care brings recovery." | small Parenting to the mother | 20 of 45 |
+| 2 | "The baby remains ill and needs ongoing attention." | small Parenting to the mother (the baby cannot be made `sick`: it is not a villager) | 20 of 45 |
+| 3 | "A rare fatal outcome leaves the family mourning." | `baby_lost` (the pregnancy ends; the Births and Conceptions log records "Lost before birth") | rare: 5 of 45 (the source's own "rare") |

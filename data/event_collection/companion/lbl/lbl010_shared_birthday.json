@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Birthday",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl010_shared_birthday",
+  "source": "companion",
+  "lines": [
+   3914,
+   3924
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3914",
+  "ledger": [
+   {
+    "src": "L3915",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L3923",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L3924",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Two relatives celebrate birthdays on the same day.",
+  "cast_only": [
+   "relative1",
+   "relative2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "relative1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "relative2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two relatives celebrate birthdays on the same day.",
+   "src": "L3916",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L3917"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L3918"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L3919"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "celebrate",
+     "reason": "a family's birthdays, not the village's celebration (rule 7)",
+     "src": "L3916"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "They invent a joint tradition.",
+   "src": "L3920"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "One quietly wishes for a celebration of their own.",
+   "src": "L3921",
+   "text_only": [
+    {
+     "what": "celebration",
+     "reason": "one relative's wish for a birthday of their own (rule 7)",
+     "src": "L3921"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A surprise gift resolves an old misunderstanding.",
+   "src": "L3922"
+  }
+ }
+}

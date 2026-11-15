@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Almost-Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn067_argument",
+  "source": "companion",
+  "lines": [
+   3283,
+   3289
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3283",
+  "ledger": [
+   {
+    "src": "L3285",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3289",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A disagreement about a trivial chore nearly becomes a family feud.",
+  "cast_only": [
+   "relative1",
+   "relative2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "relative1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "relative2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A disagreement about a trivial chore nearly becomes a family feud.",
+   "src": "L3284",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Someone makes a joke and defuses it.",
+   "src": "L3286"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They divide the task fairly.",
+   "src": "L3287"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They agree to disagree about the proper way to fold leaves.",
+   "src": "L3288"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3286",
+   "before": "diffuses it",
+   "after": "defuses it"
+  }
+ ]
+}
