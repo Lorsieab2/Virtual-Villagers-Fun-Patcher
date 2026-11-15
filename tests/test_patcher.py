@@ -1205,8 +1205,9 @@ class ManifestTests(unittest.TestCase):
         # data files the Story / Cheat Upgrades companion reads; 47 with Empty the Stew Pot from the Science Hut Door
         # (vv2_empty_stew_pot), no executable byte -- its companion writes its two sites at run time; 48 with Adults
         # Dropped on Mushrooms or Collectibles Are Confused (vv2_adult_confused), no executable byte -- its companion
-        # writes the adult dispatcher's Confused call at run time.
-        self.assertEqual(len(feature_ids), 48)
+        # writes the adult dispatcher's Confused call at run time; 49 with Children Play Tag and Build Sandcastles
+        # (vv2_children_play), no executable byte -- its companion writes its sites at run time.
+        self.assertEqual(len(feature_ids), 49)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4185,6 +4186,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_empty_stew_pot",
             # Adults Dropped on Mushrooms or Collectibles Are Confused: companion only, no executable bytes.
             "vv2_adult_confused",
+            # Children Play Tag and Build Sandcastles: companion only, no executable bytes.
+            "vv2_children_play",
             },
         )
         for mode in ALL_MODES:
