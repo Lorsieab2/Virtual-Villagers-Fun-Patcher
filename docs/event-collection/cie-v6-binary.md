@@ -44,7 +44,7 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 | Offset | Type | Meaning |
 |---|---|---|
 | 0 | `B` | kind: 0 villager, 1 stranger, **2 alias**, **3 other** (G2) |
-| 1 | `B` | flags (a stranger, kind 1: 1 = **named**, section 16; nothing else): 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
+| 1 | `B` | flags (a stranger, kind 1: 1 = **named**, section 16; 2 = **a new name**, section 28, always with 1; nothing else): 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
 | 2 | `B` | sex: 0 any, 1 male, 2 female, 3 random (strangers) |
 | 3 | `B` | min_age years |
 | 4 | `H` | id string |
@@ -254,8 +254,11 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 19 | baby_lost | role index | 0, 0 | NONE |
 | 20 | birth_then_die | role index | 0, 0 | the cause (as kill's) |
 | 21 | old_look | role index | 0, 0 | NONE (section 27) |
+| 22 | sex_change | role index | 0, 0 | NONE (section 29) |
 
-A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27.
+A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23, code 21 section 27,
+code 22 section 29. **Numbering:** 23 is kept for a cross-sex body look (not built: section 29); 24 is not used -- the new name
+of section 28 is a role kind (a stranger's flag), not an effect code.
 
 Preference (8) in v6 may be **random** (section 24): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
 
@@ -799,3 +802,66 @@ the per-villager head look Change Appearance offers (Auto / Young / Old), set to
 - The Island Events log's entry says "<name>'s head look is now Old."
 - No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
   every game.
+
+## 28. A new name (REL "Names & Presentation", the owner 2026-11-14)
+
+A villager may ask to be called by another name. Nobody is renamed: the event shows a NEW NAME drawn for it.
+
+JSON (v6): a stranger role `{"kind": "stranger", "new_name_for": r, "sex": S, "last_name": L}`. `r` is a villager role
+the event needs (not optional, not an alias or other). `S` is `same` (the default: the villager's sex), `other`,
+`random`, `male` or `female` -- the list the first name comes from. `L` is `same` (the default), `different` or
+`random`. It is a named stranger (section 16), so `(chosen)`, `(Chosen)`, `(CHOSEN)`, `(chosen.name)` show it, in
+titles and labels too; its pronouns follow `S` as drawn. No effect or condition may name it.
+
+- **Binary:** the stranger's role record: flags 1 + 2, sex byte 1 male, 2 female, 3 random, **4 same, 5 other**,
+  byte 3 the last name (0 same, 1 different, 2 random), bytes 14-15 exactly one bit: the villager role. The loader
+  refuses a new name for anything but a needed villager role, flag 2 without 1, or a byte beyond those.
+- **The draw** (engine `cg_new_name`, at bind time, after every villager role is bound, in role order): the sex
+  (one roll only for `random`), then the first name exactly as a named stranger's (section 16: a name no living
+  villager or earlier named stranger has, else any); then, only with "VVFP Last Names.dll" in the game (as the Custom
+  Island Event's "Joey Joerson"), the last name: `same` the villager's own as Last Names reads it (the last word after
+  the first, a trailing Roman numeral passed over; none for a one-word name), `different` `random_below` over the
+  game's 50 last names but the villager's own (compared ignoring case), `random` over all 50. The list is the one the
+  game's naming routine pushes and Last Names names from (`story_villager_names.h CG_LAST_*`, built by
+  `scripts/build_cie_villager_names.py`; read from the game, the built-in copy when it cannot be). The name is kept in
+  the run (`cg.name`, in the run's file), so every page shows the same name, a resumed run too.
+- **Worst case:** the longest first name of the game's two lists, a space and the longest last name (8 + 1 + 8 in
+  every game; `role_name_room`).
+- **Python:** `simulate` takes the name from `bindings`, as a named stranger's.
+
+## 29. The sex field changed (`sex_change`, code 22)
+
+JSON (v6): `{"do": "sex_change", "role": r}` (a = b = 0, string `NONE`, no roll). The villager's record gets the other
+value of the game's own sex field (the owner tested the write in Cheat Engine). Harmless (section 7). Nothing else is
+written: head and body rows stay (every game has as many male as female rows, so they stay valid rows of the new
+sex's sheets), the names stay, and the parents recorded on anyone's record (recorded at conception, frozen at birth)
+stay as recorded.
+
+| Game | Sex field | Male / female | Source |
+|---|---|---|---|
+| A New Home | +0x350 | 1 / 2 | `story_c1.inc` C1_ADAPTER, `tests/story_custom_fixtures.py` |
+| The Lost Children | +0x538 | 1 / 2 | `story_c2.inc` C2_ADAPTER |
+| The Secret City | +0xDC8 | 0 / 1 | `story_c3.inc` C3_ADAPTER |
+| The Tree of Life | +0x1B90 | 0 / 1 | `story_c4.inc` C4_ADAPTER (the render path's compare, `vv4_origins_icons.c`) |
+| New Believers | +0x1B90 | 0 / 1 | `story_c5.inc` C5_ADAPTER |
+
+- **Refused** ("N changes could not be made"; the text still shows, nothing is written):
+  - carrying or nursing: the game's countdown (`off_pregnant`) or the babies after it (+4) non-zero (A New Home
+    +0x358/+0x35C, The Lost Children +0x540/+0x544, The Secret City +0xE8C/+0xE90, the later two +0x1C4C/+0x1C50),
+    or A New Home's parentage sidecar holding an expected father for them;
+  - a special villager (`cg_special`, `cg_never_harmed`): the Golden Child, The Secret City's Tribal Chief and
+    stand-in, New Believers' story villagers;
+  - **any companion in the game that keeps per-villager data by an identity holding the sex** (`CG_SEX_KEEPERS`:
+    Head Look, Original Look, the Origins masks, Cause of Death, Faith Loss, Last Names, Heathens Keep Masks, the VV1
+    Parentage, Parentage / Population / Statistics Export). Their identities hash the sex, and none of them follows a
+    sex change yet (their rename follow needs the rest of the identity unchanged), so the villager would lose their
+    mask, head look, title and log identity. **An owner decision:** each of them must learn to follow the change
+    before it leaves the list; until then the effect is made only in a game with none of them.
+- **The run** keeps the villager by their new identity (`cg.identity`), so later effects of the event still reach
+  them. Pronouns in the event stay the sex they were cast with (the pages are laid out before the change is made).
+- **The log:** "<name>'s sex is now male." / "female."; the automatic line (section 25): `R's sex changes.`
+- **Known limits:** `has_living_child` and the kinship relations read a recorded father as a male role and a mother as
+  a female one, so a parent whose sex changed after a child was born is found by neither.
+- **A cross-sex body look** (code 23, keeping the sex field) is NOT built: the games choose each villager's head and
+  body sheets from the sex field at every draw (The Tree of Life alone reads +0x1B90 at about 100 places), so it
+  needs a draw-hook companion like Head Look's for every game. An owner question.

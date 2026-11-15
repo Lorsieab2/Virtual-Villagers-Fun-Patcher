@@ -362,23 +362,29 @@ STATUS_CODES = {"heathen": 1}
 CAUSES = ("custom", "unknown")
 COND_CODES = {"visited": 1, "role": 2, "game": 3, "patch": 4, "not": 5, "all": 6, "any": 7}
 COND_PUZZLE = 8              # version 3, the requirement only: a = the puzzle's name, b = its game
-SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
+SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3,
+             "same": 4, "other": 5}      # v6, a new name only (cie-v6-binary.md 28): the villager's sex, the other one
+NEW_NAME_FLAG = 2             # cie-v6-binary.md 28: a stranger's flags bit: a new name for a villager role
+LAST_NAME_CODES = {"same": 0, "different": 1, "random": 2}   # ... its last name (with Last Names in the game)
 
 # ---- Version 6 (docs/event-collection/cie-v6-binary.md is the engine's contract) ---------------------------------
 
 V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # the new "do" words
               "appearance", "die_unrecovered", "baby_lost",                  # cie-v6-binary.md 22
               "birth_then_die",                                              # cie-v6-binary.md 23
-              "old_look")                                                    # ... 27
+              "old_look",                                                    # ... 27
+              "sex_change")                                                  # ... 29
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
-                     "birth_then_die": 20, "old_look": 21})
+                     "birth_then_die": 20, "old_look": 21,
+                     "sex_change": 22})    # 29 (23 is kept for a cross-sex body look)
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
-                    "old_look": 0})        # 27: "VVFP Head Look.dll", known only at run time
+                    "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
+                    "sex_change": 0})      # 29: known only at run time (the companions loaded)
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
-                                          "baby_lost", "birth_then_die", "old_look")
+                                          "baby_lost", "birth_then_die", "old_look", "sex_change")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -593,6 +599,23 @@ def villager_names(game: int) -> tuple[tuple[str, ...], tuple[str, ...]]:
 def stranger_name_room(game: int) -> int:
     """The longest name in the game's lists: a named stranger's worst case."""
     return max(len(n) for names in villager_names(game) for n in names)
+
+
+@lru_cache(maxsize=None)
+def last_names(game: int) -> tuple[str, ...]:
+    """The game's own list of 50 last names (the one "VVFP Last Names.dll" names from): a new name's last name
+    (cie-v6-binary.md 28)."""
+    return tuple(json.loads(VILLAGER_NAMES.read_text(encoding="utf-8"))["games"][str(game)]["last"])
+
+
+def role_name_room(role: dict, game: int) -> int | None:
+    """A stranger role's name at its widest (16; 27: a new name, a first name, a space and a last name), else None
+    (a villager's: the game's name_room)."""
+    if role.get("kind") != "stranger":
+        return None
+    if role.get("new_name_for"):
+        return stranger_name_room(game) + 1 + max(len(n) for n in last_names(game))
+    return stranger_name_room(game)
 
 
 def label_fits(game: int, text: str) -> bool:
@@ -1082,8 +1105,29 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 of = []
             roles[rid] = {"kind": "alias", "of": list(of)}
         elif r["kind"] == "stranger":
-            extra = set(r) - {"kind", "sex"} - ({"named"} if v6 else set())
-            sex = r.get("sex", "random")
+            extra = set(r) - {"kind", "sex"} - ({"named", "new_name_for", "last_name"} if v6 else set())
+            new_for = r.get("new_name_for") if v6 else None
+            sex = r.get("sex", "same" if new_for is not None else "random")
+            if new_for is not None:
+                # Section 28: a new name for a villager role -- a first name from the game's lists and, with Last
+                # Names in the game, a last name; nobody is renamed.
+                if sex not in ("same", "other", "random", "male", "female"):
+                    problems.append(f"{where}: a new name's sex is same, other, random, male or female")
+                last = r.get("last_name", "same")
+                if last not in LAST_NAME_CODES:
+                    problems.append(f"{where}: last_name is same, different or random")
+                if not isinstance(new_for, str):
+                    problems.append(f"{where}: new_name_for is a villager role")
+                    new_for = ""
+                if r.get("named") not in (None, True):
+                    problems.append(f"{where}: a new name is named")
+                roles[rid] = {"kind": "stranger", "sex": sex, "named": True, "new_name_for": new_for,
+                              "last_name": last}
+                if extra:
+                    problems.append(f"{where}: unknown fields {', '.join(sorted(extra))}")
+                continue
+            if r.get("last_name") is not None:
+                problems.append(f"{where}: last_name is for a new name (new_name_for) only")
             if sex not in ("random", "male", "female"):
                 problems.append(f"{where}: a stranger's sex is random, male or female")
             roles[rid] = {"kind": "stranger", "sex": sex}
@@ -1151,6 +1195,10 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 alias = roles.get(r["of"])
                 if alias is None or alias["kind"] != "alias" or len(alias["of"]) != 2:
                     problems.append(f"role {rid}: an other role follows an alias of exactly two villager roles")
+            elif r["kind"] == "stranger" and r.get("new_name_for") is not None:
+                of = roles.get(r["new_name_for"])
+                if of is None or of["kind"] != "villager" or of.get("optional"):
+                    problems.append(f"role {rid}: a new name is for a villager role the event needs (not optional)")
             elif r["kind"] == "villager" and r.get("special") and \
                     any(gn not in SPECIAL_GAMES[r["special"]] for gn in g["games"]):
                 problems.append(f"role {rid}: {r['special']} is only in "
@@ -2028,7 +2076,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 word = max(PRONOUNS_V6[p.hint or HINT_DEFAULT], key=len)
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
             elif p.what == "name" and g["roles"].get(p.role, {}).get("kind") == "stranger":
-                out.append("W" * stranger_name_room(game.number))     # 16: the longest name in the game's lists
+                # 16: the longest name in the game's lists; 27: a new name's with the longest last name
+                out.append("W" * role_name_room(g["roles"][p.role], game.number))
             elif p.what == "name":
                 out.append("W" * game.name_room)
             else:
@@ -2574,6 +2623,7 @@ AUTO_LINES = {
     "die_unrecovered": "<R> dies; the body is not recovered.",
     "baby_lost": "<R>'s baby is lost.",
     "old_look": "<R> looks older and more worn.",
+    "sex_change": "<R>'s sex changes.",
 }
 
 
@@ -2607,7 +2657,8 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
-    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look"):
+    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
+              "sex_change"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
@@ -3547,7 +3598,11 @@ def _compile_v6(g: dict) -> bytes:
     roles = b""
     for r in role_ids:
         v = lg["roles"][r]
-        if v["kind"] == "stranger":
+        if v["kind"] == "stranger" and v.get("new_name_for"):
+            # 28: a new name -- flags named + new name, byte 3 the last name, the mask the villager role
+            roles += _ROLE6.pack(1, 1 | NEW_NAME_FLAG, SEX_CODES[v["sex"]], LAST_NAME_CODES[v["last_name"]], s(r),
+                                 0, 0, 0, 0, NONE, 0, 0, 1 << ridx[v["new_name_for"]])
+        elif v["kind"] == "stranger":
             roles += _ROLE6.pack(1, 1 if v.get("named") else 0, SEX_CODES[v["sex"]], 0, s(r), 0, 0, 0, 0, NONE, 0,
                                  0, 0)
         elif v["kind"] == "alias":
@@ -3757,6 +3812,9 @@ def _decompile_v6(data: bytes) -> dict:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
                 roles[rid]["named"] = True
+            if flags & NEW_NAME_FLAG:      # 28: a new name for a villager role
+                roles[rid]["new_name_for"] = next(role_ids[k] for k in range(n_role) if mask & (1 << k))
+                roles[rid]["last_name"] = {v: k for k, v in LAST_NAME_CODES.items()}[min_age]
         elif kind == 2:
             roles[rid] = {"kind": "alias", "of": [role_ids[k] for k in range(n_role) if mask & (1 << k)]}
         elif kind == 3:

@@ -114,15 +114,16 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
 # Changes, in the order the Add menu offers them, with their plain names.
 EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
                 "celebrate", "action", "mood", "health_change", "damage", "appearance", "old_look",
-                "die_unrecovered", "baby_lost", "birth_then_die")
+                "sex_change", "die_unrecovered", "baby_lost", "birth_then_die")
 NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage",      # these make the event version 6
-             "appearance", "die_unrecovered", "baby_lost", "birth_then_die", "old_look")
+             "appearance", "die_unrecovered", "baby_lost", "birth_then_die", "old_look", "sex_change")
 EFFECT_NAMES = {
     "appearance": "Give a villager a new look (head or body)",
     "die_unrecovered": "A villager dies and the body is never found (no grave)",
     "baby_lost": "A nursing parent loses the baby",
     "birth_then_die": "A nursing parent's baby is born now, then the parent dies",
     "old_look": "A villager looks older (the old head look)",
+    "sex_change": "A villager's sex changes (the game's own sex field)",
     "celebrate": "Villagers celebrate",
     "action": "A villager does something (an action of the game's own)",
     "mood": "A villager looks pleased or upset",
@@ -331,6 +332,8 @@ def describe_effect(e: dict) -> str:
         return f"{who}'s baby is born now, then {who} dies (recorded as \"{CAUSE_WORDS.get(cause, cause)}\")"
     if do == "old_look":
         return f"{who} is shown with the old head look from now on"
+    if do == "sex_change":
+        return f"{who}'s sex changes (never while carrying or nursing a baby)"
     if do == "appearance":
         parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
                  if e.get(part) is not None]

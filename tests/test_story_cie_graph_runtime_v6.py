@@ -1553,7 +1553,88 @@ class EngineFollowups(unittest.TestCase):
                         self.assertIn("could not be made", text, "no Head Look: a refusal, nothing changed")
 
 
+    def test_a_new_name_in_every_game(self):
+        # cie-v6-binary.md 28: the name is drawn once, shown the same everywhere, and nobody is renamed.
+        firsts = {n: cg.villager_names(n) for n in range(1, 6)}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            n = int(game[2])
+            for last, on in (("different", 1), ("same", 1), ("random", 1), ("different", 0)):
+                with self.subTest(game=game, last=last, last_names=on):
+                    graph = copy.deepcopy(NEW_NAME_GRAPH)
+                    graph["roles"]["chosen"]["last_name"] = last
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana Bandele", 0, False)])
+                    r.p.export("VvfpStoryProbeGraphSexLast", 1, on)    # a keeper in: nothing is changed
+                    r.rolls([1] * 40)
+                    self.assertIsNone(r.queue6(compiled(graph), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())   # unwrapped
+                    m = re.search(r"Ana Bandele asks to be called ([A-Za-z ]+)\. ([A-Za-z ]+) it is\.", text)
+                    self.assertIsNotNone(m, text)
+                    self.assertEqual(m.group(1), m.group(2), "one name for the whole run")
+                    words = m.group(1).split(" ")
+                    self.assertIn(words[0], firsts[n][0], "the other sex's list: a man's name")
+                    if not on:
+                        self.assertEqual(len(words), 1, "no last name without Last Names")
+                    elif last == "same":
+                        self.assertEqual(words[1:], ["Bandele"])
+                    else:
+                        self.assertEqual(len(words), 2)
+                        self.assertIn(words[1], cg.last_names(n))
+                        if last == "different":
+                            self.assertNotEqual(words[1], "Bandele")
+                    self.assertTrue(r.p.read(r.v.record(1) + r.v.L["name"], 12) == b"Ana Bandele\0",
+                                    "nobody is renamed")
+                    self.assertIn("could not be made", text, "the keeper refused the sex change")
+                    self.assertEqual(r.v.i32(1, r.v.L["sex"][0]), r.v.L["sex"][2], "the sex field is unchanged")
+
+    def test_the_sex_change_in_every_game(self):
+        # cie-v6-binary.md 29: the game's sex field, refused while carrying or with a keeper in the game.
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            off, male, female = None, None, None
+            for case in ("made", "keeper", "nursing"):
+                with self.subTest(game=game, case=case):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    off, male, female = r.v.L["sex"]
+                    r.p.export("VvfpStoryProbeGraphSexLast", 1 if case == "keeper" else 0, 0)
+                    if case == "nursing":
+                        r.p.export("VvfpStoryProbeGraphNurseAtWalk", 1)   # carrying by the time it is made
+                    r.rolls([1] * 40)
+                    self.assertIsNone(r.queue6(compiled(SEX_GRAPH), strict=True, origin=2))
+                    head0 = r.v.i32(1, r.v.L["head"])
+                    text = " ".join(t for _kind, t, _labels in r.walk_through())
+                    self.assertIn("Ana's sex changes.", text)
+                    self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
+                    words = cg.GAMES[int(game[2])].preferences
+                    if case == "made":
+                        self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")
+                        self.assertNotIn("could not be made", text)
+                        self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"),
+                                      "the run still knows Ana after the change")
+                    else:
+                        self.assertEqual(r.v.i32(1, off), female, "nothing changed")
+                        self.assertIn("could not be made", text)
+
+
 VECTOR_AUTO = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "auto_lines_vv1")
+NEW_NAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Name That Fits", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"},
+              "chosen": {"kind": "stranger", "new_name_for": "subject", "sex": "other", "last_name": "different"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) asks to be called (Chosen). (chosen) it is.", "auto_text": True,
+                    "effects": [{"do": "sex_change", "role": "subject"}]}},
+}
+SEX_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Person They Have Always Been", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) shares a private truth.", "auto_text": True,
+                    "effects": [{"do": "sex_change", "role": "subject"},
+                                {"do": "preference", "role": "subject", "dislike": "running"}]}},
+}
 
 
 if __name__ == "__main__":

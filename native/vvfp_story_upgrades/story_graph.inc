@@ -166,7 +166,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 23 */
        CGE_BIRTH_THEN_DIE = 20,
        /* cie-v6-binary.md 27 */
-       CGE_OLD_LOOK = 21 };
+       CGE_OLD_LOOK = 21,
+       /* cie-v6-binary.md 29 (23 is kept for a cross-sex body look) */
+       CGE_SEX_CHANGE = 22 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -199,6 +201,9 @@ enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DO
 enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_BELIEVERS = 8,
        CG_ROLE_HARM = 16, CG_ROLE_PROTECTED = 32 };
 #define CG_STRANGER_NAMED 1u          /* a stranger's flags: named (cie-v6-binary.md 16) */
+#define CG_STRANGER_NEW_NAME 2u       /* ... a new name for the villager role in its mask (cie-v6-binary.md 28) */
+enum { CG_NEW_SEX_SAME = 4, CG_NEW_SEX_OTHER = 5 };          /* 28: a new name's sex byte beyond 1..3 */
+enum { CG_LAST_SAME = 0, CG_LAST_DIFFERENT = 1, CG_LAST_RANDOM = 2 };   /* 28: its byte 3 */
 #include "story_villager_names.h"     /* each game's first-name lists (scripts/build_cie_villager_names.py) */
 #include "story_title_widths.h"       /* the later games' title font widths (scripts/build_cie_title_widths.py) */
 
@@ -883,8 +888,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         const unsigned char *r = cg_role_at(g, i);
         if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
             || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
-            || (r[0] == 1 && (r[2] < 1u || r[2] > 3u))
-            || (r[0] == 1 && g->version >= 6 && (r[1] & ~CG_STRANGER_NAMED) != 0u)
+            || (r[0] == 1 && (r[2] < 1u || r[2] > ((r[1] & CG_STRANGER_NEW_NAME) ? 5u : 3u)))
+            || (r[0] == 1 && g->version >= 6 && (r[1] & ~(CG_STRANGER_NAMED | CG_STRANGER_NEW_NAME)) != 0u)
+            || (r[0] == 1 && (r[1] & CG_STRANGER_NEW_NAME) && (!(r[1] & CG_STRANGER_NAMED) || r[3] > 2u))
             || (i == 0 && ((r[0] != CG_ROLE_VILLAGER && !(g->version >= 6 && r[0] == CG_ROLE_STRANGER))
                            || (r[0] == CG_ROLE_VILLAGER && (r[1] & CG_ROLE_OPTIONAL))))
             ) {
@@ -928,6 +934,15 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                     if ((members & (1u << k)) && cg_role_at(g, k)[0] != CG_ROLE_VILLAGER) {
                         return cg_bad("an alias role names a role that is not a villager");
                     }
+                }
+            } else if (r[0] == CG_ROLE_STRANGER && (r[1] & CG_STRANGER_NEW_NAME)) {
+                /* 28: a new name -- exactly one bit, a villager role the event needs. */
+                int of;
+                for (of = 0; of < g->n_role && members != (1u << of); ++of) {
+                }
+                if (of >= g->n_role || cg_role_at(g, of)[0] != CG_ROLE_VILLAGER
+                    || (cg_role_at(g, of)[1] & CG_ROLE_OPTIONAL)) {
+                    return cg_bad("a new name is not for a villager role the event needs");
                 }
             } else if (members != 0u) {
                 return cg_bad("a role is not one this game can read");
@@ -1008,8 +1023,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
-                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK);
-        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK);
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE;
+        int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
+                 || (g->version >= 6 && e[0] == CGE_SEX_CHANGE);
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1045,7 +1061,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a >= CG_LOOK_KEEP && a <= 29 && b >= CG_LOOK_KEEP && b <= 29
                      && !(a == CG_LOOK_KEEP && b == CG_LOOK_KEEP) && str == CG_NONE;
                 break;
-            case CGE_BABY_LOST: case CGE_OLD_LOOK: ok = a == 0 && b == 0 && str == CG_NONE; break;
+            case CGE_BABY_LOST: case CGE_OLD_LOOK: case CGE_SEX_CHANGE:
+                ok = a == 0 && b == 0 && str == CG_NONE;
+                break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -2222,6 +2240,165 @@ static int cg_stranger_room(int game) {
     return best;
 }
 
+/* ---- A new name (docs/event-collection/cie-v6-binary.md 28) ---------------------------------------------- */
+
+#ifdef VVFP_TEST
+static int test_graph_last_names = -1;  /* "VVFP Last Names.dll" as the test build sees it: -1 real, 0 none, 1 in */
+#endif
+
+/* The game's own 50 last names (the list "VVFP Last Names.dll" names from), read where the game keeps them, else
+   the same list built in. */
+static const char *cg_last_list(int game) {
+    static char list[512];
+    unsigned int n, i;
+    int ok = 1;
+    if (game < 1 || game > 5) {
+        return "";
+    }
+    n = CG_LAST_BYTES[game];
+    if (n == 0u || n >= sizeof list) {
+        return CG_LAST_TEXT[game];
+    }
+    __try {
+        memcpy(list, (const void *)(uintptr_t)CG_LAST_VA[game], n);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 0;
+    }
+    list[n] = '\0';
+    for (i = 0; ok && i < n; ++i) {
+        char c = list[i];
+        ok = c == ',' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+    }
+    ok = ok && list[0] != ',' && list[n - 1] == ',';
+    return ok ? list : CG_LAST_TEXT[game];
+}
+
+/* The longest last name in the game's list (a new name's worst case adds a space and it). */
+static int cg_last_room(int game) {
+    const char *s = game >= 1 && game <= 5 ? CG_LAST_TEXT[game] : "";
+    int n = 0, best = 0;
+    for (; *s != '\0'; ++s) {
+        n = *s == ',' ? 0 : n + 1;
+        if (n > best) {
+            best = n;
+        }
+    }
+    return best;
+}
+
+/* Whether the game has last names: "VVFP Last Names.dll" is loaded (as the Custom Island Event's Joey asks). */
+static int cg_last_names_on(void) {
+#ifdef VVFP_TEST
+    if (test_graph_last_names >= 0) {
+        return test_graph_last_names;
+    }
+#endif
+    return GetModuleHandleA("VVFP Last Names.dll") != NULL;
+}
+
+/* A word of only Roman numeral letters (a numbered name's numeral, "II"). */
+static int cg_roman(const char *s, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (s[i] != 'I' && s[i] != 'V' && s[i] != 'X' && s[i] != 'L' && s[i] != 'C' && s[i] != 'D' && s[i] != 'M') {
+            return 0;
+        }
+    }
+    return n > 0;
+}
+
+/* A villager's last name as the Last Names companion reads it: the last word after the first, a trailing Roman
+   numeral passed over; none (0) for a one-word name.  Its start in *at. */
+static int cg_last_of(const char *name, const char **at) {
+    const char *w[8];
+    int len[8], words = 0;
+    const char *s = name;
+    while (*s != '\0' && words < 8) {
+        while (*s == ' ') {
+            ++s;
+        }
+        if (*s == '\0') {
+            break;
+        }
+        w[words] = s;
+        while (*s != '\0' && *s != ' ') {
+            ++s;
+        }
+        len[words] = (int)(s - w[words]);
+        ++words;
+    }
+    if (words >= 2 && cg_roman(w[words - 1], len[words - 1])) {
+        --words;
+    }
+    if (words < 2) {
+        return 0;
+    }
+    *at = w[words - 1];
+    return len[words - 1];
+}
+
+/* Role `r`, a new name for the villager role in its mask: a first name of the sex its byte says (the villager's,
+   the other, male, female or random) drawn as a named stranger's, and -- with Last Names in the game -- the
+   villager's own last name, another one from the game's list, or any one.  Nobody is renamed: the name lives in
+   the run (cg.name, kept in the run's file) and is the same on every page. */
+static void cg_new_name(const ce_adapter *a, int game, int r) {
+    const unsigned char *spec = cg_role_at(&cg_g, r);
+    unsigned int mask = cg_u16(spec + 14);
+    const char *own = NULL;
+    int of, own_n = 0, female_of = 0, mode = spec[3];
+    for (of = 0; of < cg_g.n_role && mask != (1u << of); ++of) {
+    }
+    if (of < cg_g.n_role && (cg.bound & (1u << of))) {
+        female_of = cg.female[of];
+        own_n = cg_last_of(cg.name[of], &own);
+    }
+    cg.female[r] = spec[2] == 2 ? 1 : spec[2] == 1 ? 0 : spec[2] == CG_NEW_SEX_SAME ? female_of
+                 : spec[2] == CG_NEW_SEX_OTHER ? !female_of : ce_random_below(a, 2);
+    cg.name[r][0] = '\0';
+    cg_stranger_name(a, game, r);
+    if (!cg_last_names_on()) {
+        return;
+    }
+    if (mode != CG_LAST_SAME) {
+        const char *list = cg_last_list(game), *s, *skip = own;
+        int count = 0, k = 0, pick, skip_n = mode == CG_LAST_DIFFERENT ? own_n : 0;
+        for (s = list; *s != '\0';) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && !(skip_n == (int)(e - s) && cg_same_ci(skip, s, skip_n))) {
+                ++count;
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+        own = NULL;
+        own_n = 0;
+        pick = count > 0 ? ce_random_below(a, count) : -1;
+        for (s = list; *s != '\0' && own == NULL;) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && !(skip_n == (int)(e - s) && cg_same_ci(skip, s, skip_n))) {
+                if (k++ == pick) {
+                    own = s;
+                    own_n = (int)(e - s);
+                }
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+    }
+    if (own_n > 0) {
+        int have = lstrlenA(cg.name[r]);
+        if (have + 1 + own_n < CG_NAME_BYTES) {
+            cg.name[r][have] = ' ';
+            memcpy(cg.name[r] + have + 1, own, (size_t)own_n);
+            cg.name[r][have + 1 + own_n] = '\0';
+        }
+    }
+}
+
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
 static int cg_bind(int game) {
@@ -2254,6 +2431,9 @@ static int cg_bind(int game) {
         cg.record[r] = -1;
         if (spec[0] == CG_ROLE_ALIAS) {
             continue;
+        }
+        if (spec[0] == 1 && (spec[1] & CG_STRANGER_NEW_NAME)) {
+            continue;                          /* 28: drawn once every villager is bound (below) */
         }
         if (spec[0] == 1) {
             cg.female[r] = spec[2] == 2 ? 1 : spec[2] == 1 ? 0 : ce_random_below(a, 2);
@@ -2307,6 +2487,12 @@ static int cg_bind(int game) {
         cg.female[r] = ce_sex(a, a->record(pick)) == STORY_SEX_FEMALE;
         ce_copy_name(cg.name[r], CG_NAME_BYTES, a->record(pick) + a->off_name, a->name_bytes);
         cg.bound |= 1u << r;
+    }
+    for (r = 0; r < cg_g.n_role; ++r) {
+        const unsigned char *spec = cg_role_at(&cg_g, r);
+        if (spec[0] == CG_ROLE_STRANGER && (spec[1] & CG_STRANGER_NEW_NAME)) {
+            cg_new_name(a, game, r);           /* 28: in role order, after every villager */
+        }
     }
     return 1;
 }
@@ -3526,6 +3712,9 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         } else if (mode == CG_EXPAND_WORST) {
             if (ph.what == CG_PH_NAME && role >= 0 && cg_role_at(&cg_g, role)[0] == CG_ROLE_STRANGER) {
                 repeat = cg_stranger_room(cg.game);       /* 16: the longest name in the game's lists */
+                if (cg_role_at(&cg_g, role)[1] & CG_STRANGER_NEW_NAME) {
+                    repeat += 1 + cg_last_room(cg.game);  /* 28: a space and the longest last name */
+                }
             } else if (ph.what == CG_PH_NAME) {
                 repeat = name_room;
             } else {
@@ -4230,6 +4419,66 @@ static int cg_old_look(int game, const unsigned char *record, int index) {
     return vvfp_head_look_find(game, &api) && api.set(game, record, VVFP_HEAD_LOOK_OLD) == 1;
 }
 
+/* ---- The sex field changed (docs/event-collection/cie-v6-binary.md 29) ------------------------------------ */
+
+/* The companions that keep a villager's data in their own files by an identity that holds the sex field (the
+   Origins masks, the Head and Original Looks, Cause of Death's rosters and Former Heathens, Faith Loss, a Last
+   Names rule, the parentage and population records).  None of them yet follows a villager whose sex changed: the
+   change would cut the villager off from what was kept for them, so while any of them is in the game the change is
+   refused (the owner decides when each one follows it). */
+static const char *const CG_SEX_KEEPERS[] = {
+    "VVFP Head Look.dll", "VVFP Original Look.dll", "VVFP Origins Icons.dll", "VVFP VV1 Origins Icons.dll",
+    "VVFP VV2 Origins Icons.dll", "VVFP VV4 Origins Icons.dll", "VVFP Cause of Death.dll", "VVFP Faith Loss.dll",
+    "VVFP Last Names.dll", "VVFP Heathens Keep Masks.dll", "VVFP VV1 Parentage.dll", "VVFP Parentage Export.dll",
+    "VVFP Population Export.dll", "VVFP Statistics Export.dll",
+};
+
+#ifdef VVFP_TEST
+static int test_graph_sex_keepers = -1;  /* -1 the real check; 0 none in the game; 1 one is */
+#endif
+
+/* The first companion in the game that keeps data by the sex, or NULL. */
+static const char *cg_sex_keeper(void) {
+    int i;
+#ifdef VVFP_TEST
+    if (test_graph_sex_keepers >= 0) {
+        return test_graph_sex_keepers ? CG_SEX_KEEPERS[0] : NULL;
+    }
+#endif
+    for (i = 0; i < (int)(sizeof CG_SEX_KEEPERS / sizeof CG_SEX_KEEPERS[0]); ++i) {
+        if (GetModuleHandleA(CG_SEX_KEEPERS[i]) != NULL) {
+            return CG_SEX_KEEPERS[i];
+        }
+    }
+    return NULL;
+}
+
+/* Why villager `record` (index `index`) cannot have their sex changed now (a CE_WHY_*), or -1 when they can:
+   carrying or nursing (the game's own countdown, or babies on the record: off_pregnant and the litter after it,
+   as the adapter's cancel clears them), A New Home's parentage sidecar holding a baby they carry, a special
+   villager (the Golden Child, The Secret City's Tribal Chief and stand-in, New Believers' story villagers), or a
+   companion that keeps data by the sex in the game. */
+static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned char *record, int index) {
+    if (*(const int *)(record + a->off_pregnant) != 0 || *(const int *)(record + a->off_pregnant + 4u) != 0) {
+        return CE_WHY_EXPECTING;
+    }
+    if (game == 1) {
+        typedef int (__stdcall *expected_fn)(int, int *, char *, int);
+        HMODULE module = GetModuleHandleA("VVFP VV1 Parentage.dll");
+        expected_fn expected = module != NULL
+            ? (expected_fn)(void *)GetProcAddress(module, "Vv1ParentageQueryExpectedFather") : NULL;
+        char name[CG_NAME_BYTES];
+        int looks[4];
+        if (expected != NULL && expected(index, looks, name, CG_NAME_BYTES)) {
+            return CE_WHY_EXPECTING;
+        }
+    }
+    if (cg_special(a, game, record) || cg_never_harmed(game, record) || cg_sex_keeper() != NULL) {
+        return CE_WHY_OTHER;
+    }
+    return -1;
+}
+
 /* One more line for the event's log entry ("  <text>\n"), when it fits. */
 static void cg_extra_add(const char *who, const char *what) {
     char line[224];
@@ -4411,6 +4660,20 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         }
         cg_extra_add(cg.name[role], what);
         cg.gone |= 1u << role;
+        return;
+    }
+    if (e[0] == CGE_SEX_CHANGE) {
+        /* 29: the game's own sex field, the other value; nothing else (the looks' rows, the parents recorded on
+           anyone's record, the names) changes.  The run keeps the villager by their new identity. */
+        int why = cg_sex_change_refusal(a, game, record, index);
+        int female = ce_sex(a, record) == STORY_SEX_FEMALE;
+        if (why >= 0) {
+            ce_refuse(r, why);
+            return;
+        }
+        *(int *)(record + a->off_sex) = female ? a->sex_male : a->sex_female;
+        cg.identity[role] = ce_identity(a, record);
+        cg_extra_add(cg.name[role], female ? "'s sex is now male." : "'s sex is now female.");
         return;
     }
     if (e[0] == CGE_OLD_LOOK) {
@@ -4654,6 +4917,7 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "die_unrecovered", "<R> dies; the body is not recovered." },
     { "baby_lost", "<R>'s baby is lost." },
     { "old_look", "<R> looks older and more worn." },
+    { "sex_change", "<R>'s sex changes." },
 };
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
@@ -4735,6 +4999,7 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
         case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
         case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
+        case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
         case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
         case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
         case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
@@ -6983,6 +7248,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
         out[2 * i + 1] = test_graph_head_look_set[i][1];
     }
     return test_graph_head_looks;
+}
+
+/* The sex keepers (28) and "VVFP Last Names.dll" (27) as the test build sees them: -1 the real check, 0 none, 1 in. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphSexLast(int keepers, int last_names) {
+    test_graph_sex_keepers = keepers;
+    test_graph_last_names = last_names;
 }
 
 /* A New Home's parentage sidecar as the test build sees it (cie-v6-binary.md 21): record `record`'s father (which 0)

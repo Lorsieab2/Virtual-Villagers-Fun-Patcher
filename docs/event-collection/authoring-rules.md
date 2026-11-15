@@ -145,6 +145,8 @@ effect of that kind, or a `text_only` entry for that line.
 | loses the baby (a nursing parent) | `{"do": "baby_lost", "role": r}` on a `"special": "nursing_parent"` role with `"protected": "allow"` |
 | the child survives but the mother dies | `{"do": "birth_then_die", "role": r, "cause": "unknown"}` on a `"special": "nursing_parent"` role with `"protected": "allow"` (cie-v6-binary.md 23: the baby is born now, then the parent dies with a grave) |
 | looks older, the old head look | `{"do": "old_look", "role": r}` (cie-v6-binary.md 27) |
+| a gender transition that changes the villager's recorded sex (explicitly chosen) | `{"do": "sex_change", "role": r}` (cie-v6-binary.md 29: refused while carrying or nursing, for special villagers, and while a companion that keeps data by the sex is in the game; the text still shows) |
+| a chosen name, "asks to be called ..." | a new-name role, `{"kind": "stranger", "new_name_for": r, "sex": "same" \| "other" \| "random", "last_name": "same" \| "different" \| "random"}`, shown as `(Chosen)` (cie-v6-binary.md 28: nobody is renamed) |
 
 - "(large award) food" shown in the text is `(award)`: give `"defer": true` on the food and a `{"do": "pay_award"}`
   on the same node (`Your village gains (award) food.`).
@@ -216,6 +218,12 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
 - **Roles** are named for what they are (`gardener1`, `patient`, `teacher`). Shorthand `(Gardener1)` is the name.
   Requirements: adults `"min_age": 14`; a child `"min_age": 3, "max_age": 13`; a skill when the source names one
   (`"skill": {"names": ["Farming"], "min": 1}`).
+- **A chosen name** (REL events): never rename the villager. Give the event a new-name role (cie-v6-binary.md 28)
+  for the villager role and name it in the text: `"chosen": {"kind": "stranger", "new_name_for": "subject",
+  "sex": "other", "last_name": "same"}`, then `(Name) asks to be called (Chosen).` The name is drawn once and is the
+  same on every page. Its pronouns follow the name's sex; the villager's own pronouns stay the sex they were cast
+  with for the whole event (pages are laid out before a `sex_change` is made), so write names, not pronouns, after
+  a change. A body-sprite change for presentation is NOT `sex_change` (that effect is not built: owner question).
 - **Special villagers** (Q17): the Golden Child (`"special": "golden_child"`, `"min_age": 0`), the VV3 Chief, a named
   nursing parent. Casting one with no token in the text is allowed (the cast is the requirement). Unnamed mentions
   ("A nursing mother nearby") stay text.
