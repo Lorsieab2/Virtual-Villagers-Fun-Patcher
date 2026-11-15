@@ -312,6 +312,22 @@ LOOKS = {
 }
 
 
+# cie-v6-binary.md 23: the baby is born, then the mother dies; the friend's page after it.
+BIRTH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "Two Lives", "games": [1, 2, 3, 4, 5],
+    "roles": {"mother": {"kind": "villager", "sex": "female", "min_age": 14, "special": "nursing_parent",
+                         "protected": "allow"},
+              "friend": {"kind": "villager", "min_age": 14}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+              "effects": [{"do": "birth_then_die", "role": "mother", "cause": "unknown"}],
+              "children": [{"next": "q"}]},
+        "q": {"text": "(Friend) carries the child home."},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -418,6 +434,11 @@ def vector_cases() -> list[dict]:
         {"name": "looks_vv5", "graph": LOOKS, "game": 5, "unicode": False, "rolls": [0, 28],
          "bindings": {"subject": {"name": "Bo", "sex": "m"}, "friend": {"name": "Ana", "sex": "f"}},
          "answers": [], "facts": None},
+    ] + [
+        {"name": f"birth_then_die_vv{n}", "graph": BIRTH, "game": n, "unicode": False, "rolls": [],
+         "bindings": {"mother": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},
+         "answers": [], "facts": None}
+        for n in range(1, 6)
     ]
 
 
@@ -892,6 +913,43 @@ class V28Features(unittest.TestCase):
         plain = copy.deepcopy(d)
         plain["roles"]["mum"] = {"kind": "villager", "protected": "allow"}
         self.assertTrue(any("special nursing_parent" in p for p in t.problems_of(plain)))
+
+    def test_birth_then_die_needs_a_nursing_parent_allowed(self):
+        # cie-v6-binary.md 23: code 20, the cause as kill's (default the owner's Unknown causes), gone for good.
+        d = v6(roles={"mum": {"kind": "villager", "special": "nursing_parent", "protected": "allow"},
+                      "pal": {"kind": "villager"}},
+               nodes={"p": {"text": "(Mum) gives birth and dies. (Pal) carries the child home.",
+                            "effects": [{"do": "birth_then_die", "role": "mum"}], "children": [{"next": "z"}]},
+                      "z": {"text": "The village mourns."}},
+               pools={})
+        for nid in ("q", "k", "l"):
+            del d["nodes"][nid]
+        self.assertEqual(t.problems_of(d), [])
+        g = cg.load(d)
+        self.assertEqual(g["nodes"]["p"]["effects"][0]["cause"], "unknown")
+        self.assertEqual(cg.harm_capable(g), {"mum"})
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        e = struct.unpack_from("<BBBBiiHH", blob, struct.unpack_from("<I", blob, 56)[0])
+        self.assertEqual((e[0], e[4], e[5]), (20, 0, 0))
+        roles = struct.unpack_from("<I", blob, 44)[0]
+        self.assertEqual(blob[roles + 1] & (2 | 4 | 16 | 32), 16, "harm-capable, nursing parents allowed")
+        own = copy.deepcopy(d)
+        own["nodes"]["p"]["effects"][0]["cause"] = "a hard birth"
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(cg.load(own)))["nodes"]["p"]["effects"][0]["cause"],
+                         "a hard birth")
+        gone = copy.deepcopy(d)
+        gone["nodes"]["z"]["effects"] = [{"do": "celebrate", "who": "mum"}]
+        self.assertTrue(any("already gone" in p for p in t.problems_of(gone)))
+        auto = copy.deepcopy(d)
+        auto["roles"]["mum"]["protected"] = "auto"
+        self.assertTrue(any("needs protected allow" in p for p in t.problems_of(auto)))
+        plain = copy.deepcopy(d)
+        plain["roles"]["mum"] = {"kind": "villager", "protected": "allow"}
+        self.assertTrue(any("birth_then_die acts on a role with special nursing_parent" in p
+                            for p in t.problems_of(plain)))
+        self.assertEqual(cg.default_outcome([("p", {"do": "birth_then_die", "role": "subject"})]),
+                         "dies (the baby is born)")
 
     def test_kinship_roles(self):
         d = v6(roles={"hero": {"kind": "villager"}, "pal": {"kind": "villager", "relation": {"child_of": "hero"}},

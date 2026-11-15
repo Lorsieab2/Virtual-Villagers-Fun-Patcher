@@ -5771,6 +5771,451 @@
     "rolls_used": 2,
     "cieg_sha256": "ca1f634d5737e8d577ee4d11256ac5792d74998b180bcfeedbec2b15a92c4879"
    }
+  },
+  {
+   "name": "birth_then_die_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "Two Lives",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "mother": {
+      "kind": "villager",
+      "sex": "female",
+      "min_age": 14,
+      "special": "nursing_parent",
+      "protected": "allow"
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+      "effects": [
+       {
+        "do": "birth_then_die",
+        "role": "mother",
+        "cause": "unknown"
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) carries the child home."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "mother": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana's child is born, but she does not survive.",
+     "Bo carries the child home."
+    ],
+    "titles": [
+     "Two Lives",
+     "Two Lives"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+   }
+  },
+  {
+   "name": "birth_then_die_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "Two Lives",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "mother": {
+      "kind": "villager",
+      "sex": "female",
+      "min_age": 14,
+      "special": "nursing_parent",
+      "protected": "allow"
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+      "effects": [
+       {
+        "do": "birth_then_die",
+        "role": "mother",
+        "cause": "unknown"
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) carries the child home."
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "mother": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana's child is born, but she does not survive.",
+     "Bo carries the child home."
+    ],
+    "titles": [
+     "Two Lives",
+     "Two Lives"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+   }
+  },
+  {
+   "name": "birth_then_die_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "Two Lives",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "mother": {
+      "kind": "villager",
+      "sex": "female",
+      "min_age": 14,
+      "special": "nursing_parent",
+      "protected": "allow"
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+      "effects": [
+       {
+        "do": "birth_then_die",
+        "role": "mother",
+        "cause": "unknown"
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) carries the child home."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "mother": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana's child is born, but she does not survive.",
+     "Bo carries the child home."
+    ],
+    "titles": [
+     "Two Lives",
+     "Two Lives"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+   }
+  },
+  {
+   "name": "birth_then_die_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "Two Lives",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "mother": {
+      "kind": "villager",
+      "sex": "female",
+      "min_age": 14,
+      "special": "nursing_parent",
+      "protected": "allow"
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+      "effects": [
+       {
+        "do": "birth_then_die",
+        "role": "mother",
+        "cause": "unknown"
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) carries the child home."
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "mother": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana's child is born, but she does not survive.",
+     "Bo carries the child home."
+    ],
+    "titles": [
+     "Two Lives",
+     "Two Lives"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+   }
+  },
+  {
+   "name": "birth_then_die_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "Two Lives",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "mother": {
+      "kind": "villager",
+      "sex": "female",
+      "min_age": 14,
+      "special": "nursing_parent",
+      "protected": "allow"
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Mother)'s child is born, but (mother.he/she) does not survive.",
+      "effects": [
+       {
+        "do": "birth_then_die",
+        "role": "mother",
+        "cause": "unknown"
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) carries the child home."
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "mother": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana's child is born, but she does not survive.",
+     "Bo carries the child home."
+    ],
+    "titles": [
+     "Two Lives",
+     "Two Lives"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "c93d2e50f831b8069269ef8778281a6956f25a42a933ee1e0e534ea752fdd252"
+   }
   }
  ]
 }

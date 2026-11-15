@@ -240,7 +240,7 @@ def vector_village(case: dict):
         farming = (5 if k == 0 else 1) if skill else 0
         if role == "cook2":
             farming = 0
-        people.append((len(people), b["sex"], years, b["name"], farming, False))
+        people.append((len(people), b["sex"], years, b["name"], farming, spec.get("special") == "nursing_parent"))
     return people
 
 
@@ -273,6 +273,9 @@ class SharedVectors(unittest.TestCase):
         self.assertEqual(hashlib.sha256(data).hexdigest(), e["cieg_sha256"], "the same compiled file")
         names = Names(data)
         r = V6(game, vector_village(case))
+        if case["name"].startswith("birth_then_die"):
+            from test_story_birth_then_die import real_catch_up   # the game's own catch-up runs (section 23)
+            real_catch_up(r)
         at, extra = BIND_ROLLS.get(case["name"], (0, []))
         rolls = list(case["rolls"])
         r.rolls(rolls[:at] + extra + rolls[at:] + [0] * 8)
