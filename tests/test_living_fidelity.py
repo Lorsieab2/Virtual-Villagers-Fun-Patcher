@@ -74,6 +74,21 @@ class Exhaustive(unittest.TestCase):
             self.assertTrue(all(r[5] == BANK.credit for r in rows))
 
 
+class TheCheckBites(unittest.TestCase):
+    def test_a_changed_word_is_caught(self) -> None:
+        variants = [v for v in mx.generate(BANK) if v.seed == "le_odd_09" and v.k < 2]
+        node = next(n for n in variants[1].graph["nodes"] if n.startswith("o_"))
+        variants[1].graph["nodes"][node]["text"] = "Nobody minds at all."
+        variants[1].graph["nodes"]["setup"]["choices"][0]["label"] = "Shrug it off."
+        mx.compile_all(variants)
+        game = variants[1].games[0]
+        problems, _ = lc.check_packs({game: mx.pack(game, variants, BANK)}, BANK)
+        mine = [p for p in problems if "variants k" not in p and "k=1" in p]
+        self.assertTrue(any("'Shrug it off.' is not a bank choice" in p for p in mine), mine)
+        self.assertTrue(any("maps to the wrong archetype" in p for p in mine), mine)
+        self.assertFalse([p for p in problems if "k=0" in p])
+
+
 class MixAnchor(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

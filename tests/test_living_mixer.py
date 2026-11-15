@@ -165,7 +165,17 @@ class Ordering(unittest.TestCase):
             return 0
         order = mx.lv_order(self.vs, self.seed["first"], self.hist(), below)
         self.assertEqual(order, list(range(self.seed["first"], self.seed["first"] + len(self.vs))))
-        self.assertEqual(rolls, [1000 * n for n in range(len(self.vs), 1, -1)])   # the last one takes no roll
+        # One roll a pick (the last too: its weight, 1000, is more than 1).
+        self.assertEqual(rolls, [1000 * n for n in range(len(self.vs), 0, -1)])
+
+    def test_no_roll_when_the_weights_sum_to_one(self) -> None:
+        h = self.hist()
+        v = dict(self.vs[0])
+        for _ in range(1000):
+            h.armed(0, v, 7)
+        rolls = []
+        self.assertEqual(mx.lv_order([v], 7, h, lambda n: rolls.append(n) or 0), [7])
+        self.assertEqual(rolls, [])                  # weight max(1, 1000 // 4001) = 1: no roll
 
     def test_at_most_twelve(self) -> None:
         many = self.vs * 2
