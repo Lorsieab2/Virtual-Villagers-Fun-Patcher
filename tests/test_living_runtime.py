@@ -252,7 +252,7 @@ class TheDraw(unittest.TestCase):
                 self.assertEqual(sum(h["var"]), 1)
 
     def test_a_seed_none_of_whose_variants_casts(self) -> None:
-        """Art, Knowledge, and Craft's variants here need a teenager, the chief or Devotion: four adults (no skills)
+        """Art, Knowledge, and Craft's variants here need a skill, the chief or Devotion: four adults (no skills)
         have none of them."""
         for game in each_game():
             with self.subTest(game=game):
@@ -346,7 +346,7 @@ class Moods(unittest.TestCase):
             run.idle()
         run.rolls([3] + [0] * 63)
         armed, trace = run.choose()
-        self.assertEqual(trace[0], 3)                    # living_le_odd_09
+        self.assertEqual(trace[0], 3)                    # living_le_odd_03
         run.idle()
         run.rolls([4] + [0] * 63)
         armed, trace = run.choose()
@@ -470,7 +470,7 @@ class PickAndLibrary(unittest.TestCase):
                 run.manifest()
                 rows = {line.split("\t")[0]: line.split("\t")[6] for line in manifest_text(run.n).splitlines()}
                 got = self.entries(run)
-                self.assertEqual(got[rows["living_le_per_01"]][1], "")     # its third variant casts
+                self.assertEqual(got[rows["living_le_per_01"]][1], "")     # its fifth variant casts
                 self.assertNotEqual(got[rows["living_le_art_05"]][1], "")  # none casts: what it needs
 
     def test_the_library_casts_its_own_way_and_records(self) -> None:

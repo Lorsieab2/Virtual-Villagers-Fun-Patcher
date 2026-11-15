@@ -6,10 +6,9 @@ Reads every pack, decompiles every variant and checks, independently of how the 
     approach, an archetype, an MC situation, approach or outcome; typography made plain) or the frame
     (living-events.md section 1); every pool item and game word expanded for each game; every title is the category's;
   * QUALITY (design section D): every choice reaches a GOOD and a MIXED or BAD page; a path with no effect;
-    supernatural seeds never resolve; consent offered on medical seeds; VV3 / VV5 roles and seeds only in their game;
-    no "Chief" outside VV3, no "Heathen" or "convert"; supported effects only, never on a stranger; MC never kills or
-    makes anyone vanish;
-  * COMPAT: every exclusion of the bank's compat table and the mixer's sensitivity rules S1-S9 on every variant;
+    consent offered on medical seeds; VV3 / VV5 roles and seeds only in their game; no "Chief" outside VV3, no
+    "Heathen" or "convert"; supported effects only, never on a stranger; MC never kills or makes anyone vanish;
+  * COMPAT: every exclusion of the bank's compat table and the mixer's rules (S7, S17) on every variant;
   * COUNTS: the bank's counts, K variants per active seed, one manifest row per seed per game.
 
     python scripts/living_check.py          # prints OK, or the problems
@@ -77,6 +76,21 @@ def chief_form(text: str, game: int) -> str:
 
 
 # ---- One variant ----------------------------------------------------------------------------------------------------
+
+
+def branch_ok(groups: list[str], weights: list[int], mix: bool) -> bool:
+    """A choice's children: GOOD, then MIXED or BAD, then an optional RARE (weights 20 / 20 / 2).  In a MIX
+    (variant 0) the good or the adverse outcome may be two equal alternatives (10 + 10, mx.MIX_ALTERNATIVES)."""
+    i = 0
+    for want, total in ((("good",), mx.W_GOOD), (("mixed", "bad"), mx.W_ADVERSE)):
+        n = 0
+        while i + n < len(groups) and groups[i + n] in want:
+            n += 1
+        run = weights[i:i + n]
+        if not (run == [total] or (mix and run == [mx.W_ALT, mx.W_ALT])):
+            return False
+        i += n
+    return groups[i:] == [] or (groups[i:] == ["rare"] and weights[i:] == [mx.W_RARE])
 
 
 def check_le(bank: mx.Bank, idx: Index, seed: dict, v: dict, d: dict, game: int, out: list[str]) -> dict:
@@ -156,9 +170,7 @@ def check_le(bank: mx.Bank, idx: Index, seed: dict, v: dict, d: dict, game: int,
                 out.append(f"{where}: {arc} auto lines do not match its effects")
         groups = [bank.arc[x]["group"] for x, _w in arcs]
         weights = [w for _x, w in arcs]
-        if not (groups[:1] == ["good"] and len(groups) >= 2 and groups[1] in ("mixed", "bad")
-                and weights[:2] == [mx.W_GOOD, mx.W_ADVERSE]
-                and (len(groups) == 2 or (len(groups) == 3 and groups[2] == "rare" and weights[2] == mx.W_RARE))):
+        if not branch_ok(groups, weights, bool(v["flags"] & mx.FLAG_MIX)):
             out.append(f"{where}: choice {label!r} branches {groups} {weights}")
         found["paths"].append([x for x, _w in arcs])
     return found
@@ -199,7 +211,7 @@ def check_mc(bank: mx.Bank, sit: dict, v: dict, d: dict, game: int, out: list[st
 
 
 def check_quality(bank: mx.Bank, seed: dict, v: dict, d: dict, found: dict, game: int, out: list[str]) -> None:
-    """Design section D, the compat table and the sensitivity rules on one LE variant."""
+    """Design section D, the compat table and the mixer's rules on one LE variant."""
     where = f"vv{game} {seed['code']} k={v['k']}"
     a, b = found["roles"]
     games = sorted(d["games"])
@@ -215,23 +227,21 @@ def check_quality(bank: mx.Bank, seed: dict, v: dict, d: dict, found: dict, game
     if mx.is_stranger(bank, a):
         if not v["flags"] & mx.FLAG_MIX:
             out.append(f"{where}: the first villager is a stranger")
-    # personalities (compat P / R rules, S1, S5)
-    all_arcs = [x for p in found["paths"] for x in p]
-    slots = mx.sensitive_slots(bank, all_arcs, a, b, games)
+    # personalities (compat P rules)
     for slot, rid, pers in zip(("first", "second"), (a, b), found["pers"]):
         for p in pers:
             if p is None:
                 continue
-            if not mx.personality_ok(bank, seed, rid, p, slot in slots):
-                out.append(f"{where}: {slot} {rid} may be {p} (compat / S1 / S5)")
-    # choices (compat, S7, S9, consent)
+            if not bank.role_allows_personality(rid, p):
+                out.append(f"{where}: {slot} {rid} may be {p} (compat)")
+    # choices (compat, S7, S17, consent)
     if len(found["choices"]) < 2 or len(found["choices"]) > 5:
         out.append(f"{where}: {len(found['choices'])} choices")
     for kind, ident in found["choices"]:
         if not bank.seed_allows(sid, kind, ident):
             out.append(f"{where}: {ident} excluded for the seed")
         if kind == "approach" and not mx.approach_allowed(bank, seed, ident, a, b):
-            out.append(f"{where}: {ident} breaks S7 or S9")
+            out.append(f"{where}: {ident} breaks S7 or S17")
     if seed["consent_choice_required"] and not any(mx.consent_choice(bank, k, i) for k, i in found["choices"]):
         out.append(f"{where}: a medical seed with no consent choice")
     if mx.adult_frame(seed, found["choices"]):
@@ -239,30 +249,17 @@ def check_quality(bank: mx.Bank, seed: dict, v: dict, d: dict, found: dict, game
             r = d["roles"][key]
             if r["kind"] == "villager" and not r.get("special") and r["min_age"] < mx.ADULT_AGE:
                 out.append(f"{where}: S7: {key} may be younger than {mx.ADULT_AGE}")
-    # outcomes (compat, S2-S4, S6, S8, D)
+    # outcomes (compat, coherence, D)
     free = False
     for (kind, ident), path in zip(found["choices"], found["paths"]):
         groups = {bank.arc[x]["group"] for x in path}
         if "good" not in groups or not groups & {"mixed", "bad"}:
             out.append(f"{where}: {ident} lacks a good or an adverse outcome")
         for x in path:
-            if not mx.archetype_possible(bank, sid, x, a, b, bool(v["flags"] & mx.FLAG_MIX)):
-                out.append(f"{where}: {x} excluded (compat / S8)")
-            if not mx.arc_ok_after(bank, kind, ident, x):
-                out.append(f"{where}: {ident} -> {x} breaks S2-S6")
-            if "supernatural" in seed["tags"] and "resolves" in bank.arc[x]["tags"]:
-                out.append(f"{where}: supernatural seed resolved by {x}")
-            rule = mx.seed_arc_rule(bank, seed, x)
-            if rule and not (rule in mx.KEPT_IN_OWNER_EXAMPLES and v["flags"] & mx.FLAG_MIX):
-                out.append(f"{where}: {rule}: {x} after {ident}")
-            if not mx.endorse_ok(bank, seed, kind, ident, x):
-                out.append(f"{where}: S11: {ident} -> {x} rewards following an unjust custom")
+            if not mx.archetype_possible(bank, sid, x, a, b):
+                out.append(f"{where}: {x} excluded (compat / no elder in the scene)")
             if bank.arc[x]["group"] != "rare" and not bank.arc[x]["effects"]:
                 free = True
-        if mx.no_mocking(seed, bank) and "mocking" in mx.choice_classes(bank, kind, ident) and not v["flags"] & mx.FLAG_MIX:
-            out.append(f"{where}: S10-S12: the seed offers the mocking {ident}")
-        if seed["id"] in mx.PREJUDICE_SEEDS and ident in mx.FALSE_EQUIVALENCE and not v["flags"] & mx.FLAG_MIX:
-            out.append(f"{where}: S13: {ident} treats prejudice as one valid opinion")
     if not free:
         out.append(f"{where}: no path without an effect")
 

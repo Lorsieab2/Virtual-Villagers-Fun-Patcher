@@ -382,58 +382,27 @@ for mx in mix_out:
 def by_tag(items, tag):
     return sorted(i["id"] for i in items if tag in i["tags"])
 
-PLAY_APPS = sorted(a["id"] for a in apps_out if a["family"] == "play")
+# Owner decision (2026-11-15): the mixer keeps everything except combinations that produce obviously problematic power
+# dynamics, invalidate someone's pain or trauma, portray anyone as lesser, or a minor-adult romance or power imbalance;
+# genuine contradictions stay prevented (coherence).  Only the rules those need remain.
 RULES = [
-    {"id": "C1", "why": "Grief, death, illness, trauma or loss seeds never take comedic or play approaches.",
-     "seeds_with_any": ["somber", "medical"],
-     "exclude": {"approaches": PLAY_APPS, "choices": by_tag(cline_out, "comedic") + by_tag(cline_out, "play")}},
-    {"id": "C2", "why": "Grief, death, illness, trauma or loss seeds never take light archetypes (memorable day, "
-                        "celebration, a new song, an embarrassment).",
-     "seeds_with_any": ["somber", "medical"], "exclude": {"archetypes": by_tag(arcs_out, "light")}},
-    {"id": "C3", "why": "Medical seeds never take approaches that trivialise consent (the chief decides, an "
-                        "experiment, magic, animal help, a public debate).",
-     "seeds_with_any": ["medical"], "exclude": {"approaches": by_tag(apps_out, "consent_risk")}},
-    {"id": "C4", "why": "Belief and spirit seeds never take a mocking approach.",
-     "seeds_with_any": ["belief"],
-     "exclude": {"approaches": by_tag(apps_out, "mocking"), "choices": by_tag(cline_out, "mocking")}},
-    {"id": "C5", "why": "Supernatural seeds stay unresolved: no archetype that settles who was right.",
-     "seeds_with_any": ["supernatural"], "exclude": {"archetypes": by_tag(arcs_out, "resolves")}},
+    {"id": "C3", "why": "Medical seeds never have the chief decide a villager's care (an obviously problematic power "
+                        "dynamic).",
+     "seeds_with_any": ["medical"],
+     "exclude": {"approaches": sorted(a["id"] for a in apps_out if a["kind"] == "authority")}},
     {"id": "C6", "why": "Purely personal seeds never take prayer, magic, animal labour or experiments "
-                        "(source L23825).",
+                        "(source L23825: nonsensical options for a purely personal issue).",
      "seeds_with_any": ["personal"],
      "exclude": {"approaches": sorted(a["id"] for a in apps_out if a["kind"] in ("prayer", "magic", "animal", "experiment"))}},
-    {"id": "C7", "why": "RARE harm (leaving, a death, a friendship ending, a lost heirloom) never follows a personal, "
-                        "playful, celebration, somber, medical or child seed.",
-     "seeds_with_any": ["personal", "playful", "celebration", "somber", "medical", "child_subject"],
-     "exclude": {"archetypes": by_tag(arcs_out, "rare_harm")}},
-    {"id": "C8", "why": "The elder's death is only drawn where the owner's text can carry it (seeds tagged "
-                        "elder_death_ok); never in a celebration seed.",
-     "seeds_without": "elder_death_ok", "exclude": {"archetypes": by_tag(arcs_out, "elder_death")}},
     {"id": "C9", "why": "Seeds with an adult-only or romantic framing (a love letter, having a child, a child's "
-                        "companion, a wedding) never cast a child or a teenager, and never draw an unexpected birth.",
+                        "companion, a wedding) never cast a child or a teenager (minor-adult romance).",
      "seeds_with_any": ["adult_only"],
-     "exclude": {"roles": sorted(r["id"] for r in roles_out if {"child", "teen"} & set(r["tags"])),
-                 "archetypes": by_tag(arcs_out, "birth")}},
-    {"id": "C10", "why": "Child seeds never draw an unexpected birth.",
-     "seeds_with_any": ["child_subject"], "exclude": {"archetypes": by_tag(arcs_out, "birth")}},
-    {"id": "C11", "why": "Somber and medical seeds never cast a child to argue over an adult's care or grief "
-                         "(RES-04, the child's own fear, is the exception).",
-     "seeds_with_any": ["somber", "medical"], "except_seeds": ["le_res_04"],
-     "exclude": {"roles": sorted(r["id"] for r in roles_out if "child" in r["tags"])}},
-    {"id": "C12", "why": "Somber and medical seeds never draw blame archetypes (wasted supplies, mistaken "
-                         "confidence, embarrassment).",
-     "seeds_with_any": ["somber", "medical"], "exclude": {"archetypes": by_tag(arcs_out, "blame")}},
+     "exclude": {"roles": sorted(r["id"] for r in roles_out if {"child", "teen"} & set(r["tags"]))}},
 ]
 ROLE_RULES = [
-    {"id": "R1", "why": "A vulnerable role (child, teenager, elderly villager) never draws blame archetypes, and "
-                        "never 'leaves for a time' with an unknown fate (a generic departure does not make sense "
-                        "for them; an injury may).",
-     "roles_with_any": ["vulnerable"],
-     "exclude": {"archetypes": sorted(set(by_tag(arcs_out, "blame") + by_tag(arcs_out, "vanish")))}},
-    {"id": "R2", "why": "Personalities that can read as an insult are never given to a child.",
-     "roles_with_any": ["child"], "exclude": {"personalities": by_tag(pers_out, "insult_risk")}},
-    {"id": "R3", "why": "Personalities that can read as an age stereotype are never given to an elder.",
-     "roles_with_any": ["elder"], "exclude": {"personalities": by_tag(pers_out, "ageist_risk")}},
+    {"id": "R1", "why": "A child never 'leaves for a time' with an unknown fate (a generic departure does not make "
+                        "sense for a child).",
+     "roles_with_any": ["child"], "exclude": {"archetypes": by_tag(arcs_out, "vanish")}},
 ]
 PAIR_RULES = [  # contradictions and repeats in "a <personality> <role>"
     {"id": "P1", "why": "Contradiction or repeat: a devout or skeptical skeptical observer.",
@@ -492,7 +461,9 @@ def mix_conflicts(mx):
 conf = [{"mix": m["id"], "conflicts": c} for m in mix_out if (c := mix_conflicts(m))]
 
 compat = {
-    "status": "conservative defaults for owner review (2026-11-14): when in doubt, exclude",
+    "status": "owner decision (2026-11-15): everything is kept except obviously problematic power dynamics, "
+              "invalidating pain or trauma, portraying anyone as lesser, minor-adult romance or power imbalance, "
+              "and genuine contradictions",
     "seed_rules": RULES, "role_rules": ROLE_RULES, "pair_rules": PAIR_RULES,
     "exclusions": excl,
     "owner_example_conflicts": conf,
