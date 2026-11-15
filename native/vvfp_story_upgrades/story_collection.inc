@@ -44,12 +44,12 @@
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
 #define SC_FOLDER "Island Event Collection"
-#define SC_MAX 256                                       /* collection entries of one game */
+#define SC_MAX 2048                                      /* collection entries of one game */
 #define SC_GAP 60u                                       /* seconds kept clear of a natural event */
 #define SC_FRAC_MIN 300                                  /* the due point, per mille of the gap: 300..700 */
 #define SC_FRAC_SPAN 401
 #define SC_MIN_GROWN 6                                   /* villagers of 14 or more */
-#define SC_MANIFEST_BYTES 262144
+#define SC_MANIFEST_BYTES 1048576
 #define SC_MAGIC 0x52435356u                             /* 'V' 'S' 'C' 'R' */
 #define SC_VERSION 1u
 

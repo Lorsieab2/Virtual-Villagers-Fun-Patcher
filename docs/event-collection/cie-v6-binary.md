@@ -80,8 +80,10 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 
 ## 2a. Node record (28 bytes, unchanged size)
 
-`B type, B append, B paragraph, B 0, H id, H text, H variant first, H variant count, H child first, H child count,
-H else, H effect first, H effect count, H summary, H outcome, H title`. As v5, except the last H (0 in v1-v5): in
+`B type, B append, B paragraph, B flags, H id, H text, H variant first, H variant count, H child first, H child count,
+H else, H effect first, H effect count, H summary, H outcome, H title`. The flags byte (0 in v1-v5 and in every
+file made before section 24): bit 0 = **auto lines** (section 24), only on a v6 popup node; any other bit, or bit 0
+anywhere else, is refused by the loader. As v5, except the last H (0 in v1-v5): in
 v6 it is the node's **popup title** string (section 14), or `NONE` **(differs from A4; the v6 compiler wrote 0
 here before per-node titles, and nothing with that shipped)**. The loader refuses a v6 node whose title is not
 `NONE` or a title the game can show (section 14), and a title on a branch.
@@ -250,8 +252,15 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
 | 18 | die_unrecovered | role index | 0, 0 | `unknown` (always; the engine says "Unknown causes" whatever it holds) |
 | 19 | baby_lost | role index | 0, 0 | NONE |
+| 20 | old_look | role index | 0, 0 | NONE (section 26) |
 
-A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22.
+A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22, code 20 section 26.
+
+Preference (8) in v6 may be **random** (section 23): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
+
+| Op | cond | a | Holds when |
+|---|---|---|---|
+| 17 | has_dead_relative | role index | the role's villager is bound, not gone, and has lost a recorded parent or a co-parent (section 21a) |
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -534,12 +543,13 @@ anything is filled in:
 ## 21. Kinship roles
 
 JSON: a villager role may carry `"relation": {"spouse_of": r} | {"parent_of": r} | {"child_of": r} |
-{"sibling_of": r}` -- this role's villager must be that relation of role `r`'s villager. `r` is another villager role
-the event needs (not optional, not a stranger, alias or other role); one relation a role.
+{"sibling_of": r} | {"grandparent_of": r} | {"grandchild_of": r} | {"aunt_or_uncle_of": r} | {"cousin_of": r}` --
+this role's villager must be that relation of role `r`'s villager. `r` is another villager role the event needs (not
+optional, not a stranger, alias or other role); one relation a role.
 
 - **Binary:** the header grows to 104 bytes (section 1) and the relations table holds one 4-byte record per role
-  with a relation: `B role, B kind (1 spouse_of, 2 parent_of, 3 child_of, 4 sibling_of), B other role, B 0`, in role
-  order. The loader refuses a relation whose roles are not two different villager roles, an unknown kind, or two
+  with a relation: `B role, B kind (1 spouse_of, 2 parent_of, 3 child_of, 4 sibling_of, 5 grandparent_of,
+  6 grandchild_of, 7 aunt_or_uncle_of, 8 cousin_of), B other role, B 0`, in role order. The loader refuses a relation whose roles are not two different villager roles, an unknown kind, or two
   relations on one role.
 - **Casting.** A relation is a rule between two roles, so -- as an age gap (version 3) -- the roles are then filled
   by the search (`cg_search`, `cg_gap_ok`): each role in turn takes an eligible villager who keeps every relation
@@ -566,6 +576,18 @@ the event needs (not optional, not a stranger, alias or other role); one relatio
     or one of them is carrying the other's baby (the expected father on the mother: VV2 +0x5C0 / +0x5E0 / +0x5DC,
     VV3 +0xE48 / +0xE68 / +0xE64, VV4 and VV5 +0x1C10 / +0x1C30 / +0x1C2C; A New Home from the sidecar's
     `Vv1ParentageQueryExpectedFather`). An owner question: whether this is what "spouse" should mean.
+  - **Wider kinship** (gap C2), built from the same parent links through a LIVING, listed villager in between (a
+    dead villager's own parents are on no record the engine can read, so a link through them is not known):
+    - `grandparent_of`: this villager is a recorded parent of a living villager P who is a recorded parent of `r`'s.
+      `grandchild_of`: the same with the two swapped.
+    - `aunt_or_uncle_of`: this villager is a sibling (as `sibling_of`) of a living recorded parent of `r`'s.
+    - `cousin_of`: a living recorded parent of this villager and a living recorded parent of `r`'s are siblings.
+    - The role-sex words `(aunt/uncle)`, `(mother/father)` etc. (section 5) name the role's side of it.
+  - **Per game:** The Lost Children to New Believers: all eight, from their records. A New Home: only with the
+    parentage log patch ("VVFP VV1 Parentage.dll" loaded); without it no A New Home villager has a recorded parent,
+    so only `spouse_of` through an expected father can hold, and a kinship event is never drawn there otherwise.
+  - The refusal ("two of them must be ...") names them: "spouses", "a parent and child", "siblings", "a grandparent
+    and grandchild", "an aunt or uncle and a niece or nephew", "cousins".
 - **Python:** `simulate` takes the bindings as given (no casting), so relations change nothing there;
   `compile_graph` / `decompile_graph` round-trip them.
 
@@ -606,3 +628,122 @@ the event needs (not optional, not a stranger, alias or other role); one relatio
   count at conception). The role MUST be `"special": "nursing_parent"`, so it needs `protected: "allow"` (section
   7). A parent no longer nursing when the page is shown (the baby was born since) is a refusal ("N changes could
   not be made"). Harmful. The Island Events log's entry says "<name>'s baby was lost."
+
+## 21a. A dead relative (gap C3)
+
+JSON: the condition `{"has_dead_relative": r}` (op 17): role `r`'s villager is bound, not gone, and has lost a
+recorded parent or a co-parent. Like `has_living_child` it is a run-time fact: it may stand in a variant's, a child's
+or an item's `if` (never a choice's or the requirement's); the patcher's walk takes it either way; `simulate` takes
+it from `facts` (`"has_dead_relative:<role>"`). Use it so that a text that calls a villager bereaved ("still misses
+(his/her) mother") is shown only to one who is.
+
+- **What it reads** (the same records as section 21, read only; nothing is written):
+  - *a dead parent*: a recorded mother, or a recorded father who is not a default father, whom NO living, listed
+    villager matches by name (the name alone, so a parent whose look changed is still found alive);
+  - *a dead co-parent* ("spouse"): the villager is a recorded parent of a living villager whose other recorded parent
+    (not a default father) no living, listed villager matches by name, or the villager carries a baby whose expected
+    father no living, listed villager matches by name.
+- **Not known:** a dead child or a dead sibling. The games keep a villager's parents on the child's own record, which
+  is gone when the child dies, and the engine does not read the patcher's Deaths and Disappearances logs; so a
+  villager who lost only a child or a sibling does not hold (the condition never claims a loss it cannot see).
+- **Known limit:** a recorded parent who was never a villager of this village (a Custom Island Event arrival's
+  parents as the player named them) has no living match and counts as lost.
+- **Per game:** The Lost Children to New Believers from their records; A New Home only with the parentage log patch
+  (without it no A New Home villager has a recorded parent or expected father, so the condition never holds there).
+
+## 23. A random like or dislike (gap C1)
+
+JSON (v6): `{"do": "preference", "role": r, "like": "random"}` or `"dislike": "random"`. `"like": w` /
+`"dislike": w` is the same as `"list": "likes" / "dislikes", "preference": w` (normalize writes that form); a random
+one may also be written `"preference": "random"`.
+
+- **Binary:** effect 8 with flags bit 8 (bit 4 for a dislike, as before) and string `NONE`.
+- **The roll** (section 6, step a): `k = random_below(P)`, P = the game's preference count (A New Home 47, The Lost
+  Children 62, the later three 79). The word is chosen there and then, from the villager as the walk finds them: the
+  candidates are the game's preferences, in list order, that are in NEITHER of the villager's lists (so never one
+  they have, and never a like and a dislike of one word); the effect's `a` = candidate number `k % count`, or -1 when
+  there is none; `b` = 0. Python takes the villager's lists from `facts`: `"likes:<role>:<word>"`,
+  `"dislikes:<role>:<word>"` (none given: none held).
+- **Made** as a fixed word's preference effect (a full list: the newest takes the last one's place). `a` = -1:
+  nothing is changed and nothing is refused.
+- A random dislike is harmful (section 7), as a fixed one.
+
+## 24. Automatic outcome lines (the owner, 2026-11-14)
+
+Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is
+made, and the popup says what happened in a short plain line, in the style of the Island Events log's lines.
+
+JSON (v6): `"auto_text": true` on a popup node (node flags bit 0, section 2a). The node's text is followed by one
+line for each of the node's effects that has one, in effect order, each after a line break (`"\n"`; a node with no
+text of its own starts with its first line). The lines are made from the walk's rolls (section 6) BEFORE the names
+are filled in: `R` is `(<role id>.Name)` and `P` is `(<role id>.his/her)` of the effect's role (an alias: its member
+drawn), so they expand, take the worst case and the sentence case (none applies: every line has lower-case letters)
+exactly as the author's text. `S` is the skill's name as the game lists it (`Farming`), `W` the preference word as
+the game lists it (`herbs`, `the dark`).
+
+| Effect | Line |
+|---|---|
+| food, not deferred, amount > 0 / < 0 | `The village gains food.` / `The village loses food.` |
+| tech, not deferred, amount > 0 / < 0 | `The village gains tech points.` / `The village loses tech points.` |
+| pay_award | the line of the award it pays (food or tech, as above) |
+| kill | `R dies.` |
+| vanish | `R disappears.` |
+| status (Heathen) | `R becomes a Heathen.` |
+| health (set) | `R's health changes.` |
+| preference, like / dislike | `R now likes W.` / `R now dislikes W.` |
+| skill, amount > 0 / < 0 | `R learns more about S.` / `R feels less sure of P S.` |
+| sick | `R falls sick.` |
+| celebrate, everyone / a role | `The village celebrates.` / `R celebrates.` |
+| mood, good / bad | `R is in a good mood.` / `R is in a bad mood.` |
+| health_change, > 0 / < 0 | `R feels better.` / `R feels worse.` |
+| skill_set, 100 / 0 / other | `R masters S.` / `R forgets everything about S.` / `R's S skill changes.` |
+| damage | `Something in the village is damaged.` |
+| appearance, the head only / the body (or both) | `R's hair changes color.` / `R's look changes.` |
+| die_unrecovered | `R dies; the body is not recovered.` |
+| baby_lost | `R's baby is lost.` |
+| old_look | `R looks older and more worn.` |
+
+No line: `action`; a deferred food or tech (its `pay_award` gives it); an amount or change of 0; a skill the game
+does not have (roll -1); a random preference with no candidate. Identical lines are all kept.
+
+- **The words are those the walk chose**, so the engine's pages (section 6.6: laid out once the walk is done) hold
+  the real skill and word. A line is shown even when its change is then refused (the villager protected or gone
+  since): the page's "N changes could not be made" line says so, as for any text.
+- **Fit (Python, `walk`):** each effect's line at its widest -- of the lines it can give (each listed skill the game
+  has, each sign of a range, every word of the game's list for a random preference), the one whose worst case is
+  the longest (the first on a tie) -- so whatever Python accepts the engine can show.
+- **simulate** returns the lines in the popups, with the words its rolls and facts give.
+- **Python:** `auto_lines(...)`; the line table `AUTO_LINES` is pinned equal to the engine's `CG_AUTO_LINES`
+  (`story_graph.inc`) by `tests/test_cie_graph_v6.py`.
+
+## 26. The old head look (the owner, 2026-11-14)
+
+JSON (v6): `{"do": "old_look", "role": r}` (code 20; a = b = 0, string `NONE`; no roll). Health troubles may be
+shown partly through the villager's look: the villager is drawn with the OLD head from then on, whatever their age --
+the per-villager head look Change Appearance offers (Auto / Young / Old), set to Old.
+
+- **How:** the engine asks "VVFP Head Look.dll" (`native/shared/head_look.h`: `VvfpHeadLookInstalled`, then
+  `VvfpHeadLookSet(game, record, 2)`), exactly as Change Appearance does. The look is kept in that companion's own
+  per-save file, never in a game record field; it follows the villager (patcher-data-follows-the-villager), the head
+  row never changes, and it is permanent until the player changes it (Change Appearance's Head look, or Reset to
+  original, which puts Auto back).
+- **Harmless** (section 7): nothing in the save is written, only the companion's file.
+- **When it cannot be made** -- Head Look is not in the game, or this game's draws do not follow the look (A New
+  Home needs Grey Hair at 55 for its old heads), or the file write fails -- it is a refusal ("N changes could not be
+  made") and nothing changes.
+- The Island Events log's entry says "<name>'s head look is now Old."
+- No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
+  every game.
+
+## 25. The Pick Island Event list
+
+Each game lists its own events, then More Island Events' and the collection's (`sm_list`, at most `SM_MAX` entries,
+`story_more_events.inc`; the collection's manifest at most `SC_MAX` entries, `story_collection.inc`). With the Isola
+Grand Event Collection, the Companion Anthology and More Island Events that is about 1,000 entries a game, so
+`SM_MAX` and `SC_MAX` are 2,048 and `SC_MANIFEST_BYTES` 1 MB. The list's words take `3 x 400` bytes an entry: 2.4 MB
+of the companion's static memory, only the pages of the entries filled ever touched. The chooser's list is the Windows
+list box (`IDC_PICK_LIST`, `LB_ADDSTRING`), which holds and scrolls that many rows itself; typing a letter moves to
+the next row starting with it, so no filter is needed. Measured in the emulator (`tests/test_pick_collection_list.py`
+AThousandEntries, A New Home and New Believers): 1,000 entries, each event loaded and its strict cast checked, fill
+in more than 100 and under 400 million instructions, a fraction of a second on a real computer (each entry's .cieg
+is also read from disk there, about 1,000 small files).

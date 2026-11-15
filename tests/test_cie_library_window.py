@@ -510,6 +510,12 @@ window.update()
 out["node_title_gone"] = "title" not in lib.g["nodes"][ends[0]]
 lib.node_title_var.set("A Title From Here")
 window.update()
+# The part's automatic lines (cie-v6-binary.md 24): ticked, kept, compiled with the event.
+lib.auto_text_var.set(True)
+lib._auto_text_changed()
+out["auto_text"] = lib.g["nodes"][ends[0]].get("auto_text")
+lib.refresh_now()
+out["auto_text_problems"] = [p for p in lib.problems if "auto_text" in p]
 saved = lib.save_as("Seven Ways")
 back = cg.decompile_graph(saved.cieg.read_bytes())
 out["seven_round_trip"] = back == cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
@@ -681,6 +687,21 @@ class Window(unittest.TestCase):
         self.assertEqual(w.describe_cond({"drew": {"pool": "MAT", "instance": 1, "item": "guano"}}),
                          "the list MAT picked \"guano\"")
 
+    def test_the_engine_followups_in_plain_words(self):
+        """cie-v6-binary.md 21, 21a, 23, 24: every relation has words, a dead relative is offered as a way on's
+        condition (never a button's), a random like reads plainly."""
+        self.assertEqual(set(w.RELATION_WORDS) - {""}, set(cg.RELATION_CODES))
+        self.assertEqual(w.describe_cond({"has_dead_relative": "subject"}),
+                         "the main villager has lost a parent or a partner")
+        g = {"version": 6, "games": [3], "roles": {"subject": {"kind": "villager"}}, "nodes": {}}
+        conds = [c for _words, c in w.cond_options(g)]
+        self.assertIn({"has_dead_relative": "subject"}, conds)
+        self.assertIn({"not": {"has_dead_relative": "subject"}}, conds)
+        self.assertNotIn({"has_dead_relative": "subject"}, [c for _w, c in w.cond_options(g, static=True)])
+        self.assertEqual(w.describe_effect({"do": "preference", "role": "subject", "list": "likes",
+                                            "preference": "random"}),
+                         "The main villager now likes something new, at random (never one already held)")
+
     def test_a_named_stranger(self):
         self.assertTrue(self.out["stranger_named"])
         self.assertTrue(self.out["stranger_unnamed"])
@@ -689,6 +710,10 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["node_title"], "A Title From Here")
         self.assertEqual(self.out["node_title_problems"], [])
         self.assertTrue(self.out["node_title_gone"])
+
+    def test_a_parts_automatic_lines(self):
+        self.assertIs(self.out["auto_text"], True)
+        self.assertEqual(self.out["auto_text_problems"], [])
         self.assertTrue(self.out["seven_round_trip"], "the title is compiled and read back")
 
     def test_the_other_role_and_damage_sizes(self):

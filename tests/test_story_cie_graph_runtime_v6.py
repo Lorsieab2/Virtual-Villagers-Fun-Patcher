@@ -283,8 +283,18 @@ class SharedVectors(unittest.TestCase):
             for role in protected:
                 idx = [p[3] for p in vector_village(case)].index(case["bindings"][role]["name"])
                 r.p.export("VvfpStoryProbeGraphNurseAtWalk", idx)
+            for f in facts:
+                # cie-v6-binary.md 23: the villager's likes and dislikes the random preference reads.
+                kind, _, rest = f.partition(":")
+                if kind in ("likes", "dislikes"):
+                    role, _, word = rest.partition(":")
+                    idx = [p[3] for p in vector_village(case)].index(case["bindings"][role]["name"])
+                    slot = r.v.prefs(idx, kind).index(-1)
+                    r.p.put32(r.v.record(idx) + r.v.L[kind] + 4 * slot,
+                              cg.GAMES[case["game"]].preferences.index(word))
         if "tribe" in case:
             put_tribe(r, game, case["tribe"])
+        r.p.export("VvfpStoryProbeGraphHeadLook", 1, 0, 0)    # 26: "VVFP Head Look.dll" in the game
         installed(r, case.get("patches", ()))
         self.assertIsNone(r.queue6(data))
         shown = r.walk_through(case["answers"])
@@ -1400,6 +1410,147 @@ class ProtectionModel(unittest.TestCase):
         r = V6("vv5", [(0, "m", 50, "Chief", 0, False)])
         r.p.put32(r.v.record(0) + 0x1CFC, 12)
         self.assertIsNotNone(r.queue6(data, strict=True, origin=2), "only a story villager: nobody to harm")
+
+
+# The games' own default fathers (src/vv_genealogy.py GAME_DEFAULT_FATHERS); The Secret City has none.
+DEFAULT_FATHER = {"vv1": ("Unknown", 0, 0), "vv2": ("?", 0, 0), "vv4": ("Joey", 2, 2), "vv5": ("Joey", 2, 2)}
+
+
+def loss_graph(game: str) -> dict:
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Quiet Thoughts", "games": [int(game[2])],
+            "roles": {"one": {"kind": "villager", "min_age": 0}},
+            "start": "p", "nodes": {"p": {"text": "(One) is well.", "variants": [
+                {"if": {"has_dead_relative": "one"}, "text": "(One) misses someone."}]}}}
+
+
+@emulated
+class EngineFollowups(unittest.TestCase):
+    """cie-v6-binary.md 21 (wider kinship), 21a (a dead relative), 23 (a random like or dislike) and 24 (the
+    automatic lines), in every game (A New Home: its parentage sidecar)."""
+
+    def family(self, game: str):
+        r = V6(game, [(0, "f", 70, "Gma", 0, False), (1, "f", 40, "Ann", 0, False), (2, "m", 41, "Bob", 0, False),
+                      (3, "m", 8, "Kit", 0, False), (4, "f", 38, "Sue", 0, False), (5, "f", 9, "Lu", 0, False),
+                      (6, "m", 7, "Max", 0, False)])
+        looks(r, 7)
+        gma, ann, bob, sue = ("Gma", 10, 20), ("Ann", 11, 21), ("Bob", 12, 22), ("Sue", 14, 24)
+        set_parents(r, game, 1, None, gma)     # Ann and Sue: Gma's daughters
+        set_parents(r, game, 4, None, gma)
+        set_parents(r, game, 3, bob, ann)      # Kit: Bob and Ann's
+        set_parents(r, game, 5, None, sue)     # Lu: Sue's
+        return r                                # Max: nobody's
+
+    def cast(self, game: str, relation: str, roll: int):
+        r = self.family(game)
+        r.rolls([roll] * 60)
+        why = r.queue6(compiled(kin_graph(game, relation)), strict=True, origin=2)
+        if why is not None:
+            return why
+        r.walk_through()
+        return tuple(r.state()["records"][:2])
+
+    def test_wider_kinship_in_every_game(self):
+        want = {"grandparent_of": {(3, 0), (5, 0)}, "grandchild_of": {(0, 3), (0, 5)},
+                "aunt_or_uncle_of": {(3, 4), (5, 1)}, "cousin_of": {(3, 5), (5, 3)}}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for relation, pairs in want.items():
+                with self.subTest(game=game, relation=relation):
+                    seen = {self.cast(game, relation, roll) for roll in range(4)}
+                    self.assertTrue(seen <= pairs, seen)
+                    self.assertEqual(seen, pairs, "each pair can be cast")
+            with self.subTest(game=game, refusal=True):
+                r = V6(game, [(0, "f", 40, "Ann", 0, False), (1, "m", 41, "Bob", 0, False)])
+                looks(r, 2)
+                why = r.queue6(compiled(kin_graph(game, "cousin_of")), strict=True, origin=2)
+                self.assertIn("cousins", why or "")
+
+    def mourners(self, game: str, sidecar: bool = True):
+        r = V6(game, [(0, "f", 40, "Ann", 0, False), (1, "m", 41, "Bob", 0, False), (2, "m", 8, "Kit", 0, False),
+                      (3, "m", 30, "Cy", 0, False), (4, "f", 30, "Dee", 0, False), (5, "f", 30, "Eve", 0, True)])
+        looks(r, 6)
+        if sidecar:
+            set_parents(r, game, 0, None, ("Gone", 3, 3))                      # Ann: her mother is dead
+            set_parents(r, game, 2, ("Bob", 11, 21), ("Lia", 5, 5))            # Kit: his mother is dead; Bob lost
+            set_parents(r, game, 4, DEFAULT_FATHER.get(game), ("Ann", 10, 20))   # Dee: a default father, Ann alive
+            set_expected_father(r, game, 5, "Ghost", 6, 6)                     # Eve carries a dead man's baby
+        return r
+
+    def test_a_dead_relative_in_every_game(self):
+        expect = {0: True, 1: True, 2: True, 3: False, 4: False, 5: True}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for sidecar in ((True, False) if game == "vv1" else (True,)):
+                with self.subTest(game=game, sidecar=sidecar):
+                    seen = {}
+                    for roll in range(6):
+                        r = self.mourners(game, sidecar)
+                        r.rolls([roll] * 40)
+                        self.assertIsNone(r.queue6(compiled(loss_graph(game)), strict=True, origin=2))
+                        r.walk_through()
+                        seen[r.state()["records"][0]] = "misses someone" in " ".join(r.displays())
+                    self.assertEqual(set(seen), set(expect))
+                    self.assertEqual(seen, expect if sidecar else {k: False for k in expect},
+                                     "A New Home without its parentage sidecar knows no parents")
+
+    def test_a_random_like_is_made_and_told(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                words = cg.GAMES[int(game[2])].preferences
+                r = V6(game, [(0, "f", 30, "Ana", 0, False)])
+                r.p.put32(r.v.record(0) + r.v.L["likes"], words.index("ants"))
+                r.rolls([0, 1, 0, 0, 0] + [0] * 20)
+                self.assertIsNone(r.queue6(compiled(VECTOR_AUTO), strict=True, origin=2))
+                r.walk_through()
+                text = " ".join(r.displays())
+                like = r.v6state()["fx"][1][0]
+                self.assertEqual(words[like], "resting", "the second word neither list holds (ants is held)")
+                self.assertIn(words.index("resting"), r.v.prefs(0, "likes"))
+                self.assertIn(words.index("work"), r.v.prefs(0, "dislikes"))
+                self.assertIn("Ana now likes resting.", text)
+                self.assertIn("Ana now dislikes work.", text)
+                self.assertIn("Ana's hair changes color.", text)
+                self.assertIn("The village gains food.", text)
+
+
+    def head_looks(self, r) -> list[list[int]]:
+        buf = r.p.alloc(4 * 32)
+        n = r.p.export("VvfpStoryProbeGraphHeadLook", 2, buf, 16)
+        v = struct.unpack(f"<{2 * n}i", r.p.read(buf, 8 * n)) if n else ()
+        return [list(v[2 * i:2 * i + 2]) for i in range(n)]
+
+    def test_the_old_look_in_every_game(self):
+        graph = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "old_look_vv1")
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for mode in (1, 0):
+                with self.subTest(game=game, head_look=mode):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.p.export("VvfpStoryProbeGraphHeadLook", mode, 0, 0)
+                    r.rolls([1] * 40)
+                    self.assertIsNone(r.queue6(compiled(graph), strict=True, origin=2))
+                    head0 = r.v.i32(1, r.v.L["head"])
+                    text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
+                    self.assertEqual(r.state()["records"][0], 1)
+                    self.assertIn("Ana looks older and more worn.", text)
+                    self.assertIn("Ana now dislikes running.", text)
+                    words = cg.GAMES[int(game[2])].preferences
+                    self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"))
+                    self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
+                    if mode:
+                        self.assertEqual(self.head_looks(r), [[1, 2]], "Old, for Ana's record, once")
+                        self.assertNotIn("could not be made", text)
+                    else:
+                        self.assertEqual(self.head_looks(r), [])
+                        self.assertIn("could not be made", text, "no Head Look: a refusal, nothing changed")
+
+
+VECTOR_AUTO = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "auto_lines_vv1")
 
 
 if __name__ == "__main__":
