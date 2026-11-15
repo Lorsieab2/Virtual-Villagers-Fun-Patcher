@@ -18,6 +18,11 @@
    OK with only the sex changed returns no change to the executable and shows no "unchanged" box; a press again
    changes it back.
 
+   GENDER PRESENTATION (native/shared/gender_presentation.h), with "VVFP Gender Presentation.dll" stood in by
+   native/shared/gender_presentation_stand_in.h: the row off hides "Change sex..." and the checkbox; ticked, the window
+   draws the other sex's sheets while the record's sex stays; OK keeps it (free: no change for the executable),
+   Cancel and Undo changes keep nothing; a story villager is told why and nothing is kept; a failed write is told.
+
    SHOT MODE (`shots <folder>`): the companion's REAL dialog template (its .res is linked in) and procedure are
    shown on screen with the real Win32 calls; a thread captures the window (PrintWindow) to
    "<folder>\VV<g> Change Appearance - Change sex.bmp", presses Change sex..., captures the real warning box to
@@ -27,12 +32,15 @@
 #include <string.h>
 
 #include "../shared/harness_redirect_documents.h"
+#include "../shared/gender_presentation_stand_in.h"
 
 #ifndef HARNESS_GAME
 #error "build with /DHARNESS_GAME=3..5"
 #endif
 
 static int h_shots;                 /* 1: real windows, captured */
+static int h_gp_boxes;              /* the "Gender presentation" boxes shown */
+static char h_gp_box_text[600];
 static int h_failures;
 static int h_checks;
 static INT_PTR h_end_result;
@@ -56,6 +64,10 @@ static int WINAPI h_MessageBoxA(HWND window, LPCSTR text, LPCSTR caption, UINT f
     if (h_shots) {
         return MessageBoxA(window, text, caption, flags);
     }
+    if (caption != NULL && lstrcmpA(caption, "Gender presentation") == 0) {   /* VVFP_GP_TITLE */
+        h_gp_boxes++;
+        lstrcpynA(h_gp_box_text, text != NULL ? text : "", sizeof h_gp_box_text);
+    }
     h_boxes++;
     lstrcpynA(h_box_text, text != NULL ? text : "", sizeof h_box_text);
     if ((flags & 0xF) == MB_YESNO) {
@@ -73,6 +85,7 @@ static INT_PTR h_press(DLGPROC proc, const UINT *script, int len) {
     int i;
     h_end_result = -1;
     for (i = 0; i < len; ++i) {
+        h_gp_click(script[i]);
         proc(NULL, WM_COMMAND, MAKEWPARAM(script[i], BN_CLICKED), 0);
     }
     return h_end_result;
@@ -91,10 +104,24 @@ static unsigned char *h_record;
 static const unsigned char *h_selected(int sex, int age);
 #define VV5_SELECTED_RECORD h_selected
 
+static HMODULE WINAPI h_GetModuleHandleA(LPCSTR name) {
+    int gp;
+    HMODULE module = h_gp_module(name, &gp);
+    return gp ? module : GetModuleHandleA(name);
+}
+
+static FARPROC WINAPI h_GetProcAddress(HMODULE module, LPCSTR name) {
+    return module == H_GP_MODULE ? h_gp_proc(name) : GetProcAddress(module, name);
+}
+
 #define EndDialog h_EndDialog
 #define MessageBoxA h_MessageBoxA
 #define InvalidateRect h_InvalidateRect
 #define DialogBoxParamA h_DialogBoxParamA
+#define GetModuleHandleA h_GetModuleHandleA
+#define GetProcAddress h_GetProcAddress
+#define IsDlgButtonChecked h_gp_is_checked
+#define CheckDlgButton h_gp_check
 
 #if HARNESS_GAME == 3
 #include "../vv3_full_mastery_candidate/vv3_full_mastery_candidate.c"
@@ -110,6 +137,10 @@ static const unsigned char *h_selected(int sex, int age);
 #undef MessageBoxA
 #undef InvalidateRect
 #undef DialogBoxParamA
+#undef GetModuleHandleA
+#undef GetProcAddress
+#undef IsDlgButtonChecked
+#undef CheckDlgButton
 
 /* The game's fixed addresses the companions read (the mask slot words 0x6E0044 / 0x728FCC, New Believers' mask
    table, The Tree of Life's records at 0x50E5AC): the image is fixed at 0x400000 and this zeroed block lies over
@@ -152,6 +183,8 @@ static void h_villager(int sex) {
     *(int *)(h_record + l->body) = 4;
     h_boxes = h_asked = 0;
     h_box_text[0] = 0;
+    h_gp_boxes = 0;
+    h_gp_box_text[0] = 0;
 }
 
 /* The window's own idea of the villager's sex (what its preview and hair colours are drawn by). */
@@ -165,8 +198,33 @@ static int h_window_sex(void) {
 #endif
 }
 
+/* The sex the window's preview draws (with the gender presentation: the other one). */
+static int h_window_drawn(void) {
+#if HARNESS_GAME == 5
+    return appearance_drawn_sex();
+#else
+    return h_window_sex();
+#endif
+}
+
+static const vvfp_gp_window *h_gp_window(void) {
+#if HARNESS_GAME == 3
+    return &vv3_appearance_gp;
+#else
+    return &appearance_gp;
+#endif
+}
+
 /* Open the per-villager window's state on the record, as the chooser export does. */
 static void h_open(void) {
+#if HARNESS_GAME == 3
+    vvfp_gp_window_open(&vv3_appearance_gp, 3, h_record);
+#elif HARNESS_GAME == 4
+    vvfp_gp_window_open(&appearance_gp, 4, h_record);
+#else
+    appearance_gp_record = h_record;
+    vvfp_gp_window_open(&appearance_gp, 5, h_record);
+#endif
 #if HARNESS_GAME == 3
     vv3_appearance_sex = h_sex() ? 1 : 0;
     vv3_appearance_age = 600;
@@ -274,8 +332,84 @@ static void h_make_story_last(void) {
 }
 #endif
 
+/* The "Gender presentation" checkbox and its row. */
+static void h_gp_tests(void) {
+    const vv_sex_layout *l = h_layout();
+    int result;
+    {
+        static const UINT press[] = { VVFP_AX_CHANGE_SEX, VVFP_AX_PRESENTATION, IDCANCEL };
+        h_gp_reset();
+        h_gp_there = 0;
+        h_villager(l->female);
+        h_window(press, 3);
+        h_check(h_sex() == l->female && h_boxes == 0 && !vvfp_ax_change_sex_offered(HARNESS_GAME, h_record),
+                "the row off: Change sex is not offered and its command does nothing");
+        h_check(!h_gp_window()->offered && h_gp_sets == 0, "the row off: the checkbox is not offered, nothing kept");
+    }
+    {
+        static const UINT press[] = { VVFP_AX_PRESENTATION, IDOK };
+        h_gp_reset();
+        h_villager(l->female);
+        result = h_export(press, 2);
+        h_check(h_sex() == l->female, "ticked: the record's sex stays");
+        h_check(h_window_drawn() == 0, "ticked: the preview draws the other sex's heads and bodies");
+        h_check(h_gp_sets == 1 && h_gp_record == h_record && h_gp_on == 1, "ticked, OK: the choice is kept");
+        h_check(result == 0 && h_boxes == 0, "ticked alone, OK: no change for the executable, no box");
+        h_check(*(int *)(h_record + l->head) == 3 && *(int *)(h_record + l->body) == 4, "ticked: the same rows");
+    }
+    {
+        static const UINT press[] = { VVFP_AX_PRESENTATION, IDCANCEL };
+        h_gp_reset();
+        h_villager(l->female);
+        h_export(press, 2);
+        h_check(h_gp_sets == 0, "ticked, Cancel: nothing is kept");
+    }
+    {
+        static const UINT press[] = { VVFP_AX_PRESENTATION, VVFP_AX_UNDO, IDOK };
+        h_gp_reset();
+        h_villager(l->female);
+        h_export(press, 3);
+        h_check(h_gp_sets == 0 && h_window_drawn() == 1 && !h_gp_box, "ticked, Undo changes: nothing kept");
+    }
+    {
+        static const UINT show[] = { VVFP_AX_UNDO, IDCANCEL };
+        h_gp_reset();
+        h_villager(l->male);
+        h_gp_record = h_record;
+        h_gp_on = 1;
+        h_export(show, 2);
+        h_check(h_window_drawn() == 1 && h_gp_box && h_gp_sets == 0, "kept on: the window opens with the other look");
+    }
+    {
+        static const UINT press[] = { VVFP_AX_PRESENTATION, IDOK };
+        h_gp_reset();
+        h_gp_fail = 1;
+        h_villager(l->female);
+        h_export(press, 2);
+        h_check(h_gp_boxes == 1 && strstr(h_gp_box_text, "could not be written") != NULL && h_gp_on == 0,
+                "a failed write: told, nothing kept");
+    }
+#if HARNESS_GAME == 3 || HARNESS_GAME == 5
+    {
+        static const UINT press[] = { VVFP_AX_PRESENTATION, IDOK };
+        h_gp_reset();
+        h_villager(l->female);
+#if HARNESS_GAME == 3
+        h_make_chief();
+#else
+        h_make_story();
+#endif
+        h_export(press, 2);
+        h_check(h_gp_boxes == 1 && strstr(h_gp_box_text, "is a story villager") != NULL && h_gp_sets == 0
+                && !h_gp_box && h_window_drawn() == 1, "a story villager: told why, nothing kept");
+    }
+#endif
+    h_gp_reset();
+}
+
 static void h_tests(void) {
     const vv_sex_layout *l = h_layout();
+    h_gp_tests();
     {
         static const UINT press[] = { VVFP_AX_CHANGE_SEX, IDCANCEL };
         h_villager(l->female);
@@ -501,6 +635,39 @@ static DWORD WINAPI h_shooter(LPVOID unused) {
     return 0;
 }
 
+/* The Gender presentation shots: the window as it opens, then the box ticked (the other sex's sheets). */
+static DWORD WINAPI h_gp_shooter(LPVOID unused) {
+    char name[96];
+    HWND window;
+    (void)unused;
+    window = h_wait("Change Appearance", NULL);
+    if (window == NULL) {
+        h_failures++;
+        printf("FAIL: the Change Appearance window was not shown\n");
+        return 0;
+    }
+    Sleep(800);
+    wsprintfA(name, "VV%d Change Appearance - Gender presentation off.bmp", HARNESS_GAME);
+    h_check(h_capture(window, name), "the window captured (presentation off)");
+    SendMessageA(GetDlgItem(window, VVFP_AX_PRESENTATION), BM_CLICK, 0, 0);
+    Sleep(800);
+    wsprintfA(name, "VV%d Change Appearance - Gender presentation on.bmp", HARNESS_GAME);
+    h_check(h_capture(window, name), "the window captured (presentation on)");
+    PostMessageA(window, WM_COMMAND, IDCANCEL, 0);
+    return 0;
+}
+
+static void h_gp_shot(void) {
+    HANDLE thread;
+    h_villager(VV_SEX_LAYOUT[HARNESS_GAME].female);
+    h_open();
+    thread = CreateThread(NULL, 0, h_gp_shooter, NULL, 0, NULL);
+    DialogBoxParamA(GetModuleHandleA(NULL), MAKEINTRESOURCEA(208), NULL, H_PROC, 0);
+    WaitForSingleObject(thread, 15000);
+    CloseHandle(thread);
+    h_check(h_sex() == VV_SEX_LAYOUT[HARNESS_GAME].female && h_gp_sets == 0, "Cancel kept nothing");
+}
+
 static void h_shot(int carrying) {
     HANDLE thread;
     h_shot_carrying = carrying;
@@ -535,6 +702,7 @@ int main(int argc, char **argv) {
         lstrcpynA(h_folder, argv[2], sizeof h_folder);
         h_shot(0);
         h_shot(1);
+        h_gp_shot();
     } else {
         h_tests();
     }

@@ -372,17 +372,20 @@ LAST_NAME_CODES = {"same": 0, "different": 1, "random": 2}   # ... its last name
 V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # the new "do" words
               "appearance", "die_unrecovered", "baby_lost",                  # cie-v6-binary.md 22
               "old_look",                                                    # ... 26
-              "sex_change")                                                  # ... 28
+              "sex_change",                                                  # ... 28
+              "presentation")                                                # ... 29
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19, "old_look": 20,
-                     "sex_change": 22})    # 28 (21 is the integrator's; 23 is kept for a cross-sex body look)
+                     "sex_change": 22,     # 28 (21 is the integrator's)
+                     "presentation": 23})  # 29: the gender presentation (24 is deliver_early's)
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL,
                     "old_look": 0,         # 26: "VVFP Head Look.dll", known only at run time
-                    "sex_change": 0})      # 28: known only at run time (the companions loaded)
+                    "sex_change": 0,       # 28: known only at run time (the companions loaded)
+                    "presentation": 0})    # 29: "VVFP Gender Presentation.dll", known only at run time
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
-                                          "baby_lost", "old_look", "sex_change")
+                                          "baby_lost", "old_look", "sex_change", "presentation")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered",)
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -898,6 +901,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 out[part] = v
             if "head" not in e and "body" not in e:
                 problems.append(f"{where}: appearance changes the head, the body or both")
+        elif do == "presentation":
+            # Section 29: the other sex's look (on, the default) or the villager's own again (off).
+            known.add("on")
+            on = e.get("on", True)
+            if not isinstance(on, bool):
+                problems.append(f"{where}: presentation on is true (the other sex's look) or false (their own)")
+                on = True
+            out["on"] = on
         if do == "die_unrecovered":
             # The owner's rule: a death with no body is ALWAYS "Unknown causes"; an author cannot word it.
             known.add("cause")
@@ -2627,6 +2638,7 @@ AUTO_LINES = {
     "baby_lost": "<R>'s baby is lost.",
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
+    "presentation": "<R>'s look changes.",
 }
 
 
@@ -2661,7 +2673,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change"):
+              "sex_change", "presentation"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
@@ -3677,6 +3689,8 @@ def _compile_v6(g: dict) -> bytes:
                         for p in ("head", "body"))
             elif do == "die_unrecovered":
                 st = s(e["cause"])
+            elif do == "presentation":
+                a = 1 if e["on"] else 0
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,

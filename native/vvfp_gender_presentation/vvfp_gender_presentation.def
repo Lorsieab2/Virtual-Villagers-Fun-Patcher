@@ -1,0 +1,8 @@
+LIBRARY "VVFP Gender Presentation"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpGenderPresentationInstalled=_VvfpGenderPresentationInstalled@4
+    VvfpGenderPresentationGet=_VvfpGenderPresentationGet@8
+    VvfpGenderPresentationSet=_VvfpGenderPresentationSet@12
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

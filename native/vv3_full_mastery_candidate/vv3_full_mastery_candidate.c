@@ -3470,11 +3470,18 @@ static unsigned int vv3_appearance_rng;
 /* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once, so an OK
    with nothing else changed is no change to report or charge. */
 static int vv3_appearance_sex_changed;
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free.  The
+   preview's vv3_appearance_sex is the drawn sex. */
+static vvfp_gp_window vv3_appearance_gp;
 
 /* Every control as the chosen values say: the window's start, and after Undo changes or Reset to
    original. */
 static void vv3_appearance_show(HWND window) {
     vv3_appearance_old = vvfp_head_look_old(vv3_appearance_look, vv3_appearance_age);
+    if (vv3_appearance_record != NULL) {
+        vv3_appearance_sex = vvfp_gp_window_sex(&vv3_appearance_gp, 3, vv3_appearance_record) ? 1 : 0;
+    }
+    vvfp_gp_window_show(window, &vv3_appearance_gp, 3, vv3_appearance_record);
     SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
     if (vv3_appearance_look_offered) {
         CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + vv3_appearance_look);
@@ -3492,6 +3499,12 @@ static int vv3_appearance_extra(HWND window, unsigned int command) {
         vv3_appearance_body = vv3_appearance_open_body;
         vv3_appearance_mask = vv3_appearance_open_mask;
         vv3_appearance_look = vv3_appearance_open_look;
+        vv3_appearance_gp.on = vv3_appearance_gp.was;
+    } else if (command == VVFP_AX_PRESENTATION) {
+        if (vv3_appearance_record == NULL
+            || !vvfp_gp_window_toggle(window, &vv3_appearance_gp, 3, vv3_appearance_record)) {
+            return 1;
+        }
     } else if (command == VVFP_AX_RESET) {
         int h, b, m;
         if (!vvfp_original_look(3, vv3_appearance_record, &h, &b, &m) || h < 0 || h >= VV3_HEAD_COUNT
@@ -3616,6 +3629,9 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            if (vv3_appearance_record != NULL) {
+                (void)vvfp_gp_window_keep(window, &vv3_appearance_gp, 3, vv3_appearance_record);
+            }
             EndDialog(window, 1);
             return TRUE;
         }
@@ -3631,7 +3647,7 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
 }
 
 /* ------------------------------------------------------------------ *
- *  Time Warp                                                          *
+ *  Time Warp                                                         *
  * ------------------------------------------------------------------ *
  *
  * The aging mechanism is the same in all five games, but VV3 differs from VV1
@@ -3970,6 +3986,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int cur_mask;
     int look_was;
     int look_changed;
+    int gp_open;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_age = age;
     vv3_appearance_look_offered = record != NULL && vvfp_head_look_find(3, &vv3_appearance_look_api);
@@ -3988,6 +4005,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     vv3_appearance_record = record;
     vv3_appearance_rng = GetTickCount() | 1u;
     vv3_appearance_sex_changed = 0;
+    vvfp_gp_window_open(&vv3_appearance_gp, 3, (const unsigned char *)record);
+    gp_open = vv3_appearance_gp.was;
 
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
@@ -4007,8 +4026,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     /* OK with nothing changed: report it and do not charge. */
     if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
         vv3_appearance_mask == orig_mask && !look_changed) {
-        if (vv3_appearance_sex_changed) {
-            return 0;   /* only the sex, made at once and free: nothing more to keep or charge */
+        if (vv3_appearance_sex_changed || vv3_appearance_gp.was != gp_open) {
+            return 0;   /* only the sex (made at once) or the gender presentation (kept on OK): free */
         }
         MessageBoxA(GetForegroundWindow(),
             "The appearance is unchanged. No tech points have been deducted.",

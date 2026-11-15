@@ -300,6 +300,7 @@ static const char *const VV_SEX_OWNERS[] = {
     "VVFP Story Upgrades.dll",          /* the custom titles' looks */
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
+    "VVFP Gender Presentation.dll",
     "VVFP Origins Icons.dll",           /* The Secret City's and New Believers' masks */
     "VVFP VV1 Origins Icons.dll",
     "VVFP VV2 Origins Icons.dll",

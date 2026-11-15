@@ -71,6 +71,7 @@
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
 #include "../shared/head_look.h"           /* the old head look effect (cie-v6-binary.md 26) */
+#include "../shared/gender_presentation.h" /* the presentation effect (cie-v6-binary.md 29) */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
    UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own

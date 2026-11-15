@@ -244,6 +244,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
     # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
+    # Defaults and OFF everywhere else" -- off here and in Select All.
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -310,6 +313,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

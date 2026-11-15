@@ -15,6 +15,8 @@
 #ifndef VVFP_SEX_CHANGE_UI_H
 #define VVFP_SEX_CHANGE_UI_H
 
+#include "gender_presentation.h"   /* the row that offers the button */
+
 #define VVFP_AX_CHANGE_SEX 3506          /* inside appearance_extras.h's 3500..3539 */
 #define VVFP_AX_CHANGE_SEX_LABEL "Change sex..."
 #define VVFP_AX_CHANGE_SEX_TITLE "Change sex"
@@ -51,9 +53,12 @@ static void vvfp_sex_change_refused_text(char *out, const char *name, int why) {
     }
 }
 
-/* Is the button shown for villager `record` of `game`?  Never for the Golden Child (sex_change.h). */
+/* Is the button shown for villager `record` of `game`?  Only with the game's "Change Sex and Gender Presentation"
+   row (its "VVFP Gender Presentation.dll" in the game, gender_presentation.h), and never for the Golden Child
+   (sex_change.h). */
 static int vvfp_ax_change_sex_offered(int game, const unsigned char *record) {
-    return vv_sex_game_ok(game) && record != NULL && !vv_sex_golden_child(game, record);
+    return vv_sex_game_ok(game) && record != NULL && !vv_sex_golden_child(game, record)
+        && GetModuleHandleA(VVFP_GP_DLL) != NULL;
 }
 
 #ifndef VVFP_SEX_MESSAGE_BOX

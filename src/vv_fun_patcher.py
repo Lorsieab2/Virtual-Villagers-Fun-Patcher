@@ -338,6 +338,12 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 # each child's pastime pick for tag and for sandcastles; companion only, "VVFP Children Play.dll", started by
 # VVFP Startup.dll from its second word; scripts/build_children_play_feature.py.
 CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_feature.json" for n in range(1, 6))
+# Change Sex and Gender Presentation (all five games; on in Owner's Defaults only): Change Appearance's "Change sex..."
+# and "Gender presentation" (a villager drawn with the other sex's heads and bodies, keeping the recorded sex);
+# companion only, "VVFP Gender Presentation.dll", started by VVFP Startup.dll from its second word;
+# scripts/build_gender_presentation_feature.py.
+GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_presentation_feature.json"
+                                          for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -1070,16 +1076,16 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "F250518B33A586B984C080D70B7600AEAEBE3F2737DE81E1AE1AED941161D99C",
-    "map": "54022F7D8F4D56C65DCBD4E15B381CFF3112F65BA2E14C1585E457B8250F83AA",
+    "manifest": "FC161828E3F193E9238762CC5853E9A4C12E39931E56B53AC9A31EE709B0A377",
+    "map": "07B8C49A7E05A401971794E2ADE31E65790D1C384E1CB2F50B89BC7A24A4FE05",
 }
-VV5_TASK9_DLL_SHA256 = "C2E94E6E238E5B0A68BB5448F17F016613BBCB895C7C3000720F4731DBE3AC2B"
+VV5_TASK9_DLL_SHA256 = "E48A3FD364B7E52C0670915D86E2D709E9F219F21E18AD0CA4F76FCC9911368C"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "57CA2B2F75FE5A7F79EB2ED7BACD15CEB8A215BC4420607CC2C1322D95D5B2F0"
+VV5_TASK9_SAVE_RESET_SHA256 = "C07E2A06BDD8F67E5A6F17AC8B6888E217E8B42EA71AE68BBD599941240E70E6"
 VV5_TASK9_SAVE_RESET_SIZE = 161792
 # Change Appearance's head look (native/vvfp_head_look), shipped from this record for the same reason.
 VV5_TASK9_HEAD_LOOK_SOURCE = "assets/head_look/VVFP Head Look.dll"
@@ -1089,7 +1095,7 @@ VV5_TASK9_PAGE_SHA256 = {
     "experimental_expanded_256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
     "experimental_expanded_256_progression": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "19B6F10F12DECECE71CC81BFD972480AD378E30E3699F68792D7BA09EF6F0513"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "5F56DA473985F71EE6978D04B570E2C900D2F9A2B20AAB0041514A206E7AD3BF"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -2132,8 +2138,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "8FD1DC317EBB3CD653A86C30688F42CF88CF30EB50EC9FF00CB5C4ED536A6059",
-    "task9_builder": "39938F7F70F64ED19F610A55094C21BB71025A9BCE4D5FF2A1747EF95172B33A",
+    "builder": "A0A14C901E9B1971082ABC03E8DCC3D3E844E237B92542A0B95375E8D06A51A2",
+    "task9_builder": "A2553702246D80D6469B865EC02DBF04520E92DD3125272D4EF621EBD38F01EC",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -2145,8 +2151,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "1BAEEE3FFF45E0D75E34D4BFE06AA648A0470842EA345673F162F77C3ECEF13D",
-        "map": "740406A187C2D63E25FCDE5046E0D1DB65875888952150B2DB9ADB4352D8C235",
+        "manifest": "D930A86B30084C6A2927B45166C5B83586FE5773E8DF0D0D84304F33CCF0A067",
+        "map": "DC51A2915218A4FC76F851FC19B2651CB58A83A305C39E1BA60705FF36A2F6A0",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3568,7 +3574,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1899520,
+        "size": 1901056,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3934,7 +3940,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1899520,
+        "size": 1901056,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -4226,6 +4232,7 @@ def _load_fun_patch_records(
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
+                         + GENDER_PRESENTATION_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS):
@@ -12756,7 +12763,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "F31DC016EEBFBE3A4260C63AC3328F0E2651BA9CF396531B705AD09ACE96BF64",
+    "sha256": "136D72FEB8B411FD8293D6DB07F163732F18E6F2161F29474553FCC3B9E0F2CC",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12872,6 +12879,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
     # child's pastime pick.
     "VVFP Children Play.dll",
+    # Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
+    # keeping the recorded sex; its row also offers Change Appearance's "Change sex...".
+    "VVFP Gender Presentation.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

@@ -127,8 +127,8 @@ FOUNDATION_OUTPUT = (
 # Recertified for a villager's sex change (native/shared/sex_change.h, the owner, 2026-11-15): the export
 # VvfpVillagerSexChanged stores a mask again under the fingerprint the villager has now, the save's "Sex Changes"
 # log is read once per load, and Change Appearance has the "Change sex..." button (native/shared/sex_change_ui.h).
-SOURCE_SHA256 = "EF488E16A264A8511365EAADEA333D329524B05709DF2542B34B457F82939560"
-SOURCE_SIZE = 2018816
+SOURCE_SHA256 = "FD03D24786261BFB2CA8D36C4D92696A420D74A6AA324FEB5987D3DBB5FD2A3B"
+SOURCE_SIZE = 2019840
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
