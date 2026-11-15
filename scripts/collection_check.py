@@ -97,7 +97,7 @@ KEYWORDS = [
     (re.compile(r"\bdisappears?\b|\bvanish\w*|\bflees\b", re.I), {"vanish"}),
     (re.compile(r"\bcelebrat\w*", re.I), {"celebrate"}),
     (re.compile(r"\bdislik\w*", re.I), {"preference"}),
-    (re.compile(r"\binjur\w*|\blose health\b|\bhealth\b", re.I), {"health", "health_change"}),
+    (re.compile(r"\binjur\w*|\blose health\b|\bhealth\b", re.I), {"health", "health_change", "deliver_early"}),
     (re.compile(r"\bcollaps\w*", re.I), {"damage"}),
 ]
 EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill", "vanish": "vanish",
@@ -105,7 +105,7 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "health_change": "health_change", "damage": "damage", "sick": "health", "mood": "mood",
                "action": "action", "status": "status", "pay_award": "food", "appearance": "appearance",
                "die_unrecovered": "die_unrecovered", "baby_lost": "baby_lost",
-               "birth_then_die": "birth_then_die", "old_look": "appearance",
+               "birth_then_die": "birth_then_die", "deliver_early": "deliver_early", "old_look": "appearance",
                "sex_change": "appearance"}
 
 PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
@@ -955,7 +955,7 @@ def check_effects(doc: dict, rep: Report) -> None:
     _ = cuts_whole
 
 
-HARMFUL = {"kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die"}
+HARMFUL = {"kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"}
 
 
 def harmful(e: dict) -> bool:

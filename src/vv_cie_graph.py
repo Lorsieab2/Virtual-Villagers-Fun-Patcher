@@ -373,18 +373,22 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "appearance", "die_unrecovered", "baby_lost",                  # cie-v6-binary.md 22
               "birth_then_die",                                              # cie-v6-binary.md 23
               "old_look",                                                    # ... 27
-              "sex_change")                                                  # ... 29
+              "sex_change",                                                  # ... 29
+              "deliver_early")                                               # ... 30
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
-                     "sex_change": 22})    # 29 (23 is kept for a cross-sex body look)
+                     "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
+                     "deliver_early": 24})  # 30
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
-                    "sex_change": 0})      # 29: known only at run time (the companions loaded)
+                    "sex_change": 0,       # 29: known only at run time (the companions loaded)
+                    "deliver_early": CAP_CANCEL})   # 30: the nursing parent's pregnancy (the adapter's deliver)
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
-                                          "baby_lost", "birth_then_die", "old_look", "sex_change")
+                                          "baby_lost", "birth_then_die", "old_look", "sex_change",
+                                          "deliver_early")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -875,6 +879,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             if not (_int_in(lo, -99, 99) and _int_in(hi, -99, 99) and lo <= hi) or lo == hi == 0:
                 problems.append(f"{where}: health_change is -99..99, min <= max, not 0")
             out.update(min=lo, max=hi)
+        elif do == "deliver_early":
+            # Section 30: the newborn's health loss beyond the early birth's own deficit (both left out: none).
+            known |= {"min", "max"}
+            if "min" in e or "max" in e:
+                lo, hi = e.get("min"), e.get("max")
+                if not (_int_in(lo, -99, -1) and _int_in(hi, -99, -1) and lo <= hi):
+                    problems.append(f"{where}: deliver_early min and max are -99..-1, min <= max (or both left out)")
+                out.update(min=lo, max=hi)
         elif do == "skill" and v6 and "set" in e:
             known |= {"skills", "set"}
             skills = e.get("skills")
@@ -2147,7 +2159,7 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
@@ -3188,7 +3200,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
                     if isinstance(v, int) and any(v >= rows[gn] for gn in g["games"]):
                         problems.append(f"{where}: {part} {v} is not a row in every game of the event (0.."
                                         f"{min(rows[gn] for gn in g['games']) - 1})")
-            if e["do"] in ("baby_lost", "birth_then_die"):
+            if e["do"] in ("baby_lost", "birth_then_die", "deliver_early"):
                 role = g["roles"].get(e["role"], {})
                 if role.get("kind") != "villager" or role.get("special") != "nursing_parent":
                     problems.append(f"{where}: {e['do']} acts on a role with special nursing_parent")
@@ -3679,6 +3691,8 @@ def _compile_v6(g: dict) -> bytes:
                         for p in ("head", "body"))
             elif do in ("die_unrecovered", "birth_then_die"):
                 st = s(e["cause"])
+            elif do == "deliver_early" and "min" in e:
+                a, b = e["min"], e["max"]
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3899,6 +3913,8 @@ def _decompile_v6(data: bytes) -> dict:
                             e[part] = "random" if v == LOOK_RANDOM else v
                 elif do in ("die_unrecovered", "birth_then_die"):
                     e["cause"] = s(st)
+                elif do == "deliver_early" and (a or b):
+                    e.update(min=a, max=b)
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
@@ -4296,7 +4312,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if hi != 0:
                 lo += below(hi - lo + 1)
             return [lo, 0]
-        if do in ("health", "health_change", "damage"):
+        if do in ("health", "health_change", "damage") or (do == "deliver_early" and "min" in e):
             return [e["min"] + below(e["max"] - e["min"] + 1), 0]
         if do == "skill":
             have = [s for s in e["skills"] if s in gm.skills]

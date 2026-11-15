@@ -29,7 +29,7 @@ the Golden Child scenes (V14), the Chief's events and contests (exclusive, V17) 
 harmless, and every other harm-capable role keeps the default `auto` protection (nursing parents, the Golden Child
 and the Tribal Chief are never cast in it).
 
-### Two Lives, One Decision (`all_v20_d1_two_lives`, V20 D1, source L8950-8968)
+### Two Lives, One Decision (`all_v20_d1_two_lives`, V20 D1, source L8950-8968; since 2026-11-15 the Living Engine file L8957-9056)
 
 - **Villager:** role `mother`, a female villager carrying a baby (special `nursing_parent`, `protected: "allow"`).
   Before the retrofit the patient was an uncast stranger (decision Q11), so nothing happened to anyone.
@@ -53,6 +53,93 @@ and the Tribal Chief are never cast in it).
 
 - **Done:** A3, "The child survives but the mother dies; the family remembers her courage." **Owner (2026-11-14):** A3 must change so the child really survives. It now uses the `birth_then_die` effect (cie-v6-binary.md 23): the game's own delivery brings the baby, then the mother dies; very rare, as a death.
 - **Owner decision (2026-11-14): APPROVED as built** -- the cast pregnant villager, `baby_lost` and the very rare kills; A3's `birth_then_die` is approved with the rest of D1.
+
+#### The owner's added outcomes (2026-11-15): A6-A15, B5-B14, C4-C37
+
+The owner's newer copy of D1 is in the Living Event Engine file (`Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt`
+L8957-9056, frozen): the same A1-A5, B1-B4 and C1-C3, word for word, with 54 outcomes added. The event now reads
+that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source line below is that file's.
+
+- **Villager:** role `parent` (was `mother`): a villager 18 or older of EITHER sex carrying a baby (special
+  `nursing_parent`, `protected: "allow"`). The owner's rules (2026-11-15): men can carry babies, so "mother" becomes
+  "father" for a man (sex-aware role words `(parent.mother/father)`, `(parent.he/she)`, `(parent.his/her)`,
+  `(parent.son/daughter)`; each change is a `sensitivity` ledger entry, the owner's sentences otherwise unchanged), and
+  children are never cast as a carrying parent.
+- **Wording (Q09):** "the baby is stillborn" (B9, C8) is shown as "the baby is born without signs of life", and "the
+  pregnancy ends in miscarriage" (C20) as "the pregnancy ends in loss" (Q02 lists both words as hint only).
+- **Effects:** a premature birth where both live is the new `deliver_early` (cie-v6-binary.md 30: the game's own birth
+  now, the baby younger and weaker the earlier it is, the parent lives); a frail newborn ("very frail", "significant /
+  lasting / serious health challenges", "fragile health", "born frail") loses -30..-10 health more, "dangerously low"
+  -50..-30; a premature birth and the parent's death is `birth_then_die`; a stillbirth, a loss, an ended pregnancy,
+  and a baby who dies soon after the birth are `baby_lost` (the game cannot show a baby that is born and then dies:
+  a nursing baby is the parent's own state until birth); the parent's long or uncertain recovery is `health_change`
+  -30..-10 ("dangerously weak", "collapse": -50..-30); "neither survives" and the parent's death are `kill`
+  (Unknown causes). "Born healthy" (A11, B10, C9, C27) and the decisions with no harm (C17, C23, C37) change nothing.
+- **Chances (the lead's brief and V28's global rule; the source gives no odds):** deaths very rare (2), serious harm
+  -- a lost baby, a frail newborn -- rare (5), a premature birth both survive occasional (10), harmless outcomes 20.
+  A baby who dies soon after its birth (A10, B11, C11) counts as a death: very rare (2). The original outcomes keep
+  the weights the owner approved on 2026-11-14 (A2 and B2's `baby_lost` stay 20; C1-C3 now carry 20 each).
+- **Held for the owner:** C38-C52 (the family's part in the decision) are in the source span as a ledger note, not
+  built in this pass.
+
+| Outcome | Exact text (as shown) | Effect | Chance |
+|---|---|---|---|
+| A6 | "Both survive a premature birth; the baby is small and weak but begins to recover." | `deliver_early` | occasional: 10 of 128 in choice A |
+| A7 | "The baby is born prematurely and survives, but the (parent.mother/father) dies; the family mourns (parent.his/her) loss." | `birth_then_die`, cause Unknown causes | very rare: 2 of 128 in choice A |
+| A8 | "The (parent.mother/father) survives, but the baby is born without life; the family grieves together." | `baby_lost` | rare: 5 of 128 in choice A |
+| A9 | "Both survive, though the premature baby is very frail and faces an uncertain recovery." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 128 in choice A |
+| A10 | "The (parent.mother/father) survives a difficult birth, but the premature baby dies shortly afterward." | `baby_lost` | very rare: 2 of 128 in choice A |
+| A11 | "Both survive; the baby is born healthy despite the danger." | none (told) | 20 of 128 in choice A |
+| A12 | "The (parent.mother/father) survives, but the pregnancy ends in loss before the baby can be born." | `baby_lost` | rare: 5 of 128 in choice A |
+| A13 | "Both survive, though the newborn begins life with significant health challenges and requires prolonged care." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 128 in choice A |
+| A14 | "The baby survives with lasting health difficulties; the family welcomes the child with love." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 128 in choice A |
+| A15 | "The (parent.mother/father) survives, but the baby is born sleeping; the village holds a quiet remembrance." | `baby_lost` | rare: 5 of 128 in choice A |
+| B5 | "The baby arrives earlier than expected; both survive, though the newborn is small and needs extra care." | `deliver_early` | occasional: 10 of 126 in choice B |
+| B6 | "The (parent.mother/father) survives, but the pregnancy ends unexpectedly in loss; the family mourns the child they had hoped to meet." | `baby_lost` | rare: 5 of 126 in choice B |
+| B7 | "Both survive, though the baby is born frail and struggles to regain strength." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
+| B8 | "The baby is born prematurely and survives, but the (parent.mother/father) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 126 in choice B |
+| B9 | "The (parent.mother/father) survives, but the baby is born without signs of life; the family gathers to grieve." | `baby_lost` | rare: 5 of 126 in choice B |
+| B10 | "Both survive, and the baby is born healthy despite the healers' fears." | none (told) | 20 of 126 in choice B |
+| B11 | "The premature baby survives the birth but dies soon afterward; the (parent.mother/father) and family mourn." | `baby_lost` | very rare: 2 of 126 in choice B |
+| B12 | "The (parent.mother/father) survives, and the baby is born with lasting health challenges; the family embraces their newest member." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
+| B13 | "Both survive, but the newborn's health remains dangerously low." | `deliver_early` (newborn -50..-30 health more) | rare: 5 of 126 in choice B |
+| B14 | "The pregnancy ends in an early loss, and the (parent.mother/father) gradually recovers with the family's support." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 126 in choice B |
+| C4 | "(parent.He/She) chooses intervention; (parent.his/her) premature baby survives, though both require time to recover." | `deliver_early`; `health_change` -30..-10 | occasional: 10 of 289 in choice C |
+| C5 | "(parent.He/She) chooses gentler care; the baby arrives early and frail but survives." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
+| C6 | "(parent.He/She) chooses intervention; the baby survives, but (parent.he/she) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C7 | "(parent.He/She) chooses gentler care; the pregnancy ends in loss, and the family honors (parent.his/her) decision." | `baby_lost` | rare: 5 of 289 in choice C |
+| C8 | "(parent.He/She) chooses intervention; the baby is born without signs of life, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
+| C9 | "(parent.He/She) chooses gentler care; both survive, and the baby is born healthy." | none (told) | 20 of 289 in choice C |
+| C10 | "(parent.He/She) chooses intervention; (parent.his/her) baby survives with serious health challenges and is welcomed with love." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
+| C11 | "(parent.He/She) chooses gentler care; the premature baby survives briefly before dying, leaving the family grieving." | `baby_lost` | very rare: 2 of 289 in choice C |
+| C12 | "(parent.He/She) chooses intervention; both survive, though the newborn begins life in fragile health." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
+| C13 | "(parent.He/She) chooses gentler care; the baby is born prematurely and survives, but (parent.he/she) does not." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C14 | "(parent.He/She) chooses intervention; the pregnancy ends in loss, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
+| C15 | "(parent.He/She) chooses gentler care; the baby survives with lasting health difficulties, and the family celebrates the child's arrival." | `deliver_early` (newborn -30..-10 health more); `celebrate` (the village) | rare: 5 of 289 in choice C |
+| C16 | "The healers offer to end the pregnancy to protect (parent.his/her) life; (parent.he/she) accepts with tears, and the family mourns the child." | `baby_lost` | rare: 5 of 289 in choice C |
+| C17 | "(parent.He/She) refuses to end the pregnancy despite the danger; the healers respect (parent.his/her) wishes, and both survive." | none (told) | 20 of 289 in choice C |
+| C18 | "(parent.He/She) refuses the procedure, but (parent.his/her) condition worsens; the baby survives a premature birth, while the (parent.mother/father) dies." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C19 | "(parent.He/She) accepts the procedure after learning that (parent.his/her) life is in danger; (parent.he/she) survives, though the loss weighs heavily upon (parent.him/her)." | `baby_lost` | rare: 5 of 289 in choice C |
+| C20 | "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in loss, and the family grieves." | `baby_lost` | rare: 5 of 289 in choice C |
+| C21 | "(parent.He/She) accepts the procedure with (parent.his/her) family's support; (parent.his/her) recovery is gradual, and (parent.he/she) mourns the pregnancy (parent.he/she) had hoped to continue." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
+| C22 | "(parent.He/She) refuses the procedure despite the healers' concerns; both survive, though the baby is born prematurely and frail." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
+| C23 | "(parent.He/She) asks for more time before deciding; the healers continue caring for (parent.him/her) while (parent.he/she) considers (parent.his/her) options." | none (told) | 20 of 289 in choice C |
+| C24 | "(parent.He/She) accepts the procedure, believing it is (parent.his/her) only chance to survive; afterward, (parent.he/she) feels both relief and profound sadness." | `baby_lost` | rare: 5 of 289 in choice C |
+| C25 | "(parent.He/She) refuses the procedure, hoping to save (parent.his/her) baby; neither survives, leaving the healers and family grieving." | `kill`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C26 | "(parent.He/She) accepts the procedure but later struggles with (parent.his/her) decision; the healers offer compassion rather than judgment." | `baby_lost` | rare: 5 of 289 in choice C |
+| C27 | "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy." | none (told) | 20 of 289 in choice C |
+| C28 | "(parent.He/She) agrees to end the pregnancy, but severe bleeding follows; despite the healers' efforts, (parent.he/she) dies." | `kill`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C29 | "(parent.He/She) survives the procedure, but a fever develops several days later; the healers fear (parent.his/her) condition is worsening." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
+| C30 | "(parent.He/She) survives the procedure but remains dangerously weak; (parent.his/her) family takes turns watching over (parent.him/her)." | `baby_lost`; `health_change` -50..-30 | rare: 5 of 289 in choice C |
+| C31 | "(parent.He/She) survives the procedure, but an infection threatens (parent.his/her) recovery; the healers struggle to save (parent.him/her)." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
+| C32 | "(parent.He/She) accepts the procedure and initially recovers, only to collapse days later; the family fears the worst." | `baby_lost`; `health_change` -50..-30 | rare: 5 of 289 in choice C |
+| C33 | "(parent.He/She) survives the procedure and its complications, though (parent.his/her) recovery is long and difficult." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
+| C34 | "(parent.He/She) accepts the procedure, but the healers cannot control the bleeding; the family mourns both (parent.mother/father) and child." | `kill`, cause Unknown causes | very rare: 2 of 289 in choice C |
+| C35 | "(parent.He/She) survives without serious physical complications, but grieves the pregnancy (parent.he/she) had hoped to continue." | `baby_lost` | rare: 5 of 289 in choice C |
+| C36 | "(parent.His/Her) partner begs (parent.him/her) to continue the pregnancy, but (parent.he/she) chooses the procedure; the healers honor (parent.his/her) wishes." | `baby_lost` | rare: 5 of 289 in choice C |
+| C37 | "(parent.His/Her) father pleads with (parent.him/her) to end the pregnancy, fearing he will lose his (parent.son/daughter); (parent.he/she) refuses, and the healers respect (parent.his/her) decision." | none (told) | 20 of 289 in choice C |
+
+- **Owner decision:** pending (2026-11-15).
 
 ## Companion K5
 

@@ -29,7 +29,7 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "FA5989ECF0500EEA7BF9BB18A24CB90BC9D11D3AA3B5E804ECB317D00E352CD2"
+      "sha256": "2E35B2E4D386474592CF15B7B4CED9A055764EAD55071849E601F550928A9059"
     },
     {
       "source": "assets/event_collection/vv4/living.pak",
@@ -209,7 +209,7 @@
     {
       "source": "assets/event_collection/all_v20_d1_two_lives.cieg",
       "destination": "Island Event Collection/all_v20_d1_two_lives.cieg",
-      "sha256": "210F1A9DDB98D9ECABA10E766F8ACEE41DA3F498E2006BEA8EF1469167337C33"
+      "sha256": "D51FE2978682BDC9A9C0DF9AD63E9EE8DCD376F2B4A74A90400096150F4C0A75"
     },
     {
       "source": "assets/event_collection/all_v20_d2_no_such.cieg",

@@ -116,10 +116,12 @@ class FrozenLiving(unittest.TestCase):
         for r in rows:
             by[r["section"]] = by.get(r["section"], 0) + 1
             self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+        # v20: Two Lives, One Decision reads this file's copy of D1 (the owner's added outcomes, 2026-11-15); its file
+        # stays in data/event_collection/v20/
         self.assertEqual(by, {"lv_med": 31, "lv_life": 45, "lv_circle": 31, "lv_peoples": 37, "lv_unseen": 39,
-                              "lv_ways": 38, "lv_auth": 30})
+                              "lv_ways": 38, "lv_auth": 30, "v20": 1})
         files = [p for p in cc.collection_files() if lib.LIVING_DIR in p.parents]
-        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows if r["section"] != "v20"))
 
 
 class FrozenHorizonAndRoleModels(unittest.TestCase):
@@ -213,12 +215,16 @@ class Manifest(unittest.TestCase):
         c = self.data["counts"]
         # 22 + 29 + 124 events, 4 add-ons (two Cooking Contest add-ons, V13-A, V13-B): the source has 34 V17
         # contests where inventory part 3 counted 33 (listed in inventory_disagreements).  The V28 source adds V27's
-        # 57 short events (and removes the V26 materials bank).
-        self.assertEqual(c["events"], 175 + 57)
+        # 57 short events (and removes the V26 materials bank).  D1 (Two Lives, One Decision) reads the owner's newer
+        # copy in the Living Engine file (2026-11-15: its added outcomes), so it is a living row; its V28 lines a notes
+        # row.
+        self.assertEqual(c["events"], 175 + 57 - 1)
         self.assertEqual(c["banks"], 7)
         self.assertEqual(c["addons"], 4)
         self.assertEqual(c["series"], {"v14_golden_child": 25, "v17_contests": 34, "v18_trials": 12,
-                                       "v20_crises": 12})
+                                       "v20_crises": 11})
+        d1 = next(r for r in self.data["rows"] if r["id"] == "all_v20_d1_two_lives")
+        self.assertEqual((d1["source"], d1["lines"], d1["series"]), (lib.LIVING_ID, [8957, 9056], "v20_crises"))
         self.assertTrue(any("V17-E has 7 contests" in d["what"] for d in self.data["inventory_disagreements"]))
 
     def test_rows_are_verified_against_the_source(self):

@@ -90,8 +90,9 @@ def real_catch_up(r) -> None:
                                                                                        20_000_000)})
 
 
-def graph(game: str, after: bool = False) -> dict:
-    nodes = {"p0": {"text": "(Mum) gives birth and dies.", "effects": [{"do": "birth_then_die", "role": "mum"}]}}
+def graph(game: str, after: bool = False, effect: dict | None = None) -> dict:
+    nodes = {"p0": {"text": "(Mum) gives birth and dies.",
+                    "effects": [effect or {"do": "birth_then_die", "role": "mum"}]}}
     if after:
         nodes["p0"]["children"] = [{"next": "p1"}]
         nodes["p1"] = {"text": "(Friend) carries the child home."}
@@ -108,7 +109,8 @@ def litter_value(game: str, babies: int) -> int:
 
 @emulated
 class BirthThenDie(unittest.TestCase):
-    def village(self, game: str, elapsed: int = 20, babies: int = 1, nursing: bool = True, gap: bool = False):
+    def village(self, game: str, elapsed: int = 20, babies: int = 1, nursing: bool = True, gap: bool = False,
+                effect: dict | None = None):
         """Ann (record 0, nursing `elapsed` units with `babies`), Bob (the friend); with `gap`, record 1 is a record
         freed by a death and Bob is record 2."""
         people = [(0, "f", 30, "Ann", 0, nursing), (2 if gap else 1, "m", 31, "Bob", 0, False)]
@@ -124,7 +126,7 @@ class BirthThenDie(unittest.TestCase):
             v6.set_expected_father(r, game, 0, "Bob", 7, 8)
         r.rolls([0] * 40)
         r.log(1)
-        self.assertIsNone(r.queue6(v6.compiled(graph(game))))
+        self.assertIsNone(r.queue6(v6.compiled(graph(game, effect=effect))))
         return r
 
     def newborns(self, r, before: set[int]) -> list[int]:
@@ -249,6 +251,88 @@ class BirthThenDie(unittest.TestCase):
                 self.assertEqual(r.v.i32(0, L["pregnant"]), processed - 20, "still nursing, as she was")
                 self.assertEqual(r.p.u32(r.v.record(0) + L["age"]), age, "her age as it was")
                 self.assertEqual([k for k, _i, _w in r.told()], [])
+
+
+EARLY = {"do": "deliver_early", "role": "mum"}
+FRAIL = {"do": "deliver_early", "role": "mum", "min": -30, "max": -10}   # the walk's roll 0: -30
+
+
+@emulated
+class DeliverEarly(BirthThenDie):
+    """cie-v6-binary.md 30: the same birth, and the parent lives; a frail newborn loses the roll more."""
+
+    def run_early(self, game: str, effect: dict, **kw):
+        return self.run_birth(game, effect=effect, **kw)
+
+    def test_an_early_birth_and_the_parent_lives_in_every_game(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                healthy = self.full_term_health(game)
+                r, kids = self.run_early(game, EARLY, elapsed=20)
+                L = r.v.L
+                self.assertEqual(len(kids), 1, "the baby is its own villager record")
+                kid = kids[0]
+                self.assertEqual((r.v.i32(kid, L["age"]), r.v.i32(kid, L["processed"])), (20, 20))
+                self.assertEqual(r.v.i32(kid, L["health"]), healthy - deficit(20), "the early-birth deficit")
+                self.assertGreater(r.v.i32(0, L["health"]), 0, "Ann lives")
+                self.assertEqual(r.v.i32(0, L["pregnant"]), 0, "no longer nursing")
+                self.assertEqual([k for k, i, _w in r.told() if i == 0], [TOLD_DELIVERED], "the birth told, no death")
+                n, _now, filed = r.log()
+                self.assertEqual(n, 1)
+                self.assertIn("Ann's baby was born early.", filed)
+                self.assertNotIn("died", filed)
+
+    def test_a_frail_newborn_loses_the_roll_more(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                healthy = self.full_term_health(game)
+                r, kids = self.run_early(game, FRAIL, elapsed=30, babies=2)
+                L = r.v.L
+                self.assertEqual(len(kids), 2)
+                for kid in kids:
+                    self.assertEqual(r.v.i32(kid, L["health"]), healthy - deficit(30) - 30, "twins: each the same")
+                self.assertGreater(r.v.i32(0, L["health"]), 0)
+                self.assertIn("Ann's babies were born early.", r.log()[2])
+                r, kids = self.run_early(game, FRAIL, elapsed=NURSING)
+                self.assertEqual(r.v.i32(kids[0], L["age"]), NURSING, "full term: the game's own age")
+                self.assertEqual(r.v.i32(kids[0], L["health"]), healthy - 30, "no deficit, only the frail loss")
+                self.assertIn("Ann's baby was born.", r.log()[2])
+
+    def test_not_nursing_or_a_refused_birth_changes_nothing(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game, case="not nursing"):
+                r = self.village(game, effect=EARLY)
+                L = r.v.L
+                r.p.put32(r.v.record(0) + L["pregnant"], 0)
+                before = {i for i in range(16) if r.v.byte(i, L["active"]) != 0}
+                r.walk_through()
+                self.assertEqual(self.newborns(r, before), [])
+                self.assertGreater(r.v.i32(0, L["health"]), 0)
+                self.assertEqual([k for k, _i, _w in r.told()], [])
+            with self.subTest(game=game, case="refused"):
+                r = self.village(game, effect=FRAIL)
+                L = r.v.L
+                r.p.stub(CATCH_UP[game], lambda q: (0, 0))
+                r.p.mu.hook_add(UC_HOOK_CODE, r.p._on_code, begin=CATCH_UP[game], end=CATCH_UP[game])
+                processed = r.p.u32(r.v.record(0) + L["processed"])
+                r.walk_through()
+                self.assertGreater(r.v.i32(0, L["health"]), 0)
+                self.assertEqual(r.v.i32(0, L["pregnant"]), processed - 20, "still nursing, as she was")
+                self.assertEqual([k for k, _i, _w in r.told()], [])
+
+    # the inherited birth_then_die tests run in BirthThenDie
+    test_an_early_birth_then_the_death_in_every_game = None
+    test_twins_and_triplets = None
+    test_full_term_and_the_earliest_birth = None
+    test_a_freed_record_takes_the_baby = None
+    test_the_child_carries_its_parents = None
+    test_not_nursing_just_dies_and_a_refused_birth_harms_nobody = None
 
 
 if __name__ == "__main__":
