@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c036_old_argument",
+  "source": "companion",
+  "lines": [
+   2473,
+   2482
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2473",
+  "ledger": [
+   {
+    "src": "L2476",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2478",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2482",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "Two elderly friends resume a debate they have been having for decades.",
+  "cast_only": [
+   "elder1",
+   "elder2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder1": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "Two elderly friends resume a debate they've been having for decades.",
+   "src": "L2474",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Neither changes their mind, and both enjoy themselves.",
+   "src": "L2479"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They realize they've forgotten what started it.",
+   "src": "L2480"
+  }
+ }
+}

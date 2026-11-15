@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Small Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b003_small_gift",
+  "source": "companion",
+  "lines": [
+   1159,
+   1168
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1159",
+  "ledger": [
+   {
+    "src": "L1161",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1165",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1168",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "One villager leaves a polished pebble and a woven ribbon for another.",
+  "cast_only": [
+   "giver",
+   "recipient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "giver": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "recipient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "One villager leaves a polished pebble and a woven ribbon for another.",
+   "src": "L1160",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1162"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1163"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1164"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "The recipient keeps both close.",
+   "src": "L1166"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The giver remains anonymous.",
+   "src": "L1167"
+  }
+ }
+}

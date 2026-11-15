@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Blanket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b028_shared_blanket",
+  "source": "companion",
+  "lines": [
+   1380,
+   1385
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1380",
+  "ledger": [
+   {
+    "src": "L1382",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1385",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two siblings argue over a woven blanket on a cool evening.",
+  "cast_only": [
+   "sibling1",
+   "sibling2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "sibling1": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "sibling2": {
+   "kind": "villager",
+   "min_age": 3,
+   "relation": {
+    "sibling_of": "sibling1"
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "Two siblings argue over a woven blanket on a cool evening.",
+   "src": "L1381",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They find a way to share.",
+   "src": "L1383"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They fetch another blanket and laugh.",
+   "src": "L1384"
+  }
+ }
+}

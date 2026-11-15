@@ -47,7 +47,7 @@ keeps its source heading. These rows have no date, so `owner_titles()` does not 
 | The Quiet Leader | `c5ev033_quiet_leader` (V033, L3560) | `fwk049_quiet_leader` (The Four Ways of Knowing 049, L5932) | a similar idea |
 | The Night Watch | `c5b058_night_watch` (Vol 1 Part 2 058, L1642) | `c5c018_night_watch` (Vol 1 Part 3 018, L2251) | different plots |
 | The Unsent Apology | `c5b024_unsent_apology` (Part 2 024, L1345) | `sss056_unsent_apology` (Stone, Spirit, Strangers 056, L6639) | a similar theme |
-| The Family Resemblance | `c5b035_family` (Part 2 035, L1439) | `c5c032_family` (Part 3 032, L2423) | different plots |
+| The Family Resemblance | `c5b035_resemblance` (Part 2 035, L1439) | `c5c032_same_gesture` (Part 3 032, L2423) | different plots |
 | The Forgotten Name | `c5b021_forgotten_name` (Part 2 021, L1317) | `fwk034_forgotten_name` (Four Ways of Knowing 034, L5780) | different plots |
 
 Also OPEN: the same title in the Companion Anthology and in the Isola Grand Event Collection (the V28 source's own line

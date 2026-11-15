@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Uncelebrated Helper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c033_pot_washer",
+  "source": "companion",
+  "lines": [
+   2435,
+   2446
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2435",
+  "ledger": [
+   {
+    "src": "L2438",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L2442",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2446",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "Someone realizes the person who cleans the communal pots is never thanked: thank them, or organize a cleaning day.",
+  "cast_only": [
+   "villager",
+   "helper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Someone realizes the person who cleans the communal pots is never thanked.",
+   "src": "L2436",
+   "choices": [
+    {
+     "label": "Thank them personally.",
+     "next": "ending",
+     "src": "L2439"
+    },
+    {
+     "label": "Organize a shared cleaning day.",
+     "next": "ending",
+     "src": "L2440"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They leave a small gift beside the washing place.",
+   "src": "L2443"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They offer to take over the chore for a day.",
+   "src": "L2444"
+  }
+ }
+}
