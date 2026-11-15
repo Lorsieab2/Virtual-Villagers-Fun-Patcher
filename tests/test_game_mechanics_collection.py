@@ -74,9 +74,13 @@ class ThePage(unittest.TestCase):
         from unittest import mock
         game = 3
         first, title, _s = gc.manifest(game)[0]
-        before = gc.lines(game)
+        # Without any such event (real events now make them: The Sudden Fever's lost baby), the lines are absent.
+        plain = {k: dict(v, harm=[h for h in v["harm"] if h not in ("die_unrecovered", "baby_lost")], allow=False)
+                 for k, v in gc.index().items()}
+        with mock.patch.object(gc, "index", lambda: plain):
+            before = gc.lines(game)
         self.assertFalse([t for t, _ in before if "body is never found" in t or "lose the baby" in t])
-        changed = {k: dict(v) for k, v in gc.index().items()}
+        changed = {k: dict(v) for k, v in plain.items()}
         changed[first] = dict(changed[first], harm=sorted(set(changed[first]["harm"]) | {"die_unrecovered",
                                                                                        "baby_lost"}), allow=True)
         with mock.patch.object(gc, "index", lambda: changed):
