@@ -262,6 +262,251 @@
    "harm": [],
    "section": "v24"
   },
+  "all_v27_01_cry": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_02_little_grip": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_03_recognition": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_04_crawling": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_05_lullaby": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_06_grove": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_07_secret": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_08_cruel_joke": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_09_kingdom": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_10_supper": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_11_legend": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_12_new_friend": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_13_raft": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_14_proof": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v27"
+  },
+  "all_v27_15_embarrass": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_16_swap": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_17_pact": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_18_heartbreak": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_19_beam": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_20_favor": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_21_councilor": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_22_doubt": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_23_watcher": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_24_explorer": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_25_crossing": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_26_teacher": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_27_empty_chair": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_28_beginning": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_29_route": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_30_basket": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_31_guardian": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_32_fish": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_33_insect": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_34_pet": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_35_pets_last": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_36_hatchling": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_37_returned": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_38_rough_patch": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_39_marriage": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_40_siblings": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_41_promise": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_42_special": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_43_lovers": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_44_courtship": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_45_coworkers": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_46_ally": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_47_grief": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_48_mentor": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_49_chosen": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_50_reunion": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_51_apology": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_52_unexpected": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_53_shore": {
+   "harm": [],
+   "section": "v27"
+  },
+  "all_v27_54_fever": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v27"
+  },
+  "all_v27_55_deep_pool": {
+   "harm": [
+    "kill",
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_56_empty_boat": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v27"
+  },
+  "all_v27_57_bell": {
+   "harm": [],
+   "section": "v27"
+  },
   "all_verse_that_changed": {
    "harm": [],
    "section": "v13"
