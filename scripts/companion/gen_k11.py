@@ -24,8 +24,7 @@ EFFECTS (V28 consequence rules; the owner 2026-11-14: hands-on study earns a sma
 GRAMMAR (docs/event-collection/grammar-fixes.md, companion section): "a Arthurium / a Anagallis / a Indigoberry" ->
 "an ..." (L7902, L8022, L8034).
 
-SENSITIVITY (the owner's content rules, 2026-11-14, rule 3): "herbarium" (a scholar's word for a dried-plant
-collection) -> "dried" in each foliage D outcome; a "sensitivity" ledger entry for the owner's review.
+SENSITIVITY: none.  The owner (2026-11-15): "herbarium" and "ecological impact" stay as written.
 
     python scripts/companion/gen_k11.py
 """
@@ -47,7 +46,7 @@ MODERN = "rule 3 (2026-11-14): a modern-day thing in the words of people who nev
 FOLIAGE = {"roles": {"botanist": c.skilled(V, "Farming")},
            "eff": {"c": [c.skill("botanist", "Farming")], "d": [c.skill("botanist", "Research")]},
            "to": {"d": [T("the original plant is lost", "a plant, not a villager or the village's food")]},
-           "sens": {"d": [("herbarium", "dried")]}}
+           "sens": {}}
 FLOWERS = {"roles": {"dye_maker": V, "naturalist": c.skilled(V, "Research")},
            "eff": {"a": [c.skill("naturalist", "Research")], "b": [c.skill("dye_maker", "Research")],
                    "d": [c.skill("dye_maker", "Research")]},
@@ -79,7 +78,7 @@ def build(row: dict) -> dict:
         out = h + 3 + 2 * i
         for b, a in tpl["sens"].get(k, []):
             assert b in c.line(out), (row["id"], k, b)
-            sens[out] = [(b, a)]
+            sens.setdefault(out, []).append((b, a))
             ledger.append({"src": c.L(out), "kind": "sensitivity", "before": b, "after": a, "why": MODERN})
 
     def shown(n: int) -> str:

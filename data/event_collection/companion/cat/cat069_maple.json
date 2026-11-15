@@ -26,13 +26,6 @@
     "src": "L7935",
     "kind": "note",
     "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
-   },
-   {
-    "src": "L7934",
-    "kind": "sensitivity",
-    "before": "herbarium",
-    "after": "dried",
-    "why": "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
    }
   ],
   "description": "A botanist finds a Violetta Maple whose leaves hold water well, but a neighboring one looks different."
@@ -111,7 +104,7 @@
   },
   "d": {
    "name": "Answer D",
-   "text": "A detailed dried specimen results, but the original plant is lost; rarity and ecological impact shape the villagers' reaction.",
+   "text": "A detailed herbarium specimen results, but the original plant is lost; rarity and ecological impact shape the villagers' reaction.",
    "src": "L7934",
    "effects": [
     {
