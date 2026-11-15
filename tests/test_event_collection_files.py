@@ -281,10 +281,13 @@ class CollectionFiles(unittest.TestCase):
                     self.assertTrue(rep.skipped, "a and g must say SKIPPED while the v6 format is missing")
 
     def test_cli_runs(self):
-        r = subprocess.run([sys.executable, str(ROOT / "scripts" / "collection_check.py")], capture_output=True,
-                           text=True, cwd=ROOT)
-        self.assertEqual(r.returncode, 1 if KNOWN_GAPS else 0, r.stdout + r.stderr)
-        self.assertIn("files pass", r.stdout)
+        # The command line on a handful of files: every file is already checked by the subtests above, and the whole
+        # collection again in a subprocess outran CI's 10-minute timeout.
+        files = [str(p) for p in cc.collection_files() if p.name not in KNOWN_GAPS][:5]
+        r = subprocess.run([sys.executable, str(ROOT / "scripts" / "collection_check.py"), *files],
+                           capture_output=True, text=True, cwd=ROOT)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn(f"{len(files)} of {len(files)} files pass", r.stdout)
 
     def test_v27_weights_follow_the_global_rule(self):
         # The lead's decisions (2026-11-14, the V27 global rule): a death is very rare (2 against 20), a minor setback
