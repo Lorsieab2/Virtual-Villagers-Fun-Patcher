@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv4/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "94A82A6E312DE0F9364C2FE83C4DBC03DB1351DB893F169791AF8A65EE4C2935"
+      "sha256": "5A6DC0E602F14B07D3D3F1EBA39CB74FF2AE405DEAE302BC39CC6A8F54FD2812"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -3244,7 +3244,7 @@
     {
       "source": "assets/event_collection/lvppl01_red_hair.cieg",
       "destination": "Island Event Collection/lvppl01_red_hair.cieg",
-      "sha256": "9AB049343249502B5936C37691DB300B77365A2A46B206FA50A7D0D375B4BA66"
+      "sha256": "1CE1FCF206199D97789C4D640CA21905038EB9FADA91BED1EC3793C47CED1A01"
     },
     {
       "source": "assets/event_collection/lvppl02_blue_cloth.cieg",
@@ -3259,7 +3259,7 @@
     {
       "source": "assets/event_collection/lvppl04_grey_hair.cieg",
       "destination": "Island Event Collection/lvppl04_grey_hair.cieg",
-      "sha256": "7F8261111E518CDC4898D3454CB8ED5AA00115043C2C36ED3DA6D295CF5698F4"
+      "sha256": "40776084B088F0722DE15EF3D5C1CD9A8960FE53A22E869A5BE4EB8FC513C3C4"
     },
     {
       "source": "assets/event_collection/lvppl05_spiderweb.cieg",
@@ -3329,7 +3329,7 @@
     {
       "source": "assets/event_collection/lvppl31_color_would.cieg",
       "destination": "Island Event Collection/lvppl31_color_would.cieg",
-      "sha256": "E548B490975A5B14370C675EDC7A3C2F09956BADE8D42E37BA08884A000413CA"
+      "sha256": "143B2AB8C622680DDE55A9F73330522D25AC45AE1313C7D55D9B1F7EA0EA0191"
     },
     {
       "source": "assets/event_collection/lvppl35_old_promise.cieg",
@@ -3529,7 +3529,7 @@
     {
       "source": "assets/event_collection/lvuns37_unproven.cieg",
       "destination": "Island Event Collection/lvuns37_unproven.cieg",
-      "sha256": "9C4D19DB45FB6CCC5EDAC41A18C92C147A338720DD8193098486B3AF96B0DFFA"
+      "sha256": "DC0124196E74C1B62A78DE10C910730F2EE7A967D17455D48F7C26BAA1C3DF52"
     },
     {
       "source": "assets/event_collection/lvuns38_night_thousand.cieg",
