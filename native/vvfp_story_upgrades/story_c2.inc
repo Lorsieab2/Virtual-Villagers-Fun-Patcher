@@ -1012,7 +1012,7 @@ static const ce_adapter C2_ADAPTER = {
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
     NULL, NULL, 0, c2_set_health,
     c2_deliver
- };
+};
 
 /* ---- Delivery ----------------------------------------------------------- */
 

@@ -862,7 +862,7 @@ static const ce_adapter C4_ADAPTER = {
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
     NULL, NULL, 0, c4_set_health,
     c4_deliver
- };
+};
 
 /* ---- Delivery ----------------------------------------------------------- */
 

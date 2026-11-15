@@ -1024,7 +1024,7 @@ static const ce_adapter C3_ADAPTER = {
     C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
     NULL, NULL, 0, c3_set_health,
     c3_deliver
- };
+};
 
 /* ---- Delivery ----------------------------------------------------------- */
 

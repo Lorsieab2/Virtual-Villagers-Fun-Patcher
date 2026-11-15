@@ -1088,7 +1088,7 @@ static const ce_adapter C5_ADAPTER = {
     5,
     c5_set_health                                /* the note is for purple, the Chief and the Mommy */,
     c5_deliver
- };
+};
 
 /* ---- Delivery ----------------------------------------------------------- */
 

@@ -949,7 +949,7 @@ static const ce_adapter C1_ADAPTER = {
     0,
     c1_set_health,
     c1_deliver
- };
+};
 
 /* ---- Delivery ----------------------------------------------------------- */
 

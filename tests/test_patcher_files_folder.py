@@ -522,7 +522,9 @@ class DeepOutputFolders(unittest.TestCase):
         base = short_base(self)
         recovery = vfp._publish_sibling(base, "recovery", "0" * 8)
         retained = recovery / vfp.RECOVERY_RETAINED_FOLDERS[0]
-        rel = "Backups/" + "b" * 120 + "/" + "c" * 60 + "/save.ldw"
+        # Deeper than MAX_PATH from this base, whatever TEMP's length (short_base may be only a few characters).
+        fixed = len(str(retained)) + len("/Backups/" + "b" * 120 + "//save.ldw")
+        rel = "Backups/" + "b" * 120 + "/" + "c" * max(60, patcher_files.MAX_PATH + 1 - fixed) + "/save.ldw"
         member = patcher_files.long_path(retained / rel)
         member.parent.mkdir(parents=True)
         member.write_bytes(b"the player's")
