@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby's First Laugh",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl037_baby_laugh",
+  "source": "companion",
+  "lines": [
+   4273,
+   4287
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4277",
+  "ledger": [
+   {
+    "src": "L4274",
+    "kind": "structural",
+    "why": "the group heading 'BABIES, CAREGIVERS & EARLY YEARS'"
+   },
+   {
+    "src": "L4278",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4286",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4287",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A baby bursts into laughter whenever a certain villager approaches.",
+  "cast_only": [
+   "parent",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A baby bursts into laughter whenever a certain villager approaches.",
+   "src": "L4279",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4280"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4281"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4282"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The family discovers a funny feather in the villager's hair.",
+   "src": "L4283"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The baby develops a favorite playmate.",
+   "src": "L4284"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "Everyone tries unsuccessfully to repeat the joke.",
+   "src": "L4285"
+  }
+ }
+}
