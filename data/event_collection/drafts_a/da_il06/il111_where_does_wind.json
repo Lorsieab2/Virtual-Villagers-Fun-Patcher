@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Does the Wind Live?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il111_where_does_wind",
+  "source": "da_il06",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child asks where the wind lives: go looking for its home together, or ask the child what they think.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "\"Where does the wind live?\" (subject) asks. (friend) opens (friend.his/her) mouth to answer, and realizes (friend.he/she) has no idea. \"It must go home sometimes,\" (subject) points out. \"It's not windy at night always.\"",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Go Looking for the Wind's Home",
+     "next": "a",
+     "src": "L127"
+    },
+    {
+     "label": "Ask (subject) Where (subject.he/she) Thinks It Lives",
+     "next": "b",
+     "src": "L130"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They climb the hill to see where the wind is coming from. At the top it's very windy indeed. (subject) is satisfied. \"This is its house,\" (subject.he/she) announces, hair blowing everywhere. \"We should be polite.\" They both say \"hello\" to the wind, which blows (friend)'s hat off.",
+   "src": "L128"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I think it lives in the big trees,\" says (subject), \"and it goes out every morning and comes back every night, and when it's angry it shakes them.\" (friend) looks at the trees. Right on cue, they rustle. \"See?\" says (subject). (friend) doesn't argue. (friend.He/She) wouldn't know how.",
+   "src": "L131"
+  }
+ }
+}

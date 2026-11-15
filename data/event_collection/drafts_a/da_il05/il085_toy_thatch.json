@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Toy in the Thatch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il085_toy_thatch",
+  "source": "da_il05",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "While repairing an old roof, a villager finds their favorite childhood toy tucked deep in the thatch.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "While repairing an old roof, (subject) finds something tucked deep in the thatch: a little carved fish, worn smooth, with one fin missing. (subject.He/She) knows it instantly. It was (subject.his/her) favorite toy, years and years ago, and (subject.he/she) has no idea how it got up there.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Give It to a Child",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Keep It",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) takes the fish down and hands it to (friend), a small child who has been watching the repairs. \"This was mine, a long time ago,\" (subject.he/she) says. \"It needs someone to play with it.\" (friend) studies it seriously, then runs off making swimming noises. (subject) feels oddly light.",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) puts the little fish in (subject.his/her) pocket and finishes the roof. That evening (subject.he/she) sets it on a shelf and looks at it for a while. It doesn't do anything. It just sits there being small and old and familiar, and somehow that's enough.",
+   "src": "L65"
+  }
+ }
+}

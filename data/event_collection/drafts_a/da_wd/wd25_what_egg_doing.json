@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's an Egg Doing in the Fruit Basket?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd25_what_egg_doing",
+  "source": "da_wd",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L305",
+    "kind": "casting",
+    "before": "takes it to an elder",
+    "after": "takes it to (elder), an elder",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager reaches into the fruit basket and pulls out a large, warm, speckled egg.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) reaches into the fruit basket and pulls out, instead of a mango, a large, speckled egg. It's warm. It's clearly not a fruit. There are no nests anywhere near the hut, and no birds seem to be looking for it. It's just in the basket, among the fruit, as if it's waiting to be ripe.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Look for the Nest",
+     "next": "a",
+     "src": "L301"
+    },
+    {
+     "label": "Keep It Warm and Ask an Elder",
+     "next": "b",
+     "src": "L304"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) and (friend) search every tree nearby. At last they find a seabird sitting on a cliff ledge, looking agitated, with one empty spot in her nest. They can't work out how the egg ended up in a basket in the village, a long way from the cliff. They carefully put it back. The seabird glares at them and settles down on it.",
+   "src": "L302"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) wraps the egg in a soft cloth and takes it to (elder), an elder, who looks at it and says it belongs to the seabirds on the cliffs, and that the sooner it goes home the better. They take it up together. Nobody ever works out how it got into the fruit basket, but (subject) checks the basket very carefully for the rest of the season.",
+   "src": "L305"
+  }
+ }
+}

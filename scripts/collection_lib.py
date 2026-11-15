@@ -74,6 +74,28 @@ SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
            LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES),
            HORIZON_ID: (HORIZON, HORIZON_HASH_FILE, HORIZON_LINES),
            ROLEMODELS_ID: (ROLEMODELS, ROLEMODELS_HASH_FILE, ROLEMODELS_LINES)}
+
+# The owner-approved drafts of 2026-11-15, set A: twelve files, each its own frozen source (byte for byte; SHA-256 in
+# data/event_collection/drafts_a/DA_<ID>.sha256): data/event_collection/drafts_a/<section>/<id>.json, "source" (and
+# section, and series) "da_<id>".  docs/event-collection/authoring-rules.md 15d.
+DRAFTS_A_DIR = COLLECTION_DIR / "drafts_a"
+DRAFTS_A = {   # source id -> (file name in docs/more-island-events, line count)
+    "da_il01": ("New Events - Inner Life (draft for owner).txt", 129),
+    "da_il02": ("New Events - Inner Life Part II (11-40).txt", 512),
+    "da_il03": ("New Events - Inner Life Part III (41-60, draft for owner).txt", 241),
+    "da_il04": ("New Events - Inner Life Part IV (61-80, draft for owner).txt", 248),
+    "da_il05": ("New Events - Inner Life Part V (81-100, draft for owner).txt", 244),
+    "da_il06": ("New Events - Inner Life Part VI (101-120, draft for owner).txt", 244),
+    "da_il07": ("New Events - Inner Life Part VII (121-140, draft for owner).txt", 255),
+    "da_il08": ("New Events - Inner Life Part VIII (141-160, draft for owner).txt", 244),
+    "da_il09": ("New Events - Inner Life Part IX (161-180, draft for owner).txt", 250),
+    "da_il10": ("New Events - Inner Life Part X (181-200, draft for owner).txt", 240),
+    "da_wd": ("New Events - What's That Doing Here (draft for owner).txt", 606),
+    "da_lo": ("New Events - Luck, Omens and Lavastones (draft for owner).txt", 632),
+}
+for _sid, (_name, _count) in DRAFTS_A.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name,
+                     DRAFTS_A_DIR / f"DA_{_sid[3:].upper()}.sha256", _count)
 _ACTIVE = [SOURCE_ID]
 
 

@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Adventure That Got Bigger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il044_adventure_got",
+  "source": "da_il03",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder's story of getting lost as a child has grown with every telling: keep telling it, or tell the plain version.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is telling (friend) about the time (subject.he/she) got lost in the jungle as a child. In this version there was a storm, a cliff, a mysterious glowing frog, and (subject) found the way home by following the stars. (friend) is spellbound. Somewhere in the back of (subject)'s mind, a small voice points out that last year there was no frog, and the year before there was no cliff.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Keep Telling It",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Tell the Plain Version",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The glowing frog leads young (subject) to a hidden waterfall. (friend) gasps. \"Is that TRUE?\" (subject) thinks about it honestly. \"Parts of it,\" (subject.he/she) says. \"I really did get lost. And I really did find my way home.\" (friend) decides those are the most important parts anyway.",
+   "src": "L50"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Actually,\" (subject) says, \"I got lost behind the gardens for an afternoon and cried until my mother found me.\" (friend) stares. \"That's it?\" \"That's it.\" (friend) thinks about this. \"Was there a frog?\" (subject) smiles. \"There might have been a small one.\"",
+   "src": "L53"
+  }
+ }
+}

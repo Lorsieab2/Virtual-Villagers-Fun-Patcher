@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tool That Fit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il145_tool_fit",
+  "source": "da_il08",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's old digging stick, worn to the shape of their hands, snaps clean in two: mend it, or make a new one.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject)'s digging stick has been with (subject.him/her) for years. The handle is worn smooth in exactly the shape of (subject.his/her) hands. Today, halfway through a hard bit of ground, it snaps clean in two. (subject) stands holding the two halves, feeling unexpectedly sad about a stick.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Try to Mend It",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Make a New One",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) binds the halves together with cord, very carefully. It holds, sort of. It wobbles a bit now, and the handle has a lump in it. (subject.He/She) keeps using it anyway. (friend) offers (subject.him/her) a new one. \"No thank you,\" says (subject). \"We're used to each other.\"",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) finds a good straight branch and spends the evening shaping a new digging stick. It's fine. It works. It doesn't feel like anything. But by the end of the season (subject) notices that the handle has started to wear smooth, just a little, in exactly the shape of (subject.his/her) hands.",
+   "src": "L65"
+  }
+ }
+}

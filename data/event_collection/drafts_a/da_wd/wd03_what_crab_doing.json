@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Crab Doing in the Cooking Pot?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd03_what_crab_doing",
+  "source": "da_wd",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager lifts the lid of the cooking pot and finds a crab inside, looking as if the villager is the intruder.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) lifts the lid off the cooking pot to start the stew and finds a crab sitting inside it. Not a crab that anyone caught. A crab that has climbed in all by itself, and is now sitting at the bottom of the empty pot, claws raised, looking up at (subject) as if (subject.he/she) is the intruder.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Carry It Back to the Beach",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Ask the Crab What It Wants",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) carries the whole pot down to the beach and tips it gently onto the sand. The crab marches out sideways without so much as a thank you. (subject) carries the pot back up. As (subject.he/she) lifts the lid to start cooking, (subject.he/she) half expects to find another one. There isn't. (subject.He/She) checks twice anyway.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What are you doing in there?\" (subject) asks. The crab waves a claw. (friend), passing, says, \"Maybe it heard you make good stew.\" (subject) decides to take that as a compliment, carries the crab out to the rocks, and makes the stew without it. The stew is, everyone agrees, very good. The crab would have been impressed.",
+   "src": "L41"
+  }
+ }
+}

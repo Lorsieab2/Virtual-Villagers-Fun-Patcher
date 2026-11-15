@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Bite",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il075_last_bite",
+  "source": "da_il04",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager always leaves the last piece of fruit for whoever comes next, and today someone reaches for it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) always leaves the last piece of fruit in the bowl, \"for whoever comes next.\" (subject.He/She) has done it for years. Nobody ever eats it. The last piece sits there until it goes soft and gets thrown out, and then (subject) leaves a new last piece. Today (friend) walks in, sees it, and reaches for it.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Watch Quietly",
+     "next": "a",
+     "src": "L181"
+    },
+    {
+     "label": "Explain the Habit",
+     "next": "b",
+     "src": "L184"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) eats the last piece in two bites. (subject) watches with an expression nobody has ever seen on (subject.his/her) face before. \"Was that alright?\" asks (friend). \"That,\" says (subject), \"is the first time in years anyone has eaten it.\" \"Well, it was very good.\" (subject) is absurdly pleased about this all day.",
+   "src": "L182"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) explains about whoever comes next. (friend) stops, fruit halfway to (friend.his/her) mouth. \"But I'm whoever comes next,\" (friend.he/she) says. (subject) has never thought of it that way. After a moment (subject.he/she) nods solemnly, and (friend) eats the fruit with great ceremony.",
+   "src": "L185"
+  }
+ }
+}

@@ -388,6 +388,30 @@ small words lower case unless first or last). Titles use the pipeline's `title_c
 fidelity check matches the label case-blind, then requires exactly that form). The older sources' labels switch after
 the merge.
 
+## 15d. The owner-approved drafts, set A (2026-11-15)
+
+Twelve draft files the owner approved ("the drafts are ok as long as they stick to our rules"): Inner Life I-X
+(events 1-200), What's That Doing Here (WD-01..50) and Luck, Omens and Lavastones (LO-01..50). Each is its own frozen
+source, byte for byte under its own name in `docs/more-island-events/` (`-text`; SHA-256 in
+`data/event_collection/drafts_a/DA_<ID>.sha256`), listed in `collection_lib.DRAFTS_A`: source, section and series
+`da_il01` .. `da_il10`, `da_wd`, `da_lo`; files `data/event_collection/drafts_a/<source>/<id>.json`; ids `il001_`,
+`wd01_`, `lo01_` and a slug. Rows: `_draft_rows` in `scripts/collection_manifest.py` (the manifest's `drafts_a` block
+checks every line of each file): each heading is an event, the lines before the first heading (the title, the notes
+to the owner, Part II's ChatGPT preamble) and the closing NOTES FOR THE OWNER are notes rows. One series per file, so
+each file counts as one draw in the rare roll.
+
+Generators: `scripts/drafts_a/gen_<id>.py` on `da_common.py`, which documents the shape (the casting line is a ledger
+note; the setup is the question; each label leads to its own answer page; a single popup has no choice; LO's
+"(About 6 in 10)" lines are alternatives weighted by the text's own odds, each child naming them in the
+authoring-only key `odds`, which the CHANCES check accepts in place of a rarity; "[effect: ...]" is an instruction
+cut with its effect on that page). (name1) is the role `subject` and (name2) `friend`; pronouns follow the name
+mentioned last, with per-page overrides; labels are title case (`label_case: "title"`; the check compares a label's
+words around its placeholders). The owner's naming rule (2026-11-15): a person the draft names only by role ("a
+visitor") is cast and named at the first mention, a ledger entry of kind `casting` (checked like a sensitivity
+edit). The text is otherwise kept as written: no swaps for animals or objects a game lacks (narrative is not
+gameplay); near-duplicates the notes flag are built and listed. Grammar fixes are rows `| da_il07 L<line> |`
+(`(his/hers)` has no placeholder). "The Quiet Hands" (Inner Life 3): TODO story trait "mute", pending the engine.
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

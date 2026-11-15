@@ -1,0 +1,58 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Snail",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il150_snail",
+  "source": "da_il08",
+  "lines": [
+   116,
+   119
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "On a slow day, a villager sits on a rock and watches a snail cross the path.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "It's a slow day. There's nothing urgent to do and nobody needs (name1) for anything, so (he/she) sits on a rock and watches a snail cross the path. It's a big path, and a small snail. (name1) watches it set off from one side. (He/She) watches a leaf blow past it. (He/She) watches it stop, for a long time, apparently thinking. Then it carries on. The sun moves across the sky. A whole afternoon goes by. At last the snail reaches the grass on the far side and disappears into it. (name1) lets out a breath (he/she) didn't know (he/she) was holding, stands up, and goes home feeling, for no good reason, like (he/she) has achieved something.",
+   "src": "L119",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (a thing, a sound or a worry disappears); nobody goes missing",
+     "src": "L119"
+    }
+   ]
+  }
+ }
+}

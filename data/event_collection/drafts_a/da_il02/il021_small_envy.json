@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Small Envy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il021_small_envy",
+  "source": "da_il02",
+  "lines": [
+   177,
+   191
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L177",
+  "ledger": [
+   {
+    "src": "L179",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L191",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager is pleased a friend was recognized for a discovery, but wishes their own help had been mentioned.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is pleased that (friend) has received recognition for an important discovery. Truly pleased. (subject.He/She) helped with the research and knows how hard (friend) worked. Still, a small, uncomfortable part of (subject) wishes someone had mentioned (subject.his/her) contribution too.",
+   "src": "L181",
+   "choices": [
+    {
+     "label": "Mention the Contribution",
+     "next": "a",
+     "src": "L183"
+    },
+    {
+     "label": "Say Nothing for Now",
+     "next": "b",
+     "src": "L187"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I helped with the early experiments,\" (subject) says quietly. (friend) looks surprised. \"Of course you did! I should have mentioned that.\" At the next gathering, (friend) acknowledges the assistance. (subject) appreciates it, although the earlier disappointment hasn't vanished completely.",
+   "src": "L185",
+   "text_only": [
+    {
+     "what": "\"vanished\"",
+     "reason": "the word's everyday sense (a thing, a sound or a worry disappears); nobody goes missing",
+     "src": "L185"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) joins the celebration and congratulates (friend). Later, alone, (subject.he/she) admits to feeling both proud and envious. It is an uncomfortable combination, but an honest one.",
+   "src": "L189",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration in the story (a feast, a moment of joy); no village celebration happens in the game",
+     "src": "L189"
+    }
+   ]
+  }
+ }
+}

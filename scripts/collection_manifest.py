@@ -917,6 +917,52 @@ def _rolemodel_rows() -> None:
 
 _rolemodel_rows()
 
+# ---- The owner-approved drafts, set A (2026-11-15; collection_lib.DRAFTS_A, each file its own source) ---------------
+#
+# Inner Life I-X (events 1-200), What's That Doing Here (WD-01..50), Luck, Omens and Lavastones (LO-01..50).  Each
+# event: a heading "12. The Wrong Dream" / "WD-01. ..." / "LO-01. ...", a "(picks ...)" casting line, the setup, then
+# each choice's label line "Label:" and its outcome (none for a single popup).  The lines before the first heading
+# (the draft's title, its notes to the owner, Part II's ChatGPT preamble) and the closing NOTES FOR THE OWNER (Part II:
+# "A few more directions ...") are notes rows.  Series (the lead, 2026-11-15): one per file, so each file counts as one
+# draw in the rare roll.  Ids: il001_, wd01_, lo01_ and a slug of the title.
+
+DRAFT_HEAD_RE = re.compile(r"^(?:(WD|LO)-)?(\d{1,3})\.\s+(.+)$")
+DRAFT_LABEL_RE = r'^[A-Z(][^.!?"]{0,100}:$'
+DRAFT_END_RE = re.compile(r"^(?:NOTES FOR THE OWNER|A few more directions for the next batch)")
+# (first, last) credit lines of each draft: its title line(s)
+DRAFT_CREDIT_LINES = {"da_il02": (15, 17)}
+DRAFT_IDS: dict[str, str] = {}
+
+
+def _draft_rows() -> None:
+    for sid in lib.DRAFTS_A:
+        with lib.use_source(sid):
+            n_all = lib.n_lines()
+            heads = [n for n in range(1, n_all + 1) if DRAFT_HEAD_RE.match(lib.line(n).rstrip("\r"))]
+            end = next(n for n in range(heads[-1], n_all + 1) if DRAFT_END_RE.match(lib.line(n)))
+            CREDITS[sid] = ("mixed", [DRAFT_CREDIT_LINES.get(sid, (1, 1))], sid)
+            a_end = heads[0] - 1
+            while lib.is_blank_or_separator(a_end):
+                a_end -= 1
+            N(f"danotes_{sid[3:]}_intro", f"Draft {sid}: title, notes to the owner", 1, a_end, sid, sid, source=sid)
+            N(f"danotes_{sid[3:]}_end", f"Draft {sid}: closing notes to the owner", end, n_all, sid, sid, source=sid)
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else end
+                e = stop - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = DRAFT_HEAD_RE.match(lib.line(h).rstrip("\r"))
+                pre, num, src_title = m.group(1), int(m.group(2)), lib.normalize_source_text(m.group(3)).strip()
+                eid = f"{pre.lower()}{num:02d}" if pre else f"il{num:03d}"
+                choices = sum(1 for n in range(h, e + 1)
+                              if re.match(DRAFT_LABEL_RE, lib.normalize_source_text(lib.line(n)).strip()))
+                R(DRAFT_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  title_case(src_title), ALL, h, e, "event", sid, sid, choices, series=sid, source=sid,
+                  choice_re=DRAFT_LABEL_RE)
+
+
+_draft_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1258,6 +1304,8 @@ def build() -> dict:
         # "horizon" / "rolemodels".
         "horizon": whole_file(lib.HORIZON_ID, lib.HORIZON, HORIZON_SERIES_NAMES),
         "rolemodels": whole_file(lib.ROLEMODELS_ID, lib.ROLEMODELS, ()),
+        # The owner-approved drafts, set A (collection_lib.DRAFTS_A): one block per file, one series each.
+        "drafts_a": {sid: whole_file(sid, lib.SOURCES[sid][0], (sid,)) for sid in lib.DRAFTS_A},
         "rows": rows,
     }
 
@@ -1288,6 +1336,8 @@ def main(argv=None) -> int:
     for key in ("horizon", "rolemodels"):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
+    for key, s in data["drafts_a"].items():
+        print(f"{key}: {s['counts']['events']} events, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     return 0
 
 

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Salt Over the Shoulder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo08_salt_over",
+  "source": "da_lo",
+  "lines": [
+   93,
+   102
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L93",
+  "ledger": [
+   {
+    "src": "L94",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager throws spilled salt over a shoulder for luck, straight into the face of the friend behind them.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) spills a little salt while cooking, and immediately throws a pinch of it over (subject.his/her) left shoulder, without thinking. It lands directly in the face of (friend), who was standing right behind (subject.him/her).",
+   "src": "L96",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "a",
+     "src": "L98"
+    },
+    {
+     "label": "Apologize and Leave It at That",
+     "next": "b",
+     "src": "L101"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"It's for luck!\" says (subject), horrified. \"You spill salt, you throw some over your shoulder.\" (friend), blinking salt out of (friend.his/her) eyes, asks whose luck, exactly. They both start laughing. (friend) insists on throwing some salt over (friend.his/her) own shoulder to \"even it out.\" It lands on a passing chicken.",
+   "src": "L99"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) apologizes and hands (friend) some water. (friend) recovers with dignity. That evening, the stew is the best (subject) has ever made. (friend) admits, very reluctantly, that maybe the salt throwing had something to it. \"Or,\" says (subject), \"the stew was just good.\" They agree to never find out.",
+   "src": "L102"
+  }
+ }
+}

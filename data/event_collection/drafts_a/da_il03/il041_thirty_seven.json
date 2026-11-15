@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Thirty-Seven Steps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il041_thirty_seven",
+  "source": "da_il03",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who always takes thirty-seven steps to the well counts thirty-nine today: walk it again, or let it be.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every morning (subject) walks from (subject.his/her) hut to the well, and every morning it takes exactly thirty-seven steps. (subject.He/She) has never told anyone this. Today it takes thirty-nine. (subject) stops, turns around, and looks at the path very suspiciously.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Walk It Again",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Let It Be Thirty-Nine",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) goes back to the hut and tries again, more carefully this time. Thirty-seven. Much better. (friend), who watched the whole thing from (friend.his/her) doorway, decides not to ask.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) shrugs and fills (subject.his/her) water jar. Maybe the path got longer. Maybe (subject.his/her) legs got shorter. Maybe it was a thirty-nine sort of day. By the evening walk it's back to thirty-seven, and all is right with the world.",
+   "src": "L17"
+  }
+ }
+}

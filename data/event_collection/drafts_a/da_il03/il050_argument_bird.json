@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Argument with the Bird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il050_argument_bird",
+  "source": "da_il03",
+  "lines": [
+   110,
+   119
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L110",
+  "ledger": [
+   {
+    "src": "L111",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager is locked in a noisy argument with a rude bird on the roof: keep going, or make peace.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A bird has taken to sitting on (subject)'s roof every morning and making the same loud, rude noise. It sounds a lot like it's laughing at (subject.him/her). This morning (subject) went outside and made the noise back. The bird made it louder. (subject) made it louder still. This has now been going on for some time.",
+   "src": "L113",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "a",
+     "src": "L115"
+    },
+    {
+     "label": "Make Peace",
+     "next": "b",
+     "src": "L118"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) and the bird are now locked in a shouting match the whole village can hear. (friend) wanders over with a cup of tea to watch. Eventually the bird flies off. (subject) declares victory. The bird comes back the next morning. The war continues.",
+   "src": "L116"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) leaves a few seeds on the roof edge. The bird eats them, looks at (subject) for a long moment, and makes a much quieter, much politer noise. (subject) is fairly sure that was a thank you. (subject.He/She) is also fairly sure it was laughing a bit.",
+   "src": "L119"
+  }
+ }
+}

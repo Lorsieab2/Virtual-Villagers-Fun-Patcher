@@ -1,0 +1,81 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Mushroom Ring Doing in the Garden?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd24_what_mushroom",
+  "source": "da_wd",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A perfect ring of small white mushrooms appears overnight in a villager's garden: step inside, or leave it alone.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Overnight, a perfect ring of small white mushrooms has appeared in the middle of (name1)'s garden. A real circle, almost as wide as a hut, every mushroom the same size. Yesterday there was nothing there. (name1) stands at the edge of the ring, feeling as though (he/she) should knock before going in.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Step Inside",
+     "next": "a",
+     "src": "L289"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "b",
+     "src": "L292"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) steps into the middle of the ring. Nothing happens. Nothing at all. The birds sing, the breeze blows, (his/her) feet are still (his/her) feet. (name1) feels a little silly, and a little relieved, and a little disappointed, all at once. (He/She) steps out again carefully, without touching any of them, just in case.",
+   "src": "L290"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) leaves the ring exactly as it is. (He/She) asks the elders about it. One says it's a sign of good soil. One says it's where the spirits danced last night. One says it's just mushrooms. (name1) thinks all three answers are nice. A few days later the mushrooms vanish as quietly as they came.",
+   "src": "L293",
+   "text_only": [
+    {
+     "what": "\"vanish\"",
+     "reason": "the word's everyday sense (a thing, a sound or a worry disappears); nobody goes missing",
+     "src": "L293"
+    }
+   ]
+  }
+ }
+}

@@ -134,6 +134,35 @@ ROLEMODELS_CREDIT_BLOCKS = (
 )
 SOURCE_LINE_WORDS = {"companion": "companion source lines", "living": "living source lines",
                      "horizon": "Beyond the Horizon source lines", "rolemodels": "Role Models source lines"}
+# The owner-approved drafts of 2026-11-15, set A (data/event_collection/drafts_a/; collection_lib.DRAFTS_A): each
+# file's title line(s), verbatim (Part II's: its heading after the ChatGPT preamble).
+DRAFTS_A_DIR = ROOT / "data" / "event_collection" / "drafts_a"
+DRAFTS_A_FILES = (   # (source id, file name, first credit line, last)
+    ("da_il01", "New Events - Inner Life (draft for owner).txt", 1, 1),
+    ("da_il02", "New Events - Inner Life Part II (11-40).txt", 15, 17),
+    ("da_il03", "New Events - Inner Life Part III (41-60, draft for owner).txt", 1, 1),
+    ("da_il04", "New Events - Inner Life Part IV (61-80, draft for owner).txt", 1, 1),
+    ("da_il05", "New Events - Inner Life Part V (81-100, draft for owner).txt", 1, 1),
+    ("da_il06", "New Events - Inner Life Part VI (101-120, draft for owner).txt", 1, 1),
+    ("da_il07", "New Events - Inner Life Part VII (121-140, draft for owner).txt", 1, 1),
+    ("da_il08", "New Events - Inner Life Part VIII (141-160, draft for owner).txt", 1, 1),
+    ("da_il09", "New Events - Inner Life Part IX (161-180, draft for owner).txt", 1, 1),
+    ("da_il10", "New Events - Inner Life Part X (181-200, draft for owner).txt", 1, 1),
+    ("da_wd", "New Events - What's That Doing Here (draft for owner).txt", 1, 1),
+    ("da_lo", "New Events - Luck, Omens and Lavastones (draft for owner).txt", 1, 1),
+)
+SOURCE_LINE_WORDS.update({sid: f"{name[len('New Events - '):-len('.txt')]} source lines"
+                          for sid, name, _a, _b in DRAFTS_A_FILES})
+
+
+def drafts_a_credit_sources() -> list[tuple[str, Path, str, tuple]]:
+    """(name, path, SHA-256, credit blocks) of each draft file of set A."""
+    out = []
+    for sid, name, a, b in DRAFTS_A_FILES:
+        digest = (DRAFTS_A_DIR / f"DA_{sid[3:].upper()}.sha256").read_text(encoding="ascii").split()[0].upper()
+        out.append((name[len("New Events - "):-len(".txt")].upper(), ROOT / "docs" / "more-island-events" / name,
+                    digest, ((a, b, "the draft's title"),)))
+    return out
 
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
@@ -282,7 +311,7 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
         out += [f"LIVING CREDIT: {what} (living source lines {first}-{last})\n", "\n", span(liv, first, last), "\n"]
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
-                                        ROLEMODELS_CREDIT_BLOCKS)):
+                                        ROLEMODELS_CREDIT_BLOCKS), *drafts_a_credit_sources()):
         src = [s.replace("\r\n", "\n") for s in source_lines(path, digest)]
         out += [f"{name}\n", "\n",
                 f"Source: {path.name} (SHA-256 {digest}). The texts below are copied from it verbatim.\n", "\n"]

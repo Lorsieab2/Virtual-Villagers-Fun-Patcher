@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path in the Grass",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il100_path_grass",
+  "source": "da_il05",
+  "lines": [
+   230,
+   233
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "From the top of the hill, a villager notices the little worn paths in the grass that nobody made on purpose.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "From the top of the hill, (name1) looks down at the village and notices, for the first time, the paths. Not the proper ones. The little worn lines in the grass that nobody ever made on purpose: from the huts to the well, from the fire to the beach, from one particular doorway to another particular doorway, where two friends must have visited each other every day for years. (name1) finds (his/her) own, the one that goes the long way round past the stream. (He/She) remembers when it wasn't there. Now it's as clear as a line drawn in the sand. Nobody decided any of these paths. They're just what's left when people keep going the same way for long enough. (name1) sits on the hill a long while, reading the village like a map of everyone's habits, before (he/she) walks back down along (his/her) own.",
+   "src": "L233"
+  }
+ }
+}

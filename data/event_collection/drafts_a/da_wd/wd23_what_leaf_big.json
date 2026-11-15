@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Leaf That Big Doing in My Hut?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd23_what_leaf_big",
+  "source": "da_wd",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "After a storm, a single enormous leaf blocks a villager's doorway, and nobody knows what tree it came from.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "During the night a storm blew through. Nothing was damaged, but when (subject) wakes up, the whole doorway is blocked by a single, enormous leaf. It's taller than (subject). It's wider than the door. Nobody knows what tree it came from. There's no tree on that side of the village with leaves anywhere near that big.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Use It",
+     "next": "a",
+     "src": "L277"
+    },
+    {
+     "label": "Ask (friend) Where It Came From",
+     "next": "b",
+     "src": "L280"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) drags it outside and stands it up against the hut. It makes a wonderful shade. By lunchtime half the village is sitting under it, and the children have used it as a slide, a tent and a boat. Nobody ever finds the tree it came from. (subject) wonders, sometimes, how big that tree must be.",
+   "src": "L278"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) examines it closely and says (friend.he/she) has never seen a leaf like it. They walk all round the village looking for the tree. They don't find it. By the time they get back, the leaf has started to curl and dry in the sun. They look at it, and at each other, and decide not to think about it too much.",
+   "src": "L281"
+  }
+ }
+}

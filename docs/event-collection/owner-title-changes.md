@@ -22,6 +22,12 @@ The table is read by `scripts/collection_lib.py owner_titles()`: one row per eve
 | `all_v18_01_warriors` | The Warriors' Tournament | The Warriors' Duel | 2026-11-14 | owner |
 | `vv3_weather_dance_that_went` | The Weather Dance That Went Wrong | The Wacky Weather Dance | 2026-11-14 | owner |
 | `vv5_convert_who_missed_home` | The Convert Who Missed Home | The Homesick Convert | 2026-11-14 | owner |
+| `wd14_what_melon_doing` | What's a Melon Doing in the Middle of the Path? | What's a Melon Doing in the Path? | 2026-11-15 | lead |
+| `wd40_what_walking` | What's a Walking Stick Doing in the Middle of the Beach? | What's a Walking Stick Doing on the Beach? | 2026-11-15 | lead |
+
+The two `lead` rows are NOT the owner's: the drafts' titles do not fit a game's title box (WD-14: 47 characters, The
+Lost Children shows 46; WD-40: 56, every game shows at most 47), so the event cannot ship under them. The shortest
+change is proposed here for the owner's approval; the owner's own title replaces it whenever the owner gives one.
 
 Notes:
 

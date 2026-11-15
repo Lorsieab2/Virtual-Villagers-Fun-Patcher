@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Private Celebration",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il029_private",
+  "source": "da_il02",
+  "lines": [
+   305,
+   319
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L305",
+  "ledger": [
+   {
+    "src": "L307",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L319",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager has accomplished something small but personally important: tell a friend, or keep it private.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has accomplished something personally important. It isn't particularly impressive to anyone else, and (subject.he/she) has no desire to announce it. Still, (subject) feels quietly pleased.",
+   "src": "L309",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "a",
+     "src": "L311"
+    },
+    {
+     "label": "Keep It Private",
+     "next": "b",
+     "src": "L315"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"That's wonderful,\" says (friend). (subject) smiles. \"It's a small thing.\" \"It matters to you,\" replies (friend). They share a little fruit in celebration.",
+   "src": "L313",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration in the story (a feast, a moment of joy); no village celebration happens in the game",
+     "src": "L313"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) takes a walk along the beach, humming softly. The sea is beautiful, the breeze is warm, and nobody knows why (subject.he/she) is smiling. (subject) rather likes it that way.",
+   "src": "L317"
+  }
+ }
+}

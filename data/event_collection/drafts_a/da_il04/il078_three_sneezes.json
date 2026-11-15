@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Three Sneezes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il078_three_sneezes",
+  "source": "da_il04",
+  "lines": [
+   212,
+   215
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager always sneezes exactly three times, and tonight the whole village counts along at dinner.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(name1) always sneezes exactly three times. Never one. Never two. Always three, each one louder than the last. The whole village knows it, and when (name1) sneezes at dinner, everyone counts along: \"One! Two!\" Then nothing. (name1) sits frozen, face scrunched up, waiting. Everyone waits with (him/her). The fire crackles. A baby somewhere starts to giggle. After a very long moment, (name1) relaxes, opens (his/her) eyes and says, \"I think that's it.\" The whole fire bursts into applause. Then, while everyone is still clapping, the third sneeze arrives, the loudest one yet. Somebody drops a fish.",
+   "src": "L215"
+  }
+ }
+}

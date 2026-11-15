@@ -1,0 +1,80 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Faster Than Yesterday",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il153_faster_yesterday",
+  "source": "da_il08",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Nobody is racing, but a builder has privately decided to tie the frame of a wall faster than yesterday.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Nobody is racing (name1). There is no contest. But yesterday it took (him/her) all morning to tie the frame of a new wall, and today, privately, (he/she) has decided to do it faster. (He/She) keeps glancing at the sun, as if the sun is keeping score.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Go Flat Out",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Work at the Usual Pace",
+     "next": "b",
+     "src": "L154"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) works like a whirlwind. (He/She) finishes before the sun is even halfway up. (He/She) is out of breath and enormously pleased with (him/her)self. Then (he/she) notices one lashing is upside down and has to redo it. Still faster than yesterday, (he/she) decides, if you don't count that bit.",
+   "src": "L152"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Halfway through, (name1) slows down. Racing nobody is tiring. (He/She) finishes at exactly the same time as yesterday. The wall is just as good. (name1) shrugs. Some days you're faster than yesterday. Some days you're just as fast. Both of those are fine.",
+   "src": "L155"
+  }
+ }
+}

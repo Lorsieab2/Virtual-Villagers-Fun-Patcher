@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall That's Still Standing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il198_wall_still",
+  "source": "da_il10",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L206",
+    "kind": "casting",
+    "before": "tells a passing child",
+    "after": "tells (child), a passing child",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder stops beside the garden wall they helped build forty years ago and finds it is still standing.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) helped build the low stone wall around the gardens when (subject.he/she) was young. Forty years ago, maybe more. (subject.He/She) hasn't thought about it in ages. Today (subject.he/she) stops beside it and notices that it's still there: still straight, still keeping the goats out, with moss on top and a lizard sunning itself on one of the stones (subject) carried.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Tell a Child About It",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Just Put a Hand on It",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I built this,\" (subject) tells (child), a passing child. The child looks at the wall, unimpressed. \"It's just a wall.\" \"It's a wall I built forty years ago, and it's still standing.\" The child thinks about that. \"So it'll still be here when I'm old?\" \"Probably.\" The child pats the wall, quite respectfully, and runs off.",
+   "src": "L206"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) puts a hand on the warm stone. (subject.He/She) remembers carrying it, and the friend who helped, and the joke they told that day, though not the punchline. Not everything (subject.he/she) has made has lasted. Plenty of it hasn't. But this has. (subject) stands there a while, hand on the wall, before the lizard gives (subject.him/her) a look and (subject.he/she) moves on.",
+   "src": "L209"
+  }
+ }
+}
