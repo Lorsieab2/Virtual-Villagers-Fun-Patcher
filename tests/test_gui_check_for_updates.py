@@ -213,6 +213,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_mysterious_mask",
                # ...and The Remembrance Ceremony's and The Rumblings' (all five games), with their page entries.
                "vv_remembrance_ceremony", "vv_the_rumblings", "vv_game_mechanics_ceremony",
+               # Children Play Tag and Build Sandcastles (v1.35.97): its page lines.
+               "vv_game_mechanics_children_play",
                # Isola Grand Event Collection (v1.35.97): its page entry.
                "vv_game_mechanics_collection",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
@@ -438,13 +440,19 @@ class ReleasesLinkTests(unittest.TestCase):
                                             "vv_game_mechanics_farmers",
                                             # The Tree of Life: the living villagers, as Last Names reads them,
                                             # to bind the yellow fruit tree's file (function-level).
-                                            "vv_last_names"})
+                                            "vv_last_names",
+                                            # Children Play Tag and Build Sandcastles' lines.
+                                            "vv_game_mechanics_children_play"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
                                        "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
-                                       "vv_game_mechanics_nursery"}),
+                                       "vv_game_mechanics_nursery",
+                                       # Children Play Tag and Build Sandcastles' lines.
+                                       "vv_game_mechanics_children_play"}),
+            # Children Play Tag and Build Sandcastles: the page's words only.
+            ("vv_game_mechanics_children_play", {"vv_game_mechanics"}),
             # God powers: the Spirituality roll's exact odds from the shared Chances helpers.
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics", "vv_game_mechanics_chances"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
