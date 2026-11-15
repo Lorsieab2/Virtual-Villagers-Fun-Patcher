@@ -68,14 +68,15 @@ class Exhaustive(unittest.TestCase):
         section 7 with its before and after."""
         doc = mx.DOC.read_text(encoding="utf-8")
         edited = [s for s in BANK.seeds + BANK.mc_sits if "source_text" in s]
-        self.assertEqual(sorted(s["id"] for s in edited), ["le_bel_05", "mc_aft_09"])
+        self.assertEqual(sorted(s["id"] for s in edited), [])          # the W1 edits were reverted (lead)
         for s in edited:
             self.assertIn(f"| {s['id']} | {mx.plain(s['source_text'])} | {mx.plain(s['text'])} | "
                           f"{s['sensitivity_edit']} |", doc)
 
     def test_no_legendary_being_named(self) -> None:
         """W1: the shipped words never name a legendary creature, an afterlife place or ideas such as cannibals."""
-        banned = re.compile(r"\b(cryptids?|mermaids?|aliens?|skinwalkers?|monsters?|underworld|heaven|hell|"
+        # "cryptid" and "monsters" are kept as the owner wrote them (lead decision on the owner's precedent).
+        banned = re.compile(r"\b(mermaids?|aliens?|skinwalkers?|underworld|heaven|hell|"
                             r"afterlife|cannibals?|headhunters?|angels?|demons?|ghosts?|vampires?|werewolf|werewolves|"
                             r"dragons?|sea serpents?)\b", re.I)
         texts = [s["text"] for s in BANK.seeds] + [a["text"] for a in BANK.archetypes] \

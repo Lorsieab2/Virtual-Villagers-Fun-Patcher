@@ -383,14 +383,11 @@ These are the owner's own text. Lead decision (2026-11-14): each is its seed's v
   skinwalkers, child-taking creatures, man-eating birds, monsters, cryptids, angels, demons, the underworld, heaven, a
   place where souls are judged, ancestor worship, real-world tribe-specific beings or practices) and ideas such as
   cannibals or headhunters are never named outright: only described or hinted at. Shooting stars, tide pools, sea
-  urchins and starfish may be named. The whole bank (Living Engine and MC text) was scanned; two owner lines named
-  one, each changed in the smallest piece, the owner's words kept in the bank (`source_text`), listed for the
-  owner's review (`tests/test_living_fidelity.py` checks this table and that no shipped line names one):
-
-| Id | Owner's words | As shipped | Rule |
-|---|---|---|---|
-| le_bel_05 | A supposed cryptid leaves tracks near the gardens. | An unseen creature leaves tracks near the gardens. | W1 |
-| mc_aft_09 | A popular legend portrays an old enemy as monsters. | A popular legend portrays an old enemy as frightening creatures. | W1 |
+  urchins and starfish may be named. The whole bank (Living Engine and MC text) was scanned; two owner lines use such
+  a word, "A supposed cryptid leaves tracks near the gardens." (le_bel_05) and "A popular legend portrays an old
+  enemy as monsters." (mc_aft_09). Lead decision (2026-11-15), on the owner's own precedent of keeping "Monster" and
+  "afterlife" as written and making minimal edits: both stay exactly as the owner wrote them. No bank line is
+  changed under W1 (`tests/test_living_fidelity.py` checks that no shipped line names any other such being).
 
   Kept as they are (not a named being or afterlife place): "A child asks why the gods never visit Isola." (a child's
   own question; whether there are gods stays open), "A villager dreams of an ancestor they never met." (a dream, no

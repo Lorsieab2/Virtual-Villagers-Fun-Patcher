@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/vv3/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "3EA736E0ABB4F3ADA1C3F1D7CFFDFEE72548555A31579FB46C7C603F83CE6BA3"
+      "sha256": "86CFB775E8D8AE2C041548172C4EAB13655297DCA689F592BA6FAA7A31B20A44"
     },
     {
       "source": "assets/event_collection/Credits.txt",
@@ -34,7 +34,7 @@
     {
       "source": "assets/event_collection/vv3/living.pak",
       "destination": "Island Event Collection/living.pak",
-      "sha256": "D421D8866D5BC9AC9F001639E99D78E83E810F12212E12412DC72C78EFCB2893"
+      "sha256": "3B04ED20BE54B8B5392C50DB5BEAB6799BC2C6AD2253EFA6A37F6B833F87ED37"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",

@@ -1546,7 +1546,7 @@
    "id": "le_bel_05",
    "code": "BEL-05",
    "category": "le_cat_bel",
-   "text": "An unseen creature leaves tracks near the gardens.",
+   "text": "A supposed cryptid leaves tracks near the gardens.",
    "src": "L23901",
    "games": [
     1,
@@ -1566,9 +1566,7 @@
    "seed_effects": [],
    "vv5_only": false,
    "guardians": null,
-   "consent_choice_required": false,
-   "source_text": "A supposed cryptid leaves tracks near the gardens.",
-   "sensitivity_edit": "W1"
+   "consent_choice_required": false
   },
   {
    "id": "le_bel_06",
@@ -17583,7 +17581,7 @@
     "id": "mc_aft_09",
     "code": "AFT-09",
     "category": "mc_cat_aft",
-    "text": "A popular legend portrays an old enemy as frightening creatures.",
+    "text": "A popular legend portrays an old enemy as monsters.",
     "src": "L25381",
     "games": [
      1,
@@ -17696,9 +17694,7 @@
     "subject": {
      "kind": "villager",
      "min_age": 14
-    },
-    "source_text": "A popular legend portrays an old enemy as monsters.",
-    "sensitivity_edit": "W1"
+    }
    },
    {
     "id": "mc_aft_10",

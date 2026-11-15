@@ -645,12 +645,9 @@ assert all(c["text"].startswith(f"{i}. ") for i, c in enumerate(contract, 1))
 # SENSITIVITY EDITS to the owner's text (owner world rules, 2026-11-14): legendary creatures, afterlife concepts and
 # ideas such as cannibals or headhunters are never named outright, only described or hinted at.  The smallest piece
 # changed; `source_text` keeps the owner's words (living-events.md section 7, listed for the owner's review).
-TEXT_EDITS = {
-    "le_bel_05": ("A supposed cryptid leaves tracks near the gardens.",
-                  "An unseen creature leaves tracks near the gardens.", "W1"),
-    "mc_aft_09": ("A popular legend portrays an old enemy as monsters.",
-                  "A popular legend portrays an old enemy as frightening creatures.", "W1"),
-}
+# Lead decision (2026-11-15, the owner's precedent: "Monster" and "afterlife" kept as written; minimal edits): the
+# two W1 edits (le_bel_05 "cryptid", mc_aft_09 "monsters") are reverted; the table stays for any future edit.
+TEXT_EDITS: dict[str, tuple[str, str, str]] = {}
 for item in seeds_out + mc_out:
     if item["id"] in TEXT_EDITS:
         before, after, rule = TEXT_EDITS[item["id"]]
