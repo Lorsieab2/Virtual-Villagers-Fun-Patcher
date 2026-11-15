@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nature-Magic Dilemma",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev042_nature_magic",
+  "source": "companion",
+  "lines": [
+   3627,
+   3631
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3627",
+  "ledger": [
+   {
+    "src": "L3631",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   },
+   {
+    "src": "L3630",
+    "kind": "instruction",
+    "text": " where the game supports it",
+    "why": "an instruction inside the outcome, never shown: its text_only reason"
+   }
+  ],
+  "description": "An orchard is failing and villagers disagree over magical, spiritual or ecological remedies.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "An orchard is failing and villagers disagree over whether to seek magical, spiritual or ecological remedies.",
+   "src": "L3628",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Investigate soil and water while allowing voluntary rituals.",
+   "src": "L3629"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Try a carefully bounded magical intervention.",
+   "src": "L3630",
+   "text_only": [
+    {
+     "what": "a magical intervention",
+     "reason": "rule 9: the magic is told, never made",
+     "src": "L3630"
+    }
+   ]
+  }
+ }
+}

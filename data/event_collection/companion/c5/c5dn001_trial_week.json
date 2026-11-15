@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trial Week",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn001_trial_week",
+  "source": "companion",
+  "lines": [
+   2662,
+   2671
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2665",
+  "ledger": [
+   {
+    "src": "L2662",
+    "kind": "structural",
+    "why": "the group heading 'COMING OF AGE  -  AGES 14-17 ONLY'"
+   },
+   {
+    "src": "L2667",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2671",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2668",
+    "kind": "instruction",
+    "text": "; gain a small skill boost",
+    "why": "an instruction inside the outcome, never shown: the node's effect"
+   },
+   {
+    "src": "L2669",
+    "kind": "instruction",
+    "text": "; update a preference",
+    "why": "an instruction inside the outcome, never shown: the node's effect"
+   }
+  ],
+  "description": "A teenager samples farming, building, healing and research before choosing a path."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A teenager samples farming, building, healing, and research before choosing a path.",
+   "src": "L2666",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a genuine passion.",
+   "src": "L2668",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Farming",
+      "Building",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2668"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Dislike the first job and try another.",
+   "src": "L2669",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "teen",
+     "list": "dislikes",
+     "preference": "work",
+     "src": "L2669"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Realize that not choosing yet is acceptable.",
+   "src": "L2670"
+  }
+ }
+}
