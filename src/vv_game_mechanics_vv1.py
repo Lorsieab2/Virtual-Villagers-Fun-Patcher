@@ -59,6 +59,8 @@ FIELD_CAP = 800
 GOLDEN = "vv1_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv1_collectibles_stay_collected"
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv1_adult_confused"
 HUNGRIER = "vv1_hungrier_villagers"
 LEARNING = "vv1_learning_never_fails"
 MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
@@ -402,6 +404,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom counts the moment the villager picks it up -- its food and Mushrooms Found, once -- "
             "even if the villager is moved or stops before the food store")), gm.CODE)
+    # The drop's adult call 0x425168: area 0x21 -> the Confused action 0x440040 and the message bar
+    # (data/builds.json vv1_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom does the game's own Confused action and the "
+            "message bar says \"Only children can see and pick up mushrooms.\" (in the normal game the "
+            "grown-up just stands there)")), gm.CODE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", gm.RUNNING)
 
     # -- Tech points (how many there are is under Vital statistics) -----------------------------

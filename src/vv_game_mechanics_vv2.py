@@ -47,6 +47,8 @@ EMPTY_STEW_EFFECT = (
     "and empties it (\"Emptying the pot\"), so a new stew can be made at once; a villager who dislikes cooking runs "
     "away instead, a stew still being made is left alone, and no food is lost or given back (the stew's 10 food "
     "was used when the food went in)")
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv2_adult_confused"
 HUNGRIER = "vv2_hungrier_villagers"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
@@ -330,6 +332,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "a mushroom or collectible counts the moment the child picks it up -- the food and Mushrooms "
             "Found, or the piece with its messages, once -- even if the child is moved or stops before the "
             "end of the trip")), gm.CODE)
+    # The adult dispatcher's case 0x42FCAB (call 0x42FCAE): the same Confused action, the message by the area
+    # (data/builds.json vv2_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom is Confused and the message bar says \"Only "
+            "children can see and pick up mushrooms.\"; on a collectible, \"Only children can see and pick "
+            "up collectibles.\" (in the normal game it says \"Only children can see collectibles.\" for "
+            "both)")), gm.CODE)
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once The Overgrown Gong Piece is solved"

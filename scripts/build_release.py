@@ -154,6 +154,8 @@ FILES = [
     "assets/more_island_events/VVFP More Island Events.dll",
     # Empty the Stew Pot from the Science Hut Door (The Lost Children): the companion.
     "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll",
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the companion.
+    "assets/adult_confused/VVFP Adult Confused.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",

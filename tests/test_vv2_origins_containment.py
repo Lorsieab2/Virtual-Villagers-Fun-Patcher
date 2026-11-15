@@ -62,6 +62,8 @@ REMAINING = {
     "vv2_collectibles_stay_collected",
     # companion only (the doorway drop and its callback, at run time); owns no Origins bytes
     "vv2_empty_stew_pot",
+    # companion only (the adult dispatcher's Confused call, at run time); owns no Origins bytes
+    "vv2_adult_confused",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",

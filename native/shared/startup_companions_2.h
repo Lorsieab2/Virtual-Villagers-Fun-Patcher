@@ -68,6 +68,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties
        a ready stew. */
     "VVFP VV2 Empty Stew.dll",
+    /* Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+       its own message for an adult dropped on a mushroom or collectible. */
+    "VVFP Adult Confused.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

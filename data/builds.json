@@ -4378,6 +4378,39 @@
       ]
     },
     {
+      "id": "vv1_adult_confused",
+      "game_id": "vv1",
+      "name": "Adults Dropped on Mushrooms or Collectibles Are Confused",
+      "description": "A villager of 14 or more dropped on a mushroom now does the game's own Confused action and the message bar says \"Only children can see and pick up mushrooms.\" In the normal game the grown-up just stands there and nothing says why. A child dropped on a mushroom picks it up exactly as before. A New Home has no collectibles, so only mushrooms change. The game's one-time tip about confused villagers is not shown for this and is not used up: it still appears the first time a villager is confused for any other reason. Nothing is saved, so without the patch the game simply goes back to its own behaviour. **Needs no other patch.** On by default. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Adult Confused.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own behaviour.",
+      "output_tag": "Adult Confused",
+      "behavior_changes": [
+        "The drop (0x4250FA..) reads the map's area under the villager (0x414200); a villager of 14 or more ([record+0x348] >= 0x118, 0x42510B) goes to the area dispatcher 0x424150 through 0x425168, whose case for a mushroom (area 0x21, written into the map where a mushroom grows, 0x4234E4) is the empty default 0x424E48. 0x425168 calls VVFP Adult Confused.dll instead: area 0x21 with an adult starts the game's Confused action 0x440040 (thiscall villagers, slot) and puts \"Only children can see and pick up mushrooms.\" on the message bar (0x40BB30 on [screen+0x350]) for 5 seconds ([screen+0x284] = the clock 0x402F70 + 5, as the message routine 0x421B40 does); any other area goes to 0x424150 as before.",
+        "The game's one-time tip about confused villagers is held back for this call only: VV1/VV2 hold its 'still to show' byte at 0 for the call, VV3-VV5 its 'already shown' byte in the tip table at 1, and each byte gets its own value back right after, so the tip is neither shown nor used up."
+      ],
+      "explicit_non_changes": [
+        "No executable byte is patched: the companion writes the one call at run time, only after verifying its stock bytes, the instructions before it (0x42515E), the drop's adult test (0x42510B) and the first bytes of every routine it calls -- all of them, or none.",
+        "A child on a mushroom still goes to the mushroom job 0x444500 (0x4251CC). The children's pick-ups (the jobs, the awards, the Duplication Cheat, the Golden Mushroom), every other area or item, the Confused action itself and the save are unchanged; with Picked Up Collectibles Stay Collected When Dropped both work (its sites are elsewhere)."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated beside the stock executable (and with every other patch, in every mode) in tests/test_adult_confused.py: the game's own drop code runs from where it has found what lies under the villager -- an adult gets the Confused action and the message, a child the stock pick-up; a changed site or checked byte installs nothing; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "assets/adult_confused/VVFP Adult Confused.dll",
+          "destination": "VVFP Adult Confused.dll",
+          "sha256": "C8F0313F529E903455B16E30076E618A5A8A813D5280CB4DB01F3DE09AD2EE00"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x425168",
+          "stock_bytes": "E8E3EFFFFF",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's adult `call 0x424150` (the area dispatcher): an adult on a mushroom (area 0x21) gets the Confused action 0x440040 and the message; every other area goes to 0x424150",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        }
+      ]
+    },
+    {
       "id": "vv2_collectibles_stay_collected",
       "game_id": "vv2",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
@@ -4415,6 +4448,39 @@
           "written_bytes": "E8XXXXXXXX",
           "routine": "the collectible job's call queueing the award step (step 17, callback 41): calls the companion, which makes the same call to 0x449B70 and moves the new entry to right after the carry step 15",
           "installed_by": "VVFP Collectibles Stay Collected.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        }
+      ]
+    },
+    {
+      "id": "vv2_adult_confused",
+      "game_id": "vv2",
+      "name": "Adults Dropped on Mushrooms or Collectibles Are Confused",
+      "description": "In the normal game a villager of 14 or more dropped on a mushroom or collectible is already Confused, but the message always says \"Only children can see collectibles.\" -- even for a mushroom. Now the message bar says \"Only children can see and pick up mushrooms.\" for a mushroom and \"Only children can see and pick up collectibles.\" for a collectible. The Confused action is the game's own, as before, but the game's one-time tip about confused villagers, which the normal game shows here, is not shown for this and is not used up: it still appears the first time a villager is confused for any other reason. A child picks up exactly as before. Nothing is saved, so without the patch the game simply goes back to its own behaviour. **Needs no other patch.** On by default. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Adult Confused.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own behaviour.",
+      "output_tag": "Adult Confused",
+      "behavior_changes": [
+        "An adult ([record+0x530] >= 0x118, 0x430C9E) dropped on a mushroom (area 0x2F) or collectible (area 0x30) reaches the adult dispatcher 0x42FB20, whose case 0x42FCAB starts the Confused action 0x454590 with text 43 (\"Only children can see collectibles.\") queued for the message bar. Its call at 0x42FCAE calls VVFP Adult Confused.dll instead, which starts the same action with no text queued (0: the queue 0x44B2A0 stores nothing) and puts \"Only children can see and pick up mushrooms.\" (area 0x2F) or \"... collectibles.\" (area 0x30) on the message bar (0x40C510 on [screen+0x2BC]) for 5 seconds ([screen+0x1D4] = the clock 0x403200 + 5, as the message routine 0x42CC9F does). The area is the dispatcher's own argument ([esp+0x24] at the call).",
+        "The game's one-time tip about confused villagers is held back for this call only: VV1/VV2 hold its 'still to show' byte at 0 for the call, VV3-VV5 its 'already shown' byte in the tip table at 1, and each byte gets its own value back right after, so the tip is neither shown nor used up."
+      ],
+      "explicit_non_changes": [
+        "No executable byte is patched: the companion writes the one call at run time, only after verifying its stock bytes, the instructions before it (0x42FCA6) and the first bytes of the dispatcher (whose frame it reads) and of every routine it calls -- all of them, or none.",
+        "Every other Confused case of the dispatcher (each with its own text) is passed through unchanged; a child on a mushroom or collectible still goes to the jobs 0x45BCA0 / 0x45BF10. The children's pick-ups (the jobs, the awards, the Duplication Cheat, the Golden Mushroom), every other area or item, the Confused action itself and the save are unchanged; with Picked Up Collectibles Stay Collected When Dropped both work (its sites are elsewhere)."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated beside the stock executable (and with every other patch, in every mode) in tests/test_adult_confused.py: the game's own drop code runs from where it has found what lies under the villager -- an adult gets the Confused action and the message, a child the stock pick-up; a changed site or checked byte installs nothing; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "assets/adult_confused/VVFP Adult Confused.dll",
+          "destination": "VVFP Adult Confused.dll",
+          "sha256": "C8F0313F529E903455B16E30076E618A5A8A813D5280CB4DB01F3DE09AD2EE00"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x42FCAE",
+          "stock_bytes": "E8DD480200",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the adult dispatcher's case for a mushroom or collectible (0x42FCAB): `call 0x454590` (the Confused action with text 43): the same action with the message chosen by the area",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         }
       ]
     },
@@ -4488,6 +4554,46 @@
       ]
     },
     {
+      "id": "vv3_adult_confused",
+      "game_id": "vv3",
+      "name": "Adults Dropped on Mushrooms or Collectibles Are Confused",
+      "description": "A villager of 14 or more dropped on a mushroom or collectible now does the game's own Confused action and the status line says \"Only children can see and pick up mushrooms.\" or \"Only children can see and pick up collectibles.\" In the normal game the grown-up just stands there and nothing says why. A child picks up exactly as before. The game's one-time tip about confused villagers is not shown for this and is not used up: it still appears the first time a villager is confused for any other reason. Nothing is saved, so without the patch the game simply goes back to its own behaviour. **Needs no other patch.** On by default. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Adult Confused.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own behaviour.",
+      "output_tag": "Adult Confused",
+      "behavior_changes": [
+        "The drop 0x42D2E0 finds the item under the villager and starts its action through the do-action 0x455570: the mushroom pick 0x2F (items 0x64 and up, 0x42D377) or the collectible pick 0x30 (items 0x34..0x63, 0x42D391), whose handlers (0x449820, 0x449960) send a villager of 14 or more ([record+0xDC4] >= 0x118) straight out. Both calls call VVFP Adult Confused.dll instead: for an adult it starts the game's Confused action 0x2C (handler 0x447BE0) with the game's own text 0x1A, which the handler shows on the status line 0x58F5E8 when the villager is the selected one (byte [record+0xF11]); the line is then given \"Only children can see and pick up mushrooms.\" / \"... collectibles.\" (0x42E200, 5 seconds). A child's action is started exactly as before.",
+        "The game's one-time tip about confused villagers is held back for this call only: VV1/VV2 hold its 'still to show' byte at 0 for the call, VV3-VV5 its 'already shown' byte in the tip table at 1, and each byte gets its own value back right after, so the tip is neither shown nor used up."
+      ],
+      "explicit_non_changes": [
+        "No executable byte is patched: the companion writes both calls at run time, only after verifying their stock bytes, the pushes before each and the first bytes of every routine it calls -- all of them, or none.",
+        "The children's pick-ups (the jobs, the awards, the Duplication Cheat, the Golden Mushroom), every other area or item, the Confused action itself and the save are unchanged; with Picked Up Collectibles Stay Collected When Dropped both work (its sites are elsewhere)."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated beside the stock executable (and with every other patch, in every mode) in tests/test_adult_confused.py: the game's own drop code runs from where it has found what lies under the villager -- an adult gets the Confused action and the message, a child the stock pick-up; a changed site or checked byte installs nothing; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "assets/adult_confused/VVFP Adult Confused.dll",
+          "destination": "VVFP Adult Confused.dll",
+          "sha256": "C8F0313F529E903455B16E30076E618A5A8A813D5280CB4DB01F3DE09AD2EE00"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x42D377",
+          "stock_bytes": "E8F4810200",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x455570` starting the mushroom pick (0x2F)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        },
+        {
+          "va": "0x42D391",
+          "stock_bytes": "E8DA810200",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x455570` starting the collectible pick (0x30)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        }
+      ]
+    },
+    {
       "id": "vv4_collectibles_stay_collected",
       "game_id": "vv4",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
@@ -4511,6 +4617,53 @@
       ]
     },
     {
+      "id": "vv4_adult_confused",
+      "game_id": "vv4",
+      "name": "Adults Dropped on Mushrooms or Collectibles Are Confused",
+      "description": "A villager of 14 or more dropped on a mushroom or collectible now does the game's own Confused action and the status line says \"Only children can see and pick up mushrooms.\" or \"Only children can see and pick up collectibles.\" (also while a stew is being made). In the normal game the grown-up just stands there and nothing says why. A child picks up exactly as before, and a child's mushroom can still go into the stew. The game's one-time tip about confused villagers is not shown for this and is not used up: it still appears the first time a villager is confused for any other reason. Nothing is saved, so without the patch the game simply goes back to its own behaviour. **Needs no other patch.** On by default. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Adult Confused.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own behaviour.",
+      "output_tag": "Adult Confused",
+      "behavior_changes": [
+        "The drop 0x4131A0 finds the item under the villager and starts its action through the do-action 0x45DEC0: the collectible pick 0x1F (items 0x46..0x75, 0x413284), the mushroom pick 0x1E (items 0x76 and up, 0x413266) or, while the stew pot wants an ingredient (0x42DD60), the pot's take 0x90 (0x41324C); each handler (0x4544A0, 0x454360, 0x42E120) sends a villager of 14 or more ([record+0x1B8C] >= 0x118) with that item straight out. The three calls call VVFP Adult Confused.dll instead: for an adult it starts the game's Confused action 0x1A (handler 0x452CB0) with the game's own text 0x80, which the handler shows on the status line 0x4DB8E8 when the villager is the selected one (0x45DD10); the line is then given \"Only children can see and pick up mushrooms.\" / \"... collectibles.\" (0x44C3A0, 5 seconds). A child's action is started exactly as before.",
+        "The game's one-time tip about confused villagers is held back for this call only: VV1/VV2 hold its 'still to show' byte at 0 for the call, VV3-VV5 its 'already shown' byte in the tip table at 1, and each byte gets its own value back right after, so the tip is neither shown nor used up."
+      ],
+      "explicit_non_changes": [
+        "No executable byte is patched: the companion writes the three calls at run time, only after verifying their stock bytes, the pushes before each and the first bytes of every routine it calls -- all of them, or none.",
+        "The children's pick-ups (the jobs, the awards, the Duplication Cheat, the Golden Mushroom), every other area or item, the Confused action itself and the save are unchanged; with Picked Up Collectibles Stay Collected When Dropped both work (its sites are elsewhere)."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated beside the stock executable (and with every other patch, in every mode) in tests/test_adult_confused.py: the game's own drop code runs from where it has found what lies under the villager -- an adult gets the Confused action and the message, a child the stock pick-up; a changed site or checked byte installs nothing; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "assets/adult_confused/VVFP Adult Confused.dll",
+          "destination": "VVFP Adult Confused.dll",
+          "sha256": "C8F0313F529E903455B16E30076E618A5A8A813D5280CB4DB01F3DE09AD2EE00"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x41324C",
+          "stock_bytes": "E86FAC0400",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x45DEC0` starting the stew pot's take (0x90)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        },
+        {
+          "va": "0x413266",
+          "stock_bytes": "E855AC0400",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x45DEC0` starting the mushroom pick (0x1E)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        },
+        {
+          "va": "0x413284",
+          "stock_bytes": "E837AC0400",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x45DEC0` starting the collectible pick (0x1F)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        }
+      ]
+    },
+    {
       "id": "vv5_collectibles_stay_collected",
       "game_id": "vv5",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
@@ -4529,6 +4682,46 @@
           "before": "7709",
           "after": "EB2B",
           "purpose": "release: skip the three place tests (jmp to the award)"
+        }
+      ]
+    },
+    {
+      "id": "vv5_adult_confused",
+      "game_id": "vv5",
+      "name": "Adults Dropped on Mushrooms or Collectibles Are Confused",
+      "description": "A villager of 14 or more dropped on a mushroom or collectible (a relic or lab gear) now does the game's own Confused action and the status line says \"Only children can see and pick up mushrooms.\" or \"Only children can see and pick up collectibles.\" In the normal game the grown-up just stands there and nothing says why. A child picks up exactly as before. The game's one-time tip about confused villagers is not shown for this and is not used up: it still appears the first time a villager is confused for any other reason. Nothing is saved, so without the patch the game simply goes back to its own behaviour. **Needs no other patch.** On by default. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Adult Confused.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own behaviour.",
+      "output_tag": "Adult Confused",
+      "behavior_changes": [
+        "The drop 0x413660 finds the item under the villager and starts its action through the do-action 0x465580: the mushroom pick 0x23 (items 0x80 and up, 0x413700) or the collectible pick 0x24 (relics and lab gear, items 0x50..0x7F, 0x41371A), whose handlers (0x45BAB0, 0x45BBF0) send a villager of 14 or more ([record+0x1B8C] >= 0x118) straight out. Both calls call VVFP Adult Confused.dll instead: for an adult it starts the game's Confused action 0x1F (handler 0x459480) with the game's own text 0x76, which the handler shows on the status line 0x520F68 when the villager is the selected one (0x4653D0); the line is then given \"Only children can see and pick up mushrooms.\" / \"... collectibles.\" (0x44F0B0, 5 seconds). A child's action is started exactly as before.",
+        "The game's one-time tip about confused villagers is held back for this call only: VV1/VV2 hold its 'still to show' byte at 0 for the call, VV3-VV5 its 'already shown' byte in the tip table at 1, and each byte gets its own value back right after, so the tip is neither shown nor used up."
+      ],
+      "explicit_non_changes": [
+        "No executable byte is patched: the companion writes both calls at run time, only after verifying their stock bytes, the pushes before each and the first bytes of every routine it calls -- all of them, or none.",
+        "The children's pick-ups (the jobs, the awards, the Duplication Cheat, the Golden Mushroom), every other area or item, the Confused action itself and the save are unchanged; with Picked Up Collectibles Stay Collected When Dropped both work (its sites are elsewhere)."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated beside the stock executable (and with every other patch, in every mode) in tests/test_adult_confused.py: the game's own drop code runs from where it has found what lies under the villager -- an adult gets the Confused action and the message, a child the stock pick-up; a changed site or checked byte installs nothing; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "assets/adult_confused/VVFP Adult Confused.dll",
+          "destination": "VVFP Adult Confused.dll",
+          "sha256": "C8F0313F529E903455B16E30076E618A5A8A813D5280CB4DB01F3DE09AD2EE00"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x413700",
+          "stock_bytes": "E87B1E0500",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x465580` starting the mushroom pick (0x23)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+        },
+        {
+          "va": "0x41371A",
+          "stock_bytes": "E8611E0500",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the drop's `call 0x465580` starting the collectible pick (0x24)",
+          "installed_by": "VVFP Adult Confused.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         }
       ]
     },

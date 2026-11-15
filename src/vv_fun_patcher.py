@@ -12751,7 +12751,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "8409EE0F26B8F917CBA6AE9C064C42E1726B7582C0FFFD16F6BA40B4BC24CC14",
+    "sha256": "B3C55420731A159E31C026784FAE0550F4CAD4AF077F9664CFD5130C28E5E082",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12861,6 +12861,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties a
     # ready stew.
     "VVFP VV2 Empty Stew.dll",
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+    # "Only children can see and pick up ..." for an adult dropped on a mushroom or collectible.
+    "VVFP Adult Confused.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

@@ -38,6 +38,8 @@ STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv5_collectibles_stay_collected"
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv5_adult_confused"
 HUNGRIER = "vv5_hungrier_villagers"
 CLASSIC = "vv5_classic_vv_difficulty"
 # Respecting the Legacy of Isola: no rule of its own, it ticks five New Believers patches.
@@ -276,6 +278,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it "
             "down, once, not only at its own place")), gm.CODE)
+    # The drop's do-action calls 0x413700 / 0x41371A: an adult gets the Confused action 0x1F and the status line
+    # (data/builds.json vv5_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom, relic or lab gear piece does the game's own "
+            "Confused action and the status line says \"Only children can see and pick up mushrooms.\" or "
+            "\"Only children can see and pick up collectibles.\" (in the normal game the grown-up just "
+            "stands there)")), gm.CODE)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. One set of 24 can always "
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
