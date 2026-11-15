@@ -350,7 +350,7 @@ Pairs in the expanded table: seed_approach 398, seed_choice 58, seed_archetype 4
 
 ### The owner's MIX examples that break a rule
 
-These are the owner's own text and stay as written until the owner decides (keep the MIX as variant 0, or drop the outcome or cast it pairs badly with). The generator never makes such a combination itself.
+These are the owner's own text. Lead decision (2026-11-14): each is its seed's variant 0 with only the offending piece swapped for the nearest compatible one; every change is in the table below ("Variant 0"). The generator never makes such a combination itself.
 
 | MIX | Seed | Conflict |
 |---|---|---|
