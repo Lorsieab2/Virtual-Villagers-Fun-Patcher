@@ -324,16 +324,21 @@
    "type": "branch",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "weight": 20
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "rarity": "rare",
+     "weight": 5
     }
    ]
   },

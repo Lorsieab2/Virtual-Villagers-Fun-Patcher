@@ -403,16 +403,22 @@
    "set": "A",
    "children": [
     {
-     "next": "a1"
+     "next": "a1",
+     "weight": 20
     },
     {
-     "next": "a2"
+     "next": "a2",
+     "weight": 20
     },
     {
-     "next": "a3"
+     "next": "a3",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "a4"
+     "next": "a4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -468,16 +474,21 @@
    "set": "B",
    "children": [
     {
-     "next": "b1"
+     "next": "b1",
+     "weight": 20
     },
     {
-     "next": "b2"
+     "next": "b2",
+     "weight": 20
     },
     {
-     "next": "b3"
+     "next": "b3",
+     "weight": 20
     },
     {
-     "next": "b4"
+     "next": "b4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -533,16 +544,21 @@
    "set": "C",
    "children": [
     {
-     "next": "c1"
+     "next": "c1",
+     "weight": 20
     },
     {
-     "next": "c2"
+     "next": "c2",
+     "weight": 20
     },
     {
-     "next": "c3"
+     "next": "c3",
+     "weight": 20
     },
     {
-     "next": "c4"
+     "next": "c4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -597,16 +613,22 @@
    "set": "D",
    "children": [
     {
-     "next": "d1"
+     "next": "d1",
+     "weight": 20
     },
     {
-     "next": "d2"
+     "next": "d2",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "d3"
+     "next": "d3",
+     "weight": 20
     },
     {
-     "next": "d4"
+     "next": "d4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -662,16 +684,21 @@
    "set": "E",
    "children": [
     {
-     "next": "e1"
+     "next": "e1",
+     "weight": 20
     },
     {
-     "next": "e2"
+     "next": "e2",
+     "weight": 20
     },
     {
-     "next": "e3"
+     "next": "e3",
+     "weight": 20
     },
     {
-     "next": "e4"
+     "next": "e4",
+     "rarity": "very_rare",
+     "weight": 2
     }
    ]
   },
@@ -743,7 +770,8 @@
     },
     {
      "next": "f4",
-     "weight": 20
+     "weight": 2,
+     "rarity": "very_rare"
     },
     {
      "next": "f5",
@@ -822,19 +850,25 @@
    "set": "G",
    "children": [
     {
-     "next": "g1"
+     "next": "g1",
+     "weight": 20
     },
     {
-     "next": "g2"
+     "next": "g2",
+     "weight": 20
     },
     {
-     "next": "g3"
+     "next": "g3",
+     "weight": 20
     },
     {
-     "next": "g4"
+     "next": "g4",
+     "rarity": "very_rare",
+     "weight": 2
     },
     {
-     "next": "g5"
+     "next": "g5",
+     "weight": 20
     }
    ]
   },
