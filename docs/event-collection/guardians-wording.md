@@ -25,6 +25,7 @@ variant, a page variant, a description variant with `{"patch": "guardians_of_iso
 | `vv5_convert_who_missed_home` | Pick Island Event description | A recently converted villager | A villager who recently came to live with our tribe |
 | `vv5_feast_of_two_traditions` | page (question) | A converted Isolan family | An Isolan family who came to live with our tribe |
 | `vv5_little_things_remember` | pages (intro, intro_parent) | A former Heathen-born villager | An Isolan-born villager |
+| `c5ev060_how_did_we_get` | page (q5, New Believers' accounts) | among the Heathens | among the Isolans |
 
 The whole sentences, as New Believers shows them with the patch:
 
@@ -34,6 +35,8 @@ The whole sentences, as New Believers shows them with the patch:
   them to talk, or arrange a shared activity."
 - The Feast of Two Traditions: "An Isolan family who came to live with our tribe and a village family each offer to
   host a feast, but neither agrees on how it should be prepared."
+- How Did We Get Here? (companion V060), New Believers' third account: "Perhaps someone among the Isolans invited
+  or warned them to come."
 - The Little Things They Remember: "An Isolan-born villager and an Isolan visitor meet near the edge of the village.
   They recognize each other from years ago."
 

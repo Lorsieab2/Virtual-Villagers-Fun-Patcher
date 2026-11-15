@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scholar's Puffball",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn021_scholar",
+  "source": "companion",
+  "lines": [
+   2853,
+   2859
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2853",
+  "ledger": [
+   {
+    "src": "L2855",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2859",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2856",
+    "kind": "note",
+    "text": "MECHANICAL:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2856",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its effect"
+   },
+   {
+    "src": "L2857",
+    "kind": "note",
+    "text": "MECHANICAL:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2857",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its text_only reason"
+   },
+   {
+    "src": "L2858",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "A researcher studies a fungus associated with unusual alertness."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A researcher studies a fungus associated with unusual alertness.",
+   "src": "L2854",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2856"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "text_only": [
+    {
+     "what": "a temporary concentration penalty",
+     "reason": "rule 9: no game has a concentration penalty",
+     "src": "L2857"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager starts explaining everything in diagrams.",
+   "src": "L2858"
+  }
+ }
+}

@@ -1312,6 +1312,208 @@
    "harm": [],
    "section": "c5"
   },
+  "c5dn001_trial_week": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn002_wrong": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn003_five_scholar": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn004_reluctant": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn005_builder_sings": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn006_first_failure": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn007_unfair": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn008_career_fair": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn009_first_candy": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn010_festival": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn011_crunch_contest": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn012_sweet_melts": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn013_grandmother": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn014_uninvited": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn015_midnight_baker": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn016_oddly_popular": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn017_backward_cap": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn018_tongue_twister": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn019_crimson_mane": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn020_affection_cap": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn021_scholar": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn022_clumsy_morel": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn023_false_delicacy": {
+   "harm": [
+    "kill"
+   ],
+   "section": "c5"
+  },
+  "c5dn024_ring_mushrooms": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn025_memory": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn026_mushroom_isnt": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn027_hair_string": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn028_hollow_log": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn029_rain_rattle": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn030_sea_flute": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn031_night_wrong": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn032_quiet_singer": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn033_archery_lesson": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn034_archer_choice": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn035_shield_drum": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn036_bowmaker_pride": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn037_difficult": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn038_hardened": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn039_quiet_morgue": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn040_patient_stayed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn041_good_outcome": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn042_wrong_words": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn043_burden": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn044_listening": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn045_orphanage": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn046_new_bed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn047_many_ones": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn048_child_wont": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn049_know_all": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5dn050_missing_toy": {
+   "harm": [],
+   "section": "c5"
+  },
   "c5ev001_pattern_keeper": {
    "harm": [],
    "section": "c5"
@@ -1429,6 +1631,90 @@
    "section": "c5"
   },
   "c5ev030_lost_paddle": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev031_dance_knows": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev032_performance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev033_quiet_leader": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev034_confident": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev035_doubting": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev036_heavy_morning": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev037_strength": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev038_leadership": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev039_unpopular": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev040_dance": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev041_spirit_spring": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev042_nature_magic": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev043_forest_claim": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev044_animal": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev045_stranger": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev046_shared_river": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev047_old_feud": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev048_gods_silence": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev049_sacred_fish": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev050_visitor_stayed": {
+   "harm": [],
+   "section": "c5"
+  },
+  "c5ev060_how_did_we_get": {
    "harm": [],
    "section": "c5"
   },

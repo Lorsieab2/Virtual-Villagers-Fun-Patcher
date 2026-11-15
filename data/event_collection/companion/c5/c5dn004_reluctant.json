@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reluctant Healer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn004_reluctant",
+  "source": "companion",
+  "lines": [
+   2692,
+   2698
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2692",
+  "ledger": [
+   {
+    "src": "L2694",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2698",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A teenager admires healers but struggles with the sight of injuries."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A teenager admires healers but struggles with the sight of injuries.",
+   "src": "L2693",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "injuries",
+     "reason": "the sight of injuries in general; nobody is hurt",
+     "src": "L2693"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Choose gradual supervised observation.",
+   "src": "L2695"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover a preference for medicinal botany.",
+   "src": "L2696",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "teen",
+     "list": "likes",
+     "preference": "herbs",
+     "src": "L2696"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Decide to pursue another specialty without shame.",
+   "src": "L2697"
+  }
+ }
+}
