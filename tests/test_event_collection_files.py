@@ -278,7 +278,7 @@ class FrozenAnthology(unittest.TestCase):
         for p in files:
             doc = json.loads(p.read_text(encoding="utf-8"))
             self.assertEqual(doc["collection"]["label_case"], "title", p.name)
-            for c in doc["nodes"]["setup"]["choices"]:
+            for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):   # REL-04/26: two copies
                 self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
                     "Chief", "{@Chief}"), p.name)
             for nd in doc["nodes"].values():

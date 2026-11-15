@@ -459,8 +459,9 @@ review sheet). The shape is 15b's (the setup asks; each label leads to its own t
   look that keeps the villager's identity (REL-13, 16, 18, 20, 36) needs the cross-sex look (code 23, not built): story
   text and a ledger TODO.
 - Romance: teens only with teens at most two years apart (`max_age_gap`), children's crushes the same; adult couples at
-  most 15 years apart; never a minor with an adult. The engine cannot require "the same sex as the other role", so
-  REL-04 casts two women and REL-26 two men (a ledger TODO each).
+  most 15 years apart; never a minor with an adult. REL-04 and REL-26's same-sex pair (the text gives no sex) follows
+  the owner's rule as BLF-36 (annotation `SAMESEX`): two men or two women, two equally likely versions of the pages,
+  the women's taken only where both can be cast.
 - Nursing mothers (AGE-019..024, EXPRESSION-040, JOY-01) are the game's nursing parent, female, 18+, with a ledger TODO:
   the engine reads the sex field, not a birth sex.
 - Family words between cast people are recorded relations (a parent with their child, siblings, cousins, HS-007's

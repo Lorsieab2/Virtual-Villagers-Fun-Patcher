@@ -19,11 +19,11 @@ R elder2 55+ :
 E S: "Two elders who have known each other for years wonder" => "[elder1] and [elder2], two elders who have known each other for years, wonder"
 
 REL-04
-R villager 18+/f : adult villager | villager
-R friend 18+/f : friend
+R villager 18+ : adult villager | villager
+R friend 18+ : friend
 R relative 18+ @C1,C2 : relative
 GAP friend villager 15
-TODO: same-sex casting: the engine cannot require "the same sex as the other role", so the pair is cast as two women (REL-26 casts two men)
+SAMESEX villager friend
 
 REL-05
 R partner1 18+ :
@@ -145,10 +145,10 @@ R villager 18+ : villager
 E S: "to a villager who wants" => "to [villager], who wants"
 
 REL-26
-R elder1 55+/m :
-R elder2 55+/m :
+R elder1 55+ :
+R elder2 55+ :
 E S: "Two elders of the same sex begin" => "[elder1] and [elder2], two elders of the same sex, begin"
-TODO: same-sex casting: the engine cannot require "the same sex as the other role", so the pair is cast as two men (REL-04 casts two women)
+SAMESEX elder1 elder2
 
 REL-27
 R villager 14+ : villager

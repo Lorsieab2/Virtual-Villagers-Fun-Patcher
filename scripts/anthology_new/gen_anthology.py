@@ -176,6 +176,10 @@ def read_annotations(section: str) -> dict[str, dict]:
         if m:
             cur["rel"].append(m.groups())
             continue
+        m = re.match(r"^SAMESEX (\w+) (\w+)$", s)
+        if m:
+            cur["samesex"] = m.groups()
+            continue
         m = re.match(r"^(DESC|TODO|REVIEW):\s*(.*)$", s)
         if m:
             if m.group(1) == "TODO":
@@ -461,7 +465,61 @@ def build(row: dict, ann: dict) -> tuple[dict, list[str], list[str]]:
         if "Chief" in row["title"]:
             doc["title_variants"] = [{"if": {"game": [g for g in row["games"] if g != 3]},
                                       "title": row["title"].replace("Chief", "Leader")}]
+    if ann.get("samesex"):
+        doc = same_sex_variants(doc, *ann["samesex"])
     return doc, problems, [code]
+
+
+def same_sex_variants(doc: dict, a0: str, b0: str) -> dict:
+    """The owner's rule for a same-sex couple whose sexes the text does not give (as BLF-36, scripts/drafts_c/
+    gen_drafts_c.py same_sex_variants): the pair (a0, b0) becomes two men (men1, men2) and two women (women1,
+    women2); the event starts with a branch of two equally likely children, each leading to its own copy of the
+    pages.  The men are needed and the women optional (their child is taken only when both are cast), so where no
+    two women can be cast the men's version shows."""
+    import copy
+    pairs = {"m": ("men1", "men2", "male"), "f": ("women1", "women2", "female")}
+    base = {k: v for k, v in doc["roles"].items() if k not in (a0, b0)}
+    spec = {k: v for k, v in doc["roles"][a0].items() if k not in ("sex", "max_age_gap")}
+    gap = doc["roles"][b0].get("max_age_gap")
+    roles = dict(base)
+    for a, b, sex in pairs.values():
+        opt = {"optional": True} if sex == "female" else {}
+        roles[a] = dict(spec, sex=sex, **opt)
+        roles[b] = dict(spec, sex=sex, **opt)
+        if gap:
+            roles[b]["max_age_gap"] = {"role": a, "years": gap["years"]}
+
+    def swap(obj, a, b):
+        s = json.dumps(obj, ensure_ascii=False)
+        s = re.sub(rf"\({a0}([.)])", rf"({a}\1", s)
+        s = re.sub(rf"\({b0}([.)])", rf"({b}\1", s)
+        for key in ("who", "role"):
+            s = s.replace(f'"{key}": "{a0}"', f'"{key}": "{a}"').replace(f'"{key}": "{b0}"', f'"{key}": "{b}"')
+        return json.loads(s)
+
+    nodes, children = {}, []
+    for tag, (a, b, _sex) in pairs.items():
+        for k, nd in doc["nodes"].items():
+            nd = swap(copy.deepcopy(nd), a, b)
+            for c in nd.get("choices", []) + nd.get("children", []):
+                c["next"] = f"{c['next']}_{tag}"
+            nodes[f"{k}_{tag}"] = nd
+        children.append({"next": f"{doc['start']}_{tag}"} if tag == "m" else
+                        {"next": f"{doc['start']}_{tag}", "if": {"all": [{"role": a}, {"role": b}]}})
+    doc = dict(doc, roles=roles, start="pair", nodes={"pair": {"type": "branch", "name": "The couple",
+                                                               "children": children}, **nodes})
+    doc["requirement"] = {"min_eligible": sum(1 for r in base.values() if r["kind"] == "villager") + 2}
+    col = dict(doc["collection"])
+    used = {e.get("role") or e.get("who") for nd in nodes.values() for e in nd.get("effects", [])}
+    col["cast_only"] = [r for r, v in roles.items() if v["kind"] == "villager" and r not in used]
+    if not col["cast_only"]:
+        col.pop("cast_only")
+    col["ledger"] = col["ledger"] + [{"src": col["title_src"], "kind": "note",
+                                      "why": "the owner's rule for a same-sex couple: cast by sex (two men or two "
+                                             "women, equally likely where both can be cast), the relationship as "
+                                             "story text"}]
+    doc["collection"] = col
+    return doc
 
 
 def sheet(section: str) -> str:
@@ -477,9 +535,11 @@ def sheet(section: str) -> str:
         for p in probs:
             out.append(f"  !! {p}")
         nd = doc["nodes"]
+        if "setup" not in nd:                                  # a same-sex couple's two versions: show the men's
+            nd = {k[:-2]: v for k, v in nd.items() if k.endswith("_m")}
         out.append(f"  S: {nd['setup']['text']}")
         for c in nd["setup"]["choices"]:
-            k = c["next"]
+            k = c["next"].removesuffix("_m")
             fx1 = [e["do"] for e in nd[k + '1'].get('effects', [])]
             fx2 = [e["do"] for e in nd[k + '2'].get('effects', [])]
             out.append(f"  {k.upper()}: {c['label']}")

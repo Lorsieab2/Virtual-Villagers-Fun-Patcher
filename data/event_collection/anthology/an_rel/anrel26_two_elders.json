@@ -23,66 +23,102 @@
   "title_src": "L27392",
   "ledger": [
    {
-    "src": "L27392",
-    "kind": "note",
-    "why": "same-sex casting: the engine cannot require \"the same sex as the other role\", so the pair is cast as two men (REL-04 casts two women)"
-   },
-   {
     "src": "L27393",
     "kind": "sensitivity",
     "before": "Two elders of the same sex begin",
     "after": "(elder1) and (elder2), two elders of the same sex, begin",
     "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27392",
+    "kind": "note",
+    "why": "the owner's rule for a same-sex couple: cast by sex (two men or two women, equally likely where both can be cast), the relationship as story text"
    }
   ],
   "description": "Two elders of the same sex begin spending long afternoons together and wonder if they want romance.",
   "label_case": "title",
   "cast_only": [
-   "elder1",
-   "elder2"
+   "men1",
+   "men2",
+   "women1",
+   "women2"
   ]
  },
  "requirement": {
   "min_eligible": 2
  },
  "roles": {
-  "elder1": {
+  "men1": {
    "kind": "villager",
    "min_age": 55,
    "sex": "male"
   },
-  "elder2": {
+  "men2": {
    "kind": "villager",
    "min_age": 55,
    "sex": "male"
+  },
+  "women1": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female",
+   "optional": true
+  },
+  "women2": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female",
+   "optional": true
   }
  },
- "start": "setup",
+ "start": "pair",
  "nodes": {
-  "setup": {
+  "pair": {
+   "type": "branch",
+   "name": "The couple",
+   "children": [
+    {
+     "next": "setup_m"
+    },
+    {
+     "next": "setup_f",
+     "if": {
+      "all": [
+       {
+        "role": "women1"
+       },
+       {
+        "role": "women2"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "setup_m": {
    "type": "question",
    "name": "The setup",
-   "text": "(elder1) and (elder2), two elders of the same sex, begin spending long afternoons together and wonder if they want romance.",
+   "text": "(men1) and (men2), two elders of the same sex, begin spending long afternoons together and wonder if they want romance.",
    "src": "L27393",
    "choices": [
     {
      "label": "Speak Openly",
-     "next": "a",
+     "next": "a_m",
      "src": "L27394"
     },
     {
      "label": "Share a Favorite Memory",
-     "next": "b",
+     "next": "b_m",
      "src": "L27397"
     },
     {
      "label": "Invite Each Other to a Celebration",
-     "next": "c",
+     "next": "c_m",
      "src": "L27400"
     },
     {
      "label": "Give the Bond Time",
-     "next": "d",
+     "next": "d_m",
      "src": "L27403"
     }
    ],
@@ -94,90 +130,213 @@
     }
    ]
   },
-  "a": {
+  "a_m": {
    "type": "branch",
    "name": "Answer A",
    "children": [
     {
-     "next": "a1"
+     "next": "a1_m"
     },
     {
-     "next": "a2"
+     "next": "a2_m"
     }
    ]
   },
-  "a1": {
+  "a1_m": {
    "name": "Outcome A1",
    "text": "They discover mutual affection and begin courting.",
    "src": "L27395"
   },
-  "a2": {
+  "a2_m": {
    "name": "Outcome A2",
    "text": "One prefers friendship, and the other respects it.",
    "src": "L27396"
   },
-  "b": {
+  "b_m": {
    "type": "branch",
    "name": "Answer B",
    "children": [
     {
-     "next": "b1"
+     "next": "b1_m"
     },
     {
-     "next": "b2"
+     "next": "b2_m"
     }
    ]
   },
-  "b1": {
+  "b1_m": {
    "name": "Outcome B1",
    "text": "They grow closer through stories of their lives.",
    "src": "L27398"
   },
-  "b2": {
+  "b2_m": {
    "name": "Outcome B2",
    "text": "They enjoy remembering the past without changing their relationship.",
    "src": "L27399"
   },
-  "c": {
+  "c_m": {
    "type": "branch",
    "name": "Answer C",
    "children": [
     {
-     "next": "c1"
+     "next": "c1_m"
     },
     {
-     "next": "c2"
+     "next": "c2_m"
     }
    ]
   },
-  "c1": {
+  "c1_m": {
    "name": "Outcome C1",
    "text": "They attend together and feel happy.",
    "src": "L27401"
   },
-  "c2": {
+  "c2_m": {
    "name": "Outcome C2",
    "text": "They decide a quiet afternoon suits them better.",
    "src": "L27402"
   },
-  "d": {
+  "d_m": {
    "type": "branch",
    "name": "Answer D",
    "children": [
     {
-     "next": "d1"
+     "next": "d1_m"
     },
     {
-     "next": "d2"
+     "next": "d2_m"
     }
    ]
   },
-  "d1": {
+  "d1_m": {
    "name": "Outcome D1",
    "text": "Their relationship gradually becomes romantic.",
    "src": "L27404"
   },
-  "d2": {
+  "d2_m": {
+   "name": "Outcome D2",
+   "text": "They cherish companionship without needing a label.",
+   "src": "L27405"
+  },
+  "setup_f": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(women1) and (women2), two elders of the same sex, begin spending long afternoons together and wonder if they want romance.",
+   "src": "L27393",
+   "choices": [
+    {
+     "label": "Speak Openly",
+     "next": "a_f",
+     "src": "L27394"
+    },
+    {
+     "label": "Share a Favorite Memory",
+     "next": "b_f",
+     "src": "L27397"
+    },
+    {
+     "label": "Invite Each Other to a Celebration",
+     "next": "c_f",
+     "src": "L27400"
+    },
+    {
+     "label": "Give the Bond Time",
+     "next": "d_f",
+     "src": "L27403"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L27393"
+    }
+   ]
+  },
+  "a_f": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1_f"
+    },
+    {
+     "next": "a2_f"
+    }
+   ]
+  },
+  "a1_f": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395"
+  },
+  "a2_f": {
+   "name": "Outcome A2",
+   "text": "One prefers friendship, and the other respects it.",
+   "src": "L27396"
+  },
+  "b_f": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1_f"
+    },
+    {
+     "next": "b2_f"
+    }
+   ]
+  },
+  "b1_f": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398"
+  },
+  "b2_f": {
+   "name": "Outcome B2",
+   "text": "They enjoy remembering the past without changing their relationship.",
+   "src": "L27399"
+  },
+  "c_f": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1_f"
+    },
+    {
+     "next": "c2_f"
+    }
+   ]
+  },
+  "c1_f": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401"
+  },
+  "c2_f": {
+   "name": "Outcome C2",
+   "text": "They decide a quiet afternoon suits them better.",
+   "src": "L27402"
+  },
+  "d_f": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1_f"
+    },
+    {
+     "next": "d2_f"
+    }
+   ]
+  },
+  "d1_f": {
+   "name": "Outcome D1",
+   "text": "Their relationship gradually becomes romantic.",
+   "src": "L27404"
+  },
+  "d2_f": {
    "name": "Outcome D2",
    "text": "They cherish companionship without needing a label.",
    "src": "L27405"
