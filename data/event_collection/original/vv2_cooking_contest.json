@@ -7,7 +7,7 @@
  ],
  "collection": {
   "id": "vv2_cooking_contest",
-  "source": "v26",
+  "source": "v28",
   "lines": [
    100,
    626
@@ -8021,7 +8021,7 @@
   },
   "v13a_a3": {
    "src": "L6910-6918",
-   "text": "THE DISASTER THAT EVACUATED THE VILLAGE:\nThe lid is lifted from (cook1)'s covered pot. A thick, eye-watering cloud rolls across the judging table. The judge staggers backward. \"CLOSE IT! CLOSE THE WRETCHED THING!\" The cooks flee, the spectators scatter, and the entire village retreats to higher ground until the smell disperses. The dish consists of fermented fish, old cabbage, tree resin and a seasoning that (cook1) refuses to identify. The food is discarded. The judges postpone the competition. Nobody is harmed, but the village speaks of THE GREAT STENCH for generations.",
+   "text": "THE DISASTER THAT EVACUATED THE VILLAGE:\nThe lid is lifted from (cook1)'s covered pot. A thick, eye-watering cloud rolls across the judging table. The judge staggers backward. \"CLOSE IT! CLOSE THE WRETCHED THING!\" The cooks flee, the spectators scatter, and the entire village retreats to higher ground until the smell disperses. The dish consists of fermented fish, old cabbage, slug slime and a seasoning that (cook1) refuses to identify. The food is discarded. The judges postpone the competition. Nobody is harmed, but the village speaks of THE GREAT STENCH for generations.",
    "text_only": [
     {
      "src": "L6919-6920",

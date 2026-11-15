@@ -1,7 +1,7 @@
 """Build data/event_collection/manifest.json: the Isola Grand Event Collection checklist (design E2).
 
 One row per event, add-on, bank and notes section of the frozen source (scripts/collection_lib.SOURCE), from the three
-inventories (lines 1-3519, 3520-6836, 6837-10571), each row re-verified against the source text itself:
+inventories (lines 1-3519, 3520-6836, 6837-10431; V27 and V28 from the V28 source itself), each row re-verified against the source text itself:
   * the title is found at the top of the row's lines, and the lines start and end at a section boundary;
   * the choice count is recounted from the source where its choice lines have a recognisable shape;
   * each bank ("A:", "(1) ... choose one:", "D-CUISINE ...:") is recounted: its bullets, or its plain lines up to the
@@ -47,7 +47,8 @@ CREDITS = {
     "v22": ("mixed", [(9555, 9558)]),
     "v23": ("mixed", [(9973, 9974)]),
     "v24": ("mixed", [(10142, 10146)]),
-    "v26": ("mixed", [(10435, 10436)]),
+    "v27": ("mixed", [(10436, 10438)]),
+    "v28": ("mixed", [(10950, 10951)]),
     "ledger": ("ledger", [(1, 91)]),
 }
 
@@ -425,7 +426,78 @@ N("notes_v23_seeds_and_notes", "V23 short-title seeds, cross-game notes and pare
   "v23")
 R("all_v24_revolutionary", "The Revolutionary Invention / The Revolutionary Discovery", ALL, 10139, 10430,
   "event", "v24", "v24", 5, {"subject": (32, None)}, ["skill", "tech", "food"])
-R("bank_v26_materials", "V26 - The Materials of Isola", ALL, 10432, 10571, "bank", "v26", "v26", 0)
+# V26 (the materials of Isola, old lines 10432-10571) is not in the V28 source: the owner removed it.
+
+# ---- V27 and V28 (the owner's V28 file, 2026-11-14) ---------------------------------------------------------------------
+# V27: 57 short events, each eight lines from its heading: "EVENT V27-NNN - Title", AGE/CAST, SETUP, OUTCOME A-C,
+# FOLLOW-UP.  Ids at most VV1_ID_MAX (every V27 event is in all five games).
+V27_FIRST = 10489
+V27_EVENTS = [
+    ("all_v27_01_cry", "The Unsolvable Cry"),
+    ("all_v27_02_little_grip", "The Little Grip"),
+    ("all_v27_03_recognition", "The First Recognition"),
+    ("all_v27_04_crawling", "The Crawling Expedition"),
+    ("all_v27_05_lullaby", "The Borrowed Lullaby"),
+    ("all_v27_06_grove", "The Forbidden Grove"),
+    ("all_v27_07_secret", "The Friend's Secret"),
+    ("all_v27_08_cruel_joke", "The Cruel Joke"),
+    ("all_v27_09_kingdom", "The River Kingdom"),
+    ("all_v27_10_supper", "The Missing Child at Supper"),
+    ("all_v27_11_legend", "The Hero of the Legend"),
+    ("all_v27_12_new_friend", "The New Friend"),
+    ("all_v27_13_raft", "The Midnight Raft"),
+    ("all_v27_14_proof", "The Dangerous Proof"),
+    ("all_v27_15_embarrass", "The Public Embarrassment"),
+    ("all_v27_16_swap", "The Apprenticeship Swap"),
+    ("all_v27_17_pact", "The Reckless Pact"),
+    ("all_v27_18_heartbreak", "The First Heartbreak"),
+    ("all_v27_19_beam", "The Faulty Beam"),
+    ("all_v27_20_favor", "The Unasked Favor"),
+    ("all_v27_21_councilor", "The Loud Councilor"),
+    ("all_v27_22_doubt", "The Secret Doubt"),
+    ("all_v27_23_watcher", "The Night Watcher"),
+    ("all_v27_24_explorer", "The Vanishing Explorer"),
+    ("all_v27_25_crossing", "The Last Crossing"),
+    ("all_v27_26_teacher", "The Stubborn Teacher"),
+    ("all_v27_27_empty_chair", "The Empty Chair"),
+    ("all_v27_28_beginning", "The New Beginning"),
+    ("all_v27_29_route", "The Forgotten Route"),
+    ("all_v27_30_basket", "The Creature in the Basket"),
+    ("all_v27_31_guardian", "The Fierce Little Guardian"),
+    ("all_v27_32_fish", "The Fish That Followed"),
+    ("all_v27_33_insect", "The Unusual Insect"),
+    ("all_v27_34_pet", "The Unwelcome Pet"),
+    ("all_v27_35_pets_last", "The Pet's Last Morning"),
+    ("all_v27_36_hatchling", "The Strange Hatchling"),
+    ("all_v27_37_returned", "The Animal That Returned"),
+    ("all_v27_38_rough_patch", "The Parents' Rough Patch"),
+    ("all_v27_39_marriage", "The Quiet Marriage"),
+    ("all_v27_40_siblings", "The Sibling Rivalry"),
+    ("all_v27_41_promise", "The Childhood Promise"),
+    ("all_v27_42_special", "The Special Friend"),
+    ("all_v27_43_lovers", "The Lovers' Argument"),
+    ("all_v27_44_courtship", "The Awkward Courtship"),
+    ("all_v27_45_coworkers", "The Rival Coworkers"),
+    ("all_v27_46_ally", "The Ally Who Disagreed"),
+    ("all_v27_47_grief", "The Neighbor's Grief"),
+    ("all_v27_48_mentor", "The Unlikely Mentor"),
+    ("all_v27_49_chosen", "The Chosen Family"),
+    ("all_v27_50_reunion", "The Reunion That Hurt"),
+    ("all_v27_51_apology", "The Caregiver's Apology"),
+    ("all_v27_52_unexpected", "The Friendship Nobody Expected"),
+    ("all_v27_53_shore", "The Unmarked Shore"),
+    ("all_v27_54_fever", "The Fever After the Expedition"),
+    ("all_v27_55_deep_pool", "The Legend of the Deep Pool"),
+    ("all_v27_56_empty_boat", "The Boat That Came Back Empty"),
+    ("all_v27_57_bell", "The Forbidden Bell"),
+]
+N("notes_v27_header", "V27 - All ages, personality, relationships and consequences: credits and global engine rules",
+  10433, 10487, "v27", "v27")
+for _i, (_id, _title) in enumerate(V27_EVENTS):
+    R(_id, _title, ALL, V27_FIRST + 8 * _i, V27_FIRST + 8 * _i + 6, "event", "v27", "v27", 0)
+N("notes_v27_end", "END OF V27 ADDITION", 10945, 10945, "v27", "v27")
+N("notes_v28_addendum", "V28 Addendum - consequences that follow the villagers, and the retrofit instructions", 10948,
+  11125, "v28", "v28")
 
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 

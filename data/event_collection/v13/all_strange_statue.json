@@ -11,7 +11,7 @@
  ],
  "collection": {
   "id": "all_strange_statue",
-  "source": "v26",
+  "source": "v28",
   "lines": [
    7288,
    7360
@@ -171,7 +171,7 @@
   "intro": {
    "name": "The statue",
    "src": "L7293-7296,L7298-7301",
-   "text": "(sculptor) unveils a sculpture made from driftwood, volcanic ash, pulverized limestone and several extremely unfortunate-looking pearls. It depicts {SUBJECT}.\nIts proportions are dreadful. One eye is enormous. The other seems to be looking toward a different village. The left arm is longer than the entire body. Yet something about the sculpture is oddly lovable.",
+   "text": "(sculptor) unveils a sculpture made from driftwood, volcanic ash, crushed snail shells and several extremely unfortunate-looking pearls. It depicts {SUBJECT}.\nIts proportions are dreadful. One eye is enormous. The other seems to be looking toward a different village. The left arm is longer than the entire body. Yet something about the sculpture is oddly lovable.",
    "children": [
     {
      "next": "question"

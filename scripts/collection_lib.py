@@ -1,6 +1,7 @@
 """Isola Grand Event Collection: the frozen source and the text rules the pipeline shares.
 
-The owner's collection (v26) is frozen in the repo at SOURCE (its SHA-256 in data/event_collection/SOURCE.sha256), so
+The owner's collection (V28, 2026-11-14; it replaced the v26 file, whose lines 1-10431 it keeps apart from four word
+edits) is frozen in the repo at SOURCE (its SHA-256 in data/event_collection/SOURCE.sha256), so
 its line numbers are stable.  Every collection event file (data/event_collection/<section>/<id>.json) points back at
 those lines with "src" tags ("L3070-3071", "L104,L106"); scripts/collection_check.py proves the file's text is the
 source's text, word for word, apart from the mappings listed in docs/event-collection/authoring-rules.md.
@@ -16,13 +17,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs" / "more-island-events" / \
-    "Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt"
+    "Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt"
 SOURCE_HASH_FILE = ROOT / "data" / "event_collection" / "SOURCE.sha256"
 COLLECTION_DIR = ROOT / "data" / "event_collection"
 MANIFEST = COLLECTION_DIR / "manifest.json"
 SHARED_POOLS = COLLECTION_DIR / "shared_pools.json"
 GRAMMAR_FIXES_DOC = ROOT / "docs" / "event-collection" / "grammar-fixes.md"
-SOURCE_LINES = 10571
+SOURCE_LINES = 11125
+SOURCE_ID = "v28"           # every collection file's collection.source
 OWNER_TITLES_DOC = ROOT / "docs" / "event-collection" / "owner-title-changes.md"
 
 
@@ -150,6 +152,7 @@ STRUCTURAL_INLINE = [
     re.compile(r"\bGo to \(\d+\)\.?"),                                       # Go to (5).
     re.compile(r"\s+\(\d+\)\s*\.?\s*$"),                                     # a trailing route (3)
     re.compile(r"\s*-?\s*choose one:?\s*$", re.I),
+    re.compile(r"^\s*(?:SETUP|OUTCOME\s+[A-C])\s*:\s*"),                     # V27: SETUP: / OUTCOME A:
 ]
 
 

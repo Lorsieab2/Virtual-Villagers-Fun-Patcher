@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Neighbor's Grief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_47_grief",
+  "source": "v28",
+  "lines": [
+   10857,
+   10863
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10857",
+  "ledger": [
+   {
+    "src": "L10858",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10863",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A villager notices that a neighbor has withdrawn after a loss.",
+  "cast_only": [
+   "villager",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A villager notices a neighbor has withdrawn after a loss.",
+   "src": "L10859",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They offer quiet company without demanding conversation.",
+   "src": "L10860"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They help with daily chores and leave space for grief.",
+   "src": "L10861"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They say something clumsy, apologize, and learn to listen.",
+   "src": "L10862"
+  }
+ }
+}

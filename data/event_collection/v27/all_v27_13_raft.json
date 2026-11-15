@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Midnight Raft",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_13_raft",
+  "source": "v28",
+  "lines": [
+   10585,
+   10591
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10585",
+  "ledger": [
+   {
+    "src": "L10586",
+    "kind": "note",
+    "why": "the cast: TEENS 14-17; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10590",
+    "kind": "note",
+    "text": "; no grave is created and a search/missing-person state persists",
+    "why": "designer rule: missing, not dead (the vanish effect: no grave)"
+   },
+   {
+    "src": "L10591",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A group of teenagers launches a homemade raft after dark without permission.",
+  "cast_only": [
+   "teen2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen1": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "teen2": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A group of teenagers launches a homemade raft after dark without permission.",
+   "src": "L10587",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 20
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return cold and ashamed after the current turns unexpectedly.",
+   "src": "L10588"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The raft strands them; rescuers arrive at dawn.",
+   "src": "L10589"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A teenager disappears.",
+   "src": "L10590",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "teen1",
+     "src": "L10590"
+    }
+   ]
+  }
+ }
+}
