@@ -217,6 +217,9 @@ verbatim apart from glaring grammar.
 | companion L7542 | `that a Orange` | `that an Orange` | cat037_orange_fin (Living Catalogue 037, premise) | "a" before a vowel |
 | companion L7554 | `that a Oriental` | `that an Oriental` | cat038_oriental_fin (Living Catalogue 038, premise) | "a" before a vowel |
 | companion L7722 | `that a Angel` | `that an Angel` | cat052_angel_fin (Living Catalogue 052, premise) | "a" before a vowel |
+| companion L7902 | `a Arthurium` | `an Arthurium` | cat067_lemonbush (Living Catalogue 067, premise) | "an" before a vowel sound |
+| companion L8022 | `a Anagallis` | `an Anagallis` | cat077_weeper (Living Catalogue 077, premise) | "an" before a vowel sound |
+| companion L8034 | `a Indigoberry` | `an Indigoberry` | cat078_multiflora (Living Catalogue 078, premise) | "an" before a vowel sound |
 | companion L8538 | `a Oriental` | `an Oriental` | cat120_growth (Living Catalogue 120, premise) | "an" before a vowel sound |
 | companion L8550 | `a Orange` | `an Orange` | cat121_health (Living Catalogue 121, premise) | "an" before a vowel sound |
 | companion L8574 | `the The Golden Guppy` | `the Golden Guppy` | cat123_golden_guppy (Living Catalogue 123, premise) | a doubled article ("with the The Golden Guppy") |

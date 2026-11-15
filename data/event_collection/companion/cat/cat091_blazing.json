@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blazing Bloom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat091_blazing",
+  "source": "companion",
+  "lines": [
+   8189,
+   8199
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_flowers",
+  "title_src": "L8189",
+  "ledger": [
+   {
+    "src": "L8199",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "Only one Blazing Fanleaf is in flower: a dye maker wants its petals, a naturalist its insect visitors."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "dye_maker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Only one Blazing Fanleaf is flowering this week. A dye maker wants its petals; a naturalist hopes to learn which insects visit it.",
+   "src": "L8190",
+   "choices": [
+    {
+     "label": "Observe through the flowering period",
+     "next": "a",
+     "src": "L8191"
+    },
+    {
+     "label": "Collect a single fallen petal",
+     "next": "b",
+     "src": "L8193"
+    },
+    {
+     "label": "Harvest the bloom now",
+     "next": "c",
+     "src": "L8195"
+    },
+    {
+     "label": "Try a substitute blossom",
+     "next": "d",
+     "src": "L8197"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A record of pollinators and scent emerges; no petals are harvested.",
+   "src": "L8192",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8192"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The dye is too faint for a full garment, but inspires a delicate ink.",
+   "src": "L8194",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "dye_maker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8194"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The dye maker gets a stronger color, but the plant may set no seed this season; future scarcity becomes a concern.",
+   "src": "L8196",
+   "text_only": [
+    {
+     "what": "the plant may set no seed",
+     "reason": "a wild plant; no food or crop is lost",
+     "src": "L8196"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The alternative works imperfectly, prompting a new palette rather than the original color.",
+   "src": "L8198",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "dye_maker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8198"
+    }
+   ]
+  }
+ }
+}
