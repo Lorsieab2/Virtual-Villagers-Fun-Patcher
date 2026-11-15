@@ -404,11 +404,30 @@ These are the owner's own text. Lead decision (2026-11-14): each is its seed's v
   The owner's own example of that seed (MIX-040) keeps its choice; its good outcome becomes "The person most affected
   feels heard and makes their own choice" (listed below). Test: `tests/test_living_quality.py`
   (`test_a_wrong_act_is_never_rewarded_or_excused`).
+- **Victims and prejudice (S13; owner hard rules 12, 13, 20).** Where someone is wronged (a prank's target, a
+  villager accused of cheating, outsiders shut out by an old rule) no outcome blames: a random outcome never reads as
+  deserved. The outsiders' rule is never met with a compromise, neutrality, "households differ", leaving it
+  unresolved or several disagreeing voices, and never ends in a compromise that satisfies neither side. **For the
+  owner's review:** the owner's own example of that seed (MIX-040) offers "Negotiate a limited compromise"; its words
+  are kept (the hard rules: keep the original, flag the conflict) and its good outcome already acknowledges the people
+  affected (S11). Grief and medical seeds already never draw blame or light outcomes (bank rules C2, C12), and the
+  vulnerable roles never draw blame (R1). Stock island events are never touched by any of this.
+- **Past harm (S14; owner hard rule 27, "PG-13 presentation, not PG-13 reality").** A grief, loss, illness or trauma
+  seed never ends in an outcome that corrects or settles it and never offers "Apologize and repair the relationship"
+  as its way through; with C2 and C12 (no light or blame outcome there) no combination implies a past harm was the
+  person's fault, insignificant, or resolved by forgiveness. Other bad outcomes keep their words: not every bad outcome
+  implies wrongdoing.
+- **No shaming (S15; owner hard rule 28).** No mixed variant uses "The villagers discover that confidence was
+  mistaken for competence." or "A small success comes with an unexpected embarrassment." (they judge a person's
+  mistake or make it an embarrassment). **For the owner's review:** the owner's own examples that use them keep their
+  words (keep the original, flag the conflict); `python scripts/living_check.py` and the variant 0 table below show
+  which. "Someone feels excluded and withdraws" stays: it shows a hurt, it does not shame the one hurt, and S2 / S4
+  keep it away from a joke or a confrontation.
 - **Appearance, body and disability (S12; owner rules 15-18).** No combination may make a person's looks, body or
   disability a problem, a lesson or a punchline: the seeds about hair, clothes, a mask, a portrait or matching
-  outfits take no mocking choice and no outcome that blames or embarrasses. The owner's own examples keep their
-  choices (MIX-007, MIX-038, MIX-056: outcomes changed, listed below). Assistive devices and disability words in the
-  MC bank are the owner's and are kept.
+  outfits take no mocking choice and no outcome that blames or embarrasses -- in the mixed variants only: the
+  owner's own examples (variant 0) keep their words (owner: keep owner text by default; never sanitize). Assistive
+  devices and disability words in the MC bank are the owner's and are kept.
 - **Injuries to children and teenagers (S8, owner 2026-11-15: "Allow it, rare").** Allowed at the rare tier only, like
   any villager's rare harm, and never from a comedic or trial choice (S2, S3). The bank's only injury outcome ("The
   effort causes minor injury or exhaustion") is an adverse one (weight 20 of 42), so it still never lands on a child
@@ -434,7 +453,10 @@ The bank's rules above are extended with these; every variant obeys them (`scrip
 | S9 | Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied). |
 | S10 | Belief and spirit seeds never take a mocking or comedic approach (a friendly contest, a joke, celebrating the result) and never end in an outcome that corrects or settles something (a misunderstanding gently corrected, confidence found mistaken): a belief would read as mocked or corrected. |
 | S11 | A seed whose situation is a wrong act (a prank that embarrasses someone, cheating alleged, a rule meant only for outsiders) never takes a mocking or comedic choice, never ends in a celebration or a light outcome, and never in one that keeps an unjust custom (customs coexisting, the tradition preserved); following the unjust custom is never offered, and where the owner's example offers it, its good outcome is one that acknowledges the people affected. |
-| S12 | A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would read as a problem or a punchline. |
+| S12 | A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would read as a problem or a punchline. The owner's own examples (variant 0) keep their words. |
+| S13 | A seed with someone wronged in it (a prank's target, a villager accused of cheating, the outsiders an old rule shuts out) never ends in an outcome that blames (wasted supplies, confidence mistaken for competence, an embarrassment): the one wronged would read as deserving it. A seed about a rule meant only for outsiders never offers a compromise with it, neutrality, letting households differ, leaving it unresolved or inviting several disagreeing voices, and never ends in a compromise that satisfies neither side: prejudice would read as one valid opinion. |
+| S14 | A grief, loss, illness or trauma seed never ends in an outcome that corrects or settles it (a misunderstanding gently corrected, confidence found mistaken) and never offers apologizing and repairing as its way through: a past harm would read as the person's fault, insignificant, or resolved by forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies wrongdoing. |
+| S15 | No outcome shames anyone (owner hard rule 28): the archetypes "The villagers discover that confidence was mistaken for competence." and "A small success comes with an unexpected embarrassment." are never mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed for the owner's review. |
 
 ### Variant 0: the MIX examples as shipped, with every change
 
@@ -449,18 +471,21 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-005 | second villager's personality (sensitivity edit) | forgetful | thoughtful | S1 |
 | MIX-006 | choice D outcome 1 | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | seed x archetype le_arc_good_06 |
 | MIX-007 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
-| MIX-007 | choice B outcome 2 (sensitivity edit) | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | S12 |
+| MIX-007 | second villager's personality (sensitivity edit) | blunt | stubborn | S1 |
 | MIX-008 | first villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-008 | second villager's personality (sensitivity edit) | insecure | cautious | S1 |
 | MIX-009 | choice A outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-009 | choice C outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-010 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
 | MIX-016 | choice A outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | seed x archetype le_arc_bad_03 |
 | MIX-016 | choice B outcome 1 | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | seed x archetype le_arc_good_10 |
+| MIX-016 | choice D outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-016 | choice D outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
 | MIX-020 | choice C outcome 2 | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | role le_role_child x archetype le_arc_bad_03 |
 | MIX-021 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
 | MIX-022 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S3 |
 | MIX-023 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
+| MIX-025 | choice A outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-027 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-027 | second villager's role | a chief | a council member | no game has both roles (the chief is VV3 only, the practitioners VV5 only) |
 | MIX-029 | choice C outcome 1 | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | seed x archetype le_arc_good_06 |
@@ -473,9 +498,10 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-033 | second villager's personality (sensitivity edit) | superstitious | devout | S5 |
 | MIX-035 | choice D outcome 2 (sensitivity edit) | Someone feels excluded and withdraws from the gathering. | The attempt fails and the participants must admit uncertainty. | S2 |
 | MIX-037 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
-| MIX-038 | choice B outcome 2 (sensitivity edit) | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | S12 |
+| MIX-038 | first villager's personality (sensitivity edit) | superstitious | devout | S1 |
 | MIX-040 | choice B outcome 1 (sensitivity edit) | A novice gains experience while a master gains perspective. | The person most affected feels heard and makes their own choice. | S11 |
 | MIX-040 | choice D outcome 1 (sensitivity edit) | The result inspires a new song, pattern, or story. | The person most affected feels heard and makes their own choice. | S11 |
+| MIX-042 | choice B outcome 1 (sensitivity edit) | A long-held misunderstanding is gently corrected. | The result works better than expected, though nobody claims universal proof. | S14 |
 | MIX-042 | choice B outcome 2 | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | seed x archetype le_arc_bad_06 |
 | MIX-042 | choice D outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | seed x archetype le_arc_mixed_08 |
 | MIX-045 | first villager's personality (sensitivity edit) | insecure | cautious | S1 |
@@ -484,15 +510,14 @@ Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offend
 | MIX-050 | first villager (doubled word, grammar fix) | a confident a confident novice | a confident novice | role le_role_confident_novice x personality le_pers_confident |
 | MIX-051 | second villager's personality (sensitivity edit) | tired | thoughtful | S1 |
 | MIX-052 | choice A outcome 2 (sensitivity edit) | The effort causes minor injury or exhaustion, requiring rest and care. | The action creates a new dispute that needs a separate conversation. | S2 |
+| MIX-052 | choice B outcome 2 (sensitivity edit) | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | S13 |
 | MIX-052 | choice C outcome 1 (sensitivity edit) | Two different customs coexist without either disappearing. | The person most affected feels heard and makes their own choice. | S11 |
-| MIX-052 | first villager's personality (sensitivity edit) | blunt | stubborn | S1 |
 | MIX-053 | choice B outcome 2 | A small success comes with an unexpected embarrassment. | Everyone is safe, though the result is awkward and disappointing. | role le_role_elderly_villager x archetype le_arc_mixed_08 |
 | MIX-053 | second villager's personality | forgetful | thoughtful | role le_role_elderly_villager x personality le_pers_forgetful |
 | MIX-054 | first villager (doubled word, grammar fix) | a skeptical a skeptical observer | a skeptical observer | role le_role_skeptical_observer x personality le_pers_skeptical |
 | MIX-055 | second villager's personality (sensitivity edit) | blunt | stubborn | S1 |
-| MIX-056 | choice A outcome 2 (sensitivity edit) | A rushed choice wastes scarce supplies. | A promising idea is abandoned before it can be evaluated fairly. | S12 |
-| MIX-056 | choice D outcome 2 (sensitivity edit) | The villagers discover that confidence was mistaken for competence. | The attempt fails and the participants must admit uncertainty. | S12 |
 | MIX-056 | first villager's personality (sensitivity edit) | tired | thoughtful | S1 |
+| MIX-056 | second villager's personality (sensitivity edit) | insecure | cautious | S1 |
 | MIX-057 | second villager's personality (sensitivity edit) | superstitious | devout | S1 |
 | MIX-057 | second villager's role | a chief | a council member | no game has both roles (the chief is VV3 only, the practitioners VV5 only) |
 <!-- living-mixer: end -->

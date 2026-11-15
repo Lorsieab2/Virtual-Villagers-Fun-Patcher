@@ -45,7 +45,8 @@ class Compat(unittest.TestCase):
                 for (kind, ident), trio in zip(v.plan["choices"], v.plan["outcomes"]):
                     for x in trio:
                         if x:
-                            self.assertTrue(mx.archetype_possible(BANK, seed["id"], x, a, b), x)
+                            self.assertTrue(mx.archetype_possible(BANK, seed["id"], x, a, b,
+                                                                  bool(v.flags & mx.FLAG_MIX)), x)
                             self.assertTrue(mx.arc_ok_after(BANK, kind, ident, x), (ident, x))
 
     def test_personalities(self) -> None:
@@ -124,12 +125,53 @@ class QualityD(unittest.TestCase):
                         self.assertNotIn(x, mx.UNJUST_KEEP, (v.seed, v.k, x))
                         self.assertTrue(mx.endorse_ok(BANK, seed, kind, ident, x), (v.seed, v.k, ident, x))
 
+    def test_no_victim_blaming_and_no_false_equivalence(self) -> None:
+        """S13 (owner hard rules 12, 13, 20): where someone is wronged no outcome blames; prejudice is never one
+        valid opinion (no compromise, neutrality or "households differ" with a rule meant only for outsiders)."""
+        for v in LE:
+            seed = BANK.seed[v.seed]
+            for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
+                if v.seed in mx.PREJUDICE_SEEDS and not v.flags & mx.FLAG_MIX:
+                    self.assertNotIn(ident, mx.FALSE_EQUIVALENCE, (v.seed, v.k))
+                for x in outs:
+                    if x and v.seed in mx.WRONG_ACT_SEEDS:
+                        self.assertNotIn("blame", BANK.arc[x]["tags"], (v.seed, v.k, x))
+                    if x and v.seed in mx.PREJUDICE_SEEDS:
+                        self.assertNotIn(x, mx.SPLIT_THE_DIFFERENCE, (v.seed, v.k, x))
+                    if x:                         # the owner's own example keeps its S12 words only
+                        allowed = mx.KEPT_IN_OWNER_EXAMPLES if v.flags & mx.FLAG_MIX else (None,)
+                        self.assertIn(mx.seed_arc_rule(BANK, seed, x), allowed, (v.seed, v.k, x))
+
+    def test_past_harm_is_never_blamed_trivialized_or_forgiven_away(self) -> None:
+        """S14 (owner hard rule 27): grief, loss, illness and trauma seeds take no settling outcome and no apology
+        as their way through (bank C2 and C12 already keep light and blame outcomes away)."""
+        for v in LE:
+            seed = BANK.seed[v.seed]
+            if not mx.somber_seed(seed):
+                continue
+            for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
+                if not v.flags & mx.FLAG_MIX:
+                    self.assertNotIn(ident, mx.REPAIR_APPROACHES, (v.seed, v.k))
+                for x in outs:
+                    if x:
+                        self.assertNotIn("resolves", BANK.arc[x]["tags"], (v.seed, v.k, x))
+                        self.assertNotIn("blame", BANK.arc[x]["tags"], (v.seed, v.k, x))
+                        self.assertNotIn("light", BANK.arc[x]["tags"], (v.seed, v.k, x))
+
+    def test_no_shaming_outcome_is_mixed_in(self) -> None:
+        """S15 (owner hard rule 28): no mixed variant ends in an outcome that shames a person's mistake."""
+        mixed = [v for v in LE if not v.flags & mx.FLAG_MIX]
+        self.assertTrue(mixed)
+        for v in mixed:
+            for outs in v.plan["outcomes"]:
+                self.assertFalse(set(outs) & mx.SHAMING_ARCHETYPES, (v.seed, v.k, outs))
+
     def test_appearance_is_never_a_punchline(self) -> None:
         """S12 (owner rules 15-18): a seed about looks or the body takes no mocking choice (outside the owner's own
         example) and no outcome that blames or embarrasses."""
         for v in LE:
-            if v.seed not in mx.APPEARANCE_SEEDS:
-                continue
+            if v.seed not in mx.APPEARANCE_SEEDS or v.flags & mx.FLAG_MIX:
+                continue                              # the owner's own example keeps its words
             for (kind, ident), outs in zip(v.plan["choices"], v.plan["outcomes"]):
                 if not v.flags & mx.FLAG_MIX:
                     self.assertNotIn("mocking", mx.choice_classes(BANK, kind, ident), (v.seed, v.k, ident))

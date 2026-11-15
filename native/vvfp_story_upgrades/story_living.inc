@@ -69,7 +69,11 @@ typedef struct {
 } lv_history;
 
 static lv_pack lv_p;                  /* the loaded pack (lv_p.d != NULL) */
-static unsigned char lv_buf[LV_PACK_MAX];   /* static: no heap (the companion uses none) */
+#ifndef VVFP_TEST
+/* The pack read from its file: reserved once, at the first living draw (VirtualAlloc; a static buffer would push
+   the DLL's image past the room a companion has). */
+static unsigned char *lv_buf;
+#endif
 static FILETIME lv_buf_time;
 static unsigned int lv_buf_size;
 static lv_history lv_h;
@@ -212,7 +216,13 @@ static int lv_pack_for(int game) {
         return 1;
     }
     lv_p.d = NULL;
-    if (!sc_read_w(path, lv_buf, sizeof lv_buf, &size) || size != info.nFileSizeLow
+    if (lv_buf == NULL) {
+        lv_buf = (unsigned char *)VirtualAlloc(NULL, LV_PACK_MAX, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        if (lv_buf == NULL) {
+            return 0;
+        }
+    }
+    if (!sc_read_w(path, lv_buf, LV_PACK_MAX, &size) || size != info.nFileSizeLow
         || !lv_check(lv_buf, size, game, &lv_p)) {
         lv_p.d = NULL;
         return 0;

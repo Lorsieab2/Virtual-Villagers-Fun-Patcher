@@ -130,8 +130,41 @@ SENSITIVITY_RULES = {
     # Owner rules 15-18 (2026-11-15): appearance, body and disability are never a problem, a lesson or a punchline.
     "S12": "A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or "
            "comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would "
-           "read as a problem or a punchline.",
+           "read as a problem or a punchline. The owner's own examples (variant 0) keep their words.",
+    # Owner hard rules (2026-11-15) 12, 13 and 20: no victim-blaming; a random outcome never reads as deserved;
+    # prejudice is never just another opinion.
+    "S13": "A seed with someone wronged in it (a prank's target, a villager accused of cheating, the outsiders an "
+           "old rule shuts out) never ends in an outcome that blames (wasted supplies, confidence mistaken for "
+           "competence, an embarrassment): the one wronged would read as deserving it. A seed about a rule meant "
+           "only for outsiders never offers a compromise with it, neutrality, letting households differ, leaving it "
+           "unresolved or inviting several disagreeing voices, and never ends in a compromise that satisfies "
+           "neither side: prejudice would read as one valid opinion.",
+    "S14": "A grief, loss, illness or trauma seed never ends in an outcome that corrects or settles it (a "
+           "misunderstanding gently corrected, confidence found mistaken) and never offers apologizing and repairing "
+           "as its way through: a past harm would read as the person's fault, insignificant, or resolved by "
+           "forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies "
+           "wrongdoing.",
+    "S15": "No outcome shames anyone (owner hard rule 28): the archetypes \"The villagers discover that confidence "
+           "was mistaken for competence.\" and \"A small success comes with an unexpected embarrassment.\" are never "
+           "mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed "
+           "for the owner's review.",
 }
+PREJUDICE_SEEDS = {"le_gov_07"}                                     # S13
+FALSE_EQUIVALENCE = {"le_app_relate_04", "le_app_relate_06", "le_app_withdraw_04", "le_app_withdraw_05",
+                     "le_app_consult_04", "le_cs_gov_oth_d"}       # neutrality, compromise, households differ ...
+SPLIT_THE_DIFFERENCE = {"le_arc_mixed_05"}                          # the compromise satisfies neither side
+# Owner hard rule 27 (2026-11-15): no combination implies a past harm was the person's fault, insignificant, or
+# resolved by forgiveness.  A grief, loss, illness or trauma seed (tagged somber or medical) never ends in an outcome
+# that "corrects" or settles it, and never offers apologizing and repairing as its way through.
+REPAIR_APPROACHES = {"le_app_relate_07"}                            # Apologize and repair the relationship
+# Owner hard rule 28 (2026-11-15, emphatic): no shaming.  The two archetype lines that judge a person's mistake or
+# make it an embarrassment are never mixed in; the owner's own examples keep their words, flagged for review.
+SHAMING_ARCHETYPES = {"le_arc_bad_06", "le_arc_mixed_08"}          # confidence mistaken for competence; embarrassment
+KEPT_IN_OWNER_EXAMPLES = (None, "S12", "S15")                     # the rules variant 0 does not apply
+
+
+def somber_seed(seed: dict) -> bool:
+    return "somber" in seed["tags"] or "medical" in seed["tags"]
 WRONG_ACT_SEEDS = {"le_cel_07", "le_gov_04", "le_gov_07"}          # S11
 UNJUST_KEEP = {"le_arc_good_09", "le_arc_mixed_09"}                # customs coexist; the tradition preserved
 ENDORSE_CHOICES = {"le_gov_07": {"le_cs_gov_oth_b"}}               # Follow the established custom
@@ -378,6 +411,14 @@ def seed_arc_rule(bank: Bank, seed: dict, arc: str) -> str | None:
         return "S11"
     if seed["id"] in APPEARANCE_SEEDS and "blame" in tags:
         return "S12"
+    if seed["id"] in WRONG_ACT_SEEDS and "blame" in tags:
+        return "S13"
+    if seed["id"] in PREJUDICE_SEEDS and arc in SPLIT_THE_DIFFERENCE:
+        return "S13"
+    if somber_seed(seed) and "resolves" in tags:
+        return "S14"
+    if arc in SHAMING_ARCHETYPES:
+        return "S15"
     return None
 
 
@@ -394,10 +435,12 @@ def endorse_ok(bank: Bank, seed: dict, kind: str, ident: str, arc: str) -> bool:
     return arc in ACKNOWLEDGE
 
 
-def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str) -> bool:
+def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str, owner_example: bool = False) -> bool:
+    """owner_example: the owner's own example (variant 0), which keeps its words under KEPT_IN_OWNER_EXAMPLES."""
     if not bank.seed_allows(seed, "archetype", arc):
         return False
-    if seed_arc_rule(bank, bank.seed[seed], arc):
+    rule = seed_arc_rule(bank, bank.seed[seed], arc)
+    if rule and not (owner_example and rule in KEPT_IN_OWNER_EXAMPLES):
         return False
     if not (bank.role_allows_archetype(a, arc) and bank.role_allows_archetype(b, arc)):
         return False
@@ -673,8 +716,10 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
     games = variant_games(bank, sdict, a, b)
     for i, ((kind, ident), pair) in enumerate(zip(choices, outs)):
         for j, arc in enumerate(pair):
+            # S12 and S15 keep the owner's own examples as written (keep owner text by default; flagged for review).
             if arc_ok_after(bank, kind, ident, arc) and cast_ok(bank, arc, a, b) \
-                    and not seed_arc_rule(bank, sdict, arc) and endorse_ok(bank, sdict, kind, ident, arc):
+                    and seed_arc_rule(bank, sdict, arc) in KEPT_IN_OWNER_EXAMPLES \
+                    and endorse_ok(bank, sdict, kind, ident, arc):
                 continue
             group = ("good",) if bank.arc[arc]["group"] == "good" else ("mixed", "bad")
             same = [x["id"] for x in bank.archetypes if x["group"] in group]
@@ -746,7 +791,8 @@ def choice_set_choices(bank: Bank, seed: dict) -> list[tuple[str, str]]:
     cs = bank.choice_sets[bank.cat[seed["category"]]["choice_set"]]
     out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)
            and not (no_mocking(seed) and "mocking" in choice_classes(bank, "choice", c))           # S10-S12
-           and c not in ENDORSE_CHOICES.get(seed["id"], set())]                                     # S11
+           and c not in ENDORSE_CHOICES.get(seed["id"], set())                                      # S11
+           and not (seed["id"] in PREJUDICE_SEEDS and c in FALSE_EQUIVALENCE)]                      # S13
     if seed["consent_choice_required"] and not any("consent" in bank.choice[c]["tags"] or
                                                    bank.choice[c]["text"].startswith("Ask what the person")
                                                    for _k, c in out):
@@ -770,6 +816,10 @@ def approach_allowed(bank: Bank, seed: dict, ident: str, a: str, b: str) -> bool
         return False
     if no_mocking(seed) and "mocking" in choice_classes(bank, "approach", ident):
         return False                                # S10-S12
+    if seed["id"] in PREJUDICE_SEEDS and ident in FALSE_EQUIVALENCE:
+        return False                                # S13
+    if somber_seed(seed) and ident in REPAIR_APPROACHES:
+        return False                                # S14
     return True
 
 
