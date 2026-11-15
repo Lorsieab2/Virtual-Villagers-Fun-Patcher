@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlit Beacon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl075_unlit_beacon",
+  "source": "companion",
+  "lines": [
+   4783,
+   4793
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4783",
+  "ledger": [
+   {
+    "src": "L4784",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4792",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4793",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A watchkeeper neglects the signal fire before a storm.",
+  "cast_only": [
+   "watchkeeper",
+   "colleague"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "watchkeeper": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "colleague": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A watchkeeper neglects the signal fire before a storm.",
+   "src": "L4785",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4786"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4787"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4788"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "A returning crew navigates safely anyway.",
+   "src": "L4789"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A canoe is delayed and the watchkeeper faces consequences.",
+   "src": "L4790",
+   "text_only": [
+    {
+     "what": "consequences",
+     "reason": "rule 7: the watchkeeper's consequences are told only",
+     "src": "L4790"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A colleague spots the mistake and lights the beacon in time.",
+   "src": "L4791"
+  }
+ }
+}

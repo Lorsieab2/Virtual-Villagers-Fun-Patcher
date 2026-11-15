@@ -61,3 +61,17 @@ numbers on the left). Some are near the same premise (marked).
 | The Dangerous Proof | `all_v27_14_proof` (L10593) | `lbl082_dangerous_proof` (L4874) | similar: a teen tries to prove a legend |
 | The Public Embarrassment | `all_v27_15_embarrass` (L10601) | `lbl017_public` (L4009) | different plots |
 | The Special Friend | `all_v27_42_special` (L10817) | `lbl014_special_friend` (L3970) | near the same premise: two inseparable villagers |
+
+## OPEN owner question: "The Unpopular Chief" outside The Secret City (Companion Anthology, 2026-11-14)
+
+The Lives Between Legends 086 (`lbl086_unpopular_chief`, companion L4930) is in all five games, but only The Secret
+City has a Chief; the scene itself says "A competent leader is disliked for a harsh manner." (no "Chief" in its text,
+so nothing becomes `{@chief}`). Built now with a title variant (cie-v6-binary.md 18): The Secret City shows the source
+heading "The Unpopular Chief"; A New Home, The Lost Children, The Tree of Life and New Believers show "The Unpopular
+Leader" (the lead's wording, as `{@chief}` reads "the village leader" outside The Secret City). The owner decides:
+keep "The Unpopular Leader", choose another word, or show "The Unpopular Chief" in every game. No date, so
+`owner_titles()` does not read this row.
+
+| Id | Source title | Title outside The Secret City (built) | Status |
+|---|---|---|---|
+| `lbl086_unpopular_chief` | The Unpopular Chief | The Unpopular Leader | OPEN |

@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worker's Strike",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl094_worker_strike",
+  "source": "companion",
+  "lines": [
+   5034,
+   5044
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5034",
+  "ledger": [
+   {
+    "src": "L5035",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5043",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5044",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Several villagers refuse a dangerous assignment.",
+  "cast_only": [
+   "worker1",
+   "worker2",
+   "leader",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "worker1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "worker2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Several villagers refuse a dangerous assignment.",
+   "src": "L5036",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5037"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5038"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5039"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "strike",
+     "reason": "rule 7: a strike is told only",
+     "src": "L5036"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The leader negotiates safer conditions.",
+   "src": "L5040"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The disagreement delays an urgent project.",
+   "src": "L5041"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A respected elder helps both sides communicate.",
+   "src": "L5042"
+  }
+ }
+}

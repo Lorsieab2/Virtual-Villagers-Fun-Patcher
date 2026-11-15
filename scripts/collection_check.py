@@ -1140,7 +1140,8 @@ def check_guardians(doc: dict, rep: Report) -> None:
             rep.add("j GUARDIANS", f"{where}: says Heathen or convert, and has no Guardians of Isola Rewrite form "
                                    f"{good!r}")
 
-    if GUARDIANS_WORDS.search(doc.get("title", "")) or doc.get("title_variants"):
+    if GUARDIANS_WORDS.search(doc.get("title", "")) or any(tv.get("if") == GUARDIANS_IF
+                                                           for tv in doc.get("title_variants") or []):
         if GUARDIANS_PATCH not in (doc.get("patches") or []):
             rep.add("j GUARDIANS", f"patches does not name {GUARDIANS_PATCH}")
     tvs = doc.get("title_variants") or []
