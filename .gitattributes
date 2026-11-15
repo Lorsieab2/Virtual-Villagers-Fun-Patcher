@@ -130,6 +130,9 @@ assets/island_events_scale/*.txt -text
 # The Living Event Engine's frozen source is pinned by SHA-256 (data/living_events/SOURCE.sha256).
 /docs/more-island-events/Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt -text
 /data/living_events/** text eol=lf
+# The Living mixer's test fixture is compared byte for byte (tests/test_living_mixer.py Determinism).
+tests/data/living_fixture/*.txt -text
+tests/data/living_fixture/*.pak binary
 /docs/more-island-events/Isola_Beyond_the_Horizon_Expanded_80_Events.txt -text
 /docs/more-island-events/Role_Models_and_Good_Examples_40_Events.txt -text
 /data/event_collection/** text eol=lf
