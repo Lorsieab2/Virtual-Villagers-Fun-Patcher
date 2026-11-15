@@ -1,5 +1,5 @@
 """Write "Isola Grand Event Collection" (vvN_isola_grand_event_collection): the owner's collection of island events
-(docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt, the frozen
+(docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt, the frozen
 source), one row per game.
 
 The events are data: one version 6 branching Custom Island Event graph per event under data/event_collection/
@@ -42,8 +42,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
 
 SOURCE = ROOT / "docs" / "more-island-events" / \
-    "Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt"
-SOURCE_SHA256 = "F5ABB8BF95F7345EDA4F7ACF676E58C536841C7767322348AAD8134CDC96E567"
+    "Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt"
+SOURCE_SHA256 = "319712596BCCD325F47DF13B10DC895071F0306F7105B17CC8F3ED73BAE44C3E"
 DATA = ROOT / "data" / "event_collection"
 ASSETS = ROOT / "assets" / "event_collection"
 FOLDER = "Island Event Collection"          # beside the companions (src/patcher_files.py PATCHER_READ_FOLDERS)
@@ -72,6 +72,8 @@ CREDIT_BLOCKS = (
     (9555, 9560, "V22 (drawing, parenting and the pending title note)"),
     (9973, 9976, "V23 (pranks, misunderstandings and everyday chaos)"),
     (10142, 10146, "V24 (the revolutionary invention / discovery)"),
+    (10434, 10438, "V27 (all ages, personality, relationships and consequences)"),
+    (10949, 10951, "V28 (consequences that follow the villagers)"),
 )
 
 

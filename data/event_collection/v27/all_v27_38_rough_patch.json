@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parents' Rough Patch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_38_rough_patch",
+  "source": "v28",
+  "lines": [
+   10785,
+   10791
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10785",
+  "ledger": [
+   {
+    "src": "L10786",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10791",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Two parents disagree over chores, fatigue and how to raise their children."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "parent2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Two parents disagree over chores, fatigue, and how to raise their children.",
+   "src": "L10787",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They divide responsibilities and arrange time to reconnect.",
+   "src": "L10788"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They argue and choose to spend time apart while remaining attentive caregivers.",
+   "src": "L10789"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A child overhears the dispute; both parents reassure the child without asking them to take sides.",
+   "src": "L10790",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent1",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10790"
+    },
+    {
+     "do": "skill",
+     "role": "parent2",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10790"
+    }
+   ]
+  }
+ }
+}

@@ -1,6 +1,6 @@
 ISOLA GRAND EVENT COLLECTION - CREDITS
 
-Source: Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt (SHA-256 F5ABB8BF95F7345EDA4F7ACF676E58C536841C7767322348AAD8134CDC96E567). The texts below are copied from it verbatim.
+Source: Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt (SHA-256 319712596BCCD325F47DF13B10DC895071F0306F7105B17CC8F3ED73BAE44C3E). The texts below are copied from it verbatim.
 
 THE CREDIT LEDGER (source lines 1-91)
 
@@ -177,6 +177,20 @@ and context-sensitive title direction: Lorsieab2.
 Event dialogue, additional examples, choice trees, sequel mechanics and prose:
 ChatGPT. Preserve all preceding credits.
 
+SECTION CREDIT: V27 (all ages, personality, relationships and consequences) (source lines 10434-10438)
+
+V27 ADDITION — ALL AGES, PERSONALITY, RELATIONSHIPS & CONSEQUENCES
+========================================================================
+Creative direction and requested mechanics: Lorsieab2
+New event prose and branch drafting: ChatGPT (OpenAI)
+Original V18 source and all prior sections above preserved verbatim.
+
+SECTION CREDIT: V28 (consequences that follow the villagers) (source lines 10949-10951)
+
+V28 ADDENDUM — CONSEQUENCES THAT FOLLOW THE VILLAGERS
+Creative direction, rules, and requested outcome types: Lorsieab2
+Additional implementation wording and examples: ChatGPT (OpenAI)
+
 EACH EVENT'S CREDIT
 
 The Great Beautification Project (source lines 1331-1472): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan Storytelling Contest): event prose and branching written by ChatGPT, developed in response to Lorsieab2's requested scope and themes.
@@ -240,6 +254,63 @@ The Missing Coconuts (source lines 10062-10075): CREDITS: Core premises and requ
 The False Alarm (source lines 10077-10093): CREDITS: Core premises and requested title edits by Lorsieab2; branching narratives and elaborations by ChatGPT. All five games. Ancient tropical,
 The Prank War (source lines 10095-10110): CREDITS: Core premises and requested title edits by Lorsieab2; branching narratives and elaborations by ChatGPT. All five games. Ancient tropical,
 The Revolutionary Invention (source lines 10139-10430): CREDITS Original premise, example discoveries, randomized social/physical consequences, and context-sensitive title direction: Lorsieab2. Event dialogue, additional examples, choice trees, sequel mechanics and prose: ChatGPT. Preserve all preceding credits.
+The Unsolvable Cry (source lines 10489-10495): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Little Grip (source lines 10497-10503): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The First Recognition (source lines 10505-10511): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Crawling Expedition (source lines 10513-10519): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Borrowed Lullaby (source lines 10521-10527): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Forbidden Grove (source lines 10529-10535): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Friend's Secret (source lines 10537-10543): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Cruel Joke (source lines 10545-10551): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The River Kingdom (source lines 10553-10559): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Missing Child at Supper (source lines 10561-10567): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Hero of the Legend (source lines 10569-10575): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The New Friend (source lines 10577-10583): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Midnight Raft (source lines 10585-10591): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Dangerous Proof (source lines 10593-10599): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Public Embarrassment (source lines 10601-10607): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Apprenticeship Swap (source lines 10609-10615): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Reckless Pact (source lines 10617-10623): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The First Heartbreak (source lines 10625-10631): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Faulty Beam (source lines 10633-10639): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Unasked Favor (source lines 10641-10647): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Loud Councilor (source lines 10649-10655): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Secret Doubt (source lines 10657-10663): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Night Watcher (source lines 10665-10671): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Vanishing Explorer (source lines 10673-10679): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Last Crossing (source lines 10681-10687): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Stubborn Teacher (source lines 10689-10695): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Empty Chair (source lines 10697-10703): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The New Beginning (source lines 10705-10711): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Forgotten Route (source lines 10713-10719): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Creature in the Basket (source lines 10721-10727): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Fierce Little Guardian (source lines 10729-10735): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Fish That Followed (source lines 10737-10743): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Unusual Insect (source lines 10745-10751): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Unwelcome Pet (source lines 10753-10759): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Pet's Last Morning (source lines 10761-10767): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Strange Hatchling (source lines 10769-10775): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Animal That Returned (source lines 10777-10783): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Parents' Rough Patch (source lines 10785-10791): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Quiet Marriage (source lines 10793-10799): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Sibling Rivalry (source lines 10801-10807): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Childhood Promise (source lines 10809-10815): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Special Friend (source lines 10817-10823): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Lovers' Argument (source lines 10825-10831): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Awkward Courtship (source lines 10833-10839): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Rival Coworkers (source lines 10841-10847): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Ally Who Disagreed (source lines 10849-10855): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Neighbor's Grief (source lines 10857-10863): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Unlikely Mentor (source lines 10865-10871): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Chosen Family (source lines 10873-10879): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Reunion That Hurt (source lines 10881-10887): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Caregiver's Apology (source lines 10889-10895): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Friendship Nobody Expected (source lines 10897-10903): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Unmarked Shore (source lines 10905-10911): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Fever After the Expedition (source lines 10913-10919): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Legend of the Deep Pool (source lines 10921-10927): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Boat That Came Back Empty (source lines 10929-10935): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
+The Forbidden Bell (source lines 10937-10943): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
 The Verse That Changed History (source lines 7362-7480): AUTHORSHIP AND IDEA CREDIT — V13 Original creative direction, requested competition critic archetypes, and five specific outcome concepts: Lorsieab2. Original event text, new characters, individual dialogue, additional outcomes, branching and implementation notes below: ChatGPT (OpenAI). The Cooking Contest's original text and randomized framework remain credited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites of the original. The other competition add-ons preserve the authorship of their existing base events as identified in the V12 credit ledger.
 (Name1)'s No Good, Very Bad Day (source lines 5385-5522): * V10 reputation, appointment, school and rivalry events: event prose and detailed branching by ChatGPT. Requested social outcomes and leadership roles, including ostracism, laughingstock, village idiot, mad scientist, trusted advisor, teacher and heads of professions: Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.
 The Child of Legend (source lines 728-791): * The Child of Legend (VV1): original premise and original event manuscript by Lorsieab2. Later editing and/or expansion where present: ChatGPT.

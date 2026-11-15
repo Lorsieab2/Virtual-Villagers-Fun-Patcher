@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Awkward Courtship",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_44_courtship",
+  "source": "v28",
+  "lines": [
+   10833,
+   10839
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10833",
+  "ledger": [
+   {
+    "src": "L10834",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10839",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A villager tries to impress a romantic interest with an exaggerated story.",
+  "cast_only": [
+   "suitor",
+   "interest"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "suitor": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "interest": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A villager tries to impress a romantic interest with an exaggerated story.",
+   "src": "L10835",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They confess the embellishment and share an honest conversation.",
+   "src": "L10836"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The listener finds the story amusing but does not reciprocate.",
+   "src": "L10837"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A genuine shared interest brings them closer.",
+   "src": "L10838"
+  }
+ }
+}
