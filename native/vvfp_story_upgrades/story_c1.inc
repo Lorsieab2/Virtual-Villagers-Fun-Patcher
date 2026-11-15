@@ -875,6 +875,19 @@ static const ce_probe_field C1_PROBE[] = {
     { 0x28, 1, 1, 1 }, { 0x344, 4, 90, 90 }, { 0x358, 4, 0, 0 },
 };
 
+/* A New Home's villager tick 0x42E900 (every two seconds from 0x42A36F, and from the loading screen), on a tick
+   object made by the game's own constructor 0x42E570: [+0] the world, [+4] the villager array, [+0xC] one more of
+   the game's singletons; the tick reads only +0 and +4. */
+static void c1_catch_up(void) {
+    unsigned char tick[16];
+    memset(tick, 0, sizeof tick);
+    TC0(0x42E570u, tick);
+    TC0(0x42E900u, tick);
+}
+
+static const ce_birth_layout C1_BIRTH = { 0x348u, 0x34Cu, 0x358u, 0x344u, c1_catch_up };
+static int c1_deliver(int index, int *early);
+
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -934,8 +947,9 @@ static const ce_adapter C1_ADAPTER = {
     "their own looks, sex and skills; with more than one, the Golden Child's puzzles and "
     "powers may pick any of them.",
     0,
-    c1_set_health
-};
+    c1_set_health,
+    c1_deliver
+ };
 
 /* ---- Delivery ----------------------------------------------------------- */
 
@@ -1149,4 +1163,9 @@ __declspec(naked) static void c1_title_stub(void) {
         push 0x41FD7A
         ret
     }
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c1_deliver(int index, int *early) {
+    return ce_birth_now(&C1_ADAPTER, &C1_BIRTH, index, early);
 }

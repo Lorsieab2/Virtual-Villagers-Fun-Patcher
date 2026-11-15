@@ -162,7 +162,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_CELEBRATE = 11, CGE_ACTION = 12, CGE_MOOD = 13, CGE_HEALTH_CHANGE = 14, CGE_SKILL_SET = 15,
        CGE_DAMAGE = 16,
        /* cie-v6-binary.md 22 */
-       CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19 };
+       CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19,
+       /* cie-v6-binary.md 23 */
+       CGE_BIRTH_THEN_DIE = 20 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -999,8 +1001,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
-                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_BABY_LOST);
-        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_BABY_LOST : CGE_SICK);
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_BIRTH_THEN_DIE);
+        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_BIRTH_THEN_DIE : CGE_SICK);
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1025,7 +1027,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                     }
                 }
                 break;
-            case CGE_KILL: case CGE_DIE_UNRECOVERED: {
+            case CGE_KILL: case CGE_DIE_UNRECOVERED: case CGE_BIRTH_THEN_DIE: {
                 const char *cause = cg_s(g, str);
                 ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < CG_CAUSE_BYTES && ce_text_ok(cause, 0)
                      && (e[0] == CGE_KILL || (a == 0 && b == 0));
@@ -2551,7 +2553,8 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
         vb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : hi == CG_LOOK_KEEP ? -1 : hi;
         break;
     default:
-        break;                         /* celebrate, action, mood, die_unrecovered, baby_lost: no roll */
+        break;                         /* celebrate, action, mood, die_unrecovered, baby_lost, birth_then_die: no
+                                          roll */
     }
     if (h->fx < CG_MAX_FX) {
         h->fx_a[h->fx] = va;
@@ -3808,6 +3811,22 @@ static void cg_tell_baby_lost(int game, int index) {
     }
 }
 
+/* cie-v6-binary.md 23: the babies were born just now, so "VVFP Cause of Death.dll" forgets the parent's nursing
+   state it copied on the last frame (VvfpCauseDelivered) -- the Death record that follows must not say the babies
+   were lost with the parent.  An older companion without it: nothing (its Death record may then say so). */
+static void cg_tell_delivered(int game, int index) {
+    typedef void (__stdcall *delivered_fn)(int game, int index);
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    delivered_fn delivered = module != NULL ? (delivered_fn)(void *)GetProcAddress(module, "VvfpCauseDelivered")
+                                            : NULL;
+#ifdef VVFP_TEST
+    cg_test_tell(6, index, "");
+#endif
+    if (delivered != NULL) {
+        delivered(game, index);
+    }
+}
+
 /* A believer the event made a Heathen is a faith conversion (the owner): "VVFP Faith Notice.dll" counts it with
    the drift's (its "other" reason), so "Popup When Believers Become Heathens" tells of it when that patch is on. */
 static void cg_tell_faith(int game, int index) {
@@ -3899,7 +3918,9 @@ static int cg_behaviour_of(const ce_adapter *a, int game, const unsigned char *e
 static int cg_effect_harmful(const ce_adapter *a, int game, const unsigned char *e) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     switch (e[0]) {
-    case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST: return 1;
+    case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST:
+    case CGE_BIRTH_THEN_DIE:
+        return 1;
     case CGE_HEALTH: return hi < 100;
     case CGE_HEALTH_CHANGE: return lo < 0;
     case CGE_PREF: return (e[2] & 4u) != 0;
@@ -4109,6 +4130,43 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ce_refuse_as(r, CE_WHY_OTHER);
         }
         cg.gone |= 1u << role;         /* gone for good: nothing more is done to them (their name stays) */
+        return;
+    }
+    if (e[0] == CGE_BIRTH_THEN_DIE) {
+        /* 23: the game's own birth now (the adapter's deliver: babies born early get the age the nursing reached and
+           a health deficit), then the parent's death with a grave, as kill.  A parent no longer nursing just dies
+           (the children are villagers already); a birth the game would not make is a refusal and nobody dies. */
+        const char *cause = cg_s(&cg_g, cg_u16(e + 12));
+        int babies = 0, early = 0;
+        char what[160];
+        if (!(a->caps & CAP_KILL) || a->deliver == NULL) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        if (*(const int *)(record + a->off_pregnant) != 0) {
+            babies = a->deliver(index, &early);
+            if (babies < 0) {
+                ce_refuse_as(r, CE_WHY_OTHER);
+                return;
+            }
+            cg_tell_delivered(game, index);
+        }
+        if (cg_health_now(game, record) > 0) {
+            if (!a->kill(index)) {
+                ce_refuse_as(r, CE_WHY_OTHER);
+                return;
+            }
+            cg_tell_killed(game, index, cause);
+        }
+        ++r->died;
+        if (babies > 0) {
+            wsprintfA(what, "'s %s %s; %s died.", babies > 1 ? "babies were" : "baby was",
+                      early ? "born early" : "born", cg.name[role]);
+        } else {
+            lstrcpyA(what, " died.");
+        }
+        cg_extra_add(cg.name[role], what);
+        cg.gone |= 1u << role;
         return;
     }
     if (e[0] == CGE_BABY_LOST) {

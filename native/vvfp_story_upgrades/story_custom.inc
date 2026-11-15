@@ -180,9 +180,101 @@ typedef struct {
        game's revive makes (its own health field or setter), without the
        revive's clock and stop.  Health 0 is the adapter's kill. */
     void (*set_health)(int index, int health);
+    /* cie-v6-binary.md 23: a nursing parent's babies born now by the game's own delivery (ce_birth_now): the
+       babies made, 0 when the parent was not nursing, -1 when the game did not deliver (nothing changed); *early
+       = 1 when the nursing was cut short.  NULL = not offered. */
+    int (*deliver)(int index, int *early);
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
+
+/* ---- The baby is born now (cie-v6-binary.md 23) --------------------------------------------------------------
+
+   In every game the nursing time is one field on the parent: the processed-age counter copied at the conception.
+   The game's own villager catch-up, once per age unit while the processed age is below the age and the health
+   above 0, makes the babies -- new villager records at 40 units, by the game's own creators -- once the processed
+   age is more than 40 units past it, and clears the field and the litter.  So the birth comes now when the field is
+   made due and the parent is credited one age unit (a one-villager, one-unit Time Warp) and the game's own
+   catch-up runs: it processes that unit -- every other villager is caught up already (each game's update runs the
+   catch-up before its island-event trigger) -- and its delivery makes the babies with every patch's birth hooks. */
+typedef struct {
+    unsigned int age;              /* i32: the age, in units (20 a year) */
+    unsigned int processed;        /* i32: the age the catch-up has processed */
+    unsigned int nursing;          /* i32: the processed age at the conception; 0 = not nursing */
+    unsigned int health;           /* i32: the health (1..100 while alive) */
+    void (*catch_up)(void);        /* the game's own catch-up, once */
+} ce_birth_layout;
+
+#define CE_NURSING_UNITS 40         /* the creators' age for a baby: the nursing time (every delivery's push 0x28) */
+#define CE_EARLY_DEFICIT_MAX 50     /* the owner: "a health deficit" for an early birth; scaled (a judgement call) */
+#define CE_EARLY_DEFICIT_MIN 5
+
+/* The health an early-born baby loses: round(50 * the share of the nursing time still to come), 5..50. */
+static int ce_early_deficit(int elapsed) {
+    int deficit = (CE_EARLY_DEFICIT_MAX * (CE_NURSING_UNITS - elapsed) + CE_NURSING_UNITS / 2) / CE_NURSING_UNITS;
+    return deficit < CE_EARLY_DEFICIT_MIN ? CE_EARLY_DEFICIT_MIN
+         : deficit > CE_EARLY_DEFICIT_MAX ? CE_EARLY_DEFICIT_MAX : deficit;
+}
+
+static int ce_birth_now(const ce_adapter *a, const ce_birth_layout *b, int index, int *early) {
+    static unsigned char was[CE_MAX_RECORDS];
+    unsigned char *parent = a->record(index);
+    int count = a->record_count < CE_MAX_RECORDS ? a->record_count : CE_MAX_RECORDS;
+    int nursing, processed, age, elapsed, i, babies = 0;
+    *early = 0;
+    if (parent == NULL) {
+        return -1;
+    }
+    nursing = *(int *)(parent + b->nursing);
+    processed = *(int *)(parent + b->processed);
+    age = *(int *)(parent + b->age);
+    if (nursing == 0) {
+        return 0;
+    }
+    if (processed - CE_NURSING_UNITS - 1 <= 0 || age < processed) {
+        return -1;                 /* never the case for a nursing parent the game made */
+    }
+    elapsed = processed - nursing;
+    elapsed = elapsed < 0 ? 0 : elapsed > CE_NURSING_UNITS ? CE_NURSING_UNITS : elapsed;
+    for (i = 0; i < count; ++i) {
+        const unsigned char *r = a->record(i);
+        was[i] = (unsigned char)(r != NULL && a->listed(r));
+    }
+    *(int *)(parent + b->nursing) = processed - CE_NURSING_UNITS - 1;   /* due: 40 units past it, and one */
+    *(int *)(parent + b->age) = age + 1;                                 /* the one unit the catch-up processes */
+    __try {
+        b->catch_up();
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    if (*(int *)(parent + b->nursing) != 0) {
+        /* Not delivered: as it was (the age too, unless the unit was processed). */
+        *(int *)(parent + b->nursing) = nursing;
+        if (*(int *)(parent + b->processed) == processed) {
+            *(int *)(parent + b->age) = age;
+        }
+        return -1;
+    }
+    for (i = 0; i < count; ++i) {
+        unsigned char *r = a->record(i);
+        if (was[i] || r == NULL || !a->listed(r)) {
+            continue;
+        }
+        ++babies;              /* a record free before the catch-up holding a living villager now: a baby */
+        if (elapsed < CE_NURSING_UNITS) {
+            /* Born early (the owner): the age the nursing reached (0 would be the creators' "a random age"), and
+               the health deficit. */
+            int keep = elapsed > 0 ? elapsed : 1;
+            int left = *(const int *)(r + b->health) - ce_early_deficit(elapsed);
+            *(int *)(r + b->age) = keep;
+            *(int *)(r + b->processed) = keep;
+            if (a->set_health != NULL) {
+                a->set_health(i, left < 1 ? 1 : left);     /* the game's own health write (the adapters') */
+            }
+        }
+    }
+    *early = babies > 0 && elapsed < CE_NURSING_UNITS;
+    return babies;
+}
 
 /* ---- The armed event ----------------------------------------------------- */
 

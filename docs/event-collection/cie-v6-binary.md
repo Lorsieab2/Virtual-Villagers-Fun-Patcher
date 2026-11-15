@@ -190,7 +190,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
    - skill (9) may now be negative (both of min, max in -100..-1): same roll, `lo + random_below(hi - lo + 1)`.
    - appearance (17): a = the head's, b = the body's: a fixed row is itself (no roll), "kept" is -1 (no roll),
      "random" is `random_below(rows - 1)` (the head's first, then the body's; rows = the game's count, section
-     22). die_unrecovered (18), baby_lost (19): no roll; a = b = 0.
+     22). die_unrecovered (18), baby_lost (19), birth_then_die (20): no roll; a = b = 0.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
    - **No "!." or "?.":** when an inserted pool item (an inline pick's and a game word's included; never
@@ -212,7 +212,7 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
 
 ## 7. Harm and the protected filter
 
-Harmful effects: `kill`, `vanish`, `die_unrecovered`, `baby_lost`, `sick`, `health` with max < 100,
+Harmful effects: `kill`, `vanish`, `die_unrecovered`, `baby_lost`, `birth_then_die`, `sick`, `health` with max < 100,
 `health_change` with min < 0, `preference` dislikes, `skill` with a negative amount, `mood` bad, `action` from the
 MOOD group or marked (Unsafe) in the game's action list (`data/cie_actions.json`). `appearance` is harmless.
 
@@ -250,8 +250,9 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
 | 18 | die_unrecovered | role index | 0, 0 | the cause (as kill's) |
 | 19 | baby_lost | role index | 0, 0 | NONE |
+| 20 | birth_then_die | role index | 0, 0 | the cause (as kill's) |
 
-A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22.
+A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22; code 20 is section 23.
 
 | Op | cond | a | Holds when |
 |---|---|---|---|
@@ -583,3 +584,55 @@ the event needs (not optional, not a stranger, alias or other role); one relatio
   count at conception). The role MUST be `"special": "nursing_parent"`, so it needs `protected: "allow"` (section
   7). A parent no longer nursing when the page is shown (the baby was born since) is a refusal ("N changes could
   not be made"). Harmful. The Island Events log's entry says "<name>'s baby was lost."
+
+## 23. The baby is born, then the parent dies
+
+The owner (2026-11-14), for "Two Lives, One Decision" A3 ("The child survives but the mother dies"): the child must
+really survive while the mother really dies. The owner's method: "alter the time to nursing so the baby(ies) is born
+at that instant, and then set the mother's health to 0".
+
+- **`{"do": "birth_then_die", "role": r, "cause": "unknown"}`** (code 20; the cause as `kill`'s, default
+  `"unknown"`: the game's own "Unknown causes"). The role MUST be `"special": "nursing_parent"`, so it needs
+  `protected: "allow"` (section 7). Harmful; the role is gone for the rest of the run.
+- **What the games do (traced in the stock executables).** In all five games the nursing time is ONE field on the
+  parent: the parent's processed-age counter copied at the conception (A New Home +0x358 from +0x34C, The Lost
+  Children +0x540 from +0x534, The Secret City +0xE8C from +0xE74, The Tree of Life and New Believers +0x1C4C from
+  +0x1C3C). The baby is never a record before its birth. The game's own villager catch-up -- once per age unit,
+  while the parent's processed age is below their age and their health is above 0 -- makes the babies when the
+  processed age is more than 40 units past the field (A New Home 0x42EF15..0x42F0C7, The Lost Children
+  0x43BDFE..0x43BF85, The Secret City 0x46037F..0x46050C, The Tree of Life 0x4687E4..0x468A17, New Believers
+  0x473100..): each baby is a NEW villager record made by the game's own creators, always at age 40 units (two
+  years: the length of the nursing time) with its parents, and the field and the litter are cleared. A dead parent
+  is never processed again, which is why a nursing baby vanishes with its mother. No death path writes the field
+  or touches another record, so a child already born lives on as its own villager.
+- **The effect (the adapter's `deliver`, then its `kill`).** While the parent is nursing:
+  1. `elapsed` = the parent's processed age - the field (0..40: the nursing units already gone by);
+  2. the field is set so the delivery is due now (the processed age - 41), and the parent is credited ONE age unit
+     (a twentieth of a year, as a one-villager, one-unit Time Warp: the age field + 1);
+  3. the game's own catch-up runs once, now: A New Home's villager tick 0x42E900 and The Lost Children's 0x43B690
+     on a tick object made by the game's own constructor (0x42E570 / 0x43B280: the world and the villager array),
+     The Secret City 0x45FFE0, The Tree of Life 0x468430 and New Believers 0x472C90 on the villager array (0x59E110,
+     0x50E568, 0x554148). It processes that one unit for the parent -- what the game's next update would do -- and
+     the delivery in it makes the babies with every patch's birth hooks, as at any birth. Every other villager is
+     already caught up (each update runs the catch-up before the island-event trigger), so nobody else is
+     processed; the effect is made from the event's popup, never from inside the catch-up;
+  4. the birth is checked (the field is 0). If the game did not deliver, the field and the age are put back and the
+     effect is a refusal: the parent never dies with the babies lost;
+  5. **an early birth** (the owner): each new baby (a record that was free before the catch-up and holds a living
+     villager after it) is given the age the nursing time had reached: age and processed age = `elapsed`, at least
+     1 (an age of 0 is the creators' "draw a random age"); a full-term birth (`elapsed` 40) keeps the game's 40. It
+     loses health for being born early: `round(50 * (40 - elapsed) / 40)`, at least 5 and at most 50 (a judgement
+     call: the owner asked for "a health deficit" scaled by how early), never below health 1; a full-term birth
+     loses nothing;
+  6. "VVFP Cause of Death.dll" is told the babies were born (`VvfpCauseDelivered(game, index)`: its per-frame copy
+     of the parent's nursing state is cleared, so the Death record does not say the babies were lost with the
+     parent), then the parent dies by the adapter's `kill` (the game's own death: a body and a grave), the cause
+     told as `kill`'s. Should the processed unit itself have ended the parent's life (the game's own old-age or
+     starvation roll), the babies are still born -- the stock delivery runs in that same unit -- and the death is
+     the game's.
+- Twins and triplets are the game's own chain (the litter field); each baby gets the same age and deficit. At the
+  population cap the delivery is the stock one: the babies' places were counted at the conception, and a creator
+  that finds no free record makes no baby, as at any birth. Nothing is keyed on a record index.
+- A parent no longer nursing when the page is shown (born since) still dies: the children are already villagers.
+- The Island Events log's entry says "<name>'s baby was born early; <name> died." ("babies were" for more than one;
+  "was born" at full term).
