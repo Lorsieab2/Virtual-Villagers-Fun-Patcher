@@ -1,6 +1,6 @@
 """Write the Companion Anthology's Volume 1 Part 2, Everyday Life & Personality, as
 data/event_collection/companion/c5/c5b<NNN>_<slug>.json, then format and check them.  Events 001-060 (companion
-L1142-1665) are in the table E below; a later chunk adds 061-100 to the same table.
+L1142-1665, chunk K2) and 061-100 (L1667-2015, chunk K3) are in the table E below.
 
 The source's format (design notes L1132-1140):
   EVENT 0NN - Title / <one-sentence scene> /
@@ -25,7 +25,11 @@ How it maps (docs/event-collection/companion-authoring.md):
   (032, cast as the child's parent: the games' caregivers are parents), two siblings (028).  An aunt (012) and a
   grandparent (034) have no relation yet (gap C2): text only, the roles are cast by age and sex.
 - A parent humming to a baby (005) is a nursing parent (special nursing_parent; nothing harms her).
-- Deceased loved ones (011) stay generic text (gap C3).
+- Deceased loved ones (011, 090) stay generic text (gap C3).
+- K3 (061-100): the parent of 077 is cast parent_of the child and gains Parenting on both endings; "a young adult"
+  (062) is 18-25, "a young villager" (070, 083) 3-17, "a farmer" (067) has Farming; two "relatives" (094) have no
+  stated kinship kind: text only, cast by age.  Text-only words: the fire that dies down (074), a traveler greeted
+  with food (092), one villager's private celebration (095).
 
     python scripts/companion/gen_c5b.py
 """
@@ -41,6 +45,8 @@ HEAD = r"^EVENT \d{3}\s+-\s+"
 V, G, CH, EL = c.VILLAGER, c.GROWN, c.CHILD, c.ELDER
 LITTLE = {"kind": "villager", "min_age": 3, "max_age": 7}      # "a little child", "a toddler"
 YOUNG = {"kind": "villager", "min_age": 3, "max_age": 17}      # "two young villagers"
+YOUNG_ADULT = {"kind": "villager", "min_age": 18, "max_age": 25}    # "a young adult"
+FARMER = c.skilled(V, "Farming")                                  # "a farmer"
 NURSING = {"kind": "villager", "min_age": 14, "special": "nursing_parent"}
 
 NOTE_PRIVATE = c.text_only("celebration", "a friend's small private celebration, not the village's (rule 7)")
@@ -116,6 +122,51 @@ E = {
     59: ({"young1": YOUNG, "young2": YOUNG}, [],
          "Two young villagers imagine what their village might look like in a hundred years.", {}),
     60: ({"villager": V}, [], "A villager misses someone who moved to another part of the island.", {}),
+    61: ({"rival1": V, "rival2": V}, [], "Two former rivals meet while gathering firewood.", {}),
+    62: ({"young": YOUNG_ADULT}, [], "A young adult is trusted with a small but important duty.", {}),
+    63: ({"villager": V}, [], "A villager receives advice they did not ask for.", {}),
+    64: ({"villager": V}, [], "A villager visits a quiet spot where they often go to think.", {}),
+    65: ({"villager": G}, [], "A villager notices a silver strand in their hair.", {}),
+    66: ({"elder": EL}, [], "An elder rests beside a tree they remember from childhood.", {}),
+    67: ({"farmer": FARMER}, [], "A farmer notices the days growing subtly shorter.", {}),
+    68: ({"friend1": V, "friend2": V}, [], "Two busy friends find a few minutes to talk between chores.", {}),
+    69: ({"villager": V}, [], "A villager becomes emotional while hearing an old song.", {}),
+    70: ({"young": YOUNG}, [], "A young villager worries they will never become a master at their craft.", {}),
+    71: ({"villager": V}, [], "A talented villager worries that succeeding will change how others treat them.", {}),
+    72: ({"friend1": V, "friend2": V}, [], "Two friends invent a greeting they use only with each other.", {}),
+    73: ({"villager": V}, [], "A villager leaves fresh flowers beside the hospital doorway.", {}),
+    74: ({"villager1": V, "villager2": V}, [], "The last two villagers at a gathering watch the fire burn low.",
+         {0: [c.text_only("die", "the fire dies down; nobody dies")]}),
+    75: ({"villager": V}, [], "A villager understands a problem only after stepping away from it.", {}),
+    76: ({"traveler": V}, [], "A traveler wonders whether home is a place or the people who welcome them.", {}),
+    77: ({"child": CH, "parent": c.related(G, "parent_of", "child")}, ["parent"],
+         "A parent tells a child the names of familiar constellations.", {}),
+    78: ({"villager": V, "friend": V}, [], "A villager notices a friend has been unusually quiet.", {}),
+    79: ({"villager": V, "friend": V}, [], "A villager realizes winning an argument cost them a friend's feelings.", {}),
+    80: ({"villager": V, "other": V}, [], "Someone receives forgiveness for an old offense they have long regretted.", {}),
+    81: ({"villager": V}, [], "A villager looks around at familiar huts, trees and neighbors and suddenly feels grateful.", {}),
+    82: ({"child": CH, "adult": G}, [], "A child shows an adult a drawing of the entire village.", {}),
+    83: ({"young": YOUNG, "elder": EL}, [], "A young villager jokes about what they will be like when they are old.", {}),
+    84: ({"villager": V, "friend": V}, [], "A villager asks a friend how to choose between two good opportunities.", {}),
+    85: ({"villager": V}, [], "A villager wakes from a vivid dream about an unfamiliar shore.", {}),
+    86: ({"dancer": V}, [], "Someone begins a gentle dance beside the communal fire.", {}),
+    87: ({"apprentice": V, "mentor": G}, [], "An apprentice brings their mentor a handmade gift.", {}),
+    88: ({"child": CH, "elder": EL}, [], "A child asks an elder why their hands look so different.", {}),
+    89: ({"villager1": V, "villager2": V}, [], "Two villagers quietly discuss whether the spirits hear their prayers.", {}),
+    90: ({"villager": V}, [], "A villager says aloud the name of someone who died long ago.", {}),
+    91: ({"explorer": V}, [], "An explorer promises to tell the children what lies beyond the next ridge.", {}),
+    92: ({"traveler": V}, [], "A tired traveler returns to the village at dusk.",
+         {1: [c.text_only("food", "friends greet a traveler with a meal; the village's food is unchanged")]}),
+    93: ({"villager": V}, [], "A timid villager finally speaks during a communal discussion.", {}),
+    94: ({"relative1": V, "relative2": V}, [], "Two relatives who have avoided each other sit together at a festival.", {}),
+    95: ({"villager": V}, [], "A villager marks a personal milestone nobody else knew about.",
+         {1: [c.text_only("celebration", "a friend joins one villager's private celebration, not the village's (rule 7)")]}),
+    96: ({"villager": V}, [], "A villager decides not to rush through breakfast for once.", {}),
+    97: ({"child": CH, "elder": EL}, [], "A child retells an elder's tale with outrageous embellishments.", {}),
+    98: ({"master": G, "child": CH}, [], "A master craftsperson allows a child to try a simple safe task.", {}),
+    99: ({"child": CH, "adult": G}, [],
+         "A child asks why people grow old, why stars shine and where dreams come from, all at once.", {}),
+    100: ({"villager": V, "friend": V}, [], "A villager thanks a friend who sat beside them during a difficult time.", {}),
 }
 
 
