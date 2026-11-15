@@ -95,24 +95,32 @@
    {
     "src": "L138",
     "kind": "note",
-    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it"
    }
   ],
   "description": "At the well, a curious villager asks how a man could have carried a baby.",
   "label_case": "title",
   "cast_only": [
-   "subject"
+   "subject",
+   "friend"
   ]
  },
  "requirement": {
-  "min_eligible": 1
+  "min_eligible": 2
  },
  "roles": {
   "subject": {
    "kind": "villager",
    "min_age": 18,
    "sex": "male",
-   "special": "nursing_parent"
+   "relation": {
+    "parent_of": "friend"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 0,
+   "max_age": 7
   }
  },
  "start": "setup",
@@ -120,7 +128,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "At the well, a curious villager asks how a man could have carried a baby. The father, (name1), must decide whether he wants to answer; the child is busy trying to grab the water bucket.",
+   "text": "At the well, a curious villager asks how a man could have carried a baby. The father, (subject), must decide whether he wants to answer; the child is busy trying to grab the water bucket.",
    "src": "L142",
    "choices": [
     {

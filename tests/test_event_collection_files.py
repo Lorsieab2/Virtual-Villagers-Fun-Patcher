@@ -282,7 +282,11 @@ class FrozenDraftsD(unittest.TestCase):
                         self.assertIn(doc["collection"]["id"], owner)
                     if sid == "fathers30":
                         nursing = doc["roles"]["subject"].get("special") == "nursing_parent"
-                        self.assertEqual(nursing, int(p.stem[3:5]) <= 8, p.name)
+                        num = int(p.stem[3:5])
+                        self.assertEqual(nursing, num <= 8 and num not in (5, 6, 7), p.name)
+                        if num in (5, 6, 7):   # after the birth: a man who is a recorded parent of the young child
+                            self.assertEqual(doc["roles"]["subject"]["relation"], {"parent_of": "friend"}, p.name)
+                            self.assertEqual(doc["roles"]["subject"]["sex"], "male")
                         if nursing:
                             self.assertEqual(doc["roles"]["subject"]["sex"], "male")
 

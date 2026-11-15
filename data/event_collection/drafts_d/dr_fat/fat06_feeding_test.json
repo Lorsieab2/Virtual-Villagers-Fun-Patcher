@@ -95,24 +95,32 @@
    {
     "src": "L117",
     "kind": "note",
-    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it"
    }
   ],
   "description": "A father considers how to feed his newborn.",
   "label_case": "title",
   "cast_only": [
-   "subject"
+   "subject",
+   "friend"
   ]
  },
  "requirement": {
-  "min_eligible": 1
+  "min_eligible": 2
  },
  "roles": {
   "subject": {
    "kind": "villager",
    "min_age": 18,
    "sex": "male",
-   "special": "nursing_parent"
+   "relation": {
+    "parent_of": "friend"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 0,
+   "max_age": 3
   }
  },
  "start": "setup",
@@ -120,7 +128,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(Name1), a father, considers how to feed his newborn. Villagers offer competing advice, but his body, comfort, available milk, and the baby's needs all matter.",
+   "text": "(subject), a father, considers how to feed his newborn. Villagers offer competing advice, but his body, comfort, available milk, and the baby's needs all matter.",
    "src": "L121",
    "choices": [
     {

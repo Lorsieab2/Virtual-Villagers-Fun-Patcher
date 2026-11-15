@@ -21,17 +21,20 @@ ROLES: name1=18+/m/nursing
 TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
 REVIEW: ok
 FAT-05
-ROLES: name1=18+/m/nursing
-TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
-REVIEW: ok (05-07 follow the birth: the brief casts 01-08's carrier as the game's nursing parent, who is still pregnant in the game; see the owner question)
+ROLES: name1=18+/m name2=0-3
+REL: name1=parent_of:name2
+TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (05-07 follow the birth: the father is a man who is a recorded parent of a baby or young child, the child a cast villager not shown)
 FAT-06
-ROLES: name1=18+/m/nursing
-TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+ROLES: name1=18+/m name2=0-3
+REL: name1=parent_of:name2
+TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it
 REVIEW: ok (feeding is his choice; unsolicited advice is bounded)
 FAT-07
 NAME: "The father must decide" => "The father, (name1), must decide"
-ROLES: name1=18+/m/nursing
-TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+ROLES: name1=18+/m name2=0-7
+REL: name1=parent_of:name2
+TODO: birth-sex check pending engine (feat/97-presentation): the father is a trans man who carried the child, a villager born female who is now male; this base has no birth-sex condition, so the role is a man who is a recorded parent of the child, and should also require the sex-change log's birth sex female once the engine has it
 REVIEW: ok (a curious question, never mockery; his private life stays private if he wishes)
 FAT-08
 NAME: "A man discovers" => "(Name1) discovers"

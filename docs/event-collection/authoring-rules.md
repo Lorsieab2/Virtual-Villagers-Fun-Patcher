@@ -468,8 +468,10 @@ on `scripts/drafts_d/annotations/<source id>.txt` (`--sheet <source id>` prints 
   flavor ("(Name1), an elder, ..."; a bare "a villager" or "Someone" becomes the name); one `sensitivity` ledger entry
   per changed line. The other people keep the source's words. An event about a group casts one villager it does not
   show.
-- Fathers 01-08: the carrier is a trans man. This base has no birth-sex condition, so the role is a male
-  `nursing_parent`; each file's ledger has the TODO "birth-sex check pending engine (feat/97-presentation)".
+- Fathers 01-08: the carrier is a trans man. This base has no birth-sex condition, so 01-04 and 08 (pregnant)
+  cast a male `nursing_parent`, and 05-07 (after the birth) a man who is a recorded parent (`parent_of`) of a
+  cast-only child aged 0-3 (05, 06) or 0-7 (07); each ledger has the TODO "birth-sex check pending engine
+  (feat/97-presentation)".
 - No effects: none of these files marks one; every effect-table word gets a text_only reason.
 
 ## 15a. The Pick Island Event sentence

@@ -5409,17 +5409,17 @@
     {
       "source": "assets/event_collection/fat05_first_hold.cieg",
       "destination": "Island Event Collection/fat05_first_hold.cieg",
-      "sha256": "DC12A9D103B9624D0CF73FB5FCB400A392E73CDBFCE37E3E1D2B40D852A1D374"
+      "sha256": "800AA516085B22F18BB0508EEA7F5CB2CD5466CBED1B640287044AB82BD2F86C"
     },
     {
       "source": "assets/event_collection/fat06_feeding_test.cieg",
       "destination": "Island Event Collection/fat06_feeding_test.cieg",
-      "sha256": "3769B3B64596E302FD45ED9544F205BA5888C7F428863B4E7D8E6BEB43E920F7"
+      "sha256": "3FF49391E1C8D45284351C9F7F4F21ED8F2EDD43D06122EE37E213172954F2B8"
     },
     {
       "source": "assets/event_collection/fat07_question.cieg",
       "destination": "Island Event Collection/fat07_question.cieg",
-      "sha256": "B3E6B6FACC34EA6DDDFA3234C0DE9236296FDB69A2D70ADB720DD85DC0705FBB"
+      "sha256": "22E0F225A6C7211F51C126629EBFB38BFED1220B02DFB78BF5D1C39B667D5FAB"
     },
     {
       "source": "assets/event_collection/fat08_quiet_choice.cieg",

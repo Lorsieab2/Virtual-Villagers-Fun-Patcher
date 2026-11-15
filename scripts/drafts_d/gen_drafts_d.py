@@ -29,7 +29,9 @@ owner's naming order, not a content change).  The other people of an event keep 
 THE ANNOTATIONS (scripts/drafts_d/annotations/<source id>.txt; one block per event code, e.g. "RM-41", "T001", "M01",
 "ARM-01", "FAT-01"):
   DESC: the Pick Island Event sentence (else the first plain sentence of the setup / opening, its names as "a villager")
-  ROLES: name1=3-13 name2=18+/m          (ages; "/m" "/f" a sex; "/nursing" the game's nursing parent)
+  ROLES: name1=3-13 name2=18+/m          (ages; "/m" "/f" a sex; "/nursing" the game's nursing parent; a name2 not
+                                          shown is a cast-only villager)
+  REL: name1=parent_of:name2             (a recorded kinship relation: the subject is the parent of the friend)
   NAME: "A child" => "(Name1), a child,"  (the naming edit on the setup / opening / sentence; else the automatic one
                                           below; "NAME: none" keeps the text unnamed)
   EDIT <part>: "before" => "after"       (another naming edit: part S, a label A-D, an outcome A1-D2, an ending E1-E4)
@@ -148,10 +150,10 @@ def read_annotations(sid: str) -> dict[str, dict]:
         if m:
             cur.setdefault("EDITS", []).append(m.groups())
             continue
-        m = re.match(r"^(DESC|ROLES|TODO|REVIEW):\s*(.*)$", s)
+        m = re.match(r"^(DESC|ROLES|REL|TODO|REVIEW):\s*(.*)$", s)
         if m:
             key, val = m.groups()
-            if key == "ROLES":
+            if key in ("ROLES", "REL"):
                 cur[key] = dict(x.split("=", 1) for x in val.split())
             elif key == "TODO":
                 cur.setdefault("TODO", []).append(val.strip())
@@ -288,10 +290,15 @@ class Build:
         spec = dict(self.ages, **self.ann.get("ROLES", {}))
         out = {}
         for d, rid in (("1", "subject"), ("2", "friend")):
-            if d in used or (d == "1" and spec.get("name1")):
-                out[rid] = age_spec(spec.get(f"name{d}", "3+" if d == "1" else "3+"))
+            if d in used or spec.get(f"name{d}"):
+                out[rid] = age_spec(spec.get(f"name{d}", "3+"))
         if not out:
             out["subject"] = age_spec(spec.get("name1", "14+"))
+        for key, val in self.ann.get("REL", {}).items():
+            # "name1=parent_of:name2": the subject is that relation of the friend (cie-v6-binary.md 21)
+            kind, other = val.split(":")
+            out[{"name1": "subject", "name2": "friend"}[key]]["relation"] = {
+                kind: {"name1": "subject", "name2": "friend"}[other]}
         return out
 
     def doc(self, nodes: dict, texts: list[str], desc_from: str) -> dict:
