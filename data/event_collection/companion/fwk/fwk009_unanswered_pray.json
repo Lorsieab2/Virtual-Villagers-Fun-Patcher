@@ -25,8 +25,7 @@
    {
     "src": "L5511",
     "kind": "note",
-    "text": "Possible resolution 1 (mundane):",
-    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+    "why": "owner decision (2026-11-15): resolution 1 is not used in this grief or loss event, where it could read as minimizing; the text is unchanged"
    },
    {
     "src": "L5512",
@@ -102,9 +101,6 @@
    "src": "L5507",
    "children": [
     {
-     "next": "r1"
-    },
-    {
      "next": "r2"
     },
     {
@@ -125,9 +121,6 @@
    ],
    "children": [
     {
-     "next": "r1"
-    },
-    {
      "next": "r2"
     },
     {
@@ -140,9 +133,6 @@
    "text": "They find meaning in the act of accompanying the sick friend.",
    "src": "L5509",
    "children": [
-    {
-     "next": "r1"
-    },
     {
      "next": "r2"
     },
@@ -157,27 +147,10 @@
    "src": "L5510",
    "children": [
     {
-     "next": "r1"
-    },
-    {
      "next": "r2"
     },
     {
      "next": "r3"
-    }
-   ]
-  },
-  "r1": {
-   "name": "Resolution 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
-   "src": "L5511",
-   "text_only": [
-    {
-     "what": "the experience",
-     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
-     "src": "L5511"
     }
    ]
   },

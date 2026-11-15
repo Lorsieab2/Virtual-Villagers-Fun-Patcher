@@ -2309,12 +2309,12 @@
     {
       "source": "assets/event_collection/fwk009_unanswered_pray.cieg",
       "destination": "Island Event Collection/fwk009_unanswered_pray.cieg",
-      "sha256": "B134C9F2E14CD73B6955EE59C1DD0332AF5F117E6282D060199C7321837BA477"
+      "sha256": "0DE32538174C5FAB30F10C14928E9907CE6B76BE42453315C803B270AEBC4771"
     },
     {
       "source": "assets/event_collection/fwk010_storm_innocent.cieg",
       "destination": "Island Event Collection/fwk010_storm_innocent.cieg",
-      "sha256": "D5E80B7FABA701A5350ED9AF21F699A06908353134F92714A66BC3CA466FC396"
+      "sha256": "498CA9903CD571A99B72CB6C058D28736BDFAD0CCB02AABDACB5E835119122CF"
     },
     {
       "source": "assets/event_collection/fwk011_isola_alone.cieg",
@@ -2329,7 +2329,7 @@
     {
       "source": "assets/event_collection/fwk013_kindness_gods.cieg",
       "destination": "Island Event Collection/fwk013_kindness_gods.cieg",
-      "sha256": "E8C07642C31ED69A51B290C0686259383574F88FEACE28D6E2562C55FB4323E6"
+      "sha256": "28EE3B66896CD02C686D01E1846A1C35F408470E6A40733CB70B4196430815CC"
     },
     {
       "source": "assets/event_collection/fwk014_price_miracle.cieg",
@@ -2454,17 +2454,17 @@
     {
       "source": "assets/event_collection/fwk038_shore_gives.cieg",
       "destination": "Island Event Collection/fwk038_shore_gives.cieg",
-      "sha256": "B7FAB7FDBFA393C0FC4348DEFCCAF847F80A4757E4EB2A540B42DB5FA16F0A1B"
+      "sha256": "776C93ED79ABBBA2505076BC94AB1D67B53A4C3174CA0CC557EC121E966D3D89"
     },
     {
       "source": "assets/event_collection/fwk039_no_one_answers.cieg",
       "destination": "Island Event Collection/fwk039_no_one_answers.cieg",
-      "sha256": "77C7B6ED71FCB071554A15C0430C7A20914CAD243CF25CEC4E6CCBE3C78C0959"
+      "sha256": "0755E2FC931224E875BC483A879FBC7A9477119FE427B1512653013DA09E7B3A"
     },
     {
       "source": "assets/event_collection/fwk040_last_candle.cieg",
       "destination": "Island Event Collection/fwk040_last_candle.cieg",
-      "sha256": "745ED54C31FD6E8FDD84597F918955BC03D00DFADB4A7FC6FC8E3BDB95B0DCED"
+      "sha256": "D59C2ED09026E97E725DDC8351FB602169488D3C78CB45EBE3AFC837FA04FF89"
     },
     {
       "source": "assets/event_collection/fwk041_trembling_hands.cieg",

@@ -10,7 +10,9 @@ Part I, Four Lenses (001-040, 10 lines each):
 - The premise is the question page.  Each lens line is one choice: its lens name is the button ("MAGIC-ALIGNED", shown
   "Magic-aligned" by the sentence-case rule, cie-v6-binary.md 20; the whole line is too wide for a button) and its
   sentence is that answer's page (inventory Q4's default).  The four lenses are never ranked (L5408): every lens
-  leads to the same three resolutions, equally likely, appended to its page.
+  leads to the same three resolutions, equally likely, appended to its page.  The owner (2026-11-15): the grief and
+  loss events 009, 010, 013, 038, 039 and 040 use only resolutions 2 and 3 (resolution 1 could read as minimizing;
+  its line is unchanged, a ledger note records it as unused).
 - THE POOL DECISION: the three "Possible resolution" lines are repeated word for word in all 40 events, but each event
   has its OWN copy on its own lines, every one of which must be consumed by that event.  A whole page chosen at random
   is a branch, not a pool (a pool inserts text inside a sentence); a shared pool in shared_pools.json would leave each
@@ -73,6 +75,9 @@ RES_TAGS = ("Possible resolution 1 (mundane):", "Possible resolution 2 (ambiguou
             "Possible resolution 3 (social):")
 DESIGNER = "; no school is confirmed or mocked"
 MODERN = "rule 3 (2026-11-14): a modern-day thing in the words of people who never saw one"
+# The owner (2026-11-15): grief and loss events where resolution 1 ("may still value the experience") could read as
+# minimizing keep only resolutions 2 and 3; the line stays in the source, recorded in the ledger as unused.
+NO_RES1 = (9, 10, 13, 38, 39, 40)
 EXPERIENCE = T("the experience", "a memory of what happened, not a skill's experience: nothing is gained")
 
 # num: ({role: spec}, description, opts)
@@ -202,8 +207,14 @@ def build(row: dict) -> dict:
     choices = []
     if part1:
         res = (h + 6, h + 7, h + 8)
+        keep = (2, 3) if num in NO_RES1 else (1, 2, 3)
         for k, n in enumerate(res):
             assert c.line(n).startswith(RES_TAGS[k]), (row["id"], n)
+            if k + 1 not in keep:
+                ledger.append({"src": c.L(n), "kind": "note",
+                               "why": "owner decision (2026-11-15): resolution 1 is not used in this grief or loss "
+                                      "event, where it could read as minimizing; the text is unchanged"})
+                continue
             cuts[n] = [RES_TAGS[k]]
             ledger.append({"src": c.L(n), "kind": "note", "text": RES_TAGS[k],
                            "why": "designer tag on the resolution (L5415: possible branches, not results)"})
@@ -217,9 +228,11 @@ def build(row: dict) -> dict:
             assert m, (row["id"], k, shown(n))
             choices.append({"label": m.group(1), "next": k, "src": c.L(n)})
             page = c.page(f"Answer {k.upper()}", m.group(2), c.L(n), (), tonly.get(k, ()))
-            page["children"] = [{"next": f"r{j}"} for j in (1, 2, 3)]
+            page["children"] = [{"next": f"r{j}"} for j in keep]
             nodes[k] = page
         for j, n in enumerate(res, 1):
+            if j not in keep:
+                continue
             extra = [EXPERIENCE] if j == 1 else []
             nodes[f"r{j}"] = c.page(f"Resolution {j}", shown(n), c.L(n), (), extra + list(tonly.get(f"r{j}", ())),
                                     append=True)
