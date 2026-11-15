@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bitter Root and the Quiet Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife01_bitter_root",
+  "source": "living",
+  "lines": [
+   20642,
+   20653
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20642",
+  "ledger": [
+   {
+    "src": "L20653",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer compares a bitter root, cool cloths, and a familiar song to ease a patient's pain.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer compares a bitter root, cool cloths, and a familiar song to ease a patient's pain.",
+   "src": "L20643",
+   "choices": [
+    {
+     "label": "Try the root with the patient's agreement.",
+     "next": "a",
+     "src": "L20644"
+    },
+    {
+     "label": "Offer cooling and gentle support.",
+     "next": "b",
+     "src": "L20647"
+    },
+    {
+     "label": "Let the patient choose music and company.",
+     "next": "c",
+     "src": "L20650"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The pain eases, but nausea leaves the patient unwilling to repeat it.",
+   "src": "L20645",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20645"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The root has little effect, and the healer records the disappointing result.",
+   "src": "L20646"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient relaxes enough to sleep, though the injury still hurts.",
+   "src": "L20648",
+   "text_only": [
+    {
+     "what": "the injury still hurts",
+     "reason": "the premise: it happened before the event; nobody is harmed now",
+     "src": "L20648"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The cloths provide scant relief, and the patient asks to try something else.",
+   "src": "L20649"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The song comforts the patient without removing the pain.",
+   "src": "L20651"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient asks for silence instead, and the family respects the request.",
+   "src": "L20652"
+  }
+ }
+}

@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Does the Tide Go?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir14_tide_go",
+  "source": "living",
+  "lines": [
+   21413,
+   21424
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21413",
+  "ledger": [
+   {
+    "src": "L21424",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "After a sibling dies, a child asks whether the dead return as waves.",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a sibling dies, a child asks whether the dead return as waves.",
+   "src": "L21414",
+   "choices": [
+    {
+     "label": "Tell a story of returning spirits.",
+     "next": "a",
+     "src": "L21415"
+    },
+    {
+     "label": "Explain the water's journey through rain and sea.",
+     "next": "b",
+     "src": "L21418"
+    },
+    {
+     "label": "Ask what the child believes.",
+     "next": "c",
+     "src": "L21421"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a sibling dies",
+     "reason": "the sibling's death is the premise; nobody dies now",
+     "src": "L21414"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The story comforts the child, though no one claims to know for certain.",
+   "src": "L21416"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child asks why the waves cannot bring their sibling home.",
+   "src": "L21417"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns about cycles but says the explanation does not cure loneliness.",
+   "src": "L21419"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child begins watching clouds with a friend.",
+   "src": "L21420"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child describes a private hope and feels heard.",
+   "src": "L21422"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child says they do not know, and the adult sits quietly beside them.",
+   "src": "L21423"
+  }
+ }
+}

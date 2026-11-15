@@ -1,0 +1,160 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crooked Arm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife04_crooked_arm",
+  "source": "living",
+  "lines": [
+   20681,
+   20692
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20681",
+  "ledger": [
+   {
+    "src": "L20692",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child falls and the arm heals poorly unless the healers attempt to straighten and support it.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child falls and the arm heals poorly unless the healers attempt to straighten and support it.",
+   "src": "L20682",
+   "choices": [
+    {
+     "label": "Attempt careful realignment with consent.",
+     "next": "a",
+     "src": "L20683"
+    },
+    {
+     "label": "Support the arm without moving it.",
+     "next": "b",
+     "src": "L20686"
+    },
+    {
+     "label": "Seek another healer's opinion.",
+     "next": "c",
+     "src": "L20689"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The arm gradually heals in a better position, though movement remains painful.",
+   "src": "L20684"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The attempt worsens the injury, and the healers must change their plan.",
+   "src": "L20685",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": -30,
+     "max": -10,
+     "src": "L20685"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child heals with a lasting bend but learns to use the arm well.",
+   "src": "L20687"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The pain continues, and the family asks whether more treatment is possible.",
+   "src": "L20688"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A second healer suggests a gentler support that improves comfort.",
+   "src": "L20690"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healers disagree, and the family requests time to decide.",
+   "src": "L20691"
+  }
+ }
+}

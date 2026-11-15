@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone in the Belly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed06_stone_belly",
+  "source": "living",
+  "lines": [
+   20284,
+   20295
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20284",
+  "ledger": [
+   {
+    "src": "L20295",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient suffers recurring agony that a healer suspects comes from a blockage deep inside the body.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient suffers recurring agony that a healer suspects comes from a blockage deep inside the body.",
+   "src": "L20285",
+   "choices": [
+    {
+     "label": "Attempt a dangerous operation.",
+     "next": "a",
+     "src": "L20286"
+    },
+    {
+     "label": "Use rest, fluids, and careful observation.",
+     "next": "b",
+     "src": "L20289"
+    },
+    {
+     "label": "Seek a second healer's opinion.",
+     "next": "c",
+     "src": "L20292"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer removes a hard obstruction, and the patient slowly recovers.",
+   "src": "L20287",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20287"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The healer cannot reach the cause, and the patient dies after the attempt.",
+   "src": "L20288",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20288"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The pain passes unexpectedly, and the patient recovers.",
+   "src": "L20290",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20290"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The obstruction worsens, leaving the patient too weak for surgery.",
+   "src": "L20291",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20291"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The second healer recognizes a different illness and changes the treatment.",
+   "src": "L20293"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healers disagree, and the patient demands a clear explanation before deciding.",
+   "src": "L20294"
+  }
+ }
+}

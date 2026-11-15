@@ -713,6 +713,70 @@ def _companion_rows() -> None:
 
 _companion_rows()
 
+# ---- The Living Event Engine's fixed event volumes (the third source, collection_lib.LIVING; its own line numbers) --
+#
+# The owner's all-in-one file (2026-11-14) holds, after the Grand and Companion parts, volumes of fixed events: a
+# heading "MED-01 — THE BORROWED ORGAN", the setup ("SETUP:" or bare), three choices A-C, each with two outcomes
+# (A1, A2 ...), and a CALLBACKS line.  Only the volumes listed here are rows (the rest of the file is the Living
+# Event bank's, data/living_events/); "uncovered" is checked inside these volumes.  Files go in
+# data/event_collection/living/<section>/<id>.json.
+
+LIV = lib.LIVING_ID
+CREDITS.update({
+    "liv_med": ("mixed", [(1, 2), (20206, 20206)], LIV),
+    "liv_life": ("mixed", [(1, 2), (20625, 20627)], LIV),
+    "liv_circle": ("mixed", [(1, 2), (21229, 21230)], LIV),
+})
+# (prefix in the source, first and last line of the volume's events, id prefix, section, credit, its notes rows)
+LIVING_VOLUMES = [
+    ("MED", 20219, 20620, "lvmed", "lv_med", "liv_med",
+     [("lnotes_med_rules", "Experimental Medicine, Last Resorts and Comfort Care: credits and implementation rules",
+       20201, 20217)]),
+    ("LIFE", 20642, 21225, "lvlife", "lv_life", "liv_life",
+     [("lnotes_life_rules", "The Healer's Hands, the Farmer's Fields, and the Weaver's Dreams: heading and rules",
+       20624, 20639)]),
+    ("CIRCLE", 21244, 21645, "lvcir", "lv_circle", "liv_circle",
+     [("lnotes_circle_rules", "The Circle of Life, Rights, and Remembrance: heading and guidance", 21228, 21242)]),
+]
+# Events limited to some games: a Magic practitioner acts (magic is VV3-VV5 lore; the lead, 2026-11-14).
+LIVING_GAMES: dict[str, list[int]] = {"lvmed19": [3, 4, 5]}
+LIVING_IDS: dict[str, str] = {
+    "lvmed04": "lvmed04_draught", "lvmed30": "lvmed30_animal_trial", "lvmed31": "lvmed31_choose_healer",
+    "lvlife02": "lvlife02_draught", "lvlife03": "lvlife03_reed_breath", "lvlife29": "lvlife29_new_clothes",
+    "lvlife30": "lvlife30_shell_robe", "lvlife37": "lvlife37_winter_cloak", "lvcir14": "lvcir14_tide_go",
+    "lvcir19": "lvcir19_departed", "lvcir27": "lvcir27_stranger", "lvcir31": "lvcir31_whale",
+}
+
+
+def living_span() -> list[tuple[int, int]]:
+    """The line ranges the living rows cover (notes and events): where "uncovered" is checked."""
+    out = []
+    for _, first, last, _, _, _, notes in LIVING_VOLUMES:
+        out += [(a, b) for _, _, a, b in notes] + [(first, last)]
+    return out
+
+
+def _living_rows() -> None:
+    with lib.use_source(LIV):
+        for key, first, last, prefix, section, credit, notes in LIVING_VOLUMES:
+            for nid, title, a, b in notes:
+                N(nid, title, a, b, section, credit, source=LIV)
+            rx = re.compile(r"^" + key + r"-(\d+) — (.+)$")
+            heads = [n for n in range(first, last + 1) if rx.match(lib.line(n))]
+            for i, h in enumerate(heads):
+                e = (heads[i + 1] if i + 1 < len(heads) else last + 1) - 1
+                while lib.is_blank_or_separator(e):
+                    e -= 1
+                m = rx.match(lib.line(h))
+                num, src_title = m.group(1), lib.normalize_source_text(m.group(2)).strip()
+                eid = f"{prefix}{num}"
+                R(LIVING_IDS.get(eid) or f"{eid}_{companion_slug(src_title, VV1_ID_MAX - len(eid) - 1)}",
+                  title_case(src_title), LIVING_GAMES.get(eid, ALL), h, e, "event", section, credit, 3,
+                  source=LIV, choice_re=r"^[A-C]\.\s")
+
+
+_living_rows()
+
 # ---- Re-verification against the source ------------------------------------------------------------------------------
 
 
@@ -1017,6 +1081,18 @@ def build() -> dict:
             "uncovered_lines": uncovered(comp),
             "overlaps": overlaps(comp),
         }
+    liv = [r for r in rows if r["source"] == lib.LIVING_ID]
+    with lib.use_source(lib.LIVING_ID):
+        inside = {n for a, b in living_span() for n in range(a, b + 1)}
+        living = {
+            "source": str(lib.LIVING.relative_to(lib.ROOT)).replace("\\", "/"),
+            "source_sha256": lib.source_sha256(lib.LIVING_ID),
+            "volumes": [lib.fmt_src(a, b) for a, b in living_span()],
+            "counts": counts(liv, ()),
+            # only lines inside the volumes above: the rest of the file is the Living Event bank's
+            "uncovered_lines": [u for u in uncovered(liv) if lib.src_lines(u)[0] in inside],
+            "overlaps": overlaps(liv),
+        }
     return {
         "format": "vvfp-event-collection-manifest", "version": 1,
         "source": str(lib.SOURCE.relative_to(lib.ROOT)).replace("\\", "/"),
@@ -1028,6 +1104,8 @@ def build() -> dict:
         "overlaps": overlaps(grand),
         # The second source (collection_lib.COMPANION): its rows are in "rows" with "source": "companion".
         "companion": companion,
+        # The third source (collection_lib.LIVING): its rows are in "rows" with "source": "living".
+        "living": living,
         "rows": rows,
     }
 
@@ -1053,6 +1131,8 @@ def main(argv=None) -> int:
     print(f"{len(data['disagreements'])} disagreements, uncovered {data['uncovered_lines']}, overlaps {data['overlaps']}")
     c = data["companion"]
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
+    lv = data["living"]
+    print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
     return 0
 
 

@@ -41,9 +41,19 @@ COMPANION_LINES = 8961
 COMPANION_ID = "companion"  # the companion files' collection.source
 COMPANION_DIR = COLLECTION_DIR / "companion"     # data/event_collection/companion/<volume>/<id>.json
 
+# The third source: the owner's all-in-one Living Event Engine file (frozen byte for byte, 2026-11-14).  Its fixed
+# event volumes (Experimental Medicine MED-, The Healer's Hands LIFE-, The Circle of Life CIRCLE-, ...) ship as
+# collection events: data/event_collection/living/<section>/<id>.json, "source": "living".
+LIVING = ROOT / "docs" / "more-island-events" / "Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt"
+LIVING_HASH_FILE = COLLECTION_DIR / "LIVING.sha256"
+LIVING_LINES = 26867
+LIVING_ID = "living"
+LIVING_DIR = COLLECTION_DIR / "living"
+
 # source id -> (frozen file, its SHA-256 record, its line count)
 SOURCES = {SOURCE_ID: (SOURCE, SOURCE_HASH_FILE, SOURCE_LINES),
-           COMPANION_ID: (COMPANION, COMPANION_HASH_FILE, COMPANION_LINES)}
+           COMPANION_ID: (COMPANION, COMPANION_HASH_FILE, COMPANION_LINES),
+           LIVING_ID: (LIVING, LIVING_HASH_FILE, LIVING_LINES)}
 _ACTIVE = [SOURCE_ID]
 
 

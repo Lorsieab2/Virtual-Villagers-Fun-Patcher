@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer and the Beetle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir17_healer_beetle",
+  "source": "living",
+  "lines": [
+   21452,
+   21463
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21452",
+  "ledger": [
+   {
+    "src": "L21463",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer discovers that a common beetle feeds on a plant used in remedies.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer discovers that a common beetle feeds on a plant used in remedies.",
+   "src": "L21453",
+   "choices": [
+    {
+     "label": "Remove the beetles to protect the plants.",
+     "next": "a",
+     "src": "L21454"
+    },
+    {
+     "label": "Grow extra plants for both.",
+     "next": "b",
+     "src": "L21457"
+    },
+    {
+     "label": "Study the relationship first.",
+     "next": "c",
+     "src": "L21460"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The harvest improves, but birds that ate the beetles visit less often.",
+   "src": "L21455"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The beetles return, and the healer considers another method.",
+   "src": "L21456"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The garden becomes lively but needs more water.",
+   "src": "L21458"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The beetles multiply faster than expected, and the healer adjusts.",
+   "src": "L21459"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer discovers that damage varies with the season.",
+   "src": "L21461",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21461"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An apprentice draws an incorrect conclusion from a single afternoon.",
+   "src": "L21462"
+  }
+ }
+}

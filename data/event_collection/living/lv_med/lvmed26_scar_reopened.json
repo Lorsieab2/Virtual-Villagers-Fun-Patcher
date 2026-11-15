@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scar That Reopened",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed26_scar_reopened",
+  "source": "living",
+  "lines": [
+   20544,
+   20555
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20544",
+  "ledger": [
+   {
+    "src": "L20555",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient initially improves after surgery, then develops pain and swelling around the old wound."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient initially improves after surgery, then develops pain and swelling around the old wound.",
+   "src": "L20545",
+   "choices": [
+    {
+     "label": "Reopen the wound in another dangerous operation.",
+     "next": "a",
+     "src": "L20546"
+    },
+    {
+     "label": "Clean, observe, and treat symptoms without further surgery.",
+     "next": "b",
+     "src": "L20549"
+    },
+    {
+     "label": "Ask the patient whether they want another operation.",
+     "next": "c",
+     "src": "L20552"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer drains trapped fluid, and the patient slowly recovers.",
+   "src": "L20547",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20547"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient survives the second procedure but remains very weak.",
+   "src": "L20548",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20548"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The swelling gradually subsides.",
+   "src": "L20550"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The infection spreads, and the patient dies.",
+   "src": "L20551",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20551"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient chooses to try again despite the risks.",
+   "src": "L20553"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient declines further surgery and asks for relief from pain.",
+   "src": "L20554"
+  }
+ }
+}

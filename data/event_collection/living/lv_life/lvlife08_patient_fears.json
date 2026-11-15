@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Patient Who Fears the Knife",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife08_patient_fears",
+  "source": "living",
+  "lines": [
+   20733,
+   20744
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20733",
+  "ledger": [
+   {
+    "src": "L20744",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient needs a painful procedure but is terrified of being held down.",
+  "cast_only": [
+   "patient",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient needs a painful procedure but is terrified of being held down.",
+   "src": "L20734",
+   "choices": [
+    {
+     "label": "Explain every step and ask permission to proceed.",
+     "next": "a",
+     "src": "L20735"
+    },
+    {
+     "label": "Offer a calming companion and breaks.",
+     "next": "b",
+     "src": "L20738"
+    },
+    {
+     "label": "Discuss alternatives without coercion.",
+     "next": "c",
+     "src": "L20741"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient agrees and pauses the healers when overwhelmed.",
+   "src": "L20736"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient refuses after hearing the risks, and the healers honor the decision.",
+   "src": "L20737"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient completes the procedure with frequent pauses.",
+   "src": "L20739"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Even with support, the patient cannot continue, and treatment is postponed.",
+   "src": "L20740"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A less invasive approach provides partial relief.",
+   "src": "L20742"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "No safe alternative is found, and the patient must weigh difficult options.",
+   "src": "L20743"
+  }
+ }
+}
