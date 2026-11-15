@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_faith_vv5 as faith
@@ -362,6 +363,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "65, 73 or 81 years", "Heathens do not age.",
                                who="believer"))
     # (The age unit at each speed: Vital statistics' Time and units, on the save's page and the general one alike.)
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
     add("Other", "Ages, pregnancies, noni, crops, weather and the fire follow the speed; mushrooms and collectibles "
                  "appearing, island events, God Power spells and a Heathen's 2-hour wait after preaching run on "
                  "real-life time at any speed.", gm.RUNNING)

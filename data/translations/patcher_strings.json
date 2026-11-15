@@ -69355,20 +69355,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_load.s39",
    "english": "its kinship relations do not fit in the file",
    "games": [
@@ -69507,6 +69493,51 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.TAG_WORDS.s0",
+   "english": "Playing tag",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.IT_WORDS.s0",
+   "english": "Playing tag - \"It\" ",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.SAND_WORDS.s0",
+   "english": "Making sandcastles",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
   }
  ]
 }

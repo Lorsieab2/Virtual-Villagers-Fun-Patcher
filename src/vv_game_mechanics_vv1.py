@@ -41,6 +41,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -480,6 +481,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                "65, 73 or 81 years",
                                "The Golden Child does not age. " + gm.patch_words(
                                    village, MAGIC_FRUIT, "with its puzzle done, the rolls start 7 years later")))
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
                   f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed: ages, pregnancies and regrowth "
                   "follow the speed; work, mushrooms and island events do not."), gm.RUNNING)

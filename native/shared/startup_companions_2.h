@@ -71,6 +71,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
        its own message for an adult dropped on a mushroom or collectible. */
     "VVFP Adult Confused.dll",
+    /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+       child's pastime pick. */
+    "VVFP Children Play.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

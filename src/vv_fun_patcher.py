@@ -334,6 +334,10 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
+# Children Play Tag and Build Sandcastles (all five games; on by default): one roll of the game's own rand(15) in
+# each child's pastime pick for tag and for sandcastles; companion only, "VVFP Children Play.dll", started by
+# VVFP Startup.dll from its second word; scripts/build_children_play_feature.py.
+CHILDREN_PLAY_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_children_play_feature.json" for n in range(1, 6))
 # Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
 # Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
 # Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
@@ -4221,7 +4225,8 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + LOUDER_FLUTES_FEATURE_PATHS + CHILDREN_PLAY_FEATURE_PATHS
+                         + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS):
         if feature_path.is_file():
@@ -12751,7 +12756,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "B3C55420731A159E31C026784FAE0550F4CAD4AF077F9664CFD5130C28E5E082",
+    "sha256": "F31DC016EEBFBE3A4260C63AC3328F0E2651BA9CF396531B705AD09ACE96BF64",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12864,6 +12869,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
     # "Only children can see and pick up ..." for an adult dropped on a mushroom or collectible.
     "VVFP Adult Confused.dll",
+    # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+    # child's pastime pick.
+    "VVFP Children Play.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

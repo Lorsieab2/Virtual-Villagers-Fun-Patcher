@@ -405,6 +405,11 @@ CASES = [
     Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
+    # Children Play Tag and Build Sandcastles (all five games): every call of the child pastime pick (three in The
+    # Secret City).
+    Case("Children Play", "assets/children_play/VVFP Children Play.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_children_play"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpChildrenPlayInstalled"))[1]),
     # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
     Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_island_events"],
