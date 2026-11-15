@@ -722,4 +722,7 @@ Grand Event Collection, the Companion Anthology and More Island Events that is a
 `SM_MAX` and `SC_MAX` are 2,048 and `SC_MANIFEST_BYTES` 1 MB. The list's words take `3 x 400` bytes an entry: 2.4 MB
 of the companion's static memory, only the pages of the entries filled ever touched. The chooser's list is the Windows
 list box (`IDC_PICK_LIST`, `LB_ADDSTRING`), which holds and scrolls that many rows itself; typing a letter moves to
-the next row starting with it. Measured in the emulator by `tests/test_pick_collection_list.py`.
+the next row starting with it, so no filter is needed. Measured in the emulator (`tests/test_pick_collection_list.py`
+AThousandEntries, A New Home and New Believers): 1,000 entries, each event loaded and its strict cast checked, fill
+in more than 100 and under 400 million instructions, a fraction of a second on a real computer (each entry's .cieg
+is also read from disk there, about 1,000 small files).
