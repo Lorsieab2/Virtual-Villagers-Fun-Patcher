@@ -117,6 +117,114 @@
     "kind": "structural",
     "text": "VV1  -  SOUTHERN SHORE:",
     "why": "per-game heading"
+   },
+   {
+    "src": "L9576",
+    "kind": "structural",
+    "text": "The Island in a Single Picture:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9579",
+    "kind": "structural",
+    "text": "The Rain's Contribution:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9582",
+    "kind": "structural",
+    "text": "The Accidental Map:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9585",
+    "kind": "structural",
+    "text": "The Wrong Island:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9590",
+    "kind": "structural",
+    "text": "A Living Likeness:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9592",
+    "kind": "structural",
+    "text": "The Nose Controversy:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9595",
+    "kind": "structural",
+    "text": "The Accidental Insult:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9598",
+    "kind": "structural",
+    "text": "The Unexpected Friendship:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9603",
+    "kind": "structural",
+    "text": "The Visionary:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9605",
+    "kind": "structural",
+    "text": "The Unidentifiable Thing:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9608",
+    "kind": "structural",
+    "text": "The Picture That Changed:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9611",
+    "kind": "structural",
+    "text": "The Storyteller:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9616",
+    "kind": "structural",
+    "text": "A New Pigment:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9618",
+    "kind": "structural",
+    "text": "The Beautiful Disaster:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9621",
+    "kind": "structural",
+    "text": "The Pattern of Light:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9623",
+    "kind": "structural",
+    "text": "The Great Copying Scandal:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9953",
+    "kind": "structural",
+    "text": "The Artist's Apprentice:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9963",
+    "kind": "structural",
+    "text": "The Shared Prize:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -191,7 +299,7 @@
    ]
   },
   "a1": {
-   "text": "The Island in a Single Picture: The drawing captures the reefs, palms, and distant hills so beautifully that even the judges fall silent. (Artist) wins.",
+   "text": "The drawing captures the reefs, palms, and distant hills so beautifully that even the judges fall silent. (Artist) wins.",
    "src": "L9576-9578",
    "children": [
     {
@@ -207,7 +315,7 @@
    ]
   },
   "a2": {
-   "text": "The Rain's Contribution: A tropical shower washes the pigments into dramatic streaks. (Artist) calls the result \"The Storm.\" One judge loves it; another calls it an accident.",
+   "text": "A tropical shower washes the pigments into dramatic streaks. (Artist) calls the result \"The Storm.\" One judge loves it; another calls it an accident.",
    "src": "L9579-9581",
    "children": [
     {
@@ -216,7 +324,7 @@
    ]
   },
   "a3": {
-   "text": "The Accidental Map: An explorer recognizes a detail that resembles a little-known route through the island. The contest result is disputed.",
+   "text": "An explorer recognizes a detail that resembles a little-known route through the island. The contest result is disputed.",
    "src": "L9582-9584",
    "children": [
     {
@@ -240,7 +348,7 @@
    ]
   },
   "a4": {
-   "text": "The Wrong Island: (Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
+   "text": "(Artist) paints a magnificent beach but places the waterfall on the wrong side. The judges praise the technique while the audience laughs at the geography.",
    "src": "L9585-9587",
    "children": [
     {
@@ -266,7 +374,7 @@
    ]
   },
   "b1": {
-   "text": "A Living Likeness: The subject is moved by the careful portrait. (Artist) receives first prize.",
+   "text": "The subject is moved by the careful portrait. (Artist) receives first prize.",
    "src": "L9590-9591",
    "children": [
     {
@@ -282,7 +390,7 @@
    ]
   },
   "b2": {
-   "text": "The Nose Controversy: (Sitter), the subject, objects that (sitter.his/her) nose looks enormous. (Artist) insists the likeness is accurate. The village debates whether accuracy is always kind.",
+   "text": "(Sitter), the subject, objects that (sitter.his/her) nose looks enormous. (Artist) insists the likeness is accurate. The village debates whether accuracy is always kind.",
    "src": "L9592-9594",
    "children": [
     {
@@ -291,7 +399,7 @@
    ]
   },
   "b3": {
-   "text": "The Accidental Insult: (Artist) portrays a respected elder with an expression of great wisdom; the elder thinks it looks sleepy.",
+   "text": "(Artist) portrays a respected elder with an expression of great wisdom; the elder thinks it looks sleepy.",
    "src": "L9595-9597",
    "children": [
     {
@@ -300,7 +408,7 @@
    ]
   },
   "b4": {
-   "text": "The Unexpected Friendship: A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
+   "text": "A portrait of a lonely villager prompts a warm conversation. The prize is modest, but both villagers gain friendship.",
    "src": "L9598-9600",
    "children": [
     {
@@ -333,7 +441,7 @@
    ]
   },
   "c1": {
-   "text": "The Visionary: A striking imagined landscape astonishes the judges. (Artist) earns a special prize for creativity.",
+   "text": "A striking imagined landscape astonishes the judges. (Artist) earns a special prize for creativity.",
    "src": "L9603-9604",
    "children": [
     {
@@ -342,7 +450,7 @@
    ]
   },
   "c2": {
-   "text": "The Unidentifiable Thing: The judges cannot agree whether the drawing depicts a fish, a bird, or a coconut with legs. The children adore it.",
+   "text": "The judges cannot agree whether the drawing depicts a fish, a bird, or a coconut with legs. The children adore it.",
    "src": "L9605-9607",
    "children": [
     {
@@ -351,7 +459,7 @@
    ]
   },
   "c3": {
-   "text": "The Picture That Changed: At sunset the image seems subtly different. A scholar blames shifting light; a mystic disagrees.",
+   "text": "At sunset the image seems subtly different. A scholar blames shifting light; a mystic disagrees.",
    "src": "L9608-9610",
    "children": [
     {
@@ -360,7 +468,7 @@
    ]
   },
   "c4": {
-   "text": "The Storyteller: The picture inspires an improvised tale that captivates the audience.",
+   "text": "The picture inspires an improvised tale that captivates the audience.",
    "src": "L9611-9613",
    "children": [
     {
@@ -398,7 +506,7 @@
    ]
   },
   "d1": {
-   "text": "A New Pigment: (Artist) finds a way to make a more durable color from island materials.",
+   "text": "(Artist) finds a way to make a more durable color from island materials.",
    "src": "L9616-9617",
    "children": [
     {
@@ -422,7 +530,7 @@
    ]
   },
   "d2": {
-   "text": "The Beautiful Disaster: The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",
+   "text": "The colors run together into a muddy smear. A judge politely describes it as \"energetic.\" (Artist) receives no prize and a little embarrassment.",
    "src": "L9618-9620",
    "children": [
     {
@@ -431,7 +539,7 @@
    ]
   },
   "d3": {
-   "text": "The Pattern of Light: Layered pigments produce a remarkable effect in the afternoon sun.",
+   "text": "Layered pigments produce a remarkable effect in the afternoon sun.",
    "src": "L9621-9622",
    "children": [
     {
@@ -447,7 +555,7 @@
    ]
   },
   "d4": {
-   "text": "The Great Copying Scandal: Another contestant claims (Artist) stole a design. A fair inquiry clears (Artist), reveals shared inspiration, or uncovers deliberate copying.",
+   "text": "Another contestant claims (Artist) stole a design. A fair inquiry clears (Artist), reveals shared inspiration, or uncovers deliberate copying.",
    "src": "L9623-9625",
    "children": [
     {
@@ -493,7 +601,7 @@
   "coda_v22_1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Artist's Apprentice: A former contest loser becomes a beloved teacher of young artists.",
+   "text": "A former contest loser becomes a beloved teacher of young artists.",
    "src": "L9953-9954",
    "children": [
     {
@@ -504,7 +612,7 @@
   "coda_v22_6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "text": "A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
    "src": "L9963-9964",
    "children": [
     {

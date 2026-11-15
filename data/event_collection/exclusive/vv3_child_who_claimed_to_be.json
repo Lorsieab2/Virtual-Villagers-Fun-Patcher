@@ -34,6 +34,30 @@
     "kind": "instruction",
     "text": "Lose a small amount of food;",
     "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7884",
+    "kind": "structural",
+    "text": "THE TINY TYRANT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7885",
+    "kind": "structural",
+    "text": "THE UNEXPECTED REFORMER:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7886",
+    "kind": "structural",
+    "text": "THE ROYAL FEAST:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7887",
+    "kind": "structural",
+    "text": "THE PEOPLE'S CHIEF:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A child in a grass crown demands to rule for a day: let the child govern, or have the Chief explain leadership."
@@ -70,11 +94,11 @@
   },
   "a1": {
    "src": "L7884",
-   "text": "THE TINY TYRANT: The child decrees that everyone must play. The Chief asks who will gather supper. After a hungry afternoon, the young ruler reluctantly withdraws the decree."
+   "text": "The child decrees that everyone must play. The Chief asks who will gather supper. After a hungry afternoon, the young ruler reluctantly withdraws the decree."
   },
   "a2": {
    "src": "L7885",
-   "text": "THE UNEXPECTED REFORMER: The child asks why supplies are carried back and forth so often. The Chief allows the farmers to test a better arrangement.\nThe Chief publicly praises the child's observation.",
+   "text": "The child asks why supplies are carried back and forth so often. The Chief allows the farmers to test a better arrangement.\nThe Chief publicly praises the child's observation.",
    "effects": [
     {
      "do": "food",
@@ -86,7 +110,7 @@
   },
   "a3": {
    "src": "L7886",
-   "text": "THE ROYAL FEAST: The child demands a feast fit for a ruler. The Chief places the child in charge of gathering and preparing it.\nThe child learns what such orders cost.",
+   "text": "The child demands a feast fit for a ruler. The Chief places the child in charge of gathering and preparing it.\nThe child learns what such orders cost.",
    "effects": [
     {
      "do": "food",
@@ -99,7 +123,7 @@
   },
   "a4": {
    "src": "L7887",
-   "text": "THE PEOPLE'S CHIEF: Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment."
+   "text": "Two quarrelling adults are ordered to share their tools. The solution works, much to the Chief's delight and the adults' embarrassment."
   },
   "b1": {
    "src": "L7889",

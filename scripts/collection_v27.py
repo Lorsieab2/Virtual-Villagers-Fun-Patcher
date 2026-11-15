@@ -21,6 +21,9 @@ at L10440-10485):
 - Relationships, pets, traits, reputation, missing-person records and FOLLOW-UP lines are text or ledger notes.
 - Designer words inside an outcome ("if eligible", "grant a small appropriate skill gain", "no grave is created
   and a search/missing-person state persists", "selected by weighted sub-branch") are ledger cuts, never shown.
+- Kinship (V28 retrofit, 2026-11-14): the four events whose text names a family tie cast it as a relation
+  (cie-v6-binary.md 21): 38 "Two parents" and 39 "Longtime partners" spouse_of (the games' nearest: co-parents),
+  40 "Two siblings" sibling_of, 51 "A parent ... a child" parent_of.
 - Protection: no V27 branch harms a nursing parent, the Golden Child or the VV3 Chief.  The babies' events harm no
   one; every harm-capable role is protected "auto" (keeps those villagers out).
 
@@ -193,11 +196,14 @@ E = {
          "A villager finds an egg or hatchling that seems to have been abandoned.", None),
     37: ({"villager": VILLAGER}, ["villager"], [N0, N0, N0], [],
          "A villager spots a creature they released long ago, near the same tree.", None),
-    38: ({"parent1": GROWN, "parent2": GROWN}, [], [N0, N0, O([par("parent1"), par("parent2")])], [],
+    38: ({"parent1": GROWN, "parent2": dict(GROWN, relation={"spouse_of": "parent1"})}, [],
+         [N0, N0, O([par("parent1"), par("parent2")])], [],
          "Two parents disagree over chores, fatigue and how to raise their children.", None),
-    39: ({"partner1": GROWN, "partner2": GROWN}, ["partner1", "partner2"], [N0, N0, N0], [],
+    39: ({"partner1": GROWN, "partner2": dict(GROWN, relation={"spouse_of": "partner1"})}, ["partner1", "partner2"],
+         [N0, N0, N0], [],
          "Longtime partners realize they only ever talk about work.", None),
-    40: ({"sibling1": {"kind": "villager", "min_age": 3}, "sibling2": {"kind": "villager", "min_age": 3}},
+    40: ({"sibling1": {"kind": "villager", "min_age": 3},
+          "sibling2": {"kind": "villager", "min_age": 3, "relation": {"sibling_of": "sibling1"}}},
          ["sibling1", "sibling2"],
          [O(text_only=[T("celebrates", "rule 7: an elder's praise, not a village celebration")]), N0, N0], [],
          "Two siblings compete for praise after finishing different tasks.", None),
@@ -224,7 +230,8 @@ E = {
          "A villager with few living relatives is invited into a household tradition.", None),
     50: ({"friend1": VILLAGER, "friend2": VILLAGER}, ["friend1", "friend2"], [N0, N0, N0], [],
          "A long-absent friend returns, expecting everything to be as it was.", None),
-    51: ({"parent": GROWN, "child": CHILD}, ["child"], [O([par("parent")]), N0, N0], [],
+    51: ({"parent": dict(GROWN, relation={"parent_of": "child"}), "child": CHILD}, ["child"],
+         [O([par("parent")]), N0, N0], [],
          "A parent realizes they unfairly blamed a child for an accident.", None),
     52: ({"fisher": VILLAGER, "scholar": skilled(VILLAGER, "Research")}, ["fisher", "scholar"], [N0, N0, N0], [],
          "A boisterous fisherman and a quiet scholar are assigned to the same project.", None),

@@ -91,6 +91,138 @@
     "src": "L9679-9680",
     "kind": "note",
     "why": "a designer rule for the carry (consent and safety), never displayed"
+   },
+   {
+    "src": "L9643",
+    "kind": "structural",
+    "text": "The Walking Coconut Mountain:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9646",
+    "kind": "structural",
+    "text": "The Clever Basket:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9649",
+    "kind": "structural",
+    "text": "The Great Coconut Avalanche:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9652",
+    "kind": "structural",
+    "text": "The Patient Champion:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9656",
+    "kind": "structural",
+    "text": "Steady as Stone:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9658",
+    "kind": "structural",
+    "text": "The Unfortunate Splash:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9661",
+    "kind": "structural",
+    "text": "The Surprise Winner:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9664",
+    "kind": "structural",
+    "text": "A Sensible Withdrawal:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9668",
+    "kind": "structural",
+    "text": "The Strongest on the Shore:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9670",
+    "kind": "structural",
+    "text": "The Leverage Lesson:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9673",
+    "kind": "structural",
+    "text": "Stuck in the Sand:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9675",
+    "kind": "structural",
+    "text": "The Overconfident Champion:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9681",
+    "kind": "structural",
+    "text": "A Perfect Partnership:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9683",
+    "kind": "structural",
+    "text": "The Talking Passenger:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9686",
+    "kind": "structural",
+    "text": "The Sudden Switch:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9688",
+    "kind": "structural",
+    "text": "Teamwork Over Glory:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9692",
+    "kind": "structural",
+    "text": "The All-Around Champion:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9694",
+    "kind": "structural",
+    "text": "Too Fast, Too Soon:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9696",
+    "kind": "structural",
+    "text": "The Unlikely Victory:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9698",
+    "kind": "structural",
+    "text": "The Disputed Finish:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9955",
+    "kind": "structural",
+    "text": "The Champion Who Learned Humility:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9963",
+    "kind": "structural",
+    "text": "The Shared Prize:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -161,7 +293,7 @@
    ]
   },
   "a1": {
-   "text": "The Walking Coconut Mountain: (Strongman) carries an astonishing number of coconuts across the finish line.",
+   "text": "(Strongman) carries an astonishing number of coconuts across the finish line.",
    "src": "L9643-9645",
    "children": [
     {
@@ -177,7 +309,7 @@
    ]
   },
   "a2": {
-   "text": "The Clever Basket: (Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
+   "text": "(Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
    "src": "L9646-9648",
    "children": [
     {
@@ -186,7 +318,7 @@
    ]
   },
   "a3": {
-   "text": "The Great Coconut Avalanche: The stack tumbles harmlessly into the sand. Children race to collect the runaway coconuts while (Strongman) bows to the laughing crowd.",
+   "text": "The stack tumbles harmlessly into the sand. Children race to collect the runaway coconuts while (Strongman) bows to the laughing crowd.",
    "src": "L9649-9651",
    "children": [
     {
@@ -195,7 +327,7 @@
    ]
   },
   "a4": {
-   "text": "The Patient Champion: A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
+   "text": "A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
    "src": "L9652-9653",
    "children": [
     {
@@ -221,7 +353,7 @@
    ]
   },
   "b1": {
-   "text": "Steady as Stone: (Strongman) holds two filled clay jugs longer than anyone else.",
+   "text": "(Strongman) holds two filled clay jugs longer than anyone else.",
    "src": "L9656-9657",
    "children": [
     {
@@ -237,7 +369,7 @@
    ]
   },
   "b2": {
-   "text": "The Unfortunate Splash: A cracked jug gives way, soaking (Strongman). The crowd roars with laughter; the organizers replace the jug and offer a fair retry.",
+   "text": "A cracked jug gives way, soaking (Strongman). The crowd roars with laughter; the organizers replace the jug and offer a fair retry.",
    "src": "L9658-9660",
    "children": [
     {
@@ -246,7 +378,7 @@
    ]
   },
   "b3": {
-   "text": "The Surprise Winner: A quiet villager with excellent balance defeats several boastful competitors. (Strongman) learns that control matters as much as brute force.",
+   "text": "A quiet villager with excellent balance defeats several boastful competitors. (Strongman) learns that control matters as much as brute force.",
    "src": "L9661-9663",
    "children": [
     {
@@ -255,7 +387,7 @@
    ]
   },
   "b4": {
-   "text": "A Sensible Withdrawal: (Strongman) notices a strained grip and stops before injury. No prize, but an elder praises good judgment.",
+   "text": "(Strongman) notices a strained grip and stops before injury. No prize, but an elder praises good judgment.",
    "src": "L9664-9665",
    "children": [
     {
@@ -288,7 +420,7 @@
    ]
   },
   "c1": {
-   "text": "The Strongest on the Shore: (Strongman) moves the marked stone or fallen log farther than any competitor.",
+   "text": "(Strongman) moves the marked stone or fallen log farther than any competitor.",
    "src": "L9668-9669",
    "children": [
     {
@@ -304,7 +436,7 @@
    ]
   },
   "c2": {
-   "text": "The Leverage Lesson: A smaller competitor demonstrates a clever wooden lever. The judges award a separate prize for engineering;",
+   "text": "A smaller competitor demonstrates a clever wooden lever. The judges award a separate prize for engineering;",
    "src": "L9670-9672",
    "children": [
     {
@@ -328,7 +460,7 @@
    ]
   },
   "c3": {
-   "text": "Stuck in the Sand: The log sinks into soft sand. (Strongman) and a rival must work together to free it.",
+   "text": "The log sinks into soft sand. (Strongman) and a rival must work together to free it.",
    "src": "L9673-9674",
    "children": [
     {
@@ -344,7 +476,7 @@
    ]
   },
   "c4": {
-   "text": "The Overconfident Champion: (Strongman) boasts loudly, then cannot budge the load. A child remarks, \"Perhaps your words were heavier.\"",
+   "text": "(Strongman) boasts loudly, then cannot budge the load. A child remarks, \"Perhaps your words were heavier.\"",
    "src": "L9675-9676",
    "children": [
     {
@@ -370,7 +502,7 @@
    ]
   },
   "d1": {
-   "text": "A Perfect Partnership: (Strongman) carries the volunteer steadily and wins. Both celebrate.",
+   "text": "(Strongman) carries the volunteer steadily and wins. Both celebrate.",
    "src": "L9681-9682",
    "children": [
     {
@@ -393,7 +525,7 @@
    ]
   },
   "d2": {
-   "text": "The Talking Passenger: The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
+   "text": "The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
    "src": "L9683-9685",
    "children": [
     {
@@ -402,7 +534,7 @@
    ]
   },
   "d3": {
-   "text": "The Sudden Switch: The volunteer proves stronger than (Strongman) and jokingly offers to reverse roles. The crowd applauds.",
+   "text": "The volunteer proves stronger than (Strongman) and jokingly offers to reverse roles. The crowd applauds.",
    "src": "L9686-9687",
    "children": [
     {
@@ -411,7 +543,7 @@
    ]
   },
   "d4": {
-   "text": "Teamwork Over Glory: (Strongman) decides the carry is unwise and helps organize a safer team challenge instead.",
+   "text": "(Strongman) decides the carry is unwise and helps organize a safer team challenge instead.",
    "src": "L9688-9689",
    "children": [
     {
@@ -437,7 +569,7 @@
    ]
   },
   "e1": {
-   "text": "The All-Around Champion: A balanced performance across coconut carrying, water-jug holding, and log moving earns the grand prize.",
+   "text": "A balanced performance across coconut carrying, water-jug holding, and log moving earns the grand prize.",
    "src": "L9692-9693",
    "children": [
     {
@@ -446,7 +578,7 @@
    ]
   },
   "e2": {
-   "text": "Too Fast, Too Soon: (Strongman) exhausts (strongman.himself/herself) early and must rest; no injury, but an important lesson about pacing.",
+   "text": "(Strongman) exhausts (strongman.himself/herself) early and must rest; no injury, but an important lesson about pacing.",
    "src": "L9694-9695",
    "children": [
     {
@@ -462,7 +594,7 @@
    ]
   },
   "e3": {
-   "text": "The Unlikely Victory: An overlooked competitor wins through steady technique and endurance.",
+   "text": "An overlooked competitor wins through steady technique and endurance.",
    "src": "L9696-9697",
    "children": [
     {
@@ -478,7 +610,7 @@
    ]
   },
   "e4": {
-   "text": "The Disputed Finish: Two contestants finish together. The elders declare a shared victory or call for a lighthearted rematch.",
+   "text": "Two contestants finish together. The elders declare a shared victory or call for a lighthearted rematch.",
    "src": "L9698-9699",
    "children": [
     {
@@ -506,7 +638,7 @@
   "coda_v22_2": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Champion Who Learned Humility: A strength champion later loses to a patient novice and offers sincere congratulations.",
+   "text": "A strength champion later loses to a patient novice and offers sincere congratulations.",
    "src": "L9955-9956",
    "children": [
     {
@@ -517,7 +649,7 @@
   "coda_v22_6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "text": "A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
    "src": "L9963-9964",
    "children": [
     {

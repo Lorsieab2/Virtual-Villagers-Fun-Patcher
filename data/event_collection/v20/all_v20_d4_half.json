@@ -83,7 +83,16 @@
   },
   "a2": {
    "text": "The missing words warned against a dangerous plant.",
-   "src": "L9006"
+   "src": "L9006",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9006"
+    }
+   ]
   },
   "a3": {
    "text": "The supposed remedy is actually a recipe for ceremonial pigment.",

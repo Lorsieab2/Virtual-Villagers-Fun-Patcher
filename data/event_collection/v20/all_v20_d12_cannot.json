@@ -170,7 +170,16 @@
   },
   "c2": {
    "text": "They conflict dangerously.",
-   "src": "L9086-9087"
+   "src": "L9086-9087",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9086-9087"
+    }
+   ]
   },
   "c3": {
    "text": "An apprentice organizes supplies and saves time.",

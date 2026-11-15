@@ -92,6 +92,138 @@
     "kind": "instruction",
     "text": "Exceptionally rarely,",
     "why": "P8 is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L9212",
+    "kind": "structural",
+    "text": "The Shattered Mystery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9214",
+    "kind": "structural",
+    "text": "The Thing That Would Not Break:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9216",
+    "kind": "structural",
+    "text": "The Destruction That Saved Them:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9219",
+    "kind": "structural",
+    "text": "The Accidental Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9223",
+    "kind": "structural",
+    "text": "The Impossible Tool:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9225",
+    "kind": "structural",
+    "text": "The Voice from Nowhere:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9227",
+    "kind": "structural",
+    "text": "The Hero of the Village:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9229",
+    "kind": "structural",
+    "text": "The Catastrophic Misunderstanding:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9233",
+    "kind": "structural",
+    "text": "The Scholar's Triumph:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9235",
+    "kind": "structural",
+    "text": "The Great Scholarly Embarrassment:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9237",
+    "kind": "structural",
+    "text": "The Forbidden Question:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9239",
+    "kind": "structural",
+    "text": "The Accused Discoverer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9243",
+    "kind": "structural",
+    "text": "Forgotten Beneath the Earth:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9245",
+    "kind": "structural",
+    "text": "The Second Discoverer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9247",
+    "kind": "structural",
+    "text": "The Accusation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9249",
+    "kind": "structural",
+    "text": "The Relic That Returned:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9344",
+    "kind": "structural",
+    "text": "Reluctant Hero:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9345",
+    "kind": "structural",
+    "text": "Disgraced Scholar:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9347",
+    "kind": "structural",
+    "text": "False Prophet:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9348",
+    "kind": "structural",
+    "text": "Inventor's Curse:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9349",
+    "kind": "structural",
+    "text": "Secret Society:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9350",
+    "kind": "structural",
+    "text": "The Great Panic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -188,7 +320,7 @@
    ]
   },
   "a1": {
-   "text": "The Shattered Mystery: The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
+   "text": "The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
    "src": "L9212-9213",
    "children": [
     {
@@ -197,7 +329,7 @@
    ]
   },
   "a2": {
-   "text": "The Thing That Would Not Break: It survives repeated blows and is buried amid fearful rumors.",
+   "text": "It survives repeated blows and is buried amid fearful rumors.",
    "src": "L9214-9215",
    "children": [
     {
@@ -213,7 +345,7 @@
    ]
   },
   "a3": {
-   "text": "The Destruction That Saved Them: An unpleasant odor or startling reaction sends the villagers away; nobody agrees whether the attempt prevented danger or created it.",
+   "text": "An unpleasant odor or startling reaction sends the villagers away; nobody agrees whether the attempt prevented danger or created it.",
    "src": "L9216-9218",
    "children": [
     {
@@ -222,11 +354,23 @@
    ]
   },
   "a4": {
-   "text": "The Accidental Discovery: A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
+   "text": "A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
    "src": "L9219-9220",
    "children": [
     {
      "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9219-9220"
     }
    ]
   },
@@ -248,16 +392,28 @@
    ]
   },
   "b1": {
-   "text": "The Impossible Tool: (Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
+   "text": "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
    "src": "L9223-9224",
    "children": [
     {
      "next": "coda"
     }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9223-9224"
+    }
    ]
   },
   "b2": {
-   "text": "The Voice from Nowhere: The object speaks or makes a strange noise; some villagers flee, others pray, and panic spreads.",
+   "text": "The object speaks or makes a strange noise; some villagers flee, others pray, and panic spreads.",
    "src": "L9225-9226",
    "children": [
     {
@@ -266,7 +422,7 @@
    ]
   },
   "b3": {
-   "text": "The Hero of the Village: (Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
+   "text": "(Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
    "src": "L9227-9228",
    "children": [
     {
@@ -275,7 +431,7 @@
    ]
   },
   "b4": {
-   "text": "The Catastrophic Misunderstanding: A ceremony accidentally activates the object, igniting a theological dispute.",
+   "text": "A ceremony accidentally activates the object, igniting a theological dispute.",
    "src": "L9229-9230",
    "children": [
     {
@@ -301,7 +457,7 @@
    ]
   },
   "c1": {
-   "text": "The Scholar's Triumph: Its construction inspires several practical discoveries. (Finder) is honored.",
+   "text": "Its construction inspires several practical discoveries. (Finder) is honored.",
    "src": "L9233-9234",
    "children": [
     {
@@ -318,7 +474,7 @@
    ]
   },
   "c2": {
-   "text": "The Great Scholarly Embarrassment: Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
+   "text": "Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
    "src": "L9235-9236",
    "children": [
     {
@@ -327,7 +483,7 @@
    ]
   },
   "c3": {
-   "text": "The Forbidden Question: Scholars propose that distant people possess far greater technology; elders demand silence.",
+   "text": "Scholars propose that distant people possess far greater technology; elders demand silence.",
    "src": "L9237-9238",
    "children": [
     {
@@ -343,7 +499,7 @@
    ]
   },
   "c4": {
-   "text": "The Accused Discoverer: Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
+   "text": "Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
    "src": "L9239-9240",
    "children": [
     {
@@ -369,7 +525,7 @@
    ]
   },
   "d1": {
-   "text": "Forgotten Beneath the Earth: The object passes into legend.",
+   "text": "The object passes into legend.",
    "src": "L9243-9244",
    "children": [
     {
@@ -385,7 +541,7 @@
    ]
   },
   "d2": {
-   "text": "The Second Discoverer: (Second) digs it up years later; an elderly witness cries, \"That thing again?!\"",
+   "text": "(Second) digs it up years later; an elderly witness cries, \"That thing again?!\"",
    "src": "L9245-9246",
    "children": [
     {
@@ -394,7 +550,7 @@
    ]
   },
   "d3": {
-   "text": "The Accusation: A witness reports the burial as suspicious. (Finder) must explain (finder.his/her) actions to the elders.",
+   "text": "A witness reports the burial as suspicious. (Finder) must explain (finder.his/her) actions to the elders.",
    "src": "L9247-9248",
    "children": [
     {
@@ -403,7 +559,7 @@
    ]
   },
   "d4": {
-   "text": "The Relic That Returned: The object reappears near the huts; nobody admits moving it. Was it sabotage, chance, or a curse?",
+   "text": "The object reappears near the huts; nobody admits moving it. Was it sabotage, chance, or a curse?",
    "src": "L9249-9250",
    "children": [
     {
@@ -431,37 +587,37 @@
   "coda_p1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Reluctant Hero: A destroyer accidentally discovers a useful tool.",
+   "text": "A destroyer accidentally discovers a useful tool.",
    "src": "L9344"
   },
   "coda_p2": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Disgraced Scholar: A confident expert misidentifies the relic.",
+   "text": "A confident expert misidentifies the relic.",
    "src": "L9345"
   },
   "coda_p4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "False Prophet: A claimant of divine authority is exposed.",
+   "text": "A claimant of divine authority is exposed.",
    "src": "L9347"
   },
   "coda_p5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Inventor's Curse: Reproducing a mechanism leads to sorcery accusations.",
+   "text": "Reproducing a mechanism leads to sorcery accusations.",
    "src": "L9348"
   },
   "coda_p6": {
    "popup": "append",
    "join": "paragraph",
-   "text": "Secret Society: Researchers meet privately to study the objects.",
+   "text": "Researchers meet privately to study the objects.",
    "src": "L9349"
   },
   "coda_p7": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Great Panic: Rumors disrupt work and empty the village stores.",
+   "text": "Rumors disrupt work and empty the village stores.",
    "src": "L9350",
    "effects": [
     {

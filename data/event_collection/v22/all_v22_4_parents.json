@@ -172,6 +172,186 @@
     "src": "L9913-9914",
     "kind": "instruction",
     "why": "the Parenting effect (or none) and the text_only reasons"
+   },
+   {
+    "src": "L9803",
+    "kind": "structural",
+    "text": "Truth with Kindness:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9807",
+    "kind": "structural",
+    "text": "The Painfully Honest Critic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9811",
+    "kind": "structural",
+    "text": "The Gentle Correction:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9815",
+    "kind": "structural",
+    "text": "The Little Investigator:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9821",
+    "kind": "structural",
+    "text": "The Patient Gardener:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9824",
+    "kind": "structural",
+    "text": "The Waiting Game:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9828",
+    "kind": "structural",
+    "text": "Patience and Action:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9831",
+    "kind": "structural",
+    "text": "The Impatient Teacher:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9837",
+    "kind": "structural",
+    "text": "The Reliable Helper:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9840",
+    "kind": "structural",
+    "text": "The Coconut Inspector:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9844",
+    "kind": "structural",
+    "text": "A Job Well Shared:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9847",
+    "kind": "structural",
+    "text": "The Helpful Troublemaker:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9853",
+    "kind": "structural",
+    "text": "The Quiet Kindness:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9856",
+    "kind": "structural",
+    "text": "Sharing Everything:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9860",
+    "kind": "structural",
+    "text": "The Thoughtful Gift:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9863",
+    "kind": "structural",
+    "text": "The Self-Appointed Kindness Officer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9869",
+    "kind": "structural",
+    "text": "The Careful Explorer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9872",
+    "kind": "structural",
+    "text": "The Leaf Collector:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9876",
+    "kind": "structural",
+    "text": "The Well-Meant Mistake:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9879",
+    "kind": "structural",
+    "text": "The Little Guardian:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9884",
+    "kind": "structural",
+    "text": "The Second Attempt:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9887",
+    "kind": "structural",
+    "text": "Never Give Up Asking:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9891",
+    "kind": "structural",
+    "text": "The Boastful Apprentice:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9895",
+    "kind": "structural",
+    "text": "The Teacher Learns:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9900",
+    "kind": "structural",
+    "text": "A Wise Pause:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9903",
+    "kind": "structural",
+    "text": "The Endless Thinker:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9907",
+    "kind": "structural",
+    "text": "The Prank That Became a Gift:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9910",
+    "kind": "structural",
+    "text": "The New Troublemaker:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9959",
+    "kind": "structural",
+    "text": "The Child Who Remembered:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9961",
+    "kind": "structural",
+    "text": "The Trouble That Became Talent:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "shared_lines": [
@@ -253,7 +433,7 @@
    ]
   },
   "a1": {
-   "text": "Truth with Kindness: (Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
+   "text": "(Child) admits to accidentally spilling berries and helps clean up. (Parent) praises the honesty and explains that truth and kindness belong together.",
    "src": "L9803-9806",
    "text_only": [
     {
@@ -281,7 +461,7 @@
    ]
   },
   "a2": {
-   "text": "The Painfully Honest Critic: At the village meal, (Child) announces that the cook's stew tastes like \"wet sandals.\" \"But you said always to tell the truth!\" (Parent) blushes.",
+   "text": "At the village meal, (Child) announces that the cook's stew tastes like \"wet sandals.\" \"But you said always to tell the truth!\" (Parent) blushes.",
    "src": "L9807-9810",
    "text_only": [
     {
@@ -297,7 +477,7 @@
    ]
   },
   "a3": {
-   "text": "The Gentle Correction: After the embarrassing comment, (Parent) explains how to speak honestly without being unkind. (Child) apologizes and tries again.",
+   "text": "After the embarrassing comment, (Parent) explains how to speak honestly without being unkind. (Child) apologizes and tries again.",
    "src": "L9811-9814",
    "text_only": [
     {
@@ -325,7 +505,7 @@
    ]
   },
   "a4_1": {
-   "text": "The Little Investigator: (Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
+   "text": "(Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
    "src": "L9815-9818",
    "text_only": [
     {
@@ -341,7 +521,7 @@
    ]
   },
   "a4_2": {
-   "text": "The Little Investigator: (Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
+   "text": "(Child) begins asking everyone whether they are telling the truth. (Parent) must teach the difference between honesty and accusing people without reason.",
    "src": "L9815-9818",
    "text_only": [
     {
@@ -398,7 +578,7 @@
    ]
   },
   "b1": {
-   "text": "The Patient Gardener: (Child) tends a seedling for days and proudly celebrates its first leaves.",
+   "text": "(Child) tends a seedling for days and proudly celebrates its first leaves.",
    "src": "L9821-9823",
    "text_only": [
     {
@@ -431,7 +611,7 @@
    ]
   },
   "b2": {
-   "text": "The Waiting Game: (Child) sits under an unripe fruit tree for hours, expecting the fruit to fall directly into (child.his/her) mouth. \"I'm being patient!\" (Parent) is speechless.",
+   "text": "(Child) sits under an unripe fruit tree for hours, expecting the fruit to fall directly into (child.his/her) mouth. \"I'm being patient!\" (Parent) is speechless.",
    "src": "L9824-9827",
    "text_only": [
     {
@@ -447,7 +627,7 @@
    ]
   },
   "b3": {
-   "text": "Patience and Action: (Parent) explains that waiting can include preparation and care. (Child) begins watering the tree.",
+   "text": "(Parent) explains that waiting can include preparation and care. (Child) begins watering the tree.",
    "src": "L9828-9830",
    "effects": [
     {
@@ -468,7 +648,7 @@
    ]
   },
   "b4_1": {
-   "text": "The Impatient Teacher: (Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
+   "text": "(Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
    "src": "L9831-9834",
    "text_only": [
     {
@@ -484,7 +664,7 @@
    ]
   },
   "b4_2": {
-   "text": "The Impatient Teacher: (Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
+   "text": "(Parent) grows frustrated while teaching patience, then notices the irony and apologizes.",
    "src": "L9831-9834",
    "text_only": [
     {
@@ -541,7 +721,7 @@
    ]
   },
   "c1": {
-   "text": "The Reliable Helper: (Child) takes care of a manageable task, remembers it without prompting, and helps a neighbor.",
+   "text": "(Child) takes care of a manageable task, remembers it without prompting, and helps a neighbor.",
    "src": "L9837-9839",
    "text_only": [
     {
@@ -569,7 +749,7 @@
    ]
   },
   "c2": {
-   "text": "The Coconut Inspector: Asked to help organize coconuts, (Child) devises an elaborate inspection system and refuses to let anyone eat without approval. The village is amused and hungry.",
+   "text": "Asked to help organize coconuts, (Child) devises an elaborate inspection system and refuses to let anyone eat without approval. The village is amused and hungry.",
    "src": "L9840-9843",
    "text_only": [
     {
@@ -585,7 +765,7 @@
    ]
   },
   "c3": {
-   "text": "A Job Well Shared: (Parent) helps the child make a simple plan and share the work. The coconuts reach the cooks on time.",
+   "text": "(Parent) helps the child make a simple plan and share the work. The coconuts reach the cooks on time.",
    "src": "L9844-9846",
    "effects": [
     {
@@ -606,7 +786,7 @@
    ]
   },
   "c4_1": {
-   "text": "The Helpful Troublemaker: (Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
+   "text": "(Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
    "src": "L9847-9850",
    "text_only": [
     {
@@ -622,7 +802,7 @@
    ]
   },
   "c4_2": {
-   "text": "The Helpful Troublemaker: (Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
+   "text": "(Child) begins reorganizing other villagers' belongings without asking. (Parent) must explain that responsibility also means respecting others' choices.",
    "src": "L9847-9850",
    "text_only": [
     {
@@ -679,7 +859,7 @@
    ]
   },
   "d1": {
-   "text": "The Quiet Kindness: (Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
+   "text": "(Child) notices a lonely child and invites (friend.him/her) to play. (Parent) is deeply moved.",
    "src": "L9853-9855",
    "text_only": [
     {
@@ -707,7 +887,7 @@
    ]
   },
   "d2": {
-   "text": "Sharing Everything: (Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
+   "text": "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent). The adult must explain thoughtful sharing and boundaries.",
    "src": "L9856-9859",
    "text_only": [
     {
@@ -723,7 +903,7 @@
    ]
   },
   "d3": {
-   "text": "The Thoughtful Gift: (Child) learns to ask before giving away belongings and makes a small gift from fallen shells.",
+   "text": "(Child) learns to ask before giving away belongings and makes a small gift from fallen shells.",
    "src": "L9860-9862",
    "effects": [
     {
@@ -744,7 +924,7 @@
    ]
   },
   "d4": {
-   "text": "The Self-Appointed Kindness Officer: (Child) orders everyone to be nice and interrupts every disagreement. The villagers gently remind the child that kindness cannot be commanded.",
+   "text": "(Child) orders everyone to be nice and interrupts every disagreement. The villagers gently remind the child that kindness cannot be commanded.",
    "src": "L9863-9866",
    "text_only": [
     {
@@ -778,7 +958,7 @@
    ]
   },
   "e1": {
-   "text": "The Careful Explorer: (Child) learns to observe small animals without disturbing them and helps protect a young plant.",
+   "text": "(Child) learns to observe small animals without disturbing them and helps protect a young plant.",
    "src": "L9869-9871",
    "text_only": [
     {
@@ -806,7 +986,7 @@
    ]
   },
   "e2_1": {
-   "text": "The Leaf Collector: Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
    "src": "L9872-9875",
    "text_only": [
     {
@@ -822,7 +1002,7 @@
    ]
   },
   "e2_2": {
-   "text": "The Leaf Collector: Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
+   "text": "Trying to \"care for every tree,\" (Child) gathers a mountain of fallen leaves and blocks the hut entrance. (Parent) laughs and helps sort them for compost.",
    "src": "L9872-9875",
    "text_only": [
     {
@@ -861,7 +1041,7 @@
    ]
   },
   "e3_1": {
-   "text": "The Well-Meant Mistake: (Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
+   "text": "(Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
    "src": "L9876-9878",
    "text_only": [
     {
@@ -877,7 +1057,7 @@
    ]
   },
   "e3_2": {
-   "text": "The Well-Meant Mistake: (Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
+   "text": "(Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
    "src": "L9876-9878",
    "text_only": [
     {
@@ -905,7 +1085,7 @@
    ]
   },
   "e3_3": {
-   "text": "The Well-Meant Mistake: (Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
+   "text": "(Child) tries to water every plant at once and makes a muddy mess. (Parent) teaches moderation.",
    "src": "L9876-9878",
    "text_only": [
     {
@@ -947,7 +1127,7 @@
    ]
   },
   "e4": {
-   "text": "The Little Guardian: (Child) starts scolding adults for picking fruit. (Parent) explains sustainable harvesting.",
+   "text": "(Child) starts scolding adults for picking fruit. (Parent) explains sustainable harvesting.",
    "src": "L9879-9881",
    "text_only": [
     {
@@ -981,7 +1161,7 @@
    ]
   },
   "f1": {
-   "text": "The Second Attempt: After a failed weaving project, (Child) practices and completes a simple basket.",
+   "text": "After a failed weaving project, (Child) practices and completes a simple basket.",
    "src": "L9884-9886",
    "text_only": [
     {
@@ -1009,7 +1189,7 @@
    ]
   },
   "f2": {
-   "text": "Never Give Up Asking: (Child) repeatedly requests extra fruit because (Parent) said \"never give up.\" The adult must clarify the difference between persistence and pestering.",
+   "text": "(Child) repeatedly requests extra fruit because (Parent) said \"never give up.\" The adult must clarify the difference between persistence and pestering.",
    "src": "L9887-9890",
    "text_only": [
     {
@@ -1025,7 +1205,7 @@
    ]
   },
   "f3_1": {
-   "text": "The Boastful Apprentice: (Child) learns a new skill and immediately declares (child.himself/herself) the greatest artisan on Isola. A gentle lesson in humility follows.",
+   "text": "(Child) learns a new skill and immediately declares (child.himself/herself) the greatest artisan on Isola. A gentle lesson in humility follows.",
    "src": "L9891-9894",
    "text_only": [
     {
@@ -1046,7 +1226,7 @@
    ]
   },
   "f3_2": {
-   "text": "The Boastful Apprentice: (Child) learns a new skill and immediately declares (child.himself/herself) the greatest artisan on Isola. A gentle lesson in humility follows.",
+   "text": "(Child) learns a new skill and immediately declares (child.himself/herself) the greatest artisan on Isola. A gentle lesson in humility follows.",
    "src": "L9891-9894",
    "text_only": [
     {
@@ -1090,7 +1270,7 @@
    ]
   },
   "f4": {
-   "text": "The Teacher Learns: (Child) asks a thoughtful question that exposes (Parent)'s own mistake. (Parent) listens, admits it, and models humility.",
+   "text": "(Child) asks a thoughtful question that exposes (Parent)'s own mistake. (Parent) listens, admits it, and models humility.",
    "src": "L9895-9897",
    "effects": [
     {
@@ -1129,7 +1309,7 @@
    ]
   },
   "g1": {
-   "text": "A Wise Pause: (Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
+   "text": "(Child) stops before a harmless prank and considers how a friend would feel. (Parent) is proud.",
    "src": "L9900-9902",
    "text_only": [
     {
@@ -1157,7 +1337,7 @@
    ]
   },
   "g2": {
-   "text": "The Endless Thinker: (Child) spends an entire afternoon deciding which coconut to choose. \"I'm thinking first!\" (Parent) explains that decisions need not take forever.",
+   "text": "(Child) spends an entire afternoon deciding which coconut to choose. \"I'm thinking first!\" (Parent) explains that decisions need not take forever.",
    "src": "L9903-9906",
    "text_only": [
     {
@@ -1173,7 +1353,7 @@
    ]
   },
   "g3": {
-   "text": "The Prank That Became a Gift: (Child) changes a mischievous idea into a playful surprise everyone enjoys.",
+   "text": "(Child) changes a mischievous idea into a playful surprise everyone enjoys.",
    "src": "L9907-9909",
    "text_only": [
     {
@@ -1201,7 +1381,7 @@
    ]
   },
   "g4_1": {
-   "text": "The New Troublemaker: (Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
+   "text": "(Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
    "src": "L9910-9914",
    "text_only": [
     {
@@ -1217,7 +1397,7 @@
    ]
   },
   "g4_2": {
-   "text": "The New Troublemaker: (Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
+   "text": "(Child) interprets \"think ahead\" as \"plan pranks more carefully.\" The parent is horrified when a trail of coconut shells leads to an elaborate harmless trick.",
    "src": "L9910-9914",
    "text_only": [
     {
@@ -1276,13 +1456,13 @@
   "coda_v22_4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Child Who Remembered: Years later, a grown villager repeats the same lesson to a younger child, with either wisdom or irony.",
+   "text": "Years later, a grown villager repeats the same lesson to a younger child, with either wisdom or irony.",
    "src": "L9959-9960"
   },
   "coda_v22_5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "The Trouble That Became Talent: A mischievous child channels cleverness into art, research, or helpful invention.",
+   "text": "A mischievous child channels cleverness into art, research, or helpful invention.",
    "src": "L9961-9962"
   },
   "coda": {

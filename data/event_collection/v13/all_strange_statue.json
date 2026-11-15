@@ -44,6 +44,72 @@
     "kind": "structural",
     "text": "(C1-C3)",
     "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7310",
+    "kind": "structural",
+    "text": "THE PEOPLE'S FAVORITE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7315",
+    "kind": "structural",
+    "text": "THE SCANDAL:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7320",
+    "kind": "structural",
+    "text": "THE UNINTENDED INSULT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7325",
+    "kind": "structural",
+    "text": "THE UNFORGIVING CRITIC:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7330",
+    "kind": "structural",
+    "text": "THE CHARM:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7334",
+    "kind": "structural",
+    "text": "THE NIGHTMARE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7338",
+    "kind": "structural",
+    "text": "THE MEMORY:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7343",
+    "kind": "structural",
+    "text": "THE DIVISION:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7348",
+    "kind": "structural",
+    "text": "THE RUINED IMPROVEMENT:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7353",
+    "kind": "structural",
+    "text": "THE DOUBLE STATUE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L7358",
+    "kind": "structural",
+    "text": "THE ARTIST'S CHOICE:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
    }
   ],
   "description": "A villager unveils an oddly lovable, badly proportioned statue, and the village decides what to do with it."
@@ -203,47 +269,47 @@
   },
   "a1": {
    "src": "L7310-7313",
-   "text": "THE PEOPLE'S FAVORITE:\nThe judges award it low marks for craftsmanship. The villagers, however, adore it and begin leaving flowers at its feet. The organizers establish a separate People's Favorite award."
+   "text": "The judges award it low marks for craftsmanship. The villagers, however, adore it and begin leaving flowers at its feet. The organizers establish a separate People's Favorite award."
   },
   "a2": {
    "src": "L7315-7318",
-   "text": "THE SCANDAL:\nThe sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote."
+   "text": "The sculptor wins. A rival demands to know whether the judges have eyes. The Master Carver replies, \"Unfortunately, yes. I shall never forget what I have seen.\" The award stands after a fair vote."
   },
   "a3": {
    "src": "L7320-7323",
-   "text": "THE UNINTENDED INSULT:\nThe elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home."
+   "text": "The elder depicted in the sculpture sees the enormous nose and bursts into laughter. \"You have captured my finest feature!\" (sculptor) is relieved. The elder requests a second statue for home."
   },
   "a4": {
    "src": "L7325-7328",
-   "text": "THE UNFORGIVING CRITIC:\nThe Master Carver declares it an offense against stone, wood and sight itself. Later, (carver.he/she) is discovered secretly sketching it. \"For study,\" the critic insists. Nobody believes (carver.him/her)."
+   "text": "The Master Carver declares it an offense against stone, wood and sight itself. Later, (carver.he/she) is discovered secretly sketching it. \"For study,\" the critic insists. Nobody believes (carver.him/her)."
   },
   "b1": {
    "src": "L7330-7332",
-   "text": "THE CHARM:\nChildren insist the statue looks friendly. Adults begin to agree. It becomes the village's unofficial good-luck monument."
+   "text": "Children insist the statue looks friendly. Adults begin to agree. It becomes the village's unofficial good-luck monument."
   },
   "b2": {
    "src": "L7334-7336",
-   "text": "THE NIGHTMARE:\nA child bursts into tears upon seeing it at dusk. The sculpture is moved to a sunny spot where it looks considerably less threatening."
+   "text": "A child bursts into tears upon seeing it at dusk. The sculpture is moved to a sunny spot where it looks considerably less threatening."
   },
   "b3": {
    "src": "L7338-7341",
-   "text": "THE MEMORY:\nAn elderly villager says the crooked face reminds (elderly.him/her) of a lost friend. The audience falls quiet. The artist decides to keep the flaws exactly as they are."
+   "text": "An elderly villager says the crooked face reminds (elderly.him/her) of a lost friend. The audience falls quiet. The artist decides to keep the flaws exactly as they are."
   },
   "b4": {
    "src": "L7343-7346",
-   "text": "THE DIVISION:\nHalf the village loves the statue; the other half wants it hidden. The leaders choose a public place where it can be admired without blocking anyone's path. The argument continues for years."
+   "text": "Half the village loves the statue; the other half wants it hidden. The leaders choose a public place where it can be admired without blocking anyone's path. The argument continues for years."
   },
   "c1": {
    "src": "L7348-7351",
-   "text": "THE RUINED IMPROVEMENT:\n(sculptor) corrects the proportions. The sculpture becomes technically excellent and completely forgettable. The villagers beg for the crooked version back."
+   "text": "(sculptor) corrects the proportions. The sculpture becomes technically excellent and completely forgettable. The villagers beg for the crooked version back."
   },
   "c2": {
    "src": "L7353-7356",
-   "text": "THE DOUBLE STATUE:\nThe artist displays the original beside the corrected version. The judges debate which is better. A child says, \"That one looks right. This one looks happy.\" Nobody can improve on the answer."
+   "text": "The artist displays the original beside the corrected version. The judges debate which is better. A child says, \"That one looks right. This one looks happy.\" Nobody can improve on the answer."
   },
   "c3": {
    "src": "L7358-7360",
-   "text": "THE ARTIST'S CHOICE:\n(sculptor) refuses to change a thing. \"It is ugly,\" (sculptor.he/she) admits. \"But it is mine.\" The Master Carver grants a reluctant nod."
+   "text": "(sculptor) refuses to change a thing. \"It is ugly,\" (sculptor.he/she) admits. \"But it is mine.\" The Master Carver grants a reluctant nod."
   },
   "set_a": {
    "type": "branch",

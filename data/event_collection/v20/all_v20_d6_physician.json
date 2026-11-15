@@ -172,7 +172,16 @@
   },
   "c2": {
    "text": "They argue too long.",
-   "src": "L9038-9039"
+   "src": "L9038-9039",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9038-9039"
+    }
+   ]
   },
   "c3": {
    "text": "They hear a third solution from a quiet assistant.",

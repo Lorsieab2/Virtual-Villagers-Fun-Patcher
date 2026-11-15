@@ -65,6 +65,13 @@
      "do": "celebrate",
      "who": "all",
      "src": "L8974"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8974"
     }
    ]
   },

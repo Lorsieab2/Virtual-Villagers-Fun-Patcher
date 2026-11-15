@@ -99,7 +99,16 @@
   },
   "b1": {
    "src": "L7864",
-   "text": "The villager recovers and thanks everyone for respecting the request."
+   "text": "The villager recovers and thanks everyone for respecting the request.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 20,
+     "src": "L7864"
+    }
+   ]
   },
   "b2": {
    "src": "L7865",

@@ -49,7 +49,10 @@
   },
   "sibling2": {
    "kind": "villager",
-   "min_age": 3
+   "min_age": 3,
+   "relation": {
+    "sibling_of": "sibling1"
+   }
   }
  },
  "start": "intro",
