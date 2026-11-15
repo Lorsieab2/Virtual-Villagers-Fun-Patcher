@@ -26,8 +26,8 @@ The checks (each problem names its check):
               for the owner); VV5 roles are believers only
   g ROUND     normalize -> compile -> decompile -> normalize gives the graph back; compile is deterministic (needs
               the v6 format: ENGINE SEAM)
-  h CHANCES   every node reachable; a split's weights equal unless a rarity word gives them (rare 1/4, very rare
-              1/10, exceptionally rare 1/20 of a normal outcome: weights 20 / 5 / 2 / 1)
+  h CHANCES   every node reachable; a split's weights equal unless a rarity word gives them (occasional 1/2, rare 1/4, very rare
+              1/10, exceptionally rare 1/20 of a normal outcome: weights 20 / 10 / 5 / 2 / 1)
   i PICK      collection.description: the Pick Island Event list's one sentence (plain, at most DESCRIPTION_MAX
               characters, no placeholder); an owner's title change (docs/event-collection/owner-title-changes.md)
               is the title
