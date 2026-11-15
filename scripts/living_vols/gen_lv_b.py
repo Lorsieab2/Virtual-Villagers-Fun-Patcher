@@ -7,8 +7,8 @@ check them:
 The shape, the weights and the helpers are scripts/living_vols/living_common.py's (as LV-A, gen_lv_a.py).
 
 THE TABLE BELOW IS THE AUTHORING RECORD (the owner's rules, the lead's briefs of 2026-11-14/15):
-- Text verbatim.  One sensitivity edit: UNSEEN-37's "afterlife" becomes "life after death" (the owner: the afterlife
-  is never named outright, only described or hinted at).  Nothing else names a word the owner listed for change;
+- Text verbatim, no sensitivity edit: UNSEEN-37's "a pleasant afterlife" stays as written (the owner, 2026-11-15).
+  Nothing else names a word the owner listed for change;
   the volumes' "gods", "spirits", Biggles (the games' own creature) and the hinted beings (an ancient guardian, the
   sky stag, a long-necked shape) stay as written, every mystery unresolved.
 - VV5 ONLY (the source's tag on the setup or heading): games [5].  Heathens and masks stay vanilla VV5 words; with
@@ -29,8 +29,9 @@ THE TABLE BELOW IS THE AUTHORING RECORD (the owner's rules, the lead's briefs of
   sick; a worsening, a reaction, an irritation, an injury or exhaustion of a cast villager is a minor setback
   (health -30..-10); "improves", "recover" is a small health gain; a skilled villager who finds, identifies,
   discovers or learns a result gains a small skill; food the village spends, loses or gains is a small food loss or
-  gain; "celebrates" is celebrate.  Hair and clothing dye stays text only (rule 8: the games have no chosen-colour
-  action, and a random look would not be the colour the text names).  Feelings, councils, customs, relationships,
+  gain; "celebrates" is celebrate.  Hair dye the villager keeps is the random new head look (appearance head
+  "random", the owner 2026-11-15: PEOPLES-01 A1 and C1, PEOPLES-04 A1, PEOPLES-31 A2); clothing dye stays text only
+  (rule 8: no chosen-colour action).  Feelings, councils, customs, relationships,
   reputations, trust and lasting states are text only (rules 7-9).
 - Protection: every harm-capable role keeps protected "auto".  The harm list is in
   docs/event-collection/retrofit-harm-review.md.
@@ -56,7 +57,7 @@ LOSS = c.food("small", loss=True)
 GAIN = c.food("small")
 PREMISE = "the premise: it happened before the event; nobody is harmed now"
 MAGIC = {"game": [3, 4, 5]}          # a Magic choice: magic is VV3-VV5 lore
-DYE = "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names"
+DYE = "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)"
 G_IF = c.GUARDIANS_IF
 # The Guardians of Isola Rewrite pairs, in the order they are made (guardians-wording.md): the article first.
 HEATHEN_PAIRS = [("A Heathen", "An Isolan"), ("a Heathen", "an Isolan"), ("Heathens", "Isolans"),
@@ -66,6 +67,11 @@ HEATHEN_PAIRS = [("A Heathen", "An Isolan"), ("a Heathen", "an Isolan"), ("Heath
 def any_skill(role: str) -> dict:
     """ "learns a different skill": a small gain in one of the skills every game has, at random."""
     return dict(sk(role, "Building"), skills=["Building", "Farming", "Healing", "Research"])
+
+
+def hair(role: str) -> dict:
+    """Hair dye the villager keeps: the random new head look ("hair changes color"; the owner, 2026-11-15)."""
+    return {"do": "appearance", "role": role, "head": "random"}
 
 
 def vanish(role: str) -> dict:
@@ -79,15 +85,12 @@ def cheer(role: str | None = None) -> dict:
 # PREFIX-NN: ({role: spec}, description or None (the setup), opts)
 PEOPLES = {
     1: ({"villager": V}, None,
-        {"fx": {"c2": [minor("villager")]},
-         "to": {"a1": [T("the new look", DYE)], "c1": [T("a vivid shade", DYE)]}}),
+        {"fx": {"a1": [hair("villager")], "c1": [hair("villager")], "c2": [minor("villager")]}}),
     2: ({"villager": V, "dyer": V}, None, {"to": {"a1": [T("the blue clothing", DYE)]}}),
     3: ({"tailor": V, "wearer": V}, None,
         {"fx": {"c1": [cheer("wearer")]},
          "to": {"a2": [T("an elder dislikes the change", "an elder's opinion, not a game preference")]}}),
-    4: ({"elder": EL}, None,
-        {"to": {0: [T("coloring their greying hair", DYE)],
-                "a1": [T("the transformation", DYE)]}}),
+    4: ({"elder": EL}, None, {"fx": {"a1": [hair("elder")]}}),
     5: ({"weaver": V}, None, {}),
     6: ({"villager": V}, None, {}),
     7: ({"villager": V}, None, {}),
@@ -123,8 +126,9 @@ PEOPLES = {
          {"to": {"a1": [T("everyone needs food", "the child's thought; nothing is gained or lost")]}}),
     30: ({"tailor": V}, None, {}),
     31: ({"villager": V}, None,
-         {"to": {0: [T("dyes their hair and clothing", DYE)], "a1": [T("a familiar shade", DYE)],
-                 "a2": [T("an unexpected hue", DYE)]}}),
+         {"fx": {"a2": [hair("villager")]},
+          "to": {0: [T("dyes their hair and clothing", "the premise: the dye is already on; nothing changes now")],
+                 "a1": [T("a familiar shade", "the games cannot give back a villager's earlier look")]}}),
     32: ({"villager": V}, None, {}),
     33: ({"villager": V}, None,
          {"to": {"a1": [T("the celebration", "the festival already under way: no new celebration starts")]}}),
@@ -180,9 +184,7 @@ UNSEEN = {
     34: ({"researcher": SCHOLAR}, None, {}),
     35: ({"elder": EL}, None, {"to": {0: [T("near death", "the elder's age and illness: no outcome says they die")]}}),
     36: ({"relative": V}, None, {}),
-    37: ({"storyteller": V}, None,
-         {"sens": [("afterlife", "life after death",
-                    "the owner (2026-11-15): the afterlife is never named outright, only described or hinted at")]}),
+    37: ({"storyteller": V}, None, {}),       # "a pleasant afterlife" kept as written (the owner, 2026-11-15)
     38: ({"villager": V}, None, {}),
     39: ({"smith": V, "child": CH}, None, {}),
 }

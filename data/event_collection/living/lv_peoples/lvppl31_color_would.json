@@ -28,10 +28,7 @@
     "why": "CALLBACKS: the designer's callback tags, never shown"
    }
   ],
-  "description": "A villager dyes their hair and clothing to match a festival theme, then regrets it.",
-  "cast_only": [
-   "villager"
-  ]
+  "description": "A villager dyes their hair and clothing to match a festival theme, then regrets it."
  },
  "requirement": {
   "min_eligible": 1
@@ -69,7 +66,7 @@
    "text_only": [
     {
      "what": "dyes their hair and clothing",
-     "reason": "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names",
+     "reason": "the premise: the dye is already on; nothing changes now",
      "src": "L22069"
     }
    ]
@@ -93,7 +90,7 @@
    "text_only": [
     {
      "what": "a familiar shade",
-     "reason": "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names",
+     "reason": "the games cannot give back a villager's earlier look",
      "src": "L22071"
     }
    ]
@@ -102,10 +99,11 @@
    "name": "Outcome A2",
    "text": "The colors mix into an unexpected hue.",
    "src": "L22072",
-   "text_only": [
+   "effects": [
     {
-     "what": "an unexpected hue",
-     "reason": "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names",
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
      "src": "L22072"
     }
    ]

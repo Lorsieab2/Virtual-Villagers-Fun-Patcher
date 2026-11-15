@@ -23,19 +23,12 @@
   "title_src": "L22648",
   "ledger": [
    {
-    "src": "L22649",
-    "kind": "sensitivity",
-    "before": "afterlife",
-    "after": "life after death",
-    "why": "the owner (2026-11-15): the afterlife is never named outright, only described or hinted at"
-   },
-   {
     "src": "L22659",
     "kind": "note",
     "why": "CALLBACKS: the designer's callback tags, never shown"
    }
   ],
-  "description": "A storyteller claims that good deeds guarantee a pleasant life after death.",
+  "description": "A storyteller claims that good deeds guarantee a pleasant afterlife.",
   "cast_only": [
    "storyteller"
   ]
@@ -54,7 +47,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "A storyteller claims that good deeds guarantee a pleasant life after death.",
+   "text": "A storyteller claims that good deeds guarantee a pleasant afterlife.",
    "src": "L22649",
    "choices": [
     {

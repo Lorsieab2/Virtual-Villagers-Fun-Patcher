@@ -80,10 +80,11 @@
    "name": "Outcome A1",
    "text": "The color takes beautifully, and the villager proudly keeps the new look.",
    "src": "L21668",
-   "text_only": [
+   "effects": [
     {
-     "what": "the new look",
-     "reason": "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names",
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
      "src": "L21668"
     }
    ]
@@ -134,10 +135,11 @@
    "name": "Outcome C1",
    "text": "The test reveals a vivid shade that the villager chooses to wear.",
    "src": "L21674",
-   "text_only": [
+   "effects": [
     {
-     "what": "a vivid shade",
-     "reason": "rule 8: the games have no chosen-colour action; a random look would not be the colour the text names",
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
      "src": "L21674"
     }
    ]
