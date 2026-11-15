@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Counting the Waves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim171_counting_waves",
+  "source": "draft_tim2",
+  "lines": [
+   324,
+   329
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L324",
+  "ledger": [
+   {
+    "src": "L325",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L326",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L327",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L328",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L329",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two children count the waves to find out which one is the biggest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two children count the waves to find out which one is the biggest. They agree it is the seventh, though neither can say why.",
+   "src": "L325,L326"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two children count the waves to find out which one is the biggest. A big wave soaks them both mid-count.",
+   "src": "L325,L327"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two children count the waves to find out which one is the biggest. They lose count and start over several times.",
+   "src": "L325,L328"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two children count the waves to find out which one is the biggest. An elder joins them and admits to having done the same thing as a child.",
+   "src": "L325,L329"
+  }
+ }
+}

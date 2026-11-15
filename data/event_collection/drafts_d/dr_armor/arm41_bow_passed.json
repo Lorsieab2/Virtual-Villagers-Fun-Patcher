@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bow Passed to a Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm41_bow_passed",
+  "source": "armor45",
+  "lines": [
+   52,
+   52
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L52",
+  "ledger": [
+   {
+    "src": "L52",
+    "kind": "structural",
+    "text": "41. The Bow Passed to a Friend  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L52",
+    "kind": "sensitivity",
+    "before": "an aging bowyer",
+    "after": "(name1), an aging bowyer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "With no interested relatives, an aging bowyer chooses an apprentice to inherit their tools and knowledge.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "With no interested relatives, (name1), an aging bowyer, chooses an apprentice to inherit their tools and knowledge.",
+   "src": "L52"
+  }
+ }
+}

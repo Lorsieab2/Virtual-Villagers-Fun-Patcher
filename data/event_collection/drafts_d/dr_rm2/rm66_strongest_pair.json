@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strongest Pair of Arms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm66_strongest_pair",
+  "source": "draft_rm2",
+  "lines": [
+   384,
+   397
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L384",
+  "ledger": [
+   {
+    "src": "L385",
+    "kind": "sensitivity",
+    "before": "The strongest villager could",
+    "after": "(Name1), the strongest villager, could",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "The strongest villager could haul the heavy fishing net in alone, but several younger villagers are eager to learn how.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), the strongest villager, could haul the heavy fishing net in alone, but several younger villagers are eager to learn how.",
+   "src": "L385",
+   "choices": [
+    {
+     "label": "Step Back and Let Them Try.",
+     "next": "a",
+     "src": "L386"
+    },
+    {
+     "label": "Teach the Technique While Pulling.",
+     "next": "b",
+     "src": "L389"
+    },
+    {
+     "label": "Pull Together as a Team.",
+     "next": "c",
+     "src": "L392"
+    },
+    {
+     "label": "Let Them Practice on a Smaller Net First.",
+     "next": "d",
+     "src": "L395"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The young villagers struggle but succeed, glowing with pride.",
+   "src": "L387"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The net is too heavy for them, and the strong villager steps in only for the last pull.",
+   "src": "L388"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The young ones learn to brace and pull together.",
+   "src": "L390"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The lesson takes so long that the tide goes out with half the net still in the water.",
+   "src": "L391"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The net comes in quickly, and everyone shares the credit.",
+   "src": "L393"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Everyone pulls in a different rhythm, and they collapse laughing in the sand.",
+   "src": "L394",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L394"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The youngsters build skill without strain.",
+   "src": "L396",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- story only: the file marks no effect (no new mechanics)",
+     "src": "L396"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One youngster is insulted by the small net and insists on the big one next time.",
+   "src": "L397"
+  }
+ }
+}

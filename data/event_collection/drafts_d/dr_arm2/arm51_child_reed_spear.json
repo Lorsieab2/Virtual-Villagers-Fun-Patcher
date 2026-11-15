@@ -1,0 +1,63 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child's Reed Spear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm51_child_reed_spear",
+  "source": "draft_arm2",
+  "lines": [
+   15,
+   15
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L15",
+  "ledger": [
+   {
+    "src": "L15",
+    "kind": "structural",
+    "text": "51. The Child's Reed Spear  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L15",
+    "kind": "sensitivity",
+    "before": "A small child",
+    "after": "(Name1), a small child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A small child carries a soft reed spear in a festival procession, copying the adults.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a small child, carries a soft reed \"spear\" in a festival procession, copying the adults. An elder trims its tip round and lets the child lead the line for a few proud steps.",
+   "src": "L15"
+  }
+ }
+}

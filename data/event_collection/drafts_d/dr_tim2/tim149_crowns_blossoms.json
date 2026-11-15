@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Crowns of Blossoms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim149_crowns_blossoms",
+  "source": "draft_tim2",
+  "lines": [
+   170,
+   175
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L170",
+  "ledger": [
+   {
+    "src": "L171",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L172",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L173",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L174",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L175",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two children weave crowns from fallen blossoms.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two children weave crowns from fallen blossoms. They crown each other with great ceremony.",
+   "src": "L171,L172"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two children weave crowns from fallen blossoms. One crown is too big and slides down over a nose, causing giggles.",
+   "src": "L171,L173"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two children weave crowns from fallen blossoms. They give one to an elder, who wears it all afternoon.",
+   "src": "L171,L174"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two children weave crowns from fallen blossoms. A bee investigates the crowns, and the children stand very still until it leaves.",
+   "src": "L171,L175"
+  }
+ }
+}

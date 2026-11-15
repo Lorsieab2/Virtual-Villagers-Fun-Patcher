@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Braids and Bright Fibers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim129_braids_bright",
+  "source": "draft_tim2",
+  "lines": [
+   30,
+   35
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L30",
+  "ledger": [
+   {
+    "src": "L31",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L32",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L33",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L34",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L35",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager braids a friend's hair, weaving in thin strands of dyed fiber.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. The finished braids are admired by everyone at supper.",
+   "src": "L31,L32"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. They talk so much that the braid ends up much longer than planned.",
+   "src": "L31,L33"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. (friend) asks for the same style again tomorrow.",
+   "src": "L31,L34"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(subject) braids (friend)'s hair, weaving in thin strands of dyed fiber. A strand of red fiber comes loose and is tucked back in with a laugh.",
+   "src": "L31,L35"
+  }
+ }
+}

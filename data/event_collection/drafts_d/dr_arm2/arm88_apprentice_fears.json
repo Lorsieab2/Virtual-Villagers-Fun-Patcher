@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Fears Blades",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm88_apprentice_fears",
+  "source": "draft_arm2",
+  "lines": [
+   52,
+   52
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L52",
+  "ledger": [
+   {
+    "src": "L52",
+    "kind": "structural",
+    "text": "88. The Apprentice Who Fears Blades  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L52",
+    "kind": "sensitivity",
+    "before": "A toolmaker's apprentice is",
+    "after": "(Name1), a toolmaker's apprentice, is",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A toolmaker's apprentice is nervous around sharp edges.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a toolmaker's apprentice, is nervous around sharp edges. The master starts them with handles, bindings and polishing, and the apprentice discovers they are the best binder in the workshop.",
+   "src": "L52"
+  }
+ }
+}

@@ -435,6 +435,43 @@ owner).txt, `collection_lib.DRAFTS_C` (source ids `draft_hea`, `draft_adv`, `dra
 - FAM2-40's carrying or nursing parent is the game's nursing parent (`"special": "nursing_parent"`); FAM2-11/28's teens
   are at most two years apart (`max_age_gap`).
 
+## 15f. The approved files, group D
+
+Eight more owner-approved files of 2026-11-15, each frozen byte for byte as its own source
+(`collection_lib.DRAFTS_D`, SHA-256 in `data/event_collection/<ID>.sha256`, `-text` in .gitattributes) and each one
+series (its section), so a file counts as one draw in the rare roll. Files:
+`data/event_collection/drafts_d/dr_<x>/<id>.json`; rows `_drafts_d_rows`; generator `scripts/drafts_d/gen_drafts_d.py`
+on `scripts/drafts_d/annotations/<source id>.txt` (`--sheet <source id>` prints the review sheet).
+
+| Source id | File | Events | Shape |
+|---|---|---|---|
+| `draft_rm2` | New Events - Role Models RM-41 to RM-90 (draft for owner).txt | 50 | setup, A-D, two outcomes each |
+| `draft_hz2` | New Events - Beyond the Horizon 081 to 130 (draft for owner).txt | 50 | setup, A-C, two outcomes each |
+| `fathers30` | Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt | 30 | setup, A-D, "Outcome 1/2:" |
+| `moments500` | Isola_500_Tiny_Island_Moments.txt | 125 | moment: one opening, four endings |
+| `draft_tim2` | New Events - Tiny Island Moments T126 to T175 (draft for owner).txt | 50 | moment: "Opening:", "Ending 1-4:" |
+| `openq97` | Completed Open Questions - Isola Events v1.35.97.txt | 35 | M01-M35: opening + follow-up, one popup |
+| `armor45` | Isola_Armor_Weapons_and_Inherited_Traditions.txt | 45 | "NN. Title - sentences", one popup |
+| `draft_arm2` | New Events - Armor and Heirlooms ARM-46 to ARM-95 (draft for owner).txt | 50 | as armor45 |
+
+- A choice event: the setup is the question page (labels in title case); each label leads to a branch of its two
+  outcomes, equally likely (no outcome harms anyone).
+- A moment (the owner's Question 1, answer A): a branch of equally likely pages, each the opening and one ending (src
+  the opening's and the ending's lines). The 500 file's four entries of one opening are one row; the owner's titles
+  T001-T125 (Question 2, answer A) are owner-title-changes.md rows over the first entry's "Title:" line; the other
+  entries' "[Mnnn]" and "Title:" lines are structural ledger entries.
+- The armor files' events are one line each, one after another: their rows carry `one_line` (no blank-line boundary
+  check). Their "LIVING EVENT ENGINE - FLAVOR TEXT" blocks are notes rows (mixer seed: pending; the 35 lines of the
+  first are built as M01-M35 from the Completed Open Questions file, the owner's titles and follow-ups).
+- Names (the owner, 2026-11-15: "use names and pronouns instead of vague roles"): the person the event is about,
+  named by a role word in the setup / opening / sentence, is the cast villager shown by name, the role word kept as
+  flavor ("(Name1), an elder, ..."; a bare "a villager" or "Someone" becomes the name); one `sensitivity` ledger entry
+  per changed line. The other people keep the source's words. An event about a group casts one villager it does not
+  show.
+- Fathers 01-08: the carrier is a trans man. This base has no birth-sex condition, so the role is a male
+  `nursing_parent`; each file's ledger has the TODO "birth-sex check pending engine (feat/97-presentation)".
+- No effects: none of these files marks one; every effect-table word gets a text_only reason.
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event

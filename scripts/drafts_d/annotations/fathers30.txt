@@ -1,0 +1,121 @@
+# Fathers, Pregnancy and Parenthood (30 events).  The 15-point review: respectful, PG-13; trans fathers 01-08 are
+# never a joke, twist or debate; any-gender parents in 24-27; nothing harmful happens in the game (no effects).
+FAT-01
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (the trans man's agency: whom he tells, what he wants; no assumption endorsed)
+FAT-02
+NAME: "A pregnant father finds" => "(Name1), a pregnant father, finds"
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok
+FAT-03
+NAME: "An expectant father wonders" => "(name1), an expectant father, wonders"
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+DESC: An expectant father wonders which name his own child might use for him.
+REVIEW: ok
+FAT-04
+NAME: "The father grips" => "The father, (name1), grips"
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok
+FAT-05
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (05-07 follow the birth: the brief casts 01-08's carrier as the game's nursing parent, who is still pregnant in the game; see the owner question)
+FAT-06
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (feeding is his choice; unsolicited advice is bounded)
+FAT-07
+NAME: "The father must decide" => "The father, (name1), must decide"
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (a curious question, never mockery; his private life stays private if he wishes)
+FAT-08
+NAME: "A man discovers" => "(Name1) discovers"
+ROLES: name1=18+/m/nursing
+TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it
+REVIEW: ok (his decision, no pressure; implied only)
+FAT-09
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-10
+NAME: "A man is asked" => "(Name1) is asked"
+ROLES: name1=18+/m
+REVIEW: ok (childfree is a valid choice)
+FAT-11
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-12
+NAME: none
+ROLES: name1=18+/m
+REVIEW: ok (neither partner is wrong; no forced decision)
+FAT-13
+NAME: "Their father has tried" => "Their father, (name1), has tried"
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-14
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-15
+NAME: "The father takes charge" => "The father, (name1), takes charge"
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-16
+ROLES: name1=18+/m
+REVIEW: ok (illness outcomes nonfatal, as the casting line says; story only)
+FAT-17
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-18
+ROLES: name1=18+/m
+REVIEW: ok (the father's mistake has real consequences and is owned)
+FAT-19
+NAME: "A father stands" => "(Name1), a father, stands"
+ROLES: name1=18+/m
+REVIEW: ok (pregnancy loss already happened, implied; grief validated, no 'move on')
+FAT-20
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-21
+NAME: "A village teacher has spent" => "(Name1), a village teacher, has spent"
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-22
+NAME: "A man volunteers" => "(Name1) volunteers"
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-23
+ROLES: name1=18+/m
+REVIEW: ok
+FAT-24
+NAME: "Their parent loves" => "Their parent, (name1), loves"
+ROLES: name1=18+
+REVIEW: ok (the act is named, the child is not shamed; a related consequence, no humiliation)
+FAT-25
+NAME: "the parent is tired" => "(name1), the parent, is tired"
+ROLES: name1=18+
+REVIEW: ok (tiredness is not neglect)
+FAT-26
+NAME: none
+ROLES: name1=18+
+REVIEW: ok
+FAT-27
+NAME: "Their partner wants" => "Their partner, (name1), wants"
+ROLES: name1=18+
+REVIEW: ok
+FAT-28
+NAME: "asks a man what" => "asks (name1) what"
+ROLES: name1=18+/m
+REVIEW: ok (no one must marry or have children to be a good man)
+FAT-29
+NAME: none
+ROLES: name1=18+
+REVIEW: ok
+FAT-30
+NAME: "A villager who once helped teach and care for the village children is approached" => "(Name1), who once helped teach and care for the village children, is approached"
+ROLES: name1=18+/m
+DESC: A villager who once helped teach the village children is approached by a young adult with a memory.
+REVIEW: ok

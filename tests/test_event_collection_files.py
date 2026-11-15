@@ -246,6 +246,47 @@ class FrozenDraftsC(unittest.TestCase):
         self.assertEqual(vv5_only, {"blf26", "blf27"})
 
 
+class FrozenDraftsD(unittest.TestCase):
+    """The owner-approved files, group D (2026-11-15): eight files, each one series; moments are a branch of equally
+    likely endings; no effects; Fathers 01-08 a male nursing parent; built by scripts/drafts_d/gen_drafts_d.py."""
+
+    WANT = {"draft_rm2": 50, "draft_hz2": 50, "moments500": 125, "draft_tim2": 50, "openq97": 35, "armor45": 45,
+            "draft_arm2": 50, "fathers30": 30}
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(set(lib.DRAFTS_D), set(self.WANT))
+        owner = lib.owner_titles()
+        for sid, (_name, n, section, _topic) in lib.DRAFTS_D.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                self.assertEqual(lib.SOURCES[sid][0].read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: self.WANT[sid]})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), self.WANT[sid])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_D_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
+                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    for c in doc["nodes"]["setup"].get("choices", []):
+                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+                    if sid in ("moments500", "draft_tim2"):
+                        kids = doc["nodes"]["setup"]["children"]
+                        self.assertEqual(len(kids), 4, p.name)
+                        self.assertFalse(any("weight" in k for k in kids), p.name)
+                    if sid == "moments500":
+                        self.assertIn(doc["collection"]["id"], owner)
+                    if sid == "fathers30":
+                        nursing = doc["roles"]["subject"].get("special") == "nursing_parent"
+                        self.assertEqual(nursing, int(p.stem[3:5]) <= 8, p.name)
+                        if nursing:
+                            self.assertEqual(doc["roles"]["subject"]["sex"], "male")
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

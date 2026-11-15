@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Musical Bow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm56_musical_bow",
+  "source": "draft_arm2",
+  "lines": [
+   20,
+   20
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L20",
+    "kind": "structural",
+    "text": "56. The Musical Bow  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L20",
+    "kind": "sensitivity",
+    "before": "Its owner says",
+    "after": "Its owner, (name1), says",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An old hunting bow, too worn to hunt with, is fitted with a hollow gourd and plucked for music.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "An old hunting bow, too worn to hunt with, is fitted with a hollow gourd and plucked for music. Its owner, (name1), says it has never sounded so cheerful.",
+   "src": "L20"
+  }
+ }
+}

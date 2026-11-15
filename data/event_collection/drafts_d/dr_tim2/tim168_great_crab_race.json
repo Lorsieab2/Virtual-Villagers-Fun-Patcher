@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Crab Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim168_great_crab_race",
+  "source": "draft_tim2",
+  "lines": [
+   303,
+   308
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L303",
+  "ledger": [
+   {
+    "src": "L304",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L305",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L306",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L307",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L308",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two children cheer for a pair of crabs scuttling toward the water.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two children cheer for a pair of crabs scuttling toward the water. One crab stops halfway to wave a claw, and the children decide it is showing off.",
+   "src": "L304,L305"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two children cheer for a pair of crabs scuttling toward the water. Both crabs reach the water at once, and the children call it a tie.",
+   "src": "L304,L306"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two children cheer for a pair of crabs scuttling toward the water. One crab turns around and walks the other way entirely.",
+   "src": "L304,L307"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two children cheer for a pair of crabs scuttling toward the water. The children decide the crabs both win and go looking for more.",
+   "src": "L304,L308"
+  }
+ }
+}

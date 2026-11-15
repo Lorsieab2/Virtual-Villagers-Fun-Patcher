@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Season of Swapped Heirlooms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm89_season_swapped",
+  "source": "draft_arm2",
+  "lines": [
+   53,
+   53
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L53",
+  "ledger": [
+   {
+    "src": "L53",
+    "kind": "structural",
+    "text": "89. The Season of Swapped Heirlooms  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Two families exchange heirloom spears for one season so that each can learn the other's stories.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Two families exchange heirloom spears for one season so that each can learn the other's stories. Both are glad to have them back, and both know more than they did.",
+   "src": "L53"
+  }
+ }
+}

@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Father's Quiet Devotion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat23_father_devotion",
+  "source": "fathers30",
+  "lines": [
+   476,
+   494
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L478",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L482",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L484",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L485",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L487",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L488",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L490",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L491",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L493",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L494",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L480",
+    "kind": "sensitivity",
+    "before": "A father",
+    "after": "(Name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A father notices that his child has been unusually quiet since making a mistake during a village task.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a father, notices that his child has been unusually quiet since making a mistake during a village task. He knows the child expects a scolding. Instead, he sits nearby and waits until they are ready to talk.",
+   "src": "L480",
+   "choices": [
+    {
+     "label": "Ask What Happened",
+     "next": "a",
+     "src": "L483"
+    },
+    {
+     "label": "Share a Story About His Own Mistakes",
+     "next": "b",
+     "src": "L486"
+    },
+    {
+     "label": "Offer a Reassuring Embrace",
+     "next": "c",
+     "src": "L489"
+    },
+    {
+     "label": "Help the Child Try Again",
+     "next": "d",
+     "src": "L492"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child explains their mistake, and they work out how to repair it together.",
+   "src": "L484"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child is not ready to speak, so he offers company without pressing.",
+   "src": "L485"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "His child laughs at the memory and feels less alone.",
+   "src": "L487"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child insists that his mistake was worse, and he listens rather than arguing.",
+   "src": "L488"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child leans into him and begins to cry with relief.",
+   "src": "L490"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child declines the hug; he respects that and stays close.",
+   "src": "L491"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They practice patiently, and the child gains confidence.",
+   "src": "L493"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The second attempt also fails, but the father praises their persistence without pretending it succeeded.",
+   "src": "L494"
+  }
+ }
+}

@@ -159,6 +159,29 @@ DRAFTS_C_FILES = (   # (source id, topic, SHA-256)
     ("draft_lif", "Pondering How Life Has Gone", "C2467D9089ECE3FE49249D8269F886ED54BBA827C9F121360AB4468612C31B89"),
 )
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, topic, _ in DRAFTS_B_FILES + DRAFTS_C_FILES})
+# Group D (data/event_collection/drafts_d/, scripts/drafts_d/): (source id, file name, topic, SHA-256); each file's
+# first two lines (its title lines) verbatim.
+DRAFTS_D_FILES = (
+    ("draft_rm2", "New Events - Role Models RM-41 to RM-90 (draft for owner).txt",
+     "Role Models and Good Examples, RM-41 to RM-90",
+     "A162ECBEC360F51EE9E9E9053BD17BBD2F97770F41EF3AD9B4D6D581B40E6ACC"),
+    ("draft_hz2", "New Events - Beyond the Horizon 081 to 130 (draft for owner).txt",
+     "Beyond the Horizon, Events 081 to 130", "9FE95514318F3A6FB035DBC77C8DBDB6FBA42B17151A6E4937C9FCE7566846DE"),
+    ("moments500", "Isola_500_Tiny_Island_Moments.txt", "Tiny Island Moments, T001 to T125",
+     "E19BC905B00D89A8641C8128DFB678314C7EDE84714A742BC078DFB50D4EFBEB"),
+    ("draft_tim2", "New Events - Tiny Island Moments T126 to T175 (draft for owner).txt",
+     "Tiny Island Moments, T126 to T175", "1508F57B8A2791D96518C63FC14B76242A9F6C0FEDAEB3B1F65893AD884C24EC"),
+    ("openq97", "Completed Open Questions - Isola Events v1.35.97.txt", "Armor Flavor Moments, M01 to M35",
+     "C8AC158E13C04957603A45E4D870DC8E8D605CCFC5262C6B3A8DB8B701FF6A14"),
+    ("armor45", "Isola_Armor_Weapons_and_Inherited_Traditions.txt", "Armor, Weapons and Inherited Traditions",
+     "2BCED4A09FC028D141E5B8BD2474289A5DBDDBC284E481AE1829AC4275049380"),
+    ("draft_arm2", "New Events - Armor and Heirlooms ARM-46 to ARM-95 (draft for owner).txt",
+     "Armor, Weapons and Heirlooms, ARM-46 to ARM-95",
+     "CC05E5ECF6FCE0252276B768107BCFF273732534F206C3D18B8CB6EBE7008E2D"),
+    ("fathers30", "Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt",
+     "Fathers, Pregnancy and Parenthood", "A54E14EBC5BB2CFDFDB1E05FCE3FAA304A4E7ECFB36350452D2CD6A2CBB2FCDA"),
+)
+SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, _f, topic, _ in DRAFTS_D_FILES})
 
 
 def source_lines(path: Path = SOURCE, sha256: str = SOURCE_SHA256) -> list[str]:
@@ -308,7 +331,10 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     drafts_b = tuple((f"NEW EVENTS: {topic.upper()}",
                       ROOT / "docs" / "more-island-events" / f"New Events - {topic} (draft for owner).txt", digest,
                       ((1, 3, f"{topic} (its title and introduction)"),))
-                     for _sid, topic, digest in DRAFTS_B_FILES + DRAFTS_C_FILES)
+                     for _sid, topic, digest in DRAFTS_B_FILES + DRAFTS_C_FILES) \
+        + tuple((f"NEW EVENTS: {topic.upper()}", ROOT / "docs" / "more-island-events" / fname, digest,
+                 ((1, 2, f"{topic} (its title lines)"),))
+                for _sid, fname, topic, digest in DRAFTS_D_FILES)
     for name, path, digest, blocks in (("BEYOND THE HORIZON", HORIZON, HORIZON_SHA256, HORIZON_CREDIT_BLOCKS),
                                        ("ROLE MODELS AND GOOD EXAMPLES", ROLEMODELS, ROLEMODELS_SHA256,
                                         ROLEMODELS_CREDIT_BLOCKS)) + drafts_b:

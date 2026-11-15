@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Markings on the Shield",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm21_markings_shield",
+  "source": "openq97",
+  "lines": [
+   587,
+   589
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L588",
+  "ledger": [
+   {
+    "src": "L587",
+    "kind": "structural",
+    "text": "[M21]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L589",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L587",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A grandparent shows a child the markings on a family shield.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a grandparent, shows a child the markings on a family shield. The child notices two marks that almost match. The grandparent points out the small difference.",
+   "src": "L587,L589"
+  }
+ }
+}

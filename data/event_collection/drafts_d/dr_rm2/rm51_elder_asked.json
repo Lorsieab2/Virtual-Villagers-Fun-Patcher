@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Asked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm51_elder_asked",
+  "source": "draft_rm2",
+  "lines": [
+   159,
+   172
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L159",
+  "ledger": [
+   {
+    "src": "L160",
+    "kind": "sensitivity",
+    "before": "An elder known for fine needlework can",
+    "after": "(Name1), an elder known for fine needlework, can",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder known for fine needlework can no longer see the smallest stitches but has a festival garment to finish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), an elder known for fine needlework, can no longer see the smallest stitches but has a festival garment to finish.",
+   "src": "L160",
+   "choices": [
+    {
+     "label": "Ask a Grandchild to Thread the Needles.",
+     "next": "a",
+     "src": "L161"
+    },
+    {
+     "label": "Ask Another Sewer to Finish the Fine Parts.",
+     "next": "b",
+     "src": "L164"
+    },
+    {
+     "label": "Try a Lens of Polished Clear Stone.",
+     "next": "c",
+     "src": "L167"
+    },
+    {
+     "label": "Change the Design to Larger Stitches.",
+     "next": "d",
+     "src": "L170"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The grandchild threads needles all afternoon and learns several stitches along the way.",
+   "src": "L162"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The grandchild's threading is crooked at first, and they both laugh before it improves.",
+   "src": "L163"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The finished garment combines both of their work beautifully.",
+   "src": "L165"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The other sewer's stitches look different, and the elder decides they like the variety.",
+   "src": "L166"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The lens makes the stitches large enough to see, and the elder works happily.",
+   "src": "L168"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The lens gives the elder a headache, so they return to asking for help.",
+   "src": "L169"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The bold new pattern becomes the most admired garment at the festival.",
+   "src": "L171"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elder misses the old fine work but finishes the garment proudly.",
+   "src": "L172"
+  }
+ }
+}

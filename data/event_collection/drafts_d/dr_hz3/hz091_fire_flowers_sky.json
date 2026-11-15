@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fire Flowers in the Sky",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz091_fire_flowers_sky",
+  "source": "draft_hz2",
+  "lines": [
+   137,
+   147
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L137",
+  "ledger": [
+   {
+    "src": "L138",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching sparks rise from a festival bonfire, a child wonders whether distant people make fire bloom in the sky.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching sparks rise from a festival bonfire, (name1), a child, wonders whether distant people might make fire bloom in the night sky like flowers.",
+   "src": "L138",
+   "choices": [
+    {
+     "label": "Imagine Fire Flowers.",
+     "next": "a",
+     "src": "L139"
+    },
+    {
+     "label": "Imagine the Noise.",
+     "next": "b",
+     "src": "L142"
+    },
+    {
+     "label": "Make Their Own Version.",
+     "next": "c",
+     "src": "L145"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine bursts of colored light overhead and spin with delight.",
+   "src": "L140"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A cautious villager wonders how anyone would keep such fire from falling on roofs.",
+   "src": "L141"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A drummer imagines the booming sound and loves the idea.",
+   "src": "L143"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A parent with a baby wonders whether the noise would frighten little ones and animals.",
+   "src": "L144"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers toss handfuls of dry leaves into the bonfire to make sparks; it is not the same, but it is fun.",
+   "src": "L146"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village decides fireflies are the island's own fire flowers.",
+   "src": "L147"
+  }
+ }
+}

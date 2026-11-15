@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Pattern for the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim160_pattern_canoe",
+  "source": "draft_tim2",
+  "lines": [
+   247,
+   252
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L247",
+  "ledger": [
+   {
+    "src": "L248",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L249",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L250",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L251",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L252",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager paints a new pattern along the side of a canoe.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) paints a new pattern along the side of a canoe. The pattern looks like waves, and the canoe seems faster already.",
+   "src": "L248,L249"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) paints a new pattern along the side of a canoe. A child adds a small fish to the end, and (name1) decides to keep it.",
+   "src": "L248,L250"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) paints a new pattern along the side of a canoe. The paint is still wet when someone tries to launch the canoe.",
+   "src": "L248,L251"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) paints a new pattern along the side of a canoe. (name1) steps back and decides it is the best painting (name1) has ever done.",
+   "src": "L248,L252"
+  }
+ }
+}

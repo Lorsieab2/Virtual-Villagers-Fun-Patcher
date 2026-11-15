@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wooden Breastplate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm02_wooden",
+  "source": "armor45",
+  "lines": [
+   10,
+   10
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L10",
+  "ledger": [
+   {
+    "src": "L10",
+    "kind": "structural",
+    "text": "02. The Wooden Breastplate  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L10",
+    "kind": "sensitivity",
+    "before": "A craftsperson",
+    "after": "(Name1), a craftsperson,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A craftsperson finishes a carved breastplate.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a craftsperson, finishes a carved breastplate. Its beautiful designs attract admiration, but an elder wonders whether decoration has compromised its usefulness.",
+   "src": "L10"
+  }
+ }
+}

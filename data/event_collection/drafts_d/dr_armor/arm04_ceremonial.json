@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ceremonial Helmet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm04_ceremonial",
+  "source": "armor45",
+  "lines": [
+   12,
+   12
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L12",
+  "ledger": [
+   {
+    "src": "L12",
+    "kind": "structural",
+    "text": "04. The Ceremonial Helmet  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "A helmet decorated with feathers, shells, and carved symbols is unveiled for a festival. Nobody agrees who should wear it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A helmet decorated with feathers, shells, and carved symbols is unveiled for a festival. Nobody agrees who should wear it.",
+   "src": "L12"
+  }
+ }
+}

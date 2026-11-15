@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Portions Set Aside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm60_portions_set",
+  "source": "draft_rm2",
+  "lines": [
+   294,
+   307
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L294",
+  "ledger": [
+   {
+    "src": "L295",
+    "kind": "sensitivity",
+    "before": "a cook",
+    "after": "(name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "During a village feast, a cook realizes that the night fishers will not be back until after all the food is gone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a village feast, (name1), a cook, realizes that the night fishers will not be back until after all the food is gone.",
+   "src": "L295",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L295"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Set Aside Covered Portions.",
+     "next": "a",
+     "src": "L296"
+    },
+    {
+     "label": "Ask Everyone to Leave a Little.",
+     "next": "b",
+     "src": "L299"
+    },
+    {
+     "label": "Save the Best Part for Them.",
+     "next": "c",
+     "src": "L302"
+    },
+    {
+     "label": "Hold a Second Small Feast When They Return.",
+     "next": "d",
+     "src": "L305"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fishers return to warm food and are touched that someone remembered.",
+   "src": "L297",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L297"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The portions grow cold, but the fishers are glad to eat anything at all.",
+   "src": "L298"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each family leaves a share, and the fishers end up with a small feast.",
+   "src": "L300"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some families forget, so the cook makes up the difference from the pot.",
+   "src": "L301"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The fishers are delighted by the choice pieces.",
+   "src": "L303"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Someone else eats the best part by accident, and the cook has to laugh.",
+   "src": "L304"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The late celebration becomes a happy tradition.",
+   "src": "L306",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L306"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Most villagers are asleep, but the fishers and the cook share a cozy meal.",
+   "src": "L307"
+  }
+ }
+}

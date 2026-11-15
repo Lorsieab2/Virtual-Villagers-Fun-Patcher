@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basalt Adze",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm52_basalt_adze",
+  "source": "draft_arm2",
+  "lines": [
+   16,
+   16
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L16",
+  "ledger": [
+   {
+    "src": "L16",
+    "kind": "structural",
+    "text": "52. The Basalt Adze  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L16",
+    "kind": "sensitivity",
+    "before": "Its newest keeper fits",
+    "after": "Its newest keeper, (name1), fits",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A heavy stone adze head has shaped canoes for at least four generations.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A heavy stone adze head has shaped canoes for at least four generations. Its newest keeper, (name1), fits a new handle and cuts one small notch into it, as every keeper before has done.",
+   "src": "L16"
+  }
+ }
+}

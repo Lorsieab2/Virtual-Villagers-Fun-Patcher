@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat07_question",
+  "source": "fathers30",
+  "lines": [
+   138,
+   156
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L138",
+  "ledger": [
+   {
+    "src": "L139",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L140",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L144",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L146",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L147",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L149",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L150",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L152",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L153",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L155",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L156",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L142",
+    "kind": "sensitivity",
+    "before": "The father must decide",
+    "after": "The father, (name1), must decide",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L138",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "At the well, a curious villager asks how a man could have carried a baby.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the well, a curious villager asks how a man could have carried a baby. The father, (name1), must decide whether he wants to answer; the child is busy trying to grab the water bucket.",
+   "src": "L142",
+   "choices": [
+    {
+     "label": "Answer Briefly",
+     "next": "a",
+     "src": "L145"
+    },
+    {
+     "label": "Decline to Explain",
+     "next": "b",
+     "src": "L148"
+    },
+    {
+     "label": "Change the Subject to the Child",
+     "next": "c",
+     "src": "L151"
+    },
+    {
+     "label": "Ask Why the Question Matters",
+     "next": "d",
+     "src": "L154"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The questioner thanks him and moves on.",
+   "src": "L146"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The explanation prompts more questions, and he ends the conversation.",
+   "src": "L147"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager accepts that his private life is private.",
+   "src": "L149"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager looks confused, but does not press further.",
+   "src": "L150"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They end up discussing the baby's astonishing grip.",
+   "src": "L152"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The baby splashes water over both of them.",
+   "src": "L153"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They have a thoughtful conversation about assumptions.",
+   "src": "L155"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The villager struggles to explain, and they part politely.",
+   "src": "L156"
+  }
+ }
+}

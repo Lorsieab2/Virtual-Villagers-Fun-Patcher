@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do They Sing to Their Babies?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz092_do_they_sing",
+  "source": "draft_hz2",
+  "lines": [
+   149,
+   159
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L149",
+  "ledger": [
+   {
+    "src": "L150",
+    "kind": "sensitivity",
+    "before": "a teenager",
+    "after": "(name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Hearing a lullaby from a nearby hut, a teenager wonders whether parents everywhere sing their babies to sleep.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Hearing a lullaby from a nearby hut, (name1), a teenager, wonders whether parents everywhere sing their babies to sleep.",
+   "src": "L150",
+   "choices": [
+    {
+     "label": "Imagine the Same Lullabies.",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Imagine Different Songs.",
+     "next": "b",
+     "src": "L154"
+    },
+    {
+     "label": "Sing One Together.",
+     "next": "c",
+     "src": "L157"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An elder suggests that tired parents everywhere might hum to quiet a crying child.",
+   "src": "L152"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent says that some parents do not sing at all and still love their children just as much.",
+   "src": "L153"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A musician imagines distant lullabies in strange rhythms and tries to hum one.",
+   "src": "L155"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says there is no way to know any distant song, so they record their own lullabies instead.",
+   "src": "L156"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers sing the oldest lullaby they know, and several babies fall asleep.",
+   "src": "L158"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The singing wakes a baby who was finally asleep, and everyone tiptoes away guiltily.",
+   "src": "L159"
+  }
+ }
+}

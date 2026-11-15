@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Clothes for a Colder Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz083_clothes_colder",
+  "source": "draft_hz2",
+  "lines": [
+   41,
+   51
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L41",
+  "ledger": [
+   {
+    "src": "L42",
+    "kind": "sensitivity",
+    "before": "a weaver",
+    "after": "(name1), a weaver,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Shivering slightly on a cool night, a weaver wonders what people might wear in a land where the cold never leaves.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Shivering slightly on a cool night, (name1), a weaver, wonders what people might wear in a land where the cold never leaves.",
+   "src": "L42",
+   "choices": [
+    {
+     "label": "Imagine Thick Coverings.",
+     "next": "a",
+     "src": "L43"
+    },
+    {
+     "label": "Imagine Bright Colors.",
+     "next": "b",
+     "src": "L46"
+    },
+    {
+     "label": "Ask Whether the Cold Is Real.",
+     "next": "c",
+     "src": "L49"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The weaver imagines layers of fur and fiber so thick a person looks like a walking haystack; the children act it out.",
+   "src": "L44"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healer wonders whether such clothing would be heavy and tiring, and how anyone would swim in it.",
+   "src": "L45"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A dyer guesses that people in a gray, cold place might love bright colors even more than Isolans do.",
+   "src": "L47"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic says they might prefer plain colors, and the dyer admits there is no way to know.",
+   "src": "L48"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child refuses to believe anywhere could be cold all the time; an elder says they might be right.",
+   "src": "L50"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A navigator mentions sailors' stories of cold winds, while admitting stories grow in the telling.",
+   "src": "L51"
+  }
+ }
+}

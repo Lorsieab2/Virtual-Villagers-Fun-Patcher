@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stray Dog's Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm42_stray_dog_place",
+  "source": "draft_rm2",
+  "lines": [
+   24,
+   37
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L24",
+  "ledger": [],
+  "description": "A thin stray dog keeps appearing near the cooking fires, and a few children have started shooing it away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A thin stray dog keeps appearing near the cooking fires, and a few children have started shooing it away by waving sticks and shouting.",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Ask the Children to Stop and Watch.",
+     "next": "a",
+     "src": "L26"
+    },
+    {
+     "label": "Leave Scraps at the Edge of the Clearing.",
+     "next": "b",
+     "src": "L29"
+    },
+    {
+     "label": "Ask a Healer to Look at the Limp.",
+     "next": "c",
+     "src": "L32"
+    },
+    {
+     "label": "Let the Children Help Make It a Sleeping Place.",
+     "next": "d",
+     "src": "L35"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children notice the dog is limping and quietly put their sticks down.",
+   "src": "L27"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child keeps shouting, so an adult takes them aside and explains that the dog is frightened, not wicked.",
+   "src": "L28"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The dog eats and lies down in the shade, keeping a careful distance from everyone.",
+   "src": "L30"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several village chickens reach the scraps first, and the dog waits for another evening.",
+   "src": "L31"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer finds a thorn in its paw and removes it while a calm villager holds the dog.",
+   "src": "L33"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The dog will not let anyone near, and the healer recommends patience over force.",
+   "src": "L34"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children line an old basket with leaves, and the dog uses it the very first night.",
+   "src": "L36"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The dog ignores the basket entirely and sleeps under a canoe instead, to the children's amusement.",
+   "src": "L37"
+  }
+ }
+}
