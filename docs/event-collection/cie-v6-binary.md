@@ -252,8 +252,9 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
 | 18 | die_unrecovered | role index | 0, 0 | `unknown` (always; the engine says "Unknown causes" whatever it holds) |
 | 19 | baby_lost | role index | 0, 0 | NONE |
+| 20 | old_look | role index | 0, 0 | NONE (section 26) |
 
-A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22.
+A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22, code 20 section 26.
 
 Preference (8) in v6 may be **random** (section 23): flags bit 8 set, string `NONE` (bit 4 still says dislikes).
 
@@ -700,6 +701,7 @@ the game lists it (`herbs`, `the dark`).
 | appearance, the head only / the body (or both) | `R's hair changes color.` / `R's look changes.` |
 | die_unrecovered | `R dies; the body is not recovered.` |
 | baby_lost | `R's baby is lost.` |
+| old_look | `R looks older and more worn.` |
 
 No line: `action`; a deferred food or tech (its `pay_award` gives it); an amount or change of 0; a skill the game
 does not have (roll -1); a random preference with no candidate. Identical lines are all kept.
@@ -713,6 +715,25 @@ does not have (roll -1); a random preference with no candidate. Identical lines 
 - **simulate** returns the lines in the popups, with the words its rolls and facts give.
 - **Python:** `auto_lines(...)`; the line table `AUTO_LINES` is pinned equal to the engine's `CG_AUTO_LINES`
   (`story_graph.inc`) by `tests/test_cie_graph_v6.py`.
+
+## 26. The old head look (the owner, 2026-11-14)
+
+JSON (v6): `{"do": "old_look", "role": r}` (code 20; a = b = 0, string `NONE`; no roll). Health troubles may be
+shown partly through the villager's look: the villager is drawn with the OLD head from then on, whatever their age --
+the per-villager head look Change Appearance offers (Auto / Young / Old), set to Old.
+
+- **How:** the engine asks "VVFP Head Look.dll" (`native/shared/head_look.h`: `VvfpHeadLookInstalled`, then
+  `VvfpHeadLookSet(game, record, 2)`), exactly as Change Appearance does. The look is kept in that companion's own
+  per-save file, never in a game record field; it follows the villager (patcher-data-follows-the-villager), the head
+  row never changes, and it is permanent until the player changes it (Change Appearance's Head look, or Reset to
+  original, which puts Auto back).
+- **Harmless** (section 7): nothing in the save is written, only the companion's file.
+- **When it cannot be made** -- Head Look is not in the game, or this game's draws do not follow the look (A New
+  Home needs Grey Hair at 55 for its old heads), or the file write fails -- it is a refusal ("N changes could not be
+  made") and nothing changes.
+- The Island Events log's entry says "<name>'s head look is now Old."
+- No game capability bit: whether it can be made is known only at run time, so the patcher's checks accept it in
+  every game.
 
 ## 25. The Pick Island Event list
 
