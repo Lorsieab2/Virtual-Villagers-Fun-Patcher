@@ -367,14 +367,16 @@ SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
 # ---- Version 6 (docs/event-collection/cie-v6-binary.md is the engine's contract) ---------------------------------
 
 V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # the new "do" words
-              "appearance", "die_unrecovered", "baby_lost")                  # cie-v6-binary.md 22
+              "appearance", "die_unrecovered", "baby_lost",                  # cie-v6-binary.md 22
+              "old_look")                                                    # ... 26
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
-                     "appearance": 17, "die_unrecovered": 18, "baby_lost": 19})
+                     "appearance": 17, "die_unrecovered": 18, "baby_lost": 19, "old_look": 20})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
-                    "baby_lost": CAP_CANCEL})
+                    "baby_lost": CAP_CANCEL,
+                    "old_look": 0})        # 26: "VVFP Head Look.dll", known only at run time
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
-                                          "baby_lost")
+                                          "baby_lost", "old_look")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered",)
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -2569,6 +2571,7 @@ AUTO_LINES = {
     "look": "<R>'s look changes.",
     "die_unrecovered": "<R> dies; the body is not recovered.",
     "baby_lost": "<R>'s baby is lost.",
+    "old_look": "<R> looks older and more worn.",
 }
 
 
@@ -2602,7 +2605,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
-    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost"):
+    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]

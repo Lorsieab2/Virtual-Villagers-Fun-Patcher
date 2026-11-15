@@ -294,6 +294,7 @@ class SharedVectors(unittest.TestCase):
                               cg.GAMES[case["game"]].preferences.index(word))
         if "tribe" in case:
             put_tribe(r, game, case["tribe"])
+        r.p.export("VvfpStoryProbeGraphHeadLook", 1, 0, 0)    # 26: "VVFP Head Look.dll" in the game
         installed(r, case.get("patches", ()))
         self.assertIsNone(r.queue6(data))
         shown = r.walk_through(case["answers"])
@@ -1514,6 +1515,39 @@ class EngineFollowups(unittest.TestCase):
                 self.assertIn("Ana now dislikes work.", text)
                 self.assertIn("Ana's hair changes color.", text)
                 self.assertIn("The village gains food.", text)
+
+
+    def head_looks(self, r) -> list[list[int]]:
+        buf = r.p.alloc(4 * 32)
+        n = r.p.export("VvfpStoryProbeGraphHeadLook", 2, buf, 16)
+        v = struct.unpack(f"<{2 * n}i", r.p.read(buf, 8 * n)) if n else ()
+        return [list(v[2 * i:2 * i + 2]) for i in range(n)]
+
+    def test_the_old_look_in_every_game(self):
+        graph = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "old_look_vv1")
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for mode in (1, 0):
+                with self.subTest(game=game, head_look=mode):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.p.export("VvfpStoryProbeGraphHeadLook", mode, 0, 0)
+                    r.rolls([1] * 40)
+                    self.assertIsNone(r.queue6(compiled(graph), strict=True, origin=2))
+                    head0 = r.v.i32(1, r.v.L["head"])
+                    text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
+                    self.assertEqual(r.state()["records"][0], 1)
+                    self.assertIn("Ana looks older and more worn.", text)
+                    self.assertIn("Ana now dislikes running.", text)
+                    words = cg.GAMES[int(game[2])].preferences
+                    self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"))
+                    self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
+                    if mode:
+                        self.assertEqual(self.head_looks(r), [[1, 2]], "Old, for Ana's record, once")
+                        self.assertNotIn("could not be made", text)
+                    else:
+                        self.assertEqual(self.head_looks(r), [])
+                        self.assertIn("could not be made", text, "no Head Look: a refusal, nothing changed")
 
 
 VECTOR_AUTO = next(c["graph"] for c in VECTORS["cases"] if c["name"] == "auto_lines_vv1")

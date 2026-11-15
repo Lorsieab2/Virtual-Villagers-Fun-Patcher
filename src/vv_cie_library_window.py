@@ -113,14 +113,15 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
 
 # Changes, in the order the Add menu offers them, with their plain names.
 EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
-                "celebrate", "action", "mood", "health_change", "damage", "appearance", "die_unrecovered",
-                "baby_lost")
+                "celebrate", "action", "mood", "health_change", "damage", "appearance", "old_look",
+                "die_unrecovered", "baby_lost")
 NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage",      # these make the event version 6
-             "appearance", "die_unrecovered", "baby_lost")
+             "appearance", "die_unrecovered", "baby_lost", "old_look")
 EFFECT_NAMES = {
     "appearance": "Give a villager a new look (head or body)",
     "die_unrecovered": "A villager dies and the body is never found (no grave)",
     "baby_lost": "A nursing parent loses the baby",
+    "old_look": "A villager looks older (the old head look)",
     "celebrate": "Villagers celebrate",
     "action": "A villager does something (an action of the game's own)",
     "mood": "A villager looks pleased or upset",
@@ -321,6 +322,8 @@ def describe_effect(e: dict) -> str:
         return f"{who} dies and the body is never found (no grave; recorded as \"Unknown causes\")"
     if do == "baby_lost":
         return f"{who} loses the baby"
+    if do == "old_look":
+        return f"{who} is shown with the old head look from now on"
     if do == "appearance":
         parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
                  if e.get(part) is not None]
@@ -2667,6 +2670,11 @@ class Library:
             elif do == "baby_lost":
                 ttk.Label(form, text="Ends the nursing: the baby is lost (never born, no grave). Give the role "
                                      "\"a nursing parent\" and allow protected villagers.").grid(
+                    row=row, column=0, columnspan=3, sticky="w")
+                row += 1
+            elif do == "old_look":
+                ttk.Label(form, text="Shows the villager with the old (grey) head from now on, as Change Appearance's "
+                                     "Head look \"Old\" does. Needs the Head Look patch (A New Home: Grey Hair).").grid(
                     row=row, column=0, columnspan=3, sticky="w")
                 row += 1
 

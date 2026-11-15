@@ -6424,6 +6424,386 @@
    }
   },
   {
+   "name": "old_look_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "7450e5d71c9904d40ecca80923041c033b01b62d547d04d4283419bf9c043f71"
+   }
+  },
+  {
+   "name": "old_look_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "7450e5d71c9904d40ecca80923041c033b01b62d547d04d4283419bf9c043f71"
+   }
+  },
+  {
+   "name": "old_look_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "7450e5d71c9904d40ecca80923041c033b01b62d547d04d4283419bf9c043f71"
+   }
+  },
+  {
+   "name": "old_look_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "7450e5d71c9904d40ecca80923041c033b01b62d547d04d4283419bf9c043f71"
+   }
+  },
+  {
+   "name": "old_look_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Long Cough",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) has been coughing for days.",
+      "auto_text": true,
+      "effects": [
+       {
+        "do": "old_look",
+        "role": "subject"
+       },
+       {
+        "do": "preference",
+        "role": "subject",
+        "dislike": "running"
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+    ],
+    "titles": [
+     "The Long Cough"
+    ],
+    "labels": [],
+    "rolls_used": 0,
+    "cieg_sha256": "7450e5d71c9904d40ecca80923041c033b01b62d547d04d4283419bf9c043f71"
+   }
+  },
+  {
    "name": "auto_lines_vv5",
    "graph": {
     "format": "vvfp-cie-graph",

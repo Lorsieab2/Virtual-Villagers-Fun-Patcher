@@ -162,7 +162,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_CELEBRATE = 11, CGE_ACTION = 12, CGE_MOOD = 13, CGE_HEALTH_CHANGE = 14, CGE_SKILL_SET = 15,
        CGE_DAMAGE = 16,
        /* cie-v6-binary.md 22 */
-       CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19 };
+       CGE_APPEARANCE = 17, CGE_DIE_UNRECOVERED = 18, CGE_BABY_LOST = 19,
+       /* cie-v6-binary.md 26 */
+       CGE_OLD_LOOK = 20 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -1004,8 +1006,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         unsigned int str = cg_u16(e + 12);
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
-                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_BABY_LOST);
-        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_BABY_LOST : CGE_SICK);
+                       || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK);
+        int ok = e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK);
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1041,7 +1043,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = a >= CG_LOOK_KEEP && a <= 29 && b >= CG_LOOK_KEEP && b <= 29
                      && !(a == CG_LOOK_KEEP && b == CG_LOOK_KEEP) && str == CG_NONE;
                 break;
-            case CGE_BABY_LOST: ok = a == 0 && b == 0 && str == CG_NONE; break;
+            case CGE_BABY_LOST: case CGE_OLD_LOOK: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -4178,6 +4180,35 @@ static int test_graph_structures = -1;  /* the finished structures (bit k), -1 =
 static int test_graph_damaged[SD_MAX_STRUCTURES];   /* each structure's loss the test build recorded */
 #endif
 
+#ifdef VVFP_TEST
+/* "VVFP Head Look.dll" as the test build sees it (cie-v6-binary.md 26): -1 the real one; 0 none; 1 installed, each
+   look set recorded (the record's index, the look). */
+static int test_graph_head_look = -1;
+static int test_graph_head_look_set[16][2];
+static int test_graph_head_looks;
+#endif
+
+/* cie-v6-binary.md 26: the villager in record `index` is drawn with the OLD head from now on -- the per-villager
+   head look Change Appearance offers, kept in "VVFP Head Look.dll"'s own per-save file (never a record field).
+   0 when it cannot be made (the companion is not in the game, its draws do not follow the look, the write failed). */
+static int cg_old_look(int game, const unsigned char *record, int index) {
+    vvfp_head_look_api api;
+#ifdef VVFP_TEST
+    if (test_graph_head_look >= 0) {
+        if (test_graph_head_look == 0) {
+            return 0;
+        }
+        if (test_graph_head_looks < 16) {
+            test_graph_head_look_set[test_graph_head_looks][0] = index;
+            test_graph_head_look_set[test_graph_head_looks++][1] = VVFP_HEAD_LOOK_OLD;
+        }
+        return 1;
+    }
+#endif
+    (void)index;
+    return vvfp_head_look_find(game, &api) && api.set(game, record, VVFP_HEAD_LOOK_OLD) == 1;
+}
+
 /* One more line for the event's log entry ("  <text>\n"), when it fits. */
 static void cg_extra_add(const char *who, const char *what) {
     char line[224];
@@ -4322,6 +4353,15 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ce_refuse_as(r, CE_WHY_OTHER);
         }
         cg.gone |= 1u << role;         /* gone for good: nothing more is done to them (their name stays) */
+        return;
+    }
+    if (e[0] == CGE_OLD_LOOK) {
+        /* 26: the old head look, through Head Look's own file (nothing in the save is written) */
+        if (!cg_old_look(game, record, index)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        cg_extra_add(cg.name[role], "'s head look is now Old.");
         return;
     }
     if (e[0] == CGE_BABY_LOST) {
@@ -4555,6 +4595,7 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "look", "<R>'s look changes." },
     { "die_unrecovered", "<R> dies; the body is not recovered." },
     { "baby_lost", "<R>'s baby is lost." },
+    { "old_look", "<R> looks older and more worn." },
 };
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
@@ -4635,6 +4676,7 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_SICK: cg_auto_add(out, cap, "sick", role, "", ""); break;
         case CGE_DIE_UNRECOVERED: cg_auto_add(out, cap, "die_unrecovered", role, "", ""); break;
         case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
+        case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
         case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
         case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
         case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
@@ -6867,6 +6909,22 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
 /* Record `record` starts nursing just before the next walk (after the roles are cast), -1 none. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphNurseAtWalk(int record) {
     test_graph_nurse = record;
+}
+
+/* "VVFP Head Look.dll" as the test build sees it (26): `mode` -1 the real one, 0 none, 1 installed (and the record
+   cleared); returns the looks set so far, each (record index, look) into `out` (at most `cap` pairs). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *out, int cap) {
+    int i;
+    if (mode >= -1 && mode <= 1) {
+        test_graph_head_look = mode;
+        test_graph_head_looks = 0;
+        return 0;
+    }
+    for (i = 0; i < test_graph_head_looks && i < cap && out != NULL; ++i) {
+        out[2 * i] = test_graph_head_look_set[i][0];
+        out[2 * i + 1] = test_graph_head_look_set[i][1];
+    }
+    return test_graph_head_looks;
 }
 
 /* A New Home's parentage sidecar as the test build sees it (cie-v6-binary.md 21): record `record`'s father (which 0)
