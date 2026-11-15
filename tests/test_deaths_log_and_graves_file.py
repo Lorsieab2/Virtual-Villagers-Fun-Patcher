@@ -168,8 +168,10 @@ class Harnesses(unittest.TestCase):
         # for section 12, A New Home's Golden Child: his grave marked at the burial (flag 2, version 3), "Golden
         # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session;
         # and 5 for VvfpCauseKilledBy (v1.35.97): the export, the 'VCW1' file with the author's words, the Death
-        # record in those words, the words dropped once used, Start Over deleting the file.
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10 + 5, result.stdout)
+        # record in those words, the words dropped once used, Start Over deleting the file; and 3 for the V28
+        # exports (cie-v6-binary.md 22): VvfpCauseDiedUnrecovered and VvfpCauseBabyLost exported, the death with no
+        # body (always "Unknown causes", no grave) and the baby lost.
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10 + 5 + 3, result.stdout)
         self.assertIn("  ok   the body's Death record says the author's words", result.stdout)
         self.assertIn("  ok   his grave's Job line: Golden Child", result.stdout)
         self.assertIn("  ok   version 3: the child's grave flags 0, epitaph 12; the Golden Child's flag 2, epitaph 13",

@@ -327,14 +327,13 @@ __declspec(dllexport) void __stdcall VvfpCauseKilledBy(int game, int index, cons
 /* The branching Custom Island Event's "died, no body" (story_graph.inc cg_tell_died_unrecovered): called right after
    it took the villager in record `index` with the stock disappearance (no body, no skeleton, no grave: the presence
    byte cleared; The Tree of Life's after the Sealed Box's health 0, as VvfpCauseVanished).  It is a DEATH (the
-   owner, V28: "logged as died, counted as a death"): a Death record, "Cause of death: <words>" (the event's: the
-   owner's "Unknown causes" unless an author gave words; at most 63 characters kept) and the grave line above, with
-   the babies a nursing mother carried and their "Lost before birth" record, as every Death record.  The same checks
-   as VvfpCauseVanished. */
+   owner, V28: "logged as died, counted as a death"): a Death record, "Cause of death: Unknown causes" (ALWAYS: the
+   owner's rule for these deaths; `words` is ignored, an author never words it) and the grave line above, with the
+   babies a nursing mother carried and their "Lost before birth" record -- written by cod_log_death, as every Death
+   record.  The same checks as VvfpCauseVanished. */
 __declspec(dllexport) void __stdcall VvfpCauseDiedUnrecovered(int game, int index, const char *words) {
-    char before[640], carrying[96], cause[64];
     unsigned char *record;
-    int babies, i;
+    (void)words;
     if (install_state != 1 || game != g_game) {
         return;
     }
@@ -343,24 +342,9 @@ __declspec(dllexport) void __stdcall VvfpCauseDiedUnrecovered(int game, int inde
         || !cod_is_villager(record)) {
         return;
     }
-    for (i = 0; words != NULL && words[i] != '\0' && i < (int)sizeof cause - 1; ++i) {
-        unsigned char c = (unsigned char)words[i];
-        cause[i] = c >= 0x20 && c < 0x7F ? (char)c : ' ';
-    }
-    cause[i] = '\0';
-    if (cause[0] == '\0') {
-        lstrcpyA(cause, cod_cause_words(CAUSE_UNKNOWN));
-    }
-    babies = lost_babies(record);
-    lost_line(carrying, babies);
-    wsprintfA(before,
-              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: (none)\n%s",
-              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)), cause, NO_GRAVE_NOT_RECOVERED,
-              carrying);
     seen_alive[index] = 0;
     roster_departed(index, record);
-    (void)cod_write(LOG_DEATH, record, 1, before, NULL, 1);
-    lost_record(record, babies, "died");
+    (void)cod_log_death(record, CAUSE_UNKNOWN, NO_GRAVE_NOT_RECOVERED, NULL);
 }
 
 /* The branching Custom Island Event's "baby lost" (story_graph.inc cg_tell_baby_lost): called right BEFORE it ends

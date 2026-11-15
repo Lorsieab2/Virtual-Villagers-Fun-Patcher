@@ -956,10 +956,11 @@ int main(int argc, char **argv) {
                         *(int *)(gone + 0xDC4) = 900;
                         strcpy((char *)gone + 0xDD4, "Fourth");
                         cie_last[0] = 0;
-                        died_unrecovered(3, 8, "Unknown causes");
+                        died_unrecovered(3, 8, "Drowned");       /* the owner: ALWAYS Unknown causes */
                         CHECK(strstr(cie_last, "Cause of death: Unknown causes\n") != NULL
-                              && strstr(cie_last, "Grave: no grave (the body was not recovered)\n") != NULL,
-                              "a Death record, Unknown causes, no grave: %s", cie_last);
+                              && strstr(cie_last, "Grave: no grave (the body was not recovered)\n") != NULL
+                              && strstr(cie_last, "Drowned") == NULL,
+                              "a Death record, Unknown causes (never the words given), no grave: %s", cie_last);
                         mum[0xF10] = 1;
                         *(int *)(mum + 0xE78) = 60;
                         *(int *)(mum + 0xDC4) = 700;
