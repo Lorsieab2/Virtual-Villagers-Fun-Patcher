@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Record of the Surgeonfish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat026_surgeonfish",
+  "source": "companion",
+  "lines": [
+   7409,
+   7419
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_bodies",
+  "title_src": "L7409",
+  "ledger": [
+   {
+    "src": "L7419",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "A young naturalist observes a Golden Surgeonfish in a sheltered lagoon, but another observer disputes its fin shape."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A young naturalist observes a Golden Surgeonfish in a sheltered lagoon and believes its unusual feeding habits may distinguish it from other fish. Another observer disagrees about the fin shape.",
+   "src": "L7410",
+   "choices": [
+    {
+     "label": "Sketch it from a safe distance",
+     "next": "a",
+     "src": "L7411"
+    },
+    {
+     "label": "Keep a living specimen briefly for observation",
+     "next": "b",
+     "src": "L7413"
+    },
+    {
+     "label": "Preserve a collected specimen",
+     "next": "c",
+     "src": "L7415"
+    },
+    {
+     "label": "Wait for a second sighting",
+     "next": "d",
+     "src": "L7417"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The drawing captures the Surgeonfish silhouette, but the golden fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7412"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7414",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7414"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7414"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7416",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7416"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7416"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
+   "src": "L7418",
+   "text_only": [
+    {
+     "what": "The fish disappears for days",
+     "reason": "an animal, not a villager; no one vanishes",
+     "src": "L7418"
+    }
+   ]
+  }
+ }
+}

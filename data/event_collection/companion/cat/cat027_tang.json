@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Record of the Tang",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat027_tang",
+  "source": "companion",
+  "lines": [
+   7421,
+   7431
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_bodies",
+  "title_src": "L7421",
+  "ledger": [
+   {
+    "src": "L7431",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "A young naturalist observes a Great-Sail Tang in a coral shelf, but another observer disputes its fin shape."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A young naturalist observes a Great-Sail Tang in a coral shelf and believes its startling color change may distinguish it from other fish. Another observer disagrees about the fin shape.",
+   "src": "L7422",
+   "choices": [
+    {
+     "label": "Sketch it from a safe distance",
+     "next": "a",
+     "src": "L7423"
+    },
+    {
+     "label": "Keep a living specimen briefly for observation",
+     "next": "b",
+     "src": "L7425"
+    },
+    {
+     "label": "Preserve a collected specimen",
+     "next": "c",
+     "src": "L7427"
+    },
+    {
+     "label": "Wait for a second sighting",
+     "next": "d",
+     "src": "L7429"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The drawing captures the Tang silhouette, but the great-sail fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7424"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7426",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7426"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7426"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7428",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7428"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7428"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
+   "src": "L7430",
+   "text_only": [
+    {
+     "what": "The fish disappears for days",
+     "reason": "an animal, not a villager; no one vanishes",
+     "src": "L7430"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7422",
+   "before": "believes its a",
+   "after": "believes its"
+  }
+ ]
+}

@@ -192,11 +192,37 @@ verbatim apart from glaring grammar.
 |---|---|---|---|---|
 | companion L2875 | `villager dies` | `the villager dies` | c5dn023_false_delicacy (Part 4 N023, outcome 2) | a missing article: with the designer tag "RARE FATAL:" and the instruction "if the fatal branch is enabled" cut, the line reads "Villager dies." |
 | companion L3286 | `diffuses it` | `defuses it` | c5dn067_argument (Part 4 N067, outcome 1) | the wrong word: a joke defuses (calms) a quarrel; "diffuses" means spreads it |
+| companion L7122 | `believes its a` | `believes its` | cat002_catfish (Living Catalogue 002, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7134 | `believes its a` | `believes its` | cat003_arrowfish (Living Catalogue 003, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7146 | `believes its a` | `believes its` | cat004_snout (Living Catalogue 004, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7158 | `believes its a` | `believes its` | cat005_fatfish (Living Catalogue 005, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7182 | `believes its a` | `believes its` | cat007_goldshark (Living Catalogue 007, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7194 | `believes its a` | `believes its` | cat008_fire_arrow (Living Catalogue 008, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7206 | `believes its a` | `believes its` | cat009_fruitfish (Living Catalogue 009, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7218 | `believes its a` | `believes its` | cat010_flashfish (Living Catalogue 010, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7242 | `believes its a` | `believes its` | cat012_comet (Living Catalogue 012, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7254 | `believes its a` | `believes its` | cat013_stickfish (Living Catalogue 013, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7266 | `believes its a` | `believes its` | cat014_grouper (Living Catalogue 014, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7278 | `believes its a` | `believes its` | cat015_leaffish (Living Catalogue 015, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7302 | `believes its a` | `believes its` | cat017_beta (Living Catalogue 017, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7314 | `believes its a` | `believes its` | cat018_pigmy (Living Catalogue 018, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7326 | `believes its a` | `believes its` | cat019_bananafish (Living Catalogue 019, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7338 | `believes its a` | `believes its` | cat020_quicksilver (Living Catalogue 020, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7362 | `believes its a` | `believes its` | cat022_clownfish (Living Catalogue 022, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7374 | `believes its a` | `believes its` | cat023_discus (Living Catalogue 023, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7386 | `believes its a` | `believes its` | cat024_bicolor (Living Catalogue 024, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7398 | `believes its a` | `believes its` | cat025_trigger (Living Catalogue 025, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7422 | `believes its a` | `believes its` | cat027_tang (Living Catalogue 027, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7434 | `believes its a` | `believes its` | cat028_idle (Living Catalogue 028, premise) | a stray article: the template's "its <trait>" (as in 001's "its unusual feeding habits") with "a" left in |
+| companion L7542 | `that a Orange` | `that an Orange` | cat037_orange_fin (Living Catalogue 037, premise) | "a" before a vowel |
+| companion L7554 | `that a Oriental` | `that an Oriental` | cat038_oriental_fin (Living Catalogue 038, premise) | "a" before a vowel |
+| companion L7722 | `that a Angel` | `that an Angel` | cat052_angel_fin (Living Catalogue 052, premise) | "a" before a vowel |
 
 Wave 1 chunk 1 (Vol 1 Part 1, Part 3 001-030) needed none. Known candidates for the later chunks (inventory, the
 Living Catalogue templates): "believes its a startling" (22 times), "a Orange / a Oriental / a Angel / a Arthurium /
 a Anagallis / a Indigoberry / a Aureus" (9 times: companion L7542, 7554, 7722, 7902, 8022, 8034, 8538, 8550, 8622) and
-"with the The Golden Guppy" (L8574). The chunk that builds them adds its rows here.
+"with the The Golden Guppy" (L8574). The chunk that builds them adds its rows here. Chunk K10 (Living Catalogue
+001-056) added the 22 "believes its a" rows and L7542, L7554, L7722 above; the rest belong to K11 and K9.
 
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
