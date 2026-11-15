@@ -306,8 +306,7 @@ def describe_effect(e: dict) -> str:
     if do == "vanish":
         return f"{who} disappears for good, with no grave"
     if do == "die_unrecovered":
-        cause = e.get("cause", "unknown")
-        return f"{who} dies and the body is never found (no grave; recorded as \"{CAUSE_WORDS.get(cause, cause)}\")"
+        return f"{who} dies and the body is never found (no grave; recorded as \"Unknown causes\")"
     if do == "baby_lost":
         return f"{who} loses the baby"
     if do == "appearance":
@@ -2486,8 +2485,12 @@ class Library:
                 self._effect_changed()
             who.bind("<<ComboboxSelected>>", pick_who)
             row += 1
-            if do in ("kill", "die_unrecovered"):
-                cause = e.get("cause", "custom" if do == "kill" else "unknown")
+            if do == "die_unrecovered":
+                ttk.Label(form, text="The death is recorded as: Unknown causes.").grid(row=row, column=0,
+                                                                                      columnspan=3, sticky="w")
+                row += 1
+            elif do == "kill":
+                cause = e.get("cause", "custom")
                 choice = var_of(cause if cause in CAUSE_WORDS else "own")
                 own = var_of("" if cause in CAUSE_WORDS else cause)
                 count = ttk.Label(form, text="")

@@ -865,9 +865,15 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 out[part] = v
             if "head" not in e and "body" not in e:
                 problems.append(f"{where}: appearance changes the head, the body or both")
-        if do in ("kill", "die_unrecovered"):
+        if do == "die_unrecovered":
+            # The owner's rule: a death with no body is ALWAYS "Unknown causes"; an author cannot word it.
             known.add("cause")
-            cause = e.get("cause", "custom" if do == "kill" else "unknown")
+            if e.get("cause", "unknown") != "unknown":
+                problems.append(f"{where}: die_unrecovered is always \"Unknown causes\" (cause is unknown or left out)")
+            out["cause"] = "unknown"
+        elif do == "kill":
+            known.add("cause")
+            cause = e.get("cause", "custom")
             if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
                 problems.append(f"{where}: kill cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")

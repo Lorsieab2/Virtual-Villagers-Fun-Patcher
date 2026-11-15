@@ -131,7 +131,7 @@ effect of that kind, or a `text_only` entry for that line.
 | injured, lose health, health | `{"do": "health_change", "role": r, "min": ..., "max": ...}` |
 | collapses (a structure) | `{"do": "damage", "structures": "any", "min": 50, "max": 100}` |
 | looks different, new hair, appearance | `{"do": "appearance", "role": r, "head": "random"}` (and/or `"body"`) |
-| dies, body never found / not recovered | `{"do": "die_unrecovered", "role": r, "cause": "unknown"}` (no grave; logged as a death) |
+| dies, body never found / not recovered | `{"do": "die_unrecovered", "role": r, "cause": "unknown"}` (no grave; logged as a death; always "Unknown causes", no other cause allowed) |
 | loses the baby (a nursing parent) | `{"do": "baby_lost", "role": r}` on a `"special": "nursing_parent"` role with `"protected": "allow"` |
 
 - "(large award) food" shown in the text is `(award)`: give `"defer": true` on the food and a `{"do": "pay_award"}`

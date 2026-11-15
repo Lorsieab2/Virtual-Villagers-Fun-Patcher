@@ -274,6 +274,15 @@ class ChecksRefuse(unittest.TestCase):
         d["nodes"]["s1"]["effects"][0] = {"do": "kill", "role": "gardener1", "cause": "unknown", "src": "L3071"}
         self.assertTrue(problems(check_doc(d), "f SAFETY"))
 
+    def test_die_unrecovered_is_always_unknown_causes(self):
+        # The owner's rule: a death with no body is always "Unknown causes"; the checker refuses an author's cause.
+        d = self.doc()
+        d["nodes"]["s1"]["effects"][0] = {"do": "die_unrecovered", "role": "gardener1", "cause": "Drowned",
+                                          "src": "L3071"}
+        self.assertTrue(any("always \"Unknown causes\"" in p for p in problems(check_doc(d), "e EFFECTS")))
+        d["nodes"]["s1"]["effects"][0]["cause"] = "unknown"
+        self.assertFalse(any("always \"Unknown causes\"" in p for p in problems(check_doc(d), "e EFFECTS")))
+
     def test_harmed_role_allowing_protected(self):
         # The owner's model (2026-11-14, cie-v6-binary.md 7): "allow" on a harmed role is the author's choice, listed
         # by --allow-report for review; a harmed special role without it is refused.

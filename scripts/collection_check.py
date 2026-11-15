@@ -863,6 +863,8 @@ def check_effects(doc: dict, rep: Report) -> None:
                                              f"{SKILL_SIZES}")
             elif do == "kill" and not e.get("cause"):
                 rep.add("e EFFECTS", f"{where}: a kill names its cause")
+            elif do == "die_unrecovered" and e.get("cause", "unknown") != "unknown":
+                rep.add("e EFFECTS", f"{where}: die_unrecovered is always \"Unknown causes\" (the owner's rule)")
     _ = cuts_whole
 
 

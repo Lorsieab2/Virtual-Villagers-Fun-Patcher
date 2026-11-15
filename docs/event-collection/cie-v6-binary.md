@@ -248,7 +248,7 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 15 | skill_set | role index | a = value 0..100 | the skills, comma separated |
 | 16 | damage | 0xFF | a..b percent 1..100 | the structures, comma separated, or `any` |
 | 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
-| 18 | die_unrecovered | role index | 0, 0 | the cause (as kill's) |
+| 18 | die_unrecovered | role index | 0, 0 | `unknown` (always; the engine says "Unknown causes" whatever it holds) |
 | 19 | baby_lost | role index | 0, 0 | NONE |
 
 A role byte may name an alias; the effect goes to the member drawn. Codes 17-19 are section 22.
@@ -583,12 +583,12 @@ the event needs (not optional, not a stranger, alias or other role); one relatio
   **The Secret City's Tribal Chief keeps the chief's robe** (the game's own robing gives body 29): their body is
   not changed, only their head. The Island Events log's entry gets "<name>'s look changed." beside the
   companion's Head / Body lines and its "Appearance changed" record. Harmless.
-- **`{"do": "die_unrecovered", "role": r, "cause": "unknown"}`** (code 18; the cause as `kill`'s, default
-  `"unknown"`). The villager dies and the body is never recovered: removed with no body, no skeleton and no grave
+- **`{"do": "die_unrecovered", "role": r, "cause": "unknown"}`** (code 18; the cause is always
+  `"unknown"`, or left out: any other cause is refused by the validator and the checker, and the engine ignores it). The villager dies and the body is never recovered: removed with no body, no skeleton and no grave
   (the adapter's `vanish`, the stock disappearance), and told to "VVFP Cause of Death.dll" as a DEATH:
   `VvfpCauseDiedUnrecovered(game, index, words)` writes a "Death <n>" record in the Deaths and Disappearances log
   with "Cause of death: Unknown causes" (the owner: every death from the new events is "Unknown causes"; an
-  author's own words where given) and "Grave: no grave (the body was not recovered)", with the babies a nursing
+  author never words it) and "Grave: no grave (the body was not recovered)", with the babies a nursing
   mother carried (as every Death record). The Village Statistics' reconciliation reads that record as a departure
   (a death), never a burial: its Grave line is "no grave", so Villagers Buried does not count it (the statistics
   log has no row that counts deaths or disappearances; "Villagers Died" was removed at the owner's instruction).

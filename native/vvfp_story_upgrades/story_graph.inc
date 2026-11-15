@@ -3834,13 +3834,14 @@ static void cg_tell_vanished(int game, int index) {
 }
 
 /* cie-v6-binary.md 22: "died, no body" -- the villager just taken with no body is a DEATH in the Deaths log, with the
-   cause words ("unknown": the game's own "Unknown causes", the owner's rule for the new events) and no grave
-   (VvfpCauseDiedUnrecovered).  An older Cause of Death companion without it: told as a disappearance. */
-static void cg_tell_died_unrecovered(int game, int index, const char *cause) {
+   cause ALWAYS "Unknown causes" (the owner's rule for the new events: no author's words, whatever the file holds)
+   and no grave (VvfpCauseDiedUnrecovered).  An older Cause of Death companion without it: told as a
+   disappearance. */
+static void cg_tell_died_unrecovered(int game, int index) {
     typedef void (__stdcall *died_fn)(int game, int index, const char *words);
     HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
     died_fn died = module != NULL ? (died_fn)(void *)GetProcAddress(module, "VvfpCauseDiedUnrecovered") : NULL;
-    const char *words = lstrcmpA(cause, "unknown") == 0 || lstrcmpA(cause, "custom") == 0 ? "Unknown causes" : cause;
+    const char *words = "Unknown causes";
 #ifdef VVFP_TEST
     cg_test_tell(4, index, words);
 #endif
@@ -4157,14 +4158,10 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
             ++r->vanished;
             cg_tell_vanished(game, index);
         } else if (e[0] == CGE_DIE_UNRECOVERED && a->vanish(index)) {
-            /* 22: the stock disappearance (no body, no grave), told as a death. */
-            const char *cause = cg_s(&cg_g, cg_u16(e + 12));
-            char what[128];
+            /* 22: the stock disappearance (no body, no grave), told as a death; always "Unknown causes". */
             ++r->died;
-            cg_tell_died_unrecovered(game, index, cause);
-            wsprintfA(what, " died (%s); the body was not recovered.",
-                      lstrcmpA(cause, "unknown") == 0 || lstrcmpA(cause, "custom") == 0 ? "Unknown causes" : cause);
-            cg_extra_add(cg.name[role], what);
+            cg_tell_died_unrecovered(game, index);
+            cg_extra_add(cg.name[role], " died (Unknown causes); the body was not recovered.");
         } else {
             ce_refuse_as(r, CE_WHY_OTHER);
         }

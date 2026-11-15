@@ -1244,6 +1244,34 @@ class V28Effects(unittest.TestCase):
                                  "Cy died (Unknown causes); the body was not recovered."):
                         self.assertIn(line, filed)
 
+    def test_a_death_with_no_body_is_always_unknown_causes(self):
+        # The owner's rule: whatever cause a file holds, the engine says "Unknown causes" (no author override).
+        game = next((g for g in GAME_IDS if have_stock(g)), None)
+        if game is None:
+            self.skipTest("no stock game")
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Tide", "games": [int(game[2])],
+             "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p",
+             "nodes": {"p": {"text": "(Name) is lost at sea.",
+                             "effects": [{"do": "die_unrecovered", "role": "subject"}]}}}
+        data = bytearray(compiled(g))
+        self.assertEqual(data.count(b"\0unknown\0"), 1)
+        at = data.index(b"\0unknown\0") + 1
+        data[at:at + 7] = b"Drowned"                   # a hand-edited file with an author's cause
+        struct.pack_into("<I", data, 12, 0)
+        struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+        r = V6(game, [(0, "m", 30, "Bob", 0, False)])
+        r.rolls([0] * 10)
+        r.log(1)
+        self.assertIsNone(r.queue6(bytes(data)))
+        r.walk_through()
+        self.assertEqual(r.p.read(r.v.record(0) + r.v.L["active"], 1), b"\0", "Bob is gone: no body")
+        told = r.told()
+        self.assertIn((4, 0, "Unknown causes"), told)
+        self.assertFalse(any("Drowned" in w for _k, _i, w in told), told)
+        _n, _now, filed = r.log()
+        self.assertIn("Bob died (Unknown causes); the body was not recovered.", filed)
+        self.assertNotIn("Drowned", filed)
+
     def test_a_random_look_is_never_the_current_one(self):
         game = next((g for g in GAME_IDS if have_stock(g)), None)
         if game is None:

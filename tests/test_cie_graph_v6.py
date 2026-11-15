@@ -859,6 +859,14 @@ class V28Features(unittest.TestCase):
                       "z": {"text": "The tide turns."}})
         g = cg.load(d)
         self.assertEqual(g["nodes"]["k"]["effects"][0]["cause"], "unknown", "the owner's Unknown causes")
+        # The owner's rule: ALWAYS "Unknown causes"; no author's cause, not even a stock one.
+        for cause in ("Drowned", "custom", "Old age", ""):
+            bad = copy.deepcopy(d)
+            bad["nodes"]["k"]["effects"][0]["cause"] = cause
+            self.assertTrue(any("always \"Unknown causes\"" in p for p in t.problems_of(bad)), cause)
+        ok = copy.deepcopy(d)
+        ok["nodes"]["k"]["effects"][0]["cause"] = "unknown"
+        self.assertEqual(t.problems_of(ok), [])
         self.assertEqual(cg.harm_capable(g), {"hero"})
         blob = cg.compile_graph(g)
         self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
