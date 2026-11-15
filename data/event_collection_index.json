@@ -1433,6 +1433,279 @@
    "harm": [],
    "section": "c5"
   },
+  "sss001_cartographer": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss002_drum_heard": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss003_missing_hand": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss004_healer_forgets": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss005_child_needs": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss006_between_names": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss007_weaver_her": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss008_two_fathers": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss009_friend_stopped": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss010_reads_slowly": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss011_elder_unsteady": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss012_argument_help": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss013_boy_big_idea": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss014_elder_loves": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss015_ceremony": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss016_living_conch": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss017_reef_red_branch": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss018_silver_seam": {
+   "harm": [
+    "kill"
+   ],
+   "section": "sss"
+  },
+  "sss019_pearl_diver": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss020_stone_stains": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss021_borrowed": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss022_mine_hidden": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss023_wedding_rings": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss024_gem_wasnt": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss025_shell_collector": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss026_jewel_hidden": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss027_miner_retires": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss028_sail_beyond": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss029_canoe_flag": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss030_stranger_prayer": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss031_child_foreign": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss032_tracks_biggles": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss033_biggles_mask": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss034_knock_three": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss035_biggles_missing": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss036_outsider_wants": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss037_horizon_moved": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss038_biggles_tax": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss039_return_unknown": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss040_clean_dressing": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss041_body_left": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss042_dead_sea_turtle": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss043_spell_worked": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss044_limit_power": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss045_stone_hums": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss046_village_without": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss047_price_machine": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss048_child_asked_why": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss049_dangerous_cure": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss050_mine_beneath": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss051_island_four": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss052_festival_hair": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss053_baby_beads": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss054_elder_second": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss055_argument_chair": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss056_unsent_apology": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss057_was_wrong": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss058_friend_likes": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss059_broken_promise": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss060_changed_mind": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss061_lantern_went": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss062_shortcut": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss063_feast_nobody": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss064_grave_without": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss065_nursing_mother": {
+   "allow": true,
+   "harm": [
+    "baby_lost"
+   ],
+   "section": "sss"
+  },
+  "sss066_missing_teen": {
+   "harm": [],
+   "section": "sss"
+  },
+  "sss067_nobody_special": {
+   "harm": [],
+   "section": "sss"
+  },
   "vv1_child_of_legend": {
    "harm": [],
    "section": "original"
