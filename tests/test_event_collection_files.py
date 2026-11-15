@@ -60,6 +60,37 @@ class FrozenSource(unittest.TestCase):
         self.assertEqual(len(lib.source_lines()), lib.SOURCE_LINES)
 
 
+class FrozenCompanion(unittest.TestCase):
+    """The second source: the owner's Companion Anthology, frozen byte for byte (2026-11-14)."""
+
+    def test_sha256_matches_the_record(self):
+        self.assertEqual(lib.recorded_sha256(lib.COMPANION_ID),
+                         "d39d14da81b04225308452425069db3186a62065a3ee634f5c6afd074e64ff16")
+        self.assertEqual(lib.source_sha256(lib.COMPANION_ID), lib.recorded_sha256(lib.COMPANION_ID))
+
+    def test_record_names_the_source(self):
+        rel = lib.COMPANION_HASH_FILE.read_text(encoding="ascii").split(None, 1)[1].strip()
+        self.assertEqual(ROOT / rel, lib.COMPANION)
+
+    def test_line_count_and_active_source(self):
+        self.assertNotIn(b"\r", lib.COMPANION.read_bytes())
+        self.assertEqual(len(lib.source_lines(lib.COMPANION_ID)), lib.COMPANION_LINES)
+        self.assertEqual(lib.active_source(), lib.SOURCE_ID)
+        with lib.use_source(lib.COMPANION_ID):
+            self.assertTrue(lib.line(92).startswith("EVENT 001"))
+            self.assertEqual(lib.src_lines("L8961"), [8961])
+            with self.assertRaises(ValueError):
+                lib.src_lines("L8962")
+        self.assertEqual(lib.active_source(), lib.SOURCE_ID)
+        self.assertNotEqual(lib.line(92)[:9], "EVENT 001")
+
+    def test_companion_markers_only_for_the_companion(self):
+        self.assertEqual(lib.strip_structural("RANDOM OUTCOME 1 - A jar."), "RANDOM OUTCOME 1 - A jar.")
+        with lib.use_source(lib.COMPANION_ID):
+            self.assertEqual(lib.strip_structural("RANDOM OUTCOME 1 - A jar."), "A jar.")
+            self.assertEqual(lib.strip_structural("  • A jar."), "A jar.")
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -72,6 +103,25 @@ class Manifest(unittest.TestCase):
     def test_every_line_belongs_to_one_row(self):
         self.assertEqual(self.data["uncovered_lines"], [])
         self.assertEqual(self.data["overlaps"], [])
+        self.assertEqual(self.data["companion"]["uncovered_lines"], [])
+        self.assertEqual(self.data["companion"]["overlaps"], [])
+
+    def test_companion_counts(self):
+        # The anthology's contents (L7-14): 318 + 120 + 60 + 97 + 154 = 749 events; its Living Catalogue templates are
+        # seven series (the owner, 2026-11-14: a series still counts as one).
+        c = self.data["companion"]["counts"]
+        self.assertEqual(c["events"], 749)
+        self.assertEqual(c["notes"], 23)
+        self.assertEqual(c["series"], {"cat_bodies": 28, "cat_fins": 28, "cat_foliage": 23, "cat_flowers": 37,
+                                       "cat_magic_fish": 7, "cat_magic_plants": 6, "cat_creatures": 5})
+        self.assertEqual(self.data["companion"]["source_sha256"],
+                         "d39d14da81b04225308452425069db3186a62065a3ee634f5c6afd074e64ff16")
+        rows = [r for r in self.data["rows"] if r["source"] == lib.COMPANION_ID and r["kind"] == "event"]
+        by = {}
+        for r in rows:
+            by[r["section"]] = by.get(r["section"], 0) + 1
+            self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])     # every companion event is in A New Home
+        self.assertEqual(by, {"c5": 318, "lbl": 120, "fwk": 60, "sss": 97, "cat": 154})
 
     def test_counts(self):
         c = self.data["counts"]
@@ -97,7 +147,8 @@ class Manifest(unittest.TestCase):
         ids = [r["id"] for r in self.data["rows"]]
         self.assertEqual(len(ids), len(set(ids)))
         for r in self.data["rows"]:
-            text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))
+            with lib.use_source(r["source"]):
+                text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))
             self.assertEqual(r["credit"]["text"], text, r["id"])
 
     def test_known_counts(self):
@@ -147,19 +198,46 @@ class CollectionFiles(unittest.TestCase):
         self.assertEqual(cc.check_shared_pools(), [])
 
     def test_every_listed_grammar_fix_is_on_its_line(self):
-        fixes = cc.grammar_doc_fixes()
-        self.assertGreaterEqual(len(fixes), 30)
-        for n, before, after in fixes:
-            self.assertIn(before, lib.normalize_source_text(lib.line(n)), f"L{n}")
-            self.assertNotEqual(before, after)
+        self.assertGreaterEqual(len(cc.grammar_doc_fixes()), 30)
+        for source in lib.SOURCES:
+            with lib.use_source(source):
+                for n, before, after in cc.grammar_doc_fixes(source):
+                    self.assertIn(before, lib.normalize_source_text(lib.line(n)), f"{source} L{n}")
+                    self.assertNotEqual(before, after)
 
     def test_grammar_fixes_used_are_listed(self):
-        listed = cc.grammar_doc_fixes()
+        rows = cc.manifest_rows()
         for p in cc.collection_files():
             doc = json.loads(p.read_text(encoding="utf-8"))
-            for f in doc.get("grammar_fixes", []):
-                (n,) = lib.src_lines(f["src"])
-                self.assertIn((n, f["before"], f["after"]), listed, p.name)
+            source = cc.file_source(doc, rows)
+            listed = cc.grammar_doc_fixes(source)
+            with lib.use_source(source):
+                for f in doc.get("grammar_fixes", []):
+                    (n,) = lib.src_lines(f["src"])
+                    self.assertIn((n, f["before"], f["after"]), listed, p.name)
+
+    def test_companion_files_live_by_volume(self):
+        rows = cc.manifest_rows()
+        files = [p for p in cc.collection_files() if lib.COMPANION_DIR in p.parents]
+        self.assertGreaterEqual(len(files), 78)                       # wave 1 chunk 1: Part 1 and Part 3 001-030
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(doc["collection"]["source"], lib.COMPANION_ID, p.name)
+            self.assertEqual(rows[doc["collection"]["id"]]["source"], lib.COMPANION_ID, p.name)
+            self.assertEqual(p.parent.parent, lib.COMPANION_DIR, p.name)
+
+    def test_a_file_is_checked_against_its_own_source(self):
+        """A companion file's src tags mean the companion's lines: under the Grand source they would not match."""
+        p = lib.COMPANION_DIR / "c5" / "c5a001_kiln_secret.json"
+        doc = json.loads(p.read_text(encoding="utf-8"))
+        self.assertEqual(cc.check_file(p).problems, [])
+        bad = copy.deepcopy(doc)
+        bad["collection"]["source"] = lib.SOURCE_ID
+        with tempfile.TemporaryDirectory() as d:
+            q = Path(d) / "c5" / p.name
+            q.parent.mkdir()
+            q.write_text(cc.canonical(bad), encoding="utf-8", newline="\n")
+            self.assertTrue(problems(cc.check_file(q), "a SCHEMA"))
 
     def test_authoring_keys_never_reach_the_engine(self):
         for p in cc.collection_files():

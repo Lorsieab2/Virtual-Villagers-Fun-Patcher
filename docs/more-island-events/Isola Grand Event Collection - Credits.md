@@ -191,6 +191,84 @@ V28 ADDENDUM — CONSEQUENCES THAT FOLLOW THE VILLAGERS
 Creative direction, rules, and requested outcome types: Lorsieab2
 Additional implementation wording and examples: ChatGPT (OpenAI)
 
+THE COMPANION ANTHOLOGY
+
+Source: Isola_COMPLETE_Master_Companion_Anthology_749_Events.txt (SHA-256 D39D14DA81B04225308452425069DB3186A62065A3EE634F5C6AFD074E64FF16). The texts below are copied from it verbatim.
+
+COMPANION CREDIT: the Companion Anthology (its title and credit) (companion source lines 1-5)
+
+ISOLA — COMPLETE MASTER COMPANION ANTHOLOGY
+ALL COMPANION COLLECTIONS CONSOLIDATED, VERBATIM
+
+Creative direction, original concepts and user-authored material: Lorsieab2.
+Additional expansion and event prose: ChatGPT (OpenAI).
+
+COMPANION CREDIT: Companion Volume 5 (Professions, Everyday Life and Personalities) (companion source lines 25-29)
+
+ISOLA — COMPANION EVENTS: PROFESSIONS, EVERYDAY LIFE & NEW DISCOVERIES
+EXPANDED CONSOLIDATED EDITION — NO GRAND EVENT COLLECTION
+
+Creative direction and concepts: User
+Additional event prose: ChatGPT (OpenAI)
+
+COMPANION CREDIT: Companion Volume 5, Part 1 (Professional Specialties and Exploration) (companion source lines 54-58)
+
+VIRTUAL VILLAGERS — ISOLA PROFESSIONS & DISCOVERIES
+A SEPARATE COMPANION EVENT ANTHOLOGY — V1
+
+Creative direction and requested disciplines: Lorsieab2
+New event text and branching expansions: ChatGPT (OpenAI)
+
+COMPANION CREDIT: Companion Volume 5, Part 2 (Everyday Life and Personality) (companion source lines 1124-1128)
+
+VIRTUAL VILLAGERS — EVERYDAY LIFE & PERSONALITY EVENTS
+Separate Companion Collection, Volume 1
+
+Original concepts and creative direction: Lorsieab2
+Additional event concepts, wording, and branches: ChatGPT (OpenAI)
+
+COMPANION CREDIT: Companion Volume 5, Part 3 (Small Lives, Deep Roots) (companion source lines 2029-2032)
+
+NEW VOLUME — SMALL LIVES, DEEP ROOTS: 50 ORIGINAL PERSONALITY EVENTS
+==============================================================================
+Creative direction and emotional themes: Lorsieab2
+New event prose and alternative endings: ChatGPT (OpenAI)
+
+COMPANION CREDIT: The Lives Between Legends (companion source lines 3771-3777)
+
+ISOLA — THE LIVES BETWEEN LEGENDS
+A NEW STANDALONE VIRTUAL VILLAGERS EVENT ANTHOLOGY
+120 ORIGINAL EVENTS · VV1–VV5 · PG-13
+
+Creative direction and original requested themes: Lorsieab2
+New event writing, branches and organization: ChatGPT (OpenAI)
+The user’s existing Grand Event Collection is NOT reproduced or modified.
+
+COMPANION CREDIT: The Four Ways of Knowing (companion source lines 5402-5406)
+
+ISOLA: THE FOUR WAYS OF KNOWING
+A standalone companion anthology of belief, doubt, identity, work, mistakes, and mystery
+Concept and creative direction: Lorsieab2
+Expansion writing: ChatGPT (OpenAI)
+PG-13 | Separate from the Grand Event Collection and The Lives Between Legends
+
+COMPANION CREDIT: Stone, Spirit, Strangers and Ordinary Lives (companion source lines 6051-6053)
+
+ISOLA — STONE, SPIRIT, STRANGERS & ORDINARY LIVES
+NEW STANDALONE COMPANION EVENT ANTHOLOGY
+Creative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)
+
+COMPANION CREDIT: Volume II, The Inner Lives of Isola (companion source lines 6769-6771)
+
+VOLUME II — THE INNER LIVES OF ISOLA
+New original companion events: emotional life, different ways of thinking, attention, sensory experiences, grief, worry, and belonging.
+Creative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)
+
+COMPANION CREDIT: The Living Catalogue (companion source lines 7087-7088)
+
+ISOLA — THE LIVING CATALOGUE: WILD, WONDROUS & RARE
+Standalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT
+
 EACH EVENT'S CREDIT
 
 The Great Beautification Project (source lines 1331-1472): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan Storytelling Contest): event prose and branching written by ChatGPT, developed in response to Lorsieab2's requested scope and themes.
@@ -313,6 +391,84 @@ The Boat That Came Back Empty (source lines 10929-10935): Creative direction and
 The Forbidden Bell (source lines 10937-10943): Creative direction and requested mechanics: Lorsieab2 New event prose and branch drafting: ChatGPT (OpenAI) Original V18 source and all prior sections above preserved verbatim.
 The Verse That Changed History (source lines 7362-7480): AUTHORSHIP AND IDEA CREDIT — V13 Original creative direction, requested competition critic archetypes, and five specific outcome concepts: Lorsieab2. Original event text, new characters, individual dialogue, additional outcomes, branching and implementation notes below: ChatGPT (OpenAI). The Cooking Contest's original text and randomized framework remain credited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites of the original. The other competition add-ons preserve the authorship of their existing base events as identified in the V12 credit ledger.
 (Name1)'s No Good, Very Bad Day (source lines 5385-5522): * V10 reputation, appointment, school and rivalry events: event prose and detailed branching by ChatGPT. Requested social outcomes and leadership roles, including ostracism, laughingstock, village idiot, mad scientist, trusted advisor, teacher and heads of professions: Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.
+The Kiln's Secret (companion source lines 87-109): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Talking Vessel (companion source lines 112-129): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Potter's Rival (companion source lines 132-149): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Misplaced Label (companion source lines 152-174): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Potion of Many Colors (companion source lines 177-194): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Brewer's Promise (companion source lines 197-214): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Impossible Transmutation (companion source lines 217-239): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Sealed Reagent (companion source lines 242-259): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Alchemist's Debt (companion source lines 262-279): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Leaf That Closes (companion source lines 282-304): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Traveling Seed (companion source lines 307-324): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Great Herbarium (companion source lines 327-344): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The World in a Drop (companion source lines 347-369): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Crystal Lens (companion source lines 372-389): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Invisible Garden (companion source lines 392-409): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Color of Change (companion source lines 412-434): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Curious Crystal (companion source lines 437-454): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Great Laboratory Spill (companion source lines 457-474): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Falling Contest (companion source lines 477-499): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Floating Stone (companion source lines 502-519): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Sounding Cavern (companion source lines 522-539): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Second Shadow (companion source lines 542-564): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Wandering Light (companion source lines 567-584): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Eclipse Watch (companion source lines 587-604): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Endless Pattern (companion source lines 607-629): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Bridge Calculation (companion source lines 632-649): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Unfair Division (companion source lines 652-669): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Difficult Diagnosis (companion source lines 672-694): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Apprentice's First Patient (companion source lines 697-714): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Village Health Survey (companion source lines 717-734): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Shield Dance (companion source lines 737-759): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Trial of Balance (companion source lines 762-779): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Warrior's Oath (companion source lines 782-799): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Two Chronicles (companion source lines 802-824): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Elder's Memory (companion source lines 827-844): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Buried Archive (companion source lines 847-864): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Skyborne Canoe (companion source lines 867-889): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Deepwater Shell (companion source lines 892-909): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Magnificent Outrigger (companion source lines 912-929): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Cloud Sail (companion source lines 932-949): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Hidden Harbor (companion source lines 952-969): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Vessel Without Oars (companion source lines 972-989): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Weaver's Equation (companion source lines 992-1014): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Animal Interpreter (companion source lines 1017-1034): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Master Cartographer (companion source lines 1037-1054): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Festival Mechanist (companion source lines 1057-1074): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Conservator's Choice (companion source lines 1077-1094): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Great Professional Congress (companion source lines 1097-1114): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and requested disciplines: Lorsieab2 New event text and branching expansions: ChatGPT (OpenAI)
+The Second Bowl (companion source lines 2041-2050): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Rain Apology (companion source lines 2053-2064): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Crooked Braid (companion source lines 2067-2076): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The First Empty Nest (companion source lines 2079-2088): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+A Letter Never Sent (companion source lines 2091-2102): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Friend of a Friend (companion source lines 2105-2114): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Tiny Funeral (companion source lines 2117-2126): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Good Day for No Reason (companion source lines 2129-2138): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Pebble Collection (companion source lines 2141-2150): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Unfinished Goodbye (companion source lines 2153-2164): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Name in the Bark (companion source lines 2167-2176): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+A Very Ordinary Victory (companion source lines 2179-2188): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Borrowed Laugh (companion source lines 2191-2200): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Unlikely Seatmates (companion source lines 2203-2212): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Empty Hammock (companion source lines 2215-2224): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Last Mango (companion source lines 2227-2236): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+A Different Kind of Brave (companion source lines 2239-2248): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Night Watch (companion source lines 2251-2260): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Almost-Forgotten Tune (companion source lines 2263-2272): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Missing Tooth (companion source lines 2275-2284): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Quiet Competition (companion source lines 2287-2296): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Day of Two Sunsets (companion source lines 2299-2308): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Lost Recipe (companion source lines 2311-2320): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The First Real Friend (companion source lines 2323-2332): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Too-Small Sandals (companion source lines 2335-2344): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Unasked Question (companion source lines 2347-2358): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Sea Doesn't Answer (companion source lines 2361-2370): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Secret Celebration (companion source lines 2373-2382): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Apology That Worked (companion source lines 2385-2396): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
+The Apology That Didn't (companion source lines 2399-2408): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and emotional themes: Lorsieab2 New event prose and alternative endings: ChatGPT (OpenAI)
 The Child of Legend (source lines 728-791): * The Child of Legend (VV1): original premise and original event manuscript by Lorsieab2. Later editing and/or expansion where present: ChatGPT.
 The Elder's Favorite Stone (source lines 2824-2863): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
 The Last Song Before Sunset (source lines 3761-3804): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.

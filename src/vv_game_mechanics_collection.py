@@ -30,7 +30,7 @@ SECTIONS = (
     ("exclusive", "Events of one game only"),
     ("v6", "Part V6"), ("v8", "Part V8"), ("v9", "Part V9"), ("v10", "Part V10"), ("v11", "Part V11"),
     ("v13", "Part V13"), ("v14", "Part V14"), ("v17", "Part V17"), ("v18", "Part V18"), ("v20", "Part V20"),
-    ("v21", "Part V21"), ("v22", "Part V22"), ("v23", "Part V23"), ("v24", "Part V24"),
+    ("v21", "Part V21"), ("v22", "Part V22"), ("v23", "Part V23"), ("v24", "Part V24"), ("v27", "Part V27"),
     ("vv5_isolan", "Isolan events"),
     # The Companion Anthology (the owner's second source, data/event_collection/companion/<section>/), its volumes
     ("c5", "Companion Anthology: Companion Volume 5"), ("lbl", "Companion Anthology: The Lives Between Legends"),
@@ -152,7 +152,7 @@ def lines(game: int) -> list[tuple[str, bool]]:
          "than 3 people counting the babies being carried), food below 10 a villager, half the village sick, or "
          "fewer than 6 villagers of 14 villager years or more. So it never takes a rescue event's place.", True),
         ("Which one: every event that can happen is equally likely, whether it is one of More Island Events', the "
-         "collection's or the Companion Anthology's. A series counts as one event, its parts equally likely "
+         "collection's or the Companion Anthology's; a series counts as one event, its parts equally likely "
          f"({series_count(game)} series in this game). An event whose villagers cannot be found is left out and "
          "another is drawn.", True),
         ("Pick Island Event lists every event with what it needs, and the Custom Island Event library has them in "

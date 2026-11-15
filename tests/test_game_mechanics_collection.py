@@ -90,10 +90,12 @@ class ThePage(unittest.TestCase):
             text = " ".join(t for t, _ in gc.lines(game))
             with self.subTest(game=game):
                 for words in ("never take a share of the game's own draw", f"{gc.RARE_ROLL_PERCENT[game]}% of the "
-                              "time", "once the village has seen two", "in trouble", "half the time",
+                              "time", "once the village has seen two", "in trouble",
+                              "every event that can happen is equally likely",     # the owner, 2026-11-14
                               "a series counts as one event", "Story / Cheat Upgrades", "Scrolling Popups",
                               "nursing mother or father", gc.PROTECTED[game]):
                     self.assertIn(words, text)
+                self.assertNotIn("half the time", text)              # no 1:1 split between the sources any more
                 self.assertNotRegex(text, r"0x[0-9A-Fa-f]{4,}")      # no exe addresses in visible text
 
     def test_shown_only_with_the_patch(self) -> None:

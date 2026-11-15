@@ -338,15 +338,16 @@ class TheChoice(unittest.TestCase):
 
     def test_every_event_equally_likely_across_the_sources(self) -> None:
         # More Island Events' possible entries 0 and 2 (weight 1 each) and the collection's a_solo 1, b_heavy 3, the
-        # series 1: one draw over 2 + 5 = 7.  Draws 0-1 are More Island Events', 2-6 the collection's.
-        for draw, expected in ((0, 0), (1, 2), (2, 0x10000 | 0), (3, 0x10000 | 1), (5, 0x10000 | 1),
-                               (6, 0x10000 | 2)):
+        # series 1: one draw over 2 + 5 = 7.  Draws 0-1 are More Island Events' (each refused here, as the emulated
+        # registry cannot arm: then 1 + 5, then the collection's 5), 2-6 the collection's.
+        for draw, expected in ((0, [0, 2, 0x10000 | 0]), (1, [2, 0, 0x10000 | 0]), (2, [0x10000 | 0]),
+                               (3, [0x10000 | 1]), (5, [0x10000 | 1]), (6, [0x10000 | 2])):
             with self.subTest(draw=draw):
-                r = self.roll(more=[1, 0, 1], more_ok=0b101, coll_ok=0xF)
-                r.rolls(draw, 0)
+                r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
+                r.rolls(draw, 0, 0)
                 armed, trace = self.choose(r)
                 self.assertTrue(armed)
-                self.assertEqual(trace, [expected])
+                self.assertEqual(trace, expected)
         # No draw between the sources first: a refused More Island Events event leaves 1 + 5, drawn again.
         r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
         r.rolls(1, 1, 0)                                       # registry entry 2 (refused), then the collection's first
