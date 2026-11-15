@@ -18,7 +18,7 @@
    came (the later games' slot-0 pick is delivered or refused here, as any picked event). */
 
 #define SM_ROW 0x10000                  /* a list entry's data: SM_ROW + the registry index */
-#define SM_MAX 256                      /* list entries: the registry's, then the collection's */
+#define SM_MAX 2048                     /* list entries: the registry's, then the collection's (cie-v6-binary.md 25) */
 #define SM_COLL_BASE 0x4000             /* a list entry's k for collection entry i: SM_COLL_BASE + i */
 #define SM_INDEX 0x3E                   /* A New Home / The Lost Children: the family's index of a More pick */
 #define SM_QUEUE_BASE (-1000)           /* the queue file's pick_index of a More pick: SM_QUEUE_BASE - k */

@@ -382,13 +382,19 @@ BODY_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
 LOOK_RANDOM = -1              # an appearance effect's head / body: "random" (any row but the current one)
 LOOK_KEEP = -2                # ... not changed
 # Section 21: kinship relations (the relations table; the header is then 104 bytes).
-RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4}
+PREF_RANDOM = "random"        # cie-v6-binary.md 23: a random like or dislike
+PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
+NODE_AUTO_TEXT = 1            # cie-v6-binary.md 24: the node flags' bit for the automatic outcome lines
+RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
+                  # gap C2: wider kinship, through a living villager in between
+                  "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew")
+            "has_living_child", "drew", "has_dead_relative")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
-                   "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16})
-ROLE_FACTS = ("age", "skill_at_least", "has_living_child")   # items 8: run-time facts of a bound role
+                   "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
+                   "has_dead_relative": 17})   # 21a (gap C3)
+ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative")   # run-time facts of a bound role
 
 
 def fact_of(op: str, arg: Any) -> str:
@@ -403,7 +409,8 @@ def fact_of(op: str, arg: Any) -> str:
 
 
 def fact_role(op: str, arg: Any) -> str | None:
-    return arg if op == "has_living_child" else arg["role"] if op in ("age", "skill_at_least") else None
+    return arg if op in ("has_living_child", "has_dead_relative") else arg["role"] if op in ("age", "skill_at_least") \
+        else None
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
 TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if": known before anyone is cast
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
@@ -633,8 +640,8 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
-        if op == "has_living_child" and not isinstance(arg, str):
-            problems.append(f"{where}: has_living_child names one role")
+        if op in ("has_living_child", "has_dead_relative") and not isinstance(arg, str):
+            problems.append(f"{where}: {op} names one role")
             return None
         if op == "age":
             if isinstance(arg, dict) and arg.get("max", 0) is None:
@@ -890,12 +897,22 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: health is 1..{HEALTH_MAX} (0 is kill), min <= max")
             out.update(min=lo, max=hi)
         elif do == "preference":
-            known |= {"list", "preference"}
-            if e.get("list") not in ("likes", "dislikes"):
+            known |= {"list", "preference"} | ({"like", "dislike"} if v6 else set())
+            lst, word = e.get("list"), e.get("preference")
+            sugar = [k for k in ("like", "dislike") if k in e] if v6 else []
+            if sugar:
+                # 23: "like": w / "dislike": w is "list" + "preference"
+                if len(sugar) > 1 or lst is not None or word is not None:
+                    problems.append(f"{where}: a preference is \"like\" or \"dislike\" (or list + preference), "
+                                    "one of them")
+                lst, word = sugar[0] + "s", e[sugar[0]]
+            if lst not in ("likes", "dislikes"):
                 problems.append(f"{where}: preference list is likes or dislikes")
-            if not isinstance(e.get("preference"), str):
+            if not isinstance(word, str):
                 problems.append(f"{where}: preference names the game's own word")
-            out.update(list=e.get("list"), preference=e.get("preference"))
+            elif word == PREF_RANDOM and not v6:
+                problems.append(f"{where}: a random preference needs format version {VERSION_V6}")
+            out.update(list=lst, preference=word)
         elif do == "skill" and "set" not in out:
             known |= {"skills", "min", "max"}
             if v6 and "size" in e:
@@ -1171,7 +1188,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason", "title"} if v6 else set())
+                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1297,6 +1314,15 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     problems.append(f"{where}: a branch shows no text, so it has no popup title")
                 else:
                     nodes[nid]["title"] = ntitle
+            auto = n.get("auto_text")
+            if auto is not None:
+                # 24: the node's effects told in automatic lines after its text (kept only when on).
+                if not isinstance(auto, bool):
+                    problems.append(f"{where}: auto_text is true or false")
+                elif auto and t != "popup":
+                    problems.append(f"{where}: auto_text is only on a popup node")
+                elif auto:
+                    nodes[nid]["auto_text"] = True
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -2510,6 +2536,121 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
     return out
 
 
+# ---- Automatic outcome lines (cie-v6-binary.md 24) ------------------------------------------------------------------
+#
+# <R> is the effect's role's name placeholder, <P> its his/her, <S> the skill's name and <W> the preference word as the
+# game lists them.  The keys and lines are pinned equal to story_graph.inc CG_AUTO_LINES (tests/test_cie_graph_v6.py).
+
+AUTO_LINES = {
+    "food+": "The village gains food.",
+    "food-": "The village loses food.",
+    "tech+": "The village gains tech points.",
+    "tech-": "The village loses tech points.",
+    "kill": "<R> dies.",
+    "vanish": "<R> disappears.",
+    "status": "<R> becomes a Heathen.",
+    "health": "<R>'s health changes.",
+    "like": "<R> now likes <W>.",
+    "dislike": "<R> now dislikes <W>.",
+    "skill+": "<R> learns more about <S>.",
+    "skill-": "<R> feels less sure of <P> <S>.",
+    "sick": "<R> falls sick.",
+    "celebrate_all": "The village celebrates.",
+    "celebrate": "<R> celebrates.",
+    "mood+": "<R> is in a good mood.",
+    "mood-": "<R> is in a bad mood.",
+    "health_change+": "<R> feels better.",
+    "health_change-": "<R> feels worse.",
+    "set100": "<R> masters <S>.",
+    "set0": "<R> forgets everything about <S>.",
+    "set": "<R>'s <S> skill changes.",
+    "damage": "Something in the village is damaged.",
+    "hair": "<R>'s hair changes color.",
+    "look": "<R>'s look changes.",
+    "die_unrecovered": "<R> dies; the body is not recovered.",
+    "baby_lost": "<R>'s baby is lost.",
+}
+
+
+def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "") -> str:
+    """One line of AUTO_LINES with its role's placeholders and its words put in (the names not yet filled)."""
+    line = AUTO_LINES[key]
+    if role is not None:
+        line = line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
+    return line.replace("<S>", skill).replace("<W>", word)
+
+
+def _sign_keys(stem: str, lo: int, hi: int) -> list[str]:
+    return ([stem + "-"] if lo < 0 else []) + ([stem + "+"] if hi > 0 else [])
+
+
+def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[int] | None = None) -> list[str]:
+    """The lines effect `e` can give in `game` (raw text: placeholders kept), or with `fx` (its walk roll [a, b])
+    the one it gives (a list of one, or none).  `award`: the award pay_award pays, (kind, amount or (min, max), ...)."""
+    gm = GAMES[game]
+    do = e["do"]
+    r = effect_role(e)
+    if do in ("food", "tech"):
+        if e.get("defer"):
+            return []                                   # its pay_award tells it
+        amount = effect_amount(e, game)
+        lo, hi = (fx[0], fx[0]) if fx is not None else amount if isinstance(amount, tuple) else (amount, amount)
+        return [_auto_fill(k, None) for k in _sign_keys(do, lo, hi)]
+    if do == "pay_award":
+        if award is None:
+            return []
+        amount = award[1]
+        lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
+        return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
+    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost"):
+        return [_auto_fill(do, r)]
+    if do == "damage":
+        return [_auto_fill("damage", None)]
+    if do == "celebrate":
+        return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
+    if do == "mood":
+        return [_auto_fill("mood+" if e["mood"] == "good" else "mood-", r)]
+    if do == "health_change":
+        lo, hi = (fx[0], fx[0]) if fx is not None else (e["min"], e["max"])
+        return [_auto_fill(k, r) for k in _sign_keys("health_change", lo, hi)]
+    if do == "appearance":
+        return [_auto_fill("hair" if e.get("body") is None else "look", r)]
+    if do == "preference":
+        key = "dislike" if e["list"] == "dislikes" else "like"
+        if e["preference"] != PREF_RANDOM:
+            return [_auto_fill(key, r, word=e["preference"])]
+        if fx is not None:
+            return [_auto_fill(key, r, word=gm.preferences[fx[0]])] if 0 <= fx[0] < len(gm.preferences) else []
+        return [_auto_fill(key, r, word=w) for w in gm.preferences]
+    if do == "skill":
+        if fx is not None:
+            skills = [gm.skills[fx[0]]] if 0 <= fx[0] < len(gm.skills) else []
+        else:
+            skills = [s for s in e["skills"] if s in gm.skills]
+        if "set" in e:
+            key = "set100" if e["set"] == 100 else "set0" if e["set"] == 0 else "set"
+            return [_auto_fill(key, r, skill=s) for s in skills]
+        lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
+        return [_auto_fill(k, r, skill=s) for s in skills for k in _sign_keys("skill", lo, hi)]
+    return []                                           # action: no line
+
+
+def widest_auto_line(lg: dict, e: dict, game: "Game", award: tuple | None) -> str:
+    """Effect `e`'s line at its widest in `game` (its worst case the longest; the first on a tie), or ""."""
+    best, most = "", -1
+    for line in auto_line_options(e, game.number, award):
+        size = len(worst_v6(line, lg, game, award))
+        if size > most:
+            best, most = line, size
+    return best
+
+
+def with_auto_lines(text: str, lines: Iterable[str]) -> str:
+    """A node's text followed by its automatic lines, each after a line break (none: the text as it is)."""
+    lines = [x for x in lines if x]
+    return "\n".join(([text] if text else []) + lines)
+
+
 def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[History]:
     """Every history of the graph in `ctx`, with its chance (each question button counts as 1).  Problems on a
     history (an unbound role, an award never deferred, a dead end, ...) are added to `problems`.  Version 6: the
@@ -2581,7 +2722,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         gone = gone | {member}
                     if do == "status" and e.get("status") not in game.statuses:
                         say(f"node {nid}: status {e.get('status')} is not in {game.name}")
-                    if do == "preference" and e.get("preference") not in game.preferences:
+                    if do == "preference" and e.get("preference") not in game.preferences + (PREF_RANDOM,):
                         say(f"node {nid}: {e.get('preference')!r} is not one of {game.name}'s preferences")
                 effects.append((nid, e))
                 continue
@@ -2608,6 +2749,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         asked, paged, changed = seg
         changed = changed or bool(node["effects"])
         text = node_text(node, ctx, path) if node["type"] != "branch" else ""
+        if v6 and node.get("auto_text"):
+            # 24: each effect's line at its widest (the engine's lines are never longer).
+            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for e in node["effects"]])
         if node["type"] == "question":
             if nid != g["start"] and not v2:
                 say(f"node {nid}: a question can only be the start node in a version 1 event (version 2 asks "
@@ -3381,7 +3525,7 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
         elif op == "skill_at_least":
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], s(arg["skill"]))
-        elif op == "has_living_child":
+        elif op in ("has_living_child", "has_dead_relative"):
             conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
         elif op == "drew":
             item = [it["text"] for it in g["pools"][arg["pool"]]["items"]].index(arg["item"])
@@ -3454,7 +3598,9 @@ def _compile_v6(g: dict) -> bytes:
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "preference":
-                flags, st = (4 if e["list"] == "dislikes" else 0), s(e["preference"])
+                flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
+                                                                 else 0)
+                st = NONE if e["preference"] == PREF_RANDOM else s(e["preference"])
             elif do == "skill" and "set" in e:
                 a, st = e["set"], s(",".join(e["skills"]))
             elif do == "skill":
@@ -3471,7 +3617,8 @@ def _compile_v6(g: dict) -> bytes:
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, 0, s(nid), s(n["text"]),
+                            1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
+                            s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
                             e_first if n["effects"] else NONE, len(n["effects"]), s(n["summary"]),
@@ -3576,7 +3723,7 @@ def _decompile_v6(data: bytes) -> dict:
         name = code_cond[op]
         if name == "visited":
             return {name: node_ids[a]}
-        if name in ("role", "harmable", "has_living_child"):
+        if name in ("role", "harmable", "has_living_child", "has_dead_relative"):
             return {name: role_ids[a]}
         if name == "age":
             return {name: {"role": role_ids[a], "min": b, "max": c3 or None}}
@@ -3628,7 +3775,7 @@ def _decompile_v6(data: bytes) -> dict:
             roles[role_ids[who]]["relation"] = {code_relation[kind]: role_ids[to]}
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
-        (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
+        (t, popup, join, nflags, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
          outcome, ntitle) = n
         typ = NODE_TYPES[t]
         variants = []
@@ -3668,7 +3815,8 @@ def _decompile_v6(data: bytes) -> dict:
                 elif do in ("health", "health_change"):
                     e.update(min=a, max=b)
                 elif do == "preference":
-                    e.update(list="dislikes" if flags & 4 else "likes", preference=s(st))
+                    e.update(list="dislikes" if flags & 4 else "likes",
+                             preference=PREF_RANDOM if flags & PREF_RANDOM_FLAG else s(st))
                 elif do == "skill":
                     e.update(skills=s(st).split(","), min=a, max=b)
                 elif do == "skill_set":
@@ -3690,6 +3838,8 @@ def _decompile_v6(data: bytes) -> dict:
                       "outcome": s(outcome)}
         if ntitle != NONE:
             nodes[nid]["title"] = s(ntitle)
+        if nflags & NODE_AUTO_TEXT:
+            nodes[nid]["auto_text"] = True
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -4094,6 +4244,15 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 v = e.get(part)
                 out.append(-1 if v is None else below(rows[game] - 1) if v == "random" else v)
             return out
+        if do == "preference" and e["preference"] == PREF_RANDOM:
+            # 23: k over the game's list, then candidate k % count of the words in neither of the villager's lists
+            # (facts "likes:<role>:<word>", "dislikes:<role>:<word>"), -1 with none.
+            k = below(len(gm.preferences))
+            who = aliases.get(e["role"], e["role"])
+            held = {f.split(":", 2)[2] for f in ctx.facts
+                    if f.startswith((f"likes:{who}:", f"dislikes:{who}:"))}
+            left = [i for i, w in enumerate(gm.preferences) if w not in held]
+            return [left[k % len(left)] if left else -1, 0]
         return [0, 0]
 
     def scan(text: str, visited: tuple, picks: list, depth: int = 0) -> None:
@@ -4191,6 +4350,21 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if e["do"] in ("food", "tech") and e["defer"]:
                 award = (e["do"], fx[k][0])
             k += 1
+    # 24: each auto_text node's lines after its text, from the rolls (the award its pay_award pays as it stands).
+    k = 0
+    paying = None
+    for at, nid in enumerate(path):
+        n = lg["nodes"][nid]
+        if n["type"] == "question":
+            continue
+        lines = []
+        for e in n["effects"]:
+            if e["do"] in ("food", "tech") and e["defer"]:
+                paying = (e["do"], fx[k][0])
+            lines += auto_line_options(e, game, paying, fx[k])
+            k += 1
+        if n.get("auto_text"):
+            path_texts[at] = with_auto_lines(path_texts[at], lines)
     texts: list[str] = []
     titles: list[str] = []             # 14: the title each popup's first page shows
     title = event_title(lg, game, patches)   # 18
