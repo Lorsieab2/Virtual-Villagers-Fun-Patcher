@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Slow Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm41_slow_spring",
+  "source": "draft_rm2",
+  "lines": [
+   9,
+   22
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L9",
+  "ledger": [],
+  "description": "During a dry spell, the spring above the village slows to a trickle and a long line forms before dawn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a dry spell, the spring above the village slows to a trickle, and a long line of villagers with water jars forms before dawn.",
+   "src": "L10",
+   "choices": [
+    {
+     "label": "Fill Small Portions in Turn.",
+     "next": "a",
+     "src": "L11"
+    },
+    {
+     "label": "Arrange Turns Through the Night.",
+     "next": "b",
+     "src": "L14"
+    },
+    {
+     "label": "Ask Who Needs Water Most Urgently.",
+     "next": "c",
+     "src": "L17"
+    },
+    {
+     "label": "Clear the Spring Before Filling.",
+     "next": "d",
+     "src": "L20"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Everyone leaves with a little water, and nobody walks home with an empty jar.",
+   "src": "L12"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The first few households are satisfied, but the line moves so slowly that several people give up and return at midday.",
+   "src": "L13"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Households take turns filling jars after dark, and the morning line shrinks to almost nothing.",
+   "src": "L15"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The night turns are tiring, and the group agrees to try them only until the rain returns.",
+   "src": "L16"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A family with a feverish elder is filled first, and nobody in line objects.",
+   "src": "L18"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Several households say their need is urgent, and the villagers decide to share equally after all.",
+   "src": "L19"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Two villagers remove fallen leaves and silt, and the trickle runs a little stronger.",
+   "src": "L21"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The clearing makes no difference, but the workers learn where the water truly rises.",
+   "src": "L22"
+  }
+ }
+}

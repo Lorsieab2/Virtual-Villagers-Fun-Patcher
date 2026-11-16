@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo05_same_dream",
+  "source": "da_lo",
+  "lines": [
+   57,
+   66
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L57",
+  "ledger": [
+   {
+    "src": "L58",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers find they had exactly the same dream: a white canoe with a blue sail on a sea of flowers.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At breakfast, (subject) mentions that (subject.he/she) dreamed about a white canoe with a blue sail, drifting across a sea of flowers. (friend) puts down (friend.his/her) bowl very slowly. (friend.He/She) dreamed exactly the same thing. The white canoe. The blue sail. The flowers.",
+   "src": "L60",
+   "choices": [
+    {
+     "label": "Make Something of It",
+     "next": "a",
+     "src": "L62"
+    },
+    {
+     "label": "Decide It's Just a Coincidence",
+     "next": "b",
+     "src": "L65"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They talk about it all morning. Does it mean something? Should they go looking for a white canoe? Does it mean flowers are coming? Is it a message, and if so, from whom? They don't come to any conclusion, but by lunchtime they've had more fun wondering about it than either of them has had all week.",
+   "src": "L63"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Well,\" says (friend), \"we did both look at the flowers by the shore yesterday. And there was that canoe.\" \"It wasn't white.\" \"It was whitish.\" (subject) isn't convinced. Neither, really, is (friend). They agree to call it a coincidence. That night, both of them go to sleep hoping to dream it again.",
+   "src": "L66"
+  }
+ }
+}

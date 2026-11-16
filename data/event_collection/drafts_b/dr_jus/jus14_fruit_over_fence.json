@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fruit Over the Fence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus14_fruit_over_fence",
+  "source": "draft_jus",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-11 and an elder)"
+   }
+  ],
+  "description": "An elder catches a child up the guava tree after climbing the fence again: ask them to help pick, or walk them home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been climbing over the fence into (friend)'s garden and helping (subject.him/her)self to fruit from the guava tree. Today (friend) has caught (subject.him/her) at it: halfway down the tree, a guava in each hand and one in (subject.his/her) mouth.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Ask (subject.him/her) to Help Pick",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Walk (subject.him/her) Home",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"If you like them that much,\" says (friend), \"you can help me pick them properly. Tomorrow. Through the gate.\" (subject) turns up the next day, very nervous. They pick together all morning, and (friend) shows (subject.him/her) how to tell the ripe ones. (subject) goes home with a small basket, and never climbs the fence again; there's no need.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) walks (subject) home and explains to (subject.his/her) family, and they all talk it over together. (subject) decides to bring (friend) something in return: a basket of shells, which (friend) admires very seriously. After that, whenever (subject) walks past the guava tree, (friend) sometimes calls out, \"Through the gate!\" and tosses (subject.him/her) one.",
+   "src": "L173"
+  }
+ }
+}

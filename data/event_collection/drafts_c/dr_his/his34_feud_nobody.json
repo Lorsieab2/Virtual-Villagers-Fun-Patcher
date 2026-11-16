@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feud Nobody Remembers Starting",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his34_feud_nobody",
+  "source": "draft_his",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult from the shore huts and an adult from the hill huts)"
+   }
+  ],
+  "description": "A villager from the shore huts and one from the hill huts meet at the best fishing spot at noon: ask why, or keep the old ways.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For as long as anyone can remember, the families in the hill huts and the families in the shore huts have not shared the best fishing spot. The hill families fish it in the morning. The shore families fish it in the afternoon. Nobody remembers why. Today (subject), from the shore, and (friend), from the hill, have both turned up there at noon.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Ask Why",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Keep to the Old Times",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They sit down on the rocks and try to work it out. Something about a net. Or a pig. Or a wedding that went wrong. Or a canoe somebody borrowed and returned with a hole in it. Neither of them actually knows. They start laughing. They fish together all afternoon. Their families are scandalized for about a week. Then they're mostly just curious.",
+   "src": "L410"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) offers to leave. (friend) says no, (friend.he/she) will. They argue politely about who should leave until the tide turns and the fish are gone. On the way home (subject) realizes it's the longest conversation anyone from the shore has had with anyone from the hill in years. (subject.He/she) tells (subject.his/her) family. They're horrified. (subject.He/she) does it again the next week.",
+   "src": "L413"
+  }
+ }
+}

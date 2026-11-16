@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What the Spiritual Leader Said",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv37_what_spiritual",
+  "source": "draft_adv",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a spiritual leader or elder)"
+   }
+  ],
+  "description": "A villager asks a spiritual leader what the spirits would want: ask what the leader believes, or sit together quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) can't decide whether to take on caring for an elderly neighbor, which would mean less time for (subject.his/her) own work. (subject.He/she) goes to (friend), who leads the village's old songs, and asks what the spirits would want.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Ask What (friend) Believes",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Just Ask for Company While (subject.he/she) Thinks",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I can tell you what I believe,\" says (friend). \"That kindness is never wasted. But I can't tell you what the spirits want for you, and I wouldn't pretend to. You have to decide that yourself.\" (subject) thinks about it all evening. (subject.He/she) decides to help two days a week. That's not what (subject.he/she) expected to choose. It feels right.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Actually,\" says (subject), \"could I just sit here a while? I think better when someone else is quiet nearby.\" (friend) nods and goes back to weaving. They sit in silence for an hour. When (subject) leaves, (subject.he/she) still hasn't decided. But (subject.he/she) feels steadier, as if (subject.he/she) borrowed a little of (friend)'s quiet. (subject.He/she) decides the next morning.",
+   "src": "L437"
+  }
+ }
+}

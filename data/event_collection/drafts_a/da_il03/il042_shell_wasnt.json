@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell That Wasn't Quite Right",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il042_shell_wasnt",
+  "source": "da_il03",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A shell collector finds a nearly perfect pink shell with one tiny chip: keep it anyway, or put it back.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) collects shells, but not just any shells. They have to be pale pink, with exactly one stripe, and no chips anywhere. In all these years (he/she) has found eleven. Today, on the shore, (he/she) finds one that is pale pink, has one stripe, and a chip so tiny you'd need to squint to see it.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Keep It Anyway",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Put It Back for Someone Else",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) holds it up to the light for a long time. Then (he/she) puts it in (his/her) pocket. It isn't number twelve. It's eleven-and-a-half. (He/She) finds (he/she) likes it best of all.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) sets it carefully back on the sand. Somewhere on Isola there's someone who collects shells with tiny chips in them. (name1) hopes they find it.",
+   "src": "L29"
+  }
+ }
+}

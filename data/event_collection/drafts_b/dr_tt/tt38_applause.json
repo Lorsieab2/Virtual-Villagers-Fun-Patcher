@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Applause for (name1)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt38_applause",
+  "source": "draft_tt",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L458",
+    "kind": "sensitivity",
+    "before": "A child arrives and claps too",
+    "after": "(child), a child, arrives and claps too",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager applauds their own new roof just as a friend comes round the corner: keep clapping, or pretend to swat a fly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just finished re-thatching (subject.his/her) own roof all by (subject.him/her)self, and it looks very fine. Nobody is around to see it. So (subject) stands in front of the hut and gives (subject.him/her)self a round of applause, just as (friend) comes round the corner.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Keep Clapping",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Pretend You Were Swatting a Fly",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) doesn't stop. \"It's a very good roof,\" (subject.he/she) explains. (friend) looks at the roof, considers it, and joins in. (child), a child, arrives and claps too. Soon there is a little crowd applauding a roof. (subject) bows. It's one of the best moments of (subject.his/her) life.",
+   "src": "L458"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) claps once more, at nothing. \"Fly,\" (subject.he/she) says. \"Ah,\" says (friend). \"Big fly.\" \"Very big.\" (friend) looks up at the roof. \"Lovely roof, by the way.\" (subject) glows quietly all evening.",
+   "src": "L461"
+  }
+ }
+}

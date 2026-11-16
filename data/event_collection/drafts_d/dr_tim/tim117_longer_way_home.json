@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Longer Way Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim117_longer_way_home",
+  "source": "moments500",
+  "lines": [
+   1961,
+   1975
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1962",
+  "ledger": [
+   {
+    "src": "L1961",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1965",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1966",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1969",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1970",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1973",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1974",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1963",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1967",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1971",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1975",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager takes the long way home to enjoy the quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) feels happy without knowing why.",
+   "src": "L1963"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1) takes the long way home to enjoy the quiet. A forgotten worry returns and then drifts away again.",
+   "src": "L1967"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1) takes the long way home to enjoy the quiet. The silence feels comforting rather than lonely today.",
+   "src": "L1971"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1) takes the long way home to enjoy the quiet. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L1975"
+  }
+ }
+}

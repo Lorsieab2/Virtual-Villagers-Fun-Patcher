@@ -1,0 +1,4 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+vv5_gift_or_insult	Gift or Insult?	5	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	An Isolan neighbor gives the village a carving that seems insulting, and the village decides how to respond.		
+vv5_little_things_remember	The Little Things They Remember	5	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	A villager and an Isolan visitor who knew each other years ago meet again and share memories.		

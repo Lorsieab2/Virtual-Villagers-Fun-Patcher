@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brave Stomach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea19_brave_stomach",
+  "source": "draft_hea",
+  "lines": [
+   227,
+   236
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L227",
+  "ledger": [
+   {
+    "src": "L228",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and a healer or elder)"
+   },
+   {
+    "src": "L236",
+    "kind": "sensitivity",
+    "before": "One of them is a grown-up who",
+    "after": "One of them is (grownup), a grown-up who",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L236",
+    "kind": "sensitivity",
+    "before": "the grown-up says",
+    "after": "(grownup) says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teen's stomach churns the night before the canoe race: ask the healer if they are sick, or go back to bed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "grownup"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "grownup": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Tomorrow is the canoe race, and (subject) has been chosen to paddle for the first time. Tonight (subject.his/her) stomach is twisting and churning so badly (subject.he/she) can't eat. (subject.He/she) is sure (subject.he/she) is ill. (subject.He/she) creeps over to (friend)'s hut, clutching (subject.his/her) middle.",
+   "src": "L230",
+   "choices": [
+    {
+     "label": "Ask (friend) If (subject.he/she) Is Sick",
+     "next": "o1",
+     "src": "L232"
+    },
+    {
+     "label": "Say Nothing and Go Back to Bed",
+     "next": "o2",
+     "src": "L235"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) feels (subject.his/her) forehead, asks a few questions and smiles. \"I think your stomach knows about the race,\" (friend.he/she) says. \"Nerves go straight to the belly in a lot of people.\" (friend.He/she) gives (subject) a little ginger root to chew. It tastes like fire. The stomach settles some. (subject) paddles the next day. (subject.He/she) doesn't remember who won. (subject.He/she) remembers the ginger.",
+   "src": "L233"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides (subject.he/she) is just being silly and goes back to bed. (subject.He/she) doesn't sleep much. In the morning, at the canoes, (subject.he/she) notices half the paddlers are rubbing their stomachs too. One of them is (grownup), a grown-up who has paddled for twenty years. \"Every time,\" (grownup) says. \"Every single race.\" (subject) feels oddly better knowing that.",
+   "src": "L236"
+  }
+ }
+}

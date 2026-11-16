@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Goodnight, Trees",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il064_goodnight_trees",
+  "source": "da_il04",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager says goodnight to the trees on the way home, and tonight a child is following and watching.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every evening, on the way home, (subject) says goodnight to the trees. Not all of them. Just the ones along (subject.his/her) path. \"Goodnight, tall one. Goodnight, crooked one. Goodnight, you with the bird's nest.\" Tonight (friend) has been following a few steps behind, watching very closely.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Let (friend) Join In",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Explain That It's Just a Silly Habit",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Can I do one?\" (friend) asks. \"Of course,\" says (subject). \"Pick one that looks tired.\" (friend) picks a short, scruffy palm and wishes it goodnight with tremendous seriousness. Then another, and another. They get home very late, because (friend) has decided every single tree looks tired tonight.",
+   "src": "L50"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It's just something I do,\" (subject) says, a little embarrassed. (friend) thinks about this for a few steps. \"I don't think it's silly,\" (friend.he/she) says. \"I think the trees like it.\" (subject) has no answer for that. (subject.He/She) says goodnight to the crooked one a little louder than usual.",
+   "src": "L53"
+  }
+ }
+}

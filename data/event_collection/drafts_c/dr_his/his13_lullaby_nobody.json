@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lullaby Nobody Understands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his13_lullaby_nobody",
+  "source": "draft_his",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "A young villager asks what an elder's lullaby in a lost language means: admit nobody knows, or tell the little that is left.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) sings a lullaby to the babies in the nursery, and the words aren't any words anybody knows. They aren't Isolan. They were taught to (subject) when (subject.he/she) was tiny, and to the person who taught (subject.him/her), back and back, by people who came from somewhere else long ago and whose own language is gone now. Today (friend) asks what the words mean.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Admit You Don't Know",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Tell What Little You Know",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't know,\" says (subject). \"Nobody does anymore. That's the only bit of that language left, as far as I know. Just this song.\" (friend) is quiet. \"Will you teach me?\" (subject) does, slowly, word by word, neither of them knowing what they're singing. The babies don't seem to mind. They go to sleep exactly the same.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I was told one word means 'water,'\" (subject) says, \"and one means 'sleep.' Or 'stay.' The rest is gone.\" (subject.He/she) sings it again, softly. (friend) listens. \"It sounds like someone who loved the babies very much,\" (friend.he/she) says. \"That's what I always thought,\" says (subject). It's all they have of it. It seems to be enough.",
+   "src": "L161"
+  }
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pufferfish Helmet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm46_pufferfish",
+  "source": "draft_arm2",
+  "lines": [
+   10,
+   10
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L10",
+  "ledger": [
+   {
+    "src": "L10",
+    "kind": "structural",
+    "text": "46. The Pufferfish Helmet  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L10",
+    "kind": "sensitivity",
+    "before": "an elder's keepsakes",
+    "after": "(name1)'s keepsakes",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A dried, spiny pufferfish shaped into a helmet turns up among an elder's keepsakes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A dried, spiny pufferfish shaped into a helmet turns up among (name1)'s keepsakes. Nobody is sure whether it was worn, displayed or made as a joke, and the elder only smiles.",
+   "src": "L10"
+  }
+ }
+}

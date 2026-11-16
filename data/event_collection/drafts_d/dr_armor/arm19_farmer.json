@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Farmer's Implements",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm19_farmer",
+  "source": "armor45",
+  "lines": [
+   27,
+   27
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L27",
+  "ledger": [
+   {
+    "src": "L27",
+    "kind": "structural",
+    "text": "19. The Farmer's Implements  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Farmers note that hoes, digging sticks, and other everyday tools could also protect people during an emergency.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Farmers note that hoes, digging sticks, and other everyday tools could also protect people during an emergency.",
+   "src": "L27"
+  }
+ }
+}

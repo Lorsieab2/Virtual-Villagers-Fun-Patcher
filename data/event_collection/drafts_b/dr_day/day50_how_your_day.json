@@ -1,0 +1,59 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Was Your Day?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day50_how_your_day",
+  "source": "draft_day",
+  "lines": [
+   596,
+   599
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults; a single popup, no choice)"
+   }
+  ],
+  "description": "Two villagers sit outside a hut at sundown and agree that nothing much happened today.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "At the end of the day, (subject) and (friend) sit down outside (subject)'s hut. \"How was your day?\" asks (friend). (subject) thinks about it. (subject.He/she) got up. (subject.He/she) ate breakfast. (subject.He/she) worked for a while, then rested, then worked a bit more. (subject.He/she) had lunch. (subject.He/she) talked to a few people about nothing much. A bird landed nearby and then flew off. (subject.He/she) ate dinner. \"Fine,\" says (subject). \"Nothing happened.\" \"Same,\" says (friend). They sit in comfortable silence as the sun goes down. Somewhere a child is laughing. Somewhere someone is cooking something that smells good. The sea is doing what the sea does. Nothing happened today. Tomorrow, probably, nothing much will happen either. (subject) finds (subject.he/she) is perfectly alright with that.",
+   "src": "L599"
+  }
+ }
+}

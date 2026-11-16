@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Loose Tooth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea37_loose_tooth",
+  "source": "draft_fea",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-8 and an adult)"
+   }
+  ],
+  "description": "A child will not let anyone near a wobbly tooth: leave it alone, or tell the story of your own first wobbly tooth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a wobbly tooth. It has been wobbly for days. Everybody keeps saying, \"Just pull it out!\" (subject) won't let anyone near it. (subject.He/she) is sure it'll hurt terribly. (subject.He/she) is eating everything on the other side of (subject.his/her) mouth, very carefully. (friend) sits down beside (subject.him/her).",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Leave It Alone",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Tell (subject.him/her) About Your First Wobbly Tooth",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It'll come out when it's ready,\" says (friend). \"You don't have to do anything.\" (subject) is enormously relieved. That evening, (subject.he/she) bites into a piece of fruit, forgets, and the tooth just pops out, without hurting at all. (subject.He/she) holds it up in astonishment. \"It didn't hurt!\" (subject.He/she) is very proud of the tooth.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) tells (subject.him/her) all about (friend.his/her) own first wobbly tooth, which (friend.he/she) kept for weeks out of fear, and which finally came out when (friend.he/she) sneezed. (subject) laughs so much that (subject.his/her) tooth wobbles even more. That night (subject.he/she) sneezes, hopefully, on purpose. It doesn't work. The tooth comes out two days later, on its own.",
+   "src": "L449"
+  }
+ }
+}

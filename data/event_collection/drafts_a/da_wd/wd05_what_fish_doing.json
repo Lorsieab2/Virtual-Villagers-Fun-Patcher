@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Fish Doing in the Water Jar?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd05_what_fish_doing",
+  "source": "da_wd",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A small silver fish is swimming in the big water jar: keep it as a guest for the day, or take it back at once.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) goes to pour a drink from the big water jar and something in it moves. (He/She) peers in. A small silver fish is swimming in slow, contented circles at the bottom, as if it has always lived there. The jar was filled at the stream this morning. Nobody remembers seeing a fish.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Keep It for the Day",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Take It Back Straight Away",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) decides the fish can stay until evening, as a guest. The whole household spends the day drinking from somewhere else and taking turns to peer into the jar. The children give it a name. At sunset they carry the jar down to the stream together and tip it out, and the fish flicks away into the water. The children wave.",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) carries the jar to the stream at once and lets the fish go. Then (he/she) fills it again, very carefully, checking every bit of water that goes in. Back home, (he/she) looks in. No fish. (He/She) drinks a cup. Then, just to be sure, (he/she) looks in again.",
+   "src": "L65"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Frog Who Sang Along",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum41_frog_sang_along",
+  "source": "draft_hum",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager practicing a song by the stream is joined by an off-key frog: sing a duet, or find a quieter spot.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been practicing a song by the stream in the evenings, softly, where nobody can hear. Every time (subject.he/she) holds a long note, a frog nearby holds one too. Lower. Louder. Slightly out of tune. Every single time.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Sing a Duet",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Find a Quieter Spot",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) leans into it. For a while it's (subject) and the frog, verse after verse. Then a second frog joins in. Then a third. Soon the whole bank is croaking along and (subject) is conducting them with a stick. (friend), passing by, stops in the middle of the path with (friend.his/her) mouth open.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) moves upstream. The frog follows, hopping from stone to stone. Upstream there is another frog, who also sings. (subject) moves again. There are frogs everywhere. In the end (subject.he/she) goes home and practices inside the hut. When (subject.he/she) opens the door the next morning, a frog is sitting on the doorstep.",
+   "src": "L497"
+  }
+ }
+}

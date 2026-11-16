@@ -1,0 +1,241 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Is the Sky Blue?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd07_why_sky_blue",
+  "source": "anthology",
+  "lines": [
+   27662,
+   27675
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27662",
+  "ledger": [
+   {
+    "src": "L27663",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27665",
+    "kind": "sensitivity",
+    "before": "A researcher",
+    "after": "(scholar), a researcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27666",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27668",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27669",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27671",
+    "kind": "sensitivity",
+    "before": "A naturalist",
+    "after": "(adult), a naturalist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27672",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27674",
+    "kind": "sensitivity",
+    "before": "The adult and child",
+    "after": "(adult) and (child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27675",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27675",
+    "kind": "sensitivity",
+    "before": "a researcher",
+    "after": "(scholar), a researcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child wonders why the daylight sky looks blue.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "scholar"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "scholar": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) wonders why the daylight sky looks blue.",
+   "src": "L27663",
+   "choices": [
+    {
+     "label": "Explain with Observation.",
+     "next": "a",
+     "src": "L27664"
+    },
+    {
+     "label": "Tell a Playful Story.",
+     "next": "b",
+     "src": "L27667"
+    },
+    {
+     "label": "Offer a Nature Perspective.",
+     "next": "c",
+     "src": "L27670"
+    },
+    {
+     "label": "Admit Uncertainty and Investigate.",
+     "next": "d",
+     "src": "L27673"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(scholar), a researcher, explains that sunlight scatters through air and blue light scatters strongly.",
+   "src": "L27665"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) compares the sky at noon and sunset.",
+   "src": "L27666"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(adult) jokes that the sea painted the sky, then identifies it as pretend.",
+   "src": "L27668"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) invents a colorful story and asks for the real explanation afterward.",
+   "src": "L27669"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult), a naturalist, points out how clouds, air, and sunlight change the view.",
+   "src": "L27671"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) notices that the sky looks different after rain.",
+   "src": "L27672"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) and (child) compare shadows and colors over several days.",
+   "src": "L27674"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(adult) seeks help from (scholar), a researcher, rather than guessing.",
+   "src": "L27675"
+  }
+ }
+}

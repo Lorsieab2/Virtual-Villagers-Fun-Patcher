@@ -1,0 +1,61 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shields in Procession",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm13_shields",
+  "source": "openq97",
+  "lines": [
+   555,
+   557
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L556",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "structural",
+    "text": "[M13]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L557",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A ceremonial procession carries decorated shields and spears.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "A ceremonial procession carries decorated shields and spears. The painted patterns move gently with each step. Someone near the path recognizes a family emblem.",
+   "src": "L555,L557"
+  }
+ }
+}

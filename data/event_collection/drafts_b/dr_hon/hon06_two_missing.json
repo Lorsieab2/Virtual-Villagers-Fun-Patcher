@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Missing Mangoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon06_two_missing",
+  "source": "draft_hon",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager ate two of the mangoes drying for the feast, and a friend is counting them: own up, or let it be a mystery.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The mangoes drying on the racks for the feast are counted every evening. Yesterday (subject) walked past hungry and ate two. They were very good. Tonight (friend) is counting them, and frowning, and counting again.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Own Up",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Let It Be a Mystery",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That was me,\" says (subject). \"Two. I was starving.\" (friend) cuts two marks into the counting stick. \"Then you can pick two more tomorrow.\" (subject) picks four the next morning, just to be safe, and doesn't eat a single one.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. (friend) counts once more, then shrugs: perhaps (friend.he/she) miscounted yesterday. The next evening (subject) quietly slips two fresh mangoes onto the rack. (friend) counts and frowns again, because now there are too many. (friend.He/she) gives up counting mangoes altogether.",
+   "src": "L77"
+  }
+ }
+}

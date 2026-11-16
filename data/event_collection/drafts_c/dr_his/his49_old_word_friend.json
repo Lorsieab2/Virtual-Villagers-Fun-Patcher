@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Word for Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his49_old_word_friend",
+  "source": "draft_his",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "An elder calls a teen canoe-sharer, the old word for friend, and neither knows the other's word: explain yours, or ask theirs.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just called (friend) \"canoe-sharer,\" the old word for friend that elders still use. (friend) looks blank. Young people say something else now, a short word that sounds a bit like a bird call. (subject) has never understood it. (friend) has never really understood \"canoe-sharer\" either.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Explain Your Word",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Ask What Their Word Means",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) explains: long ago, you only shared a canoe with someone you trusted with your life. So a canoe-sharer is someone like that. (friend) thinks about it and is moved. \"That's a good word.\" \"So is yours,\" says (subject), politely. \"What does it mean?\" (friend) shrugs. \"It's just the noise we make when we see each other.\" (subject) finds this very funny, and secretly likes it.",
+   "src": "L590"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to explain the young word. (friend) tries. And fails. \"It's just... you know. When you're glad to see someone.\" (subject) tries it. It comes out completely wrong, more like a goat. (friend) laughs so much (friend.he/she) has to sit down. (subject) keeps trying, all afternoon. By evening, (subject.he/she) has it. Almost.",
+   "src": "L593"
+  }
+ }
+}

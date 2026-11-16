@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Measuring the Beans",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il143_measuring_beans",
+  "source": "da_il08",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who was a builder for years now helps in the gardens, and cannot stop measuring the bean poles.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) was a builder for years. Now (subject.he/she) is helping in the gardens, and (subject.he/she) likes it, mostly. But (subject.he/she) can't stop measuring things. Today (friend) finds (subject.him/her) checking whether the bean poles are exactly upright, with a string and a stone, and frowning at one that leans.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Straighten It",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Tell (subject.him/her) the Beans Like It Crooked",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) adjusts the bean pole until it's perfectly upright. The beans don't seem to care. (friend) watches, amused. \"Do you miss building?\" (friend.he/she) asks. (subject) thinks about it. \"A bit. But beans don't fall on your foot.\" (subject.He/She) checks the next pole anyway.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"The beans climb better if it leans a bit,\" says (friend). (subject) looks horrified. \"That's not how poles work.\" \"It's how beans work.\" (subject) stares at the leaning pole for a long time, then, very slowly and painfully, leaves it alone. It's the hardest thing (subject.he/she) has done all week.",
+   "src": "L41"
+  }
+ }
+}

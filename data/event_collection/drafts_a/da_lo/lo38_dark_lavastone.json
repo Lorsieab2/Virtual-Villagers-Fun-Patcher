@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dark Lavastone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo38_dark_lavastone",
+  "source": "da_lo",
+  "lines": [
+   456,
+   467
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L456",
+  "ledger": [
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "text": "[effect: (name1) is sick for a short while]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L463",
+    "kind": "structural",
+    "text": "(About 7 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L464",
+    "kind": "instruction",
+    "text": "[effect: (name1) is sick for a short while; (name1) dislikes the jungle edge (lasting), where the game has a fitting dislike]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L464",
+    "kind": "structural",
+    "text": "(About 3 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   }
+  ],
+  "description": "A villager brings home a lavastone that glows a cold purple, and has not slept well since.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Most lavastones glow warm colors. This one, which (name1) found half buried at the edge of the jungle, glows a deep, cold purple. Since (he/she) brought it home, (he/she) hasn't been sleeping well. (He/She) keeps waking up with a heavy feeling in (his/her) chest, and food doesn't taste of much.",
+   "src": "L459",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L459"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Keep It a Little Longer",
+     "next": "a",
+     "src": "L461"
+    },
+    {
+     "label": "Get Rid of It Today",
+     "next": "b",
+     "src": "L466"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "After a few days of rest, the fever passes. (name1) wraps the stone in leaves and puts it back where (he/she) found it. (He/She) sleeps soundly that night for the first time in a week.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject",
+     "src": "L463"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The fever passes, but the heaviness lingers in a different way: for a long time afterward, (name1) can't bear to go near the jungle edge.",
+   "src": "L464",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject",
+     "src": "L464"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "dislikes the jungle edge (lasting)",
+     "reason": "rule 8: no game has a fitting preference word for the jungle edge (the draft: only where the game has a fitting dislike)",
+     "src": "L464"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) decides it's probably just a bad week, and keeps the stone. The heavy feeling gets worse, and then one morning (he/she) wakes with a fever.",
+   "src": "L462",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 7,
+     "odds": "About 7 in 10"
+    },
+    {
+     "next": "a2",
+     "weight": 3,
+     "odds": "About 3 in 10"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) carries the stone back to the jungle edge and buries it where (he/she) found it. Was it the stone? Was it just a bad week? (He/She) doesn't know. But that night (he/she) sleeps, and in the morning the food tastes like food again. (name1) doesn't go back to that spot. (He/She) doesn't feel (he/she) needs to.",
+   "src": "L467",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L467"
+    }
+   ]
+  }
+ }
+}

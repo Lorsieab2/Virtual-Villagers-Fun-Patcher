@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silent Instrument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp73_silent",
+  "source": "anthology",
+  "lines": [
+   32400,
+   32414
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32400",
+  "ledger": [
+   {
+    "src": "L32401",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32402",
+    "kind": "sensitivity",
+    "before": "A musician",
+    "after": "(musician), a musician,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32405",
+    "kind": "sensitivity",
+    "before": "The musician",
+    "after": "(musician)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32411",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32413",
+    "kind": "sensitivity",
+    "before": "The musician",
+    "after": "(musician)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A musician crafts an instrument that barely makes a sound, yet insists it is beautiful.",
+  "label_case": "title",
+  "cast_only": [
+   "musician",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(musician), a musician, crafts an instrument that barely makes a sound, yet insists it is beautiful.",
+   "src": "L32402",
+   "choices": [
+    {
+     "label": "Listen Closely",
+     "next": "a",
+     "src": "L32403"
+    },
+    {
+     "label": "Ask About the Design",
+     "next": "b",
+     "src": "L32406"
+    },
+    {
+     "label": "Collaborate",
+     "next": "c",
+     "src": "L32409"
+    },
+    {
+     "label": "Respect the Effort",
+     "next": "d",
+     "src": "L32412"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A delicate tone emerges.",
+   "src": "L32404"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(musician) admits it needs more work.",
+   "src": "L32405"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The instrument is meant for a sleeping infant.",
+   "src": "L32407"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "It was an experiment with unusual wood.",
+   "src": "L32408"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Another craftsperson improves the resonance.",
+   "src": "L32410"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) proposes using it as a percussion prop.",
+   "src": "L32411"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(musician) appreciates thoughtful feedback.",
+   "src": "L32413"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The audience learns silence can be intentional.",
+   "src": "L32414"
+  }
+ }
+}

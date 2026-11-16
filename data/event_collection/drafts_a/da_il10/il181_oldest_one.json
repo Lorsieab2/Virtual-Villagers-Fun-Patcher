@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Oldest One",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il181_oldest_one",
+  "source": "da_il10",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); cast an elder; the text's \"the oldest person in the village\" kept as written"
+   }
+  ],
+  "description": "An elder realizes over breakfast that they are now the oldest person in the village.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It occurs to (subject), quite suddenly, while eating breakfast, that (subject.he/she) is now the oldest person in the village. (subject.He/She) counts on (subject.his/her) fingers to be sure. It's true. There's nobody older left to ask about the old days. (subject.He/She) is the old days.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Sit with It",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm the oldest,\" (subject) announces. (friend) looks up. \"Congratulations?\" \"I don't know if it's a congratulations thing.\" They think about it. \"Well,\" says (friend), \"you're the one who gets to decide how the old days went, now.\" (subject) considers this. \"The fish were much bigger,\" (subject.he/she) says firmly. \"And everyone was very polite to their elders.\"",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) finishes breakfast slowly. It's a strange feeling: a little proud, a little lonely, a little like standing at the front of a canoe with nobody ahead of (subject.him/her). (subject.He/She) isn't sure what to do with it. In the end (subject.he/she) does what (subject.he/she) does every morning. (subject.He/She) goes to see if the fruit trees need anything. The trees, at least, are still older than (subject.him/her).",
+   "src": "L17"
+  }
+ }
+}

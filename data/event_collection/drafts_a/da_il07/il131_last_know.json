@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last to Know",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il131_last_know",
+  "source": "da_il07",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Everybody has already seen the old heron come back, except one villager who rushes to share the news.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The old grey heron that disappeared last season has come back to the stream. Everybody knows. Everybody has been to look. Everybody has opinions about whether it's the same heron. Everybody except (subject), who has been busy all week, and who now walks up to (friend) and says, with great excitement, \"You'll never guess what I just saw at the stream.\"",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Tell It",
+     "next": "a",
+     "src": "L133"
+    },
+    {
+     "label": "Break It Gently",
+     "next": "b",
+     "src": "L136"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) puts down what (friend.he/she) is doing and listens to the whole story as though it's brand new: the heron, the stream, how it looked at (subject) as if it remembered (subject.him/her). \"No!\" says (friend), in all the right places. (subject) is thrilled. (subject.He/She) finds out the truth at dinner, when four other people tell (subject.him/her) about the heron, and is first outraged and then deeply touched.",
+   "src": "L134"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"The heron?\" says (friend). \"Oh, (subject). Everyone's seen the heron.\" (subject)'s face falls. \"Since when?\" \"Since about four days ago.\" (subject) is quiet for a moment. \"Did anyone think to tell ME?\" \"Everyone thought someone else had.\" They go down to the stream together anyway. The heron looks at both of them as if it remembers neither.",
+   "src": "L137"
+  }
+ }
+}

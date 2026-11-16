@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Undefeated Champion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt32_undefeated",
+  "source": "draft_tt",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L386",
+    "kind": "sensitivity",
+    "before": "a teenager wins by a whisker",
+    "after": "(teen), a teenager, wins by a whisker",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "The children ask an elder to defend an old coconut-husking title nobody remembers: defend the title, or retire undefeated.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always said that, long ago, (subject.he/she) was the undefeated coconut-husking champion of the whole village: faster than anyone, three years running. Nobody alive remembers that contest. Nobody remembers it not happening, either. Today the children have organized a husking contest, and have asked the champion to defend (subject.his/her) title.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Defend the Title",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Retire Undefeated",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) rolls up (subject.his/her) sleeves. (subject.He/she) is genuinely, surprisingly fast, though not the fastest: (teen), a teenager, wins by a whisker. (subject) shakes the winner's hand and announces the end of a great era. The children are thrilled to have been there for it. Whether the great era ever happened doesn't seem to matter to anybody.",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"A champion,\" says (subject), \"knows when to retire.\" (subject.He/she) agrees to judge instead, and does so with enormous seriousness, giving every child expert advice. The champion's record remains unbeaten forever, mostly because nobody can check it.",
+   "src": "L389"
+  }
+ }
+}

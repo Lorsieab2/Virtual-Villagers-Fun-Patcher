@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Keeping It Warm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt06_keeping_warm",
+  "source": "draft_tt",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L71",
+    "kind": "sensitivity",
+    "before": "Tonight one arrives",
+    "after": "Tonight (elder), an elder, arrives",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "The elder sits down",
+    "after": "(elder) sits down",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L77",
+    "kind": "sensitivity",
+    "before": "The elder squeezes in",
+    "after": "(elder) squeezes in",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L77",
+    "kind": "sensitivity",
+    "before": "finds the elder already there",
+    "after": "finds (elder) already there",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager keeps the best fireside spot warm for the elders until one arrives: offer it gracefully, or make room.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every evening (subject) gets to the fire early and sits in the best spot: out of the smoke, close to the warmth, with a good tree trunk to lean on. \"Just keeping it warm for the elders,\" (subject.he/she) says. No elder has ever sat in it. Tonight (elder), an elder, arrives, stops, and looks at the spot, and then at (subject).",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Offer It Gracefully",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Make Room",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) leaps up. \"There you are! I've kept it lovely and warm for you.\" (elder) sits down with a long, happy sigh. (subject) spends the rest of the evening on the smoky side of the fire, coughing gently, and feels quite proud of (subject.him/her)self anyway.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) shuffles along the trunk and makes room. (elder) squeezes in beside (subject.him/her). They share the best spot all evening, slightly squashed, swapping stories. The next evening (subject) arrives early as usual, and finds (elder) already there, keeping it warm for (subject.him/her).",
+   "src": "L77"
+  }
+ }
+}

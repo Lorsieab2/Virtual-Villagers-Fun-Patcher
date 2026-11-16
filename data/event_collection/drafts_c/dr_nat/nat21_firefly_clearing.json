@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Firefly Clearing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat21_firefly_clearing",
+  "source": "draft_nat",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L254",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The village needs garden space, and the firefly clearing is flat and well watered: clear half of it, or plant somewhere else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a damp little clearing beyond the gardens where, on warm nights, hundreds of fireflies blink in the grass. Children are taken there on special evenings. Now the village needs more garden space, and that clearing is flat and well watered and right there. (subject) is in favor. (friend) is very much not.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Clear Half of It",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Plant Somewhere Else",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They agree to plant on one side and leave the other wild. The new garden grows well. The fireflies still come, but fewer, and only to the wild side. The children still go there. (subject) is glad of the extra food. (friend) is glad there's anything left. Neither of them is completely happy, which might mean it was a fair deal.",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L254"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The new garden goes on a steeper, rockier patch further up, which is much more work. People complain about the climb. But that summer, on the first warm night, (subject) takes a group of children to the clearing and sits in the dark with them, watching the grass light up, blink by blink. (subject.He/she) finds (subject.he/she) doesn't mind the climb as much after that.",
+   "src": "L257"
+  }
+ }
+}

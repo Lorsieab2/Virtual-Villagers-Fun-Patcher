@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wish Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm43_wish_jar",
+  "source": "draft_drm",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-12)"
+   }
+  ],
+  "description": "Builders find a sealed jar of old childhood wishes, and an elder recognizes it: look for your own leaf, or start a new jar.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Under the floor of the old storehouse, the builders have found a clay jar, sealed with wax. Inside are leaves with little drawings scratched on them: a canoe, a big fish, a hut with a flower, a person with wings. (subject) recognizes it at once. When (subject.he/she) was a child, all the children put their wishes in a jar. (subject.He/she) had forgotten.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Look for Your Own Leaf",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Start a New Jar",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes through them carefully. One shows a stick figure sitting under a tree with a bowl of fruit. That one was (subject.his/her) wish. (subject.He/she) laughs: (subject.he/she) has spent a great deal of (subject.his/her) life sitting under trees with fruit. \"Did your wish come true?\" asks (friend). \"Every afternoon,\" says (subject).",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) suggests the children make a new jar. They draw their wishes on leaves \\(a whale, a mountain of mangoes, a pet crab the size of a hut\\) and seal them up. They bury it under a new corner of the storehouse. \"When do we open it?\" asks (friend). \"When you've forgotten,\" says (subject).",
+   "src": "L521"
+  }
+ }
+}

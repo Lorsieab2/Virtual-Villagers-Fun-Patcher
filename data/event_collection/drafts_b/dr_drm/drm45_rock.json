@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(name1)'s Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm45_rock",
+  "source": "draft_drm",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager secretly wishes a stream rock were known as theirs and finds a friend on it: ask them to shift over, or find another.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a flat rock by the stream that (subject) sits on most evenings. Secretly, (subject.he/she) would love it if people called it \"(subject)'s rock,\" the way there's a tree everyone calls after one of the old fishers. (subject.He/she) has never said this out loud. Today (friend) is sitting on it when (subject) arrives.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Ask (friend) to Shift Over",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Find Another Rock",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Shove up,\" says (subject), and sits down too. They watch the stream. After a while (friend) says, \"I always think of this as your rock.\" (subject) almost falls in. (subject.He/she) tries very hard to look like this is nothing. It is not nothing. It is the best thing anyone has said to (subject.him/her) all season.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks a little further and sits on another rock. It's fine. It's a bit lumpy. The next evening, (subject.he/she) finds a small mark scratched on the first rock. It's (subject.his/her) name, in a child's handwriting. Nobody admits to doing it. (subject) sits on (subject.his/her) rock every evening after that.",
+   "src": "L545"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Questions for the Spiritual Leader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf32_questions",
+  "source": "draft_blf",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and a spiritual leader or elder)"
+   }
+  ],
+  "description": "A teen asks the leader of the old songs a great many questions: the leader welcomes them, or asks what the teen thinks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been asking (friend), who leads the village's old songs, a great many questions. Why do we sing at the new moon? Where do the spirits go in the dry season? How do you know any of it is true? Some adults think (subject) is being rude. (friend) doesn't seem to mind at all.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "(friend) Welcomes the Questions",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "(friend) Asks What (subject) Thinks",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Keep asking,\" says (friend). \"Questions are good. I don't have answers for all of them, and some of my answers might be wrong.\" (subject) blinks. \"You can be wrong?\" \"Of course,\" says (friend). \"I'm just a person who has thought about it a long time. You'll think about it too, and maybe you'll end up somewhere different. That's alright.\" (subject) has never been told that before.",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What do you think?\" asks (friend), after the fifth question. (subject) is startled. Nobody's asked (subject.him/her) that before. (subject.He/she) thinks. \"I don't know yet,\" (subject.he/she) says. \"I'm still working it out.\" \"Good,\" says (friend). \"Come back when you've worked out a bit more. I'd like to hear it.\" (subject) walks home feeling very grown-up.",
+   "src": "L389"
+  }
+ }
+}

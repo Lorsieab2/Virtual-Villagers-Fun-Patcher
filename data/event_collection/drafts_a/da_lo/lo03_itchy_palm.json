@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Itchy Palm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo03_itchy_palm",
+  "source": "da_lo",
+  "lines": [
+   33,
+   42
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L34",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L42",
+    "kind": "casting",
+    "before": "a neighbor brings over",
+    "after": "(neighbor), a neighbor, brings over",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager's palm has been itching all morning, which means a gift is coming: wait for it, or forget it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject)'s right palm has been itching all morning. Everyone knows what that means: a gift is coming. (subject) has been walking around with (subject.his/her) hand slightly open, just in case, and has told several people about it. (friend) thinks this is ridiculous.",
+   "src": "L36",
+   "choices": [
+    {
+     "label": "Wait for the Gift",
+     "next": "a",
+     "src": "L38"
+    },
+    {
+     "label": "Scratch It and Forget It",
+     "next": "b",
+     "src": "L41"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) waits all day. Nothing. At dinner, (friend), with a perfectly straight face, puts a small shell into (subject)'s itchy palm. \"There,\" (friend.he/she) says. \"Your gift.\" (subject) looks at it. \"That doesn't count.\" \"It's a gift. In your palm.\" (subject) keeps the shell. The itching, (subject.he/she) notes later, has stopped.",
+   "src": "L39"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) scratches it and gets on with things. That afternoon, (neighbor), a neighbor, brings over a basket of fruit for no reason at all, just because there was too much. (subject) looks at the basket, then at (subject.his/her) palm, then at (friend). (friend) refuses to say anything. (subject) says a great deal.",
+   "src": "L42"
+  }
+ }
+}

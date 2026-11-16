@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Costume and the Crown",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp72_costume_crown",
+  "source": "anthology",
+  "lines": [
+   32384,
+   32398
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32384",
+  "ledger": [
+   {
+    "src": "L32385",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32386",
+    "kind": "sensitivity",
+    "before": "a child wearing a handmade crown announces",
+    "after": "(child), wearing a handmade crown, announces",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32388",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32389",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32391",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32392",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32397",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "During a festival, a child wearing a handmade crown announces that they are now chief.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a festival, (child), wearing a handmade crown, announces that they are now {@chief}.",
+   "src": "L32386",
+   "choices": [
+    {
+     "label": "Play Along Briefly",
+     "next": "a",
+     "src": "L32387"
+    },
+    {
+     "label": "Ask What a {@Chief} Does",
+     "next": "b",
+     "src": "L32390"
+    },
+    {
+     "label": "Let Children Make Rules for a Game",
+     "next": "c",
+     "src": "L32393"
+    },
+    {
+     "label": "Discuss Real Leadership",
+     "next": "d",
+     "src": "L32396"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) orders everyone to dance.",
+   "src": "L32388"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(adult) gently reminds them it is pretend.",
+   "src": "L32389"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) says {@chief}s should listen.",
+   "src": "L32391"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) proposes unlimited snacks.",
+   "src": "L32392"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The rules are surprisingly fair.",
+   "src": "L32394"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A dispute teaches the value of appeals.",
+   "src": "L32395"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) explains service and responsibility.",
+   "src": "L32397"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} laughs and accepts a flower crown.",
+   "src": "L32398"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

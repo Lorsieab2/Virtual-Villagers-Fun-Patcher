@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family Quiver",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm34_family_quiver",
+  "source": "armor45",
+  "lines": [
+   45,
+   45
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L45",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "structural",
+    "text": "34. The Family Quiver  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "An old quiver contains arrows made by different relatives over decades. Their markings reveal a quiet family history.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "An old quiver contains arrows made by different relatives over decades. Their markings reveal a quiet family history.",
+   "src": "L45"
+  }
+ }
+}

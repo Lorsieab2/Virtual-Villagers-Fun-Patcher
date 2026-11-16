@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grown-Up's Long Stories",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il177_grown_up_long",
+  "source": "da_il09",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A teen secretly loves an elder's very long stories, and today the other teens drift off and leave them there.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend), an elder, tells very long stories. They wander. They have a lot of fish in them. (subject)'s friends groan whenever (friend) starts one. (subject) groans too, when (subject.his/her) friends are watching. The trouble is that, secretly, (subject) loves them. Today (friend) starts a story, and the other teens drift off. (subject) is left sitting there.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Stay and Listen",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Leave with the Others, Then Come Back Later",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) stays. The story is about a storm, and a lost canoe, and a very stubborn grandmother. It takes most of the afternoon. When it's done, (subject) asks a question about the grandmother, and (friend) looks at (subject.him/her) properly for the first time. \"Nobody's asked me anything about her in years,\" (friend.he/she) says. (friend.He/She) tells (subject.him/her) another one.",
+   "src": "L206"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) follows (subject.his/her) friends, groaning in the right places. That evening, though, (subject.he/she) wanders back to (friend)'s hut, on (subject.his/her) own, and asks how the story ended. (friend) tells (subject.him/her). Neither of them mentions the afternoon. It becomes, without anyone saying so, a thing they do.",
+   "src": "L209"
+  }
+ }
+}

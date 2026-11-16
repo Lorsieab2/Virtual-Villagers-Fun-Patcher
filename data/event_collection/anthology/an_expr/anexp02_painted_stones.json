@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Painted Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp02_painted_stones",
+  "source": "anthology",
+  "lines": [
+   31264,
+   31278
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31264",
+  "ledger": [
+   {
+    "src": "L31265",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31271",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Small painted stones begin appearing beside doorways, and nobody knows who leaves them.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Small painted stones begin appearing beside doorways, and nobody knows who leaves them.",
+   "src": "L31266",
+   "choices": [
+    {
+     "label": "Leave the Mystery Alone",
+     "next": "a",
+     "src": "L31267"
+    },
+    {
+     "label": "Follow the Paint Trail",
+     "next": "b",
+     "src": "L31270"
+    },
+    {
+     "label": "Invite a Stone-Painting Afternoon",
+     "next": "c",
+     "src": "L31273"
+    },
+    {
+     "label": "Protect the Paths",
+     "next": "d",
+     "src": "L31276"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gifts brighten a difficult week.",
+   "src": "L31268"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A recipient asks that no stones be left at their door.",
+   "src": "L31269"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) proudly admits to making them.",
+   "src": "L31271"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several unrelated artists discover each other.",
+   "src": "L31272"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers trade designs without assigning meanings.",
+   "src": "L31274"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A disagreement over a symbol leads to a useful conversation.",
+   "src": "L31275"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Artists move their stones away from animal burrows.",
+   "src": "L31277"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A painted marker is removed after it confuses travelers.",
+   "src": "L31278"
+  }
+ }
+}

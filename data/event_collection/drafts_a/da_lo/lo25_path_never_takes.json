@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path (name1) Never Takes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo25_path_never_takes",
+  "source": "da_lo",
+  "lines": [
+   297,
+   306
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L297",
+  "ledger": [
+   {
+    "src": "L298",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A friend asks a villager why they never take one path in the village, and they cannot remember.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's one path in the village that (subject) never takes. The one past the old fallen tree. (subject.He/She) always goes the other way. (subject.He/She) has done it for so long (subject.he/she) doesn't even think about it anymore. Today (friend) asks why, and (subject) realizes (subject.he/she) has completely forgotten.",
+   "src": "L300",
+   "choices": [
+    {
+     "label": "Take the Path Today",
+     "next": "a",
+     "src": "L302"
+    },
+    {
+     "label": "Keep Avoiding It",
+     "next": "b",
+     "src": "L305"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) walks down the forbidden path, slowly, looking around at everything. It's a perfectly ordinary path. There's a nice view of the sea. (subject.He/She) gets to the end and nothing happens at all. On the way back, (subject.he/she) suddenly remembers: a crab pinched (subject.him/her) there, when (subject.he/she) was about four. (subject.He/She) laughs all the way home.",
+   "src": "L303"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I don't know why,\" says (subject). \"I just don't.\" (friend) shrugs. That's fine. Everyone's allowed one path they don't take. (subject) goes the long way round, as always. It occurs to (subject.him/her) that it doesn't really matter why. It's just how (subject.he/she) goes.",
+   "src": "L306"
+  }
+ }
+}

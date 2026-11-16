@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Moment of Silence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf21_moment_silence",
+  "source": "draft_blf",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager stops at the end of every day for a moment of silence, and a friend carrying wood stops too: join in, or wait politely.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the end of every day, (subject) stops whatever (subject.he/she) is doing and stands still for a moment with (subject.his/her) eyes closed. It's a custom from (subject.his/her) family. Today (friend), who is helping (subject.him/her) carry wood, stops too, curious, wood still in (friend.his/her) arms.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Join In",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Wait Politely",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) closes (friend.his/her) eyes too. They stand there in silence. A bird sings. The waves come in. After a moment (subject) opens (subject.his/her) eyes and picks up the wood again. \"What was that for?\" asks (friend). \"To notice the day is over,\" says (subject). \"That's all.\" (friend) finds (friend.him/her)self doing it the next evening, alone.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) waits, holding the wood. (friend.He/she) doesn't close (friend.his/her) eyes. (friend.He/she) just watches the light change on the sea while (subject) stands still. When (subject) opens (subject.his/her) eyes, (friend) says, \"Ready?\" \"Ready,\" says (subject). They carry on. It was a nice moment, even watching from the outside.",
+   "src": "L257"
+  }
+ }
+}

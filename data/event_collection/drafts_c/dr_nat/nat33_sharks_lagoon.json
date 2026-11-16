@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Little Sharks in the Lagoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat33_sharks_lagoon",
+  "source": "draft_nat",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Baby sharks have been seen in the lagoon, and parents want everyone out: share the lagoon, or close it for the season.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This season, a few baby sharks have been seen in the warm shallows of the lagoon, no longer than a forearm, with black-tipped fins. The old fishers say the lagoon has always been a nursery for them, and they're shy and harmless at that size. Some parents don't care what the old fishers say and want everyone out of the water. (subject) and (friend) have been asked to decide.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Share the Lagoon",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Close the Lagoon for the Season",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They let the swimming go on, with one rule: no splashing near the far end where the little sharks stay. Children are fascinated. Every sighting is shouted across the water. The sharks keep away from people, mostly by darting off whenever someone comes close. By the end of the season they've grown and gone out to the reef. Nobody was bitten. Several people were frightened by floating leaves.",
+   "src": "L398"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They close the lagoon to swimming until the young sharks leave. Children are disappointed. Parents are relieved. Some of the fishers think it's too much fuss over fish that are more scared of people than people are of them. Everyone swims in the stream pools instead, which are colder and have fewer surprises. When the sharks have grown and gone, the lagoon opens again with a splash.",
+   "src": "L401"
+  }
+ }
+}

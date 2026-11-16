@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Returned a Little Blunter",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon03_returned_blunter",
+  "source": "draft_hon",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager blunted a friend's borrowed knife on vines and rocks: mention it when returning it, or sharpen it first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) borrowed (friend)'s good knife to cut some vines. It was very sharp when (subject.he/she) borrowed it. Vines, it turns out, are tougher than they look, and so are the rocks (subject.he/she) kept hitting by accident. Now the knife is noticeably blunter, and (subject) is on (subject.his/her) way to give it back.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Mention It",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Sharpen It First",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm afraid I've blunted it,\" says (subject). \"Vines, mostly. And a rock.\" (friend) runs a thumb along the edge and winces. \"That's quite blunt.\" \"I'll sharpen it.\" \"You'll make it worse.\" They sharpen it together on the stone by the stream, and (friend) shows (subject.him/her) how. It takes all afternoon. (subject) never borrows it for vines again.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) spends the evening working it on a stone. It's sharp again, more or less, and (subject.he/she) returns it with thanks. A few days later (friend) says, \"Funny. My knife's got a different edge on it now.\" (subject) goes slightly red. \"Different good or different bad?\" \"Just different,\" says (friend), and leaves it there.",
+   "src": "L41"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Starfish with a Short Arm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat25_starfish_short",
+  "source": "draft_nat",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-12 and an adult)"
+   }
+  ],
+  "description": "A child finds a starfish with one short arm and worries something bit it: explain about starfish, or ask what the child thinks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has found a starfish in a tide pool, and one of its five arms is much shorter than the others, a little stub with a tiny new tip. (subject.He/she) is worried something bit it. (subject.He/she) runs to show (friend), holding the starfish very gently in two cupped hands.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Explain About Starfish",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Ask (subject) What (subject.He/she) Thinks Happened",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Starfish can grow an arm back,\" says (friend). \"It takes a long time, but they can.\" (subject) is astonished. \"Can people?\" \"No,\" says (friend). \"People do other things.\" (subject) thinks about this all the way back to the tide pool, where (subject.he/she) puts the starfish down exactly where (subject.he/she) found it. (subject.He/she) visits it every day for a while, checking the arm. It's hard to tell if it's growing. (subject.He/she) decides it is.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) has a whole story: a crab, a fight, a brave escape. (friend) listens to all of it seriously. Then (friend.he/she) tells (subject) the arm is growing back. (subject) decides the starfish won the fight. (subject.He/she) names it Champion and puts it back in its pool, and tells everyone at dinner about Champion's famous victory.",
+   "src": "L305"
+  }
+ }
+}

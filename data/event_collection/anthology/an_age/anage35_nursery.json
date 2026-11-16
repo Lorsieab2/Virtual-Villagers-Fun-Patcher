@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nursery and the Council",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage35_nursery",
+  "source": "anthology",
+  "lines": [
+   30669,
+   30683
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30669",
+  "ledger": [
+   {
+    "src": "L30670",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30677",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30682",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A proposed village meeting conflicts with feeding, rest, and caregiving routines for several families.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A proposed village meeting conflicts with feeding, rest, and caregiving routines for several families.",
+   "src": "L30671",
+   "choices": [
+    {
+     "label": "Ask Nursing Mothers and Other Caregivers First",
+     "next": "a",
+     "src": "L30672"
+    },
+    {
+     "label": "Invite Teens to Help with Logistics",
+     "next": "b",
+     "src": "L30675"
+    },
+    {
+     "label": "Ask Children What They Need",
+     "next": "c",
+     "src": "L30678"
+    },
+    {
+     "label": "Invite Elders to Advise on Precedent",
+     "next": "d",
+     "src": "L30681"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The meeting moves to a more accessible time without treating their needs as an inconvenience.",
+   "src": "L30673"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Caregivers suggest an optional nearby quiet area and flexible participation.",
+   "src": "L30674"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Teens organize seating and supplies while retaining time for their own commitments.",
+   "src": "L30676"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) points out that caregiving is not automatically their responsibility.",
+   "src": "L30677"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children request a safe play space within sight of trusted adults.",
+   "src": "L30679"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Older children prefer to attend part of the discussion and ask thoughtful questions.",
+   "src": "L30680"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) remembers when meetings rotated through neighborhoods.",
+   "src": "L30682"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Another elder admits the old schedule excluded many villagers and supports changing it.",
+   "src": "L30683"
+  }
+ }
+}

@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story of Many Peoples",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs35_story_many",
+  "source": "anthology",
+  "lines": [
+   29950,
+   29963
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29950",
+  "ledger": [
+   {
+    "src": "L29954",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29963",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Young villagers ask why different communities have distinct languages, traditions, and histories.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Young villagers ask why different communities have distinct languages, traditions, and histories.",
+   "src": "L29951",
+   "choices": [
+    {
+     "label": "Discuss Migration and Changing Customs",
+     "next": "a",
+     "src": "L29952"
+    },
+    {
+     "label": "Invite Several Family Histories",
+     "next": "b",
+     "src": "L29955"
+    },
+    {
+     "label": "Compare Objects Made in Different Places",
+     "next": "c",
+     "src": "L29958"
+    },
+    {
+     "label": "Ask Whether Differences Make People Unequal",
+     "next": "d",
+     "src": "L29961"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They learn that communities develop through movement, contact, and time.",
+   "src": "L29953"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) notices that traditions can be shared without becoming identical.",
+   "src": "L29954"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Stories reveal both connections and disagreements.",
+   "src": "L29956"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some families have forgotten parts of their histories, and no one invents certainty.",
+   "src": "L29957"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children admire multiple ways to solve the same practical problem.",
+   "src": "L29959"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They discover that similar objects can carry very different meanings.",
+   "src": "L29960"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The adults firmly reject that conclusion without denying real differences.",
+   "src": "L29962"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) recognizes that fairness does not require everyone to be the same.",
+   "src": "L29963"
+  }
+ }
+}

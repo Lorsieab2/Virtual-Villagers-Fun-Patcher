@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missed Celebration",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam18_missed",
+  "source": "anthology",
+  "lines": [
+   28555,
+   28568
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28555",
+  "ledger": [
+   {
+    "src": "L28556",
+    "kind": "sensitivity",
+    "before": "another villager's",
+    "after": "(villager)'s",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28556",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(forgetter)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28558",
+    "kind": "sensitivity",
+    "before": "The forgotten friend",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28559",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28562",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28565",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28568",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A friend forgets another villager's special day.",
+  "label_case": "title",
+  "cast_only": [
+   "forgetter",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "forgetter": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(forgetter) forgets (villager)'s special day.",
+   "src": "L28556",
+   "choices": [
+    {
+     "label": "Offer a Sincere Apology",
+     "next": "a",
+     "src": "L28557"
+    },
+    {
+     "label": "Arrange a Modest Late Celebration",
+     "next": "b",
+     "src": "L28560"
+    },
+    {
+     "label": "Ask Whether the Friend Wants Company",
+     "next": "c",
+     "src": "L28563"
+    },
+    {
+     "label": "Avoid Making Grand Promises",
+     "next": "d",
+     "src": "L28566"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28556"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) appreciates the apology.",
+   "src": "L28558"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) admits the oversight brought back an older hurt.",
+   "src": "L28559"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A quiet celebration feels more meaningful than a large feast.",
+   "src": "L28561",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28561"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) prefers to leave the day behind.",
+   "src": "L28562"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two spend a peaceful afternoon together.",
+   "src": "L28564"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) asks for time alone.",
+   "src": "L28565"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A simple promise is kept, slowly repairing confidence.",
+   "src": "L28567"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) says that remembering next time matters more.",
+   "src": "L28568"
+  }
+ }
+}

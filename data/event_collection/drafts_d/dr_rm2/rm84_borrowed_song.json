@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Borrowed Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm84_borrowed_song",
+  "source": "draft_rm2",
+  "lines": [
+   655,
+   668
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L655",
+  "ledger": [
+   {
+    "src": "L656",
+    "kind": "sensitivity",
+    "before": "A young singer",
+    "after": "(Name1), a young singer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A young singer wants to perform a beautiful song at a festival, but it belongs to another family's tradition.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a young singer, wants to perform a beautiful song at a festival, but it belongs to another family's tradition.",
+   "src": "L656",
+   "choices": [
+    {
+     "label": "Ask the Family for Permission.",
+     "next": "a",
+     "src": "L657"
+    },
+    {
+     "label": "Learn the Song's Meaning First.",
+     "next": "b",
+     "src": "L660"
+    },
+    {
+     "label": "Perform It with the Family.",
+     "next": "c",
+     "src": "L663"
+    },
+    {
+     "label": "Write a New Song Inspired by It.",
+     "next": "d",
+     "src": "L666"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family agrees and teaches the singer the proper way.",
+   "src": "L658"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The family prefers to keep the song private, and the singer chooses another.",
+   "src": "L659"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The singer performs it with deeper feeling and respect.",
+   "src": "L661"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The singer realizes the song is meant for mourning and chooses a different one.",
+   "src": "L662"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The shared performance moves everyone.",
+   "src": "L664"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The family prefers to sing it alone, and the singer happily listens.",
+   "src": "L665"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The new song becomes popular, and the family is pleased by the tribute.",
+   "src": "L667"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The new song is not as good, but the singer is proud of it.",
+   "src": "L668"
+  }
+ }
+}

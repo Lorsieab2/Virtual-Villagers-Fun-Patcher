@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Grandmother's Remedy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea25_grandmother",
+  "source": "draft_hea",
+  "lines": [
+   299,
+   308
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L299",
+  "ledger": [
+   {
+    "src": "L300",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A villager wants to use a family cold remedy the healer has never heard of: ask the healer to look, or use it without asking.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a nasty cold and wants to use the remedy (subject.his/her) family has always used: a hot drink of boiled lime peel, ginger and a pinch of something from a little gourd that has been passed down for years. (friend), the healer, has never heard of it and doesn't know what's in the gourd.",
+   "src": "L302",
+   "choices": [
+    {
+     "label": "Ask (friend) to Look at It",
+     "next": "o1",
+     "src": "L304"
+    },
+    {
+     "label": "Use It Without Asking",
+     "next": "o2",
+     "src": "L307"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sniffs the gourd, tastes the tiniest bit on a fingertip and nods slowly. \"It's a kind of pepper bark,\" (friend.he/she) says. \"I don't use it, but I can't see any harm in it for a cold.\" (subject) drinks the family remedy. The cold lasts about as long as colds last. (subject) feels very looked after the whole time, which (subject.he/she) thinks is what the remedy was for in the first place.",
+   "src": "L305"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to bother anyone. (subject.He/she) brews the drink the way (subject.his/her) family always did. It's spicy, hot and makes (subject.his/her) eyes water. The cold goes in five days. Later (subject.he/she) mentions it to (friend), who asks, with real interest, if (friend.he/she) could have a pinch to study. (subject) thinks about it, then gives (friend.him/her) a very small pinch. Some things are family things.",
+   "src": "L308"
+  }
+ }
+}

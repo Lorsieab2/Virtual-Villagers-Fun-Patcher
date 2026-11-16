@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crab March",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat19_crab_march",
+  "source": "draft_nat",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another villager)"
+   }
+  ],
+  "description": "The red land crabs are marching to the sea through every hut and pot: help the crabs across, or shoo them out of the huts.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Overnight, the red land crabs have started their yearly march down to the sea, and they are everywhere: on the paths, in the huts, in the cooking pots, in (subject)'s sandals. Thousands of them, scuttling and clicking, all going the same way, refusing to be hurried. (friend) has just found one in (friend.his/her) water jar and is yelling about it.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Help the Crabs Across",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Shoo Them Out of the Huts",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) declares the main path closed and builds little ramps of bark over the worst ditches so the crabs don't get stuck. People step very carefully for three days, like dancers. A few children appoint themselves crab guides and walk ahead of everyone shouting \"CRAB!\" at every step. It is the loudest, slowest, silliest week of the year.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) spend the morning carrying crabs out of huts on a flat basket, one by one, and setting them back on the path to the sea. For every one they move, two more wander in. By lunch they give up and eat sitting on the roof. Below them, the crabs keep marching. In a week they'll be gone, and everyone will miss the clicking a little.",
+   "src": "L233"
+  }
+ }
+}

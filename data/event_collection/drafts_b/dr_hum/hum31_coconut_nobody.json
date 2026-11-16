@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Nobody Could Open",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum31_coconut_nobody",
+  "source": "draft_hum",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L374",
+    "kind": "sensitivity",
+    "before": "A builder hits it",
+    "after": "(builder), a builder, hits it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L374",
+    "kind": "sensitivity",
+    "before": "A fisher throws it",
+    "after": "(fisher), a fisher, throws it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L374",
+    "kind": "sensitivity",
+    "before": "An elder talks to it",
+    "after": "(elder), an elder, talks to it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L374",
+    "kind": "sensitivity",
+    "before": "Then a small child picks it up",
+    "after": "Then (child), a small child, picks it up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L374",
+    "kind": "sensitivity",
+    "before": "The child drinks the milk",
+    "after": "(child) drinks the milk",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has spent all morning failing to open one coconut: let everyone have a turn, or declare it unopenable.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "builder",
+   "fisher",
+   "elder",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 5
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been trying to open one particular coconut for most of the morning. (subject.He/she) has hit it with a rock, dropped it from a height and wedged it in the fork of a tree. It hasn't even cracked. Word has spread. A line of villagers has formed, each of them certain they know the trick.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Let Everyone Have a Turn",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Declare It Unopenable",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(builder), a builder, hits it with a mallet. (fisher), a fisher, throws it at a rock. (elder), an elder, talks to it quietly for some time. Nothing. Then (child), a small child, picks it up to look at it, drops it on the soft sand, and it splits perfectly in two. A long silence. (child) drinks the milk. Nobody ever speaks of this again.",
+   "src": "L374"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"This coconut,\" announces (subject), \"cannot be opened.\" It is placed in a place of honor beside the fire, and for weeks people try their luck whenever they pass. Then one rainy morning it is found split open all by itself, with a green shoot poking out. (subject) plants it. It grows into a fine tree whose coconuts open perfectly normally, to everyone's slight disappointment.",
+   "src": "L377"
+  }
+ }
+}

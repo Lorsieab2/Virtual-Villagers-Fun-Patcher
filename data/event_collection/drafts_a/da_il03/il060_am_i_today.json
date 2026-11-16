@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Am I Today?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il060_am_i_today",
+  "source": "da_il03",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A teen has decided to be mysterious this week, with a flower behind one ear and a thoughtful stare.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "This week (subject) has decided to be mysterious. (subject.He/She) speaks only in short sentences, stares thoughtfully at the horizon, and has started wearing a flower behind one ear. Last week (subject.he/she) was going to be a famous fisher. The week before that, a great storyteller. (friend), (subject.his/her) older friend, has been watching all of this with great interest.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Ask About the New (subject)",
+     "next": "a",
+     "src": "L229"
+    },
+    {
+     "label": "Join In",
+     "next": "b",
+     "src": "L232"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"So who are you this week?\" asks (friend). (subject) gazes at the sea. \"Someone with secrets.\" \"What kind of secrets?\" (subject) thinks. \"...I haven't decided yet.\" (friend) nods seriously. \"Let me know when you do.\"",
+   "src": "L230"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) tucks a flower behind (friend.his/her) own ear and stares at the horizon too. They stand there being mysterious together until a crab pinches (friend)'s toe and (friend.he/she) yelps. (subject) breaks character and laughs. Next week, (subject.he/she) thinks, (subject.he/she) might try being funny.",
+   "src": "L233"
+  }
+ }
+}

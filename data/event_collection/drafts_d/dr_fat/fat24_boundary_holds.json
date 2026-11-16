@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boundary That Holds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat24_boundary_holds",
+  "source": "fathers30",
+  "lines": [
+   497,
+   515
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L497",
+  "ledger": [
+   {
+    "src": "L498",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L503",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L505",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L506",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L508",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L509",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L511",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L512",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L514",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L515",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L501",
+    "kind": "sensitivity",
+    "before": "Their parent loves",
+    "after": "Their parent, (name1), loves",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child has repeatedly taken another child's belongings without asking.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child has repeatedly taken another child's belongings without asking. Their parent, (name1), loves them dearly but knows the behavior must stop. The child protests that everyone is being unfair.",
+   "src": "L501",
+   "choices": [
+    {
+     "label": "Explain the Boundary Firmly",
+     "next": "a",
+     "src": "L504"
+    },
+    {
+     "label": "Ask the Child to Help Make Amends",
+     "next": "b",
+     "src": "L507"
+    },
+    {
+     "label": "Listen to the Child's Explanation",
+     "next": "c",
+     "src": "L510"
+    },
+    {
+     "label": "Set a Reasonable, Related Consequence",
+     "next": "d",
+     "src": "L513"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child reluctantly returns the belongings and begins to understand why permission matters.",
+   "src": "L505"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child remains angry; the parent keeps the boundary without shouting or humiliation.",
+   "src": "L506"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child apologizes sincerely and offers to repair a damaged toy.",
+   "src": "L508"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apology is rushed and insincere; the parent explains that rebuilding trust takes action.",
+   "src": "L509"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The parent learns that the child felt excluded and helps address that feeling without excusing the theft.",
+   "src": "L511"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child offers several excuses; the parent acknowledges their feelings but maintains the consequence.",
+   "src": "L512"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child helps sort and return shared toys before borrowing them again.",
+   "src": "L514"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child resents the consequence at first, and the parent patiently follows through.",
+   "src": "L515"
+  }
+ }
+}

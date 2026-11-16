@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Pelican Doing in the Canoe?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd07_what_pelican",
+  "source": "da_wd",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager goes to the canoe to fish and finds a pelican already sitting in it: take it fishing, or shoo it out.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) walks down to (his/her) canoe to go fishing, and finds a pelican already sitting in it. A big one. Right in the middle, where (name1) sits. It looks very settled. It looks, in fact, as though it is waiting to be taken fishing.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Take It Fishing",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Shoo It Out",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) pushes the canoe out with the pelican still in it. The pelican seems delighted. It sits at the front like a lookout the whole time, and whenever there are fish below, it makes a rumbling noise. (name1) has the best catch in weeks. Back on the beach, the pelican hops out, and leaves without a backward glance.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L86"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) waves (his/her) arms. The pelican looks at (him/her) with deep disappointment. (name1) waves again. Slowly, with enormous dignity, the pelican climbs out, waddles three steps away, and sits down on the sand to watch (name1) paddle off. When (name1) comes back, it's still there, looking at the fish in the canoe meaningfully. (name1) gives it one.",
+   "src": "L89"
+  }
+ }
+}

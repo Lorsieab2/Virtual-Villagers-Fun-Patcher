@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scale and the Feather",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau18_scale_feather",
+  "source": "anthology",
+  "lines": [
+   32732,
+   32746
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32732",
+  "ledger": [
+   {
+    "src": "L32733",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / TEENS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32734",
+    "kind": "sensitivity",
+    "before": "Two children argue",
+    "after": "(child1) and (child2), two children, argue",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two children argue whether scales or feathers make an animal more remarkable.",
+  "label_case": "title",
+  "cast_only": [
+   "child1",
+   "child2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child1) and (child2), two children, argue whether scales or feathers make an animal more remarkable.",
+   "src": "L32734",
+   "choices": [
+    {
+     "label": "Compare Adaptations",
+     "next": "a",
+     "src": "L32735"
+    },
+    {
+     "label": "Make Costumes",
+     "next": "b",
+     "src": "L32738"
+    },
+    {
+     "label": "Ask a Naturalist",
+     "next": "c",
+     "src": "L32741"
+    },
+    {
+     "label": "Let Them Debate",
+     "next": "d",
+     "src": "L32744"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They discover both serve different purposes.",
+   "src": "L32736"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Neither child admits defeat.",
+   "src": "L32737"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children stage a playful parade.",
+   "src": "L32739"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A costume falls apart mid-performance.",
+   "src": "L32740"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The answer leads to surprising evolutionary questions.",
+   "src": "L32742"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children learn some categories overlap.",
+   "src": "L32743"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They practice disagreement without insults.",
+   "src": "L32745"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The debate ends in giggles rather than a verdict.",
+   "src": "L32746"
+  }
+ }
+}

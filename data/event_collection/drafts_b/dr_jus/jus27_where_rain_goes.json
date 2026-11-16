@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where the Rain Goes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus27_where_rain_goes",
+  "source": "draft_jus",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L325",
+    "kind": "sensitivity",
+    "before": "Ask an Elder to Look",
+    "after": "Ask (elder) to Look",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L326",
+    "kind": "sensitivity",
+    "before": "The elder walks up",
+    "after": "(elder), an elder, walks up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's new rain channel sends the water into a neighbor's hut: ask an elder to look, or talk it over.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) dug a little channel to carry the rain away from (subject.his/her) hut. It works perfectly. The water now runs straight downhill into (friend)'s hut instead. After last night's rain, (friend) woke up with a puddle under (friend.his/her) sleeping mat.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Ask (elder) to Look",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Talk It Over",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, walks up and down the slope, following the channel, and suggests turning it at the bottom so the water runs into the gardens instead. (subject) and (friend) dig the new bend together. The water goes to the beans. The beans are delighted. Nobody is wet.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) climbs the hill with (friend.his/her) wet mat over (friend.his/her) shoulder. (subject) looks at the mat, then at the channel, and says, \"Oh no.\" (subject.He/she) fills in the bottom of the channel that same morning and spends the afternoon helping (friend) dry everything in the sun. The next time it rains, both huts get a little wet. That, they agree, is fair.",
+   "src": "L329"
+  }
+ }
+}

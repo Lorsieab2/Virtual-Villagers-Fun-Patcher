@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Went Cold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo48_stone_went_cold",
+  "source": "da_lo",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The lavastone a villager has carried for most of their life has gone cold, and its glow is gone.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has carried the same lavastone with (him/her) for most of (his/her) life. It's been warm in (his/her) pocket on every journey, every hard day, every celebration. This morning (he/she) reaches for it, and it's cold. Completely cold. The glow is gone. It's just a reddish stone now, heavy and ordinary.",
+   "src": "L587",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration in the story (a feast, a moment of joy); no village celebration happens in the game",
+     "src": "L587"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Keep Carrying It",
+     "next": "a",
+     "src": "L589"
+    },
+    {
+     "label": "Return It to the Earth",
+     "next": "b",
+     "src": "L592"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) keeps carrying it anyway. It's still (his/her) own. It's still the stone that was with (him/her) for all those years. It doesn't glow. It doesn't warm. Sometimes, when (name1) holds it, (he/she) could swear it remembers. That might just be (him/her). (He/She) doesn't mind.",
+   "src": "L590"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) takes it to a quiet spot on the hill and buries it, with a few words that (he/she) doesn't share with anyone. (He/She) feels a little lost for a few days, the way you do when something that was always there isn't. Then the feeling softens. (name1) visits the spot now and then, just to sit.",
+   "src": "L593"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L590",
+   "before": "It's still (his/hers).",
+   "after": "It's still (his/her) own."
+  }
+ ]
+}

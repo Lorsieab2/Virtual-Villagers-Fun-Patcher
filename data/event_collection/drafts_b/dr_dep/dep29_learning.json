@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Learning Elsewhere",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep29_learning",
+  "source": "draft_dep",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an adult)"
+   }
+  ],
+  "description": "A teen learning to build wants to watch the builders of another village for a few days: give your blessing, or ask why.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been learning to build from (friend) for a year, and is good at it. But (subject.he/she) has heard that the builders in a village along the coast do things completely differently: curved roofs, no nails, walls that bend in a storm. (subject.He/she) wants to go and watch them for a few days. (subject.He/she) is worried (friend) will be hurt.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Give Your Blessing",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Ask Why",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Go,\" says (friend). \"Come back and show me.\" (subject) goes. (subject.He/she) comes back with sketches scratched on bark and a lot of strong opinions about curved roofs. Some of the ideas are wonderful. Some don't work at all here. They argue about them happily for weeks, and both learn something.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What's wrong with how we build?\" asks (friend). (subject) struggles to explain that nothing is wrong, (subject.he/she) just wants to see more. (friend) is quiet, then admits (friend.he/she) once wanted the same thing at that age and never went. \"Go,\" (friend.he/she) says. \"But come back and tell me everything.\" (subject) promises.",
+   "src": "L353"
+  }
+ }
+}

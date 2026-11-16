@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children Remember",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat30_children",
+  "source": "fathers30",
+  "lines": [
+   623,
+   641
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L623",
+  "ledger": [
+   {
+    "src": "L624",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L625",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L629",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L631",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L632",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L634",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L635",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L637",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L638",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L640",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L641",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L627",
+    "kind": "sensitivity",
+    "before": "A villager who once helped teach and care for the village children is approached",
+    "after": "(Name1), who once helped teach and care for the village children, is approached",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who once helped teach the village children is approached by a young adult with a memory.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), who once helped teach and care for the village children, is approached by a young adult. They remember a small kindness from years ago that he has nearly forgotten. He had never realized how much an ordinary afternoon could matter.",
+   "src": "L627",
+   "choices": [
+    {
+     "label": "Ask What They Remember",
+     "next": "a",
+     "src": "L630"
+    },
+    {
+     "label": "Tell Them He Remembers Their Effort",
+     "next": "b",
+     "src": "L633"
+    },
+    {
+     "label": "Ask About Their Life Now",
+     "next": "c",
+     "src": "L636"
+    },
+    {
+     "label": "Reflect on the Years He Spent Helping Children",
+     "next": "d",
+     "src": "L639"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The former child recalls how he stayed after a lesson to help them understand something difficult.",
+   "src": "L631"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They remember him fixing a broken toy rather than scolding them for damaging it.",
+   "src": "L632"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They are moved that he noticed how hard they tried.",
+   "src": "L634"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He confuses two childhood stories, and they correct him with affectionate laughter.",
+   "src": "L635"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They tell him about the work they love, and he listens with pride.",
+   "src": "L637"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They admit that life has been difficult, and he offers friendship without trying to solve everything.",
+   "src": "L638"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He realizes that caring for a community can leave a legacy without becoming a parent himself.",
+   "src": "L640"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He remembers moments when he was impatient or unsure, and hopes he has grown wiser since then.",
+   "src": "L641"
+  }
+ }
+}

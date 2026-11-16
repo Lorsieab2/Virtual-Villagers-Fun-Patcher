@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do Me Next",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum45_do_me_next",
+  "source": "draft_hum",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L539",
+    "kind": "sensitivity",
+    "before": "the way the old fisher squints",
+    "after": "the way (fisher), the old fisher, squints",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L539",
+    "kind": "sensitivity",
+    "before": "the way the builder hums",
+    "after": "the way (builder), the builder, hums",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager known for impressions is asked by a friend to do them next: do the impression, or ask the friend to go first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher",
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) does wonderful impressions, but only of people who ask: the way (fisher), the old fisher, squints at the sea, the way (builder), the builder, hums before hammering. The people being imitated love them most of all and request them by name. Today (friend) comes up and says, \"Do me.\" (subject) has never done (friend) before.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Do the Impression",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Ask (friend) to Do You First",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands like (friend), waves (subject.his/her) hands like (friend), and says (friend)'s favorite saying exactly the way (friend) says it. It is uncannily good. (friend) stares. \"I don't do that.\" \"You do,\" says everyone. That night at dinner (friend) catches (friend.him/her)self doing it, and laughs so hard that (friend.he/she) spills (friend.his/her) bowl.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) does an impression of (subject) doing impressions. It is terrible. It is also, somehow, perfect. (subject) is speechless for the first time anyone can remember. They spend the rest of the evening doing each other doing each other, until nobody is quite sure who is who.",
+   "src": "L545"
+  }
+ }
+}

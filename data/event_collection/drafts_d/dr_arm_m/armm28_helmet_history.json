@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Helmet's History",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm28_helmet_history",
+  "source": "openq97",
+  "lines": [
+   615,
+   617
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L616",
+  "ledger": [
+   {
+    "src": "L615",
+    "kind": "structural",
+    "text": "[M28]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L617",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L615",
+    "kind": "sensitivity",
+    "before": "A keeper",
+    "after": "(Name1), a keeper,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A keeper records the known history of a ceremonial helmet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a keeper, records the known history of a ceremonial helmet. Some details have been lost over time. The keeper leaves a space beside an uncertain date.",
+   "src": "L615,L617"
+  }
+ }
+}

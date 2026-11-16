@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Adopted Tradition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam248_adopted",
+  "source": "draft_fam2",
+  "lines": [
+   566,
+   575
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L566",
+  "ledger": [
+   {
+    "src": "L567",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-12 who share a hut; story only: in the story the child joined (name1)'s family by adoption, and no records change)"
+   }
+  ],
+  "description": "An adopted child asks why others say they are not really their parent's child: tell the truth simply, or ask how they feel.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) came to live with (subject) two years ago, when (friend.he/she) was very small. Today (friend) asks why (friend.his/her) face looks different from (subject)'s, and why other children say (friend.he/she) \"isn't really\" (subject)'s child. (subject) puts down the basket (subject.he/she) was weaving.",
+   "src": "L569",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) the Truth, Simply",
+     "next": "o1",
+     "src": "L571"
+    },
+    {
+     "label": "Ask How (friend.he/she) Feels About It",
+     "next": "o2",
+     "src": "L574"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"You came to us when you were little,\" says (subject). \"You didn't grow in my family, but you grew into it. You are completely my child. Anyone who says otherwise is wrong.\" (friend) is quiet. \"Will you always be my parent?\" \"Always,\" says (subject). (friend) leans against (subject.him/her) for a long time. (friend.He/she) still has questions. (friend.He/she) can ask them any time.",
+   "src": "L572"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"How do you feel about what they said?\" asks (subject) gently. (friend) shrugs. \"Sad. And cross.\" \"That's fair,\" says (subject). \"You can feel both.\" They talk about it for a long time: where (friend) came from, as much as (subject) knows, and how families are made in lots of ways. (friend) doesn't feel completely better. But (friend.he/she) feels completely sure where (friend.he/she) belongs.",
+   "src": "L575"
+  }
+ }
+}

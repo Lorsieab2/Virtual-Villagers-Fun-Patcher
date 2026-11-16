@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Whose Dog Took the Sandals?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus45_whose_dog_took",
+  "source": "draft_jus",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L542",
+    "kind": "sensitivity",
+    "before": "brings it to an elder, who says",
+    "after": "brings it to (elder), an elder, who says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L545",
+    "kind": "sensitivity",
+    "before": "One villager is cross",
+    "after": "One villager, (neighbor), is cross",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L545",
+    "kind": "sensitivity",
+    "before": "makes that villager a new strap",
+    "after": "makes (neighbor) a new strap",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Sandals have been vanishing, and a pile turns up under a villager's young dog: ask them to make it right, or return them together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For weeks, sandals have been vanishing from doorsteps all over the village. This morning (friend) followed a trail of chewed straps round to the back of (subject)'s hut and found a pile of eleven sandals with (subject)'s young dog asleep on top of them, looking extremely pleased with itself.",
+   "src": "L539",
+   "text_only": [
+    {
+     "what": "\"vanishing\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L539"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Ask (subject) to Make It Right",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Return Them Together",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) brings it to (elder), an elder, who says the dog's keeper should return the sandals and mend the chewed ones. (subject) spends two evenings stitching straps while the dog watches with great interest. The next morning there's a new sandal on the pile. (subject) starts keeping the dog inside at night.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) is mortified. (subject.He/she) and (friend) carry the sandals round the village together, door to door, explaining. Most people laugh. One villager, (neighbor), is cross, because it was a brand-new pair, and (subject) makes (neighbor) a new strap. The dog follows them the whole way, carrying one last sandal that it absolutely refuses to give up.",
+   "src": "L545"
+  }
+ }
+}

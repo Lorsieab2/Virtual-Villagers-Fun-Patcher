@@ -1,0 +1,396 @@
+DRM-01
+DESC: A child sets out to catch a fish bigger than themselves: sit and fish together, or tell them about the biggest fish you ever saw.
+ROLES: name1=5-10 name2=18+
+S: 11111
+O1: 1111
+L2: 1
+O2: 2111
+REVIEW: ok
+
+DRM-02
+DESC: A villager dreams of a stew everyone loves and offers a friend a taste: ask for an honest opinion, or serve it at the fire.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "One child declares it" => "[c], a child, declares it"
+S: 111
+O1: 111
+O2: c1
+REVIEW: ok
+
+DRM-03
+DESC: A villager dreams of a hut on stilts over the lagoon and shows a friend a model: build a small one first, or keep it a drawing.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 11
+O2: 11
+REVIEW: FLAG casting line names only an adult; name2 is used in S and O1, cast as 18+.
+
+DRM-04
+DESC: An elder who never climbed the highest hill decides to try, slowly, with a friend: go all the way, or go as far as feels right.
+ROLES: name1=55+ name2=18+
+S: 111111
+O1: 1
+O2: 1
+REVIEW: ok
+
+DRM-05
+DESC: A child wants a star of their own and lies on the beach with a grown-up looking for one: help choose, or ask which star is theirs.
+ROLES: name1=4-9 name2=18+
+S: 111
+L1: 1
+O1: 1
+O2: 2
+REVIEW: ok
+
+DRM-06
+DESC: A young villager teaching children for the first time is asked if fish have feelings: answer about fish, or get back to the fruit.
+ROLES: name1=18-25 name2=5-10
+S: 112
+O1: 1
+O2: 1
+REVIEW: ok
+
+DRM-07
+DESC: A villager asks a friend to test the fifth try at the most comfortable hammock ever: lie down and report, or point out the knot.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 222221
+O2: 111
+REVIEW: FLAG casting line names only an adult; name2 tests the hammock, cast as 18+.
+
+DRM-08
+DESC: An elder hopes a song about the island will outlast them, and a child asks what it is: teach it, or say it is not finished yet.
+ROLES: name1=55+ name2=5-12
+S: 1111
+O1: 21
+O2: 1
+REVIEW: ok
+
+DRM-09
+DESC: A small child who means to lead the village someday practices on chickens: let them lead the line, or ask what they would change.
+ROLES: name1=4-8 name2=18+
+S: 11
+L1: 1
+O1: 11
+L2: 1
+O2: 1
+REVIEW: ok
+
+DRM-10
+DESC: A villager wants a garden of only blue flowers but has found very few: keep searching, or let a few other colors in.
+ROLES: name1=18+
+S: 1
+O1: 1
+REVIEW: ok
+
+DRM-11
+DESC: An elder learning the nose flute late in life practices every evening, badly: offer to learn too, or just listen.
+ROLES: name1=55+ name2=18+
+S: 11
+L1: 1
+O2: 11
+REVIEW: FLAG casting line names only an elder; name2 is used in every part, cast as 18+.
+
+DRM-12
+DESC: A villager has tasted every fruit on the island but one, a smelly spiky swamp fruit: eat it, or let one fruit stay a mystery.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11111
+O2: 111
+REVIEW: ok
+
+DRM-13
+DESC: Whales pass close to the reef, and a villager who longs to be near one wades in: paddle out gently, or watch from the rocks.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1
+O2: 1
+REVIEW: FLAG casting line names only an adult; name2 owns the canoe in S, cast as 18+.
+
+DRM-14
+DESC: A villager asked to light the festival fire for the first time has shaking hands: light it right away, or take a breath first.
+ROLES: name1=18+
+S: 11
+O1: 11
+O2: 11
+REVIEW: ok
+
+DRM-15
+DESC: A villager has built a canoe alone over a season and not yet dared to launch it: launch it together, or launch it alone.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1
+O2: 111
+REVIEW: FLAG casting line names only an adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-16
+DESC: A villager finally has the sunrise window they wanted for years but feels strangely flat: think of the next thing, or enjoy it.
+ROLES: name1=18+
+S: 111111
+O1: 1111
+O2: 1111
+REVIEW: ok
+
+DRM-17
+DESC: A villager finally sleeps out on the big rock with a friend, and it is hard and cold: stay all night, or go home at midnight.
+ROLES: name1=18+ name2=18+
+S: 11
+O2: 11
+REVIEW: ok
+
+DRM-18
+DESC: A fisher who secretly makes up stories hears someone at the fire ask for a story: tell the story, or let someone else go first.
+ROLES: name1=18+
+S: 1111
+O1: 1
+O2: 11
+REVIEW: ok
+
+DRM-19
+DESC: A young villager wants to be famous for anything at all and asks a friend what to try: suggest something kind, or something silly.
+ROLES: name1=18-25 name2=18+
+S: 1111
+O1: 11
+REVIEW: FLAG casting line names only a young adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-20
+DESC: A villager content on their own quietly dreams of raising a child someday, and a friend sits down: tell them, or keep it close.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "One of them runs over" => "[c], one of them, runs over"
+S: 111111
+O1: 211
+O2: 11
+REVIEW: FLAG casting line names only an adult; name2 is used in S and O1, cast as 18+.
+
+DRM-21
+DESC: An elder who once planned to paddle to the hazy far island is asked if they wish they had gone: say yes, or say you're not sure.
+ROLES: name1=55+ name2=18+
+S: 1111
+O1: 1
+REVIEW: FLAG casting line names only an elder; name2 asks the question and is told 'when you're older', cast as 18+ (or younger than name1).
+
+DRM-22
+DESC: A child with palm leaf wings wants to fly from a small sand dune: count to three, or ask how birds do it.
+ROLES: name1=5-9 name2=18+
+S: 111
+O1: 111
+O2: 1
+REVIEW: ok
+
+DRM-23
+DESC: A villager's secret goal is to make a hard-to-amuse friend laugh until they snort: go through with the plan, or abandon it.
+ROLES: name1=18+ name2=18+
+S: 12
+O1: 2
+O2: 112
+REVIEW: ok
+
+DRM-24
+DESC: A villager has spent eleven days trying to teach a village dog to sit: keep trying, or teach it something else.
+ROLES: name1=18+ name2=18+
+S: 1
+O2: 1
+REVIEW: FLAG casting line names only an adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-25
+DESC: A villager sets out to bridge the stream and drags a very heavy log to the bank: help with the log, or let them do it alone.
+ROLES: name1=18+ name2=18+
+S: 11
+L2: 1
+O2: 1
+REVIEW: ok
+
+DRM-26
+DESC: A villager sets off to find where the stream begins, and a friend offers company: go together, or go alone.
+ROLES: name1=18+ name2=18+
+S: 111
+O2: 1111
+REVIEW: FLAG casting line names only an adult; name2 is used in S and O1, cast as 18+.
+
+DRM-27
+DESC: A villager pressing one leaf of every plant into a book is found drying page thirty-two: offer to bring leaves, or ask why.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 1
+REVIEW: FLAG casting line names only an adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-28
+DESC: A villager wakes to a quiet morning that might be the one day nobody asks for anything: hide all day, or stay home and see.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1111
+O2: 11
+REVIEW: FLAG casting line names only an adult; name2 knocks in O2, cast as 18+.
+
+DRM-29
+DESC: Two friends plan to watch sunrise and sunset from opposite ends of the island in one day: run for it, or take it slowly.
+ROLES: name1=18-25 name2=14-17
+REVIEW: ok
+
+DRM-30
+DESC: A villager who dances beautifully alone is offered a hand into the festival circle: take the hand, or stay at the edge.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 11111
+O2: 11111
+REVIEW: FLAG casting line names only an adult; name2 offers the hand, cast as 18+.
+
+DRM-31
+DESC: A fisher realizes the part they love most is mending nets in the shade, and a friend notices: admit it, or shrug.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 111
+O2: 111
+REVIEW: FLAG casting line names only an adult who is working; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-32
+DESC: Two best friends realize they dream of different lives, one roaming and one staying: talk it through, or change the subject.
+ROLES: name1=18-25 name2=18-25
+REVIEW: ok
+
+DRM-33
+DESC: A villager builds a kite to carry notes across the village, and a child helps launch it: attach a message, or just fly it first.
+ROLES: name1=18+ name2=6-12
+S: 1
+O1: 1
+REVIEW: ok
+
+DRM-34
+DESC: An elder plants a mango seed that may not fruit for many years, and a child asks why: explain, or plant another one together.
+ROLES: name1=55+ name2=4-10
+S: 11
+O1: 2
+O2: 222
+REVIEW: ok
+
+DRM-35
+DESC: A villager who never learned the two-finger whistle gets a patient teacher: keep at it all afternoon, or give up and clap instead.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 1
+REVIEW: FLAG casting line names only an adult; name2 is the teacher, cast as 18+.
+
+DRM-36
+DESC: A young pig wanders in and follows a villager who always wanted one: name the pig, or help it find its way home.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 111
+O2: 11
+REVIEW: FLAG casting line names only an adult; name2 is used in S and O2, cast as 18+.
+
+DRM-37
+DESC: A villager who dreams of cooking well burns everything, and a friend waits with a bowl: eat it anyway, or ask for help.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 111
+REVIEW: FLAG casting line names only an adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-38
+DESC: A child wishes to be grown up and an elder wishes to be young for a day: swap for an afternoon, or tell each other the best part.
+ROLES: name1=6-10 name2=55+
+S: 1112222
+O1: 1
+REVIEW: ok
+
+DRM-39
+DESC: A villager puts out a sharing basket so nobody goes to bed hungry, and a friend reads it: put something in, or ask if it works.
+ROLES: name1=18+ name2=18+
+S: 1
+REVIEW: FLAG casting line names only an adult; name2 is used in S, O1 and O2, cast as 18+.
+
+DRM-40
+DESC: Everyone expected a villager to be a builder, but they love fishing: say you're happy fishing, or say you don't know yet.
+ROLES: name1=18+
+FIG: e=elder:55+
+EDIT S: "Today an elder says" => "Today [e], an elder, says"
+EDIT O1: "The elder looks surprised" => "[e] looks surprised"
+EDIT O1: "The elder, a few days later, asks" => "[e], a few days later, asks"
+EDIT O2: "The elder grumbles" => "[e] grumbles"
+S: 11
+O1: 1
+O2: 111
+REVIEW: ok
+
+DRM-41
+DESC: An elder is weaving a mat for the whole village to sit on, and a friend asks to help: show the pattern, or do it alone for now.
+ROLES: name1=55+ name2=18+
+S: 112
+O1: 2
+L2: 1
+O2: 21
+REVIEW: FLAG casting line names only an elder; name2 is used in every part, cast as 18+.
+
+DRM-42
+DESC: A teen practices greeting imagined people from beyond the sea, and a friend overhears: ask what else they'd say, or play one.
+ROLES: name1=14-17 name2=14-17
+S: 111
+L1: 1
+REVIEW: ok
+
+DRM-43
+DESC: Builders find a sealed jar of old childhood wishes, and an elder recognizes it: look for your own leaf, or start a new jar.
+ROLES: name1=55+ name2=6-12
+S: 11
+O1: 1111
+REVIEW: ok
+
+DRM-44
+DESC: A villager who always wanted to discover something finds a beetle nobody knows: give it a name, or show it to everyone first.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O2: "An elder squints and says" => "[e], an elder, squints and says"
+S: 11
+O1: 1
+O2: 11
+REVIEW: FLAG casting line names only an adult; name2 is used in S and O1, cast as 18+.
+
+DRM-45
+DESC: A villager secretly wishes a stream rock were known as theirs and finds a friend on it: ask them to shift over, or find another.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 11
+O2: 111
+REVIEW: FLAG casting line names only an adult; name2 is used in S, L1 and O1, cast as 18+.
+
+DRM-46
+DESC: A villager wants to learn everyone's favorite food, but one friend always says anything: keep watching, or ask directly.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 2
+O2: 2
+REVIEW: FLAG casting line names only an adult; name2 is used in every part, cast as 18+.
+
+DRM-47
+DESC: A villager finds a turtle carving left half-finished years ago: finish it tonight, or put it back for another year.
+ROLES: name1=18+
+S: 1
+O1: 1111
+O2: 1
+REVIEW: ok
+
+DRM-48
+DESC: A villager is now the best at their work in the village, and a friend asks how it feels: answer honestly, or say it is wonderful.
+ROLES: name1=18+ name2=18+
+S: 111111
+O1: 11
+O2: 1111
+REVIEW: FLAG casting line names only an adult who is working; name2 is used in S and O1, cast as 18+.
+
+DRM-49
+DESC: A child dances in the dust to make it rain and asks a grown-up to join in: dance with them, or say rain comes when it comes.
+ROLES: name1=4-9 name2=18+
+S: 1111
+L1: 1
+O1: 1
+L2: 1
+O2: 1
+REVIEW: ok
+
+DRM-50
+DESC: A villager plans to eat a whole ripe mango tomorrow without getting a single drop of juice on their chin.
+ROLES: name1=18+
+S: 1111111111
+REVIEW: ok

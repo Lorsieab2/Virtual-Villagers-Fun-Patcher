@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spin That Kept Going",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum12_spin_kept_going",
+  "source": "draft_hum",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L149",
+    "kind": "sensitivity",
+    "before": "until the drummer has to stop playing",
+    "after": "until (drummer), the drummer, has to stop playing",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager tries a big spin at the evening dance and cannot stop: commit to it, or grab onto something.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "drummer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "drummer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the evening dance, (subject) decides to try a big spin, the kind (subject.he/she) has seen the best dancers do. (subject.He/she) spins once, beautifully. Then, somehow, (subject.he/she) just keeps going: out of the circle, across the sand, past the fire, still turning, arms out, with no idea how to stop.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Commit to It",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Grab Onto Something",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) commits completely. (subject.He/she) spins all the way to the edge of the dancing ground, comes to a stop facing a palm tree, bows to it deeply, and walks back as though everything went exactly to plan. The village applauds. For weeks afterward the children practice \"the (subject) spin,\" and every one of them ends it with a bow to a tree.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) grabs the first thing within reach, which happens to be (friend), who also starts spinning. They both sit down hard in the soft sand, too dizzy to stand, and laugh until (drummer), the drummer, has to stop playing. Everybody dances in a slightly wobbly way for the rest of the night, in their honor.",
+   "src": "L149"
+  }
+ }
+}

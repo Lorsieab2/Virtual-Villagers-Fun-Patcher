@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pig That Found the Roots",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat23_pig_found_roots",
+  "source": "draft_nat",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L278",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager's pig has found a whole patch of prized sweet wild roots: follow the pig, or bring it home and dig gently.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1)'s pig has been gone all morning, and when (name1) finds it, deep in the forest, it is rooting up the ground with tremendous enthusiasm and eating something. Looking closer, (name1) sees it's a sweet wild root, the kind people prize and can never find. The pig has found a whole patch of them. The forest floor around it looks like a storm hit it.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Follow the Pig",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Bring the Pig Home and Dig Gently",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) starts taking the pig out on a rope every few days to see what it finds. It finds a lot. Sweet roots, wild yams, and once, embarrassingly, (name1)'s own lost sandal. The village eats well. But the forest floor where the pig has been looks rough and torn up, and (name1) starts steering it away from the same spots twice.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L278"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) leads the outraged pig home and comes back alone with a digging stick. (He/she) takes a few roots, carefully, and fills the holes back in. It's slow. The pig would have been faster. But the patch is still there next season, and the season after that. The pig never forgives (him/her).",
+   "src": "L281"
+  }
+ }
+}

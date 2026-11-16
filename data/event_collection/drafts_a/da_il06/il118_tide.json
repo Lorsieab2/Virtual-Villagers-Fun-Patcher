@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il118_tide",
+  "source": "da_il06",
+  "lines": [
+   206,
+   215
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L206",
+  "ledger": [
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager keeping track of the tide asks an elder why it comes a little later every day.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has started keeping track of the tide. It comes in and goes out, twice a day, but never at quite the same time. Every day it's a little later. (subject.He/She) asks (friend), an elder, why. (friend) says the moon pulls the sea, the way you'd pull a blanket. (subject) has heard another villager say the sea is breathing.",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Ask How (friend) Knows",
+     "next": "a",
+     "src": "L211"
+    },
+    {
+     "label": "Keep Both Ideas",
+     "next": "b",
+     "src": "L214"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"My teacher told me,\" says (friend). \"And the tide does seem to follow the moon. Watch, and see if I'm right.\" (subject) watches for a month. The tide and the moon do seem to dance together. (subject) still can't picture how the moon could pull anything from so far away. It goes on being wonderful and confusing at the same time.",
+   "src": "L212"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides (subject.he/she) likes both: the moon pulling the sea like a blanket, and the sea slowly breathing in and out. Maybe one is true. Maybe neither. Maybe they're two ways of saying the same thing. Either way, (subject.he/she) stops being surprised when the tide is late. It's just taking its time.",
+   "src": "L215"
+  }
+ }
+}

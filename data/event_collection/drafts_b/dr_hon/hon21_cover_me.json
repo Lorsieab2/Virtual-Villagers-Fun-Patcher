@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Cover for Me?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon21_cover_me",
+  "source": "draft_hon",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L257",
+    "kind": "sensitivity",
+    "before": "the villager in charge of the grain sorting asks",
+    "after": "(sorter), the villager in charge of the grain sorting, asks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A friend wants to skip a chore and asks a villager to say they were together all afternoon: say no, or agree reluctantly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "sorter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "sorter": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) would like to spend the afternoon at the cove instead of helping to sort the grain stores, which (friend.he/she) said (friend.he/she) would do. \"If anyone asks,\" (friend.he/she) says to (subject), \"say I was with you all afternoon.\" (subject) doesn't much like the sound of that.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Say No",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Agree, Reluctantly",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I won't lie for you,\" says (subject). \"But I won't go round telling anyone, either. If they ask, I'll say I don't know where you are.\" (friend) thinks about it and decides the cove isn't worth it. (friend.He/she) sorts grain all afternoon, a little sulkily. Afterward, (subject) walks down to the cove with (friend.him/her). \"Now nobody has to lie.\"",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) agrees. That evening, (sorter), the villager in charge of the grain sorting, asks where (friend) was all afternoon. \"With me,\" says (subject). It comes out sounding exactly like a lie. There's a long look, and then, \"I see.\" Nothing else happens. (subject) feels uncomfortable about it for days, and tells (friend) not to ask again.",
+   "src": "L257"
+  }
+ }
+}

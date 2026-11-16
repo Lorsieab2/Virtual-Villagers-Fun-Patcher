@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heroic Carving",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt29_heroic_carving",
+  "source": "draft_tt",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager keeps suggesting heroic changes to a friend's carving of them: carve it all, or carve what you see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is carving a little wooden figure of (subject), at (subject)'s request, showing (subject.him/her) as (subject.he/she) usually is: sitting by the fire, peeling a fruit. Every so often (subject) leans over with a suggestion. Perhaps standing, instead? Gazing out to sea? Holding a big fish? With a seabird on (subject.his/her) shoulder and the wind in (subject.his/her) hair?",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Carve It All",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Carve What You See",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) carves every suggestion. The finished figure shows (subject) standing on a rock, gazing bravely at the horizon, a huge fish in one hand and a seabird on (subject.his/her) shoulder. Everyone who sees it says, \"Who's that?\" (subject) is completely delighted with it.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) nods at every suggestion and carves (subject) exactly as (subject.he/she) is: sitting by the fire, peeling a fruit, half smiling. (subject) looks at it for a long time. \"That's me,\" (subject.he/she) says, a little surprised. \"That's what I look like when I'm happy.\" (subject.He/she) keeps it by the door.",
+   "src": "L353"
+  }
+ }
+}

@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea47_empty_village",
+  "source": "draft_fea",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager comes home to find the village completely empty and silent: go and look for everyone, or sit and wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) comes back from the gardens in the middle of the day and the village is completely empty. No voices. No children. Fires out. Every hut quiet. It's probably nothing: everyone has gone somewhere, that's all. But it's so still that the back of (his/her) neck prickles.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Go and Look for Everyone",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Sit and Wait",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) walks through the village calling. No answer. (He/she) walks down to the beach, faster and faster. And there they all are, every single villager, standing in the shallows, watching a family of dolphins playing just off the reef. \"There you are!\" someone says. \"Come and look!\" (name1) laughs, mostly with relief, and goes to look.",
+   "src": "L566"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) sits down outside (his/her) hut and waits. It's very quiet. (He/she) hears a bird, the sea, the wind in the palms. Gradually the prickle fades and the quiet just feels like quiet. An hour later everyone comes back, chattering about dolphins. (name1) missed the dolphins. (He/she) found that (he/she) didn't mind the quiet.",
+   "src": "L569"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Good Morning, Sun",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf01_good_morning_sun",
+  "source": "draft_blf",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager bows to the sun each morning, and a neighbor who believes little is up early: walk down together, or watch.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning, (subject) walks down to the beach at sunrise, bows to the sun and says a few quiet words of thanks. (subject.He/she) has done it all (subject.his/her) life. (friend), (subject.his/her) new neighbor, doesn't believe in anything much, but has started noticing (subject) going down there every day. This morning (friend) is up early too.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Walk Down Together",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Watch from the Hut",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Mind if I come?\" asks (friend). \"I won't do the bowing. I just like the view.\" \"Come,\" says (subject). They stand side by side as the sun comes up. (subject) bows and says (subject.his/her) words. (friend) just watches the light on the water. Neither of them says anything about it afterwards. They go down together most mornings after that.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) stays at (friend.his/her) door and watches (subject) from a distance. It's a beautiful thing to see: one small figure on the sand, the huge sun coming up. (friend) doesn't share the belief. (friend.He/she) still finds (friend.him/her)self holding (friend.his/her) breath a little. Later, (friend.he/she) tells (subject) it was lovely to watch. (subject) seems pleased.",
+   "src": "L17"
+  }
+ }
+}

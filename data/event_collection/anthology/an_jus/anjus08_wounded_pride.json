@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wounded Pride at the Workshop",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus08_wounded_pride",
+  "source": "anthology",
+  "lines": [
+   30831,
+   30845
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30831",
+  "ledger": [
+   {
+    "src": "L30832",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30833",
+    "kind": "sensitivity",
+    "before": "An experienced craftsperson",
+    "after": "(crafts), an experienced craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30833",
+    "kind": "sensitivity",
+    "before": "a young apprentice",
+    "after": "(apprentice), a young apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30836",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30838",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30839",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(crafts)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30841",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30844",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30845",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An experienced craftsperson is embarrassed when a young apprentice finds an error in their design.",
+  "label_case": "title",
+  "cast_only": [
+   "crafts",
+   "apprentice",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(crafts), an experienced craftsperson, is embarrassed when (apprentice), a young apprentice, finds an error in their design.",
+   "src": "L30833",
+   "choices": [
+    {
+     "label": "Thank the Apprentice Publicly",
+     "next": "a",
+     "src": "L30834"
+    },
+    {
+     "label": "Speak Privately First",
+     "next": "b",
+     "src": "L30837"
+    },
+    {
+     "label": "Test Both Designs",
+     "next": "c",
+     "src": "L30840"
+    },
+    {
+     "label": "Reflect on Expertise",
+     "next": "d",
+     "src": "L30843"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The correction saves valuable material.",
+   "src": "L30835"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(crafts) struggles with embarrassment but follows through.",
+   "src": "L30836"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(apprentice) explains the flaw without ridicule.",
+   "src": "L30838"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(crafts) admits that being corrected stung.",
+   "src": "L30839"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(apprentice)'s method proves more reliable.",
+   "src": "L30841"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The original method works under different conditions.",
+   "src": "L30842"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) teaches that experience includes admitting mistakes.",
+   "src": "L30844",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30844"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(apprentice) learns that being right does not excuse cruelty.",
+   "src": "L30845"
+  }
+ }
+}

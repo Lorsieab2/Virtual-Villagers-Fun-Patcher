@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Best Day Was Nothing Special",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif48_best_nothing",
+  "source": "draft_lif",
+  "lines": [
+   554,
+   563
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L554",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older and another adult)"
+   }
+  ],
+  "description": "A villager says the best day of their life was a rainy morning when nothing happened: explain why, or ask for theirs.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has asked (subject) for the best day of (subject.his/her) life, expecting a wedding, or a birth, or the great harvest. (subject) thinks hard. Then (subject.he/she) describes a day years ago when it rained all morning, and (subject.he/she) sat in the doorway with a friend eating hot roasted breadfruit and watching the puddles, and absolutely nothing happened.",
+   "src": "L557",
+   "choices": [
+    {
+     "label": "Explain Why",
+     "next": "o1",
+     "src": "L559"
+    },
+    {
+     "label": "Ask (friend) for Theirs",
+     "next": "o2",
+     "src": "L562"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Why that one?\" asks (friend). (subject) tries to explain. \"Nothing was wrong. Nobody needed anything. I wasn't waiting for anything. It was warm, and the breadfruit was good, and the rain was nice.\" (friend) thinks about this for a long time. The next rainy morning, (friend.he/she) knocks on (subject)'s door with hot breadfruit. They sit in the doorway and nothing happens. It's a very good day.",
+   "src": "L560"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks for (friend)'s best day. (friend) describes something big and exciting. (subject) listens happily. Then (friend) pauses. \"Actually,\" (friend.he/she) says, \"there was this one afternoon with nothing in it...\" and tells about that instead. They agree that the nothing days are sneaky. You only notice they were the best ones afterward.",
+   "src": "L563"
+  }
+ }
+}

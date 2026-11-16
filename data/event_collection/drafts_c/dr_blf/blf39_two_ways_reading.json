@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Ways of Reading the Sky",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf39_two_ways_reading",
+  "source": "draft_blf",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who study things, or any two adults)"
+   },
+   {
+    "src": "L470",
+    "kind": "instruction",
+    "text": "[effect: small research or tech gain, only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Two villagers who read the stars as signs and as a calendar meet on the same hill: map them together, or watch in silence.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) reads the stars as signs: this pattern means good fishing, that one means a hard season. (friend) reads them as a calendar: when this star rises, the rains are coming. They both stay up every clear night watching the sky. Tonight they've ended up on the same hill.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Map Them Together",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Watch in Silence",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They start comparing. To their surprise, they agree on a lot: the same stars, the same seasons, just different reasons. They spend the night scratching a big map of the sky into a flat stone, with both sets of meanings. It's the best star map on Isola. Neither of them changes the other's mind.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L470"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They nod to each other and watch the sky in silence, each thinking (friend.his/her) own thoughts about what it means. A shooting star goes over. \"Good fishing tomorrow,\" says (subject). \"Clear weather tomorrow,\" says (friend). They both turn out to be right. Neither of them mentions it the next day.",
+   "src": "L473"
+  }
+ }
+}

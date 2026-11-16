@@ -31,7 +31,8 @@
   "description": "An apprentice studying animals wonders whether a failing body part could be replaced by one from a recently deceased donor.",
   "cast_only": [
    "patient"
-  ]
+  ],
+  "label_case": "source"
  },
  "requirement": {
   "min_eligible": 2

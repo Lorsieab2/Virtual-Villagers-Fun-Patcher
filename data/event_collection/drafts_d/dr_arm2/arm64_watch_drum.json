@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Watch Drum",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm64_watch_drum",
+  "source": "draft_arm2",
+  "lines": [
+   28,
+   28
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L28",
+  "ledger": [
+   {
+    "src": "L28",
+    "kind": "structural",
+    "text": "64. The Watch Drum  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "An old signal drum from a lookout is now played at dances.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "An old signal drum from a lookout is now played at dances. A few elders still go quiet at its first deep beat, so the drummers learn to begin softly, and nobody is asked to explain.",
+   "src": "L28"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Baskets in the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div10_baskets_path",
+  "source": "draft_div",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-13; in the story (name1) is blind and uses a long cane)"
+   }
+  ],
+  "description": "A blind villager's cane has found a basket of coconuts left in the path: the child who left it owns up, or quietly moves it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is blind, and gets everywhere in the village with a long, light cane, tapping and sweeping ahead. (subject.He/she) knows every path by heart. What (subject.he/she) can't know is when somebody leaves something in the middle of one. Today it's a basket of coconuts, right where the path bends, and (subject)'s cane has just found it the hard way. (friend), who left it there, is standing very still.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Own Up",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Quietly Move It",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That was mine,\" says (friend), in a small voice. \"Sorry.\" (subject) nods. \"Thanks for telling me. Move it to the side, please, not the middle. The middle's mine.\" (friend) moves it. Later (friend.he/she) goes round the whole village moving things off the paths. (friend.He/she) even tells a couple of grown-ups off for it. (subject) hears about this and is very amused.",
+   "src": "L122"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) darts in and moves the basket without a word. (subject) frowns, sweeps the cane, finds nothing, and goes on. Later (subject) says, out of nowhere, \"Whoever moved those coconuts: thank you. Next time say hello, so I know it's not a very helpful pig.\" (friend) turns bright red, and says hello. They talk about coconuts all the way to the stream.",
+   "src": "L125"
+  }
+ }
+}

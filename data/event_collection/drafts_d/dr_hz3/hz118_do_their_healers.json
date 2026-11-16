@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do Their Healers Pray?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz118_do_their_healers",
+  "source": "draft_hz2",
+  "lines": [
+   462,
+   472
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L462",
+  "ledger": [
+   {
+    "src": "L463",
+    "kind": "sensitivity",
+    "before": "A healer",
+    "after": "(Name1), a healer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A healer wonders whether distant healers combine medicine with prayer, as some Isolan healers do.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a healer, wonders whether distant healers combine medicine with prayer, as some Isolan healers do.",
+   "src": "L463",
+   "choices": [
+    {
+     "label": "Imagine Similar Practices.",
+     "next": "a",
+     "src": "L464"
+    },
+    {
+     "label": "Imagine Different Practices.",
+     "next": "b",
+     "src": "L467"
+    },
+    {
+     "label": "Ask What Healing Needs.",
+     "next": "c",
+     "src": "L470"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer imagines distant healers using herbs and quiet words, just as they do.",
+   "src": "L465"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A skeptical healer imagines distant healers relying only on what they can measure.",
+   "src": "L466"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether some distant healers might use methods no one here could imagine.",
+   "src": "L468"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder says every tradition has something to learn and something to question.",
+   "src": "L469"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healers agree that care and attention matter everywhere.",
+   "src": "L471"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about the role of prayer and agree to respect each other's ways.",
+   "src": "L472"
+  }
+ }
+}

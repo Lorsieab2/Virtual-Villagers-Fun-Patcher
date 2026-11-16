@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fingerprints in Clay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp01_fingerprints",
+  "source": "anthology",
+  "lines": [
+   31248,
+   31262
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31248",
+  "ledger": [
+   {
+    "src": "L31249",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L31250",
+    "kind": "sensitivity",
+    "before": "and one child refuses",
+    "after": "and (child) refuses",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31252",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31261",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31262",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A group of children presses colored fingers into wet clay and one child refuses to show their work.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A group of children presses colored fingers into wet clay and (child) refuses to show their work.",
+   "src": "L31250",
+   "choices": [
+    {
+     "label": "Invite Them to Explain",
+     "next": "a",
+     "src": "L31251"
+    },
+    {
+     "label": "Make a Shared Mural",
+     "next": "b",
+     "src": "L31254"
+    },
+    {
+     "label": "Preserve the Clay",
+     "next": "c",
+     "src": "L31257"
+    },
+    {
+     "label": "Ask an Elder to Join",
+     "next": "d",
+     "src": "L31260"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) says it is a picture of home.",
+   "src": "L31252"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They say it is private, and the others accept that.",
+   "src": "L31253"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each child contributes a different mark.",
+   "src": "L31255"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One child chooses to watch rather than paint.",
+   "src": "L31256"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The drying tablets become a cherished record.",
+   "src": "L31258"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Rain blurs the work and the children begin again.",
+   "src": "L31259"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) adds a crooked handprint to general delight.",
+   "src": "L31261"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) learns a new pattern from the youngest painter.",
+   "src": "L31262"
+  }
+ }
+}

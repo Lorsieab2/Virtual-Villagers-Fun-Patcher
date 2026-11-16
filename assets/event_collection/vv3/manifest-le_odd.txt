@@ -1,0 +1,12 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+living_le_odd_01	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A parrot repeats the chief's private complaint.		
+living_le_odd_02	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A child declares themselves the island's new ruler.		
+living_le_odd_03	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A villager claims to have invented sleeping.		
+living_le_odd_04	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A goat eats an important-looking ceremonial ribbon.		
+living_le_odd_05	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A scientist loses their notes to a sudden gust.		
+living_le_odd_06	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A fisherman exaggerates the size of yesterday's catch.		
+living_le_odd_07	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	Two villagers accidentally exchange identical sandals.		
+living_le_odd_08	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A musician's instrument produces a ridiculous sound.		
+living_le_odd_09	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A dog seems to have chosen the best seat at council.		
+living_le_odd_10	Oddities and Comedy	1,2,3,4,5	1	living_le_odd	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A villager mistakes a carved statue for a person at dusk.		

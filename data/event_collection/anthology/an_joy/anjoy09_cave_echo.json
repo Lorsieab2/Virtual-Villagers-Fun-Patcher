@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cave Echo Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy09_cave_echo",
+  "source": "anthology",
+  "lines": [
+   28803,
+   28816
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28803",
+  "ledger": [
+   {
+    "src": "L28810",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28813",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28813",
+    "kind": "sensitivity",
+    "before": "the storyteller",
+    "after": "(storyteller)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Children discover a safe cave entrance with a wonderful echo.",
+  "label_case": "title",
+  "cast_only": [
+   "adult",
+   "child",
+   "storyteller"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children discover a safe cave entrance with a wonderful echo.",
+   "src": "L28804",
+   "choices": [
+    {
+     "label": "Hold a Singing Contest",
+     "next": "a",
+     "src": "L28805"
+    },
+    {
+     "label": "Ask an Adult to Explain Echoes",
+     "next": "b",
+     "src": "L28808"
+    },
+    {
+     "label": "Make Up a Legend",
+     "next": "c",
+     "src": "L28811"
+    },
+    {
+     "label": "Leave the Cave Peaceful",
+     "next": "d",
+     "src": "L28814"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children delight in hearing their voices return.",
+   "src": "L28806"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Nobody can agree who won because the echo changes every song.",
+   "src": "L28807"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children learn how sound reflects.",
+   "src": "L28809"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(adult) admits they cannot explain every strange sound.",
+   "src": "L28810"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A playful cave-spirit story becomes a favorite.",
+   "src": "L28812"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) worries until (storyteller) clarifies it is pretend.",
+   "src": "L28813"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children play outside instead.",
+   "src": "L28815"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The group returns later with a quieter game.",
+   "src": "L28816"
+  }
+ }
+}

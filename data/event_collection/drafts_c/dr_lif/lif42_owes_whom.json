@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Owes Whom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif42_owes_whom",
+  "source": "draft_lif",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   }
+  ],
+  "description": "A villager tries to count who owes whom favors on a stick: keep counting, or throw the stick away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has decided to work out, once and for all, who in the village owes (him/her) favors and whom (he/she) owes. (He/she) has a stick and a lot of time. (He/she) starts making marks. One for the fish (he/she) gave away. One for the roof somebody fixed. One for the baby (he/she) watched. One for the soup (he/she) was brought when (he/she) was sick.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Keep Counting",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Throw the Stick Away",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) counts for hours. The marks get very complicated. Someone owes (him/her) a fish, but (he/she) owes them a pot, but they borrowed (his/her) knife, but (he/she) ate their mango. At last (name1) sits back and looks at the stick, covered in marks. (He/she) laughs. Everyone owes everyone. It's not a debt. It's a village.",
+   "src": "L494"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After about ten marks (name1) gives up, throws the stick in the fire, and goes to help a neighbor carry water. (He/she) doesn't mark it down. It feels much better not to. (He/she) has a feeling the village has been running this way for a very long time without anyone keeping count, and doing just fine.",
+   "src": "L497"
+  }
+ }
+}

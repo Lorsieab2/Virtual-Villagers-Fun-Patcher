@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Shield at the Memorial",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm16_shield_memorial",
+  "source": "openq97",
+  "lines": [
+   567,
+   569
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L567",
+    "kind": "structural",
+    "text": "[M16]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L569",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L567",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager places an ancestral shield beside a memorial.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1) places an ancestral shield beside a memorial. The shield rests quietly among the offerings. (Name1) straightens the cloth beneath its edge.",
+   "src": "L567,L569"
+  }
+ }
+}

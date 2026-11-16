@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Pig Doing in the Hammock?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd18_what_pig_doing",
+  "source": "da_wd",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager comes to rest in the hammock and finds a young pig asleep in it: wake it, or share the shade.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been looking forward all day to lying in (subject.his/her) hammock in the shade. (subject.He/She) arrives to find it occupied. A young pig has managed, somehow, to climb into it, and is now lying on its back with its legs in the air, swaying gently, asleep and snoring.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Wake It Up",
+     "next": "a",
+     "src": "L217"
+    },
+    {
+     "label": "Share the Shade",
+     "next": "b",
+     "src": "L220"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) gives the hammock a gentle push. The pig wakes, squeals in outrage, tips out of the hammock, picks itself up, and trots off with its nose in the air. (subject) lies down. The hammock is warm, and smells faintly of pig. (subject.He/She) decides (subject.he/she) doesn't mind that much.",
+   "src": "L218"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sits down on the ground under the hammock, which still has the pig in it, and leans against the tree. The pig snores. The hammock creaks. It's actually very peaceful. When (friend) walks past and asks what's going on, (subject) says, \"Shh. It's sleeping.\" (friend) walks on, shaking (friend.his/her) head.",
+   "src": "L221"
+  }
+ }
+}

@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sibling's Broken Toy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam03_sibling_broken",
+  "source": "anthology",
+  "lines": [
+   28330,
+   28343
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28330",
+  "ledger": [
+   {
+    "src": "L28331",
+    "kind": "sensitivity",
+    "before": "One child accidentally breaks a sibling's",
+    "after": "(child) accidentally breaks (sibling)'s",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28333",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28334",
+    "kind": "sensitivity",
+    "before": "The frightened child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28334",
+    "kind": "sensitivity",
+    "before": "a parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28339",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28340",
+    "kind": "sensitivity",
+    "before": "an adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28343",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "One child accidentally breaks a sibling's treasured toy and panics.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "sibling",
+   "parent",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "sibling": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17,
+   "relation": {
+    "sibling_of": "child"
+   }
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) accidentally breaks (sibling)'s treasured toy and panics.",
+   "src": "L28331",
+   "choices": [
+    {
+     "label": "Encourage an Honest Explanation",
+     "next": "a",
+     "src": "L28332"
+    },
+    {
+     "label": "Help Attempt a Repair",
+     "next": "b",
+     "src": "L28335"
+    },
+    {
+     "label": "Give the Upset Sibling Space",
+     "next": "c",
+     "src": "L28338"
+    },
+    {
+     "label": "Suggest Making Amends in Another Way",
+     "next": "d",
+     "src": "L28341"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(sibling) appreciates the honesty but remains sad.",
+   "src": "L28333"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) delays confessing until (parent) offers reassurance.",
+   "src": "L28334"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The toy is repaired, though a visible crack remains.",
+   "src": "L28336"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The repair fails, and the children grieve the loss together.",
+   "src": "L28337"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(sibling) returns later ready to talk.",
+   "src": "L28339"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The silence lasts longer than expected, and (adult) gently checks in.",
+   "src": "L28340"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A thoughtful handmade gift helps the siblings reconnect.",
+   "src": "L28342"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(sibling) declines a replacement and asks for more care next time.",
+   "src": "L28343"
+  }
+ }
+}

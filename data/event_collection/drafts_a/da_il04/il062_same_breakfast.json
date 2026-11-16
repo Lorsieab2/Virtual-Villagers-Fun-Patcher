@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Breakfast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il062_same_breakfast",
+  "source": "da_il04",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who eats exactly the same breakfast every day is offered a warm, sticky little cake.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For as long as anyone can remember, (subject) has eaten exactly the same breakfast: half a coconut, three slices of fruit, and a handful of nuts, eaten in that order. This morning (friend) offers (subject.him/her) something new, a warm, sticky little cake (friend.he/she) made at dawn. It smells wonderful. It is not half a coconut.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Try the Cake",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Politely Say No",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) takes a careful bite. Then another. Then the whole thing is gone. \"That,\" (subject.he/she) says, \"was very good.\" (friend) beams. (subject) then eats half a coconut, three slices of fruit and a handful of nuts, in that order, because the cake was lovely but breakfast is breakfast.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It smells wonderful,\" (subject) says, \"but I'll stick with mine, thank you.\" (friend) shrugs and eats the cake (friend.him/her)self, making a lot of happy noises about it. (subject) does not regret (subject.his/her) decision. Mostly. By lunchtime (subject.he/she) is still thinking about the cake.",
+   "src": "L29"
+  }
+ }
+}

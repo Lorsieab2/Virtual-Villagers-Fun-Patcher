@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammock That Won",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum04_hammock_won",
+  "source": "draft_hum",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager tries to climb gracefully into a new hammock and is tipped onto the sand: try again, or ask a friend for the trick.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has strung up a brand-new hammock between two palms, and since (friend) is watching, (subject.he/she) decides to get in gracefully: one smooth sideways sit, a swing of the legs, a relaxed sigh. Instead, the hammock spins once, completely, and drops (subject) gently on the sand, face up, looking at the sky.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Try Again",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Ask (friend) for the Trick",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The second attempt spins the other way. On the third attempt (subject) gets in and stays in, but upside down, with (subject.his/her) feet sticking out at one end. \"I'm in,\" (subject.he/she) announces. (friend) applauds. (subject) stays exactly like that for the rest of the afternoon rather than risk moving.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) shows (subject.him/her): sit in the middle, then lie across it at a slant. It works perfectly. (subject) lies there swaying, completely content, and slightly annoyed that it was so easy. Then (friend) tries to show off getting out and lands in the sand. (subject) decides that makes them even.",
+   "src": "L53"
+  }
+ }
+}

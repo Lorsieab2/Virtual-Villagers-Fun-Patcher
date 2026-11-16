@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mosquito Pond",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat27_mosquito_pond",
+  "source": "draft_nat",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The green pond behind the huts is full of frogs and mosquitoes: drain the pond, or leave it and clear other puddles.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Behind the huts there's a still, green pond that fills every rainy season. It's full of frogs, dragonflies and tadpoles. It's also full of mosquitoes, and on hot nights the whole village is slapping and scratching. (subject) wants to drain it. (friend) likes the frogs and points out that frogs and dragonflies eat mosquitoes.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Drain the Pond",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Leave It, but Clear Other Puddles",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They dig a channel, and the pond drains away into the stream. The mosquitoes do get fewer near the huts. The frogs move somewhere else, and so does their singing. On quiet nights (friend) says it's too quiet now. (subject) sleeps better and feels a bit guilty about it, both at once.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) agrees to keep the pond and instead goes round tipping out every old pot, coconut shell and stray bowl with water in it. There turn out to be dozens. The mosquitoes get a little better. Not a lot. The frogs keep singing. On bad nights people sit by smoky fires. Nobody is sure they chose right, but the dragonflies are lovely.",
+   "src": "L329"
+  }
+ }
+}

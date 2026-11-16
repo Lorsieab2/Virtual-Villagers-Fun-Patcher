@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Prayer Under (his/her) Breath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf06_prayer_under",
+  "source": "draft_blf",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A curious friend asks a villager what they silently say before every meal: tell them, or keep it private.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Before every meal, (subject) closes (subject.his/her) eyes for a moment and moves (subject.his/her) lips silently. Nobody hears what (subject.he/she) says. Today, at a big shared meal, (friend), curious, leans over and asks, \"What do you say, when you do that?\"",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "(subject) Tells (friend.him/her)",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "(subject) Keeps It Private",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I say thank you,\" says (subject). \"For the food, and the people who made it, and whoever might be listening.\" (friend) thinks about that. \"That's nice,\" (friend.he/she) says. \"Even if nobody's listening?\" \"Even then,\" says (subject). \"The people who made the food are listening.\" (friend) can't argue with that.",
+   "src": "L74",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L74"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"That's just between me and... well, me,\" says (subject), smiling. \"It's private.\" (friend) holds up (friend.his/her) hands. \"Sorry. I was only curious.\" \"That's alright,\" says (subject). \"It's a fair question. It just has a private answer.\" They eat. (friend) never asks again. (subject) keeps saying whatever (subject.he/she) says, before every meal, for the rest of (subject.his/her) life.",
+   "src": "L77"
+  }
+ }
+}

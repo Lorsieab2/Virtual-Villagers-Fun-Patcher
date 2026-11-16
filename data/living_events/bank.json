@@ -10036,94 +10036,23 @@
   }
  ],
  "compat": {
-  "status": "conservative defaults for owner review (2026-11-14): when in doubt, exclude",
+  "status": "owner decision (2026-11-15): everything is kept except obviously problematic power dynamics, invalidating pain or trauma, portraying anyone as lesser, minor-adult romance or power imbalance, and genuine contradictions",
   "seed_rules": [
    {
-    "id": "C1",
-    "why": "Grief, death, illness, trauma or loss seeds never take comedic or play approaches.",
-    "seeds_with_any": [
-     "somber",
-     "medical"
-    ],
-    "exclude": {
-     "approaches": [
-      "le_app_play_01",
-      "le_app_play_02",
-      "le_app_play_03",
-      "le_app_play_04",
-      "le_app_play_05"
-     ],
-     "choices": [
-      "le_cs_cel_odd_a",
-      "le_cs_cel_odd_d",
-      "le_cs_cel_odd_c"
-     ]
-    }
-   },
-   {
-    "id": "C2",
-    "why": "Grief, death, illness, trauma or loss seeds never take light archetypes (memorable day, celebration, a new song, an embarrassment).",
-    "seeds_with_any": [
-     "somber",
-     "medical"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_good_08",
-      "le_arc_good_10",
-      "le_arc_mixed_08"
-     ]
-    }
-   },
-   {
     "id": "C3",
-    "why": "Medical seeds never take approaches that trivialise consent (the chief decides, an experiment, magic, animal help, a public debate).",
+    "why": "Medical seeds never have the chief decide a villager's care (an obviously problematic power dynamic).",
     "seeds_with_any": [
      "medical"
     ],
     "exclude": {
      "approaches": [
-      "le_app_act_01",
-      "le_app_act_06",
-      "le_app_act_07",
-      "le_app_consult_04",
       "le_app_consult_05"
      ]
     }
    },
    {
-    "id": "C4",
-    "why": "Belief and spirit seeds never take a mocking approach.",
-    "seeds_with_any": [
-     "belief"
-    ],
-    "exclude": {
-     "approaches": [
-      "le_app_play_01",
-      "le_app_play_02",
-      "le_app_play_03"
-     ],
-     "choices": [
-      "le_cs_cel_odd_a"
-     ]
-    }
-   },
-   {
-    "id": "C5",
-    "why": "Supernatural seeds stay unresolved: no archetype that settles who was right.",
-    "seeds_with_any": [
-     "supernatural"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_bad_06",
-      "le_arc_good_06"
-     ]
-    }
-   },
-   {
     "id": "C6",
-    "why": "Purely personal seeds never take prayer, magic, animal labour or experiments (source L23825).",
+    "why": "Purely personal seeds never take prayer, magic, animal labour or experiments (source L23825: nonsensical options for a purely personal issue).",
     "seeds_with_any": [
      "personal"
     ],
@@ -10138,38 +10067,8 @@
     }
    },
    {
-    "id": "C7",
-    "why": "RARE harm (leaving, a death, a friendship ending, a lost heirloom) never follows a personal, playful, celebration, somber, medical or child seed.",
-    "seeds_with_any": [
-     "personal",
-     "playful",
-     "celebration",
-     "somber",
-     "medical",
-     "child_subject"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_rare_01",
-      "le_arc_rare_02",
-      "le_arc_rare_04",
-      "le_arc_rare_08"
-     ]
-    }
-   },
-   {
-    "id": "C8",
-    "why": "The elder's death is only drawn where the owner's text can carry it (seeds tagged elder_death_ok); never in a celebration seed.",
-    "seeds_without": "elder_death_ok",
-    "exclude": {
-     "archetypes": [
-      "le_arc_rare_02"
-     ]
-    }
-   },
-   {
     "id": "C9",
-    "why": "Seeds with an adult-only or romantic framing (a love letter, having a child, a child's companion, a wedding) never cast a child or a teenager, and never draw an unexpected birth.",
+    "why": "Seeds with an adult-only or romantic framing (a love letter, having a child, a child's companion, a wedding) never cast a child or a teenager (minor-adult romance).",
     "seeds_with_any": [
      "adult_only"
     ],
@@ -10177,102 +10076,11 @@
      "roles": [
       "le_role_child",
       "le_role_teenager"
-     ],
-     "archetypes": [
-      "le_arc_rare_07"
-     ]
-    }
-   },
-   {
-    "id": "C10",
-    "why": "Child seeds never draw an unexpected birth.",
-    "seeds_with_any": [
-     "child_subject"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_rare_07"
-     ]
-    }
-   },
-   {
-    "id": "C11",
-    "why": "Somber and medical seeds never cast a child to argue over an adult's care or grief (RES-04, the child's own fear, is the exception).",
-    "seeds_with_any": [
-     "somber",
-     "medical"
-    ],
-    "except_seeds": [
-     "le_res_04"
-    ],
-    "exclude": {
-     "roles": [
-      "le_role_child"
-     ]
-    }
-   },
-   {
-    "id": "C12",
-    "why": "Somber and medical seeds never draw blame archetypes (wasted supplies, mistaken confidence, embarrassment).",
-    "seeds_with_any": [
-     "somber",
-     "medical"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_bad_03",
-      "le_arc_bad_06",
-      "le_arc_mixed_08"
      ]
     }
    }
   ],
-  "role_rules": [
-   {
-    "id": "R1",
-    "why": "A vulnerable role (child, teenager, elderly villager) never draws blame archetypes, and never 'leaves for a time' with an unknown fate (a generic departure does not make sense for them; an injury may).",
-    "roles_with_any": [
-     "vulnerable"
-    ],
-    "exclude": {
-     "archetypes": [
-      "le_arc_bad_03",
-      "le_arc_bad_06",
-      "le_arc_mixed_08",
-      "le_arc_rare_01"
-     ]
-    }
-   },
-   {
-    "id": "R2",
-    "why": "Personalities that can read as an insult are never given to a child.",
-    "roles_with_any": [
-     "child"
-    ],
-    "exclude": {
-     "personalities": [
-      "le_pers_blunt",
-      "le_pers_forgetful",
-      "le_pers_insecure",
-      "le_pers_superstitious",
-      "le_pers_tired"
-     ]
-    }
-   },
-   {
-    "id": "R3",
-    "why": "Personalities that can read as an age stereotype are never given to an elder.",
-    "roles_with_any": [
-     "elder"
-    ],
-    "exclude": {
-     "personalities": [
-      "le_pers_forgetful",
-      "le_pers_tired"
-     ]
-    }
-   }
-  ],
+  "role_rules": [],
   "pair_rules": [
    {
     "id": "P1",
@@ -10311,74 +10119,8 @@
   ],
   "exclusions": {
    "seed_approach": {
-    "le_art_06": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
     "le_art_07": [
-     "le_app_act_01",
-     "le_app_act_06",
-     "le_app_act_07",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
-    ],
-    "le_bel_01": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_02": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_03": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_04": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_05": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_06": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
-    ],
-    "le_bel_07": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_08": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_09": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
-    ],
-    "le_bel_10": [
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03"
+     "le_app_consult_05"
     ],
     "le_cel_07": [
      "le_app_act_01",
@@ -10420,12 +10162,7 @@
      "le_app_act_03",
      "le_app_act_06",
      "le_app_act_07",
-     "le_app_act_08",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_act_08"
     ],
     "le_emo_05": [
      "le_app_act_01",
@@ -10467,12 +10204,7 @@
      "le_app_act_03",
      "le_app_act_06",
      "le_app_act_07",
-     "le_app_act_08",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_act_08"
     ],
     "le_fam_01": [
      "le_app_act_01",
@@ -10486,12 +10218,7 @@
      "le_app_act_03",
      "le_app_act_06",
      "le_app_act_07",
-     "le_app_act_08",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_act_08"
     ],
     "le_fam_03": [
      "le_app_act_01",
@@ -10589,12 +10316,7 @@
      "le_app_act_03",
      "le_app_act_06",
      "le_app_act_07",
-     "le_app_act_08",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_act_08"
     ],
     "le_odd_03": [
      "le_app_act_01",
@@ -10707,13 +10429,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_02": [
      "le_app_act_01",
@@ -10721,13 +10437,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_03": [
      "le_app_act_01",
@@ -10735,13 +10445,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_04": [
      "le_app_act_01",
@@ -10749,13 +10453,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_05": [
      "le_app_act_01",
@@ -10763,13 +10461,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_06": [
      "le_app_act_01",
@@ -10777,13 +10469,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_07": [
      "le_app_act_01",
@@ -10791,13 +10477,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_08": [
      "le_app_act_01",
@@ -10805,13 +10485,7 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_09": [
      "le_app_act_01",
@@ -10819,874 +10493,22 @@
      "le_app_act_06",
      "le_app_act_07",
      "le_app_act_08",
-     "le_app_consult_04",
-     "le_app_consult_05",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_consult_05"
     ],
     "le_res_10": [
      "le_app_act_01",
      "le_app_act_03",
      "le_app_act_06",
      "le_app_act_07",
-     "le_app_act_08",
-     "le_app_play_01",
-     "le_app_play_02",
-     "le_app_play_03",
-     "le_app_play_04",
-     "le_app_play_05"
+     "le_app_act_08"
     ]
    },
-   "seed_choice": {
-    "le_art_06": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_art_07": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_bel_01": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_02": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_03": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_04": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_05": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_06": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_bel_07": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_08": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_09": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_bel_10": [
-     "le_cs_cel_odd_a"
-    ],
-    "le_emo_04": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_emo_10": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_fam_02": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_gov_10": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_01": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_02": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_03": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_04": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_05": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_06": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_07": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_08": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_09": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ],
-    "le_res_10": [
-     "le_cs_cel_odd_a",
-     "le_cs_cel_odd_c",
-     "le_cs_cel_odd_d"
-    ]
-   },
-   "seed_archetype": {
-    "le_ani_01": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_ani_03": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_04": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_05": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_ani_07": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_08": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_09": [
-     "le_arc_rare_02"
-    ],
-    "le_ani_10": [
-     "le_arc_rare_02"
-    ],
-    "le_art_01": [
-     "le_arc_rare_02"
-    ],
-    "le_art_02": [
-     "le_arc_rare_02"
-    ],
-    "le_art_04": [
-     "le_arc_rare_02"
-    ],
-    "le_art_05": [
-     "le_arc_rare_02"
-    ],
-    "le_art_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_art_07": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_art_08": [
-     "le_arc_rare_02"
-    ],
-    "le_art_10": [
-     "le_arc_rare_02"
-    ],
-    "le_bel_01": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_02"
-    ],
-    "le_bel_02": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_bel_03": [
-     "le_arc_rare_02"
-    ],
-    "le_bel_04": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_02"
-    ],
-    "le_bel_05": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_02"
-    ],
-    "le_bel_06": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_bel_07": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_02"
-    ],
-    "le_bel_08": [
-     "le_arc_rare_02"
-    ],
-    "le_bel_09": [
-     "le_arc_bad_06",
-     "le_arc_good_06",
-     "le_arc_rare_02"
-    ],
-    "le_bel_10": [
-     "le_arc_rare_02"
-    ],
-    "le_cel_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_04": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_cel_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_cel_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_emo_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_emo_04": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_emo_10": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_fam_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_fam_02": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_fam_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_fam_04": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_fam_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_fam_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_fam_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_fam_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_fam_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_fam_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_foo_04": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_foo_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_gov_01": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_02": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_03": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_04": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_gov_06": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_07": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_gov_09": [
-     "le_arc_rare_02"
-    ],
-    "le_gov_10": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_odd_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_04": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_odd_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_oth_01": [
-     "le_arc_rare_02"
-    ],
-    "le_oth_02": [
-     "le_arc_rare_02"
-    ],
-    "le_oth_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_oth_04": [
-     "le_arc_rare_02"
-    ],
-    "le_oth_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_oth_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_oth_07": [
-     "le_arc_rare_02"
-    ],
-    "le_oth_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_oth_09": [
-     "le_arc_rare_02"
-    ],
-    "le_oth_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_per_01": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_02": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_03": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_04": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_05": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_06": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_07": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_08": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_09": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_per_10": [
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_01": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_02": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_03": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_04": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_07",
-     "le_arc_rare_08"
-    ],
-    "le_res_05": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_06": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_07": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_08": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_09": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ],
-    "le_res_10": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_good_08",
-     "le_arc_good_10",
-     "le_arc_mixed_08",
-     "le_arc_rare_01",
-     "le_arc_rare_02",
-     "le_arc_rare_04",
-     "le_arc_rare_08"
-    ]
-   },
+   "seed_choice": {},
+   "seed_archetype": {},
    "seed_role": {
-    "le_art_07": [
-     "le_role_child"
-    ],
-    "le_bel_06": [
-     "le_role_child"
-    ],
     "le_cel_10": [
      "le_role_child",
      "le_role_teenager"
-    ],
-    "le_emo_04": [
-     "le_role_child"
-    ],
-    "le_emo_10": [
-     "le_role_child"
-    ],
-    "le_fam_02": [
-     "le_role_child"
     ],
     "le_fam_05": [
      "le_role_child",
@@ -11699,52 +10521,11 @@
     "le_fam_07": [
      "le_role_child",
      "le_role_teenager"
-    ],
-    "le_gov_10": [
-     "le_role_child"
-    ],
-    "le_res_01": [
-     "le_role_child"
-    ],
-    "le_res_02": [
-     "le_role_child"
-    ],
-    "le_res_03": [
-     "le_role_child"
-    ],
-    "le_res_05": [
-     "le_role_child"
-    ],
-    "le_res_06": [
-     "le_role_child"
-    ],
-    "le_res_07": [
-     "le_role_child"
-    ],
-    "le_res_08": [
-     "le_role_child"
-    ],
-    "le_res_09": [
-     "le_role_child"
-    ],
-    "le_res_10": [
-     "le_role_child"
     ]
    },
    "role_personality": {
-    "le_role_child": [
-     "le_pers_blunt",
-     "le_pers_forgetful",
-     "le_pers_insecure",
-     "le_pers_superstitious",
-     "le_pers_tired"
-    ],
     "le_role_confident_novice": [
      "le_pers_confident"
-    ],
-    "le_role_elderly_villager": [
-     "le_pers_forgetful",
-     "le_pers_tired"
     ],
     "le_role_shy_craftsperson": [
      "le_pers_confident"
@@ -11755,40 +10536,12 @@
      "le_pers_skeptical"
     ],
     "le_role_spiritual_elder": [
-     "le_pers_forgetful",
-     "le_pers_skeptical",
-     "le_pers_tired"
+     "le_pers_skeptical"
     ]
    },
-   "role_archetype": {
-    "le_role_child": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_mixed_08",
-     "le_arc_rare_01"
-    ],
-    "le_role_elderly_villager": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_mixed_08",
-     "le_arc_rare_01"
-    ],
-    "le_role_teenager": [
-     "le_arc_bad_03",
-     "le_arc_bad_06",
-     "le_arc_mixed_08",
-     "le_arc_rare_01"
-    ]
-   }
+   "role_archetype": {}
   },
   "owner_example_conflicts": [
-   {
-    "mix": "le_mix_001",
-    "conflicts": [
-     "role le_role_teenager x archetype le_arc_bad_03",
-     "role le_role_teenager x archetype le_arc_bad_06"
-    ]
-   },
    {
     "mix": "le_mix_002",
     "conflicts": [
@@ -11796,82 +10549,9 @@
     ]
    },
    {
-    "mix": "le_mix_006",
-    "conflicts": [
-     "seed x archetype le_arc_good_06"
-    ]
-   },
-   {
-    "mix": "le_mix_009",
-    "conflicts": [
-     "seed x archetype le_arc_good_10"
-    ]
-   },
-   {
-    "mix": "le_mix_016",
-    "conflicts": [
-     "seed x archetype le_arc_bad_03",
-     "seed x archetype le_arc_bad_06",
-     "seed x archetype le_arc_good_10"
-    ]
-   },
-   {
-    "mix": "le_mix_020",
-    "conflicts": [
-     "role le_role_child x archetype le_arc_bad_03"
-    ]
-   },
-   {
-    "mix": "le_mix_023",
-    "conflicts": [
-     "role le_role_elderly_villager x archetype le_arc_mixed_08"
-    ]
-   },
-   {
-    "mix": "le_mix_029",
-    "conflicts": [
-     "seed x archetype le_arc_good_06"
-    ]
-   },
-   {
-    "mix": "le_mix_030",
-    "conflicts": [
-     "seed x archetype le_arc_bad_03",
-     "seed x archetype le_arc_good_10"
-    ]
-   },
-   {
-    "mix": "le_mix_031",
-    "conflicts": [
-     "role le_role_teenager x archetype le_arc_bad_03",
-     "role le_role_teenager x archetype le_arc_bad_06"
-    ]
-   },
-   {
-    "mix": "le_mix_037",
-    "conflicts": [
-     "seed x archetype le_arc_bad_06"
-    ]
-   },
-   {
-    "mix": "le_mix_042",
-    "conflicts": [
-     "seed x archetype le_arc_bad_06",
-     "seed x archetype le_arc_mixed_08"
-    ]
-   },
-   {
     "mix": "le_mix_050",
     "conflicts": [
-     "role le_role_child x archetype le_arc_bad_03",
      "role le_role_confident_novice x personality le_pers_confident"
-    ]
-   },
-   {
-    "mix": "le_mix_053",
-    "conflicts": [
-     "role le_role_elderly_villager x archetype le_arc_mixed_08",
-     "role le_role_elderly_villager x personality le_pers_forgetful"
     ]
    },
    {

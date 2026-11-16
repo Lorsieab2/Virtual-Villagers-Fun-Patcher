@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Baby",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea11_new_baby",
+  "source": "draft_fea",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   }
+  ],
+  "description": "A child worries a new baby in the hut will change everything: answer right away, or ask what the worry is.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A new baby is coming to (subject)'s hut soon. Everybody is very excited. (subject) is very quiet. Today (subject.he/she) asks (friend), \"Will everyone still like me when the baby's here?\"",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Answer Right Away",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Ask What (subject.he/she) Is Worried About",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Of course they will,\" says (friend). \"Nothing changes that.\" (subject) looks at (friend.him/her), unconvinced. \"But babies are very small and everyone likes small things.\" (friend) laughs and tells (subject.him/her) all the ways (subject.he/she) is still needed: for jokes, for help, for knowing where the best shells are. (subject) is a bit reassured. Only a bit. That's alright.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks. (subject) explains, in pieces: babies cry, and grown-ups get tired, and nobody will have time to play. (friend) doesn't pretend none of that will happen. \"Some of it might,\" (friend.he/she) says. \"But there'll always be someone who has time for you. Me, for a start.\" (subject) holds (friend.him/her) to that. Often.",
+   "src": "L137"
+  }
+ }
+}

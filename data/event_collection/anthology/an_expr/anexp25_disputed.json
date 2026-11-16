@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Disputed Verdict",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp25_disputed",
+  "source": "anthology",
+  "lines": [
+   31632,
+   31646
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31632",
+  "ledger": [
+   {
+    "src": "L31633",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31642",
+    "kind": "sensitivity",
+    "before": "The responsible villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31645",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A village court hears conflicting accounts of damaged shared tools.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A village court hears conflicting accounts of damaged shared tools.",
+   "src": "L31634",
+   "choices": [
+    {
+     "label": "Hear Both Sides",
+     "next": "a",
+     "src": "L31635"
+    },
+    {
+     "label": "Seek Evidence",
+     "next": "b",
+     "src": "L31638"
+    },
+    {
+     "label": "Choose Proportionate Repair",
+     "next": "c",
+     "src": "L31641"
+    },
+    {
+     "label": "Review the Process",
+     "next": "d",
+     "src": "L31644"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A missing detail changes the judgment.",
+   "src": "L31636"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The disagreement remains unresolved.",
+   "src": "L31637"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tools show signs of ordinary wear.",
+   "src": "L31639"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A witness corrects an earlier mistake.",
+   "src": "L31640"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) helps mend the tools.",
+   "src": "L31642"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group agrees no punishment is justified.",
+   "src": "L31643"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) asks for a clearer appeal procedure.",
+   "src": "L31645"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The council admits it rushed its first decision.",
+   "src": "L31646"
+  }
+ }
+}

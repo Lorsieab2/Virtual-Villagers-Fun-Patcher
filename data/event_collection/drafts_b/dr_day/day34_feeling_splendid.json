@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Feeling Splendid",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day34_feeling_splendid",
+  "source": "draft_day",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "carries water for an elder",
+    "after": "carries water for (elder), an elder",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager wakes up feeling splendid and bursting with energy for no reason: ask what happened, or get out of the way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) woke up this morning feeling splendid. No reason. (subject.He/she) slept the usual amount, the weather is the usual weather. But (subject.he/she) feels wonderful: tall, strong, quick, bursting with energy. (subject.He/she) has already done a full morning's work and it isn't even breakfast. (friend) watches (subject.him/her) stride past for the fifth time.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Ask What Happened",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Get Out of the Way",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What happened to you?\" asks (friend). \"Nothing!\" says (subject). \"Isn't it marvelous?\" (subject.He/she) strides off again. By the end of the day, (subject.he/she) has done three days' work, helped four people, and sung several songs very loudly. (subject.He/she) sleeps like a stone. The next day (subject.he/she) feels perfectly normal.",
+   "src": "L410"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) steps aside and lets (subject.him/her) pass. (subject) sweeps the path, mends a roof, carries water for (elder), an elder, and reorganizes the storehouse, which nobody asked for and nobody can now find anything in. At dinner, (subject.he/she) is still beaming. Nobody has the heart to mention the storehouse.",
+   "src": "L413"
+  }
+ }
+}

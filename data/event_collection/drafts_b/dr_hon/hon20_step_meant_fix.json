@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Step (name1) Meant to Fix",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon20_step_meant_fix",
+  "source": "draft_hon",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L242",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L245",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A friend slips on a wobbly path stone a villager kept meaning to fix: say you had noticed it, or just fix it now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "One of the flat stones on the path down to the stream has been wobbling for weeks. (subject) noticed it a long time ago and kept meaning to fix it. This morning (friend) stepped on it, it tipped, and (friend) went down on one knee in the mud with (friend.his/her) whole jar of water down (friend.his/her) front. (friend.He/she) is all right, apart from a scraped knee and being very wet.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Say You'd Noticed It",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Just Fix It Now",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I saw that stone wobbling weeks ago,\" says (subject), helping (friend.him/her) up. \"I kept meaning to fix it.\" (friend), dripping, looks at the stone and then at (subject). \"...Well, now seems like a good time.\" (subject) fixes it properly that afternoon, and checks every other stone on the path while (subject.he/she)'s at it. Several more are wobbly.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L242"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) helps (friend) up, refills (friend.his/her) jar at the stream for (friend.him/her), and then spends the afternoon setting the stone firmly in place. (subject.He/she) doesn't mention having seen it before. (friend) thanks (subject.him/her) warmly for being so helpful, and (subject) feels a little odd about that thanks for some time.",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L245"
+    }
+   ]
+  }
+ }
+}

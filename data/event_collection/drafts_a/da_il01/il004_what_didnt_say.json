@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What (name1) Didn't Say",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il004_what_didnt_say",
+  "source": "da_il01",
+  "lines": [
+   47,
+   56
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L47",
+  "ledger": [
+   {
+    "src": "L48",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has an idea for the harvest feast but hesitates: say it anyway, or keep it to themselves.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The village is planning the harvest feast, and everyone has an opinion. (subject) has an opinion too. (subject.He/She) thinks the whole thing should be moved to the beach, with music, and torches, and those little honey cakes nobody has made in years. (subject.He/She) opens (subject.his/her) mouth. Then (subject.he/she) closes it again.",
+   "src": "L50",
+   "choices": [
+    {
+     "label": "Say It Anyway",
+     "next": "a",
+     "src": "L52"
+    },
+    {
+     "label": "Keep It to (subject.him/her)self",
+     "next": "b",
+     "src": "L55"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"What if we did it on the beach?\" (subject) blurts out. There's a pause. Then (friend) says, \"...with torches?\" And suddenly everyone is talking at once. Nobody remembers whose idea it was, but (subject) does. (subject.He/She) smiles quietly into (subject.his/her) cup all evening.",
+   "src": "L53"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The feast is held in the usual place, the usual way, and it's lovely. Later, walking home along the shore, (subject) pictures the torches and the music and the honey cakes. Maybe next year. Maybe (subject.he/she) will just make the honey cakes (subject.him/her)self.",
+   "src": "L56"
+  }
+ }
+}

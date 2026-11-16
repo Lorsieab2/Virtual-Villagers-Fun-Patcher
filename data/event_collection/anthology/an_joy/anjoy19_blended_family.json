@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blended Family Picnic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy19_blended_family",
+  "source": "anthology",
+  "lines": [
+   28953,
+   28966
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28953",
+  "ledger": [],
+  "description": "A newly blended family tries to plan a day together.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A newly blended family tries to plan a day together.",
+   "src": "L28954",
+   "choices": [
+    {
+     "label": "Let Everyone Choose an Activity",
+     "next": "a",
+     "src": "L28955"
+    },
+    {
+     "label": "Repeat an Old Family Tradition",
+     "next": "b",
+     "src": "L28958"
+    },
+    {
+     "label": "Create a Shared Tradition",
+     "next": "c",
+     "src": "L28961"
+    },
+    {
+     "label": "Allow Separate Time",
+     "next": "d",
+     "src": "L28964"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Each person contributes a favorite game.",
+   "src": "L28956"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The choices clash, so the family takes turns.",
+   "src": "L28957"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A familiar picnic helps one child feel secure.",
+   "src": "L28959"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another child asks to invent something new.",
+   "src": "L28960"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family begins a new annual outing.",
+   "src": "L28962"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The first attempt is awkward but ends with laughter.",
+   "src": "L28963"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Everyone enjoys a little breathing room.",
+   "src": "L28965"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family realizes they still want some shared activities.",
+   "src": "L28966"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Back by Sunset",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus09_back_sunset",
+  "source": "draft_jus",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager kept the shared digging stick overnight, and a friend lost a morning's work: ask the council, or talk directly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village rule is that shared tools are back on the rack by sunset, ready for whoever needs them in the morning. (subject) borrowed the big digging stick and didn't bring it back. This morning (friend) needed it, couldn't find it, and lost half a morning's work. It turns out (subject) kept it overnight to dig a drainage ditch around a neighbor's hut before the rain.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Ask the Council",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Talk to (subject) Directly",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council agrees that (subject) broke the rule, and also that the ditch kept a hut dry. They ask (subject) to give (friend) half a morning's help, to make up for the lost time. (subject) agrees. (friend) says a ditch for a hut is a good reason, but that a word would have been nice. (subject) agrees with that too.",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) finds (subject) at the ditch. \"You could have told someone.\" \"I know. It was getting dark, the rain was coming, and I didn't think.\" (friend) looks at the ditch, which is a very good ditch. \"Next time, leave a mark on the rack.\" From then on, a little stone in an empty spot on the tool rack means \"I've got it, and I'll bring it back.\"",
+   "src": "L113"
+  }
+ }
+}

@@ -1,0 +1,294 @@
+HEA-01
+DESC: A villager freezes on the path, chest tight, the day before the feast: try the breathing, or get away for a while.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-02
+DESC: A healer offers a worried villager a calming tea that tastes like an old sandal: drink it with honey, or ask for something else.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-03
+DESC: A healer's poultice eases a villager's sore shoulder but leaves an itchy rash: show the rash, or keep the poultice on.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-04
+DESC: A villager who has felt grey for weeks sits beside a friend under a tree: say how it has been, or talk of other things.
+ROLES: name1=18+ name2=18+
+FIX S: 3=1 4=1
+REVIEW: ok
+
+HEA-05
+DESC: Two healers disagree about a villager's twisted ankle: ask the second healer as well, or do what the first one said.
+ROLES: name1=18+ name2=18+
+FIG: h=healer:18+
+EDIT S: "The first healer says: rest" => "[h], the first healer, says: rest"
+EDIT L2: "Do What the First Healer Said:" => "Do What [h] Said:"
+EDIT O1: "why the first healer said rest" => "why [h] said rest"
+REVIEW: ok
+
+HEA-06
+DESC: A healer suggests a restless, snappish villager walk every morning: try it for a week, or try it once.
+ROLES: name1=18+ name2=18+
+FIG: f=fisher:55+
+EDIT O1: "meets an old fisher who walks" => "meets [f], an old fisher who walks"
+REVIEW: ok
+
+HEA-07
+DESC: A coughing child is sure the healer's syrup is poison: let the child hold the spoon, or make the spoon a canoe.
+ROLES: name1=3-8 name2=18+ name3=18+
+REL: name3=parent_of:name1
+REVIEW: ok (the relative is cast as a recorded parent where the game records one)
+
+HEA-08
+DESC: An elder with stiff hands hears out a long, stinging treatment and says no, thank you: respect it, or ask what would help.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+HEA-09
+DESC: A healer's new calming potion works on a jumpy villager but brings hiccups: keep taking it, or stop and report it.
+ROLES: name1=18+ name2=18+
+REVIEW: ok (the casting line offers VV3-VV5 for a magical potion; kept in all five games as written: a story brew needs no game feature)
+
+HEA-10
+DESC: A villager overwhelmed by noisy feasts asks if something is wrong with them: ask for a cure, or just leave early as usual.
+ROLES: name1=14+ name2=18+
+REVIEW: ok
+
+HEA-11
+DESC: A villager who cannot sleep is given the same steps for every night: follow the steps, or make up their own.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+FIX O2: 1=1
+REVIEW: ok
+
+HEA-12
+DESC: A villager with an upset stomach holds two teas from two healers: ask before drinking either, or drink only one.
+ROLES: name1=18+ name2=18+ name3=18+
+FIX S: 2=1 3=1
+FIX O2: 2=1 3=1 4=3 5=3
+REVIEW: ok
+
+HEA-13
+DESC: A healer suggests a worrier keep one hour a day just for worrying: try the worrying hour, or decide it is not for them.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-14
+DESC: A young villager with a stiff back joins the elders' morning stretch on the beach: join in, or watch first.
+ROLES: name1=18-25 name2=55+
+REVIEW: ok
+
+HEA-15
+DESC: A child has bad dreams; a spiritual leader offers a woven knot and a healer offers talking: hang the knot, talk, or both.
+ROLES: name1=4-10 name2=18+ name3=18+ name4=18+
+REL: name4=parent_of:name1
+FIX O1: 1=1
+REVIEW: ok (the relative is cast as a recorded parent where the game records one)
+
+HEA-16
+DESC: A healer offers a sad villager a lump of clay to give their hands something to do: take the clay, or try something else.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+REVIEW: ok
+
+HEA-17
+DESC: A healer cannot explain the dizzy spells troubling a villager: ask what it is, or ask what to do.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-18
+DESC: A forgetful elder is offered a pebble memory game by a child: play the game, or say it is too childish.
+ROLES: name1=55+ name2=6-12
+REVIEW: ok
+
+HEA-19
+DESC: A teen's stomach churns the night before the canoe race: ask the healer if they are sick, or go back to bed.
+ROLES: name1=14-17 name2=18+
+FIX S: 6=1
+FIX L1: 1=1
+FIX O1: 1=1
+FIG: g=grownup:18+
+EDIT O2: "One of them is a grown-up who" => "One of them is [g], a grown-up who"
+EDIT O2: "the grown-up says" => "[g] says"
+REVIEW: ok
+
+HEA-20
+DESC: A healer is about to lift a big splinter from a child's palm: let the child say when, or do it on two.
+ROLES: name1=4-10 name2=18+
+REVIEW: ok
+
+HEA-21
+DESC: A healer's fish-oil salve helps a villager's knees but makes the hut smell: keep using it, or ask for a less fishy one.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-22
+DESC: A villager with headaches asks a spiritual leader for a blessing: accept the blessing, or just sit together.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-23
+DESC: A young apprentice healer forgets how many leaves go in a fever tea: admit it and go ask, or make a weak one to be safe.
+ROLES: name1=18-25 name2=18+
+FIG: h=healer:18+
+EDIT O1: "runs all the way to the senior healer, who says" => "runs all the way to [h], the senior healer, who says"
+EDIT O2: "When (name1) tells the senior healer, the healer nods." => "When (name1) tells [h], the senior healer, [h:he/she] nods."
+REVIEW: ok
+
+HEA-24
+DESC: A worn-out villager has been told to rest and feels terrible about it: stay in the hammock, or get up and do a little.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-25
+DESC: A villager wants to use a family cold remedy the healer has never heard of: ask the healer to look, or use it without asking.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-26
+DESC: A villager's hands shake before speaking at the gathering: try pressing their feet down, or hold something.
+ROLES: name1=18+ name2=18+
+FIX L1: 1=1
+FIX O2: 6=1
+REVIEW: FLAG casting line picks one adult; name2 helps throughout, cast as 18+.
+
+HEA-27
+DESC: A healer suggests a villager with a sore back swim in the cold lagoon: get in the water, or ask for a warmer way.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-28
+DESC: A villager took six spoons of throat syrup instead of one and has an unhappy stomach: go back to the healer, or wait it out.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-29
+DESC: A busybody asks the healer why a villager keeps visiting: say nothing, or say something kind but nothing true.
+ROLES: name1=18+ name2=18+ name3=18+
+FIX O1: 1=2 2=2 3=2
+REVIEW: ok
+
+HEA-30
+DESC: A villager with a broken leg has become the grumpiest on Isola: find them something to do, or let them be grumpy.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2
+REVIEW: ok
+
+HEA-31
+DESC: A friend arrives at a feverish villager's bed with jokes and a pig song: let them do the jokes, or say it is too much today.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-32
+DESC: A villager is shown how to scratch worries onto leaves and burn them: burn them, or keep the leaves.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-33
+DESC: A healer realizes they picked the wrong leaf for a villager's cough: tell them straight away, or fix it first and explain after.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+FIX O2: 1=1
+REVIEW: ok
+
+HEA-34
+DESC: A villager's heart races and chest tightens in the middle of trading: a friend takes them somewhere quiet, or stays right there.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1 2=2
+REVIEW: FLAG casting line picks one adult; name2 helps throughout, cast as 18+.
+
+HEA-35
+DESC: A healer and a spiritual leader arrive at once to treat a villager's scratched hand: ask for both, or just the healer for now.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: ok
+
+HEA-36
+DESC: A healer carves an elder who is hard of hearing an ear trumpet from a shell: try it on, or thank them but say no.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+HEA-37
+DESC: A villager's slowly healing wrist has a bad day after three good ones: say it is getting worse, or push through it.
+ROLES: name1=18+ name2=18+
+FIX O1: 4=2
+REVIEW: ok
+
+HEA-38
+DESC: A friend builds a villager with a head cold a steam tent of leaves: stay under the leaves, or say it is too hot.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1 2=1 3=1
+REVIEW: ok
+
+HEA-39
+DESC: A curious child asks a healer why they carve down the remedies that did not work: explain, or let the child help.
+ROLES: name1=18+ name2=7-13
+FIX S: 2=1
+REVIEW: ok
+
+HEA-40
+DESC: A healer gives a villager with a toothache two choices: wait and see with numbing bark, or take the tooth out.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-41
+DESC: A villager learning to picture a calm place finds a goat in it: ignore the goat, or change the place.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-42
+DESC: After three weeks of rain a villager feels heavier every day: sit by the fire with others, or wait for the sun.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-43
+DESC: A villager with an itch nobody can see wonders if the healer will believe them: ask straight out, or ask for something cool.
+ROLES: name1=18+ name2=18+
+FIX S: 3=1
+REVIEW: ok
+
+HEA-44
+DESC: Days after the storm, a villager still checks the roof ropes at midnight: check them together, or sit up and listen to the wind.
+ROLES: name1=18+ name2=18+
+REVIEW: FLAG casting line picks one adult; name2 finds name1 in S, cast as 18+.
+
+HEA-45
+DESC: A friend brings a villager a new remedy for a sore back every day: say no kindly, or take the bowl and say nothing.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HEA-46
+DESC: Two elders drink each other's evening teas by mistake: go and ask the healer, or wait and see.
+ROLES: name1=55+ name2=55+
+FIG: h=healer:18+
+EDIT O1: "They hobble over to the healer together" => "They hobble over to [h], the healer, together"
+EDIT O1: "The healer listens, sniffs" => "[h] listens, sniffs"
+EDIT O1: "says the healer." => "says [h]."
+REVIEW: ok (any two elders: "live together or are partners" is story; no game records who shares a hut)
+
+HEA-47
+DESC: A villager tries sitting quietly and noticing their breath, but keeps thinking of lunch: keep trying, or admit it is not for them.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: ok
+
+HEA-48
+DESC: A healer finds the thorn they missed in a villager's swollen foot: say they missed it, or take it out and explain.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1 2=1
+REVIEW: ok
+
+HEA-49
+DESC: An overworked villager lies down for a moment and sleeps until morning: apologize for sleeping, or ask what they missed.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+REVIEW: FLAG casting line picks one adult; name2 is waiting outside, cast as 18+.
+
+HEA-50
+DESC: After a good week of healing, a villager has a heavy day and holds on to the good week like a smooth stone.
+ROLES: name1=18+
+FIG: h=healer:18+
+EDIT S: "seeing the healer, talking" => "seeing [h], the healer, talking"
+EDIT S: "tells the healer. The healer listens" => "tells [h]. [h] listens"
+REVIEW: ok

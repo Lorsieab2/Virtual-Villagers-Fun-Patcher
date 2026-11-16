@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carving in the Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm47_carving_basket",
+  "source": "draft_drm",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager finds a turtle carving left half-finished years ago: finish it tonight, or put it back for another year.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the bottom of a basket in (name1)'s hut is a half-finished carving: a turtle, its shell done, its head still a lump of wood. (He/she) started it years ago, meaning to finish it \"when things are quieter.\" Things have never been quieter. Today, looking for something else, (name1) finds it again and sits down holding it.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Finish It Tonight",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Put It Back for Another Year",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) takes out the knife. The head is harder than (he/she) remembers. (He/she) works late into the night by the fire. When it's done, the turtle looks a bit surprised, which wasn't the plan. (name1) loves it anyway. (He/she) puts it on the shelf where (he/she) will see it every morning.",
+   "src": "L566"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) turns it over, admires the shell, and puts it back in the basket. Not yet. It's oddly comforting to have it there, waiting: a small thing (he/she) still means to do. Some unfinished things are a weight. This one, (name1) decides, is more like a promise.",
+   "src": "L569"
+  }
+ }
+}

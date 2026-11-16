@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Friendship With a Bruise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs21_friendship",
+  "source": "anthology",
+  "lines": [
+   29740,
+   29753
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29740",
+  "ledger": [
+   {
+    "src": "L29741",
+    "kind": "sensitivity",
+    "before": "Two friends are hurt",
+    "after": "(friend1) and (friend2), two friends, are hurt",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29743",
+    "kind": "sensitivity",
+    "before": "The forgetful friend",
+    "after": "(friend1)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29744",
+    "kind": "sensitivity",
+    "before": "The hurt friend",
+    "after": "(friend2)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two friends are hurt after one forgets a promise that mattered deeply to the other.",
+  "label_case": "title",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend1) and (friend2), two friends, are hurt after one forgets a promise that mattered deeply to the other.",
+   "src": "L29741",
+   "choices": [
+    {
+     "label": "Listen Without Defending",
+     "next": "a",
+     "src": "L29742"
+    },
+    {
+     "label": "Explain What Happened",
+     "next": "b",
+     "src": "L29745"
+    },
+    {
+     "label": "Offer a Concrete Repair",
+     "next": "c",
+     "src": "L29748"
+    },
+    {
+     "label": "Allow Time Apart",
+     "next": "d",
+     "src": "L29751"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(friend1) understands why the promise mattered.",
+   "src": "L29743"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(friend2) still needs distance despite the apology.",
+   "src": "L29744"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A genuine misunderstanding becomes clear.",
+   "src": "L29746"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The explanation sounds like an excuse until responsibility is acknowledged.",
+   "src": "L29747"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They make a smaller, realistic commitment and keep it.",
+   "src": "L29749"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The gesture is kind but cannot immediately restore trust.",
+   "src": "L29750"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They reconnect gradually over shared work.",
+   "src": "L29752"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They remain cordial without returning to their former closeness.",
+   "src": "L29753"
+  }
+ }
+}

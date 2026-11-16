@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dish Everyone Pretends to Love",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his24_dish_everyone",
+  "source": "draft_his",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Everyone says the founders' Old Stew is delicious, and a villager tips theirs into a bush: admit it, or keep up the tradition.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At every festival, the village serves Old Stew: a very old recipe of fermented fish, sour root and something bitter nobody can name. It's said to have been the favorite of the founders. Everyone eats a bowl. Everyone says it's delicious. (subject) and (friend) are sitting side by side with their bowls, and (subject) has just quietly tipped half of (subject.his/her) own into a bush.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Admit You Hate It",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Keep Up the Tradition",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) saw. (subject) freezes. Then (friend) leans over and whispers, \"I hate it too.\" They start asking other people, very carefully. It turns out nearly everybody hates it. Nobody has ever said so. The next festival, Old Stew is still served, out of respect, but in very, very small bowls. Everyone is very relieved and eats exactly one spoonful.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) saw, and says nothing, and eats every bite of (friend.his/her) own bowl with a face of complete composure. Afterward, (subject) asks how. \"My grandmother hated it,\" (friend) says. \"Her grandmother hated it. Maybe the founders hated it. Somebody has to eat it.\" (subject) can't argue with that. (subject.He/she) eats (subject.his/her) whole bowl next year. It's still horrible.",
+   "src": "L293"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L287",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

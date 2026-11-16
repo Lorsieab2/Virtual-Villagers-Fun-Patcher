@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dry Season Rule",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus40_dry_season_rule",
+  "source": "draft_jus",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L482",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager has broken the dry season water rule to save their beans: bring it to the council, or talk to them quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's been a long dry season, and the council has made a rule: each household takes two jars a day from the spring, no more, until the rain comes. (friend) has seen (subject) taking a third and a fourth jar before dawn, to water (subject.his/her) garden.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Bring It to the Council",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Talk to (subject) Quietly",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council asks (subject) why. (subject.He/she) says (subject.his/her) beans will die without it. The council says everyone's beans are thirsty, and the water is for drinking first. It asks (subject) to take one jar fewer for the next three days, to make up for it. (subject) agrees, unhappily, and some of (subject.his/her) beans die. When the rain finally comes, (subject.he/she) stands out in it for a long time.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L482"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L482"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) meets (subject.him/her) at the spring before dawn. \"Everyone's beans are dying.\" \"I know. I just couldn't watch mine go.\" (friend) understands that. (friend.He/she) also doesn't move out of the way. (subject) pours the third jar back. They walk home together, and a few days later (friend) shows (subject.him/her) how to cover the soil with dry grass so it holds on to what water it gets.",
+   "src": "L485"
+  }
+ }
+}

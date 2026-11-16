@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warrior's Armor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm25_warrior_armor",
+  "source": "armor45",
+  "lines": [
+   33,
+   33
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "structural",
+    "text": "25. The Warrior's Armor  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "An old set of armor appears at a historical celebration. Some admire its craftsmanship; others quietly remember why it was needed.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "An old set of armor appears at a historical celebration. Some admire its craftsmanship; others quietly remember why it was needed.",
+   "src": "L33",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L33"
+    }
+   ]
+  }
+ }
+}

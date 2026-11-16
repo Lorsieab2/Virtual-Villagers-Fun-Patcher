@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do Stuffed Animals Have Ears?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd09_why_do_stuffed",
+  "source": "anthology",
+  "lines": [
+   27692,
+   27705
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27692",
+  "ledger": [
+   {
+    "src": "L27693",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27695",
+    "kind": "sensitivity",
+    "before": "A weaver",
+    "after": "(adult), a weaver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27696",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27698",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27699",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27701",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27702",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27704",
+    "kind": "sensitivity",
+    "before": "A naturalist",
+    "after": "(adult), a naturalist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27705",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks why a soft toy needs ears when it cannot hear.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks why a soft toy needs ears when it cannot hear.",
+   "src": "L27693",
+   "choices": [
+    {
+     "label": "Explain the Design.",
+     "next": "a",
+     "src": "L27694"
+    },
+    {
+     "label": "Joke Gently.",
+     "next": "b",
+     "src": "L27697"
+    },
+    {
+     "label": "Ask the Child for Ideas.",
+     "next": "c",
+     "src": "L27700"
+    },
+    {
+     "label": "Explore Real Animal Ears.",
+     "next": "d",
+     "src": "L27703"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult), a weaver, says the ears help the toy resemble an animal.",
+   "src": "L27695"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) notices that ears also make the toy easy to recognize.",
+   "src": "L27696"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(adult) says the toy listens to secrets, then clarifies it is make-believe.",
+   "src": "L27698"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) invents an amusing tale about a toy hearing the ocean.",
+   "src": "L27699"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) says the ears make the toy look friendly.",
+   "src": "L27701"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) designs a toy with unusually long ears.",
+   "src": "L27702"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult), a naturalist, explains that ears help many animals hear.",
+   "src": "L27704"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) notices that different animals have very different ears.",
+   "src": "L27705"
+  }
+ }
+}

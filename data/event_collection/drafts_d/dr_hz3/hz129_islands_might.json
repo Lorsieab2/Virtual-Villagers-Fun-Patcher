@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Islands That Might Be Like Ours",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz129_islands_might",
+  "source": "draft_hz2",
+  "lines": [
+   594,
+   604
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L594",
+  "ledger": [
+   {
+    "src": "L595",
+    "kind": "sensitivity",
+    "before": "A navigator",
+    "after": "(Name1), a navigator,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A navigator wonders whether there might be other islands with villages much like Isola.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a navigator, wonders whether there might be other islands with villages much like Isola.",
+   "src": "L595",
+   "choices": [
+    {
+     "label": "Imagine Similar Villages.",
+     "next": "a",
+     "src": "L596"
+    },
+    {
+     "label": "Imagine Very Different Islands.",
+     "next": "b",
+     "src": "L599"
+    },
+    {
+     "label": "Ask What Would Be the Same.",
+     "next": "c",
+     "src": "L602"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers imagine another island with its own fishers, gardens and festivals.",
+   "src": "L597"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child imagines another child on another island wondering the same thing.",
+   "src": "L598"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether some islands might have no people at all.",
+   "src": "L600"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A storyteller imagines islands of ice and fire.",
+   "src": "L601"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village decides that laughter and love would be the same anywhere.",
+   "src": "L603"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder says nobody can know, and that is part of the wonder.",
+   "src": "L604"
+  }
+ }
+}

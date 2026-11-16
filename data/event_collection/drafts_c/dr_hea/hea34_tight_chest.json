@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tight Chest at the Market",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea34_tight_chest",
+  "source": "draft_hea",
+  "lines": [
+   407,
+   416
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L407",
+  "ledger": [
+   {
+    "src": "L408",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's heart races and chest tightens in the middle of trading: a friend takes them somewhere quiet, or stays right there.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is in the middle of trading fish for baskets when, out of nowhere, (subject.his/her) heart starts racing, (subject.his/her) chest goes tight, and (subject.he/she) is suddenly sure something terrible is happening. (subject.He/she) drops the fish. (friend) is standing next to (subject.him/her).",
+   "src": "L410",
+   "choices": [
+    {
+     "label": "(friend) Takes (subject.him/her) Somewhere Quiet",
+     "next": "o1",
+     "src": "L412"
+    },
+    {
+     "label": "(friend) Stays Right There",
+     "next": "o2",
+     "src": "L415"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) picks up the fish, takes (subject)'s elbow and walks (subject.him/her) to the shade behind the huts. \"You're alright,\" (friend.he/she) says. \"Sit. I'm staying.\" (subject) sits. It feels like forever and is probably a few minutes. Slowly (subject.his/her) heart stops galloping. Later the healer says this sometimes just happens to people, and it isn't (subject.his/her) fault, and it may happen again. It might. (subject.He/she) knows where the shade is now.",
+   "src": "L413"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't move (subject.him/her). (friend.He/she) just stands close, so (subject) has something to lean on, and keeps talking in an ordinary voice about the price of baskets. \"Breathe if you can. If you can't, that's alright too, it'll come.\" Eventually it passes. (subject) is shaky and tired for the rest of the day. (friend) finishes the trade for (subject.him/her), and drives a much harder bargain than (subject) would have.",
+   "src": "L416"
+  }
+ }
+}

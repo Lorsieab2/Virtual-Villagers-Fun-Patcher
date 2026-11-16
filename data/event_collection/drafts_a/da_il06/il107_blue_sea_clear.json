@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Blue Sea, Clear Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il107_blue_sea_clear",
+  "source": "da_il06",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The sea is blue, but water scooped up in the hands is perfectly clear. A villager wants to know why.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The sea is blue. Everyone knows that. But when (subject) scoops it up in (subject.his/her) hands, the water is perfectly clear. (subject.He/She) tries again. Clear. (subject.He/She) carries a full bowl up the beach and looks at it. Clear. The sea, just behind (subject.him/her), is as blue as ever.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Ask (friend)",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Try a Bigger Bowl",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Maybe it's the sky,\" says (friend). \"Maybe the sea is just reflecting it.\" \"But on cloudy days it's still sort of blue-grey.\" \"Maybe it remembers being blue.\" They look at the bowl of water. It doesn't seem to remember anything. They pour it back, to be on the safe side.",
+   "src": "L86"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides the problem is the size of the bowl. A big enough bowl must turn blue. (subject.He/She) fills the biggest pot in the village. It is, very faintly, a tiny bit blue. Maybe. If you squint. (subject) counts this as proof of something, (subject.he/she) just isn't sure what.",
+   "src": "L89"
+  }
+ }
+}

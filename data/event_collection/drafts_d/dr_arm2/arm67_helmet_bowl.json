@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Helmet That Was a Bowl",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm67_helmet_bowl",
+  "source": "draft_arm2",
+  "lines": [
+   31,
+   31
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L31",
+  "ledger": [
+   {
+    "src": "L31",
+    "kind": "structural",
+    "text": "67. The Helmet That Was a Bowl  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L31",
+    "kind": "sensitivity",
+    "before": "A cook",
+    "after": "(Name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Scholars argue whether an old dome of hardened wood was a helmet or a mixing bowl.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Scholars argue whether an old dome of hardened wood was a helmet or a mixing bowl. (Name1), a cook, settles nothing by making an excellent stew in it.",
+   "src": "L31"
+  }
+ }
+}

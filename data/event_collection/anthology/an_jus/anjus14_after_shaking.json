@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After the Great Shaking",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus14_after_shaking",
+  "source": "anthology",
+  "lines": [
+   30927,
+   30941
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30927",
+  "ledger": [
+   {
+    "src": "L30928",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30932",
+    "kind": "sensitivity",
+    "before": "A healer",
+    "after": "(healer), a healer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30935",
+    "kind": "sensitivity",
+    "before": "A frightened child",
+    "after": "(child), a frightened child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30938",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An earthquake damages shelters and leaves villagers frightened by every new tremor.",
+  "label_case": "title",
+  "cast_only": [
+   "healer",
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An earthquake damages shelters and leaves villagers frightened by every new tremor.",
+   "src": "L30929",
+   "choices": [
+    {
+     "label": "Check Safety and Injuries",
+     "next": "a",
+     "src": "L30930"
+    },
+    {
+     "label": "Create Child-Appropriate Explanations",
+     "next": "b",
+     "src": "L30933"
+    },
+    {
+     "label": "Organize Temporary Care",
+     "next": "c",
+     "src": "L30936"
+    },
+    {
+     "label": "Plan for the Future",
+     "next": "d",
+     "src": "L30939"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injuries\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30929"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Teams move people away from unstable structures.",
+   "src": "L30931"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(healer), a healer, prioritizes urgent needs without promising instant recovery.",
+   "src": "L30932"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children learn what shaking is and where to gather.",
+   "src": "L30934"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child), a frightened child, asks the same question repeatedly and receives patient answers.",
+   "src": "L30935"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Caregivers establish a calm shared sleeping area.",
+   "src": "L30937"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) helps preserve familiar routines amid uncertainty.",
+   "src": "L30938"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers improve evacuation routes and supply storage.",
+   "src": "L30940"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They acknowledge that preparation reduces risk but cannot prevent earthquakes.",
+   "src": "L30941"
+  }
+ }
+}

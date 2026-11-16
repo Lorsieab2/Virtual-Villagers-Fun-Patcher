@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Ripe Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim059_last_ripe_fruit",
+  "source": "moments500",
+  "lines": [
+   985,
+   999
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L986",
+  "ledger": [
+   {
+    "src": "L985",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L989",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L990",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L993",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L994",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L997",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L998",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "One sibling saves the last ripe fruit for the other.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "One sibling saves the last ripe fruit for the other. The gesture goes unnoticed by everyone except the sibling.",
+   "src": "L987"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "One sibling saves the last ripe fruit for the other. They finish laughing about a mistake from earlier in the day.",
+   "src": "L991"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "One sibling saves the last ripe fruit for the other. The younger child insists on doing the final step independently.",
+   "src": "L995"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "One sibling saves the last ripe fruit for the other. They disagree about the best method, then try both.",
+   "src": "L999"
+  }
+ }
+}

@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Learns a Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim173_elder_learns",
+  "source": "draft_tim2",
+  "lines": [
+   338,
+   343
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L338",
+  "ledger": [
+   {
+    "src": "L339",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L340",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L341",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L342",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L343",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L339",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child teaches an elder a new game played with pebbles and lines in the sand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, teaches an elder a new game played with pebbles and lines in the sand. The elder wins the very first round and seems surprised.",
+   "src": "L339,L340"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, teaches an elder a new game played with pebbles and lines in the sand. The child keeps changing the rules, and the elder plays along cheerfully.",
+   "src": "L339,L341"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a child, teaches an elder a new game played with pebbles and lines in the sand. They play until supper, and the elder asks to play again tomorrow.",
+   "src": "L339,L342"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, teaches an elder a new game played with pebbles and lines in the sand. The elder teaches the child a game from long ago in return.",
+   "src": "L339,L343"
+  }
+ }
+}

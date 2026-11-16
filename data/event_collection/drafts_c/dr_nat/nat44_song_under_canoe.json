@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song Under the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat44_song_under_canoe",
+  "source": "draft_nat",
+  "lines": [
+   518,
+   521
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L518",
+  "ledger": [
+   {
+    "src": "L519",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a fisher or an adult; a single popup, no choice)"
+   }
+  ],
+  "description": "Out alone past the reef, a villager feels whales singing through the wood of the canoe and lies down to listen.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) is out in the canoe alone, well past the reef, on a calm grey morning with the line slack in the water. Then (he/she) feels it before (he/she) hears it: a low hum coming up through the wood of the canoe, through (his/her) knees, through (his/her) chest. Then a long, rising call, and another, and another, sliding up and down like someone singing very slowly in a voice as big as the sea. Somewhere below, out of sight, whales are singing. (name1) pulls in the line and lies down in the bottom of the canoe with (his/her) ear against the wood and listens. (He/she) has no idea what they're saying. (He/she) is fairly sure it isn't about (him/her). It goes on for a long time, and then it stops, and the sea is just the sea again. (name1) paddles home without a single fish and doesn't care at all.",
+   "src": "L521"
+  }
+ }
+}

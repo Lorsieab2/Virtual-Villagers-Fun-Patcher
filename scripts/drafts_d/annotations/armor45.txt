@@ -1,0 +1,102 @@
+# Armor, Weapons and Inherited Traditions 01-45 (Isola_Armor_Weapons_and_Inherited_Traditions.txt): one popup each.
+# The 15-point review: weapons are tools, heirlooms, ceremonial objects and records of craft; past conflict is only
+# implied (25, 26, 28, 29); no villager is struck; nothing glorifies cruelty.  Mixer seed: pending (another agent
+# handles the mixer; the file's flavor lines are M01-M35, built from the Completed Open Questions file).
+ARM-01
+REVIEW: ok
+ARM-02
+REVIEW: ok
+ARM-03
+REVIEW: ok (no single person: a cast villager, unnamed)
+ARM-04
+REVIEW: ok (no single person)
+ARM-05
+NAME: "The armorer must" => "The armorer, (name1), must"
+ROLES: name1=18+
+REVIEW: ok
+ARM-06
+REVIEW: ok (no single person)
+ARM-07
+REVIEW: ok
+ARM-08
+REVIEW: ok (no single person; a troubled era only implied)
+ARM-09
+REVIEW: ok
+ARM-10
+REVIEW: ok
+ARM-11
+REVIEW: ok
+ARM-12
+REVIEW: ok
+ARM-13
+REVIEW: ok
+ARM-14
+REVIEW: ok (no single person)
+ARM-15
+REVIEW: ok (no single person)
+ARM-16
+REVIEW: ok (no single person)
+ARM-17
+REVIEW: ok
+ARM-18
+REVIEW: ok
+ARM-19
+REVIEW: ok (no single person)
+ARM-20
+REVIEW: ok
+ARM-21
+REVIEW: ok
+ARM-22
+DESC: A fisher demonstrates a traditional fishing spear and the roles such implements have held in Isola's history.
+REVIEW: ok
+ARM-23
+DESC: Villagers reorganize the farming tools, hunting gear, protective equipment and ceremonial objects.
+REVIEW: ok (no single person)
+ARM-24
+REVIEW: ok
+ARM-25
+REVIEW: ok (no single person; why the armor was needed is only implied)
+ARM-26
+REVIEW: ok (no single person)
+ARM-27
+REVIEW: ok (no single person; a disagreement, no side endorsed)
+ARM-28
+REVIEW: ok
+ARM-29
+REVIEW: ok (the veteran's silence is respected: validation, no forced disclosure)
+ARM-30
+DESC: Villagers practice coordinated defensive formations with wooden shields and padded training equipment.
+REVIEW: ok (no single person; restraint and protection, nobody struck)
+ARM-31
+REVIEW: ok
+ARM-32
+REVIEW: ok (no single person)
+ARM-33
+REVIEW: ok (a departed mentor: a plain mention)
+ARM-34
+REVIEW: ok (no single person)
+ARM-35
+REVIEW: ok
+ARM-36
+REVIEW: ok (no single person)
+ARM-37
+REVIEW: ok
+ARM-38
+REVIEW: ok
+ARM-39
+REVIEW: ok (no single person)
+ARM-40
+REVIEW: ok (no single person)
+ARM-41
+REVIEW: ok
+ARM-42
+REVIEW: ok (no single person)
+ARM-43
+DESC: Families bring ancestral tools, shields, staffs and ceremonial armor to a gathering to exchange stories.
+REVIEW: ok (no single person)
+ARM-44
+NAME: "Its keeper must" => "Its keeper, (name1), must"
+ROLES: name1=18+
+REVIEW: ok
+ARM-45
+REVIEW: ok (no single person)

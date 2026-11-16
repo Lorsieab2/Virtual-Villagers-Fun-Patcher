@@ -114,9 +114,9 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
 # Changes, in the order the Add menu offers them, with their plain names.
 EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
                 "celebrate", "action", "mood", "health_change", "damage", "appearance", "old_look",
-                "sex_change", "die_unrecovered", "baby_lost", "birth_then_die")
+                "sex_change", "presentation", "die_unrecovered", "baby_lost", "birth_then_die")
 NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage",      # these make the event version 6
-             "appearance", "die_unrecovered", "baby_lost", "birth_then_die", "old_look", "sex_change")
+             "appearance", "die_unrecovered", "baby_lost", "birth_then_die", "old_look", "sex_change", "presentation")
 EFFECT_NAMES = {
     "appearance": "Give a villager a new look (head or body)",
     "die_unrecovered": "A villager dies and the body is never found (no grave)",
@@ -124,6 +124,7 @@ EFFECT_NAMES = {
     "birth_then_die": "A nursing parent's baby is born now, then the parent dies",
     "old_look": "A villager looks older (the old head look)",
     "sex_change": "A villager's sex changes (the game's own sex field)",
+    "presentation": "A villager's gender presentation (drawn with the other sex's look)",
     "celebrate": "Villagers celebrate",
     "action": "A villager does something (an action of the game's own)",
     "mood": "A villager looks pleased or upset",
@@ -334,6 +335,9 @@ def describe_effect(e: dict) -> str:
         return f"{who} is shown with the old head look from now on"
     if do == "sex_change":
         return f"{who}'s sex changes (a carrying parent goes on carrying; never the Golden Child)"
+    if do == "presentation":
+        return (f"{who} is drawn with the other sex's look from now on (the recorded sex stays)" if e.get("on", True)
+                else f"{who} is drawn with their own look again")
     if do == "appearance":
         parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
                  if e.get(part) is not None]
@@ -2691,6 +2695,19 @@ class Library:
                 ttk.Label(form, text="Shows the villager with the old (grey) head from now on, as Change Appearance's "
                                      "Head look \"Old\" does. Needs the Head Look patch (A New Home: Grey Hair).").grid(
                     row=row, column=0, columnspan=3, sticky="w")
+                row += 1
+            elif do == "presentation":
+                on = tk.BooleanVar(master=form, value=bool(e.get("on", True)))
+
+                def write_on(var=on):
+                    e["on"] = bool(var.get())
+                    self._effect_changed()
+                ttk.Checkbutton(form, text="Use the other sex's look (untick: their own look again)", variable=on,
+                                command=write_on).grid(row=row, column=0, columnspan=3, sticky="w")
+                row += 1
+                ttk.Label(form, text="As Change Appearance's \"Gender presentation\": the recorded sex stays. Needs "
+                                     "the Change Sex and Gender Presentation patch; never the Golden Child or a story "
+                                     "villager.").grid(row=row, column=0, columnspan=3, sticky="w")
                 row += 1
 
     # ---- roles ----

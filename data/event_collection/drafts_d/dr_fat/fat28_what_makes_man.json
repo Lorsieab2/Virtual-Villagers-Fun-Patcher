@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Makes a Man?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat28_what_makes_man",
+  "source": "fathers30",
+  "lines": [
+   581,
+   599
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L581",
+  "ledger": [
+   {
+    "src": "L582",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L583",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L587",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L589",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L590",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L592",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L593",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L595",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L596",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L598",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L599",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L585",
+    "kind": "sensitivity",
+    "before": "asks a man what",
+    "after": "asks (name1) what",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A younger villager asks a man what makes someone a good man.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A younger villager asks (name1) what makes someone a good man. He has heard that men must never cry, must always be strong, and must someday become fathers. The man considers the people he admires and the mistakes he has made.",
+   "src": "L585",
+   "choices": [
+    {
+     "label": "Speak About Treating People with Respect",
+     "next": "a",
+     "src": "L588"
+    },
+    {
+     "label": "Speak About Feelings",
+     "next": "b",
+     "src": "L591"
+    },
+    {
+     "label": "Speak About Responsibility to Loved Ones",
+     "next": "c",
+     "src": "L594"
+    },
+    {
+     "label": "Ask the Younger Villager What They Think",
+     "next": "d",
+     "src": "L597"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He explains that strength means little if it is used to belittle others.",
+   "src": "L589"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The younger villager asks whether respect includes people one disagrees with, and they discuss how to disagree without cruelty.",
+   "src": "L590"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He admits that he has cried, feared failure, and asked for help; the younger villager seems relieved.",
+   "src": "L592"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He struggles to find the words, realizing that he is still learning to express his emotions himself.",
+   "src": "L593"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He says that if someone chooses to build a family, showing up and sharing the work matter more than appearing powerful.",
+   "src": "L595"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The younger villager asks about men without families, and he replies that no one must marry or have children to be a good man.",
+   "src": "L596"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their answer surprises him, and he learns something from the conversation too.",
+   "src": "L598"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They disagree on several ideas, but both leave with more to consider.",
+   "src": "L599"
+  }
+ }
+}

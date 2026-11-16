@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Swing Above the Grass",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs02_swing_above",
+  "source": "anthology",
+  "lines": [
+   29455,
+   29468
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29455",
+  "ledger": [
+   {
+    "src": "L29462",
+    "kind": "sensitivity",
+    "before": "An older child",
+    "after": "(child), an older child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29468",
+    "kind": "sensitivity",
+    "before": "an elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A rope swing tied to a sturdy tree delights the children but worries several caregivers.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rope swing tied to a sturdy tree delights the children but worries several caregivers.",
+   "src": "L29456",
+   "choices": [
+    {
+     "label": "Inspect the Ropes Together",
+     "next": "a",
+     "src": "L29457"
+    },
+    {
+     "label": "Set an Age-Appropriate Turn System",
+     "next": "b",
+     "src": "L29460"
+    },
+    {
+     "label": "Move the Swing Lower",
+     "next": "c",
+     "src": "L29463"
+    },
+    {
+     "label": "Ask Children to Design Safe Rules",
+     "next": "d",
+     "src": "L29466"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A frayed knot is replaced before anyone is hurt.",
+   "src": "L29458"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The children become proud safety inspectors and begin checking every knot.",
+   "src": "L29459"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The smaller children get their own gentle turns.",
+   "src": "L29461"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child), an older child, resents being told to slow down but later helps a younger one.",
+   "src": "L29462"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "More children can use it independently.",
+   "src": "L29464"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The daring older children miss the height and propose a separate challenge.",
+   "src": "L29465"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their first rule is simply \"no pushing,\" which everyone understands.",
+   "src": "L29467"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They argue over fairness until (elder) helps them test their ideas.",
+   "src": "L29468"
+  }
+ }
+}

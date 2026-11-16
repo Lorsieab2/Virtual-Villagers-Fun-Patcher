@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Forgets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea23_apprentice",
+  "source": "draft_hea",
+  "lines": [
+   275,
+   284
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L275",
+  "ledger": [
+   {
+    "src": "L276",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult who is learning healing and a villager who is sick)"
+   },
+   {
+    "src": "L281",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1), only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L281",
+    "kind": "sensitivity",
+    "before": "runs all the way to the senior healer, who says",
+    "after": "runs all the way to (healer), the senior healer, who says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L284",
+    "kind": "sensitivity",
+    "before": "When (name1) tells the senior healer, the healer nods.",
+    "after": "When (name1) tells (healer), the senior healer, (healer.he/she) nods.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A young apprentice healer forgets how many leaves go in a fever tea: admit it and go ask, or make a weak one to be safe.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is learning to be a healer, and today, for the first time, (subject.he/she) has been left alone to make a fever tea for (friend). (subject) has the leaves laid out. (subject.He/she) has the water boiling. (subject.He/she) has absolutely no memory of whether it's three of the bitter leaves or five.",
+   "src": "L278",
+   "choices": [
+    {
+     "label": "Admit It and Go Ask",
+     "next": "o1",
+     "src": "L280"
+    },
+    {
+     "label": "Make a Weak One to Be Safe",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm going to check something,\" says (subject), \"because I'd rather be slow than wrong.\" (subject.He/she) runs all the way to (healer), the senior healer, who says \"Three,\" without looking up. (subject) runs all the way back. (friend), sweating with fever under a blanket, says, \"I heard all of that, you know.\" \"Sorry,\" says (subject). \"No,\" says (friend). \"I'm glad.\"",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L281"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides that fewer is safer, and uses two. The tea is thin and doesn't do much. (friend)'s fever comes down slowly by itself over two days. When (subject) tells (healer), the senior healer, (healer.he/she) nods. \"Three. But when in doubt, less and ask is better than more and guess. You did fine.\" (subject) doesn't feel fine. (subject.He/she) writes \"THREE\" on (subject.his/her) arm for a week.",
+   "src": "L284"
+  }
+ }
+}

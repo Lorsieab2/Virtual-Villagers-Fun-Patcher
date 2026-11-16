@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Toy That Moves by Itself",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz112_toy_moves_itself",
+  "source": "draft_hz2",
+  "lines": [
+   390,
+   400
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L390",
+  "ledger": [
+   {
+    "src": "L391",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Spinning a top, a child wonders whether distant children might have toys that move without anyone pushing them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Spinning a top, (name1), a child, wonders whether distant children might have toys that move without anyone pushing them.",
+   "src": "L391",
+   "choices": [
+    {
+     "label": "Imagine Clever Toys.",
+     "next": "a",
+     "src": "L392"
+    },
+    {
+     "label": "Imagine Simple Toys.",
+     "next": "b",
+     "src": "L395"
+    },
+    {
+     "label": "Try to Build One.",
+     "next": "c",
+     "src": "L398"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine wooden animals that walk on their own and squeal with delight.",
+   "src": "L393"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder sketches tiny wheels and wound cords, and wonders if it could work.",
+   "src": "L394"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests distant children might love tops and string figures just as much.",
+   "src": "L396"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child decides the best toys are the ones you make yourself.",
+   "src": "L397"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A carver builds a little boat that drifts across the lagoon on a sail, and the children call it a toy that moves by itself.",
+   "src": "L399"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The attempt fails, and the children happily play with the pieces.",
+   "src": "L400"
+  }
+ }
+}

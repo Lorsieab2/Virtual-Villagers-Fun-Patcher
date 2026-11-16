@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest Story Circle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy10_forest_story",
+  "source": "anthology",
+  "lines": [
+   28818,
+   28831
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28818",
+  "ledger": [
+   {
+    "src": "L28822",
+    "kind": "sensitivity",
+    "before": "The storyteller",
+    "after": "(storyteller)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28822",
+    "kind": "sensitivity",
+    "before": "the relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28827",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Families gather among old trees to exchange stories.",
+  "label_case": "title",
+  "cast_only": [
+   "storyteller",
+   "relative",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Families gather among old trees to exchange stories.",
+   "src": "L28819",
+   "choices": [
+    {
+     "label": "Tell Funny Family Tales",
+     "next": "a",
+     "src": "L28820"
+    },
+    {
+     "label": "Share Ancient Legends",
+     "next": "b",
+     "src": "L28823"
+    },
+    {
+     "label": "Let Children Lead",
+     "next": "c",
+     "src": "L28826"
+    },
+    {
+     "label": "Invite Visitors to Speak",
+     "next": "d",
+     "src": "L28829"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An embarrassing cooking story makes everyone laugh.",
+   "src": "L28821"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(storyteller) checks that (relative) does not mind.",
+   "src": "L28822"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The listeners are captivated by old mysteries.",
+   "src": "L28824"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Two elders remember different versions and debate amicably.",
+   "src": "L28825"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) invents an outrageous heroic adventure.",
+   "src": "L28827"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children prefer drawing to storytelling.",
+   "src": "L28828"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Guests describe customs unfamiliar to the hosts.",
+   "src": "L28830"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One visitor prefers to listen and is welcomed anyway.",
+   "src": "L28831"
+  }
+ }
+}

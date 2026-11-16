@@ -1,0 +1,246 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parent's Sharp Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam05_parent_sharp",
+  "source": "anthology",
+  "lines": [
+   28360,
+   28373
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28360",
+  "ledger": [
+   {
+    "src": "L28361",
+    "kind": "sensitivity",
+    "before": "to a child who spilled water",
+    "after": "to (child), who spilled water",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28361",
+    "kind": "sensitivity",
+    "before": "An exhausted parent",
+    "after": "(parent), an exhausted parent,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28363",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28364",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28366",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28366",
+    "kind": "sensitivity",
+    "before": "the parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28367",
+    "kind": "sensitivity",
+    "before": "The parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28370",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28370",
+    "kind": "sensitivity",
+    "before": "the parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28372",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28373",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An exhausted parent speaks too harshly to a child who spilled water.",
+  "label_case": "title",
+  "cast_only": [
+   "parent",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(parent), an exhausted parent, speaks too harshly to (child), who spilled water.",
+   "src": "L28361",
+   "choices": [
+    {
+     "label": "Apologize Promptly",
+     "next": "a",
+     "src": "L28362"
+    },
+    {
+     "label": "Explain the Stress Without Excusing the Tone",
+     "next": "b",
+     "src": "L28365"
+    },
+    {
+     "label": "Help Clean Up Together",
+     "next": "c",
+     "src": "L28368"
+    },
+    {
+     "label": "Wait Until Both Are Calm to Discuss It",
+     "next": "d",
+     "src": "L28371"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) relaxes after hearing a sincere apology.",
+   "src": "L28363"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) remains upset and asks for some quiet.",
+   "src": "L28364"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) understands (parent) was tired but still wants gentler words.",
+   "src": "L28366"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(parent) notices the explanation sounded like an excuse and corrects it.",
+   "src": "L28367"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Cleaning together turns into a small joke about the spill.",
+   "src": "L28369"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) stays quiet, and (parent) checks in later.",
+   "src": "L28370"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The delayed apology feels more thoughtful to (child).",
+   "src": "L28372"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) says the apology matters but needs time to feel better.",
+   "src": "L28373"
+  }
+ }
+}

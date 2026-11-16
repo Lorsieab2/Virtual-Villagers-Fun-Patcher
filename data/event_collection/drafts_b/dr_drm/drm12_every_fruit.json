@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Every Fruit on the Island",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm12_every_fruit",
+  "source": "draft_drm",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has tasted every fruit on the island but one, a smelly spiky swamp fruit: eat it, or let one fruit stay a mystery.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Years ago (subject) decided to taste every kind of fruit on Isola. (subject.He/she) has kept count on a string with knots. (subject.He/she) has tasted every kind but one: a lumpy, spiky fruit that grows by the swamp and smells, people agree, like old fish left out in the sun. Today (friend) has found a ripe one and brought it over, holding it at arm's length.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Eat It",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Decide One Fruit Can Stay a Mystery",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) holds (subject.his/her) nose and takes a bite. (subject.He/she) chews. (subject.He/she) stops. An odd look crosses (subject.his/her) face. \"It's... actually delicious,\" (subject.he/she) says. (friend) doesn't believe a word of it and refuses to try. (subject) ties the last knot in the string, and then, after a moment, asks for another piece.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks at the fruit. (subject.He/she) smells it. (subject.He/she) hands it back. \"I think I'll leave one,\" (subject.he/she) says, \"so there's still something to wonder about.\" (friend) is relieved and throws it as far as possible. The string stays one knot short. (subject) seems to like it that way.",
+   "src": "L149"
+  }
+ }
+}

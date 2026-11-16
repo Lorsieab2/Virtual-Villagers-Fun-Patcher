@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Knew?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif41_knew",
+  "source": "draft_lif",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older and another villager)"
+   }
+  ],
+  "description": "A villager who hated gardening when young now has the finest garden: laugh about it, or wonder what else might change.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) hated gardening. Hated it. Dirt, bugs, bending, waiting forever for anything to happen. Today (subject.he/she) is kneeling in (subject.his/her) garden, which is enormous, overflowing and the pride of (subject.his/her) life, and (subject.he/she) has been out here since dawn. (friend) has stopped to admire it.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Laugh About It",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Wonder What Else Might Change",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I used to hate this,\" (subject) says. (friend) doesn't believe (subject.him/her). \"You? You live out here.\" \"I know,\" says (subject). \"If you'd told me at twenty, I'd have thrown a squash at you.\" (subject.He/she) has no idea when it changed. Somewhere in the middle, the waiting started to feel like hope instead of boredom. (subject.He/she) gives (friend) a squash. Not thrown. Handed.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) wonders what else (subject.he/she) is sure about now that will change later. (subject.He/she) hates singing. (subject.He/she) hates early mornings. (subject.He/she) hates goats. Will (subject.he/she) love any of them in twenty years? (subject.He/she) looks at the nearest goat. The goat looks back. \"No,\" says (subject). \"Not you.\" The goat eats a lettuce.",
+   "src": "L485"
+  }
+ }
+}

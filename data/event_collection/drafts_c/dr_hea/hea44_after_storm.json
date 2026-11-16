@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea44_after_storm",
+  "source": "draft_hea",
+  "lines": [
+   527,
+   536
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L527",
+  "ledger": [
+   {
+    "src": "L528",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Days after the storm, a villager still checks the roof ropes at midnight: check them together, or sit up and listen to the wind.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The big storm passed four days ago. Nobody was hurt, and the huts are mostly mended. But (subject) can't stop jumping at every gust of wind, and (subject.he/she) checks the roof ropes every time (subject.he/she) passes, even at night. (subject.He/she) feels foolish. Nothing happened. (friend) finds (subject.him/her) out checking the ropes again at midnight.",
+   "src": "L530",
+   "choices": [
+    {
+     "label": "Check Them Together",
+     "next": "o1",
+     "src": "L532"
+    },
+    {
+     "label": "Sit Up and Listen to the Wind",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) doesn't tell (subject.him/her) to go to bed. (friend.He/she) just checks the ropes too, carefully, one by one. \"All tight,\" (friend.he/she) says. \"All tight,\" says (subject). \"Bodies remember storms,\" says (friend). \"Even when nothing happened. It usually settles down after a while.\" (subject) sleeps better that night. (subject.He/she) checks the ropes in the morning anyway. That's fine too.",
+   "src": "L533"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sits with (subject.him/her) on the step, and they listen to the wind together, ordinary night wind. \"That's just wind,\" says (subject) eventually. \"It is,\" says (friend). They stay a while longer. The jumpiness lasts a week or two, then slowly fades. (subject) still looks up at the clouds more than (subject.he/she) used to. (subject.He/she) might always.",
+   "src": "L536"
+  }
+ }
+}

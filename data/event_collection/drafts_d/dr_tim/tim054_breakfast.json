@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Breakfast Lessons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim054_breakfast",
+  "source": "moments500",
+  "lines": [
+   901,
+   915
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L902",
+  "ledger": [
+   {
+    "src": "L901",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L905",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L906",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L909",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L910",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L913",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L914",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L903",
+    "kind": "sensitivity",
+    "before": "a child how",
+    "after": "(name1), a child, how",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L907",
+    "kind": "sensitivity",
+    "before": "a child how",
+    "after": "(name1), a child, how",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L911",
+    "kind": "sensitivity",
+    "before": "a child how",
+    "after": "(name1), a child, how",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L915",
+    "kind": "sensitivity",
+    "before": "a child how",
+    "after": "(name1), a child, how",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A parent shows a child how to prepare a simple breakfast.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. (Name1) feels useful and hopes someone noticed.",
+   "src": "L903"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. A little shared laughter makes the chore less tedious.",
+   "src": "L907"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. The parent is pleasantly surprised by the offer.",
+   "src": "L911"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A parent shows (name1), a child, how to prepare a simple breakfast. The task takes longer together, but the company is welcome.",
+   "src": "L915"
+  }
+ }
+}

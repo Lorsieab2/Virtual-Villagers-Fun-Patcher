@@ -1,0 +1,157 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Vote",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp69_village_vote",
+  "source": "anthology",
+  "lines": [
+   32336,
+   32350
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32336",
+  "ledger": [
+   {
+    "src": "L32337",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   }
+  ],
+  "description": "The tribe must decide whether a communal clearing should host games or a quiet garden.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The tribe must decide whether a communal clearing should host games or a quiet garden.",
+   "src": "L32338",
+   "choices": [
+    {
+     "label": "Hold a Vote",
+     "next": "a",
+     "src": "L32339"
+    },
+    {
+     "label": "Seek Compromise",
+     "next": "b",
+     "src": "L32342"
+    },
+    {
+     "label": "Hear Minority Concerns",
+     "next": "c",
+     "src": "L32345"
+    },
+    {
+     "label": "Review Later",
+     "next": "d",
+     "src": "L32348"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The result is accepted with clear rules.",
+   "src": "L32340"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A close result leaves some disappointed.",
+   "src": "L32341"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The clearing is scheduled for both uses.",
+   "src": "L32343"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The arrangement proves difficult to maintain.",
+   "src": "L32344"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Caregivers explain why shade matters.",
+   "src": "L32346"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Players explain why open ground matters.",
+   "src": "L32347"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A trial period provides useful evidence.",
+   "src": "L32349"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The council promises a fair reassessment.",
+   "src": "L32350"
+  }
+ }
+}

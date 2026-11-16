@@ -153,7 +153,7 @@ ADDITIONS += [(e, "d", TG, "small", "A detailed herbarium specimen results") for
 # ---- The second pass (owner, 2026-11-15): likes, skills, looks and new villagers where the text fits -------------
 # (event id, node, effect without its src, why).  Preference words are each game's own (in every game of the event);
 # skills are the collection's small size (5..10); appearance "random" is any other head / body row (body = clothes);
-# new_villager / pregnant / nursing / clone / body_swap / lose_name are cie-v6-binary.md 31 (codes 27-32).
+# new_villager / pregnant / nursing / clone / body_swap / lose_name are cie-v6-binary.md 32 (codes 27-34).
 def _skill(role: str, skill: str) -> dict:
     return {"do": "skill", "role": role, "skills": [skill], "min": 5, "max": 10}
 
@@ -350,7 +350,7 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
     lines.insert(10, "")
     lines += ["# Likes, skills, looks and new villagers where the text fits (second pass)", "",
               "The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,",
-              "a new head or clothes, and the new effects of cie-v6-binary.md 31 (new villager, pregnancy, nursing,",
+              "a new head or clothes, and the new effects of cie-v6-binary.md 32 (new villager, pregnancy, nursing,",
               "clone, body swap, lost name), each only where the outcome's own words say it. The table is",
               "`scripts/food_tech_additions.py` EFFECT_ADDITIONS.", "",
               "| Event | Node | Effect | Why (the outcome's text) |", "|---|---|---|---|"]

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher Who Fears Deep Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea01_fisher_fears",
+  "source": "draft_fea",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A skilled fisher who fears the open sea is handed a paddle: tell the truth, or make an excuse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is one of the best fishers in the village. (subject.He/she) is also afraid of deep water. Not the shallows, not the lagoon, but the open sea past the reef, where the water goes dark and you can't see the bottom. Nobody knows. Today the canoes are going out past the reef, and (friend) is holding a paddle out to (subject.him/her).",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Tell (friend) the Truth",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Make an Excuse",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't go past the reef,\" says (subject) quietly. \"I never have. The dark water frightens me.\" (friend) looks surprised, then just nods. \"Then fish the lagoon. You're better at it than any of us anyway.\" (subject) does. Nobody makes anything of it. (subject.He/she) brings home more fish than the canoes.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"My shoulder's sore,\" says (subject). (friend) accepts it and paddles off. (subject) fishes the lagoon all day, and does well, and feels a small twist of something about the excuse. Maybe someday (subject.he/she) will say it plainly. Maybe not. Some things are allowed to stay private.",
+   "src": "L17"
+  }
+ }
+}

@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Will the Child Call Him?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat03_what_will_child",
+  "source": "fathers30",
+  "lines": [
+   54,
+   72
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L54",
+  "ledger": [
+   {
+    "src": "L55",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L56",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L60",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L62",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L63",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L65",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L66",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L68",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L69",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L71",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L72",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L58",
+    "kind": "sensitivity",
+    "before": "An expectant father wonders",
+    "after": "(name1), an expectant father, wonders",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L54",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "An expectant father wonders which name his own child might use for him.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children in the village call out for their parents. (name1), an expectant father, wonders which name his own child might use for him, and whether it matters as much as he thinks.",
+   "src": "L58",
+   "choices": [
+    {
+     "label": "Choose \"Father\"",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Discuss Names with His Partner",
+     "next": "b",
+     "src": "L64"
+    },
+    {
+     "label": "Ask Older Parents",
+     "next": "c",
+     "src": "L67"
+    },
+    {
+     "label": "Leave the Question Open",
+     "next": "d",
+     "src": "L70"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He smiles at how natural the word feels.",
+   "src": "L62"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "He likes the word but wonders how it will sound in a tiny voice.",
+   "src": "L63"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They find a name that feels right to both of them.",
+   "src": "L65"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They disagree affectionately and decide there is no hurry.",
+   "src": "L66"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He hears several family traditions and invents his own.",
+   "src": "L68"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Everyone has an opinion; he decides the choice is his.",
+   "src": "L69"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He feels relieved not to decide everything before birth.",
+   "src": "L71"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The uncertainty bothers him until he tries a name aloud.",
+   "src": "L72"
+  }
+ }
+}

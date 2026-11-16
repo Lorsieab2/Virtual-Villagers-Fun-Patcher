@@ -75,8 +75,13 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
             "lv_med", "lv_life", "lv_circle",    # the Living Event Engine's volumes (data/event_collection/living/)
             "lv_peoples", "lv_unseen", "lv_ways", "lv_auth",
             "hz_world", "hz_vol2",               # Beyond the Horizon (data/event_collection/horizon/)
-            "rm")                                # Role Models and Good Examples (data/event_collection/rolemodels/)
-LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity")
+            "rm",                                # Role Models and Good Examples (data/event_collection/rolemodels/)
+            *lib.DRAFTS_A) \
+    + tuple(v[2] for v in lib.DRAFTS_B.values()) \
+    + tuple(v[2] for v in lib.DRAFTS_C.values()) \
+    + tuple(v[2] for v in lib.DRAFTS_D.values()) \
+    + tuple(lib.ANTHOLOGY_SECTIONS)  # the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
+LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
@@ -106,7 +111,7 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "action": "action", "status": "status", "pay_award": "food", "appearance": "appearance",
                "die_unrecovered": "die_unrecovered", "baby_lost": "baby_lost",
                "birth_then_die": "birth_then_die", "deliver_early": "deliver_early", "old_look": "appearance",
-               "sex_change": "appearance"}
+               "sex_change": "appearance", "presentation": "appearance"}
 
 PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}
@@ -210,7 +215,7 @@ def open_death_roles(g: dict) -> None:
             r["min_age"] = 0
 
 
-# cie-v6-binary.md 31 (the owner, 2026-11-15): a new villager (code 27), a pregnancy (28), a nursing baby (29).
+# cie-v6-binary.md 32 (the owner, 2026-11-15): a new villager (code 27), a pregnancy (28), a nursing baby (29).
 PENDING_EFFECTS = {"new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31, "lose_name": 32,
                    "change_name": 33, "change_age": 34}
 NEW_VILLAGER_AGES = ("child", "teen", "adult", "elder")
@@ -233,7 +238,7 @@ def graph_for_engine(doc: dict) -> dict:
 
     def scrub(x):
         if isinstance(x, dict):
-            for k in ("src", "rarity"):
+            for k in ("src", "rarity", "odds"):
                 x.pop(k, None)
             for v in x.values():
                 scrub(v)
@@ -246,7 +251,7 @@ def graph_for_engine(doc: dict) -> dict:
         for c in n.get("children") or []:
             if isinstance(c, dict):
                 c.pop("weight", None)
-        # Effects the engine does not know yet (new_villager 27, pregnant 28, nursing 29: cie-v6-binary.md 31) are
+        # Effects the engine does not know yet (new_villager 27, pregnant 28, nursing 29: cie-v6-binary.md 32) are
         # checked here (check_effects) and reach the engine once src/vv_cie_graph.py has their codes.
         if n.get("effects"):
             n["effects"] = [e for e in n["effects"]
@@ -262,6 +267,10 @@ def graph_for_engine(doc: dict) -> dict:
     for k in AUTHORING_TOP:
         g.get("collection", {}).pop(k, None)
     scrub(g)
+    # every new event's choice labels in title case (collection_lib), unless the file keeps the owner's case
+    # (collection.label_case "source": a label whose title case would not fit the screen)
+    if (doc.get("collection") or {}).get("label_case") != "source":
+        lib.title_case_graph_labels(g)
     return g
 
 
@@ -579,7 +588,7 @@ def ledger_maps(doc: dict, rep: Report):
         except ValueError as ex:
             rep.add("c COVERAGE", f"{where}: {ex}")
             continue
-        if e["kind"] == "sensitivity":
+        if e["kind"] in ("sensitivity", "casting"):
             # The owner's content rules (2026-11-14): the smallest piece of the owner's words changed, logged for
             # the owner's review.  "before" must be on the one line; "after" replaces it wherever the line shows.
             before, after = e.get("before"), e.get("after")
@@ -634,6 +643,12 @@ def ledger_maps(doc: dict, rep: Report):
             continue
         fixes.setdefault(n, []).insert(0, (slot, f"(bank {slot[1:-1]})"))
     return cuts, whole, fixes
+
+
+def _ph_blind(text: str) -> str:
+    """A label with each placeholder emptied: a token stands for its source group ("(friend.he/she)" for
+    "(he/she)"), so only the words around it are compared for title case."""
+    return re.sub(r"\([^()]*\)", "()", text)
 
 
 def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> None:
@@ -711,7 +726,9 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                 rep.add("b FIDELITY", f"{f.where} ({f.src}): {para.strip()[:90]!r} is not the source text "
                                       f"{span.text[:160]!r}")
                 continue
-            if titled and para.strip() != lib.title_case_label(m.group(0)):
+            # (a game word "{@Chief}" is compared as the source word it stands for, in the case it is written)
+            as_words = re.sub(r"\{@(\w+)\}", lambda w: w.group(1), para.strip())
+            if titled and _ph_blind(as_words) != _ph_blind(lib.title_case_label(m.group(0))):
                 # collection_lib.title_case_label: the owner's words, only their case changed
                 rep.add("b FIDELITY", f"{f.where}: {para.strip()!r} is not the title case of the source's "
                                       f"{m.group(0)!r} ({lib.title_case_label(m.group(0))!r})")
@@ -1064,7 +1081,15 @@ def check_effects(doc: dict, rep: Report) -> None:
             elif do in ("clone", "lose_name", "body_swap", "change_name", "change_age"):
                 roles = doc.get("roles", {})
                 keys = {"do", "role", "src"} | ({"with"} if do == "body_swap" else set()) | \
-                    ({"to", "years"} if do == "change_age" else set())
+                    ({"to", "years"} if do == "change_age" else set()) | ({"name"} if do == "change_name" else set()) | \
+                    ({"count"} if do == "clone" else set())
+                if do == "clone" and "count" in e and (e["count"] not in (1, 2) or isinstance(e["count"], bool)):
+                    rep.add("e EFFECTS", f"{where}: clone count is 1 or 2")
+                if do == "change_name" and "name" in e and not (
+                        isinstance(e["name"], str) and re.fullmatch(r"[A-Za-z](?:[A-Za-z '.-]{0,29}[A-Za-z'.-])?",
+                                                                    e["name"])):
+                    rep.add("e EFFECTS", f"{where}: change_name name is 1-31 characters, a letter first, then "
+                                         "letters, spaces, apostrophes, hyphens or full stops, no trailing space")
                 if do == "change_age" and ("to" in e) == ("years" in e):
                     rep.add("e EFFECTS", f"{where}: change_age gives to or years, one of them")
                 if set(e) - keys:
@@ -1199,6 +1224,10 @@ def weighted_set(where: str, kids: list[dict], rep: Report) -> None:
             rep.add("h CHANCES", f"{where}: rarity {r!r} is not one of occasional, rare, very_rare, exceptionally_rare")
             return
     ws = [k.get("weight", 1) for k in kids]
+    if all(k.get("odds") for k in kids):
+        # the source's own odds ("(About 6 in 10)"; the rulebook: the text's own odds win), each child's "odds"
+        # naming them: its weight is out of the split's total
+        return
     if any(rar):
         for k, r, w in zip(kids, rar, ws):
             if w != RARITY_WEIGHTS[r]:
@@ -1488,7 +1517,9 @@ def collection_files() -> list[Path]:
     same under horizon/ and rolemodels/."""
     return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
-                  + list(lib.ROLEMODELS_DIR.glob("*/*.json")))
+                  + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
+                  + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
+                  + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:
@@ -1497,7 +1528,7 @@ def ledger_summary(doc: dict) -> list[str]:
     for f in doc.get("grammar_fixes", []) or []:
         out.append(f"  grammar {f['src']}: {f['before']!r} -> {f['after']!r}")
     for e in col.get("ledger", []) or []:
-        if e.get("kind") == "sensitivity":
+        if e.get("kind") in ("sensitivity", "casting"):
             out.append(f"  sensitivity {e['src']}: {e.get('before')!r} -> {e.get('after')!r} -- {e.get('why')}")
     for nid, n in doc.get("nodes", {}).items():
         for t in n.get("text_only", []) or []:

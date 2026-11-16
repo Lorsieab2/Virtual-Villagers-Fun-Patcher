@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island (name1) Never Reached",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm21_island_never",
+  "source": "draft_drm",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder who once planned to paddle to the hazy far island is asked if they wish they had gone: say yes, or say you're not sure.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) planned to paddle out to the hazy island you can just see on the clearest days. (subject.He/she) talked about it all the time. (subject.He/she) never went. There was always work, or weather, or someone who needed (subject.him/her). Today (friend) asks, \"Do you wish you'd gone?\"",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Say Yes",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Say You're Not Sure",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Yes,\" says (subject). \"Some days. Not most days.\" (subject.He/she) looks at the haze on the horizon. \"I think it would have been beautiful. I think I'd have liked it. And I think I had a good life here instead.\" (friend) waits for the sad part. There isn't one. (subject) seems perfectly at peace with both halves.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I don't know,\" says (subject). \"Maybe it's better as an island I never reached. If I'd gone, it would just be a place. This way it's still the island.\" (friend) doesn't quite follow. (subject) laughs. \"You will, when you're older. Or you won't. Either's fine.\"",
+   "src": "L257"
+  }
+ }
+}

@@ -1529,6 +1529,26 @@ child walks to the beach at the water and bends over in the sand. In A New
 Home the Golden Child keeps his own choices but joins a game of tag. On by
 default. Needs no other patch. Not yet seen in a running game.
 
+CHANGE SEX AND GENDER PRESENTATION (ALL FIVE GAMES)
+
+Adds two choices to Change Appearance (the Origins upgrades' per-villager
+window):
+- Change sex...: the sex the game keeps for the villager changes at once,
+  after a warning (the same head and body rows; a carrying parent goes on
+  carrying). Everything the patcher keeps for the villager follows them.
+- Gender presentation: use the other sex's look: the villager keeps the sex
+  the game records and is drawn with the other sex's heads and bodies (the
+  same rows) everywhere the game draws villagers. The preview shows it at
+  once; OK keeps it (free); Cancel and Undo changes do not.
+Neither is offered for the Golden Child, and story villagers keep the game's
+own look. Only villagers born female carry: one born female who changes to
+male goes on carrying; one born male never conceives on their own, but a
+Custom Island Event can still give them a baby with a partner you choose. The choice is kept in the save's own Gender Presentation file and
+follows the villager; Start Over clears it. On in Owner's Defaults only (off
+in the normal defaults and in Select All). Runs on the Origins-exclusive
+base, which the patcher installs automatically with it. Not yet seen in a
+running game.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

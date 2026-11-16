@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Once-a-Year Haircut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il074_once_year",
+  "source": "da_il04",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who cuts their hair once a year asks a friend who has never cut hair to do it this time.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) cuts (subject.his/her) hair once a year, on the same day, and not one day sooner. Today is the day. Usually (subject.he/she) does it (subject.him/her)self with a sharp shell, but this year (subject.he/she) asks (friend) to do it. (friend) has never cut anyone's hair. (friend) agrees anyway.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Trust (friend) Completely",
+     "next": "a",
+     "src": "L169"
+    },
+    {
+     "label": "Give Careful Instructions",
+     "next": "b",
+     "src": "L172"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) works slowly and with tremendous concentration, tongue sticking out. When (friend.he/she) finishes, one side is definitely shorter than the other. (subject) looks at (subject.his/her) reflection in the water for a long time. \"I like it,\" (subject.he/she) decides, and means it. It will all grow out by next year anyway.",
+   "src": "L170"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) explains exactly what (subject.he/she) wants, in great detail, with drawings in the sand. (friend) follows every instruction. The haircut is exactly the same as every other year. (subject) is perfectly happy. (friend) is a little disappointed (friend.he/she) didn't get to be more creative.",
+   "src": "L173"
+  }
+ }
+}

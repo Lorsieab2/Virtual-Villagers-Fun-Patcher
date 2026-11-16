@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Famous Last Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il022_famous_words",
+  "source": "da_il02",
+  "lines": [
+   193,
+   207
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L193",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L207",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager announces there is nothing to worry about, then demonstrates an elaborate way of stacking coconuts.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "\"I have absolutely nothing to worry about,\" (subject) announces confidently. \"I've done this a hundred times.\" (subject.He/She) is about to demonstrate an elaborate method of stacking coconuts. (friend) watches with considerable interest.",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Proceed with the Demonstration",
+     "next": "a",
+     "src": "L199"
+    },
+    {
+     "label": "Reconsider the Arrangement",
+     "next": "b",
+     "src": "L203"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The first coconut balances perfectly. So does the second. The third rolls away, strikes a basket, and sends six more coconuts tumbling across the ground. (subject) watches the disaster unfold. \"A hundred and one times,\" (subject.he/she) corrects.",
+   "src": "L201"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) studies the coconuts and decides the stack needs a wider base. The demonstration proceeds without incident. (friend) looks faintly disappointed. \"I thought something exciting was going to happen.\" \"So did I,\" admits (subject).",
+   "src": "L205"
+  }
+ }
+}

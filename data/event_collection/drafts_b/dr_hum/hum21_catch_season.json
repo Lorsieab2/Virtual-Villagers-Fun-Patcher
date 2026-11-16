@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Catch of the Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum21_catch_season",
+  "source": "draft_hum",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager fights a heavy catch from the rocks in front of a crowd: hold it up for the crowd, or say it got away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) is fishing from the rocks when (his/her) line goes tight. Very tight. Something down there is heavy, and it is not giving up. A crowd gathers. After a long and heroic struggle, (name1) hauls the catch out of the water: (his/her) own sandal, lost off the canoe last year, full of seaweed.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Hold It Up for the Crowd",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Say It Got Away",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) holds the sandal high. The crowd cheers as if it were the biggest fish of the season. (name1) washes it, dries it, and puts it back on. It fits better than it ever did. (He/she) now owns two sandals again, which, (he/she) points out, is more than most fishers catch in a day.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) drops the sandal quickly back into the water and says, \"It got away. It was enormous.\" The crowd saw everything. Everyone agrees, very seriously, that it was enormous. From then on, every big fish story in the village ends with someone saying, \"...about the size of a sandal, then?\"",
+   "src": "L257"
+  }
+ }
+}

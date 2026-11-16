@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ear Trumpet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea36_ear_trumpet",
+  "source": "draft_hea",
+  "lines": [
+   431,
+   440
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L431",
+  "ledger": [
+   {
+    "src": "L432",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a healer or elder)"
+   }
+  ],
+  "description": "A healer carves an elder who is hard of hearing an ear trumpet from a shell: try it on, or thank them but say no.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been growing hard of hearing for years. (friend) has carved (subject.him/her) a beautiful ear trumpet from a big spiral shell, polished smooth, with a little woven strap. \"It won't give you back everything,\" (friend) says. \"But it might help with conversations.\" (subject) turns it over in (subject.his/her) hands.",
+   "src": "L434",
+   "choices": [
+    {
+     "label": "Try It On",
+     "next": "o1",
+     "src": "L436"
+    },
+    {
+     "label": "Thank (friend), but No",
+     "next": "o2",
+     "src": "L439"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) holds it to (subject.his/her) ear. Suddenly there are birds. Lots of birds. Very loud birds. And the children, oh, the children are so LOUD. (subject.He/she) uses it at meals, to hear the stories, and puts it down the rest of the time. \"It's lovely,\" (subject.he/she) tells (friend). \"I'll use it when I want to hear. Which is not always.\" (friend) thinks that's a perfectly good way to use it.",
+   "src": "L437"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's beautiful,\" says (subject). \"But I've got used to the quiet. I like it. People who want to talk to me lean in and talk properly.\" (friend) isn't hurt. \"Then keep it as an ornament,\" (friend.he/she) says. (subject) hangs it by the door. Nobody ever tries to persuade (subject.him/her) otherwise. People just lean in.",
+   "src": "L440"
+  }
+ }
+}

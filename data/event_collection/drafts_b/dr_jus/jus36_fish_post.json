@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish on the Post",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus36_fish_post",
+  "source": "draft_jus",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-12 and an adult)"
+   }
+  ],
+  "description": "A child carved a little fish into the big carved post at the meeting place: sand it smooth together, or offer proper lessons.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone has carved a little fish into the big carved post at the meeting place, right at child height. It's quite a good fish. The carvers are not pleased. (subject) has a small knife and a very guilty face. (friend), one of the carvers, has found (subject.him/her).",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Sand It Smooth Together",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Offer Proper Lessons",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) shows (subject) how to rub the fish away with a smooth stone until the wood is even again. It takes all afternoon. At the end, (friend) hands (subject.him/her) a small block of wood. \"Carve on this. As many fish as you like.\" (subject) carves twelve. Some of them are very good.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) looks at the fish for a long while. Then (friend.he/she) explains that the post belongs to the whole village, not to one carver, but that the fish is good, and that (subject) can learn to carve properly if (subject.he/she) wants. (subject) starts lessons the next day. After a lot of discussion, the carvers decide the little fish can stay, since rubbing it out would leave a worse mark.",
+   "src": "L437"
+  }
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Inherited Bow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm22_inherited_bow",
+  "source": "openq97",
+  "lines": [
+   591,
+   593
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L592",
+  "ledger": [
+   {
+    "src": "L591",
+    "kind": "structural",
+    "text": "[M22]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L593",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L591",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(Name1), an apprentice,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An apprentice carefully wraps an inherited bow for storage.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), an apprentice, carefully wraps an inherited bow for storage. (Name1) tucks a soft leaf beneath the bowstring. The wrapping is tied loosely enough to remove later.",
+   "src": "L591,L593"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Purple Mouths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum28_purple_mouths",
+  "source": "draft_hum",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L341",
+    "kind": "sensitivity",
+    "before": "The healer examines everyone",
+    "after": "(healer), the healer, examines everyone",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager cooked the stew in the berry dye pot and every mouth is purple: say something, or say nothing and hope it fades.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) made the stew tonight, in the big pot by the door, and it was wonderful; everyone had two bowls. Only afterward, when (friend) smiles at (subject.him/her) across the fire, does (subject) realize what the pot by the door is: the dyers' pot for the purple berry dye. The dye is only berries and perfectly harmless. But everybody's mouth is purple. Everybody's teeth are purple. Very, very purple.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Say Something",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Say Nothing and Hope It Fades",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands and confesses. A long pause. Then the whole village smiles at one another, showing purple teeth, and nobody can stop laughing. The color lasts three days. A visitor from another village assumes it must be some sort of festival, so the village decides that it is one.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The next morning the village wakes up, sees each other, and panics a little. (healer), the healer, examines everyone and finds them all perfectly healthy and extremely purple. Then the dyers find their pot. All eyes turn to (subject), whose teeth are the most purple of all. \"...It was a very good stew, though,\" says somebody, and that seems to settle it.",
+   "src": "L341"
+  }
+ }
+}

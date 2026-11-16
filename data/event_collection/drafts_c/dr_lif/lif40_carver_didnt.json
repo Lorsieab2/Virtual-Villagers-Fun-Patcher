@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carver (name1) Didn't Become",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif40_carver_didnt",
+  "source": "draft_lif",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older and a young carver or another adult)"
+   }
+  ],
+  "description": "A villager who never became the best carver watches a young carver do better: say it is beautiful, or walk away for a while.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) wanted more than anything to be the best carver on Isola. (subject.He/she) practiced for years. (subject.He/she) was good. Never the best. Today (subject.he/she) is watching (friend), a young carver, finish a piece that is better than anything (subject) ever made. (subject.He/she) feels a sharp little sting, even after all these years.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Tell (friend) It's Beautiful",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Walk Away for a While",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) it's beautiful, and means it, even with the sting. (friend) beams. \"Did you carve too?\" asks (friend). \"I did,\" says (subject). \"Not like that.\" (subject.He/she) shows (friend) an old piece of (subject.his/her) own. (friend) studies it seriously and says it has something (friend.his/her) own doesn't. (subject) isn't sure that's true, but it's kind. The sting is still there. That's alright.",
+   "src": "L470"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks away, out to the beach, and lets (subject.him/her)self feel it: the old wanting, the disappointment, the little bit of jealousy. (subject.He/she) doesn't pretend it's not there. After a while, it settles. (subject.He/she) still carves, sometimes, for fun. (subject.He/she) goes home and carves something small and silly. It's not the best. (subject.He/she) likes it.",
+   "src": "L473"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L470",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  },
+  {
+   "src": "L470",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rainbow Over the Hill",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim159_rainbow_over",
+  "source": "draft_tim2",
+  "lines": [
+   240,
+   245
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L240",
+  "ledger": [
+   {
+    "src": "L241",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L242",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L243",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L244",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L245",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A rainbow appears over the hill after a brief shower.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A rainbow appears over the hill after a brief shower. Children run toward it, hoping to reach the end.",
+   "src": "L241,L242"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A rainbow appears over the hill after a brief shower. (name1) counts the colors and gets a different number each time.",
+   "src": "L241,L243"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A rainbow appears over the hill after a brief shower. A second, fainter rainbow appears above the first, and the village gasps.",
+   "src": "L241,L244"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A rainbow appears over the hill after a brief shower. It fades slowly, and everyone returns to work in a brighter mood.",
+   "src": "L241,L245"
+  }
+ }
+}

@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Moth That Size Doing on the Door?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd36_what_moth_size",
+  "source": "da_wd",
+  "lines": [
+   422,
+   431
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L422",
+  "ledger": [
+   {
+    "src": "L423",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A pale green moth the size of a hand sits on a villager's doorframe: admire it, or go in very carefully.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a moth on (name1)'s doorframe. It is the size of (his/her) hand. It has huge pale green wings with long trailing tails and two big spots that look like eyes. It is completely still. It is very, very beautiful. It is also very, very large, and it is right next to where (name1) needs to put (his/her) hand to go inside.",
+   "src": "L425",
+   "choices": [
+    {
+     "label": "Admire It",
+     "next": "a",
+     "src": "L427"
+    },
+    {
+     "label": "Go in Very Carefully",
+     "next": "b",
+     "src": "L430"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) forgets all about going inside and calls everyone over. They stand in a little crowd, whispering, while the moth sits there, opening and closing its wings very slowly, like it knows it's being admired. When darkness falls, it lifts off and floats away into the trees. (name1) feels lucky to have seen it.",
+   "src": "L428"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) edges through the door sideways, holding (his/her) breath, not touching the frame. The moth doesn't move. (name1) gets inside, lets out a breath, and laughs at (him/her)self. Every time (he/she) goes in or out that day, (he/she) does the same careful sideways shuffle, even after the moth has gone.",
+   "src": "L431"
+  }
+ }
+}

@@ -1,0 +1,324 @@
+FAM2-01
+DESC: A villager turns from their partner's kiss and admits they like hugs much more: ask what they like, or take a moment.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+REVIEW: ok (the partners are cast as recorded partners where the game records them)
+
+FAM2-02
+DESC: At a wedding feast, an elder asks a happily single villager when it will be their turn: answer plainly, or change the subject.
+ROLES: name1=18+ name2=55+
+REVIEW: ok
+
+FAM2-03
+DESC: A villager who never wanted children is the favorite relative of two little ones for an afternoon: an adventure, or the pelican.
+ROLES: name1=18+ name2=4-10 name3=4-10
+REL: name1=aunt_or_uncle_of:name2
+FIX S: 2=1
+REVIEW: ok (the relative is cast as a recorded aunt or uncle where the game records one)
+
+FAM2-04
+DESC: A couple each thought it was the other's turn to trade for fish, and there is no dinner: keep arguing, or laugh it off.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+REVIEW: ok
+
+FAM2-05
+DESC: A couple who snore and kick have not slept in weeks, and one strings up a second hammock: try it, or try earplugs first.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+REVIEW: ok
+
+FAM2-06
+DESC: An elder raising two lively grandchildren has one in the stream and one eating something blue: ask a neighbor, or manage it all.
+ROLES: name1=55+ name2=5-12 name3=5-12
+REL: name2=grandchild_of:name1 name3=grandchild_of:name1
+FIX S: 2=1 3=1
+FIX O1: 1=1 2=1
+FIX O2: 1=1 2=1 3=1
+FIG: n=neighbor:18+
+EDIT O1: "asks the neighbor to watch" => "asks [n], a neighbor, to watch"
+EDIT O1: "The neighbor is happy to." => "[n] is happy to."
+EDIT O1: "says the neighbor." => "says [n]."
+REVIEW: ok (the grandchildren are cast as recorded grandchildren where the game records them)
+
+FAM2-07
+DESC: Two grown siblings sit together without talking, and someone asks if they have fallen out: explain, or just laugh.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+FIG: v=villager:18+
+EDIT S: "A villager who doesn't know them very well asks" => "[v], a villager who doesn't know them very well, asks"
+EDIT O1: "The villager looks confused." => "[v] looks confused."
+EDIT O1: "The villager goes away" => "[v] goes away"
+EDIT O2: "The villager looks alarmed." => "[v] looks alarmed."
+REVIEW: ok
+
+FAM2-08
+DESC: A widowed elder keeps their late partner's flower garden, and a younger villager offers to take it over: accept help, or keep it.
+ROLES: name1=55+ name2=18+
+FIX L2: 1=1
+REVIEW: ok (the late partner is story only: no game records a dead partner as one, so any elder is cast; text unchanged)
+
+FAM2-09
+DESC: A villager courting with a fish on the doorstep every morning learns the one they like does not eat fish: laugh, or ask what else.
+ROLES: name1=18+ name2=18+
+FIX S: 1=1
+REVIEW: ok
+
+FAM2-10
+DESC: An elder asks a couple who want no children when they will start a family: say we are a family, or change the subject.
+ROLES: name1=18+ name2=18+ name3=55+
+REL: name2=spouse_of:name1
+REVIEW: ok
+
+FAM2-11
+DESC: Two teens who are more than friends stand by the festival dancing, hands nearly touching: take the other's hand, or wait.
+ROLES: name1=14-17 name2=14-17~2
+REVIEW: ok (teens only, within two years of each other)
+
+FAM2-12
+DESC: A child offers a friend flowers and learns they like frogs better: go and find a frog, or keep the flowers.
+ROLES: name1=6-10 name2=6-10
+FIX S: 1=1
+REVIEW: ok
+
+FAM2-13
+DESC: Two former partners arrive at their old fishing spot at the same moment: share the spot, or find a new one.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+REVIEW: ok (the former partners are cast as recorded co-parents where the game records them)
+
+FAM2-14
+DESC: A villager's new partner picks up the bowl that belonged to their first partner: ask about it, or put it back without a word.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+FIX O1: 3=1
+REVIEW: ok
+
+FAM2-15
+DESC: A villager's sibling next door walks in without knocking and borrows everything: set a rule, or give up and enjoy it.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+REVIEW: ok
+
+FAM2-16
+DESC: At an elder relative's crowded birthday dinner, a villager cannot hear themselves think: slip outside, or find a quiet corner.
+ROLES: name1=18+ name2=55+
+REL: name2=parent_of:name1
+REVIEW: ok
+
+FAM2-17
+DESC: A child has decided an unrelated elder is now their grandparent: go along with it, or gently say no.
+ROLES: name1=55+ name2=5-11
+FIX S: 1=2 2=1
+FIX O2: 2=1
+REVIEW: ok
+
+FAM2-18
+DESC: A single parent juggles a fussing baby and a lost sandal when a neighbor walks past: accept the help, or manage alone.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1 2=1 3=1
+REVIEW: ok (the baby and the older child are story only; no role is cast for them)
+
+FAM2-19
+DESC: A villager's cousin comes for dinner every single evening, and the food is running out: say something, or make more.
+ROLES: name1=18+ name2=18+
+REL: name2=cousin_of:name1
+REVIEW: ok
+
+FAM2-20
+DESC: After a hard day, a villager's partner wraps them in a hug, but they need space: say so, or put up with it.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+FIX O1: 4=1
+FIX O2: 1=1
+REVIEW: ok
+
+FAM2-21
+DESC: Two elder friends, both lonely, wonder about sharing one hut as friends: say yes, or say no but visit every day.
+ROLES: name1=55+ name2=55+
+REVIEW: ok
+
+FAM2-22
+DESC: A relative is planning a joining ceremony for a couple who do not want one: say no firmly, or agree to a tiny party.
+ROLES: name1=18+ name2=18+ name3=55+
+REL: name2=spouse_of:name1 name3=parent_of:name1
+REVIEW: ok
+
+FAM2-23
+DESC: Two siblings who look alike are always called the two: speak up, or let it go this time.
+ROLES: name1=8-17 name2=8-17
+REL: name2=sibling_of:name1
+FIX O2: 5=1 6=1 7=1 8=1
+REVIEW: ok
+
+FAM2-24
+DESC: A villager's new partner's child says they are not their parent: give the child space, or sit outside too.
+ROLES: name1=18+ name2=6-12
+FIX S: 3=2 4=2
+REVIEW: ok (the partner is story only, so no relation is cast; text unchanged)
+
+FAM2-25
+DESC: An elder finds a bark note from their partner in the fishing bag: write one back, or keep it close.
+ROLES: name1=55+ name2=55+
+REL: name2=spouse_of:name1
+REVIEW: ok
+
+FAM2-26
+DESC: A villager feels a little jealous as their partner laughs all evening with a friend: say something later, or join in.
+ROLES: name1=18+ name2=18+ name3=18+
+REL: name2=spouse_of:name1
+FIX S: 1=1 2=1
+FIX O1: 1=1
+REVIEW: ok
+
+FAM2-27
+DESC: A villager walks the beach alone every evening, and their partner starts to worry: ask gently, or let them go.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+FIX O1: 2=1
+FIX L2: 1=1
+FIX O2: 2=1
+REVIEW: ok
+
+FAM2-28
+DESC: Two teen sweethearts both say at the same moment that they should just be friends: laugh with relief, or be sad about it.
+ROLES: name1=14-17 name2=14-17~2
+REVIEW: ok (teens only, within two years of each other)
+
+FAM2-29
+DESC: Two elder friends hold hands on the way to the beach, and a young villager asks if they are sweethearts: laugh, or answer.
+ROLES: name1=55+ name2=55+ name3=6-17
+REVIEW: ok
+
+FAM2-30
+DESC: A friend asks to be more than friends, but the villager does not feel romance for anyone: explain, or ask for time.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+FAM2-31
+DESC: A villager with no partner tells a close friend they would like to raise a child: the friend says it is not strange, or asks more.
+ROLES: name1=18+ name2=18+
+FIX L2: 1=1
+REVIEW: FLAG casting line picks one adult; name2 is the close friend throughout, cast as 18+.
+
+FAM2-32
+DESC: An elder teaches an impatient grandchild to fish at the same old spot: teach patience, or let them do it their way.
+ROLES: name1=55+ name2=6-12
+REL: name2=grandchild_of:name1
+FIX S: 2=1
+REVIEW: ok
+
+FAM2-33
+DESC: A parent helping a young villager build their own hut keeps finding one more rope to tie: notice, or let them keep helping.
+ROLES: name1=18-25 name2=35+
+REL: name2=parent_of:name1
+REVIEW: ok
+
+FAM2-34
+DESC: A child's sibling wins their morning race to the beach every single time: the sibling lets them win, or they find a new game.
+ROLES: name1=8-14 name2=8-14
+REL: name2=sibling_of:name1
+REVIEW: ok
+
+FAM2-35
+DESC: Two cousins making stew for a feast each insist their recipe is the real one: make two pots, or mix the two.
+ROLES: name1=18+ name2=18+
+REL: name2=cousin_of:name1
+REVIEW: ok
+
+FAM2-36
+DESC: A newcomer is worried by a couple who have bickered happily for years: a neighbor explains, or the newcomer asks them.
+ROLES: name1=18+ name2=18+ name3=18+
+REL: name2=spouse_of:name1
+FIG: n=neighbor:18+
+EDIT S: "whispers to a neighbor" => "whispers to [n], a neighbor"
+EDIT L1: "The Neighbor Explains:" => "[n] Explains:"
+EDIT O1: "says the neighbor." => "says [n]."
+REVIEW: ok
+
+FAM2-37
+DESC: Two children have arranged a surprise picnic to pair up two single villagers: enjoy it as friends, or ask the children to stop.
+ROLES: name1=18+ name2=18+ name3=6-11 name4=6-11
+REVIEW: ok
+
+FAM2-38
+DESC: A child has finally had enough of an adult relative's terrible jokes: tell a worse one, or challenge the child to tell one.
+ROLES: name1=18+ name2=6-13
+REL: name1=parent_of:name2
+REVIEW: ok (the relative is cast as a recorded parent where the game records one)
+
+FAM2-39
+DESC: Two parents moving into separate huts tell their child, who asks if it is because of them: both answer, or let the child ask.
+ROLES: name1=18+ name2=18+ name3=6-13
+REL: name2=spouse_of:name1 name3=child_of:name1
+REVIEW: ok
+
+FAM2-40
+DESC: A tired parent is up for the third night feed when their partner stirs: the partner gets up too, or the parent lets them sleep.
+ROLES: name1=18+/nursing name2=18+
+REL: name2=spouse_of:name1
+FIX O1: 1=1 2=1 3=2
+REVIEW: ok (name1 is the game's nursing parent; the partner is cast as a recorded partner where the game records one)
+
+FAM2-41
+DESC: A villager courting with a crab in a basket watches it escape at the door: chase it together, or let it go.
+ROLES: name1=18+ name2=18+
+FIX S: 1=1 2=1
+REVIEW: ok
+
+FAM2-42
+DESC: A villager who loves living alone feels a small loneliness tonight and lets it pass through, lonely and happy at once.
+ROLES: name1=18+
+REVIEW: ok
+
+FAM2-43
+DESC: An elder relative asks a happily single villager, again, when they will settle down: say how happy they are, or say maybe someday.
+ROLES: name1=18+ name2=55+
+REL: name2=parent_of:name1
+FIX O2: 1=1
+REVIEW: ok
+
+FAM2-44
+DESC: A grown sibling challenges a villager to race to the rock like when they were little: race, or just sit and remember.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+REVIEW: ok
+
+FAM2-45
+DESC: Two grandparents both want to be the favorite of one little grandchild: let the child choose, or notice what they are doing.
+ROLES: name1=55+ name2=55+ name3=3-9
+REL: name1=grandparent_of:name3 name2=grandparent_of:name3
+FIX S: 2=3
+REVIEW: ok
+
+FAM2-46
+DESC: A villager tells their partner I love you for the first time and freezes: the partner says it back, or is not ready yet.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+FIX O2: 3=1
+REVIEW: ok
+
+FAM2-47
+DESC: A small child asks the elder everyone calls aunt or uncle why they have no children: answer simply, or turn it into a story.
+ROLES: name1=55+ name2=4-10
+REVIEW: ok
+
+FAM2-48
+DESC: An adopted child asks why others say they are not really their parent's child: tell the truth simply, or ask how they feel.
+ROLES: name1=18+ name2=5-12
+FIX S: 1=2 3=2
+FIX L1: 1=2
+FIX L2: 1=2
+REVIEW: ok (adoption is story only, as the casting line says)
+
+FAM2-49
+DESC: A little child leaps at their favorite grown-up, who has a sore back and a basket of eggs: ask for a high five, or brace.
+ROLES: name1=18+ name2=4-10
+FIX S: 1=2 2=2 3=1 4=1 5=1 6=1
+FIX O2: 2=1
+REVIEW: ok
+
+FAM2-50
+DESC: Around an elder's crowded fire sit everyone who lives in the hut, however they are connected, and it is a family.
+ROLES: name1=55+
+REVIEW: ok (who shares a hut is story only)

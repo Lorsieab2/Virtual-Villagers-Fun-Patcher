@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tiny Gap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage01_tiny_gap",
+  "source": "anthology",
+  "lines": [
+   30125,
+   30139
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30125",
+  "ledger": [
+   {
+    "src": "L30126",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30129",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30129",
+    "kind": "sensitivity",
+    "before": "an adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30130",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30132",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30132",
+    "kind": "sensitivity",
+    "before": "an adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30136",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30138",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30139",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An important carved counting token slips beneath a narrow storage platform where adults cannot see it.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An important carved counting token slips beneath a narrow storage platform where adults cannot see it.",
+   "src": "L30127",
+   "choices": [
+    {
+     "label": "Ask a Small Child to Look from a Safe Distance",
+     "next": "a",
+     "src": "L30128"
+    },
+    {
+     "label": "Invite Children to Devise a Retrieval Tool",
+     "next": "b",
+     "src": "L30131"
+    },
+    {
+     "label": "Move the Platform Together",
+     "next": "c",
+     "src": "L30134"
+    },
+    {
+     "label": "Treat the Loss as a Lesson",
+     "next": "d",
+     "src": "L30137"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) spots the token wedged beside a pebble and directs (adult) to it.",
+   "src": "L30129"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) notices a second missing token, revealing that the inventory was miscounted.",
+   "src": "L30130"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) fashions a slender reed hook and (adult) retrieves the token.",
+   "src": "L30132"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their first hook bends, and the children redesign it with a sturdier twig.",
+   "src": "L30133"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children identify which baskets must be shifted before adults lift the platform safely.",
+   "src": "L30135"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The platform is too heavy; (child) suggests accessing it from the other side instead.",
+   "src": "L30136"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) draws a map of the gap so the next search takes minutes.",
+   "src": "L30138"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) proposes a covered token tray, preventing a repeat mishap.",
+   "src": "L30139"
+  }
+ }
+}

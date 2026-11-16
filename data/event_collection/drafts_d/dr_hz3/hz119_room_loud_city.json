@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Room in the Loud City",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz119_room_loud_city",
+  "source": "draft_hz2",
+  "lines": [
+   474,
+   484
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L474",
+  "ledger": [
+   {
+    "src": "L475",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Seeking a moment alone, a villager wonders whether people in crowded places have anywhere to be quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Seeking a moment alone, (name1) wonders whether people in crowded places have anywhere to be quiet.",
+   "src": "L475",
+   "choices": [
+    {
+     "label": "Imagine No Quiet at All.",
+     "next": "a",
+     "src": "L476"
+    },
+    {
+     "label": "Imagine Hidden Quiet Places.",
+     "next": "b",
+     "src": "L479"
+    },
+    {
+     "label": "Find Quiet on Isola.",
+     "next": "c",
+     "src": "L482"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager finds the idea exhausting.",
+   "src": "L477"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A teenager thinks it sounds exciting.",
+   "src": "L478"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder imagines small gardens or rooms where people go to rest their minds.",
+   "src": "L480"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar suggests that quiet might be precious there, like fresh water in a dry season.",
+   "src": "L481"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager walks to the far beach and enjoys the silence.",
+   "src": "L483"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A friend follows to chat, and the villager kindly asks for some time alone.",
+   "src": "L484"
+  }
+ }
+}

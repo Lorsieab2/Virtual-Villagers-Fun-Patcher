@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Letter on Parchment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim081_letter",
+  "source": "moments500",
+  "lines": [
+   1357,
+   1371
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1358",
+  "ledger": [
+   {
+    "src": "L1357",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1361",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1362",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1365",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1366",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1369",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1370",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "A villager smooths a piece of parchment for a short letter.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1) smooths a piece of parchment for a short letter. A smudged line requires a patient correction.",
+   "src": "L1359"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1) smooths a piece of parchment for a short letter. (Name1) worries the words sound awkward but sends them anyway.",
+   "src": "L1363"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1) smooths a piece of parchment for a short letter. The reader smiles at a tiny drawing in the margin.",
+   "src": "L1367"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1) smooths a piece of parchment for a short letter. Someone pauses to remember the exact wording.",
+   "src": "L1371"
+  }
+ }
+}

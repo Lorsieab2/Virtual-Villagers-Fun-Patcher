@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Makes Us Human?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat29_what_makes_us",
+  "source": "fathers30",
+  "lines": [
+   602,
+   620
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L602",
+  "ledger": [
+   {
+    "src": "L603",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L604",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L608",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L610",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L611",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L613",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L614",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L616",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L617",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L619",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L620",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "After a long day of work, two villagers sit beside the shore watching the fireflies.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a long day of work, two villagers sit beside the shore watching the fireflies. One asks what makes people human: their ability to reason, their love for one another, their mistakes, or something else entirely.",
+   "src": "L606",
+   "choices": [
+    {
+     "label": "Speak About Curiosity",
+     "next": "a",
+     "src": "L609"
+    },
+    {
+     "label": "Speak About Kindness",
+     "next": "b",
+     "src": "L612"
+    },
+    {
+     "label": "Speak About Imperfection",
+     "next": "c",
+     "src": "L615"
+    },
+    {
+     "label": "Speak About the Lives They Share",
+     "next": "d",
+     "src": "L618"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They recall discoveries made because someone dared to ask an ordinary question.",
+   "src": "L610"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They admit that learning often reveals how much remains unknown.",
+   "src": "L611"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "One remembers a small act of care that changed a difficult day.",
+   "src": "L613"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They discuss how kindness can require courage, boundaries, and difficult choices.",
+   "src": "L614"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They laugh at their own mistakes and agree that learning matters more than never failing.",
+   "src": "L616"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One remembers a regret that still hurts; the other listens without insisting it be resolved.",
+   "src": "L617"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They watch the lights of the village and feel grateful for the people who make it home.",
+   "src": "L619"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They disagree about what matters most and decide that the question deserves more than one answer.",
+   "src": "L620"
+  }
+ }
+}

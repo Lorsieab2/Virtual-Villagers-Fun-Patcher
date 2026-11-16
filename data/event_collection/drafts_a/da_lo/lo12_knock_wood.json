@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Knock on Wood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo12_knock_wood",
+  "source": "da_lo",
+  "lines": [
+   141,
+   150
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L141",
+  "ledger": [
+   {
+    "src": "L142",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager boasts that the roof never leaks, then looks for wood to knock on, and the nearest is a stick.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "\"Our roof hasn't leaked in five years,\" says (subject), proudly. Then (subject.he/she) freezes and looks for something wooden to knock on, because everyone knows that saying something like that out loud is asking for trouble. The nearest wood is (friend)'s walking stick.",
+   "src": "L144",
+   "choices": [
+    {
+     "label": "Knock on the Stick",
+     "next": "a",
+     "src": "L146"
+    },
+    {
+     "label": "Don't Bother",
+     "next": "b",
+     "src": "L149"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) knocks three times on (friend)'s walking stick. (friend) looks down at it, then at (subject). \"Does it have to be your wood?\" \"I don't know. Any wood, I think.\" That night it rains heavily. The roof doesn't leak. (subject) thanks (friend) the next morning, and (friend) says the stick would like a fish.",
+   "src": "L147"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides that's all nonsense and doesn't knock. That night it rains. At about midnight, a single drop of water falls from the roof onto the exact middle of (subject)'s forehead. Just one. Then nothing more. (subject) lies there in the dark, wide awake, and decides to knock on wood from now on, just in case.",
+   "src": "L150"
+  }
+ }
+}

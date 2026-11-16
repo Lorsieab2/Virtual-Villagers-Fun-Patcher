@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Blame the Pig",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum14_blame_pig",
+  "source": "draft_hum",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Small suspicious noises follow the bean stew round the fire: blame the sleeping pig, or start a song, loudly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The bean stew was a great success. Now everyone is sitting round the fire, and every so often there is a small noise. A suspicious one. Nobody looks at anybody else. The village pig, asleep at the edge of the circle, is the obvious suspect.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Blame the Pig",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Start a Song, Loudly",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Pig,\" says (subject) gravely, after the next one. \"Pig,\" agrees (friend). Every time it happens, somebody says \"pig.\" The pig wakes up, looks round at all the faces, and walks off with tremendous dignity. A moment later there is another noise, with the pig nowhere near. A long silence. \"...Pig,\" says (subject) firmly, and nobody can keep a straight face after that.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) starts a song, very loudly. Everyone joins in, very loudly. It is the loudest singing the village has done in years, and any other noises go completely unnoticed. The pig sleeps through all of it, and is blamed anyway the next morning, on principle.",
+   "src": "L173"
+  }
+ }
+}
