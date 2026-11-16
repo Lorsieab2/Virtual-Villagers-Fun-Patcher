@@ -119,8 +119,12 @@ FROG_FIXES = (
     (0xB9F0C, bytes.fromhex("09"), bytes.fromhex("0C")),
     (0xB9F1C, bytes.fromhex("09"), bytes.fromhex("0C")),
 )
-# The frog rows sit before the Nursery School rows (tests/test_nursery_tie_random.py pins those last).
-FIXES = FIXES + FROG_FIXES + nursery_tie_fixes("vv4")
+# Saving no longer ends every villager's effects (the clean body, the meditation's glow, the sticky gunk, a stew's
+# wait): the save writer's call of 0x45EAA0 at 0x4660C4 is dropped (tests/test_vv4_effects_survive_save.py).
+from test_vv4_effects_survive_save import EFFECTS_FIXES  # noqa: E402
+
+# The frog and effects rows sit before the Nursery School rows (tests/test_nursery_tie_random.py pins those last).
+FIXES = FIXES + FROG_FIXES + EFFECTS_FIXES + nursery_tie_fixes("vv4")
 
 
 def _vv4():

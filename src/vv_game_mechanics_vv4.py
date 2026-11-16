@@ -122,13 +122,31 @@ REHEAT_CODE_LINE = (
     "speed). In play, though, not every stew can be reheated this way: some just evaporate.")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
-# have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
-# villager's effects first (0x4660C4 -> 0x45EAA0), so no save holds one.
+# have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); the save writer
+# ends every villager's effects first (0x4660C4 -> 0x45EAA0) -- the 10-minute autosave too -- and the saved entry
+# (0x45DB30) never holds them, so a loaded village has none.  Fix Vanilla Bugs drops that call (EFFECTS_FIX_LINE).
 CANT_EAT_LINE = (
     "\"That villager can't eat more stew so soon.\" is the game's answer when that villager already has the same "
     "stew's effect, or already has 12 effects: it lasts until that effect ends (10 real-life minutes at every speed "
-    "for the healing and sick stews), for that villager and that stew only. Saving the game ends every villager's stew effects, so a save "
-    "holds none to count down.")
+    "for the healing and sick stews), for that villager and that stew only. The save does not keep a villager's "
+    "effects, so a loaded village starts with none; in the base game saving (the 10-minute autosave too) also ends "
+    "every villager's effects at once.")
+FIX_VANILLA = "vv4_fix_vanilla_bugs"
+EFFECTS_FIX_LINE = (
+    "saving no longer ends a villager's effects, so each lasts its full time: the clean body and the Purify Tree's "
+    "glow their 4 minutes, the sticky gunk its 3 and a stew's wait its 10 (the save is written exactly as before)")
+STEW_WAIT_FIX_LINE = ("saving no longer ends a villager's stew effects, so the healing and sick stews' wait lasts its "
+                      "full 10 minutes")
+# The soapy pond: "Adding soap to the pond" (action 0x96, 0x43A430) ends with step 0x2E (0x4698D0, 0x43A4CD) turning
+# world state 0x1A on through 0x46D530, whose table gives 0x1A 60 seconds of the game clock 0x4D6F18 (0x46D54E);
+# 0x46D7F0 turns it off when the game clock reaches that.  Nothing else sets or clears 0x1A.  A villager dropped on
+# the pond (0x438500, drop spot 0x38) gets "Getting clean in soapy pond" (action 0x97) only with The Stream solved,
+# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.
+SOAPY_POND_LINE = (
+    "Adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
+    "30 seconds on Fast and 1 minute 40 seconds on Slow; it does not run down while the game is paused. A villager "
+    "dropped in the pond goes \"Getting clean in soapy pond\" only while it is soapy, The Stream is solved and the "
+    "stream's debris is 75 or less (of 100).")
 # Conception, births, health, sickness and the skill check's odds are under Chances and Births and gender; these
 # are what those groups do not give.
 # The skill check 0x462A80, one case per skill (jump table 0x4634B8): a success raises the skill by (70 - skill)
@@ -534,14 +552,28 @@ def facts(village: gm.Village) -> list[gm.Fact]:
               f"(Lab Equipment pieces found - 1) more, each equally likely; then 1 more 10.01% of the time while "
               f"the Fire Pit burns. While catching up the skill ÷ {5 if lvl >= 3 else 7}, at every speed."),
             gm.RUNNING)
-        # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree's result 0
+        # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree object's result 0
         # (CPurifyTree vtable 0x48E9F8 +0x30 = 0x437EC0 -> 0x438089) gives, for 240 real-life seconds (0x4380CF ->
         # 0x460A90); 0x464E4F triples the research.  The Lab Equipment bonus: rand(pieces) (0x464E5D..0x464E82).
-        # Its end is set on the computer's clock: 0x460A90 -> 0x403750.
-        add("Tech points and effects", "The Purify Tree's glow: one of the Purify Tree's two results gives the "
-                                       "villager a glow for 4 real-life minutes (240 seconds; real time, the same "
-                                       "at every speed, and paused time counts too), and while it lasts their "
+        # Its end is set on the computer's clock: 0x460A90 -> 0x403750.  Result 0 is the last step (0x469B90(0xE, 0),
+        # 0x43834E) of "Meditating to purify the mind" (action 0x99, 0x438320); result 1, the clean body (kind 2), the
+        # last step (0x438221) of "Getting clean in soapy pond" (action 0x97, 0x438180).  A villager dropped on the
+        # tree starts purifying it (action 0x98) only when clean (0x45EBE0, 0x43848A; else message 0x4A), and the
+        # purifying works only with the glow (0x45EB90, 0x438278; else message 0x4B).  Saving ends both
+        # (0x4660C4 -> 0x45EAA0) unless Fix Vanilla Bugs is in.
+        add("Tech points and effects", "The Purify Tree's glow: a villager who finishes \"Meditating to purify the "
+                                       "mind\" glows for 4 real-life minutes (240 seconds; real time, the same at "
+                                       "every speed, and paused time counts too), and while it lasts their "
                                        "research brings 3 times the tech points.", gm.RUNNING)
+    add("Tech points and effects", "Clean body: a villager who finishes \"Getting clean in soapy pond\" is clean for 4 "
+                                   "real-life minutes (240 seconds; real time, the same at every speed, and paused "
+                                   "time counts too). Only a clean villager dropped on the tree starts purifying it "
+                                   "(any other: \"Only those pure of body can purify the tree.\"), and only one who "
+                                   "also has the Purify Tree's glow can finish (\"Only those pure of mind can see the "
+                                   "corruption.\"). In the base game every save, the 10-minute autosave included, "
+                                   "ends the glow and the clean body at once.", gm.CODE)
+    out.append(gm.Fact("Tech points and effects", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE),
+                       gm.RUNNING, True))
     # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
     if divisor and village.has(SCIENCE_SET) is not False:
         add("Tech points and effects", gm.patch_words(village, SCIENCE_SET, "the Lab Equipment pieces add nothing to "
@@ -588,6 +620,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", REHEAT_LINE, gm.OWNER)
     add("Other", REHEAT_CODE_LINE, gm.RUNNING)
     add("Other", CANT_EAT_LINE, gm.RUNNING)
+    out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, STEW_WAIT_FIX_LINE), gm.RUNNING, True))
+    add("Other", SOAPY_POND_LINE, gm.CODE)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
