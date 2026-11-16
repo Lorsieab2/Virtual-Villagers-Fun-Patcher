@@ -2820,7 +2820,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         node = nodes[nid]
         path = path + (nid,)
         popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen) for p in popups]
+                        p.chosen, p.new_page) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -3325,7 +3325,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
         if out and out[-1].chosen:
             worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
         out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles), pop.chosen))
+                         list(pop.titles), pop.chosen, pop.new_page))
     return out
 
 
