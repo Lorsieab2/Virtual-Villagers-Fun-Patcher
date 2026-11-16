@@ -173,7 +173,12 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_DELIVER_EARLY = 24,
        /* 25: reserved (a rest period once; the owner took the rest periods out, 2026-11-15) */
        /* cie-v6-binary.md 32: a story trait kept for the villager (The Quiet Hands: mute), never a change */
-       CGE_TRAIT = 26 };
+       CGE_TRAIT = 26,
+       /* cie-v6-binary.md (the data agent documents it): a new villager -- role 255 a random one, else a duplicate of
+          the role's villager (sex, head and body copied; name, likes, dislikes and skills the game's own roll) --
+          made by each game's own creator (the adapters' spawn: the Barrel's / stranger's path, its room check), a
+          the age class (0 any, 1 child, 2 teen, 3 adult, 4 elder).  No room: nothing, no error. */
+       CGE_NEW_VILLAGER = 27 };
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
@@ -1033,7 +1038,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
                        || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT));
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
+                                         || e[0] == CGE_NEW_VILLAGER));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1077,6 +1083,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
             case CGE_TRAIT: ok = a == (int)CG_TRAIT_MUTE && b == 0 && str == CG_NONE; break;  /* 32: a trait */
+            case CGE_NEW_VILLAGER:
+                ok = a >= 0 && a <= 4 && b == 0 && str == CG_NONE
+                     && (e[1] == CG_ROLE_ALIAS_ALL || e[1] < (unsigned int)g->n_role);
+                break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -4608,6 +4618,61 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
 }
 
 /* Effect `e` with its rolls (va, vb) on the village; the award's state in *award_kind / *award. */
+/* The age of a new villager of age class `cls` (0 any, 1 child 1..13, 2 teen 14..17, 3 adult 18..54, 4 elder
+   55..75), in the games' age units (20 a year), drawn with the game's own random routine. */
+static int cg_new_villager_age(const ce_adapter *a, int cls) {
+    static const int RANGE[5][2] = { { 1, 75 }, { 1, 13 }, { 14, 17 }, { 18, 54 }, { 55, 75 } };
+    int lo, hi;
+    if (cls < 0 || cls > 4) {
+        cls = 0;
+    }
+    lo = RANGE[cls][0];
+    hi = RANGE[cls][1];
+    return 20 * (lo + ce_random_below(a, hi - lo + 1));
+}
+
+/* Effect 27: a new villager through the game's own creator (a->spawn: its room check, its free record, its own
+   name, likes, dislikes and skills), told as an arrival (ce_tell_arrival: the logs, Cause of Death, Last Names);
+   a duplicate takes the cast villager's sex, head and body.  No room (the mode's cap, a full record table): nothing
+   and no error -- the effect is skipped. */
+static void cg_new_villager(const ce_adapter *a, int game, const unsigned char *e, ce_result *r) {
+    ce_spawn s;
+    int k, index;
+    (void)r;
+    if (a == NULL || !(a->caps & CAP_SPAWN) || a->spawn == NULL) {
+        return;
+    }
+    memset(&s, 0, sizeof s);
+    s.count = 1;
+    s.head = s.body = CE_KEEP;
+    s.mask = s.faction = s.health = CE_KEEP;
+    for (k = 0; k < CE_SKILLS; ++k) {
+        s.skills[k] = CE_KEEP;
+    }
+    for (k = 0; k < CE_SPAWN_PREFS; ++k) {
+        s.likes[k] = s.dislikes[k] = -1;
+    }
+    s.father_record = s.mother_record = -1;
+    s.father_head = s.father_body = s.mother_head = s.mother_body = CE_KEEP;
+    s.sex = ce_random_below(a, 2) ? STORY_SEX_FEMALE : STORY_SEX_MALE;
+    if (e[1] != CG_ROLE_ALIAS_ALL) {
+        int role = cg_resolve_role(e[1]);
+        const unsigned char *src = role >= 0 ? cg_villager(a, role) : NULL;
+        if (src == NULL) {
+            return;                    /* the villager to duplicate is gone: nothing */
+        }
+        s.sex = ce_sex(a, src);
+        s.head = *(const int *)(src + a->off_head);
+        s.body = *(const int *)(src + a->off_body);
+    }
+    s.age = cg_new_villager_age(a, (int)cg_u32(e + 4));
+    index = a->spawn(&s);
+    if (index < 0) {
+        return;                        /* no room: skipped, no error */
+    }
+    ce_tell_arrival(game, index, &s);
+}
+
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
     unsigned char *record;
@@ -4630,6 +4695,9 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         return;
     case CGE_DAMAGE:
         cg_damage(a, game, e, va);
+        return;
+    case CGE_NEW_VILLAGER:
+        cg_new_villager(a, game, e, r);
         return;
     case CGE_TRAIT:
         /* 32: the villager keeps the story trait (story_traits.inc's file follows them), whatever is ticked. */
