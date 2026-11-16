@@ -1499,7 +1499,7 @@
       "id": "vv1_easier_healing_mastery",
       "game_id": "vv1",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 14% roll lives in \"VVFP VV1 Easier Healing.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every villager studies as before.",
+      "description": "Healers and villagers who prefer Healing study the Medical Cactus when the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager checked on Healing does so about three times in four (75%) of those times, so healers still do other things as in the normal game (with Builders Fix Huts When Idle also selected, this is that patch's one roll per choice, shared); a villager not checked on Healing (any other job, or none) only 14% of the time; otherwise, as in the normal game, there is nothing to do there and the game chooses something else. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 75% and 14% rolls live in \"VVFP VV1 Easier Healing.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every villager studies as before.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1513,14 +1513,14 @@
         {
           "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
           "destination": "VVFP VV1 Easier Healing.dll",
-          "sha256": "E1950F9E45ECE8B44C5BDBC760EFFA170EAC26D39DABC4D9CA91E76BD4446909"
+          "sha256": "1F2CA5421603F8AF464B9668C691A78730F1ABB51126238AE9C9DD82D908C10E"
         }
       ],
       "runtime_detours": [
         {
           "va": "0x4478E7",
           "stock_bytes": "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090",
-          "routine": "this row's no-patient exit of the work dispatcher's Healing case (0x4472C0 case 5): a villager checked on Healing (+0x3D0 = 5) or in plant-study state 9 (the player's drop) studies as the row does; anyone else only when the companion's own roll passes 14 times in 100, else the stock exit 0x447901",
+          "routine": "this row's no-patient exit of the work dispatcher's Healing case (0x4472C0 case 5): a villager in plant-study state 9 (the player's drop) studies as the row does; one checked on Healing (+0x3D0 = 5) when the decision's roll passes (VvfpFixHutsRoll, 75% once per idle-scheduler run, or the companion's own 75% without that DLL); anyone else only when the companion's own roll passes 14 times in 100; else the stock exit 0x447901",
           "installed_by": "VVFP VV1 Easier Healing.dll, VvfpStartup"
         }
       ]

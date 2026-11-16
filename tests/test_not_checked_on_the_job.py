@@ -51,6 +51,11 @@ STOCK_ABSENT = "the stock executables (research/stock-executables) are gitignore
 VILLAGE, STATE, STACK_TOP = 0x20000000, 0x30000000, 0x70000000
 INDEX = 7
 STRIDE = 0x3D8
+IMPORT_PAGE = 0x7E000000
+IMPORT_ARGS = {"GetModuleHandleA": 1, "GetProcAddress": 2}
+# A stand-in "VVFP Fix Huts.dll": its handle, and its VvfpFixHutsRoll
+# (cdecl, no arguments): mov eax, [ROLL_ANSWER]; ret.
+FIX_HUTS_HANDLE, SHARED_ROLL, ROLL_ANSWER = 0x7D000000, 0x7D000100, 0x7D000200
 
 
 class Stub:
@@ -87,10 +92,36 @@ class Stub:
         self.site, = struct.unpack("<I", mu.mem_read(buf, 4))
         self.row = bytes(mu.mem_read(buf + 0x40, self.length))
         self.stub, = struct.unpack("<I", mu.mem_read(buf + 0xC0, 4))
+        # Imports: each IAT slot points at a hlt in IMPORT_PAGE, answered by
+        # `imports[name](args) -> eax` (stdcall, IMPORT_ARGS dwords).  An
+        # unanswered import stops the run with end "import <name>".
+        self.imports: dict = {}
+        self.import_at: dict[int, str] = {}
+        mu.mem_map(IMPORT_PAGE, 0x1000)
+        for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", ()):
+            for imp in entry.imports:
+                if imp.name:
+                    at = IMPORT_PAGE + 16 * len(self.import_at)
+                    mu.mem_write(at, b"\xF4")
+                    self.import_at[at] = imp.name.decode()
+                    mu.mem_write(imp.address, struct.pack("<I", at))
         mu.hook_add(UC_HOOK_CODE, self._hook)
 
     def _hook(self, mu, address, size, _):
-        if address in self.stops:
+        if address in self.import_at:
+            name = self.import_at[address]
+            handler = self.imports.get(name)
+            if handler is None:
+                self.end = f"import {name}"
+                mu.emu_stop()
+                return
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            n = IMPORT_ARGS.get(name, 0)
+            ret, *args = struct.unpack(f"<{1 + n}I", mu.mem_read(esp, 4 * (1 + n)))
+            mu.reg_write(UC_X86_REG_EAX, handler(args) & 0xFFFFFFFF)
+            mu.reg_write(UC_X86_REG_ESP, esp + 4 + 4 * n)
+            mu.reg_write(UC_X86_REG_EIP, ret)
+        elif address in self.stops:
             self.end = self.stops[address]
             mu.emu_stop()
         elif address in self.calls:
@@ -128,9 +159,46 @@ def _share(stub: Stub, run, n: int = 3000) -> float:
 
 @unittest.skipUnless((TEST_DLLS / "VVFP VV1 Easier Healing.test.dll").is_file(), TEST_BUILD_ABSENT)
 class NewHomeEasierHealing(unittest.TestCase):
+    """The owner (2026-11-15): villagers set to Healing still do other things
+    too, as in the normal game, where a healer with no patient does nothing at
+    this exit (al = 0) and the scheduler goes on to its next choice.  A
+    healer studies when the decision's roll passes -- the fix-huts
+    companion's shared VvfpFixHutsRoll when that DLL is loaded, else a 75%
+    roll of this DLL's own -- so about three times in four, never always."""
+
     def setUp(self):
         self.s = Stub("VVFP VV1 Easier Healing.test.dll", "VvfpVv1EasierHealingProbe", "VvfpVv1EasierHealingRollTest",
-                      {0x44788B: "started", 0x447901: "nothing"}, {0x443270: "study"})
+                      {0x44788B: "started", 0x447901: "nothing", SHARED_ROLL: "shared roll"},
+                      {0x443270: "study"})
+        self.decision = self.s.exports["VvfpVv1EasierHealingDecisionRollTest"]
+        self.lookups = []
+        self.fix_huts_loaded(False)
+
+    def fix_huts_loaded(self, loaded: bool, answer: int = 1) -> None:
+        """Whether "VVFP Fix Huts.dll" is in the process, and what its shared
+        roll answers.  The stand-in roll is real code (mov eax, [answer];
+        ret), so it is not a stop point."""
+        mu = self.s.mu
+        self.s.stops.pop(SHARED_ROLL, None)
+        mu.mem_write(SHARED_ROLL, b"\xA1" + struct.pack("<I", ROLL_ANSWER) + b"\xC3")
+        mu.mem_write(ROLL_ANSWER, struct.pack("<I", answer))
+
+        def module(args):
+            name = bytes(mu.mem_read(args[0], 64)).split(b"\0")[0].decode()
+            self.lookups.append(name)
+            return FIX_HUTS_HANDLE if loaded and name == "VVFP Fix Huts.dll" else 0
+
+        def proc(args):
+            name = bytes(mu.mem_read(args[1], 64)).split(b"\0")[0].decode()
+            return SHARED_ROLL if args[0] == FIX_HUTS_HANDLE and name == "VvfpFixHutsRoll" else 0
+
+        self.s.imports = {"GetModuleHandleA": module, "GetProcAddress": proc}
+
+    def decision_force(self, force: int) -> None:
+        self.s.mu.mem_write(self.decision, struct.pack("<ii", force, 0))
+
+    def decision_draws(self) -> int:
+        return struct.unpack("<ii", self.s.mu.mem_read(self.decision, 8))[1]
 
     def villager(self, preference: int, activity: int = 0) -> None:
         rec = VILLAGE + INDEX * STRIDE
@@ -144,14 +212,37 @@ class NewHomeEasierHealing(unittest.TestCase):
         self.assertEqual(self.s.site, 0x4478E7)
         self.assertEqual(self.s.row.hex().upper(), "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090")
 
-    def test_a_healer_and_the_players_cactus_drop_always_study(self):
-        for preference, activity in ((5, 0), (1, 9), (0, 9), (5, 9)):
-            with self.subTest(preference=preference, activity=activity):
-                self.villager(preference, activity)
+    def test_the_players_cactus_drop_always_studies(self):
+        # State 9 is the stock game's own study: never rolled.
+        for preference in (5, 1, 0):
+            with self.subTest(preference=preference):
+                self.villager(preference, 9)
                 self.s.force(2)
+                self.decision_force(2)
                 self.assertEqual(self.go(), "started")
                 self.assertEqual(self.s.called, ["study"])
-                self.assertEqual(self.s.draws(), 0, "never rolled")
+                self.assertEqual((self.s.draws(), self.decision_draws()), (0, 0), "never rolled")
+
+    def test_a_healer_studies_on_the_decision_roll_else_the_stock_exit(self):
+        self.villager(5)
+        self.s.force(2)                                   # the 14% roll is never asked
+        for force, end, called in ((1, "started", ["study"]), (2, "nothing", [])):
+            with self.subTest(force=force):
+                self.decision_force(force)
+                self.assertEqual(self.go(), end)
+                self.assertEqual(self.s.called, called)
+                self.assertEqual(self.s.draws(), 0)
+                self.assertEqual(self.decision_draws(), 1)
+
+    def test_with_fix_huts_a_healer_uses_its_shared_roll(self):
+        self.villager(5)
+        for answer, end in ((1, "started"), (0, "nothing")):
+            with self.subTest(answer=answer):
+                self.fix_huts_loaded(True, answer)
+                self.decision_force(1)                    # would pass: must not be drawn
+                self.assertEqual(self.go(), end)
+                self.assertEqual(self.decision_draws(), 0, "the shared roll, not its own")
+        self.assertIn("VVFP Fix Huts.dll", self.lookups)
 
     def test_anyone_else_studies_on_the_roll_else_the_stock_exit(self):
         for preference in (0, 1, 2, 3, 4):
@@ -159,11 +250,16 @@ class NewHomeEasierHealing(unittest.TestCase):
             for force, end, called in ((1, "started", ["study"]), (2, "nothing", [])):
                 with self.subTest(preference=preference, force=force):
                     self.s.force(force)
+                    self.decision_force(2)                # not asked for a non-healer
                     self.assertEqual(self.go(), end)
                     self.assertEqual(self.s.called, called)
+                    self.assertEqual(self.decision_draws(), 0)
 
     def test_measured_shares(self):
-        for preference, low, high in ((5, 1.0, 1.0), (1, 0.115, 0.165), (0, 0.115, 0.165)):
+        # Stock: 0 at this exit for everyone but state 9 (it does nothing).
+        # Healer: 75%, so a quarter of these choices go on to other things.
+        self.decision_force(0)
+        for preference, low, high in ((5, 0.72, 0.78), (1, 0.115, 0.165), (0, 0.115, 0.165)):
             with self.subTest(preference=preference):
                 self.villager(preference)
                 share = _share(self.s, lambda: self.go() == "started")
