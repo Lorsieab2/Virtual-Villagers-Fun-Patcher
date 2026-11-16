@@ -1655,7 +1655,8 @@ class NodeTitles(unittest.TestCase):
         r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
         self.assertEqual(r["titles"], ["The Revolutionary Invention"] * 3 + ["The Elders Decide"])
         r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [1])
-        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 3)
+        # the owner (2026-11-16): after "Keep it quiet" its label titles what follows (the node has no title)
+        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 2 + ["Keep it quiet"])
 
     def test_the_fit_pages_with_the_widest_title(self):
         # A New Home leads each page with its title: a node's two-line title takes one more line than the event's.

@@ -2515,8 +2515,14 @@ def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
                     out.append(Context(game, pset, frozenset(rset)))
                     continue
                 rset = with_aliases(g, rset)
+                req_if = (g.get("requirement") or {}).get("if")
                 for facts in _fact_sets(g, rset):
-                    out.append(Context(game, pset, frozenset(rset), facts))
+                    ctx = Context(game, pset, frozenset(rset), facts)
+                    # a context the event's own requirement refuses never runs (the content filters' skip groups,
+                    # src/vv_event_content.py): nothing of it is checked
+                    if req_if is not None and not cond_holds(req_if, ctx, ()):
+                        continue
+                    out.append(ctx)
     return out
 
 
@@ -4507,9 +4513,23 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     title = event_title(lg, game, patches)   # 18
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
+    # The owner (2026-11-16, story_graph.inc cg_choice_title): after a choice the popups that follow take its label
+    # as their title until the next choice, unless the node after it has a title of its own; a title node of that
+    # part keeps its own.
+    choice_title, before = None, None
+
+    def shown_title(t):
+        # a chosen label is read as a button reads it (its game words, its names): ("label", raw)
+        return ("label", choice_title) if choice_title is not None and t == before else t
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         seen = seen + (nid,)
+        if at > 0 and lg["nodes"][path[at - 1]]["type"] == "question":
+            q = lg["nodes"][path[at - 1]]
+            label = next((c["label"] for c in q["choices"] if c["next"] == nid), None)
+            choice_title = label if label is not None and not n.get("title") else None
+            before = title
         if n["type"] == "branch":
             continue
         t = path_texts[at]
@@ -4519,16 +4539,46 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         else:
             texts.append(t)
             if room_after and n["type"] == "popup":
-                titles.append(title)   # shown in the question's own popup: its title
+                titles.append(shown_title(title))   # shown in the question's own popup: its title
                 title = n.get("title") or title
             else:
                 title = n.get("title") or title
-                titles.append(title)
+                titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
-    titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    def choice_shown(label: str) -> str:
+        # story_graph.inc cg_title_expand: the label in title case, its names (or pronouns when they do not fit)
+        t = title_case(label)
+        real = expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, label=True)
+        if title_fits(game, real):
+            return real
+        return expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, pronoun_names=True,
+                         label=True)
+
+    titles = [choice_shown(t[1]) if isinstance(t, tuple)
+              else title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    for i, t in enumerate(titles):
+        # story_graph.inc cg_title_wrap: a title wider than the title area is cut at a space where it fits; its rest
+        # is the page's first line
+        if t and not title_fits(game, t):
+            cut = -1
+            for k in range(1, len(t)):
+                if t[k] == " ":
+                    if not title_fits(game, t[:k]):
+                        break
+                    cut = k
+            if cut <= 0:
+                cut = len(t) - 1
+                while cut > 1 and not title_fits(game, t[:cut]):
+                    cut -= 1
+                rest = t[cut:]
+            else:
+                rest = t[cut + 1:]
+            titles[i] = t[:cut]
+            if i < len(popups):
+                popups[i] = rest + "\n" + popups[i]
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()
     for nid in path:
