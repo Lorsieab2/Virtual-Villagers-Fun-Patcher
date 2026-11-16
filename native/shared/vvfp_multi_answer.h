@@ -491,7 +491,7 @@ static int ma_op_rows(const void *popup, op_rows *out) {
     int r = 0;
     __try {
         if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL && out != NULL
-            && out->size == (int)sizeof(op_rows)) {
+            && OP_ROWS_SIZE_OK(out)) {
             void *ok = g_ma_op_built ? ma_control(g_ma_op_dialog, 0x864u) : NULL;
             int h = ok != NULL ? ma_vcall(ok, 0x10) : 0;
             out->rows = ma_op_count(g_ma_op_dialog, out);

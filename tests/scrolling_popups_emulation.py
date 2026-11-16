@@ -46,6 +46,9 @@ CODE = 0x0C000000                 # the stand-ins' methods: each address answere
 SDL_MODULE = 0x0C800000           # "SDL2.dll" as the companion finds it, with SDL_AddEventWatch
 STORY_MODULE = 0x0C801000         # "VVFP Story Upgrades.dll" as the companion finds it (multi_answer)
 FRAME = se.STACK_TOP - 0x40000    # the constructor's stack frame for its tail
+OP_ROWS_V1 = 12 + 7 * 128         # native/shared/one_popup.h OP_ROWS_V1_BYTES
+OP_ROWS_V2 = OP_ROWS_V1 + 7 * 4   # sizeof(op_rows): and label_text[7]
+FIELD_BYTES = {"vv1": 9999, "vv2": 9999, "vv3": 2000, "vv4": 2000, "vv5": 2000}   # a dialog's text field
 # The companion's TEST build (the same source with VVFP_TEST: the exports below that read its state); the shipped
 # DLL exports none of them.  It is loaded in the shipped DLL's place.
 DLL_NAME = "VVFP Scrolling Popups.dll"
@@ -210,6 +213,7 @@ class Dialog:
         self.watch = None
         self.multi_answer = None          # see _story_room
         self.one_popup = None             # see _op_rows
+        self.whole = None                 # see _whole_text
         self.picks: list[int] = []
         self._story_methods: dict = {}
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
@@ -325,7 +329,8 @@ class Dialog:
                     ret(SDL_MODULE, 4)
                     return
                 if text.lower() == "vvfp story upgrades.dll" and (harness.multi_answer is not None
-                                                                   or harness.one_popup is not None):
+                                                                   or harness.one_popup is not None
+                                                                   or harness.whole is not None):
                     ret(STORY_MODULE, 4)
                     return
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
@@ -339,7 +344,8 @@ class Dialog:
                                               "VvfpMultiAnswerGameVtable":
                                                   harness._method(harness._story_game_vtable, 8),
                                               "VvfpOnePopupRows": harness._method(harness._op_rows, 8),
-                                              "VvfpOnePopupPick": harness._method(harness._op_pick, 8)}
+                                              "VvfpOnePopupPick": harness._method(harness._op_pick, 8),
+                                              "VvfpPopupWholeText": harness._method(harness._whole_text, 4)}
                 ret(harness._story_methods.get(proc, 0), 8)
                 return
             if name == "GetSystemTimeAsFileTime":
@@ -389,12 +395,49 @@ class Dialog:
         if op is None or args[0] != op["popup"]:
             return 0
         out = args[1]
-        assert self.i32(out) == 12 + 7 * 128, "op_rows' size as one_popup.h has it"
+        size = self.i32(out)
+        assert size in (OP_ROWS_V1, OP_ROWS_V2), "op_rows' size as one_popup.h has it"
         labels = op["labels"]
         self.put(out + 4, len(labels), op["reserve"])
         for k, label in enumerate(labels):
             self.mu.mem_write(out + 12 + 128 * k, label[:127] + b"\0")
+            if size == OP_ROWS_V2 and len(label) > 127:
+                # a label longer than op_rows holds: handed over whole (op_rows.label_text)
+                self.put(out + OP_ROWS_V1 + 4 * k, self._kept(label))
         return 1
+
+    # -- the whole text a companion keeps when a dialog's field holds only its start (VvfpPopupWholeText) -----------
+    # whole = (the bytes put in the field, the whole text's address) or None.
+    def _kept(self, data: bytes) -> int:
+        """`data` in memory for as long as the harness lives (one copy per distinct text)."""
+        kept = getattr(self, "_kept_texts", None)
+        if kept is None:
+            kept = self._kept_texts = {}
+        if data not in kept:
+            kept[data] = self._cstr(data)
+        return kept[data]
+
+    def _whole_text(self, args):
+        if self.whole is None or not args[0]:
+            return 0
+        cut, whole_va = self.whole
+        shown = bytes(self.mu.mem_read(args[0], len(cut) + 1))
+        return whole_va if shown == cut + b"\0" else 0
+
+    def keep_whole(self, text: bytes, field_bytes: int) -> bytes:
+        """What a companion puts in a field of `field_bytes` (NUL included) for `text` (one_popup.h op_long_text_put):
+        the whole text when it fits, else its start, cut a little short of the field at a space or a line break;
+        VvfpPopupWholeText then answers the whole text for exactly that start."""
+        if len(text) < field_bytes:
+            self.whole = None
+            return text
+        cut = field_bytes - 16 if field_bytes - 1 > 16 else field_bytes - 1
+        for k in range(cut, max(cut - 200, 0), -1):
+            if text[k:k + 1] in (b" ", b"\n"):
+                cut = k
+                break
+        self.whole = (text[:cut], self._kept(text))
+        return text[:cut]
 
     def _op_pick(self, args):
         op = self.one_popup
@@ -412,6 +455,14 @@ class Dialog:
         n = self.run._call(dll.exports["VvfpScrollingPopupsTestView"], 0, out, 26)
         values = struct.unpack("<%di" % n, self.mu.mem_read(out, 4 * n))
         return dict(zip(("n", "x", "y", "w", "h", "step"), values[20:26]))
+
+    def row_list(self) -> list[tuple[int, int, int]]:
+        """Each one-popup row the companion drew last: (its top on the screen, its height, its label's lines)."""
+        dll = next(m for k, m in self.m.modules.items() if "scrolling" in k)
+        out = self.m.font_heap.alloc(4 * 3 * 7)
+        n = self.run._call(dll.exports["VvfpScrollingPopupsTestRows"], 0, out, 7)
+        values = struct.unpack("<%di" % (3 * n), self.mu.mem_read(out, 12 * n)) if n else ()
+        return [tuple(values[3 * k:3 * k + 3]) for k in range(n)]
 
     # -- stand-in methods ----------------------------------------------------------------------------------------
     def _method(self, fn, pop: int, this: bool = False) -> int:
@@ -708,9 +759,11 @@ class Dialog:
 
     # -- the dialog -------------------------------------------------------------------------------------------------
     def make(self, text: bytes, choices: bool = False, title: bytes = b"The Mysterious Footprints",
-             one_popup: dict | None = None, portrait: bool = False) -> int:
+             one_popup: dict | None = None, portrait: bool = False, long_text: bool = False) -> int:
         """A dialog with `text` (and two choice buttons, or OK), laid out by the constructor's own tail.
-        `one_popup` (see _op_rows, its "popup" filled in here): a one-popup island event's dialog."""
+        `one_popup` (see _op_rows, its "popup" filled in here): a one-popup island event's dialog.  `long_text`: a
+        text longer than the field holds is kept whole by its companion, the field holding its start (keep_whole);
+        else the field holds what fits, as the game's copy keeps it."""
         g = self.g
         heap = self.m.font_heap
         mu = self.mu
@@ -740,6 +793,9 @@ class Dialog:
             self.buttons[name] = obj
         self.button_images = {"ok": ok_image, "choice_a": ch_image, "choice_b": ch_image}
         self.text_va = d + 0x58
+        self.whole = None
+        if long_text:
+            text = self.keep_whole(text, FIELD_BYTES[self.game])
         mu.mem_write(self.text_va, text[:1999] + b"\0")
         self.title = heap.alloc(len(title) + 1)
         mu.mem_write(self.title, title + b"\0")
@@ -804,8 +860,10 @@ class Dialog:
         self.mu.mem_write(va, data + b"\0")
         return va
 
-    def set_text(self, text: bytes) -> None:
+    def set_text(self, text: bytes, long_text: bool = False) -> None:
         """The result replacing the question (the click handler writes +0x58 the same way)."""
+        if long_text:
+            text = self.keep_whole(text, FIELD_BYTES[self.game])
         self.mu.mem_write(self.text_va, text[:1999] + b"\0")
 
     def panel(self) -> tuple[int, int, int, int]:
@@ -839,7 +897,8 @@ class Dialog:
         return d
 
     def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30,
-                   answers_room: int = 0, one_popup: dict | None = None, portrait: bool = False) -> int:
+                   answers_room: int = 0, one_popup: dict | None = None, portrait: bool = False,
+                   long_text: bool = False) -> int:
         """A New Home's / The Lost Children's island-event dialog `kind` with `text` (and a result text, shown when
         `show_result` is called): the base constructor, the dialog's own vtable and fields, then the constructor's
         own size site run with the height its own formula gives (the text's height by the game's routine plus the
@@ -862,6 +921,9 @@ class Dialog:
             self.mu.mem_write(copy, bytes(self.mu.mem_read(e["vt"], 0x100)))
             self.put(d, copy)
             self.multi_answer = (d, answers_room, copy, e["vt"])
+        self.whole = None
+        if long_text:
+            text = self.keep_whole(text, FIELD_BYTES[self.game])
         self.mu.mem_write(d + e["a"], text[:9999] + b"\0")
         if e["b"]:
             self.mu.mem_write(d + e["b"], (result or b"")[:9999] + b"\0")
