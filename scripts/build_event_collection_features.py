@@ -651,7 +651,8 @@ def build(src: Path = DATA, assets: Path = ASSETS, data_dir: Path = ROOT / "data
             name = f"living-{lg[series]}.pak"
             planned[assets / f"vv{game}" / name] = data
             files.append((f"{rel}/vv{game}/{name}", f"{FOLDER}/{name}", data))
-            living_count += len(living.read_pack(data)["seeds"])
+            # the Living Engine's own situations; a static event's mixer versions (bank 2) are that event again
+            living_count += sum(1 for s in living.read_pack(data)["seeds"] if s["bank"] in (0, 1))
         mine = [e for e in events if game in e["games"]]
         files += [(f"{rel}/{e['id']}.cieg", f"{FOLDER}/{e['id']}.cieg", e["cieg"]) for e in mine]
         rows[game] = row(game, files, len(mine), living_count)

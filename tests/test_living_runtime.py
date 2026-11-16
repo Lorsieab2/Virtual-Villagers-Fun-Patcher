@@ -515,16 +515,26 @@ class GuardiansOfIsola(unittest.TestCase):
         self.assertEqual(seen[False], seen[True])
 
     def test_no_living_text_needs_guardians_wording(self) -> None:
+        # The Living Engine's own seeds (LE and MC, banks 0 and 1) say neither word; the static events' mixer versions
+        # (bank 2, living_st_*) are those events, checked with their Guardians forms by collection_check (check j).
+        # The packs and manifests are split per series (living-pack.md 1).
         import re
+        folder = ROOT / "assets" / "event_collection"
         for game in mx.GAMES:
-            p = mx.read_pack((ROOT / "assets" / "event_collection" / f"vv{game}" / "living.pak").read_bytes())
-            for v in p["variants"]:
-                self.assertIsNone(re.search(rb"(?i)heathen|convert", v["blob"]), (game, p["seeds"][v["seed"]]["id"]))
-            rows = [r.split("\t") for r in (ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt")
-                    .read_text(encoding="utf-8").splitlines() if r.startswith("living_")]
+            packs = sorted((folder / f"vv{game}").glob("living-*.pak"))
+            self.assertTrue(packs)
+            for path in packs:
+                p = mx.read_pack(path.read_bytes())
+                for v in p["variants"]:
+                    seed = p["seeds"][v["seed"]]
+                    if seed["bank"] in (0, 1):
+                        self.assertIsNone(re.search(rb"(?i)heathen|convert", v["blob"]), (game, seed["id"]))
+            rows = [r.split("\t") for path in sorted((folder / f"vv{game}").glob("manifest-*.txt"))
+                    for r in path.read_text(encoding="utf-8").splitlines()
+                    if r.startswith(("living_le_", "living_mc_"))]
             self.assertTrue(rows)
-            self.assertTrue(all(r[7] == "" and r[8] == "" for r in rows))
-            self.assertTrue(all(re.search(self.WORDS, r[1] + r[6], re.I) is None for r in rows))
+            self.assertTrue(all(r[7] == "" for r in rows))
+            self.assertTrue(all(re.search(self.WORDS, r[1] + r[6] + r[8], re.I) is None for r in rows))
 
 
 if __name__ == "__main__":

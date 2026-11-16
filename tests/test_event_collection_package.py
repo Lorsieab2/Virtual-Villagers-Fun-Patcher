@@ -147,7 +147,8 @@ class TheRows(unittest.TestCase):
             self.assertEqual(row["runtime_detours"], [])
             self.assertEqual(row["patches"], [])
             names = [item["destination"] for item in row["companion_files"]]
-            self.assertIn("Island Event Collection/manifest.txt", names)
+            # one manifest per source section and per living series (living-pack.md 1)
+            self.assertTrue(any(n.startswith("Island Event Collection/manifest-") and n.endswith(".txt") for n in names))
             self.assertIn(f"Island Event Collection/{build.CREDITS_NAME}", names)
             for item in row["companion_files"]:
                 with self.subTest(game=game, file=item["destination"]):
@@ -167,9 +168,12 @@ class TheCredits(unittest.TestCase):
         lines = raw.split(b"\n")
         credits = (ROOT / "assets" / "event_collection" / build.CREDITS_NAME).read_bytes()
         self.assertEqual(credits, (build.CREDITS_MD).read_bytes())
-        ledger = b"\n".join(lines[0:91]) + b"\n"
+        # the ledger, but for the three handwritten events credited to the owner alone (L22-28, the owner 2026-11-16)
+        ledger = build.ledger_text(build.source_lines()).encode("utf-8")
         self.assertTrue(ledger.startswith(b"VIRTUAL VILLAGERS"))
         self.assertIn(ledger, credits)
+        self.assertEqual(b"\n".join(lines[0:21]) + b"\n", ledger[:len(b"\n".join(lines[0:21]) + b"\n")])
+        self.assertIn(b"* The Child of Legend (VV1): written by Lorsieab2.\n", credits)
         for first, last, _what in build.CREDIT_BLOCKS:
             with self.subTest(lines=(first, last)):
                 block = b"\n".join(lines[first - 1:last]) + b"\n"
@@ -198,14 +202,16 @@ class TheBuild(unittest.TestCase):
             rows = build.build(src=src.parent, assets=assets, data_dir=data_dir, docs=docs, write=True)
             cieg = assets / "vv3_gardening_contest.cieg"
             self.assertTrue(cieg.is_file())
-            manifest = (assets / "vv3" / "manifest.txt").read_text(encoding="utf-8")
+            # its section's file (one manifest per source section; this fixture's section is "V6 additions")
+            files = sorted((assets / "vv3").glob("manifest-*.txt"))
+            self.assertEqual(len(files), 1)
+            manifest = files[0].read_text(encoding="utf-8")
             line = [r for r in manifest.splitlines() if not r.startswith("#")]
             self.assertEqual(len(line), 1)
             self.assertEqual(line[0].split("\t")[:5], ["vv3_gardening_contest", "The Gardening Contest", "3", "1", ""])
             for game in (1, 2, 4, 5):
-                self.assertEqual([r for r in (assets / f"vv{game}" / "manifest.txt").read_text(encoding="utf-8")
-                                  .splitlines() if not r.startswith("#")], [])
-                self.assertEqual(len(rows[game]["companion_files"]), 2)
+                self.assertEqual(list((assets / f"vv{game}").glob("manifest-*.txt")), [])   # no event: no manifest
+                self.assertEqual(len(rows[game]["companion_files"]), 1)                    # the credits
             files = {i["destination"]: i for i in rows[3]["companion_files"]}
             item = files["Island Event Collection/vv3_gardening_contest.cieg"]
             self.assertEqual(item["sha256"], hashlib.sha256(cieg.read_bytes()).hexdigest().upper())
