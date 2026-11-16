@@ -1693,6 +1693,7 @@ class App(tk.Tk):
         self._help_button(louder_flutes_group, "louder_flutes_multiplier").pack(side="left", padx=(2, 0))
         # What patches use follows the slider, whichever way it is moved (slider, box, settings, Owner's Defaults).
         self.louder_flutes_var.trace_add("write", lambda *_args: self._louder_flutes_changed())
+        self._louder_flutes_changed()       # the saved number, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
