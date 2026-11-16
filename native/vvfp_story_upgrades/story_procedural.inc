@@ -943,14 +943,14 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
             pc_put16(an + 26, CG_NONE);
             for (j = 0; j < c->outcomes[kept[k]]; ++j, ++i) {
                 const unsigned char *o = pc_piece(c->outcome[kept[k]][j]);
-                unsigned char *oc = out + o_child + 12u * (unsigned int)child++;
+                unsigned char *ochild = out + o_child + 12u * (unsigned int)child++;
                 unsigned char *on = out + o_node + 28u * (unsigned int)next_node;
                 unsigned int s, opt = 0, harmed = 0, e, first = pc_u32(o + 48), count = pc_u16(o + 52);
                 int o_node_i = next_node++, pass;
-                pc_put16(oc, (unsigned int)o_node_i);
-                pc_put16(oc + 2, (unsigned int)c->weight[kept[k]][j]);
-                pc_put16(oc + 6, CG_NONE);
-                pc_put16(oc + 8, CG_NONE);
+                pc_put16(ochild, (unsigned int)o_node_i);
+                pc_put16(ochild + 2, (unsigned int)c->weight[kept[k]][j]);
+                pc_put16(ochild + 6, CG_NONE);
+                pc_put16(ochild + 8, CG_NONE);
                 for (s = 0; s < pc_u16(o + 44); ++s) {
                     if (pc_roles[map[i][s]].all_optional) {
                         opt |= 1u << map[i][s];
@@ -970,10 +970,10 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                         ++bits;
                     }
                     if (bits == 0) {
-                        pc_put16(oc + (pass == 0 ? 4 : 10), CG_NONE);
+                        pc_put16(ochild + (pass == 0 ? 4 : 10), CG_NONE);
                         continue;
                     }
-                    pc_put16(oc + (pass == 0 ? 4 : 10), (unsigned int)base);
+                    pc_put16(ochild + (pass == 0 ? 4 : 10), (unsigned int)base);
                     if (bits > 1) {
                         /* an `all` comes before its operands (the loader: operands after it) */
                         unsigned char *cd = out + o_cond + 8u * (unsigned int)cond_at++;

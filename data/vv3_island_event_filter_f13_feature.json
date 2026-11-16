@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv3",
   "name": "Content Filter: Unsettling and eerie scenes",
-  "description": "Keeps \"unsettling and eerie scenes\" out of the new island events. Applied before the rare roll picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**",
+  "description": "Keeps \"unsettling and eerie scenes\" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**",
   "output_tag": "Content Filter: Unsettling and eerie scenes",
   "dependencies": [],
   "needs_on": [

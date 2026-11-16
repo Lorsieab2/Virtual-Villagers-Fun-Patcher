@@ -1,0 +1,556 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_fam2",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "fam201_hugs_kisses": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam202_when_will_yours": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam203_fun_one": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fam204_fish_nobody": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "fam205_separate": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam206_raising_two": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "neighbor",
+    "subject"
+   ]
+  },
+  "fam207_quiet_siblings": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam208_garden_keeps": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F05"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam209_courting_fish": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam210_children_thank": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject",
+    "friend"
+   ]
+  },
+  "fam211_holding_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam212_flowers_frogs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam213_still_friends": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam214_two_bowls_shelf": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam215_living_next": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam216_many_relatives": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam217_child_picked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam218_parent_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam219_cousin_always": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam220_right_now_love": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam221_friends_live": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam222_ceremony_they": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam223_seen_two": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam224_partner_child": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "fam225_notes_bark": {
+   "filters": [
+    "F07",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F07"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "fam226_little_jealous": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "third"
+   ]
+  },
+  "fam227_evening_walk": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam228_friends_after": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam229_friends_holding": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject",
+    "friend"
+   ]
+  },
+  "fam230_company_without": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam231_id_like_raise": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "fam232_grandparent": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam233_moving_out": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam234_sibling_always": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "fam235_recipe_argument": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam236_couple_bicker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend",
+    "neighbor",
+    "third"
+   ]
+  },
+  "fam237_matchmaking": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "fourth",
+    "friend"
+   ]
+  },
+  "fam238_family_worst": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam239_two_huts_now": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject",
+    "friend"
+   ]
+  },
+  "fam240_night_feed": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam241_gift_ran_away": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fam242_lonely_still": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fam243_when_are_you": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam244_race_you_rock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam245_two": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam246_first_say": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "fam247_everybody_uncle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam248_adopted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "fam249_much_affection": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "fam250_dinner_big_hut": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F07"
+    ]
+   }
+  }
+ }
+}

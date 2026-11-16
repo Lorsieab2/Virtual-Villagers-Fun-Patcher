@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_il05",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "il081_fell_stream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "other",
+    "subject",
+    "friend"
+   ]
+  },
+  "il082_oldest_thing_i": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il083_where_tree_stood": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il084_name_tip_tongue": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il085_toy_thatch": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il086_great_crab_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il087_good_rainy_year": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il088_giant_rock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "subject"
+   ]
+  },
+  "il089_thing_you": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il090_carving_tree": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il091_remember_this_me": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il092_taught_whom_swim": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il093_person_i_twenty": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il094_marks_post": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il095_leaf_whistle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "subject"
+   ]
+  },
+  "il096_halfway_along": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il097_memory_wasnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il098_old_game": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "asker",
+    "kid"
+   ]
+  },
+  "il099_list_ages_ago": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "il100_path_grass": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

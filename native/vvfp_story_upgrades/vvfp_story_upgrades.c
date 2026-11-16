@@ -52,6 +52,8 @@
    Installed at run time by VvfpStoryInstall(game) from the Origins
    companion (once it runs in the game process, outside DllMain).  The stock
    or Origins bytes at every site are verified first. */
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <string.h>
 #include <intrin.h>

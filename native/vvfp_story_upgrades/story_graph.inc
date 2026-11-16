@@ -1957,8 +1957,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_g.version >= 6 && spec[9] == 3 && ce_age(a, r) < CG_NURSING_MIN_AGE) {
         return 0;                      /* a nursing parent is an adult of 18 or more */
     }
-    if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)) {
-        return 0;                      /* the Golden Child is never cast for a sex change */
+    if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)
+        && !vv_sex_gc_draws_follow(game)) {
+        return 0;                      /* the Golden Child: a sex change only when his draws follow (option 1) */
     }
     if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
         /* No Safeguards (the owner, 2026-11-15): a Heathen is cast only in a role whose purpose is a conversion;
@@ -4629,8 +4630,8 @@ static const char *cg_count_fill(const char *text) {
         return text;
     }
     for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
-        const char *opts;
-        int which, olen, n = s[0] == '{' && s[1] == '#' ? cg_count_token(s, &which, &opts, &olen) : 0;
+        const char *opts = NULL;
+        int which = 0, olen = 0, n = s[0] == '{' && s[1] == '#' ? cg_count_token(s, &which, &opts, &olen) : 0;
         if (n == 0 && cg_made_ph(s)) {
             char name[CG_NAME_BYTES + 16];
             const char *t;
@@ -5145,6 +5146,9 @@ static int cg_presentation(int game, const unsigned char *record, int index, int
    they go on carrying, the carrying parent on the babies' records.  Every companion that keeps data by the sex
    follows the change (sex_change.h, VvfpVillagerSexChanged). */
 static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned char *record) {
+    if (vv_sex_golden_child(game, record) && vv_sex_gc_draws_follow(game)) {
+        return -1;                     /* option 1: his look stays a boy's (the Gender Presentation companion) */
+    }
     if (cg_special(a, game, record) || cg_never_harmed(game, record)) {
         return CE_WHY_OTHER;
     }
@@ -5539,21 +5543,21 @@ static int cg_rename_from_list(const ce_adapter *a, int game, unsigned char *rec
         int count = 0, k, want, len = 0;
         const char *p;
         list = cg_names_list(game, ce_random_below(a, 2));
-        for (p = list; *p != ' '; ++p) {
+        for (p = list; *p != '\0'; ++p) {
             count += *p == ',';
         }
         if (count == 0) {
             return 0;
         }
         want = ce_random_below(a, count);
-        for (p = list, k = 0; *p != ' ' && k < want; ++p) {
+        for (p = list, k = 0; *p != '\0' && k < want; ++p) {
             k += *p == ',';
         }
-        while (p[len] != ' ' && p[len] != ',' && len + 1 < (int)sizeof pick) {
+        while (p[len] != '\0' && p[len] != ',' && len + 1 < (int)sizeof pick) {
             pick[len] = p[len];
             ++len;
         }
-        pick[len] = ' ';
+        pick[len] = '\0';
         if (n_last > 0 && len + 1 + n_last < (int)sizeof full) {
             wsprintfA(full, "%s %.*s", pick, n_last, last);
         } else {

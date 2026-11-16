@@ -47,6 +47,8 @@
    stock bytes, then all are written through the shared all-or-none writer (native/shared/install_sites.h), or none;
    then the Change Appearance windows do not offer the checkbox (VvfpGenderPresentationInstalled 0).  The conception
    sites are installed the same way, on their own (all or none): VvfpConceptionGuardInstalled. */
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <string.h>
 #include "../shared/sidecar_io.h"
@@ -342,8 +344,16 @@ static int gp_drawn_sex(const gp_site *s, const unsigned int *frame) {
     int male = g_game <= 2 ? 1 : 0, female = g_game <= 2 ? 2 : 1;
     hl_locate();
     if (g_records == 0 || rec < g_records || (rec - g_records) % l->stride != 0
-        || (rec - g_records) / l->stride >= (unsigned int)g_count || (sex != male && sex != female)
-        || gp_special((const unsigned char *)(UINT_PTR)rec)) {
+        || (rec - g_records) / l->stride >= (unsigned int)g_count || (sex != male && sex != female)) {
+        return sex;
+    }
+    if (g_game == 1 && (s->va == 0x437380u || s->va == 0x43763Eu)
+        && vv_sex_golden_child(1, (const unsigned char *)(UINT_PTR)rec)) {
+        /* The Golden Child (option 1, the owner 2026-11-15): the portrait and a dialog's figure pick his sheets by
+           the sex field; he is always drawn a boy, so a sex change leaves his look as it is. */
+        return male;
+    }
+    if (gp_special((const unsigned char *)(UINT_PTR)rec)) {
         return sex;
     }
     if ((hl_get((const unsigned char *)(UINT_PTR)rec) & GP_ON) == 0) {

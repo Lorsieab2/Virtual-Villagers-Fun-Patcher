@@ -1,0 +1,337 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_arm2",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "arm46_pufferfish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm47_shark_tooth_edge": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm48_armor_became": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm49_speaking_staff": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm50_sling_gardens": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm51_child_reed_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm52_basalt_adze": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm53_fishhook_pendant": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm54_feather_cloak": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm55_shield_cradle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm56_musical_bow": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm57_notched_handle": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm58_tortoiseshell": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm59_whalebone_paddle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm60_spearhead": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm61_helmet_nest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm62_training_pads": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm63_arrow_over_door": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm64_watch_drum": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm65_throwing_stick": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm66_bowstring_maker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm67_helmet_bowl": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm68_retired_watch": {
+   "filters": [
+    "F19",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F19",
+     "F25"
+    ]
+   }
+  },
+  "arm69_restorer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm70_lending_bow": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm71_small_grip": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm72_staff_given": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm73_mask_shield": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm74_carved_record": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm75_sharpening_stone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm76_armor_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm77_mended_quiver": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm78_harvest_blade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm79_bow_nobody_can": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm80_mark_family": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm81_implement_nobody": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm82_inventory_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm83_spear_became": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm84_hunter_put_down": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "arm85_practice_shield": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm86_many_headed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm87_arrows_laid_down": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm88_apprentice_fears": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm89_season_swapped": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm90_measuring_spear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm91_shield_tide_line": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm92_bowyer_grove": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm93_armor_against": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm94_drill_becomes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "arm95_heirloom_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

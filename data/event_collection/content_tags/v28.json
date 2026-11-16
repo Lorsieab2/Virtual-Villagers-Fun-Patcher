@@ -57,7 +57,11 @@
     "b4": [
      "F25"
     ]
-   }
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
   },
   "all_doctors_dilemma": {
    "filters": [
@@ -87,7 +91,10 @@
     "recovery": [
      "F08"
     ]
-   }
+   },
+   "speaks": [
+    "healer2"
+   ]
   },
   "all_everybodys_winner": {
    "filters": [],
@@ -113,7 +120,10 @@
      "F16",
      "F19"
     ]
-   }
+   },
+   "speaks": [
+    "inventor"
+   ]
   },
   "all_invention": {
    "filters": [
@@ -139,7 +149,10 @@
     "w2": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "subject"
+   ]
   },
   "all_invention_showcase": {
    "filters": [
@@ -179,7 +192,11 @@
     "question": [
      "F26"
     ]
-   }
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
   },
   "all_its_alive": {
    "filters": [
@@ -204,7 +221,10 @@
     "b2": [
      "F08"
     ]
-   }
+   },
+   "speaks": [
+    "researcher"
+   ]
   },
   "all_panel_standards": {
    "filters": [
@@ -231,7 +251,10 @@
     "d1": [
      "F03"
     ]
-   }
+   },
+   "speaks": [
+    "builder"
+   ]
   },
   "all_scholasticon": {
    "filters": [
@@ -242,7 +265,11 @@
     "d2": [
      "F08"
     ]
-   }
+   },
+   "speaks": [
+    "researcher2",
+    "child"
+   ]
   },
   "all_secret_of_life": {
    "filters": [
@@ -289,7 +316,11 @@
     "d2": [
      "F04"
     ]
-   }
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
   },
   "all_storytelling": {
    "filters": [
@@ -545,7 +576,10 @@
      "F03",
      "F05"
     ]
-   }
+   },
+   "speaks": [
+    "patient"
+   ]
   },
   "all_v20_d10_child": {
    "filters": [],
@@ -781,7 +815,10 @@
     "c3": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "accused"
+   ]
   },
   "all_v20_r3_isola": {
    "filters": [
@@ -833,7 +870,10 @@
     "coda_c11": [
      "F03"
     ]
-   }
+   },
+   "speaks": [
+    "potter"
+   ]
   },
   "all_v21_c2_divided": {
    "filters": [
@@ -883,7 +923,10 @@
     "coda_c11": [
      "F03"
     ]
-   }
+   },
+   "speaks": [
+    "artist"
+   ]
   },
   "all_v22_2_strength": {
    "filters": [
@@ -920,7 +963,11 @@
     "c2": [
      "F20"
     ]
-   }
+   },
+   "speaks": [
+    "child",
+    "parent"
+   ]
   },
   "all_v23_1_practical": {
    "filters": [
@@ -1020,7 +1067,10 @@
   "all_v23_6_prank_war": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "prankster2"
+   ]
   },
   "all_v24_revolutionary": {
    "filters": [
@@ -1070,7 +1120,10 @@
     "q_inv_food": [
      "F20"
     ]
-   }
+   },
+   "speaks": [
+    "inventor"
+   ]
   },
   "all_v27_01_cry": {
    "filters": [
@@ -1655,7 +1708,10 @@
      "F03",
      "F05"
     ]
-   }
+   },
+   "speaks": [
+    "reciter"
+   ]
   },
   "all_very_bad_day": {
    "filters": [
@@ -1679,7 +1735,11 @@
     "ostracism": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
   },
   "vv1_child_of_legend": {
    "filters": [
@@ -1695,7 +1755,10 @@
   "vv1_elders_favorite": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
   },
   "vv1_last_song_before": {
    "filters": [
@@ -1706,7 +1769,11 @@
     "coda_c7": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
   },
   "vv1_masters_small": {
    "filters": [
@@ -1721,7 +1788,11 @@
     "question": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "builder",
+    "child"
+   ]
   },
   "vv1_missing_pearl": {
    "filters": [
@@ -1769,7 +1840,11 @@
     "p2": [
      "F08"
     ]
-   }
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
   },
   "vv1_unexpected": {
    "filters": [
@@ -2089,7 +2164,11 @@
      "F20",
      "F24"
     ]
-   }
+   },
+   "speaks": [
+    "cook2",
+    "cook1"
+   ]
   },
   "vv2_experimental_remedy": {
    "filters": [
@@ -2180,7 +2259,11 @@
     "story": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "adult",
+    "child"
+   ]
   },
   "vv2_v17_building": {
    "filters": [
@@ -2512,12 +2595,20 @@
   "vv4_breadfruit_breakdown": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "cook1",
+    "cook2"
+   ]
   },
   "vv4_fruity_masterpiece": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "cook",
+    "elder"
+   ]
   },
   "vv4_lullaby": {
    "filters": [],
@@ -2538,7 +2629,10 @@
     "coda_c7": [
      "F16"
     ]
-   }
+   },
+   "speaks": [
+    "young"
+   ]
   },
   "vv4_rotten_structure": {
    "filters": [
@@ -2713,7 +2807,11 @@
   "vv5_great_laundry_mishap": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "claimer",
+    "finder"
+   ]
   },
   "vv5_great_woodworking": {
    "filters": [
@@ -2737,7 +2835,10 @@
     "tro_end": [
      "F19"
     ]
-   }
+   },
+   "speaks": [
+    "builder1"
+   ]
   },
   "vv5_keeper_of_little_things": {
    "filters": [
@@ -2750,7 +2851,11 @@
     "b5": [
      "F15"
     ]
-   }
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
   },
   "vv5_little_things_remember": {
    "filters": [
@@ -2766,7 +2871,11 @@
   "vv5_meaning_of_faith": {
    "filters": [],
    "notes": [],
-   "nodes": {}
+   "nodes": {},
+   "speaks": [
+    "teacher",
+    "child"
+   ]
   },
   "vv5_multicultural_festival": {
    "filters": [
@@ -2777,7 +2886,10 @@
     "dispute": [
      "F19"
     ]
-   }
+   },
+   "speaks": [
+    "planner"
+   ]
   },
   "vv5_old_belief_and_new": {
    "filters": [],
@@ -2884,7 +2996,10 @@
     "coda_c11": [
      "F03"
     ]
-   }
+   },
+   "speaks": [
+    "judge1"
+   ]
   },
   "vv5_v17_farming": {
    "filters": [
