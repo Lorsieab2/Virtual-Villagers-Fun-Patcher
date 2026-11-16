@@ -81,12 +81,14 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
     + tuple(v[2] for v in lib.DRAFTS_C.values()) \
     + tuple(v[2] for v in lib.DRAFTS_D.values()) \
     + tuple(lib.GO_SECTIONS) \
-    + tuple(lib.ANTHOLOGY_SECTIONS)  # the GO files (rewrites/, balance/); the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
+    + tuple(lib.ANTHOLOGY_SECTIONS) \
+    + (lib.MIE_SECTION,)             # More Island Events (mie/); the GO files (rewrites/, balance/); the drafts: set A, groups B-D (drafts_a/ .. drafts_d/); the Animals anthology
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case",
                  "exact_amounts",   # the owner's own skill amounts (the GO files: "gains 20 to 30 Farming")
-                 "mixer_only")      # only its mixer versions ship (More Island Events: its DLL runs the static)
+                 "mixer_only",      # only its mixer versions ship (More Island Events: its DLL runs the static)
+                 "approximations")  # where the format cannot say the owner's spec exactly (scripts/go_events/gen_mie.py)
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -268,6 +270,9 @@ def graph_for_engine(doc: dict) -> dict:
         n.pop("set", None)
         n.pop("src_pick", None)
         n.pop("src_cut", None)
+    for r in (g.get("roles") or {}).values():
+        if isinstance(r, dict):
+            r.pop("heathen_ok", None)    # the engine's role flag is pending (check_safety's heathen_ok rules)
     for p in g.get("pools", {}).values():
         p.pop("set", None)
         p.pop("mirror_of", None)
@@ -1206,8 +1211,43 @@ def check_safety(doc: dict, rep: Report) -> None:
         if r.get("special") and r["special"] not in SPECIALS:
             rep.add("f SAFETY", f"role {rid}: special is one of {SPECIALS}")
         if 5 in doc.get("games", []) and r.get("kind", "villager") == "villager" and r.get("believers_only") is False:
-            rep.add("f SAFETY", f"role {rid}: New Believers' Heathens are never cast (believers_only)")
+            for p in heathen_ok_problems(doc, rid, r):
+                rep.add("f SAFETY", f"role {rid}: {p}")
+        elif r.get("heathen_ok") is not None:
+            rep.add("f SAFETY", f"role {rid}: heathen_ok is only for a New Believers role with believers_only false")
     rep.notes.append(f"harm-capable roles: {', '.join(sorted(harm)) or 'none'}")
+
+
+# heathen_ok (the owner, 2026-11-16: "Heathens may be involved if needed for the event to make sense"; the rules from
+# the vanilla New Believers research): a New Believers role whose own text is about an Isolan / Heathen may cast a real
+# Heathen villager.  The engine side (never a Heathen role character -- the Doctor, the Chief, the three Masters,
+# Mommy -- never a sick one) is the engine's role flag; until it lands, graph_for_engine leaves the key out and the
+# role is believers_only false.  Only these effects may reach such a role: faith gain (+5..+35), joining the tribe (the
+# Defector's way), actions, and minor harm (health -5..-30, sickness); never kill, vanish, age, re-skill or less faith.
+HEATHEN_WORDS = re.compile(r"\b(?:isolans?|heathens?)\b", re.I)
+HEATHEN_OK_EFFECTS = {"action", "sick", "health_change", "faith", "join"}
+
+
+def heathen_ok_problems(doc: dict, rid: str, r: dict) -> list[str]:
+    if r.get("heathen_ok") is not True:
+        return ["New Believers' Heathens are never cast (believers_only), unless the role is heathen_ok"]
+    out = []
+    ph = re.compile(r"\(" + re.escape(rid) + r"(?:\.[^()]*)?\)", re.I)
+    texts = [f.text for f in text_fields(doc) if f.kind != "title"]
+    if not any(ph.search(par) and HEATHEN_WORDS.search(par) for t in texts for par in t.split("\n")):
+        out.append("heathen_ok, but no paragraph that names it says Isolan or Heathen")
+    for n in doc.get("nodes", {}).values():
+        for e in n.get("effects", []) or []:
+            if e.get("role") != rid and e.get("with") != rid and e.get("partner") != rid:
+                continue
+            do = e.get("do")
+            if do not in HEATHEN_OK_EFFECTS:
+                out.append(f"heathen_ok: {do} may never reach a Heathen")
+            elif do == "health_change" and not (-30 <= e.get("min", 0) <= e.get("max", 0) <= -5):
+                out.append("heathen_ok: a Heathen's health may change by -5..-30 only")
+            elif do == "faith" and not (5 <= e.get("min", 0) <= e.get("max", 0) <= 35):
+                out.append("heathen_ok: a Heathen's faith may only rise, by 5..35")
+    return out
 
 
 def _members(roles: dict, rid) -> list[str]:
@@ -1569,7 +1609,8 @@ def collection_files() -> list[Path]:
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_D_DIR.glob("*/*.json")) + list(lib.ANTHOLOGY_DIR.glob("*/*.json"))
-                  + [p for sid in lib.GO_SOURCES for p in (lib.COLLECTION_DIR / sid).glob("*/*.json")])
+                  + [p for sid in lib.GO_SOURCES for p in (lib.COLLECTION_DIR / sid).glob("*/*.json")]
+                  + list(lib.MIE_DIR.glob("*/*.json")))
 
 
 def ledger_summary(doc: dict) -> list[str]:

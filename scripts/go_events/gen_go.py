@@ -442,8 +442,9 @@ class Build:
         multi = len(roles) >= 2
         for r in roles.values():
             if r.get("believers_only") is False:
-                raise LeftOut("it casts an Isolan (a New Believers Heathen), and the collection never casts one "
-                              "(check f SAFETY); the owner decides")
+                # the owner (2026-11-16): "Heathens may be involved if needed for the event to make sense" -- the
+                # role's WHO names an Isolan; collection_check's heathen_ok rules hold it to the safe effects
+                r["heathen_ok"] = True
         # a loss's "Your village loses (award) food." is the game's own automatic line (the importer's rule)
         for k, x in enumerate(lay.order, 1):
             for j, (_hl, body) in enumerate(lay.endings.get(x, []), 1):

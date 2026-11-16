@@ -962,6 +962,9 @@ def placeholder_roles(text: str) -> list[str]:
 # "a tribe member" / "the newcomers" (whichever fits the sentence), alongside Heathen -> Isolan.  The game's own name
 # "New Believers" is never changed.
 BELIEVER_WORDS = (
+    # the possessive first ("the believers' fire" -> "the tribe's fire", never "the tribe' fire")
+    (r"\b(?:the|our|their) believers'", "the tribe's"),
+    (r"\bbelievers'", "the tribe's"),
     (r"\bthe new(?:ly converted)? believers\b", "the newcomers"),
     (r"\bnew(?:ly converted)? believers\b", "newcomers"),
     (r"\ba new believer\b", "a newcomer"),
@@ -1010,6 +1013,9 @@ def _guardians(text: str) -> str:
 # "believer" as a person of faith (against a skeptic or a doubter), the data agent's words (guardians-wording.md
 # "Believers"): plural stays plural, so no verb changes.
 FAITH_WORDS = (
+    # the possessive first ("the believers' healers" -> "the faithful's healers", never "the faithful' healers")
+    (r"\b(?:the|our|their) believers'", "the faithful's"),
+    (r"\bbelievers'", "the faithful's"),
     (r"\bthe new(?:ly converted)? believers\b", "the newcomers"),
     (r"\bnew(?:ly converted)? believers\b", "newcomers"),
     (r"\ba new believer\b", "a newcomer"),

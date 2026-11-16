@@ -164,6 +164,8 @@ def build_index(living_seeds=()) -> dict:
         graph = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json
+        if graph["collection"].get("mixer_only") is True:
+            continue                                       # More Island Events' own: listed by that patch's rows
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
         if _allows(graph):
             out[source.stem]["allow"] = True

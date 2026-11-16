@@ -150,4 +150,24 @@ The owner's GO files (2026-11-16): each sentence New Believers shows with the pa
 
 | Event | Where | Before | After |
 |---|---|---|---|
+| `s027_isolan_fire` | page (ask) | The believers have crowded round the big cooking fire with the stew pot steaming in the middle, and everyone is wrapped up to the eyes. | The faithful have crowded round the big cooking fire with the stew pot steaming in the middle, and everyone is wrapped up to the eyes. |
+| `s027_isolan_fire` | page (ask) | Should (friend) offer the soaked Isolan a bowl of stew, or ask (subject.him/her) to leave the believers' fire? | Should (friend) offer the soaked Isolan a bowl of stew, or ask (subject.him/her) to leave the tribe's fire? |
+| `s027_isolan_fire` | page (c1o2) | About the old ways of the island, from before the believers came. | About the old ways of the island, from before the faithful came. |
+| `s027_isolan_fire` | page (c2) | "This is the believers' fire," (friend.he/she) says, not unkindly, but not kindly either. | "This is the faithful's fire," (friend.he/she) says, not unkindly, but not kindly either. |
+| `s070_isolan_healer` | page (ask) | (friend) has been sick for days now, and the believers' healers are worried. | (friend) has been sick for days now, and the faithful's healers are worried. |
+| `s070_isolan_healer` | page (ask) | "If you'll let me." Isolans and believers have kept apart for a long time, and some of the healers look doubtful. | "If you'll let me." Isolans and tribe members have kept apart for a long time, and some of the healers look doubtful. |
+| `s070_isolan_healer` | page (c1o1) | The believers' healers have a great many questions for (subject). | The faithful's healers have a great many questions for (subject). |
+| `s070_isolan_healer` | page (c1o2) | The believers' healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. | The faithful's healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. |
+| `s070_isolan_healer` | page (c2) | (healer), the oldest of the believers' healers, steps forward. | (healer), the oldest of the faithful's healers, steps forward. |
+| `s070_isolan_healer` | Pick Island Event description | Another villager has been sick for days now, and the believers' healers are worried. | Another villager has been sick for days now, and the faithful's healers are worried. |
 <!-- end of GO Guardians wording -->
+
+## More Island Events
+
+<!-- MIE Guardians wording: written by scripts/go_events/gen_mie.py -->
+The owner's More Island Events file (2026-11-16): the owner's own Guardians of Isola form.
+
+| Event | Where | Before | After |
+|---|---|---|---|
+| `mie_adventurer` | page (lost2_vv5) | heathens' tribe | Isolans' tribe |
+<!-- end of MIE Guardians wording -->

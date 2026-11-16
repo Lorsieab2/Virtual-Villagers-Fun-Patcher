@@ -818,6 +818,21 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "mie": {
+  "source": "docs/more-island-events/Additional Virtual Villagers Events By Lorsieab2.txt",
+  "source_sha256": "952c7886f7fd55c8e2d66099ea489f3938efcdc2d64a2ab7147c35aac615db22",
+  "counts": {
+   "rows": 11,
+   "events": 9,
+   "addons": 0,
+   "banks": 0,
+   "notes": 2,
+   "events_and_addons": 9,
+   "series": {}
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "rows": [
   {
    "id": "notes_credit_ledger",
@@ -136140,6 +136155,364 @@
    "source": "balance",
    "source_check": {
     "heading": "L16642: ##############################################################################",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "mie_adventurer",
+   "title": "The Aspiring Adventurer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    33,
+    302
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L33: THE ASPIRING ADVENTURER (all five games)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_cave_explorers",
+   "title": "The Cave Explorers",
+   "games": [
+    1
+   ],
+   "lines": [
+    306,
+    439
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L306: THE CAVE EXPLORERS (A New Home)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_climb",
+   "title": "The Climb",
+   "games": [
+    2
+   ],
+   "lines": [
+    443,
+    484
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L443: THE CLIMB (The Lost Children)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_troubling_signs",
+   "title": "The Troubling Signs",
+   "games": [
+    3
+   ],
+   "lines": [
+    488,
+    558
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L488: THE TROUBLING SIGNS (The Secret City)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_diving",
+   "title": "Diving for Treasure",
+   "games": [
+    3
+   ],
+   "lines": [
+    561,
+    616
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L561: DIVING FOR TREASURE (The Secret City)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_mysterious_mask",
+   "title": "The Mysterious Mask",
+   "games": [
+    4
+   ],
+   "lines": [
+    619,
+    691
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 4,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L619: THE MYSTERIOUS MASK (The Tree of Life)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_dolphins",
+   "title": "The Playful Dolphins",
+   "games": [
+    4
+   ],
+   "lines": [
+    694,
+    732
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L694: THE PLAYFUL DOLPHINS (The Tree of Life)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_remembrance",
+   "title": "The Remembrance Ceremony",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    735,
+    769
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L735: THE REMEMBRANCE CEREMONY (all five games)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_rumblings",
+   "title": "The Rumblings",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    772,
+    812
+   ],
+   "kind": "event",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L772: THE RUMBLINGS (all five games)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "mie_notes_head",
+   "title": "More Island Events: the file's title, list and rules for every event",
+   "games": [],
+   "lines": [
+    1,
+    29
+   ],
+   "kind": "notes",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L1: MORE ISLAND EVENTS -- YOUR NEW EVENTS, TEXT AND ODDS",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "mie_notes_cooking",
+   "title": "More Island Events: The Cooking Contest's draft (not one of the nine events)",
+   "games": [],
+   "lines": [
+    816,
+    1395
+   ],
+   "kind": "notes",
+   "section": "mie",
+   "credit": {
+    "who": "lorsieab2_original",
+    "lines": [
+     "L1"
+    ],
+    "text": "Written by Lorsieab2."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "mie",
+   "source_check": {
+    "heading": "L816: The Lost Children - The Cooking Contest",
     "title_found": null,
     "boundary": []
    }

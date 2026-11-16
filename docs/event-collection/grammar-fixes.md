@@ -422,3 +422,13 @@ The owner's GO files (rewrites, balance; 2026-11-16): fixed automatically by scr
 | balance L8968 | `{#babies:One. Must have been the scary stories|Two. They liked the funny ones|Three. They liked all of them}` | `{#babies:One, must have been the scary stories|Two, they liked the funny ones|Three, they liked all of them}` | The Night-Blooming Flower | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
 | balance L9774 | `(Grandfather/Grandmother)` | `Grand(father/mother)` | The Grandchild's Wish | the engine has no (Grandfather/Grandmother) word: Grand(father/mother) reads the same |
 <!-- end of GO grammar fixes -->
+
+### More Island Events
+
+<!-- MIE grammar fixes: written by scripts/go_events/gen_mie.py -->
+The owner's More Island Events file (2026-11-16; scripts/go_events/gen_mie.py).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| mie L718 | `(fisherman/fisherwoman)` | `fisher(man/woman)` | The Playful Dolphins | the engine has no (fisherman/fisherwoman) word: fisher(man/woman) reads the same |
+<!-- end of MIE grammar fixes -->

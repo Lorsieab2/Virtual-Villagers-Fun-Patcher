@@ -4042,6 +4042,7 @@ Lightning on the Research Hut (source lines 1060-1105): Created by Lorsieab2; dr
 The Sleepwalkers (source lines 1109-1154): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 A Quiet Afternoon (source lines 1158-1202): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Chief's Bad Idea (source lines 1206-1251): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Isolan at the Fire (source lines 1255-1301): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Tree Remembers (source lines 1305-1349): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Wrong Step at the Falls (source lines 1353-1397): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Old Fisher's Last Tide (source lines 1401-1446): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
@@ -4084,6 +4085,7 @@ The Sinking Sand (source lines 3122-3164): Created by Lorsieab2; drafted with Ch
 The Whispering Cave (source lines 3167-3209): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Long Illness (source lines 3212-3255): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Snake in the Basket (source lines 3258-3300): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Isolan Healer (source lines 3303-3348): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Robe That Shrank (source lines 3351-3393): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Tree Blossoms Early (source lines 3396-3438): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Sculptor (source lines 3441-3483): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.

@@ -432,6 +432,8 @@ def credits_text(events: list[dict], lines: list[str] | None = None, living_on: 
     if not events:
         out.append("(No event of the collection is in this build yet.)\n")
     for e in events:
+        if e.get("mixer_only"):
+            continue      # More Island Events' own events: their credits are that patch's, never listed twice
         which = SOURCE_LINE_WORDS.get(e.get("source"), "source lines")
         where = f" ({which} {e['lines'][0]}-{e['lines'][1]})" if isinstance(e.get("lines"), list) else ""
         out.append(f"{e['title']}{where}: {e['credit']}\n")

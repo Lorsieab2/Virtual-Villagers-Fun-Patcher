@@ -1249,6 +1249,46 @@ for _k in GO_CREDITS:
 _go_rows()
 
 
+# ---- The owner's More Island Events file (collection_lib.MIE; scripts/go_events/gen_mie.py) ----------------------------
+#
+# Nine events, each from its "THE ... (games)" heading to its CHANCES table; the file's header (lines 1-29) and The
+# Cooking Contest's draft (816 on: not one of the nine) are notes rows.  Their static form never ships
+# (collection.mixer_only: "VVFP More Island Events.dll" runs them); only their mixer versions do.
+MIE_CREDITS = {"mie_own": "Written by Lorsieab2."}
+MIE_EVENTS = (   # (id, title, games, heading line, the widest question's choices, a regex matching exactly its
+    #               choice lines: the count is recounted from the source)
+    ("mie_adventurer", "The Aspiring Adventurer", ALL, 33, 2, r"^Choice [AB]: "),
+    ("mie_cave_explorers", "The Cave Explorers", [1], 306, 2, r"^(Don't explore -- |Explore the Cave\. )"),
+    ("mie_climb", "The Climb", [2], 443, 2, r"^(Go with the plan\. |Follow the scientists' advice -- )"),
+    ("mie_troubling_signs", "The Troubling Signs", [3], 488, 4, r"^Choice [1-4] -- "),
+    ("mie_diving", "Diving for Treasure", [3], 561, 2, r'^Choice "'),
+    ("mie_mysterious_mask", "The Mysterious Mask", [4], 619, 4, r'^(?:[WH] -- "|"Walk towards the )'),
+    ("mie_dolphins", "The Playful Dolphins", [4], 694, 2, r'^"(?:Swim towards the dolphins|Hang back)"'),
+    ("mie_remembrance", "The Remembrance Ceremony", ALL, 735, 0, r"(?!)"),
+    ("mie_rumblings", "The Rumblings", ALL, 772, 0, r"(?!)"),
+)
+MIE_COOKING = 816      # The Lost Children - The Cooking Contest (a draft; not one of the nine)
+
+
+def _mie_rows() -> None:
+    with lib.use_source(lib.MIE_ID):
+        heads = [h for _i, _t, _g, h, _n, _c in MIE_EVENTS] + [MIE_COOKING]
+        for k, (eid, title, games, h, choices, choice_re) in enumerate(MIE_EVENTS):
+            stop = heads[k + 1] - 1
+            while lib.is_blank_or_separator(stop):
+                stop -= 1
+            R(eid, title, games, h, stop, "event", lib.MIE_SECTION, "mie_own", choices, series=None, source=lib.MIE_ID,
+              choice_re=choice_re)
+        N("mie_notes_head", "More Island Events: the file's title, list and rules for every event", 1, 29,
+          lib.MIE_SECTION, "mie_own", source=lib.MIE_ID)
+        N("mie_notes_cooking", "More Island Events: The Cooking Contest's draft (not one of the nine events)",
+          MIE_COOKING, lib.n_lines(), lib.MIE_SECTION, "mie_own", source=lib.MIE_ID)
+
+
+CREDITS["mie_own"] = ("lorsieab2_original", [(1, 1)], lib.MIE_ID)
+_mie_rows()
+
+
 # ---- The owner's all-in-one Animals anthology, its newest volumes (collection_lib.ANTHOLOGY; its own line numbers) ----
 #
 # The owner's newest all-in-one file (2026-11-15) is the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE
@@ -1544,7 +1584,7 @@ OWNER_CREDITS = {
 def credit_text(key: str) -> dict:
     who, ranges, *src = CREDITS[key]
     with lib.use_source(src[0] if src else lib.SOURCE_ID):
-        text = OWNER_CREDITS.get(key) or GO_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
+        text = OWNER_CREDITS.get(key) or GO_CREDITS.get(key) or MIE_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
         return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges], "text": text}
 
 
@@ -1693,6 +1733,8 @@ def build() -> dict:
         # The owner's GO files (collection_lib.GO_SOURCES): rows with "source" "rewrites" / "balance"
         **{sid: whole_file(sid, lib.SOURCES[sid][0], tuple(sec for sec, _t in v[2].values()))
            for sid, v in lib.GO_SOURCES.items()},
+        # The owner's More Island Events file (collection_lib.MIE): rows with "source" "mie"
+        lib.MIE_ID: whole_file(lib.MIE_ID, lib.MIE, ()),
         "rows": rows,
     }
 
@@ -1721,7 +1763,7 @@ def main(argv=None) -> int:
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
     for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology",
-                *lib.GO_SOURCES):
+                *lib.GO_SOURCES, lib.MIE_ID):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

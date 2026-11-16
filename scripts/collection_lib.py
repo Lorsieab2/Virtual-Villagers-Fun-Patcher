@@ -196,6 +196,19 @@ GO_SOURCES = {   # source id: (file name, line count, {code prefix: (section, to
 for _sid, (_name, _n, _secs) in GO_SOURCES.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
 GO_SECTIONS = {sec: (sid, topic) for sid, v in GO_SOURCES.items() for sec, topic in v[2].values()}
+
+# The owner's More Island Events file (2026-11-16): the nine events "VVFP More Island Events.dll" runs (The Aspiring
+# Adventurer ... The Rumblings), frozen byte for byte (SHA-256 in data/event_collection/MIE.sha256) and built as
+# collection events whose static form never ships (collection.mixer_only: only their mixer versions do):
+# data/event_collection/mie/mie/<id>.json, built by scripts/go_events/gen_mie.py.  Lines 816 on (The Cooking
+# Contest's draft) are a notes row.
+MIE_ID = "mie"
+MIE = ROOT / "docs" / "more-island-events" / "Additional Virtual Villagers Events By Lorsieab2.txt"
+MIE_HASH_FILE = COLLECTION_DIR / "MIE.sha256"
+MIE_LINES = 1395
+MIE_SECTION = "mie"
+MIE_DIR = COLLECTION_DIR / MIE_ID
+SOURCES[MIE_ID] = (MIE, MIE_HASH_FILE, MIE_LINES)
 _ACTIVE = [SOURCE_ID]
 
 
