@@ -952,17 +952,46 @@ def placeholder_roles(text: str) -> list[str]:
     return out
 
 
+# The owner (2026-11-16): with VV5's Guardians of Isola Rewrite, "believer(s)" in new events reads "the tribe" /
+# "a tribe member" / "the newcomers" (whichever fits the sentence), alongside Heathen -> Isolan.  The game's own name
+# "New Believers" is never changed.
+BELIEVER_WORDS = (
+    (r"\bthe new(?:ly converted)? believers\b", "the newcomers"),
+    (r"\bnew(?:ly converted)? believers\b", "newcomers"),
+    (r"\ba new believer\b", "a newcomer"),
+    (r"\bthe believers\b", "the tribe"),
+    (r"\ball (?:the )?believers\b", "the whole tribe"),
+    (r"\b(?:our|their|its) believers\b", "the tribe"),
+    (r"\bbelievers\b", "tribe members"),
+    (r"\ba believer\b", "a tribe member"),
+    (r"\bthe believer\b", "the tribe member"),
+    (r"\bbeliever\b", "tribe member"),
+)
+
+
+def _keep_case(old: str, new: str) -> str:
+    return new.upper() if old.isupper() and len(old) > 1 else new[0].upper() + new[1:] if old[0].isupper() else new
+
+
 def _guardians(text: str) -> str:
-    """The Guardians of Isola words (guardians-wording.md): Heathen -> Isolan, keeping the case."""
+    """The Guardians of Isola words (guardians-wording.md and the owner's 2026-11-16 rule): Heathen -> Isolan, and
+    believer(s) -> the tribe / a tribe member / the newcomers, keeping the case."""
     def rep(m: re.Match) -> str:
         w = m.group(0)
         base = "Isolan" + w[len("Heathen"):]
         return base.upper() if w.isupper() else base if w[0].isupper() else base.lower()
-    return re.sub(r"(?i)heathen(s|-born)?", rep, text)
+    text = re.sub(r"(?i)heathen(s|-born)?", rep, text)
+    keep = "\x00NB\x00"
+    text = text.replace("New Believers", keep)           # the game's name
+    for pattern, new in BELIEVER_WORDS:
+        text = re.sub(pattern, lambda m, new=new: _keep_case(m.group(0), new), text, flags=re.I)
+    return text.replace(keep, "New Believers")
 
 
 def _has_heathen(text: str) -> bool:
-    return re.search(r"(?i)heathen", text) is not None
+    """Text that Guardians of Isola words change (Heathen, believer)."""
+    return re.search(r"(?i)heathen", text) is not None or \
+        re.search(r"(?i)\bbelievers?\b", text.replace("New Believers", "")) is not None
 
 
 # ---- Parsing a file ------------------------------------------------------------------------------------------------
@@ -3054,7 +3083,7 @@ Isola is a tribal society with its own traditions, science, history, and mysteri
 * Different villagers may hold different beliefs, all of which deserve respect.
 * Outsiders and the origins of mysterious objects may remain unknown.
 * Follow the appropriate game-specific lore and terminology.
-* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens. In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
+* In VV5, use my respectful Guardians of Isola terminology, including Isolans rather than Heathens, and "the tribe", "a tribe member" or "the newcomers" (whichever fits the sentence) rather than "believers". In VV5 a Heathen (Isolan) is only ever in an event about meeting them or coming to live with the tribe; give such a role "any faith".
 
 7. Make the Outcomes Matter
 Depending on the story, outcomes may include:

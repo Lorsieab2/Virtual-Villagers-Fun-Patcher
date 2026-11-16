@@ -141,6 +141,23 @@ class SimpleEvents(unittest.TestCase):
         v = g["nodes"]["ask"]["variants"]
         self.assertTrue(any("Isolans" in x["text"] for x in v))
 
+    def test_guardians_of_isola_believer_words(self):
+        cases = {
+            "The believers gather.": "The tribe gather.",      # the verb is left as written (owner reviews)
+            "A believer smiles.": "A tribe member smiles.",
+            "the new believers arrive": "the newcomers arrive",
+            "Two believers argue.": "Two tribe members argue.",
+            "New Believers is the game.": "New Believers is the game.",
+            "THE BELIEVERS": "THE TRIBE",
+        }
+        for before, after in cases.items():
+            self.assertEqual(pe._guardians(before), after)
+        text = SIMPLE.replace("Applies to: VV1, VV3", "Applies to: VV5").replace(
+            "since sunrise.", "since sunrise, watched by a believer.")
+        v = compiled(text).graph["nodes"]["ask"]["variants"]
+        self.assertTrue(any("a tribe member" in x["text"] for x in v))
+        self.assertIn("rather than \"believers\"", pe.ai_prompt())
+
 
 class EveryEffectWord(unittest.TestCase):
     CASES = {
