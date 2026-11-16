@@ -186,6 +186,37 @@ class EveryEffectWord(unittest.TestCase):
         self.assertIsNotNone(c, probs)
 
 
+class ChangeNameToAFixedName(unittest.TestCase):
+    """Effect 33 with a fixed name (engine 00e56af2c): the string field; the engine's name rule."""
+
+    def test_the_name_compiles_into_the_effect_string_and_back(self):
+        c = compiled(SIMPLE.replace("Effect: SKILL + Building a little", "Effect: CHANGE NAME TO Lani"))
+        e = c.graph["nodes"]["c2o1"]["effects"][0]
+        self.assertEqual((e["do"], e["name"]), ("change_name", "Lani"))
+        back = cie.decompile_graph(c.cieg)
+        names = [x.get("name") for n in back["nodes"].values() for x in n.get("effects", [])
+                 if x["do"] == "change_name"]
+        self.assertEqual(names, ["Lani"])
+        c2 = compiled(SIMPLE.replace("Effect: SKILL + Building a little",
+                                     "Effect: CHANGE NAME helper TO Mary-Ann O'Neil"))
+        e2 = c2.graph["nodes"]["c2o1"]["effects"][0]
+        self.assertEqual((e2["role"], e2["name"]), ("helper", "Mary-Ann O'Neil"))
+        rnd = compiled(SIMPLE.replace("Effect: SKILL + Building a little", "Effect: CHANGE NAME"))
+        self.assertNotIn("name", rnd.graph["nodes"]["c2o1"]["effects"][0])
+
+    def test_a_bad_name_is_a_line_numbered_problem(self):
+        for bad in ("1Lani", "Lani!", "A" * 32, "La_ni"):
+            it = one(SIMPLE.replace("Effect: SKILL + Building a little", f"Effect: CHANGE NAME TO {bad}"))
+            self.assertTrue(any(p.line == 13 and "CHANGE NAME" in p.text for p in it.problems), (bad, it.problems))
+        _g, probs = cie.normalize({"format": cie.FORMAT, "version": 6, "title": "T", "games": [1],
+                                   "roles": {"subject": {"kind": "villager"}}, "start": "a",
+                                   "nodes": {"a": {"text": "Hi.", "effects": [
+                                       {"do": "change_name", "name": "Bad!"}]}}})
+        self.assertTrue(any("change_name name" in p for p in probs))
+        self.assertTrue(cie.CHANGE_NAME_RE.match("Dr. Lani"))
+        self.assertFalse(cie.CHANGE_NAME_RE.match("Lani "))
+
+
 class FormatSectionMatchesTheParser(unittest.TestCase):
     """The prompt's format section is what the parser reads: its example parses and compiles, and every effect it
     lists is a line the parser accepts."""
@@ -198,7 +229,7 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
     def test_every_effect_the_prompt_lists_is_accepted(self):
         fmt = pe.FORMAT_SECTION
         section = fmt[fmt.index("Gameplay effects"):fmt.index("Optional lines")]
-        samples = {"<skill>": "Healing", "<thing>": "swimming", "<who>": "fisher", "<n>": "5",
+        samples = {"<skill>": "Healing", "<thing>": "swimming", "<who>": "fisher", "<n>": "5", "<name>": "Lani",
                    "<0-100>": "50", "<the game's own action words>": "Dance"}
         found = 0
         for phrase in pe.EFFECT_VOCABULARY:

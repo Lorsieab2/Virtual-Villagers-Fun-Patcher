@@ -955,7 +955,7 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 | 30 | clone | role index | 0 | 0 | 0 | NONE |
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
-| 33 | change_name | role index | 0 | 0 | 0 | NONE |
+| 33 | change_name | role index | 0 | 0 | 0 | the fixed name, or NONE / empty (a random default name) |
 | 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE |
 
 - **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
@@ -976,7 +976,11 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 - **`{"do": "clone", "role": r}`**: an exact double of the role's villager joins the tribe (looks, likes, dislikes and
   skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's.
 - **`{"do": "change_name", "role": r}`**: a real rename to a random default name from the game's own name lists
-  (either sex's), for "a villager wants to change their name".
+  (either sex's), for "a villager wants to change their name". With **`"name": "Lani"`** (engine 00e56af2c) the
+  villager takes that name instead: the effect record's string (offset 12, the field a like's word uses). The name is
+  1-31 characters, starts with a letter and holds only letters, spaces, apostrophes, hyphens and full stops, with no
+  space at the end (`vv_cie_graph.CHANGE_NAME_RE`; the engine refuses the whole file otherwise). A one-word name keeps
+  the villager's last name; past the name's room the first name alone.
 - **`{"do": "change_age", "role": r, "to": "child" | "teen" | "18" | "adult" | "50" | "elder"}`**, or
   **`"years": n | [a, b]`** (-120..120, not 0; negative is younger): "teen" is 14-17, "adult" 20-49, "elder" 55-75;
   "years" rolls a..b once at its place in the walk.

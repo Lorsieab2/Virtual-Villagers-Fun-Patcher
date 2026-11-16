@@ -165,6 +165,7 @@ main villager):
   potion), or for NURSING when a father is caring for a baby.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
   LOSE NAME <who> (the name becomes "?"), CHANGE NAME <who> (a new name from the game's own list),
+  CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
   CHANGE AGE <who> YOUNGER|OLDER <n> YEARS, CHANGE AGE <who> TO child|teen|18|adult|50|elder.
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).

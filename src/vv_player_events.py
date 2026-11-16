@@ -449,7 +449,7 @@ EFFECT_VOCABULARY = (
     "NEW VILLAGER (child|teen|adult|elder|any)", "DUPLICATE OF <who>", "CLONE OF <who>",
     "PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]", "NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]",
     "NEW LOOK (head|body|both) <who>", "OLD LOOK <who>", "SEX CHANGE <who>", "BODY SWAP <who> WITH <who>",
-    "LOSE NAME <who>", "CHANGE NAME <who>", "CHANGE AGE <who> YOUNGER|OLDER <n> YEARS",
+    "LOSE NAME <who>", "CHANGE NAME <who>", "CHANGE NAME <who> TO <name>", "CHANGE AGE <who> YOUNGER|OLDER <n> YEARS",
     "CHANGE AGE <who> TO child|teen|18|adult|50|elder", "MOOD GOOD|BAD <who>", "CELEBRATE [<who>|everyone]",
     "ACTION <who> \"<the game's action words>\"", "DAMAGE (small|normal|large|huge) [ON <structures>]",
     "BECOMES HEATHEN <who>", "STORY MUTE <who>")
@@ -591,17 +591,27 @@ def plain_effect(line: str) -> PlainEffect | str:
             if part in ("body", "clothes", "both"):
                 e["body"] = "random"
             return PlainEffect([fx(**e)], roles)
-        m = re.fullmatch(r"(old look|sex change|lose name|loses name|change name|changes name|story mute|"
+        m = re.fullmatch(r"changes? name(?: (?!to\b)" + _T + r")?(?: to (.+))?", s, re.I)
+        if m:
+            # Code 33: a fixed name (TO <name>, the engine's rule), or a random one from the game's own lists.
+            rid = need(_target(m.group(1)))
+            e = {"do": "change_name", "role": rid}
+            if m.group(2) is not None:
+                name = m.group(2).strip().strip('"').strip()
+                if not cie.CHANGE_NAME_RE.match(name):
+                    return (f"CHANGE NAME TO {name!r}: a name is 1 to {cie.CHANGE_NAME_MAX} letters, spaces, "
+                            "apostrophes, hyphens or full stops, starting with a letter")
+                e["name"] = name
+            return PlainEffect([fx(**e)], roles)
+        m = re.fullmatch(r"(old look|sex change|lose name|loses name|story mute|"
                          r"becomes heathen)(?: " + _T + r")?(?: to (\w+))?", s, re.I)
         if m:
-            what = m.group(1).lower().replace("loses", "lose").replace("changes", "change")
+            what = m.group(1).lower().replace("loses", "lose")
             rid = need(_target(m.group(2)))
-            note = f"CHANGE NAME picks a name from the game's own lists; \"TO {m.group(3)}\" was ignored." \
-                if m.group(3) and what == "change name" else ""
-            if m.group(3) and what != "change name":
+            note = ""
+            if m.group(3):
                 return f"{m.group(1)} takes no \"TO\""
-            do = {"old look": "old_look", "sex change": "sex_change", "lose name": "lose_name",
-                  "change name": "change_name"}.get(what)
+            do = {"old look": "old_look", "sex change": "sex_change", "lose name": "lose_name"}.get(what)
             if what == "story mute":
                 return PlainEffect([fx(do="trait", role=rid, trait="mute")], roles)
             if what == "becomes heathen":
@@ -1909,6 +1919,8 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             a = local[e["partner"]] if e.get("partner") else 0xFF
         elif do == "body_swap":
             a = local[e["with"]]
+        elif do == "change_name":
+            st = e.get("name", "")
         elif do == "change_age":
             if "to" in e:
                 flags = cie.CHANGE_AGE_TO[e["to"]]
@@ -2365,6 +2377,7 @@ main villager):
   potion), or for NURSING when a father is caring for a baby.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
   LOSE NAME <who> (the name becomes "?"), CHANGE NAME <who> (a new name from the game's own list),
+  CHANGE NAME <who> TO <name> (that name: letters, spaces, ' - . only, up to 31),
   CHANGE AGE <who> YOUNGER|OLDER <n> YEARS, CHANGE AGE <who> TO child|teen|18|adult|50|elder.
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
   DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).
@@ -2649,6 +2662,8 @@ def _plain_of(e: dict) -> str:
         return f"HEALTH{tail or ' villager'} {e['min']:+d} TO {e['max']:+d}"
     if do == "mood":
         return f"MOOD {e['mood'].upper()}{tail}"
+    if do == "change_name" and e.get("name"):
+        return f"CHANGE NAME{tail or ' villager'} TO {e['name']}"
     if do == "celebrate":
         return "CELEBRATE"
     if do == "new_villager":
