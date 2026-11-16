@@ -954,14 +954,17 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 
 | Code | do | role byte | flags | a | b | string |
 |---|---|---|---|---|---|---|
-| 27 | new_villager | `copy_of` role index, or 0xFF (a random new villager) | 0 | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | 0 | NONE |
-| 28 | pregnant | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
-| 29 | nursing | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 27 | new_villager | `copy_of` role index (or 253 / 252), or 0xFF (a random new villager) | 1 a child of the two newest villagers | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | sex: 0 random, 1 male, 2 female | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
 | 30 | clone | role index | 0 | how many: 0 or 1 = one double, 2 = two | 0 | NONE |
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
 | 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
-| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
+| 35 | cure | role index (or 254) | 0 | 0 | 0 | NONE |
+| 36 | repair | 0xFF | 0 | 0 | 0 | the structures, comma separated, or `any` (as damage's) |
+| 37 | young_look | role index (or 254) | 0 | 0 | 0 | NONE |
 
 - **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
   villager joins the tribe (a newcomer who stays, a castaway). With `copy_of`, the newcomer has the role's villager's
@@ -995,3 +998,25 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   skills and likes stay).
 - **`{"do": "lose_name", "role": r}`**: the villager's name becomes "?", as the stock bump-on-the-head event does.
 - Not harmful (section 7) and no automatic line (section 25) until the engine side is built.
+
+**The engine's further layouts (feat/97-island-events-ui 3a3651283, 8ebafe54f; the effect record is `B code, B role,
+B flags, B byte 3, i a, i b, H string, H last`):**
+
+- **`{"do": "cure", "role": r}`** (35): the villager is cured; line "<R> is cured.". **`{"do": "repair", "structures":
+  "any" | [names]}`** (36): the damaged buildings are repaired; line "The damaged buildings are being repaired.".
+  **`{"do": "young_look", "role": r}`** (37): the villager's young head look (section 27's twin).
+- **Group targets:** `"target": {"all": true} | {"skill": "Healing"} | {"random": 3}` in place of a role, on health,
+  preference (a word, never random), skill and skill set, sick, action, mood, health_change, cure, young_look,
+  old_look and celebrate: role byte 254; byte 3 the selector (1 every villager, last H 0; 2 every villager with that
+  skill at 50 or more, last H the skill name's string; 3 N villagers at random, last H = N, 1..255). Byte 3 and the
+  last H are 0 on every other effect (change_age's cap aside). No automatic line from the compiler (the engine's).
+- **The best skill:** skill (9) and skill set (15) with `"best": true` in place of the skills: flags bit 32, the
+  string "best"; line "<R> gets better at what <P> does best.".
+- **The event's new villagers:** `"$newest"` (role byte 253) and `"$previous"` (252), the villagers this event's
+  new_villager or clone made, stand for a role in any villager effect, as a pregnant / nursing partner (a) and as
+  new_villager's `copy_of`; no role is declared for them. new_villager also takes `"sex": "male" | "female"` (b;
+  random when left out) and `"child_of_newest": true` (flags bit 0: a child of the two newest villagers).
+- **change_age's cap:** `"max_age": 75` (the last H): never past that age ("never past elder").
+- **The babies of pregnant / nursing:** `"babies": "roll" | 2 | 3` (left out: one): flags bit 1 the game's own
+  multiple-birth roll (7% more than one, a quarter of those triplets) without its technology gate; bit 2 twins; bits 1
+  and 2 triplets; any other bit is refused.
