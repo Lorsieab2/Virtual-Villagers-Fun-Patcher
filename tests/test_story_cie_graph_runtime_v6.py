@@ -695,6 +695,23 @@ class NodeTitles(unittest.TestCase):
                     rest = long_label[len(last):].strip()
                     self.assertIn(rest, shown[-1][1], "the label's rest is the page's first line")
 
+    def test_the_title_is_the_choice_picked(self):
+        """Codex P2 (PR #771): both choices lead to the same node -- each one's own label titles what follows."""
+        from test_cie_graph_v6 import TITLES
+        same = copy.deepcopy(TITLES)
+        same["nodes"]["q"]["choices"] = [{"label": "Leave", "next": "n"}, {"label": "Keep", "next": "n"}]
+        del same["nodes"]["y"], same["nodes"]["y2"]
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for answer, label in ((0, "Leave"), (1, "Keep")):
+                with self.subTest(game=game, answer=label):
+                    r = V6(game, TWO)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(same)))
+                    r.walk_through([answer])
+                    self.assertEqual(r.titles()[-1], label)
+
     def test_placeholders_in_titles(self):
         """17: on screen with the names (or pronouns when they do not fit); the log's entry with the real names (the
         owner: "(Name1)" is filled with the cast villager's name -- "Ana's No Good, Very Bad Day")."""

@@ -6811,6 +6811,8 @@ static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, in
    path node `from` (the node after a question), as a title (its string index + 1); 0 none.  Always the label, never
    the event's title instead: one wider than the title area wraps, its rest the page's first line (cg_display_title,
    cg_display: "should not be a problem with the scrollbars"). */
+static int cg_layout_choice = -1;     /* the choice cg_take_answer lays out the pages of (-1: none known) */
+
 static unsigned short cg_choice_title(const cg_history *h, int from) {
     static char worst[CG_LABEL_V6 * 4];
     const unsigned char *q;
@@ -6824,6 +6826,12 @@ static unsigned short cg_choice_title(const cg_history *h, int from) {
     }
     first = (int)cg_u16(q + 12);
     count = (int)cg_u16(q + 14);
+    if (cg_layout_choice >= 0 && cg_layout_choice < count) {
+        /* the choice the player picked (several choices may lead to the same node: its own label, Codex P2) */
+        unsigned int label = cg_u16(cg_child_at(&cg_g, first + cg_layout_choice) + 8);
+        (void)worst;
+        return label != CG_NONE ? (unsigned short)(label + 1u) : 0;
+    }
     for (k = 0; k < count; ++k) {
         const unsigned char *c = cg_child_at(&cg_g, first + k);
         unsigned int label = cg_u16(c + 8);
@@ -7486,7 +7494,9 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
     cg.path.fx = cg.q_fx[qi];
     cg.pick_count = cg.q_picks[qi];
     cg_path_add(cg_seg(qi, choice), cg.seg_picks[qi][choice], cg.seg_pick_count[qi][choice]);
+    cg_layout_choice = choice;
     cg_layout_from(a, game, cg.q_path[qi], 1);
+    cg_layout_choice = -1;
     return 1;
 }
 

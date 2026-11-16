@@ -1650,6 +1650,27 @@ class NodeTitles(unittest.TestCase):
         next(iter(old["nodes"].values()))["title"] = "Older"
         self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
 
+    def test_simulate_titles_follow_the_choice_picked(self):
+        """Codex P2 (PR #771): two choices leading to the same node -- the title is the label of the one picked."""
+        g = copy.deepcopy(TITLES)
+        g["nodes"]["q"]["choices"] = [{"label": "Leave", "next": "n"}, {"label": "Keep", "next": "n"}]
+        del g["nodes"]["y"], g["nodes"]["y2"]
+        g = cg.load(g)
+        for answer, label in ((0, "Leave"), (1, "Keep")):
+            r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [answer])
+            self.assertEqual(r["titles"][-1], label)
+
+    def test_a_requirement_fact_still_checks_the_graph(self):
+        """Codex P2 (PR #771): a requirement on a run-time fact (min_population) keeps its contexts, so a branch with
+        no child that applies there is still found."""
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Check", "games": [3],
+             "roles": {"subject": {"kind": "villager"}}, "start": "b",
+             "requirement": {"min_eligible": 1, "if": {"min_population": 3}},
+             "nodes": {"b": {"type": "branch", "children": [{"next": "x", "if": {"min_population": 99}}]},
+                       "x": {"text": "(Name) waits."}}}
+        _graph, problems = cg.validate(g, True)
+        self.assertTrue(any("no child applies" in p for p in problems), problems)
+
     def test_simulate_titles(self):
         g = cg.load(copy.deepcopy(TITLES))
         r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
