@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Enormous Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il151_enormous_basket",
+  "source": "da_il08",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager weaving and chatting forgot to stop, and the basket is now big enough to sleep in.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) was weaving a basket and talking with friends at the same time, and somewhere along the way (subject.he/she) forgot to stop. The basket is now big enough to sit in. Possibly big enough to sleep in. It's well made. It's just enormous. (friend) walks round it, very slowly.",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Find a Use for It",
+     "next": "a",
+     "src": "L127"
+    },
+    {
+     "label": "Leave It Outside the Hut",
+     "next": "b",
+     "src": "L130"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They try everything. It's too big for fruit. Too big for fish. Too big to carry, by one person anyway. In the end, a group of children discover it and declare it a boat, a hut and a fort, all on the same afternoon. (subject) decides that's exactly what (subject.he/she) was making all along.",
+   "src": "L128"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) puts it outside the hut and goes to bed. In the morning (subject.he/she) finds (friend) curled up inside it, fast asleep. \"It's very comfortable,\" (friend) says, without opening (friend.his/her) eyes. (subject) briefly considers making a second one. Then (subject.he/she) decides one is plenty.",
+   "src": "L131"
+  }
+ }
+}

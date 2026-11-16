@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Separate Hammocks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam205_separate",
+  "source": "draft_fam2",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   }
+  ],
+  "description": "A couple who snore and kick have not slept in weeks, and one strings up a second hammock: try it, or try earplugs first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) love each other very much. (subject) also snores like a pig with a cold, and (friend) kicks in (friend.his/her) sleep like a startled goat. Neither of them has slept properly in weeks. Tonight (friend) has quietly strung up a second hammock across the hut.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Try It",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Try Earplugs First",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) looks at the second hammock, then at (friend). \"Is this... is it something I did?\" \"Yes,\" says (friend). \"The snoring. And I kick. This isn't about loving you less. It's about sleeping.\" They try it. They both sleep beautifully. In the morning they have breakfast together, rested and cheerful. A neighbor raises an eyebrow at the two hammocks. They don't mind at all.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Let me try something first,\" says (subject). (subject.He/she) gives (friend) two little plugs of soft wax for (friend.his/her) ears. That night, (friend) sleeps through the snoring. Unfortunately, (friend.he/she) still kicks, and at midnight (subject) ends up on the floor. In the morning they look at the second hammock and quietly hang it up. Love is love. Sleep is sleep.",
+   "src": "L65"
+  }
+ }
+}

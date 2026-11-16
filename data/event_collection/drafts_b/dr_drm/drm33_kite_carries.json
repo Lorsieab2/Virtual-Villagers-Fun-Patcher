@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Kite That Carries Messages",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm33_kite_carries",
+  "source": "draft_drm",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-12)"
+   }
+  ],
+  "description": "A villager builds a kite to carry notes across the village, and a child helps launch it: attach a message, or just fly it first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a dream: a kite big enough and strong enough to carry a little bark message from one end of the village to the other. It's completely unnecessary. You could just walk. (subject) knows this. (subject.He/she) has been building the kite for a week, and today (friend) is helping launch it.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Attach a Message and Try",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Fly It Without a Message First",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They tie on a small message: \"HELLO.\" The kite climbs, wobbles, dives, climbs again, and comes down on a roof halfway across the village. Someone comes out, finds the message, and waves. \"HELLO!\" they shout back. It is, (subject) admits, slower than walking. (subject.He/she) is overjoyed.",
+   "src": "L398"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Let's just see if it flies,\" says (friend). It flies beautifully, high and steady, for a whole afternoon. They lie on their backs watching it. They forget all about the message. Neither of them minds. Tomorrow, maybe, the message. Today, just the kite.",
+   "src": "L401"
+  }
+ }
+}

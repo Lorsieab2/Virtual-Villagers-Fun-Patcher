@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Echo That Talked Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum20_echo_talked_back",
+  "source": "draft_hum",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two villagers aged 12 or older)"
+   }
+  ],
+  "description": "A villager shouts into the valley and the echo starts talking back: keep talking to the echo, or go and find it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is standing on the edge of the valley, shouting to hear the echo. \"HELLO!\" \"Hello,\" says the echo. \"WHO'S THERE?\" \"Me,\" says the echo. (subject) frowns. That is not how echoes work. On the far side of the valley, hidden behind a rock, (friend) is gathering herbs and having a lovely time.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Keep Talking to the Echo",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Go and Find It",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"ARE YOU A SPIRIT?\" \"Maybe.\" \"WHAT'S YOUR NAME?\" A long pause. \"...Echo.\" (subject) runs home to tell everyone about the talking echo. (friend) arrives a little later with a basket of herbs, carefully not looking at (subject.him/her). Not everybody believes the story. (friend) believes it most loudly of all.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) climbs all the way round the valley and finds (friend) crouched behind a rock, shaking with laughter. \"I'm the echo,\" says (friend). \"I know,\" says (subject). The next day they take the children to the valley and do it all again, and the children believe every word.",
+   "src": "L245"
+  }
+ }
+}

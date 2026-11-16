@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Punishment Everyone Regrets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus06_punishment",
+  "source": "anthology",
+  "lines": [
+   30799,
+   30813
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30799",
+  "ledger": [
+   {
+    "src": "L30800",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30801",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30803",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30804",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30807",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child was blamed for damaged baskets and made to miss a festival; later evidence points elsewhere.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) was blamed for damaged baskets and made to miss a festival; later evidence points elsewhere.",
+   "src": "L30801",
+   "choices": [
+    {
+     "label": "Admit the Mistake",
+     "next": "a",
+     "src": "L30802"
+    },
+    {
+     "label": "Make Practical Amends",
+     "next": "b",
+     "src": "L30805"
+    },
+    {
+     "label": "Examine the Evidence",
+     "next": "c",
+     "src": "L30808"
+    },
+    {
+     "label": "Improve the Process",
+     "next": "d",
+     "src": "L30811"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) apologizes without excuses.",
+   "src": "L30803"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks why nobody listened the first time.",
+   "src": "L30804"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family arranges a special shared outing.",
+   "src": "L30806"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) prefers having the lost privilege restored later.",
+   "src": "L30807"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A frayed support explains the damage.",
+   "src": "L30809"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager admits an accidental bump.",
+   "src": "L30810"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Children are allowed to explain before consequences.",
+   "src": "L30812"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A second adult is asked to review serious accusations.",
+   "src": "L30813"
+  }
+ }
+}

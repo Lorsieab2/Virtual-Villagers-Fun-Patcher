@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Has Anyone Noticed?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt22_has_anyone",
+  "source": "draft_tt",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L269",
+    "kind": "sensitivity",
+    "before": "a small child stops dead",
+    "after": "(child), a small child, stops dead",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has a new shell-braided hairstyle and nobody has said a word: a friend notices, or a friend does not.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has done (subject.his/her) hair in a new way: braided, with little shells woven in. It took all morning. It looks wonderful. Nobody has said a word. (subject) has started standing where the light catches the shells, turning (subject.his/her) head a great deal, and has asked (friend) twice whether there's \"anything different about today.\"",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "(friend) Notices",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "(friend) Doesn't Notice",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Oh! Your hair!\" says (friend) at last. (subject) looks surprised. \"This? Oh, it's nothing.\" Then (subject.he/she) explains every step of how it was done, which shells, and why. (friend) listens to all of it. It really does look wonderful.",
+   "src": "L266"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) looks closely, thinks hard, and says, \"...Have you washed your sandals?\" (subject) gives up and heads home. On the way, (child), a small child, stops dead in the path and says, \"Your HAIR is so PRETTY.\" (subject) walks the rest of the way home a good deal taller.",
+   "src": "L269"
+  }
+ }
+}

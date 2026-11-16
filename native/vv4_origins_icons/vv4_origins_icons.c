@@ -2447,6 +2447,8 @@ static unsigned int appearance_rng;
 /* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once, so an OK
    with nothing else changed is no change to report or charge. */
 static int appearance_sex_changed;
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free. */
+static vvfp_gp_window appearance_gp;
 static int appearance_hair_head(int colour);
 
 /* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
@@ -2454,6 +2456,8 @@ static int appearance_hair_head(int colour);
 static void appearance_show(HWND window) {
     appearance_state.is_old = vvfp_head_look_old(
         appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
+    appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, appearance_state.villager);
+    vvfp_gp_window_show(window, &appearance_gp, 4, appearance_state.villager);
     SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[vv_get_mask(appearance_state.villager)]);
     if (appearance_look_offered) {
         CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
@@ -2470,6 +2474,11 @@ static int appearance_extra(HWND window, unsigned int command) {
     if (command == VVFP_AX_UNDO) {
         appearance_revert();
         appearance_look = appearance_look_was;
+        appearance_gp.on = appearance_gp.was;
+    } else if (command == VVFP_AX_PRESENTATION) {
+        if (!vvfp_gp_window_toggle(window, &appearance_gp, 4, appearance_state.villager)) {
+            return 1;
+        }
     } else if (command == VVFP_AX_RESET) {
         int h, b, m;
         if (!vvfp_original_look(4, appearance_state.villager, &h, &b, &m) || h < 0 || h >= VV_HEAD_COUNT
@@ -2501,8 +2510,7 @@ static int appearance_extra(HWND window, unsigned int command) {
         if (!vvfp_ax_change_sex(window, 4, appearance_state.villager, -1)) {   /* the index matters to A New Home only */
             return 1;
         }
-        appearance_state.sex = *(int *)(appearance_state.villager + VV_SEX_OFFSET);
-        appearance_sex_changed = 1;
+        appearance_sex_changed = 1;           /* appearance_show draws the new sex (or its other look) */
     } else {
         return 0;
     }
@@ -2598,14 +2606,17 @@ static INT_PTR CALLBACK appearance_dialog(
             int body_changed = (*body != appearance_state.original_body);
             int mask_changed = (vv_get_mask(appearance_state.villager)
                                 != appearance_state.original_mask);
+            int gp_changed = vvfp_gp_window_changed(&appearance_gp);
             if (!head_changed && !body_changed && !mask_changed
                 && appearance_look_offered && appearance_look != appearance_look_was) {
                 /* The look alone: kept, and charged like any change -- 1, so the exe charges 5,000. */
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
                 EndDialog(window, appearance_keep_look(window) ? 1 : 0);
                 return TRUE;
             }
-            if (!head_changed && !body_changed && !mask_changed && appearance_sex_changed) {
-                /* Only the sex, which was made at once and is free: nothing more to keep or charge. */
+            if (!head_changed && !body_changed && !mask_changed && (appearance_sex_changed || gp_changed)) {
+                /* Only the sex (made at once) or the gender presentation: free, nothing more to keep or charge. */
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
                 EndDialog(window, 0);
                 return TRUE;
             }
@@ -2639,6 +2650,7 @@ static INT_PTR CALLBACK appearance_dialog(
                 return TRUE;
             }
             vv_write_mask_sidecar();
+            (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
             EndDialog(window, 1);
             return TRUE;
         }
@@ -3208,6 +3220,8 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_state.is_old = vvfp_head_look_old(appearance_look, *(int *)(villager + VV_DISPLAY_AGE_OFFSET));
     appearance_rng = GetTickCount() | 1u;
     appearance_sex_changed = 0;
+    vvfp_gp_window_open(&appearance_gp, 4, villager);
+    appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, villager);
     result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(appearance_look_offered ? IDD_ORIGINS_APPEARANCE_LOOK : IDD_ORIGINS_APPEARANCE),

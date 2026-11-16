@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Noble Family's Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp42_noble_family",
+  "source": "anthology",
+  "lines": [
+   31904,
+   31918
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31904",
+  "ledger": [
+   {
+    "src": "L31905",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31918",
+    "kind": "sensitivity",
+    "before": "A young organizer",
+    "after": "(organizer), a young organizer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A prominent family offers generous supplies for a public project while requesting special influence.",
+  "label_case": "title",
+  "cast_only": [
+   "organizer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "organizer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A prominent family offers generous supplies for a public project while requesting special influence.",
+   "src": "L31906",
+   "choices": [
+    {
+     "label": "Accept with Conditions",
+     "next": "a",
+     "src": "L31907"
+    },
+    {
+     "label": "Decline Politely",
+     "next": "b",
+     "src": "L31910"
+    },
+    {
+     "label": "Disclose the Terms",
+     "next": "c",
+     "src": "L31913"
+    },
+    {
+     "label": "Seek Many Small Contributions",
+     "next": "d",
+     "src": "L31916"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The supplies are used without granting privileges.",
+   "src": "L31908"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The family withdraws the offer.",
+   "src": "L31909"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council protects its independence.",
+   "src": "L31911"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some villagers question the lost opportunity.",
+   "src": "L31912"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Public discussion exposes hidden expectations.",
+   "src": "L31914"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The family revises its request.",
+   "src": "L31915"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The project proceeds more slowly but fairly.",
+   "src": "L31917"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(organizer), a young organizer, finds unexpected supporters.",
+   "src": "L31918"
+  }
+ }
+}

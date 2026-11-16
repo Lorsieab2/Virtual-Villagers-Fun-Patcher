@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Melon Doing in the Path?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd14_what_melon_doing",
+  "source": "da_wd",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A melon vine is growing in the middle of the busiest path in the village: protect it, or move it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A melon vine is growing in the middle of the busiest path in the village. Not at the side. Right in the middle. Somebody must have spat out a seed, and somehow, against all odds, despite everyone walking over it, it has grown, and there is now a small green melon sitting in the path like it owns the place.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Protect It",
+     "next": "a",
+     "src": "L169"
+    },
+    {
+     "label": "Move It",
+     "next": "b",
+     "src": "L172"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) puts a ring of stones round the vine so nobody steps on it. Everyone walks around it. Children check on it daily. When the melon is finally ripe, the whole village has an opinion about who should eat it. In the end it's cut into tiny pieces so everyone gets a taste. It's the most talked-about melon in Isola's history.",
+   "src": "L170"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) digs it up, very carefully, and moves it to the edge of the garden. The melon vine sulks for a few days, then recovers, and grows a whole row of melons. (name1) privately thinks the one in the path would have been better. There's no way to prove it.",
+   "src": "L173"
+  }
+ }
+}

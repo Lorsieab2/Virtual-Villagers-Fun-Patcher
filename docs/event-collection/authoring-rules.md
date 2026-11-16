@@ -297,6 +297,15 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
 
 - Labels drop their structural prefix and keep the owner's words and case (`"FOLLOW THE ESTABLISHED RULE"`). A label
   may overflow its button (Q16).
+- The game shows every new event's labels in title case (the owner, 2026-11-15; never a stock event's):
+  `collection_lib.title_case_graph_labels`, applied as each event is compiled (`collection_check.graph_for_engine`,
+  the Living mixer's variants). A label all in capitals is lowered first ("Follow the Established Rule"); small words
+  stay lower case unless first or last; a pronoun placeholder takes its capital form (`(friend.He/She)`), a name in
+  capitals its capital one (`(Name1)`); a game word whose words change gets a word of its own (`{@chief_tc}`). The file
+  keeps the owner's words as written; a `label_case: "title"` file is written in title case already. A file with
+  `label_case: "source"` keeps the owner's case: only `lvmed22_dream_kidney`, whose "Seek the donor's prior consent
+  and study anatomy without operating." would run 3 pixels off A New Home's and The Lost Children's screens in title
+  case.
 - 5-7 choices go on one page (Q12). A choice limited to some games gets `"if": {"game": [3, 4, 5]}` (Between Life and
   Death B and C). At least two choices remain in every game.
 - With 4 or more buttons, put the event's long text on a popup before the question and keep the question page short.
@@ -387,6 +396,158 @@ small words lower case unless first or last). Titles use the pipeline's `title_c
 `collection.label_case: "title"`, so each label is `collection_lib.title_case_label` of the owner's words (the
 fidelity check matches the label case-blind, then requires exactly that form). The older sources' labels switch after
 the merge.
+
+## 15d. The owner-approved drafts, set A (2026-11-15)
+
+Twelve draft files the owner approved ("the drafts are ok as long as they stick to our rules"): Inner Life I-X
+(events 1-200), What's That Doing Here (WD-01..50) and Luck, Omens and Lavastones (LO-01..50). Each is its own frozen
+source, byte for byte under its own name in `docs/more-island-events/` (`-text`; SHA-256 in
+`data/event_collection/drafts_a/DA_<ID>.sha256`), listed in `collection_lib.DRAFTS_A`: source, section and series
+`da_il01` .. `da_il10`, `da_wd`, `da_lo`; files `data/event_collection/drafts_a/<source>/<id>.json`; ids `il001_`,
+`wd01_`, `lo01_` and a slug. Rows: `_draft_rows` in `scripts/collection_manifest.py` (the manifest's `drafts_a` block
+checks every line of each file): each heading is an event, the lines before the first heading (the title, the notes
+to the owner, Part II's ChatGPT preamble) and the closing NOTES FOR THE OWNER are notes rows. One series per file, so
+each file counts as one draw in the rare roll.
+
+Generators: `scripts/drafts_a/gen_<id>.py` on `da_common.py`, which documents the shape (the casting line is a ledger
+note; the setup is the question; each label leads to its own answer page; a single popup has no choice; LO's
+"(About 6 in 10)" lines are alternatives weighted by the text's own odds, each child naming them in the
+authoring-only key `odds`, which the CHANCES check accepts in place of a rarity; "[effect: ...]" is an instruction
+cut with its effect on that page). (name1) is the role `subject` and (name2) `friend`; pronouns follow the name
+mentioned last, with per-page overrides; labels are title case (`label_case: "title"`; the check compares a label's
+words around its placeholders). The owner's naming rule (2026-11-15): a person the draft names only by role ("a
+visitor") is cast and named at the first mention, a ledger entry of kind `casting` (checked like a sensitivity
+edit). The text is otherwise kept as written: no swaps for animals or objects a game lacks (narrative is not
+gameplay); near-duplicates the notes flag are built and listed. Grammar fixes are rows `| da_il07 L<line> |`
+(`(his/hers)` has no placeholder). "The Quiet Hands" (Inner Life 3): TODO story trait "mute", pending the engine.
+
+## 15e. The approved draft event files, group B
+
+Eight owner-approved draft files of 2026-11-15 ("the drafts are ok as long as they stick to our rules"): "New Events -
+Humor and Absurdity", "Tall Tales and Self-Interest", "Honesty and Accountability", "Justice and Consequences",
+"Departures and Exile", "Dreams and Ambitions", "Fears and Doubts" and "Good, Bad and Ordinary Days" (draft for
+owner).txt in `docs/more-island-events/`, each its own frozen source (byte for byte, `-text`, SHA-256 in
+`data/event_collection/DRAFT_<X>.sha256`; `collection_lib.DRAFTS_B` lists them: source ids `draft_hum`, `draft_tt`,
+`draft_hon`, `draft_jus`, `draft_dep`, `draft_drm`, `draft_fea`, `draft_day`). Files:
+`data/event_collection/drafts_b/dr_<x>/<id>.json`. Rows: `_drafts_b_rows` in `scripts/collection_manifest.py` (lines 1-5
+and the closing NOTES block are notes rows; one series per file). Generator: `scripts/drafts_b/gen_drafts_b.py` on
+`drafts_b_parse.py`, reading the per-event annotations in `scripts/drafts_b/annotations/<x>.txt` (whose each pronoun
+is, the roles' ages, the role figures, the Pick Island Event sentence, the 15-point review).
+
+- The setup is the question page; each label leads to its own one outcome (no odds in the drafts). A few events are
+  one popup with no choice. The casting line is a ledger note carried out as the roles' ages; `(name1)` / `(name2)`
+  are the roles `subject` / `friend`. An `[effect: ...]` is an instruction cut from its outcome and made as its effect.
+- The owner (2026-11-15): "use names and pronouns where possible instead of vague 'a fisher', 'a healer', 'an elder'":
+  a single person of the village called only by a role word is a cast villager of its own (harmless, cast only) and
+  its mentions show the name, each change a `sensitivity` ledger entry (before -> after) listed by `--report`.
+- Grammar fixes are rows `| draft_<x> L<line> |` in grammar-fixes.md (the nine `(his/hers)`: the format has no such
+  placeholder).
+
+## 15f. The approved draft event files, group C
+
+Eight more owner-approved draft files of 2026-11-15, wired exactly as group B (15e): "New Events - Healing, Psychology
+and Medicine", "Advice and Decisions", "Relationships, Singlehood and Family", "Belief and Identity", "Nature, Ecology
+and Animals", "Disability and Diversity", "History and Collective Memory" and "Pondering How Life Has Gone" (draft for
+owner).txt, `collection_lib.DRAFTS_C` (source ids `draft_hea`, `draft_adv`, `draft_fam2`, `draft_blf`, `draft_nat`,
+`draft_div`, `draft_his`, `draft_lif`; four of the files keep the owner's CRLF line ends). Files:
+`data/event_collection/drafts_c/dr_<x>/<id>.json`; rows `_drafts_c_rows`; generator
+`scripts/drafts_c/gen_drafts_c.py` on `drafts_c_parse.py` and `scripts/drafts_c/annotations/<x>.txt`. Differences:
+
+- `(name3)` / `(name4)` are the roles `third` / `fourth`; HEA-15 offers three choices.
+- Pronoun owners: `drafts_c_parse.guess` (the last name before the pronoun; for a `(him/her)` whose nearest name is in
+  its own sentence, the last other name), with the annotation's `FIX` lines where a reading found it wrong.
+  `python scripts/drafts_c/drafts_c_parse.py HEA [HEA-01 ...]` prints the review sheet.
+- "(where the game records it)": the annotation's `REL` line makes the cie-v6-binary.md 21 relation (partners are
+  `spouse_of`, the games' co-parents; a "relative" is a recorded parent). The text never changes. The engine has no
+  "prefer" relation, so the rare roll and Pick Island Event draw such an event only where the relation holds; bought
+  through the library, the relation is dropped when nobody meets it and any fitting villager is cast. Where no game
+  records the relation (a dead partner, a new partner's child, who shares a hut, same-sex partners), no relation is
+  cast and the casting is the ages alone.
+- A heading's "(VV5 only)" (BLF-26, BLF-27) makes the row New Believers only and is cut from the title; their Isolan is
+  a named stranger (15). Neither says Heathen or convert, so no Guardians of Isola variant is needed.
+- FAM2-40's carrying or nursing parent is the game's nursing parent (`"special": "nursing_parent"`); FAM2-11/28's teens
+  are at most two years apart (`max_age_gap`).
+- BLF-36's same-sex couple follows the owner's rule (cast by sex, the relationship as story text):
+  `gen_drafts_c.same_sex_variants` (annotation `WORD: same_sex`) makes two men (`men1`, `men2`, needed) and two women
+  (`women1`, `women2`, optional) and starts with a branch of two equal children, each to its own copy of the pages
+  (same `src`); the women's child is taken only when both women are cast. The checker needs a page for every cast,
+  so one pair must be needed: where both pairs can be cast the two versions are equally likely.
+
+## 15g. The approved files, group D
+
+Eight more owner-approved files of 2026-11-15, each frozen byte for byte as its own source
+(`collection_lib.DRAFTS_D`, SHA-256 in `data/event_collection/<ID>.sha256`, `-text` in .gitattributes) and each one
+series (its section), so a file counts as one draw in the rare roll. Files:
+`data/event_collection/drafts_d/dr_<x>/<id>.json`; rows `_drafts_d_rows`; generator `scripts/drafts_d/gen_drafts_d.py`
+on `scripts/drafts_d/annotations/<source id>.txt` (`--sheet <source id>` prints the review sheet).
+
+| Source id | File | Events | Shape |
+|---|---|---|---|
+| `draft_rm2` | New Events - Role Models RM-41 to RM-90 (draft for owner).txt | 50 | setup, A-D, two outcomes each |
+| `draft_hz2` | New Events - Beyond the Horizon 081 to 130 (draft for owner).txt | 50 | setup, A-C, two outcomes each |
+| `fathers30` | Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt | 30 | setup, A-D, "Outcome 1/2:" |
+| `moments500` | Isola_500_Tiny_Island_Moments.txt | 125 | moment: one opening, four endings |
+| `draft_tim2` | New Events - Tiny Island Moments T126 to T175 (draft for owner).txt | 50 | moment: "Opening:", "Ending 1-4:" |
+| `openq97` | Completed Open Questions - Isola Events v1.35.97.txt | 35 | M01-M35: opening + follow-up, one popup |
+| `armor45` | Isola_Armor_Weapons_and_Inherited_Traditions.txt | 45 | "NN. Title - sentences", one popup |
+| `draft_arm2` | New Events - Armor and Heirlooms ARM-46 to ARM-95 (draft for owner).txt | 50 | as armor45 |
+
+- A choice event: the setup is the question page (labels in title case); each label leads to a branch of its two
+  outcomes, equally likely (no outcome harms anyone).
+- A moment (the owner's Question 1, answer A): a branch of equally likely pages, each the opening and one ending (src
+  the opening's and the ending's lines). The 500 file's four entries of one opening are one row; the owner's titles
+  T001-T125 (Question 2, answer A) are owner-title-changes.md rows over the first entry's "Title:" line; the other
+  entries' "[Mnnn]" and "Title:" lines are structural ledger entries.
+- The armor files' events are one line each, one after another: their rows carry `one_line` (no blank-line boundary
+  check). Their "LIVING EVENT ENGINE - FLAVOR TEXT" blocks are notes rows (mixer seed: pending; the 35 lines of the
+  first are built as M01-M35 from the Completed Open Questions file, the owner's titles and follow-ups).
+- Names (the owner, 2026-11-15: "use names and pronouns instead of vague roles"): the person the event is about,
+  named by a role word in the setup / opening / sentence, is the cast villager shown by name, the role word kept as
+  flavor ("(Name1), an elder, ..."; a bare "a villager" or "Someone" becomes the name); one `sensitivity` ledger entry
+  per changed line. The other people keep the source's words. An event about a group casts one villager it does not
+  show.
+- Fathers 01-08: the carrier is a trans man. This base has no birth-sex condition, so 01-04 and 08 (pregnant)
+  cast a male `nursing_parent`, and 05-07 (after the birth) a man who is a recorded parent (`parent_of`) of a
+  cast-only child aged 0-3 (05, 06) or 0-7 (07); each ledger has the TODO "birth-sex check pending engine
+  (feat/97-presentation)".
+- No effects: none of these files marks one; every effect-table word gets a text_only reason.
+
+## 15h. The Animals anthology's newest volumes
+
+The owner's all-in-one file of 2026-11-15, "Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE
+.txt", frozen byte for byte (`collection_lib.ANTHOLOGY`, source id `anthology`, SHA-256 in `ANTHOLOGY.sha256`), is the
+Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE in front and new volumes after it. Only its newest volumes
+are rows (`collection_manifest.ANTHOLOGY_VOLUMES`, `_anthology_rows`; "uncovered" is checked inside them): MOM-01..08,
+REL-01..36, CHILD-01..47, FAM-01..24, JOY-01..38, EVENT-HS-001..042, EVENT-AGE-001..036, EVENT-JUSTICE-001..032,
+EVENT-EXPRESSION-001..074, EVENT-FAUNA-001..024, 361 events, each volume one series (section `an_<x>`) with its
+contract block a notes row. Files: `data/event_collection/anthology/an_<x>/<id>.json`; generator
+`scripts/anthology_new/gen_anthology.py` on `scripts/anthology_new/annotations/an_<x>.txt` (`--sheet an_<x>` prints the
+review sheet). The shape is 15b's (the setup asks; each label leads to its own two equally likely outcomes) with two
+(MOM) or four choices, no CALLBACKS line, and an optional `ELIGIBILITY:` line: the casting, a ledger note.
+
+- Text verbatim (minimal editing; no swaps or rule-driven rewording). Names instead of vague roles: a person the text
+  names by a role word is a cast villager shown by name -- "the villager", "a friend" become the name, and a job or a
+  description met with "a"/"an" keeps its words after the name ("Kai, a researcher, explains"); "Two elders ..." become
+  "Ana and Kai, two elders, ..."; a relative clause the name leaves dangling gets its commas. Each change is a ledger
+  "sensitivity" entry. Choice labels and titles keep their words. A person the text keeps anonymous (an unsigned
+  artist, a critic who will not be named, "a repeat offender") stays unnamed; group scenes cast nobody.
+- Chosen names (REL-09, 10, 15, 16, 17, 19, 28, 31, 34; CHILD-21) are the new-name role (cie-v6-binary.md 28), shown
+  where the text first gives the name; nobody is renamed. REL-15's gender change is `sex_change` (code 22); a change of
+  look that keeps the villager's identity (REL-13, 16, 18, 20, 36) needs the cross-sex look (code 23, not built): story
+  text and a ledger TODO.
+- Romance: teens only with teens at most two years apart (`max_age_gap`), children's crushes the same; adult couples at
+  most 15 years apart; never a minor with an adult. REL-04 and REL-26's same-sex pair (the text gives no sex) follows
+  the owner's rule as BLF-36 (annotation `SAMESEX`): two men or two women, two equally likely versions of the pages,
+  the women's taken only where both can be cast.
+- Nursing mothers (AGE-019..024, EXPRESSION-040, JOY-01) are the game's nursing parent, female, 18+, with a ledger TODO:
+  the engine reads the sex field, not a birth sex.
+- Family words between cast people are recorded relations (a parent with their child, siblings, cousins, HS-007's
+  grandparent).
+- Effects only where an outcome's own words make one: hair dye the villager keeps is the random head look (MOM-06's
+  "[hair color change]", cut as an instruction; REL-30 A1, B1, C1); REL-05 and JOY-18's couple celebrate. Injuries in a
+  setup are the premise; everything else is story text (text_only with a reason).
+- "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
+  as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
 
 ## 15a. The Pick Island Event sentence
 

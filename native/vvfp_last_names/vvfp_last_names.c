@@ -1883,6 +1883,7 @@ static const char *const RENAME_OWNERS[] = {
     "VVFP Origins Icons.dll",           /* New Believers' masks */
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
+    "VVFP Gender Presentation.dll",
     "VVFP Cause of Death.dll",          /* Former Heathens */
 };
 

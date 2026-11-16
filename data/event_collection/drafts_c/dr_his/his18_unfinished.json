@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Carving",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his18_unfinished",
+  "source": "draft_his",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a carver or an adult and an elder)"
+   }
+  ],
+  "description": "A carver has always wanted to finish the half-carved log behind the meeting hut: finish it, or leave it unfinished.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Behind the meeting hut there's a huge log, half carved. One end is a beautiful, detailed figure. The other end is still rough wood with a few chisel marks. It has been like this for so long that moss grows in the cuts. Nobody remembers who started it, or why they stopped. (subject), who carves, has always wanted to finish it.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Finish It",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Leave It Unfinished",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks the elders, and (friend) says, \"Someone should.\" (subject) works on it for a whole season, trying to match the old carver's style. It's hard. (subject.His/her) half doesn't quite match. When it's done, people can see exactly where the old work ends and the new begins. (subject) worried about that. Now (subject.he/she) thinks it's the best part: two people, a long time apart, making one thing.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says, \"Leave it. Its story is that someone stopped.\" (subject) is disappointed, but agrees. (subject.He/she) carves a small piece of (subject.his/her) own instead and sets it beside the old log. Children play around both. Every so often, (subject) catches (subject.him/her)self running a hand over the rough end of the log, wondering what it was going to be.",
+   "src": "L221"
+  }
+ }
+}

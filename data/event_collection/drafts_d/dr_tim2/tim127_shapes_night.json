@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shapes in the Night Sky",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim127_shapes_night",
+  "source": "draft_tim2",
+  "lines": [
+   16,
+   21
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L16",
+  "ledger": [
+   {
+    "src": "L17",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L18",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L19",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L20",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L21",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two friends lie on the warm sand, pointing out shapes among the stars.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two friends lie on the warm sand, pointing out shapes among the stars. One of them insists a cluster of stars looks exactly like a sleeping pig.",
+   "src": "L17,L18"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two friends lie on the warm sand, pointing out shapes among the stars. They fall asleep before agreeing on a single shape.",
+   "src": "L17,L19"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two friends lie on the warm sand, pointing out shapes among the stars. A shooting star crosses the sky, and both of them forget what they were saying.",
+   "src": "L17,L20"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two friends lie on the warm sand, pointing out shapes among the stars. They decide to give their favorite star a name and keep it to themselves.",
+   "src": "L17,L21"
+  }
+ }
+}

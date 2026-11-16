@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Question of Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp37_question",
+  "source": "anthology",
+  "lines": [
+   31824,
+   31838
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31824",
+  "ledger": [
+   {
+    "src": "L31825",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31835",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31837",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "At a celebration, relatives ask a married couple when they will have children.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a celebration, relatives ask a married couple when they will have children.",
+   "src": "L31826",
+   "choices": [
+    {
+     "label": "Answer Openly",
+     "next": "a",
+     "src": "L31827"
+    },
+    {
+     "label": "Keep It Private",
+     "next": "b",
+     "src": "L31830"
+    },
+    {
+     "label": "Change the Subject",
+     "next": "c",
+     "src": "L31833"
+    },
+    {
+     "label": "Reflect Afterward",
+     "next": "d",
+     "src": "L31836"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31826"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The couple shares their hopes on their own terms.",
+   "src": "L31828"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They explain that plans can change.",
+   "src": "L31829"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The relatives accept a gentle boundary.",
+   "src": "L31831"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A persistent questioner is asked to stop.",
+   "src": "L31832"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The conversation turns to the couple's craftwork.",
+   "src": "L31834"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(friend) steers everyone toward the music.",
+   "src": "L31835"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) admits they once felt similar pressure.",
+   "src": "L31837"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The couple finds support without being defined by parenthood.",
+   "src": "L31838"
+  }
+ }
+}

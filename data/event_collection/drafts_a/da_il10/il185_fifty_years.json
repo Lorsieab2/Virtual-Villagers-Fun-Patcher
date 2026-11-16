@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fifty Years of Melons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il185_fifty_years",
+  "source": "da_il10",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two elders have competed for fifty years to grow the biggest melon, and this year one melon is enormous.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For as long as anyone can remember, (subject) and (friend) have competed to grow the biggest melon in the village. Fifty years, near enough. Neither of them has ever admitted the other one won. This year, (subject)'s melon is enormous. (friend) has just come over to look at it, very casually.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Accept (friend)'s Compliment",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Show Off a Little",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) looks at it for a long time. \"It's a good melon,\" (friend.he/she) says, with enormous difficulty. (subject) is so shocked (subject.he/she) almost drops the melon. \"Are you ill?\" (friend) scowls. \"I said it's GOOD. I didn't say it's better than mine.\" Order is restored. They split it at dinner, and both agree it's excellent, and both say nothing else.",
+   "src": "L62"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) pats the melon. \"Biggest I've ever grown,\" (subject.he/she) says. (friend) sniffs. \"Size isn't everything. Taste matters.\" \"It tastes wonderful.\" \"We'll see.\" They cut it open there and then, and stand in the garden eating it with juice running down their chins, arguing about the flavor. Neither of them has had so much fun all year.",
+   "src": "L65"
+  }
+ }
+}

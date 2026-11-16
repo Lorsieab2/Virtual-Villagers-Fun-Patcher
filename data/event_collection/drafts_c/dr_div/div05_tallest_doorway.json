@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tallest Doorway in the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div05_tallest_doorway",
+  "source": "draft_div",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a tall adult and another villager; in the story (name1) is unusually tall)"
+   }
+  ],
+  "description": "The tallest villager on Isola is building a hut with an enormous doorway: make it even taller, or ask about other doorways.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is the tallest person in the village by a full head, and every hut on Isola seems to have been built by people who never imagined someone like (subject.him/her). (subject.He/she) has hit (subject.his/her) head on doorframes so many times that (subject.he/she) no longer even swears about it. Today (subject.he/she) is building (subject.his/her) own hut, and the doorway is coming out enormous. (friend) is watching.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Make It Even Taller",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Ask (subject.him/her) About Other Doorways",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Go on,\" says (friend). \"Add another hand's width.\" (subject) does. The doorway is magnificent. Through it, (subject) can walk in without bending at all, for the first time in (subject.his/her) life. (subject.He/she) goes in and out four times just to enjoy it. Later, people start stopping by, because it's the only hut in the village where you can carry a long bundle of poles straight inside.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks if it was ever hard. (subject) shrugs. \"Doorways, mostly. And people asking how the weather is up here. Every day. For twenty years.\" (friend) had been about to ask exactly that. (friend.He/she) doesn't. (friend.He/she) asks how the hut is going instead. (subject) looks pleased, and shows (friend.him/her) the doorway.",
+   "src": "L65"
+  }
+ }
+}

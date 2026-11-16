@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strangest Thing on the Tide Line",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat29_strangest_thing",
+  "source": "draft_nat",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-13 and an adult)"
+   }
+  ],
+  "description": "A child is poking a strange white puffy thing on the tide line: explain and bury it, or let the child guess what it is.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has found something on the beach and is poking it with a stick. It's white, puffy and shaped a bit like a pair of short pants, made of something soft that isn't cloth and isn't leaf. (friend) comes over, takes one look, and makes a face. The older villagers have seen these wash up before. They are called diapers, and they are what they look like.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Explain and Bury It",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Let (subject) Guess What It Is",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Somebody, somewhere, wrapped a baby in this,\" says (friend). \"And then it went in the sea.\" (subject) is delighted and disgusted in equal measure. They carry it a long way up the beach on the end of the stick and bury it deep, far from the water and the gardens. (subject) has a hundred questions about the people who use them. (friend) has no answers to any of them.",
+   "src": "L350"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) guesses it's a hat. Then a bag. Then a very small boat. (friend) finally tells (subject.him/her). (subject) screams and drops the stick. Then (subject.he/she) laughs so hard (subject.he/she) has to sit down in the sand. They bury it together, well away from the water, and (subject) tells every single child in the village by sunset.",
+   "src": "L353"
+  }
+ }
+}

@@ -375,19 +375,21 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
-              "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
-              "lose_name", "change_name", "change_age")                            # ... 31 (33, 34)
+              "presentation",                                                # ... 31
+              "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 32 (codes 27-32)
+              "lose_name", "change_name", "change_age")                      # ... 32 (33, 34)
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
-                     "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
-                     "deliver_early": 24,   # 30
-                     # 31 (the owner, 2026-11-15): known only at run time (the engine side)
+                     "sex_change": 22,     # 29
+                     "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
+                     "deliver_early": 24,  # 30
+                     # 32 (the owner, 2026-11-15): known only at run time (the engine side)
                      "new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31,
                      "lose_name": 32, "change_name": 33, "change_age": 34})
 NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
-ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
-# 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
+ANY_BIRTH_SEX_FLAG = 1        # 32: flags bit 0 of a pregnant / nursing effect
+# 32, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
 CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
 CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
@@ -397,12 +399,13 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
+                    "presentation": 0,     # 31: "VVFP Gender Presentation.dll", known only at run time
                     "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
-                    "lose_name": 0, "change_name": 0, "change_age": 0})              # 31: known only at run time
+                    "lose_name": 0, "change_name": 0, "change_age": 0})              # 32: known only at run time
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early", "pregnant", "nursing", "clone", "body_swap",
-                                          "lose_name", "change_name", "change_age")
+                                          "deliver_early", "presentation", "pregnant", "nursing", "clone",
+                                          "body_swap", "lose_name", "change_name", "change_age")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -973,6 +976,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 out[part] = v
             if "head" not in e and "body" not in e:
                 problems.append(f"{where}: appearance changes the head, the body or both")
+        elif do == "presentation":
+            # Section 31: the other sex's look (on, the default) or the villager's own again (off).
+            known.add("on")
+            on = e.get("on", True)
+            if not isinstance(on, bool):
+                problems.append(f"{where}: presentation on is true (the other sex's look) or false (their own)")
+                on = True
+            out["on"] = on
         if do == "die_unrecovered":
             # The owner's rule: a death with no body is ALWAYS "Unknown causes"; an author cannot word it.
             known.add("cause")
@@ -2713,6 +2724,7 @@ AUTO_LINES = {
     "baby_lost": "<R>'s baby is lost.",
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
+    "presentation": "<R>'s look changes.",
 }
 
 
@@ -2747,7 +2759,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
         return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
     if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change"):
+              "sex_change", "presentation"):
         return [_auto_fill(do, r)]
     if do == "damage":
         return [_auto_fill("damage", None)]
@@ -3765,6 +3777,8 @@ def _compile_v6(g: dict) -> bytes:
                 st = s(e["cause"])
             elif do == "deliver_early" and "min" in e:
                 a, b = e["min"], e["max"]
+            elif do == "presentation":
+                a = 1 if e["on"] else 0
             elif do == "new_villager":
                 a = NEW_VILLAGER_AGES[e.get("age", "any")]
             elif do in ("pregnant", "nursing"):
@@ -4007,6 +4021,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["cause"] = s(st)
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
+                elif do == "presentation":
+                    e["on"] = a == 1
                 elif do in ("pregnant", "nursing"):
                     if a != 0xFF:
                         e["partner"] = role_ids[a]

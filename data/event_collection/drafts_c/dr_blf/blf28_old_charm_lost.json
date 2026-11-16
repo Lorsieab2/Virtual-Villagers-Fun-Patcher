@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Charm, Lost",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf28_old_charm_lost",
+  "source": "draft_blf",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's childhood charm sinks in deep water while swimming: carve a new one, or go without for a while.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has worn the same little carved charm around (subject.his/her) neck since (subject.he/she) was a child. It was supposed to keep (subject.him/her) safe. Today, while swimming, the cord broke and it sank. (subject) dived for it again and again, but the water is too deep. (subject.He/she) sits on the beach, feeling strangely bare. (friend) sits down beside (subject.him/her).",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Carve a New One",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Go Without for a While",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'll help you carve another,\" offers (friend). (subject) thinks about it. \"It won't be the same.\" \"No,\" says (friend). \"It'll be new.\" They carve it together that evening. It's a bit lopsided. (subject) wears it anyway. It doesn't feel quite like the old one. Maybe one day it will.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I think I'll go without for a while,\" says (subject). \"See what that's like.\" (subject.He/she) feels odd for a few days, as if something's missing. Then, slowly, (subject.he/she) stops reaching for it. A month later (subject.he/she) realizes (subject.he/she) hasn't thought about it in a week. (subject.He/she) isn't sure what (subject.he/she) believes about charms now. (subject.He/she) isn't in a hurry to decide.",
+   "src": "L341"
+  }
+ }
+}

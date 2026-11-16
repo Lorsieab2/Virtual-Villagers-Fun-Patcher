@@ -15,19 +15,25 @@
 #ifndef VVFP_SEX_CHANGE_UI_H
 #define VVFP_SEX_CHANGE_UI_H
 
+#include "gender_presentation.h"   /* the row that offers the button */
+
 #define VVFP_AX_CHANGE_SEX 3506          /* inside appearance_extras.h's 3500..3539 */
 #define VVFP_AX_CHANGE_SEX_LABEL "Change sex..."
 #define VVFP_AX_CHANGE_SEX_TITLE "Change sex"
 
 /* The warning for the villager called `name` whose sex is now `female` (1) or male (0), `carrying` (1) when they
-   are carrying or nursing, in `out` (at least 1024 bytes). */
-static void vvfp_sex_change_warning(char *out, const char *name, int female, int carrying) {
+   are carrying or nursing, `born_male` (1) when they were born male (then a change to female does not let them
+   conceive on their own: sex_change.h, the birth sex), in `out` (at least 1024 bytes). */
+static void vvfp_sex_change_warning(char *out, const char *name, int female, int carrying, int born_male) {
     const char *to = female ? "male" : "female";
-    char carry[200];
+    char carry[320];
     carry[0] = 0;
     if (carrying) {
         wsprintfA(carry, "%s is carrying or nursing a baby. %s goes on carrying, and stays the carrying parent on "
                   "the baby's record.\n\n", name, name);
+    } else if (!female && born_male) {
+        wsprintfA(carry, "%s was born male, so %s will not conceive on their own. A Custom Island Event can still "
+                  "give %s a baby with a partner you choose.\n\n", name, name, name);
     }
     wsprintfA(out,
               "Change %s's sex to %s?\n\n"
@@ -51,9 +57,12 @@ static void vvfp_sex_change_refused_text(char *out, const char *name, int why) {
     }
 }
 
-/* Is the button shown for villager `record` of `game`?  Never for the Golden Child (sex_change.h). */
+/* Is the button shown for villager `record` of `game`?  Only with the game's "Change Sex and Gender Presentation"
+   row (its "VVFP Gender Presentation.dll" in the game, gender_presentation.h), and never for the Golden Child
+   (sex_change.h). */
 static int vvfp_ax_change_sex_offered(int game, const unsigned char *record) {
-    return vv_sex_game_ok(game) && record != NULL && !vv_sex_golden_child(game, record);
+    return vv_sex_game_ok(game) && record != NULL && !vv_sex_golden_child(game, record)
+        && GetModuleHandleA(VVFP_GP_DLL) != NULL;
 }
 
 #ifndef VVFP_SEX_MESSAGE_BOX
@@ -77,7 +86,8 @@ static int vvfp_ax_change_sex(HWND w, int game, unsigned char *record, int index
         return 0;
     }
     vvfp_sex_change_warning(text, name, vv_sex_female(game, record),
-                            *(const int *)(record + VV_SEX_LAYOUT[game].pregnant) != 0);
+                            *(const int *)(record + VV_SEX_LAYOUT[game].pregnant) != 0,
+                            !vv_sex_female(game, record) && !vvfp_born_female(game, record));
     if (VVFP_SEX_MESSAGE_BOX(w, text, VVFP_AX_CHANGE_SEX_TITLE, MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES) {
         return 0;
     }

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Looking Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep17_looking_back",
+  "source": "draft_dep",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager leaving for a few days keeps turning to wave at a friend: keep waving, or go back inside.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is leaving for a few days to help with a building in another village. (subject.He/she) walks to the top of the hill, turns, and looks back at the village. Then (subject.he/she) walks on a little and turns again. And again. (friend), standing outside (friend.his/her) hut, has waved every single time and is beginning to wonder how long this is going to go on.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Keep Waving",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Go Back Inside",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) keeps waving. (subject) keeps turning round. At the very top of the far hill (subject) turns one last time and waves with both arms. (friend) waves back with both arms, and a basket. Then (subject) is over the hill and gone, and (friend) lowers (friend.his/her) arms, which are very tired.",
+   "src": "L206"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) waves one last time and goes in. A moment later (friend.he/she) can't resist peeking out. (subject), far away on the hill, has turned round again and is waving at an empty doorway. (friend) rushes out and waves wildly. It's too late: (subject) has gone. (friend) hopes (subject.he/she) saw. (friend.He/she) will ask when (subject) gets back.",
+   "src": "L209"
+  }
+ }
+}

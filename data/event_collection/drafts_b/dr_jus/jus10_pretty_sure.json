@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Pretty Sure It Was (name2)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus10_pretty_sure",
+  "source": "draft_jus",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L125",
+    "kind": "sensitivity",
+    "before": "A week later the healer remembers",
+    "after": "A week later (healer), a healer, remembers",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager is pretty sure a neighbor took the healers' honey: ask the accuser more questions, or wait for more evidence.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The pot of honey kept for the healers has a big scoop missing. (subject) says (subject.he/she) saw (friend) near the storehouse at dusk, carrying something. (subject.He/she) is pretty sure. Fairly sure. (friend) says (friend.he/she) was carrying a water jar. The elders have the two of them sitting in front of them.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Ask (subject) More Questions",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Wait for More Evidence",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What was (friend.he/she) carrying?\" \"Something round.\" \"How far away were you?\" \"...Quite far.\" \"Was it light?\" \"It was dusk.\" (subject) begins to look less sure. In the end (subject.he/she) says, \"I don't actually know what I saw.\" The elders find no fault with (friend). The honey is never explained. (subject) is a lot more careful, after that, about saying \"pretty sure.\"",
+   "src": "L122"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders decide that \"pretty sure\" isn't enough, and say they will wait. Nothing else turns up. A week later (healer), a healer, remembers using a big scoop of honey in a sick child's tea and forgetting to mention it. (friend) has been looked at sideways all week, and would like an apology. (subject) gives one. Whether it's enough is up to (friend).",
+   "src": "L125"
+  }
+ }
+}

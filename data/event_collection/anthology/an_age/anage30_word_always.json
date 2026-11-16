@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Word Is Not Always Right",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage30_word_always",
+  "source": "anthology",
+  "lines": [
+   30589,
+   30603
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30589",
+  "ledger": [
+   {
+    "src": "L30590",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30591",
+    "kind": "sensitivity",
+    "before": "A respected elder",
+    "after": "(elder), a respected elder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30596",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30597",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30599",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30600",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30602",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30603",
+    "kind": "sensitivity",
+    "before": "A younger villager",
+    "after": "(young), a younger villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30603",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A respected elder insists that a traditional rule should never change, while younger villagers see a practical problem.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "child",
+   "adult",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), a respected elder, insists that a traditional rule should never change, while younger villagers see a practical problem.",
+   "src": "L30591",
+   "choices": [
+    {
+     "label": "Ask the Elder Why the Rule Began",
+     "next": "a",
+     "src": "L30592"
+    },
+    {
+     "label": "Run a Limited Trial of the Alternative",
+     "next": "b",
+     "src": "L30595"
+    },
+    {
+     "label": "Invite Testimony from All Ages",
+     "next": "c",
+     "src": "L30598"
+    },
+    {
+     "label": "Keep the Discussion Respectful",
+     "next": "d",
+     "src": "L30601"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They reveal a forgotten safety concern worth preserving.",
+   "src": "L30593"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They cannot recall the reason and agree that tradition alone may not settle the question.",
+   "src": "L30594"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The new approach works, and (elder) revises their view.",
+   "src": "L30596"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The trial reveals an unexpected drawback, strengthening part of (elder)'s concern.",
+   "src": "L30597"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) identifies who is inconvenienced most by the rule.",
+   "src": "L30599"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) proposes a compromise that preserves the tradition's purpose.",
+   "src": "L30600"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) accepts disagreement without losing dignity.",
+   "src": "L30602"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(young), a younger villager, apologizes for mocking (elder) while maintaining their position.",
+   "src": "L30603"
+  }
+ }
+}

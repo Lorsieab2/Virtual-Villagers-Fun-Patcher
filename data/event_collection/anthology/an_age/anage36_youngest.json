@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Youngest Witness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage36_youngest",
+  "source": "anthology",
+  "lines": [
+   30685,
+   30699
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30685",
+  "ledger": [
+   {
+    "src": "L30686",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30687",
+    "kind": "sensitivity",
+    "before": "a teenager",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30687",
+    "kind": "sensitivity",
+    "before": "a small child",
+    "after": "(child), a small child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30689",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30690",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30692",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30693",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30698",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30699",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a harmless village game goes wrong, everyone blames a teenager, but a small child saw what happened.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a harmless village game goes wrong, everyone blames (teen), but (child), a small child, saw what happened.",
+   "src": "L30687",
+   "choices": [
+    {
+     "label": "Let the Child Explain Without Coaching",
+     "next": "a",
+     "src": "L30688"
+    },
+    {
+     "label": "Ask the Teen to Tell Their Side",
+     "next": "b",
+     "src": "L30691"
+    },
+    {
+     "label": "Inspect the Game Equipment",
+     "next": "c",
+     "src": "L30694"
+    },
+    {
+     "label": "Discuss Fair Judgment Across Ages",
+     "next": "d",
+     "src": "L30697"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) describes a loose game marker that caused the confusion.",
+   "src": "L30689"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) admits they saw only part of the event, and the adults avoid overstating the account.",
+   "src": "L30690"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(teen) explains their actions and is finally heard.",
+   "src": "L30692"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) acknowledges a mistake but disputes the unfair accusation.",
+   "src": "L30693"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A worn cord explains the unexpected result.",
+   "src": "L30695"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The equipment is sound, so the group examines the game rules instead.",
+   "src": "L30696"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Adults apologize for assuming (teen) was careless.",
+   "src": "L30698"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) learns that being believed includes being allowed to say they are unsure.",
+   "src": "L30699"
+  }
+ }
+}

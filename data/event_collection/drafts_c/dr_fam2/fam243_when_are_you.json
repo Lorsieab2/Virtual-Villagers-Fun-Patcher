@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When Are You Going to Settle Down?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam243_when_are_you",
+  "source": "draft_fam2",
+  "lines": [
+   506,
+   515
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L506",
+  "ledger": [
+   {
+    "src": "L507",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult with no partner and an elder relative (where the game records it)"
+   }
+  ],
+  "description": "An elder relative asks a happily single villager, again, when they will settle down: say how happy they are, or say maybe someday.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "\"I just want you to be settled,\" says (friend), for what (subject) is fairly sure is the hundredth time. \"Find someone. Build a life. Don't you want someone to grow old with?\" (subject) loves (friend). (subject) also has a life (subject.he/she) likes very much, thank you.",
+   "src": "L509",
+   "choices": [
+    {
+     "label": "Say How Happy (subject.he/she) Is",
+     "next": "o1",
+     "src": "L511"
+    },
+    {
+     "label": "Say (subject.he/she) Might, Someday",
+     "next": "o2",
+     "src": "L514"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I am settled,\" says (subject). \"I have my work, my friends, my hut, and you. I'm happy.\" (friend) frowns. \"But alone?\" \"Not alone,\" says (subject). \"Just not partnered. That's different.\" (friend) is quiet for a long time. \"I'll try to understand,\" (friend.he/she) says. (friend.He/she) doesn't fully. But (friend.he/she) stops asking, mostly. That's enough.",
+   "src": "L512"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Maybe someday,\" says (subject). \"If I meet someone I want. Not just to be settled.\" (friend) sighs. \"But you might never meet anyone.\" \"Then I'll be like this,\" says (subject). \"And I'll still be happy.\" (friend) pats (subject.his/her) hand and changes the subject. (friend.He/she) will ask again. (subject) will give the same answer. It's practically a ritual.",
+   "src": "L515"
+  }
+ }
+}

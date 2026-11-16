@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Heirloom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm44_broken_heirloom",
+  "source": "armor45",
+  "lines": [
+   55,
+   55
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L55",
+  "ledger": [
+   {
+    "src": "L55",
+    "kind": "structural",
+    "text": "44. The Broken Heirloom  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L55",
+    "kind": "sensitivity",
+    "before": "Its keeper must",
+    "after": "Its keeper, (name1), must",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A cherished wooden shield cracks with age.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A cherished wooden shield cracks with age. Its keeper, (name1), must decide whether restoration, careful storage, or a faithful replica best honors it.",
+   "src": "L55"
+  }
+ }
+}

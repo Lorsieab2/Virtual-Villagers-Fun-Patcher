@@ -1,0 +1,200 @@
+# REL-01..36: Love by Choice, Coming Out, Names and Presentation.
+# Teens court only teens at most two years apart; adult couples at most 15 years apart; elders with elders.
+REL-01
+R teen1 14-17 :
+R teen2 14-17 : recipient
+GAP teen2 teen1 2
+E S: "Two villagers aged 14-17" => "[teen1] and [teen2]"
+
+REL-02
+R teen 17-17 : teen
+R other 14-17 : other teen
+R peer 14-17 @B1,B2 : peer
+GAP other teen 2
+E S: "A seventeen-year-old is interested in another villager aged 14-17" => "[teen], a seventeen-year-old, is interested in [other]"
+
+REL-03
+R elder1 55+ :
+R elder2 55+ :
+E S: "Two elders who have known each other for years wonder" => "[elder1] and [elder2], two elders who have known each other for years, wonder"
+
+REL-04
+R villager 18+ : adult villager | villager
+R friend 18+ : friend
+R relative 18+ @C1,C2 : relative
+GAP friend villager 15
+SAMESEX villager friend
+
+REL-05
+R partner1 18+ :
+R partner2 18+ :
+GAP partner2 partner1 15
+E S: "Two compatible adult villagers want" => "[partner1] and [partner2], two compatible adult villagers, want"
+FX A1: celebrate partner1
+FX A1: celebrate partner2
+
+REL-06
+R villager 18+ : adult villager | villager | suitor
+R other 18+ : other person
+R elder 55+ @C1,C2 : elder
+GAP other villager 15
+
+REL-07
+R elder 55+ : elder
+R companion 18+ : new companion
+GAP companion elder 15
+E S: "An elder who lost a spouse years ago develops" => "[elder], an elder who lost a spouse years ago, develops"
+
+REL-08
+R villager 18+ : villager
+R friend 18+ : close friend | friend
+GAP friend villager 15
+
+REL-09
+R villager 14+ : villager
+NEW chosen villager same
+E S: "a different name because" => "a different name, [chosen], because"
+
+REL-10
+R villager 14+ : villager
+NEW chosen villager same
+E S: "the name of a beloved ancestor" => "the name of a beloved ancestor, [chosen]"
+
+REL-11
+R villager 14+ : villager
+R friend 14+ @A1,A2,D2 : friend | listener
+
+REL-12
+R villager 18+ : skilled villager | villager
+R mentor 18+ @D1,D2 : mentor
+
+REL-13
+R villager 14+ : villager
+R friend 14+ @B1,B2 : friend
+TODO: presentation effect 23 pending (A1: the other body sprite and clothing for the day, keeping the villager's identity)
+
+REL-14
+R villager 14+ : villager
+R weaver 18+ @B1,B2 : weaver
+
+REL-15
+R villager 18+ : adult villager | villager
+R companion 18+ @C1 : trusted companion
+NEW chosen villager other
+E A1: "use the requested words" => "use the requested name, [chosen], and words"
+FX B1: sex villager
+
+REL-16
+R teen 17-17 : teen
+R relative 18+ @A2 : relative
+R adult 18+ @C1,C2 : adult
+NEW chosen teen other
+E S: "A seventeen-year-old wants to be known by a different name and" => "[teen], a seventeen-year-old, wants to be known by a different name, [chosen], and"
+TODO: presentation effect 23 pending (B1: trying a sprite presentation, reversible)
+
+REL-17
+R elder 55+ : elder
+NEW chosen elder same
+E S: "chooses a new name after" => "chooses a new name, [chosen], after"
+
+REL-18
+R elder 55+ : elder
+R companion 18+ @C1,C2 : companion
+TODO: presentation effect 23 pending (A1, A2: the elder's appearance follows their wishes, keeping their identity)
+
+REL-19
+R partner1 18+ : villager
+R partner2 18+ : partner
+NEW chosen partner1 same
+GAP partner2 partner1 15
+E S: "One partner tells the other that they have chosen a new name." => "[partner1] tells [partner2] that they have chosen a new name, [chosen]."
+
+REL-20
+R partner1 18+ :
+R partner2 18+ :
+GAP partner2 partner1 15
+E S: "Two adult partners find" => "[partner1] and [partner2], two adult partners, find"
+TODO: presentation effect 23 pending (A1: a playful afternoon of new looks, keeping each partner's identity)
+
+REL-21
+R friend 14+ : friend
+R villager 14+ : villager
+
+REL-22
+R parent 18+ : parent
+R child 3-17 : child
+REL parent parent_of child
+E S: "their child wants" => "their child, [child], wants"
+
+REL-23
+R partner1 18+ :
+R partner2 18+ :
+GAP partner2 partner1 15
+E S: "Two adult villagers who like each other feel" => "[partner1] and [partner2], two adult villagers who like each other, feel"
+
+REL-24
+R partner1 18+ :
+R partner2 18+ :
+R mediator 18+ @B1 : mediator
+GAP partner2 partner1 15
+E S: "Two adult villagers decide" => "[partner1] and [partner2], two adult villagers, decide"
+
+REL-25
+R elder 55+ : well-meaning elder | elder
+R villager 18+ : villager
+E S: "to a villager who wants" => "to [villager], who wants"
+
+REL-26
+R elder1 55+ :
+R elder2 55+ :
+E S: "Two elders of the same sex begin" => "[elder1] and [elder2], two elders of the same sex, begin"
+SAMESEX elder1 elder2
+
+REL-27
+R villager 14+ : villager
+
+REL-28
+R apprentice 14+ : apprentice
+R mentor 18+ @A1 : mentor
+NEW chosen apprentice same
+E A1: "uses the new name and" => "uses the new name, [chosen], and"
+
+REL-29
+R villager 14+ : villager
+
+REL-30
+R villager 14+ : villager
+R friend 14+ @B1,B2 : friend
+FX A1: look villager
+FX B1: look villager
+FX C1: look villager
+
+REL-31
+R newcomer 14+ : newcomer
+NEW chosen newcomer same
+E S: "use a name different from" => "use a name, [chosen], different from"
+
+REL-32
+R teen1 14-17 :
+R teen2 14-17 :
+GAP teen2 teen1 2
+E S: "Two teens aged 14-17 care" => "[teen1] and [teen2] care"
+
+REL-33
+R elder 55+ @C2 : elder
+
+REL-34
+R elder 55+ : elder
+NEW chosen elder random
+E B1: "requests a new name be used" => "requests a new name, [chosen], be used"
+
+REL-35
+R villager1 18+ :
+R villager2 18+ :
+E S: "Two unrelated adult villagers decide" => "[villager1] and [villager2], two unrelated adult villagers, decide"
+
+REL-36
+R villager 14+ : villager
+R friend 14+ @C1,C2 : friend
+DESC: A villager finds that a different body sprite and clothing feel more comfortable, without changing gender identity.
+TODO: presentation effect 23 pending (A1, A2: a different body sprite and clothing, without changing gender identity)

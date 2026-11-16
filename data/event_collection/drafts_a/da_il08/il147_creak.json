@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Creak",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il147_creak",
+  "source": "da_il08",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager finally fixes the creak in their hut that has been there for years.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject)'s hut has a creak. A single beam, near the door, that creaks every time anybody walks in. It has creaked for years. Today (subject) finally gets up on a stool, finds the exact spot, and fixes it with one small wooden wedge. (subject.He/She) climbs down. (subject.He/She) walks in. Silence.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Show Everyone",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Enjoy It Quietly",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) brings (friend) round to hear it. \"Listen.\" (friend) walks in. Nothing. \"...What am I listening to?\" \"The creak! It's GONE!\" (friend) is polite about it. (subject) walks in and out of the door eleven more times that afternoon, just to enjoy the quiet.",
+   "src": "L86"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) walks in and out of the doorway a few times, beaming. Nobody else will ever notice. That's alright. That night, lying in bed, (subject) realizes (subject.he/she) half misses the creak. (subject.He/She) decides not to tell anybody that.",
+   "src": "L89"
+  }
+ }
+}

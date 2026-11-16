@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council Got It Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus18_council_got",
+  "source": "draft_jus",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L218",
+    "kind": "sensitivity",
+    "before": "Later an elder admits",
+    "after": "Later (elder), an elder, admits",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "The council wrongly blamed a villager for a broken fish trap: the council admits it, or the villager asks for one thing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last week the council decided that (subject) had broken (friend)'s fish trap, and (subject) spent two days weaving a new one. Today (friend) found the real culprit: a big turtle, tangled in the ropes of a second trap, with exactly the same damage. The turtle has been freed, unhurt. (subject) has been told.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "The Council Admits It",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "(subject) Asks for One Thing",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council calls the village together and says plainly that it was wrong, and that (subject) did nothing. (friend) gives (subject) the new trap to keep. (subject) appreciates it, but is still a bit sore; two days is two days. Later (elder), an elder, admits to (subject.him/her), privately, that they should have looked harder. That helps more than the trap.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks the council for one thing only: that next time, they look at the evidence before they decide. The council agrees, and says so in front of everyone. (friend) offers (subject) the first three fish from the new trap. (subject) accepts. The trap, it turns out, is better than the old one.",
+   "src": "L221"
+  }
+ }
+}

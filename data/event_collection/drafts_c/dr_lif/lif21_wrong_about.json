@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wrong About (name2)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif21_wrong_about",
+  "source": "draft_lif",
+  "lines": [
+   242,
+   251
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L242",
+  "ledger": [
+   {
+    "src": "L243",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults aged 35 or older)"
+   }
+  ],
+  "description": "A villager realizes someone they disliked at first is now a favorite person: tell them, or keep it quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 35
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) first got to know (friend), years ago, (subject.he/she) didn't like (friend.him/her) at all. Too loud. Too sure of (friend.him/her)self. Laughed at the wrong things. Today, (subject) is sitting next to (friend) at the fire, laughing at one of (friend.his/her) terrible stories, and realizes (friend) has become one of (subject.his/her) favorite people on Isola. (subject.He/she) can't even say when it happened.",
+   "src": "L245",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L247"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L250"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I didn't like you at first, you know,\" says (subject). (friend) laughs. \"I know. I didn't like you either. You were so serious.\" They compare notes on what they used to think of each other. It's very rude and very funny. \"Well,\" says (friend), \"we were both wrong.\" \"Were we?\" says (subject). \"You ARE very loud.\" \"And you ARE very serious.\" They clink cups.",
+   "src": "L248"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything. (subject.He/she) just listens to (friend)'s terrible story and laughs. Somewhere over the years (subject.he/she) stopped minding the loudness, and started liking it, and then started missing it on quiet days. It's one of the nicest surprises of (subject.his/her) life. (friend) will probably never know. That seems fine.",
+   "src": "L251"
+  }
+ }
+}

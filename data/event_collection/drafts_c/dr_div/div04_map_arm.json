@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Map on (name1)'s Arm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div04_map_arm",
+  "source": "draft_div",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-13 and another child; in the story (name1) has vitiligo, with pale patches on (his/her) dark skin)"
+   }
+  ],
+  "description": "A child has named the pale patches of their vitiligo like a map of islands: ask for the tour, or make a map of your own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has vitiligo: patches of pale skin scattered across (subject.his/her) dark arms, hands and one cheek, like little islands. Today (subject.he/she) has decided that's exactly what they are. (subject.He/she) has been naming them. The big one on (subject.his/her) elbow is Home Island. The little ones on (subject.his/her) wrist are the Three Sisters. (friend) wants to hear the whole map.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Ask for the Tour",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Make a Map of Your Own",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes through every single island, with stories. One is where the fish are biggest. One is where nobody is allowed to be sad. One on (subject.his/her) knee is a volcano, and it's erupting, which is why it itches. (friend) is enchanted. (friend.He/she) asks if (friend.he/she) can visit. \"You need a canoe,\" (subject) says gravely. They build one out of a leaf.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't have any islands, so (friend.he/she) borrows some charcoal and draws freckle-sized ones all over (friend.his/her) own arms. They compare maps. (subject) is extremely clear that (subject.his/her) own are real and (friend)'s are pretend. (friend) agrees. By evening (friend)'s islands have mostly smudged off. (subject)'s are exactly where they were, which (subject) points out several times.",
+   "src": "L53"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L53",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

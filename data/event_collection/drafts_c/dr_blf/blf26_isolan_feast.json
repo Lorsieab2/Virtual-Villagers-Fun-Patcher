@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Isolan at the Feast",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "blf26_isolan_feast",
+  "source": "draft_blf",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a believer and, from the Isolans living outside the village, one Isolan; VV5 only)"
+   },
+   {
+    "src": "L308",
+    "kind": "note",
+    "why": "the heading's \"(VV5 only)\": the event is New Believers only"
+   }
+  ],
+  "description": "At the feast for the Guardians, a believer sees an Isolan from outside the village watching: invite them, or leave them be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is holding a feast for the Guardians, with drums and songs and food laid out on leaves. At the edge of the firelight, (friend), one of the Isolans who live outside the village, has stopped to watch. (subject) notices (friend.him/her) standing in the shadows.",
+   "src": "L311",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L311"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Invite (friend.him/her) to Eat",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Leave (friend.him/her) Be",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) walks over with a bowl of food. \"You're welcome to eat,\" (subject.he/she) says. \"You don't have to join the songs.\" (friend) hesitates, then takes the bowl. (friend.He/she) sits at the edge, eats and listens to the drums. When the songs start, (friend.he/she) stays quiet and doesn't join in. Nobody asks (friend.him/her) to. Before dawn (friend.he/she) slips away, with a nod to (subject). Nothing more. It's enough.",
+   "src": "L314",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L314"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) nods to (friend) across the firelight and goes back to the feast. (friend) watches for a while, then turns and goes back into the trees. The next morning, there's a small carved bird left on a rock at the edge of the village, facing the feasting ground. Nobody knows exactly what it means. (subject) leaves a bowl of fruit beside it.",
+   "src": "L317"
+  }
+ }
+}

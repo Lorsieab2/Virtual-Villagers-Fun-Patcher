@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The One Who Was Sent Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus30_one_sent_away",
+  "source": "draft_jus",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "A teen asks an elder why nobody builds where an old hut once stood: ask what happened, or let it rest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has asked (subject) why nobody ever builds on the flat stones at the far end of the beach, where a hut once stood. (subject) is quiet for a while. Then (subject.he/she) says that, when (subject.he/she) was young, someone who lived there was asked to leave the village. It is the only time (subject) remembers that ever happening.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Ask What Happened",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Let It Rest",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells what (subject.he/she) remembers, which isn't much. There had been trouble, the kind that kept happening, and people had been frightened, and the elders had tried everything else first. In the end they gave the person a canoe, food and water for a long journey, and argued about it for days. Some thought it was right. Some never did. \"I still don't know,\" (subject) says. \"Nobody ever heard what became of them.\" (friend) looks at the stones for a long time.",
+   "src": "L362",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L362"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) can see that (subject) doesn't want to say much more, and doesn't ask. They sit and watch the sea. After a while (subject) says, \"Some people thought it was right, and some never did. I was too young to understand. I'm still not sure I do.\" Then (subject.he/she) talks about something else, and (friend) lets (subject.him/her).",
+   "src": "L365"
+  }
+ }
+}

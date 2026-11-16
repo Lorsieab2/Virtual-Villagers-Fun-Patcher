@@ -49,14 +49,32 @@
 #include "../shared/villager_rekey.h"   /* a rename at a load keeps the look (VvfpVillagersRenamed) */
 #include "../shared/sex_change.h"       /* ...and so does a sex change (VvfpVillagerSexChanged) */
 
+/* An includer may keep a per-villager value of its own in the same shape (native/vvfp_gender_presentation: 0 or 1,
+   its own magic, folder and name, no first layout); every default below is the Head Looks' own. */
+#ifndef HL_MAGIC
 #define HL_MAGIC 0x324C4856u            /* 'VHL2' */
+#endif
+#ifndef HL_MAGIC_V1
 #define HL_MAGIC_V1 0x314C4856u         /* 'VHL1', still read */
+#endif
+#ifndef HL_READS_V1
+#define HL_READS_V1 1                   /* the first layout is still read */
+#endif
+#ifndef HL_LOOK_MAX
+#define HL_LOOK_MAX 2                   /* the largest value kept: 2 Old */
+#endif
+#ifndef HL_FILE_NAME
+#define HL_FILE_NAME "Head Looks - Save 0.dat"
+#define HL_FILE_SLOT_AT (sizeof "Head Looks - Save " - 1)
+#endif
 #define HL_HEADER 12u
 #define HL_FILE_BYTES(count) (HL_HEADER + (DWORD)(count) * 9u)
 #define HL_FILE_BYTES_V1(count) (HL_HEADER + (DWORD)(count) * 5u)
 #define HL_FILE_MAX HL_FILE_BYTES(HL_MAX)
 #define HL_SYNC_MS 250u
+#ifndef HL_KIND
 #define HL_KIND "Head Looks"
+#endif
 
 static unsigned char g_look[HL_MAX];          /* by record: 0 Auto, 1 Young, 2 Old */
 static unsigned int g_look_id[HL_MAX];        /* the identity each look was kept for */
@@ -124,11 +142,11 @@ static int hl_same_village(const unsigned int *a, const unsigned int *b) {
 
 /* The slot's file. */
 static int hl_path(int slot, char *out) {
-    char name[] = "Head Looks - Save 0.dat";
+    char name[] = HL_FILE_NAME;
     if (slot < 1 || slot > 5) {
         return 0;
     }
-    name[sizeof "Head Looks - Save " - 1] = (char)('0' + slot);
+    name[HL_FILE_SLOT_AT] = (char)('0' + slot);
     return vv_ps_data_file_a(out, HL_KIND, name, VV_PS_RESERVE);
 }
 
@@ -143,7 +161,7 @@ static int hl_valid(const unsigned char *data, DWORD len, void *ctx) {
     memcpy(&count, data + 8, 4);
     return game == (unsigned int)hl_game() && (count == 150u || count == 256u) && count <= HL_MAX
         && ((magic == HL_MAGIC && len == HL_FILE_BYTES(count))
-            || (magic == HL_MAGIC_V1 && len == HL_FILE_BYTES_V1(count)));
+            || (HL_READS_V1 && magic == HL_MAGIC_V1 && len == HL_FILE_BYTES_V1(count)));
 }
 
 /* Write the table with the roster it belongs to.  1 when it is on disk (or there was nothing to write over
@@ -242,7 +260,7 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
     }
     for (i = 0; i < kept; ++i) {
         unsigned char v = g_file[looks_at + (unsigned int)i];
-        g_look[i] = v <= 2 ? v : 0;             /* the file is the player's to edit: anything else is Auto */
+        g_look[i] = v <= HL_LOOK_MAX ? v : 0;             /* the file is the player's to edit: anything else is Auto */
         if (g_look[i] == 0) {
             fileids[i] = 0;
         }
@@ -383,7 +401,7 @@ static int hl_set(const unsigned char *record, int look) {
     unsigned char was;
     unsigned int was_id;
     int i;
-    if (record == NULL || look < 0 || look > 2) {
+    if (record == NULL || look < 0 || look > HL_LOOK_MAX) {
         return 0;
     }
     g_sync_tick = GetTickCount() - HL_SYNC_MS;  /* look at the village now, not a moment ago */
@@ -423,7 +441,7 @@ static int hl_set_many(const unsigned char *const *records, const int *looks, in
     }
     for (k = 0; k < count; ++k) {
         int i = records[k] != NULL ? hl_index(records[k]) : -1;
-        if (i < 0 || looks[k] < 0 || looks[k] > 2 || !hl_present(records[k])
+        if (i < 0 || looks[k] < 0 || looks[k] > HL_LOOK_MAX || !hl_present(records[k])
             || g_roster[i] != hl_identity(records[k])) {
             return 0;
         }

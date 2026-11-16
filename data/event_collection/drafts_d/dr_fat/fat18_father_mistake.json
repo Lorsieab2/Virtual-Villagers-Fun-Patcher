@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Father's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat18_father_mistake",
+  "source": "fathers30",
+  "lines": [
+   369,
+   387
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L369",
+  "ledger": [
+   {
+    "src": "L370",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L371",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L375",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L377",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L378",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L380",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L381",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L383",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L384",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L386",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L387",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L373",
+    "kind": "sensitivity",
+    "before": "a father",
+    "after": "(name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Distracted by an argument, a father forgets a promised outing. His child waits by the path until sunset, clutching a small basket.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Distracted by an argument, (name1), a father, forgets a promised outing. His child waits by the path until sunset, clutching a small basket.",
+   "src": "L373",
+   "choices": [
+    {
+     "label": "Apologize Without Excuses",
+     "next": "a",
+     "src": "L376"
+    },
+    {
+     "label": "Plan Another Outing Together",
+     "next": "b",
+     "src": "L379"
+    },
+    {
+     "label": "Ask What the Child Needs",
+     "next": "c",
+     "src": "L382"
+    },
+    {
+     "label": "Reflect on His Habits",
+     "next": "d",
+     "src": "L385"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child is upset but appreciates his honesty.",
+   "src": "L377"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child refuses to talk yet, and he respects that.",
+   "src": "L378"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They choose a new day and prepare carefully.",
+   "src": "L380"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child doubts he will remember, so he works to rebuild trust.",
+   "src": "L381"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child asks for time together rather than gifts.",
+   "src": "L383"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child says they want to be left alone for now.",
+   "src": "L384"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He changes how he manages promises and responsibilities.",
+   "src": "L386"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He recognizes a recurring problem that will take effort to fix.",
+   "src": "L387"
+  }
+ }
+}

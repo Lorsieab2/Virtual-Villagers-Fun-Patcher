@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stars Go Round",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il106_stars_go_round",
+  "source": "da_il06",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Lying on the beach at night, a villager notices that the stars have moved: stay up and watch, or tell a friend.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Lying on the beach one night, (subject) notices a bright star just above a palm tree. Much later, (subject.he/she) looks again. The star has moved. In fact, all of them have moved, slowly, together, as though the whole sky is turning around one point.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Stay Up and Watch",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Tell (friend) in the Morning",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) stays awake almost all night, marking the stars against the trees. By dawn (subject.he/she) is certain: they go round, all of them, except one small star that barely moves at all. Why that one? (subject.He/She) falls asleep on the sand before (subject.he/she) can decide, and wakes up with a crab on (subject.his/her) foot.",
+   "src": "L74"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) listens, then asks the obvious question: \"Is the sky going round, or are we?\" (subject) opens (subject.his/her) mouth and closes it again. Neither of them can say. It's a strange, dizzy thought, and they both hold on to the nearest tree trunk for a moment, just in case.",
+   "src": "L77"
+  }
+ }
+}

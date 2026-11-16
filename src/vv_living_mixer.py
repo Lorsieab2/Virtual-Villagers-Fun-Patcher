@@ -8,7 +8,7 @@ living-pack.md, VLEP v1).
   the same word as PA), 3 to 5 choices (the category's choice set, or approaches from different families), each a
   branch to a GOOD (20), an adverse MIXED or BAD (20) and a RARE (2) archetype page.  Archetype pages are shared
   nodes carrying their effects, with automatic lines when they have any.  Variant 0 of a seed with a MIX example is
-  that MIX (the 15 MIX that break a compatibility rule get only the documented swaps, MIX_CHANGES).
+  that MIX (a MIX that breaks a compatibility rule gets only the documented swaps, MIX_CHANGES).
 * An MC variant: the situation's setup, its four approaches (k = 0 in the source order, then other orders) and their
   two authored outcomes each, equally likely.
 * Every text is the owner's line (typography made plain) or the frame's joining words (grammar fix
@@ -43,6 +43,8 @@ GAMES = (1, 2, 3, 4, 5)
 ALL_SKILLS = ("Parenting", "Building", "Farming", "Healing", "Research")
 # per choice (living-events.md Q7); the owner, 2026-11-15 ("ignore weights"): the rare outcome is as likely as the others
 W_GOOD, W_ADVERSE, W_RARE = 20, 20, 20
+W_ALT = W_GOOD // 2                             # each of a MIX outcome's two equal alternatives (MIX_ALTERNATIVES)
+assert W_GOOD == W_ADVERSE == 2 * W_ALT
 LEADER_ROLES = ("le_role_council_member",)      # cast from any villager (the Chief role stays the Tribal Chief)
 FAMILIES = ("consult", "act", "relate", "withdraw", "play")
 FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
@@ -67,149 +69,75 @@ CHIEF_WORDS = {
 # Choices per approach variant, by k (source rule 5: offer 3-5 choices from different families).
 APPROACH_COUNT = {1: 4, 3: 5, 5: 3, 7: 4, 9: 5}
 
-# ---- The 15 MIX examples that break a compatibility rule (lead decision, 2026-11-14) -------------------------------
+# ---- The MIX examples that break a compatibility rule (lead decision, 2026-11-14) ---------------------------------
 # Variant 0 reproduces the MIX but swaps ONLY the offending piece for the nearest compatible one (first in the list
 # that every rule allows), and applies the doubled-word grammar fix ("a confident confident novice" -> "a confident
 # novice").  Each change is listed in living-events.md section 7.
-NEAREST_ARCHETYPE = {
-    "le_arc_bad_03": ["le_arc_bad_09", "le_arc_bad_02", "le_arc_bad_07"],   # rushed choice -> idea abandoned
-    "le_arc_bad_06": ["le_arc_bad_02", "le_arc_bad_09"],                    # confidence mistaken -> must admit uncertainty
-    "le_arc_good_06": ["le_arc_good_02", "le_arc_good_07"],                 # misunderstanding corrected -> no proof
-    "le_arc_good_10": ["le_arc_good_07", "le_arc_good_02"],                 # new song -> the person feels heard
-    "le_arc_mixed_08": ["le_arc_mixed_04", "le_arc_mixed_02"],              # embarrassment -> awkward, disappointing
-}
 NEAREST_ROLE = {
     "le_role_teenager": ["le_role_adult_villager"],
     "le_role_child": ["le_role_adult_villager"],
 }
 NEAREST_ONE_GAME_ROLE = {"le_role_chief": "le_role_council_member"}
-NEAREST_PERSONALITY = {
-    "le_pers_forgetful": ["le_pers_thoughtful", "le_pers_methodical"],
-    "le_pers_tired": ["le_pers_thoughtful", "le_pers_methodical"],
+# Owner (2026-11-15): archetypes are not bad; no archetype line is replaced.  Where an earlier rule (a compatibility
+# swap or a sensitivity edit) changed a piece of a MIX, variant 0 keeps BOTH the owner's original and that replacement
+# as two equal alternatives (the run picks one at random): an outcome as two children of half the weight each, a
+# personality as a pool of the two words.  The original is always one of the two.  Keys: "<choice><outcome>"
+# (0-based) or the frame slot.
+MIX_ALTERNATIVES = {
+    'MIX-001': {'01': 'le_arc_bad_09', '31': 'le_arc_bad_02'},
+    'MIX-005': {'31': 'le_arc_bad_02', 'second': 'le_pers_thoughtful'},
+    'MIX-006': {'30': 'le_arc_good_02'},
+    'MIX-007': {'01': 'le_arc_bad_07', 'second': 'le_pers_stubborn'},
+    'MIX-008': {'first': 'le_pers_thoughtful', 'second': 'le_pers_cautious'},
+    'MIX-009': {'00': 'le_arc_good_07', '20': 'le_arc_good_02'},
+    'MIX-010': {'31': 'le_arc_bad_02'},
+    'MIX-015': {'21': 'le_arc_bad_09'},
+    'MIX-016': {'01': 'le_arc_bad_09', '10': 'le_arc_good_07', '30': 'le_arc_good_02', '31': 'le_arc_bad_02'},
+    'MIX-020': {'21': 'le_arc_bad_09'},
+    'MIX-021': {'first': 'le_pers_cautious'},
+    'MIX-022': {'01': 'le_arc_bad_07'},
+    'MIX-023': {'11': 'le_arc_mixed_04'},
+    'MIX-025': {'00': 'le_arc_good_02'},
+    'MIX-027': {'second': 'le_pers_thoughtful'},
+    'MIX-029': {'20': 'le_arc_good_02'},
+    'MIX-030': {'21': 'le_arc_bad_09', '30': 'le_arc_good_07'},
+    'MIX-031': {'01': 'le_arc_bad_09', '11': 'le_arc_bad_02', '31': 'le_arc_bad_02'},
+    'MIX-032': {'01': 'le_arc_bad_07'},
+    'MIX-033': {'second': 'le_pers_devout'},
+    'MIX-035': {'31': 'le_arc_bad_02'},
+    'MIX-037': {'11': 'le_arc_bad_02'},
+    'MIX-038': {'first': 'le_pers_devout'},
+    'MIX-040': {'10': 'le_arc_good_07', '30': 'le_arc_good_07'},
+    'MIX-042': {'10': 'le_arc_good_02', '11': 'le_arc_bad_02', '31': 'le_arc_mixed_04'},
+    'MIX-045': {'first': 'le_pers_cautious'},
+    'MIX-047': {'01': 'le_arc_bad_07'},
+    'MIX-050': {'21': 'le_arc_bad_09'},
+    'MIX-051': {'second': 'le_pers_thoughtful'},
+    'MIX-052': {'01': 'le_arc_bad_07', '11': 'le_arc_bad_02', '20': 'le_arc_good_07'},
+    'MIX-053': {'11': 'le_arc_mixed_04', 'second': 'le_pers_thoughtful'},
+    'MIX-055': {'second': 'le_pers_stubborn'},
+    'MIX-056': {'first': 'le_pers_thoughtful', 'second': 'le_pers_cautious'},
+    'MIX-057': {'second': 'le_pers_devout'},
 }
+ALT_RULE = "both kept, equal chance (owner, 2026-11-15)"
 
 
-# ---- The owner's sensitivity rules (2026-11-14): no unfortunate implication in any combination or path -----------
-# The bank's compat table (C1-C12, R1-R3, P1-P4) is extended here with the combinations of seed x role x personality x
-# choice x archetype that would imply blame, stigma, mockery that hurts, or harm aimed at someone.  Every variant obeys
-# them (scripts/living_check.py, tests/test_living_quality.py); a MIX that breaks one gets the smallest change, listed
-# as a sensitivity edit (MIX_CHANGES, living-events.md section 7).
+# ---- What the mixer never combines (owner decision, 2026-11-15) ----------------------------------------------------
+# The mixer keeps everything except combinations that produce obviously problematic power dynamics, invalidate
+# someone's pain or trauma, portray anyone as lesser, or a minor-adult romance or power imbalance; genuine
+# contradictions stay prevented (coherence).  The bank's compat table (C3, C6, C9, P1-P4) holds the rest.
 SENSITIVITY_RULES = {
-    "S1": "A villager whom a harmful outcome of the variant can reach, and both villagers when a blame outcome is "
-          "possible, never get a personality that can read as an insult or an age stereotype (insecure, tired, "
-          "forgetful, blunt, superstitious): the bad outcome would read as that trait's fault.",
-    "S2": "A mocking or comedic choice never leads to an outcome that hurts someone (an injury, a harm, someone "
-          "excluded, leaving, a death, a friendship ending): the joke would read as the cause.",
-    "S3": "A trial (an experiment, a new tool, magic, animal help, a small-scale or cautious trial) never leads to an "
-          "injury or a death: never harm shown as inflicted by the trial.",
-    "S4": "A confrontational choice (speaking candidly, a firm boundary, disagreeing, declining, the established "
-          "custom, the chief deciding) never leads to someone leaving, a friendship ending, someone excluded or an "
-          "injury: the choice would read as having driven someone away or hurt them.",
-    "S5": "Belief and spirit seeds never call a villager superstitious (a stigma on believers).",
-    "S6": "Asking an elder to explain the tradition never leads to an elder's death.",
-    # Part 2 (owner, 2026-11-14): no power imbalance between minors and adults; child labour and cruelty to animals
-    # never implied.
     "S7": "A romantic, secret-keeping or coercive frame (the adult-only seeds, a friend's secret, an elder demanding "
           "obedience, the choice to keep the matter private) casts adults only: both villagers 18 or older, never a "
-          "child, a teenager or anyone younger than 18 in any role.",
-    "S8": "An injury may land on a child or a teenager only at the rare tier, like any villager's rare harm (owner, "
-          "2026-11-15: \"Allow it, rare\"); never from a comedic or a trial choice (S2, S3). The bank's only injury "
-          "outcome (minor injury or exhaustion) is an adverse one (weight 20 of 60), so it never lands on a child or "
-          "a teenager: a rare-tier injury line from the owner would be needed for one.",
-    "S9": "Animal seeds never offer an experiment or a new tool on the creature (cruelty to animals would be implied).",
-    # Owner world rule (2026-11-15): some villagers believe, others do not; whether gods or spirits exist stays
-    # ambiguous; every belief and non-belief is valid and individual; nothing mocks, ranks or corrects a belief.
-    "S10": "Belief and spirit seeds never take a mocking or comedic approach (a friendly contest, a joke, celebrating "
-           "the result) and never end in an outcome that corrects or settles something (a misunderstanding gently "
-           "corrected, confidence found mistaken): a belief would read as mocked or corrected.",
-    # Owner rule (2026-11-15): villagers never murder or abuse; any other wrong act is acknowledged as wrong and has
-    # fitting consequences, never justified, rewarded or laughed off; no bigotry or unjust hatred anywhere.
-    "S11": "A seed whose situation is a wrong act (a prank that embarrasses someone, cheating alleged, a rule meant "
-           "only for outsiders) never takes a mocking or comedic choice, never ends in a celebration or a light "
-           "outcome, and never in one that keeps an unjust custom (customs coexisting, the tradition preserved); "
-           "following the unjust custom is never offered, and where the owner's example offers it, its good outcome "
-           "is one that acknowledges the people affected.",
-    # Owner rules 15-18 (2026-11-15): appearance, body and disability are never a problem, a lesson or a punchline.
-    "S12": "A seed about a villager's appearance or body (hair, clothes, a mask, a portrait) never takes a mocking or "
-           "comedic choice and never ends in an outcome that blames or embarrasses the person: their looks would "
-           "read as a problem or a punchline. The owner's own examples (variant 0) keep their words.",
-    # Owner hard rules (2026-11-15) 12, 13 and 20: no victim-blaming; a random outcome never reads as deserved;
-    # prejudice is never just another opinion.
-    "S13": "A seed with someone wronged in it (a prank's target, a villager accused of cheating, the outsiders an "
-           "old rule shuts out) never ends in an outcome that blames (wasted supplies, confidence mistaken for "
-           "competence, an embarrassment): the one wronged would read as deserving it. A seed about a rule meant "
-           "only for outsiders never offers a compromise with it, neutrality, letting households differ, leaving it "
-           "unresolved or inviting several disagreeing voices, and never ends in a compromise that satisfies "
-           "neither side: prejudice would read as one valid opinion.",
-    "S14": "A grief, loss, illness or trauma seed never ends in an outcome that corrects or settles it (a "
-           "misunderstanding gently corrected, confidence found mistaken) and never offers apologizing and repairing "
-           "as its way through: a past harm would read as the person's fault, insignificant, or resolved by "
-           "forgiveness (owner hard rule 27). Bad outcomes elsewhere stay what they are: not every one implies "
-           "wrongdoing.",
-    "S16": "Nothing serious is ever a joke: a seed of a serious category (Belief and Mystery, Governance and "
-           "Fairness, Emotions and Identity; Rest, Health, and Care), a grief, loss, illness or trauma seed, or a "
-           "seed about another community or culture (collective trauma may sit behind it; a culture is never shown "
-           "as lesser) never takes a mocking or comedic choice; Emotions and Identity, and Rest, Health, and Care "
-           "(care of the mind) never end in a light outcome. The owner's own examples keep their words.",
-    "S17": "A seed about love, a couple, a family's view of a companion, or a villager who is alone (a love letter "
-           "after years alone, a couple undecided about a child, a family that dislikes a companion, dining alone, "
-           "loneliness) never takes a mocking choice, never an approach where someone else decides for them (the "
-           "chief deciding, several voices, a trial), never an outcome that blames, and the couple's seed never ends "
-           "in an unexpected birth: no choice obliges anyone to accept affection, marry or have children, and being "
-           "single, childfree or alone is never lesser.",
-    "S15": "No outcome shames anyone (owner hard rule 28): the archetypes \"The villagers discover that confidence "
-           "was mistaken for competence.\" and \"A small success comes with an unexpected embarrassment.\" are never "
-           "mixed into a variant. The owner's own examples (variant 0) that use them keep their words and are listed "
-           "for the owner's review.",
+          "child, a teenager or anyone younger than 18 in any role (no minor-adult romance or power imbalance).",
+    "S17": "A seed about love, a couple, a family's view of a companion, or a villager who is alone never has the "
+           "chief decide for them (an obviously problematic power dynamic).",
 }
-PREJUDICE_SEEDS = {"le_gov_07"}                                     # S13
-FALSE_EQUIVALENCE = {"le_app_relate_04", "le_app_relate_06", "le_app_withdraw_04", "le_app_withdraw_05",
-                     "le_app_consult_04", "le_cs_gov_oth_d"}       # neutrality, compromise, households differ ...
-SPLIT_THE_DIFFERENCE = {"le_arc_mixed_05"}                          # the compromise satisfies neither side
-# Owner hard rule 27 (2026-11-15): no combination implies a past harm was the person's fault, insignificant, or
-# resolved by forgiveness.  A grief, loss, illness or trauma seed (tagged somber or medical) never ends in an outcome
-# that "corrects" or settles it, and never offers apologizing and repairing as its way through.
-REPAIR_APPROACHES = {"le_app_relate_07"}                            # Apologize and repair the relationship
-# Owner rules on relationships (2026-11-15): single, childfree and widowed villagers are never lesser or lonely by
-# default; marriage and parenthood are never a goal everyone must reach; no choice obliges anyone to accept
-# affection, marry or have children; relationships can end without blame; no family form is superior.
+# Love, a couple, a family's view of a companion, being alone: nobody in authority decides for them (S17).
 RELATIONSHIP_SEEDS = {"le_fam_05", "le_fam_06", "le_fam_07", "le_foo_07", "le_emo_04"}
-BIRTH_OVERRIDES = {"le_fam_06": {"le_arc_rare_07"}}                # a couple undecided about a child: no birth page
-# Owner hard rule 28 (2026-11-15, emphatic): no shaming.  The two archetype lines that judge a person's mistake or
-# make it an embarrassment are never mixed in; the owner's own examples keep their words, flagged for review.
-SHAMING_ARCHETYPES = {"le_arc_bad_06", "le_arc_mixed_08"}          # confidence mistaken for competence; embarrassment
-KEPT_IN_OWNER_EXAMPLES = (None, "S12", "S15", "S16")              # the rules variant 0 does not apply
-# Owner rule (2026-11-15): care of the mind (by healers, doctors, spiritual leaders or trusted villagers) is
-# voluntary and private, no miracle cure, never mocked: Emotions and Identity, and Rest, Health, and Care, never end
-# in a light outcome (a memorable day, a new song, an embarrassment).
-MIND_CATEGORIES = {"le_cat_emo", "le_cat_res"}
-
-
-def somber_seed(seed: dict) -> bool:
-    return "somber" in seed["tags"] or "medical" in seed["tags"]
-WRONG_ACT_SEEDS = {"le_cel_07", "le_gov_04", "le_gov_07"}          # S11
-UNJUST_KEEP = {"le_arc_good_09", "le_arc_mixed_09"}                # customs coexist; the tradition preserved
-ENDORSE_CHOICES = {"le_gov_07": {"le_cs_gov_oth_b"}}               # Follow the established custom
-ACKNOWLEDGE = ("le_arc_good_07", "le_arc_good_01")                 # the person affected heard; dignity kept
-APPEARANCE_SEEDS = {"le_per_01", "le_per_03", "le_per_04", "le_per_05", "le_per_07", "le_per_08", "le_cel_10",
-                    "le_odd_07"}                                    # S12
 ADULT_FRAME_SEEDS = {"le_fam_04", "le_gov_08"}      # plus every seed tagged adult_only
 SECRET_CHOICES = {"le_app_withdraw_03"}              # Keep the matter private
-ANIMAL_SEEDS_EXTRA = {"le_cel_09", "le_odd_01", "le_odd_04", "le_odd_09"}
-ANIMAL_NO = {"le_app_act_01", "le_app_act_03"}       # Try a small experiment; Invent a new tool or technique
 ADULT_AGE = 18
-RISK_TAGS = ("insult_risk", "ageist_risk")
-TRIAL_CHOICES = {"le_cs_art_per_a", "le_cs_foo_a", "le_cs_ani_d"}
-CONFRONT = {"le_app_relate_02", "le_app_relate_03", "le_app_relate_05", "le_app_withdraw_02", "le_app_consult_05",
-            "le_cs_gov_oth_b"}
-HURT_TAGS = ("injury", "rare_harm", "vanish", "elder_death")
-SENSITIVE_PERSONALITY = {   # the nearest personality with no insult or age risk (S1, S5)
-    "le_pers_insecure": ["le_pers_cautious", "le_pers_private"],
-    "le_pers_tired": ["le_pers_thoughtful", "le_pers_methodical"],
-    "le_pers_forgetful": ["le_pers_thoughtful", "le_pers_methodical"],
-    "le_pers_blunt": ["le_pers_stubborn", "le_pers_proud"],
-    "le_pers_superstitious": ["le_pers_devout", "le_pers_cautious"],
-}
 
 
 def plain(text: str) -> str:
@@ -419,81 +347,20 @@ def archetype_effects(bank: Bank, arc: str, a: str, b: str, games: list[int]) ->
     return out
 
 
-def belief_corrected(bank: Bank, seed: dict, arc: str) -> bool:
-    """S10: would this archetype read as correcting or settling the seed's belief?"""
-    return belief_seed(seed) and "resolves" in bank.arc[arc]["tags"]
-
-
-def seed_arc_rule(bank: Bank, seed: dict, arc: str) -> str | None:
-    """S10-S12: the rule that keeps this archetype from this seed, None when none does."""
-    if belief_corrected(bank, seed, arc):
-        return "S10"
-    tags = bank.arc[arc]["tags"]
-    if seed["id"] in WRONG_ACT_SEEDS and ("light" in tags or arc in UNJUST_KEEP):
-        return "S11"
-    if seed["id"] in APPEARANCE_SEEDS and "blame" in tags:
-        return "S12"
-    if seed["id"] in WRONG_ACT_SEEDS and "blame" in tags:
-        return "S13"
-    if seed["id"] in PREJUDICE_SEEDS and arc in SPLIT_THE_DIFFERENCE:
-        return "S13"
-    if somber_seed(seed) and "resolves" in tags:
-        return "S14"
-    if arc in SHAMING_ARCHETYPES:
-        return "S15"
-    if seed["category"] in MIND_CATEGORIES and "light" in tags:
-        return "S16"
-    if seed["id"] in RELATIONSHIP_SEEDS and ("blame" in tags or arc in BIRTH_OVERRIDES.get(seed["id"], set())):
-        return "S17"
-    return None
-
-
-def no_mocking(seed: dict, bank: Bank | None = None) -> bool:
-    """S10-S12, S16: a seed that never takes a mocking or comedic choice (a serious category's too, given the bank)."""
-    if bank is not None and bank.cat[seed["category"]].get("mood") == "serious":
-        return True                                 # S16: nothing serious is ever a joke
-    if somber_seed(seed) or "other_community" in seed["tags"]:
-        return True                                 # S16: grief and trauma (also collective); another culture
-    if seed["id"] in RELATIONSHIP_SEEDS:
-        return True                                 # S17: love, family or solitude is never a punchline
-    return belief_seed(seed) or seed["id"] in WRONG_ACT_SEEDS or seed["id"] in APPEARANCE_SEEDS
-
-
-def endorse_ok(bank: Bank, seed: dict, kind: str, ident: str, arc: str) -> bool:
-    """S11: after a choice that follows an unjust custom (only in the owner's example), a good outcome
-    acknowledges the people affected."""
-    if ident not in ENDORSE_CHOICES.get(seed["id"], set()) or bank.arc[arc]["group"] != "good":
-        return True
-    return arc in ACKNOWLEDGE
-
-
-def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str, owner_example: bool = False) -> bool:
-    """owner_example: the owner's own example (variant 0), which keeps its words under KEPT_IN_OWNER_EXAMPLES."""
+def archetype_possible(bank: Bank, seed: str, arc: str, a: str, b: str) -> bool:
+    """The bank's compat table, and coherence: an outcome naming an elder needs an elder in the scene."""
     if not bank.seed_allows(seed, "archetype", arc):
-        return False
-    rule = seed_arc_rule(bank, bank.seed[seed], arc)
-    if rule and not (owner_example and rule in KEPT_IN_OWNER_EXAMPLES):
         return False
     if not (bank.role_allows_archetype(a, arc) and bank.role_allows_archetype(b, arc)):
         return False
     if "needs_elder" in bank.arc[arc]["tags"] and resolve_role(bank, "elder", a, b) is None:
         return False
-    return cast_ok(bank, arc, a, b)
+    return True
 
 
 def minor_role(bank: Bank, rid: str) -> bool:
     """A role whose villager is always under 18 (a child, a teenager)."""
     return any(t in bank.role[rid]["tags"] for t in ("child", "teen"))
-
-
-def cast_ok(bank: Bank, arc: str, a: str, b: str) -> bool:
-    """S8: no injury or exhaustion on a child or a teenager."""
-    for e in bank.arc[arc]["effects"]:
-        if e["do"] == "health_change" and e.get("min", 0) < 0 and "role" in e:
-            r = resolve_role(bank, e["role"], a, b)
-            if r is not None and minor_role(bank, a if r == "first" else b):
-                return False
-    return True
 
 
 def adult_seed(seed: dict) -> bool:
@@ -505,10 +372,6 @@ def adult_frame(seed: dict, choices) -> bool:
     return adult_seed(seed) or any(ident in SECRET_CHOICES for _kind, ident in choices)
 
 
-def animal_seed(seed: dict) -> bool:
-    return seed["category"] == "le_cat_ani" or seed["id"] in ANIMAL_SEEDS_EXTRA
-
-
 HARMFUL = ("kill", "vanish", "die_unrecovered", "baby_lost", "sick")
 
 
@@ -517,78 +380,6 @@ def harmful(e: dict) -> bool:
     return (do in HARMFUL or (do == "health_change" and e.get("min", 0) < 0) or (do == "mood" and e.get("mood") == "bad")
             or (do == "skill" and (e.get("loss") or (e.get("min") or 0) < 0))
             or (do == "preference" and (e.get("list") == "dislikes" or "dislike" in e)))
-
-
-def hurts(bank: Bank, arc: str) -> bool:
-    a = bank.arc[arc]
-    return (any(harmful(e) for e in a["effects"]) or any(t in a["tags"] for t in HURT_TAGS)
-            or arc == "le_arc_bad_04")
-
-
-def choice_classes(bank: Bank, kind: str, ident: str) -> set[str]:
-    out = set()
-    if kind == "approach":
-        ap = bank.app[ident]
-        if ap["kind"] == "comedic" or "mocking" in ap["tags"]:
-            out.add("mocking")
-        if ap["kind"] in ("experiment", "magic", "animal"):
-            out.add("trial")
-    else:
-        tags = bank.choice[ident]["tags"]
-        if "comedic" in tags or "mocking" in tags:
-            out.add("mocking")
-        if ident in TRIAL_CHOICES:
-            out.add("trial")
-    if ident in CONFRONT:
-        out.add("confront")
-    if ident == "le_app_consult_06":
-        out.add("elder_ask")
-    return out
-
-
-def arc_ok_after(bank: Bank, kind: str, ident: str, arc: str) -> bool:
-    """S2, S3, S4, S6: may this choice lead to this archetype?"""
-    cls = choice_classes(bank, kind, ident)
-    if "mocking" in cls and hurts(bank, arc):
-        return False
-    if "trial" in cls and arc in ("le_arc_bad_05", "le_arc_rare_02"):
-        return False
-    if "confront" in cls and arc in ("le_arc_rare_01", "le_arc_rare_04", "le_arc_bad_04", "le_arc_bad_05"):
-        return False
-    if "elder_ask" in cls and arc == "le_arc_rare_02":
-        return False
-    return True
-
-
-def risky(bank: Bank, pid: str) -> bool:
-    return any(t in bank.per[pid]["tags"] for t in RISK_TAGS)
-
-
-def belief_seed(seed: dict) -> bool:
-    return "belief" in seed["tags"] or "supernatural" in seed["tags"]
-
-
-def sensitive_slots(bank: Bank, arcs, a: str, b: str, games: list[int]) -> set[str]:
-    """S1: the frame slots ('first', 'second') that may not take a risky personality."""
-    arcs = [x for x in arcs if x]
-    if any("blame" in bank.arc[x]["tags"] for x in arcs):
-        return {"first", "second"}
-    out = set()
-    for x in arcs:
-        for e in archetype_effects(bank, x, a, b, games):
-            if harmful(e) and e.get("role") in ("first", "second"):
-                out.add(e["role"])
-    return out
-
-
-def personality_ok(bank: Bank, seed: dict, role: str, pid: str, sensitive: bool) -> bool:
-    if not bank.role_allows_personality(role, pid):
-        return False
-    if sensitive and risky(bank, pid):
-        return False
-    if belief_seed(seed) and pid == "le_pers_superstitious":
-        return False
-    return True
 
 
 def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> dict:
@@ -617,22 +408,27 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
 def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: list[tuple[str, str]],
                outcomes: list[tuple[str, str, str]], games: list[int]) -> tuple[dict, list[tuple[str, int, int]]]:
     """The variant's graph.  pers_a / pers_b: a personality id (fixed, a MIX), None (the doubled-word fix: no
-    personality word) or "pool" (the PA / PB pool).  choices: (kind, id).  outcomes[i]: (good, adverse, rare)."""
+    personality word), "pool" (the PA / PB pool) or a list of ids (a MIX's equal alternatives, a pool of them).
+    choices: (kind, id).  outcomes[i]: (good, adverse, rare); good and adverse may be a tuple of two equal
+    alternatives (MIX_ALTERNATIVES), each child then weighs W_ALT."""
     text, words = seed_text(bank, seed)
     pools = {}
-    slots = sensitive_slots(bank, [x for trio in outcomes for x in trio], a, b, games)
-    if pers_a == "pool":
-        pools["PA"] = {"items": [personality_item(bank, p["id"]) for p in bank.pers
-                                 if personality_ok(bank, seed, a, p["id"], "first" in slots)]}
-    if pers_b == "pool":
-        pools["PB"] = {"items": [personality_item(bank, p["id"]) for p in bank.pers
-                                 if personality_ok(bank, seed, b, p["id"], "second" in slots)],
-                       **({"distinct_from": ["PA"]} if "PA" in pools else {})}
-    part_a = frame_part(bank, a, None if pers_a is None else (pers_a if pers_a != "pool" else None),
-                        "PA" if pers_a == "pool" else None)
-    part_b = frame_part(bank, b, None if pers_b is None else (pers_b if pers_b != "pool" else None),
-                        "PB" if pers_b == "pool" else None)
-    setup = f"{text} (first), {part_a}, and (second), {part_b}, {FRAME_TAIL}"
+    for name, rid, pers in (("PA", a, pers_a), ("PB", b, pers_b)):
+        if pers == "pool":
+            pools[name] = {"items": [personality_item(bank, p["id"]) for p in bank.pers
+                                     if bank.role_allows_personality(rid, p["id"])]}
+        elif isinstance(pers, list):
+            pools[name] = {"items": [personality_item(bank, p) for p in pers]}
+        else:
+            continue
+        if name == "PB" and "PA" in pools:
+            pools["PB"]["distinct_from"] = ["PA"]
+
+    def part(rid: str, pers, name: str) -> str:
+        if pers == "pool" or isinstance(pers, list):
+            return frame_part(bank, rid, None, name)
+        return frame_part(bank, rid, pers, None)
+    setup = f"{text} (first), {part(a, pers_a, 'PA')}, and (second), {part(b, pers_b, 'PB')}, {FRAME_TAIL}"
     nodes: dict = {}
     q_choices = []
     used_arcs: list[str] = []
@@ -640,10 +436,13 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
         label, w = label_text(bank, kind, ident)
         words.update(w)
         q_choices.append({"label": label, "next": f"c{i + 1}"})
-        kids = [{"next": "o_" + good[7:], "weight": W_GOOD}, {"next": "o_" + adverse[7:], "weight": W_ADVERSE}]
+        kids = []
+        for slot, weight in ((good, W_GOOD), (adverse, W_ADVERSE)):
+            alts = list(slot) if isinstance(slot, tuple) else [slot]
+            kids += [{"next": "o_" + x[7:], "weight": weight // len(alts)} for x in alts]
         if rare:
             kids.append({"next": "o_" + rare[7:], "weight": W_RARE})
-        for x in (good, adverse, rare):
+        for x in [y for s in (good, adverse, rare) for y in (s if isinstance(s, tuple) else (s,))]:
             if x and x not in used_arcs:
                 used_arcs.append(x)
         nodes[f"c{i + 1}"] = {"type": "branch", "children": kids}
@@ -719,23 +518,9 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
                 else:
                     pb = None
             else:
-                new = next(p for p in NEAREST_PERSONALITY[item] if bank.role_allows_personality(left_role, p))
-                changes.append({"mix": mix["code"], "what": f"{slot} villager's personality", "before": ptext,
-                                "after": bank.per[new]["text"], "rule": conflict})
-                if slot == "first":
-                    pa = new
-                else:
-                    pb = new
-        else:                                                # seed x archetype, role x archetype: swap the outcome
-            for i, pair in enumerate(outs):
-                for j, arc in enumerate(pair):
-                    if arc != item:
-                        continue
-                    new = next(x for x in NEAREST_ARCHETYPE[item] if archetype_possible(bank, seed, x, a, b))
-                    pair[j] = new
-                    changes.append({"mix": mix["code"], "what": f"choice {'ABCD'[i]} outcome {'12'[j]}",
-                                    "before": bank.arc[item]["text"], "after": bank.arc[new]["text"],
-                                    "rule": conflict})
+                raise ValueError(f"{mix['code']}: {conflict} has no documented change")
+        else:
+            raise ValueError(f"{mix['code']}: {conflict} has no documented change")
     if not variant_games(bank, bank.seed[seed], a, b):
         # No game has both roles (the VV3 chief with a VV5 practitioner, MIX-027 and MIX-057): the chief becomes
         # the nearest leader role every game has, so the MIX can be shown where its practitioner lives.
@@ -751,53 +536,31 @@ def mix_plan(bank: Bank, mix: dict) -> tuple[dict, list[dict]]:
                 else:
                     b = new
                 break
-    # The owner's sensitivity rules (S1-S6): the smallest change, each a sensitivity edit for the owner's review.
-    sdict = bank.seed[seed]
-    games = variant_games(bank, sdict, a, b)
-    for i, ((kind, ident), pair) in enumerate(zip(choices, outs)):
-        for j, arc in enumerate(pair):
-            # S12 and S15 keep the owner's own examples as written (keep owner text by default; flagged for review).
-            if arc_ok_after(bank, kind, ident, arc) and cast_ok(bank, arc, a, b) \
-                    and seed_arc_rule(bank, sdict, arc) in KEPT_IN_OWNER_EXAMPLES \
-                    and endorse_ok(bank, sdict, kind, ident, arc):
-                continue
-            group = ("good",) if bank.arc[arc]["group"] == "good" else ("mixed", "bad")
-            same = [x["id"] for x in bank.archetypes if x["group"] in group]
-            cands = NEAREST_ARCHETYPE.get(arc, []) + sorted(same, key=lambda x: (abs(bank.arc_index[x] - bank.arc_index[arc]),
-                                                                                  bank.arc_index[x]))
-            if not endorse_ok(bank, sdict, kind, ident, arc):
-                cands = list(ACKNOWLEDGE) + cands
-            new = next(x for x in cands if archetype_possible(bank, seed, x, a, b) and arc_ok_after(bank, kind, ident, x)
-                       and not hurts(bank, x) and "blame" not in bank.arc[x]["tags"]
-                       and endorse_ok(bank, sdict, kind, ident, x))
-            pair[j] = new
-            changes.append({"mix": mix["code"], "what": f"choice {'ABCD'[i]} outcome {'12'[j]} (sensitivity edit)",
-                            "before": bank.arc[arc]["text"], "after": bank.arc[new]["text"],
-                            "rule": seed_arc_rule(bank, sdict, arc)
-                            or ("S11" if not endorse_ok(bank, sdict, kind, ident, arc) else None)
-                            or next((r for r, c in (("S2", "mocking"), ("S3", "trial"), ("S4", "confront"),
-                                                      ("S6", "elder_ask"))
-                                       if c in choice_classes(bank, kind, ident)
-                                       and not arc_ok_after(bank, kind, ident, arc)), "S8")})
-    slots = sensitive_slots(bank, [x for p in outs for x in p], a, b, games)
-    for slot in ("first", "second"):
-        cur, role = (pa, a) if slot == "first" else (pb, b)
-        if cur is None or personality_ok(bank, sdict, role, cur, slot in slots):
-            continue
-        rule = "S5" if belief_seed(sdict) and cur == "le_pers_superstitious" and not (slot in slots and risky(bank, cur)) \
-            else "S1"
-        new = next(p for p in SENSITIVE_PERSONALITY[cur] if personality_ok(bank, sdict, role, p, slot in slots)
-                   and p != (pb if slot == "first" else pa))
-        changes.append({"mix": mix["code"], "what": f"{slot} villager's personality (sensitivity edit)",
-                        "before": bank.per[cur]["text"], "after": bank.per[new]["text"], "rule": rule})
-        if slot == "first":
-            pa = new
+    # The owner's original and the earlier replacement, both kept as equal alternatives (MIX_ALTERNATIVES).
+    alt_outs: dict[tuple[int, int], str] = {}
+    alt_pers: dict[str, str] = {}
+    for key, new in MIX_ALTERNATIVES.get(mix["code"], {}).items():
+        if key in ("first", "second"):
+            cur, role, other = (pa, a, pb) if key == "first" else (pb, b, pa)
+            if new in (cur, other) or not bank.role_allows_personality(role, new):
+                raise ValueError(f"{mix['code']}: {key} alternative {new}")
+            alt_pers[key] = new
+            changes.append({"mix": mix["code"], "what": f"{key} villager's personality (alternative)",
+                            "before": bank.per[cur]["text"], "after": bank.per[new]["text"], "rule": ALT_RULE})
         else:
-            pb = new
-    return {"a": a, "b": b, "pa": pa, "pb": pb, "choices": choices, "outs": outs}, changes
+            i, j = int(key[0]), int(key[1])
+            arc = outs[i][j]
+            if new == arc or bank.arc[new]["group"] not in (("good",) if j == 0 else ("mixed", "bad")) \
+                    or not archetype_possible(bank, seed, new, a, b):
+                raise ValueError(f"{mix['code']}: outcome {key} alternative {new}")
+            alt_outs[(i, j)] = new
+            changes.append({"mix": mix["code"], "what": f"choice {'ABCD'[i]} outcome {j + 1} (alternative)",
+                            "before": bank.arc[arc]["text"], "after": bank.arc[new]["text"], "rule": ALT_RULE})
+    return {"a": a, "b": b, "pa": pa, "pb": pb, "choices": choices, "outs": outs,
+            "alt_outs": alt_outs, "alt_pers": alt_pers}, changes
 
 
-MIX_CHANGES: list[dict] = []        # filled by generate(): every change the 15 conflicting MIX get
+MIX_CHANGES: list[dict] = []        # filled by generate(): every change the conflicting MIX get
 
 
 # ---- LE: generated variants -----------------------------------------------------------------------------------------
@@ -829,10 +592,7 @@ def possible_pair(bank: Bank, seed: dict, a: str, b: str) -> bool:
 
 def choice_set_choices(bank: Bank, seed: dict) -> list[tuple[str, str]]:
     cs = bank.choice_sets[bank.cat[seed["category"]]["choice_set"]]
-    out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)
-           and not (no_mocking(seed, bank) and "mocking" in choice_classes(bank, "choice", c))     # S10-S12, S16
-           and c not in ENDORSE_CHOICES.get(seed["id"], set())                                      # S11
-           and not (seed["id"] in PREJUDICE_SEEDS and c in FALSE_EQUIVALENCE)]                      # S13
+    out = [("choice", c) for c in cs["choices"] if bank.seed_allows(seed["id"], "choice", c)]
     if seed["consent_choice_required"] and not any("consent" in bank.choice[c]["tags"] or
                                                    bank.choice[c]["text"].startswith("Ask what the person")
                                                    for _k, c in out):
@@ -847,21 +607,13 @@ def consent_choice(bank: Bank, kind: str, ident: str) -> bool:
 
 
 def approach_allowed(bank: Bank, seed: dict, ident: str, a: str, b: str) -> bool:
-    """The bank's seed x approach exclusions, S7 (no secret-keeping with a child or a teenager) and S9."""
+    """The bank's seed x approach exclusions, S7 (no secret-keeping with a child or a teenager) and S17."""
     if not bank.seed_allows(seed["id"], "approach", ident):
         return False
     if ident in SECRET_CHOICES and (minor_role(bank, a) or minor_role(bank, b)):
-        return False
-    if ident in ANIMAL_NO and animal_seed(seed):
-        return False
-    if no_mocking(seed, bank) and "mocking" in choice_classes(bank, "approach", ident):
-        return False                                # S10-S12
-    if seed["id"] in PREJUDICE_SEEDS and ident in FALSE_EQUIVALENCE:
-        return False                                # S13
-    if somber_seed(seed) and ident in REPAIR_APPROACHES:
-        return False                                # S14
-    if seed["id"] in RELATIONSHIP_SEEDS and "consent_risk" in bank.app[ident]["tags"]:
-        return False                                # S17: nobody else decides who they love or whether to have a child
+        return False                                # S7
+    if seed["id"] in RELATIONSHIP_SEEDS and bank.app[ident]["kind"] == "authority":
+        return False                                # S17: the chief never decides who they love or whether to have a child
     return True
 
 
@@ -895,9 +647,7 @@ def approach_choices(bank: Bank, seed: dict, n: int, use: Usage, local: Counter,
 
 
 def pick_outcomes(bank: Bank, seed: str, a: str, b: str, choices: list[tuple[str, str]], use: Usage, local: Counter,
-                  rng: random.Random, fixed: list[list[str]] | None = None,
-                  avoid: tuple = (frozenset(), ())) -> list[tuple[str, str, str]]:
-    """avoid = (the frame slots holding a fixed risky personality, the games): no rare may harm them (S1)."""
+                  rng: random.Random, fixed: list[list[str]] | None = None) -> list[tuple[str, str, str]]:
     ok = [x["id"] for x in bank.archetypes if archetype_possible(bank, seed, x["id"], a, b)]
     goods = [x for x in ok if bank.arc[x]["group"] == "good"]
     adverse = [x for x in ok if bank.arc[x]["group"] in ("mixed", "bad")]
@@ -908,25 +658,21 @@ def pick_outcomes(bank: Bank, seed: str, a: str, b: str, choices: list[tuple[str
     def score(x):
         return use[("arc", x)] + 3 * local[("arc", x)] + 50 * in_variant[x]
 
-    for i, (kind, ident) in enumerate(choices):
-        after = [x for x in ok if arc_ok_after(bank, kind, ident, x)]
+    for i in range(len(choices)):
         if fixed is not None:
             g, d = fixed[i]
         else:
-            g = _pick([x for x in goods if x in after], score, rng)
+            g = _pick(goods, score, rng)
             in_variant[g] += 1
-            d = _pick([x for x in adverse if x in after], score, rng)
+            d = _pick(adverse, score, rng)
             in_variant[d] += 1
-        r = _pick([x for x in rares if x in after and not any(
-            harmful(e) and e.get("role") in avoid[0] for e in archetype_effects(bank, x, a, b, list(avoid[1])))],
-            score, rng)
+        r = _pick(rares, score, rng)
         if r:
             in_variant[r] += 1
         out.append((g, d, r))
     if fixed is None and all(bank.arc[g]["effects"] and bank.arc[d]["effects"] for g, d, _r in out):
         # At least one path with no effect (quality D): the last choice's adverse page becomes an effect-free one.
-        kind, ident = choices[-1]
-        free = [x for x in adverse if not bank.arc[x]["effects"] and arc_ok_after(bank, kind, ident, x)]
+        free = [x for x in adverse if not bank.arc[x]["effects"]]
         g, d, r = out[-1]
         out[-1] = (g, _pick(free, score, rng), r)
     return out
@@ -949,14 +695,19 @@ def le_variants(bank: Bank, seed: dict, k_total: int, use: Usage) -> list[Varian
             MIX_CHANGES.extend(changes)
             a, b = plan["a"], plan["b"]
             games = variant_games(bank, seed, a, b)
-            outs = pick_outcomes(bank, seed["id"], a, b, plan["choices"], use, local, rng, fixed=plan["outs"],
-                                 avoid=({sl for sl, p in (("first", plan["pa"]), ("second", plan["pb"]))
-                                         if p and risky(bank, p)}, games))
-            graph, onodes = compose_le(bank, seed, a, b, plan["pa"], plan["pb"], plan["choices"], outs, games)
+            outs = pick_outcomes(bank, seed["id"], a, b, plan["choices"], use, local, rng, fixed=plan["outs"])
+            alt = plan["alt_outs"]
+            shown = [tuple((x, alt[(i, j)]) if (i, j) in alt else x for j, x in enumerate((g, d))) + (r,)
+                     for i, (g, d, r) in enumerate(outs)]
+            pers = [[p, plan["alt_pers"][slot]] if slot in plan["alt_pers"] else p
+                    for slot, p in (("first", plan["pa"]), ("second", plan["pb"]))]
+            graph, onodes = compose_le(bank, seed, a, b, pers[0], pers[1], plan["choices"], shown, games)
             v = Variant(k=k, games=games, flags=FLAG_MIX | FLAG_SET, role_a=bank.role_index[a],
                         role_b=bank.role_index[b], lens=NONE8, family=FAM_CHOICE_SET, graph=graph, outcomes=onodes,
                         plan={"roles": [a, b], "personalities": [plan["pa"], plan["pb"]], "choices": plan["choices"],
-                              "outcomes": outs, "mix": mix["id"], "changes": changes}, **base)
+                              "outcomes": outs, "alternatives": sorted(set(alt.values())),
+                              "alt_personalities": dict(plan["alt_pers"]), "mix": mix["id"], "changes": changes},
+                        **base)
         else:
             pairs = [(x["id"], y["id"]) for x in bank.roles for y in bank.roles
                      if possible_pair(bank, seed, x["id"], y["id"])]
@@ -1125,7 +876,18 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
                 out += mc_variants(bank, sit, mc_k)
     for v in out:
         v.mood = mood_of(bank, v)
+        title_case_labels(v.graph)
     return out
+
+
+def title_case_labels(graph: dict) -> dict:
+    """The owner (2026-11-15): every new event's choice labels in title case -- scripts/collection_lib's one switch,
+    which the collection's own events take too (collection_check.graph_for_engine)."""
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import collection_lib
+    return collection_lib.title_case_graph_labels(graph)
 
 
 # The content filters (lead's list F01-F27, 2026-11-15): which outcomes each would drop before selection.  A Living
@@ -1438,14 +1200,15 @@ DOC_END = "<!-- living-mixer: end -->"
 def changes_markdown(changes: list[dict] | None = None) -> str:
     """The block living-events.md section 7 holds: the sensitivity rules and every change variant 0 makes."""
     changes = MIX_CHANGES if changes is None else changes
-    rows = ["### The sensitivity rules the mixer adds (owner, 2026-11-14)", "",
+    rows = ["### The rules the mixer adds (owner decision, 2026-11-15)", "",
             "The bank's rules above are extended with these; every variant obeys them (`scripts/living_check.py`).",
             "", "| Rule | What is never combined |", "|---|---|"]
     rows += [f"| {k} | {v} |" for k, v in SENSITIVITY_RULES.items()]
     rows += ["", "### Variant 0: the MIX examples as shipped, with every change", "",
-             "Lead decision (2026-11-14): variant 0 of a seed is its MIX, with ONLY the offending piece swapped for "
-             "the nearest compatible one, and the doubled-word grammar fix. Changes marked \"sensitivity edit\" follow "
-             "the owner's content rules (S1-S9) and are listed for the owner's review. The MIX anchor test "
+             "Variant 0 of a seed is its MIX in the owner's words, with ONLY the piece that breaks a rule above "
+             "swapped for the nearest compatible one, and the doubled-word grammar fix. A row marked \"alternative\" "
+             "keeps both: the owner's original (Before) and the earlier replacement (After) are equal alternatives, "
+             "and the game picks one at random (owner, 2026-11-15: archetypes are not bad). The MIX anchor test "
              "(`tests/test_living_fidelity.py`) reproduces each MIX from the source with exactly these changes.", "",
              "| MIX | What | Before | After | Why |", "|---|---|---|---|---|"]
     for c in sorted(changes, key=lambda c: (c["mix"], c["what"])):
@@ -1465,8 +1228,8 @@ def write_docs() -> None:
 
 
 FIXTURE = ROOT / "tests" / "data" / "living_fixture"
-FIXTURE_SEEDS = ("le_odd_09", "le_cel_01", "le_per_01", "le_art_05", "mc_tra_13", "mc_tra_08")
-FIXTURE_K = 3
+FIXTURE_SEEDS = ("le_odd_08", "le_cel_01", "le_per_01", "le_art_05", "mc_tra_13", "mc_tra_08")
+FIXTURE_K = 5                   # le_per_01 k = 4 is the first a village of four adults with no skills can cast
 
 
 def fixture_files(variants: list[Variant], bank: Bank | None = None) -> dict[str, bytes]:

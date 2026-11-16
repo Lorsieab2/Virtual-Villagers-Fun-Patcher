@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do They Love the Sea as We Do?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz115_do_they_love_sea",
+  "source": "draft_hz2",
+  "lines": [
+   426,
+   436
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L426",
+  "ledger": [
+   {
+    "src": "L427",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Sitting on the beach at sunset, a villager wonders whether people on distant shores love the sea as much as Isolans.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Sitting on the beach at sunset, (name1) wonders whether people on distant shores love the sea as much as Isolans.",
+   "src": "L427",
+   "choices": [
+    {
+     "label": "Imagine Shared Love.",
+     "next": "a",
+     "src": "L428"
+    },
+    {
+     "label": "Imagine Indifference.",
+     "next": "b",
+     "src": "L431"
+    },
+    {
+     "label": "Ask What the Sea Means Here.",
+     "next": "c",
+     "src": "L434"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager imagines someone far away watching the same waves and feeling the same peace.",
+   "src": "L429"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A fisher says loving the sea and fearing it can go together, anywhere.",
+   "src": "L430"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar suggests that people who rely on the sea might see it as work, not beauty.",
+   "src": "L432"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A fisher admits that on some mornings they feel that way too.",
+   "src": "L433"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village shares stories of the sea, some happy and some sad.",
+   "src": "L435"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager who dislikes the sea says so, and everyone respects it.",
+   "src": "L436",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- story only: the file marks no effect (no new mechanics)",
+     "src": "L436"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Entry in the Horizon Notebook",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz130_entry_horizon",
+  "source": "draft_hz2",
+  "lines": [
+   606,
+   616
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L606",
+  "ledger": [
+   {
+    "src": "L607",
+    "kind": "sensitivity",
+    "before": "the village scholar opens",
+    "after": "(name1), the village scholar, opens",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After many evenings of guessing, the village scholar opens the Horizon Notebook to write the season's final entry.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After many evenings of guessing, (name1), the village scholar, opens the Horizon Notebook to write the season's final entry.",
+   "src": "L607",
+   "choices": [
+    {
+     "label": "Write \"We Do Not Know.\"",
+     "next": "a",
+     "src": "L608"
+    },
+    {
+     "label": "Write What Isolans Hope.",
+     "next": "b",
+     "src": "L611"
+    },
+    {
+     "label": "Leave a Blank Page.",
+     "next": "c",
+     "src": "L614"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The scholar writes it plainly, and everyone agrees it is the most honest entry.",
+   "src": "L609"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child adds, \"But we wonder,\" and the scholar keeps it.",
+   "src": "L610"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The scholar writes that distant people, if they exist, might be kind, curious and a little like Isolans.",
+   "src": "L612"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic asks that \"might\" be underlined twice, and it is.",
+   "src": "L613"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The scholar leaves it blank for the next generation to fill.",
+   "src": "L615"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Someone draws a small wave on it, and the scholar decides that says enough.",
+   "src": "L616"
+  }
+ }
+}

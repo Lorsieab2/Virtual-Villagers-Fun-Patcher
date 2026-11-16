@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everybody Says So",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt30_everybody_says_so",
+  "source": "draft_tt",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L362",
+    "kind": "sensitivity",
+    "before": "(name1)'s neighbor, and a small child who likes all colors",
+    "after": "(name1)'s neighbor (neighbor), and (child), a small child who likes all colors",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L365",
+    "kind": "sensitivity",
+    "before": "with some help from the child who likes all colors",
+    "after": "with some help from (child)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager says everybody wants the new canoe red, and a friend is suspicious: ask everybody, or leave it to everybody.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "neighbor",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "\"Everybody says the new canoe should be painted red,\" (subject) tells (friend). \"Everybody.\" (friend), who would prefer blue, is a little suspicious of \"everybody,\" and has decided to go round and ask.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Ask Everybody",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Leave It to Everybody",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "It turns out that \"everybody\" is (subject), (subject)'s neighbor (neighbor), and (child), a small child who likes all colors. Everyone else would prefer blue, or doesn't mind, or would like it left the color of wood. (friend) reports back. (subject) thinks about it. \"Well,\" (subject.he/she) says, \"everybody I asked.\" The canoe is painted half red and half blue, and is the most cheerful canoe on Isola.",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Then everybody can paint it,\" says (friend). The next morning there is a pot of red dye, a brush, and (subject), alone. (subject) paints the canoe red all by (subject.him/her)self, with some help from (child). It looks very fine. Nobody else notices it has been painted for a week.",
+   "src": "L365"
+  }
+ }
+}

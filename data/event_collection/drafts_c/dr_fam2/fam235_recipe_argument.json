@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Recipe Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam235_recipe_argument",
+  "source": "draft_fam2",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adult cousins (where the game records it; otherwise any two adults)"
+   }
+  ],
+  "description": "Two cousins making stew for a feast each insist their recipe is the real one: make two pots, or mix the two.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "cousin_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are making fish stew for a feast. Each of them learned it from a different grandparent, and each of them is absolutely certain theirs is the real recipe. One adds coconut. One doesn't. One says lime. One says never, ever lime. The argument is getting loud.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Make Two Pots",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Mix the Two",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (subject). \"Two pots.\" They make two pots, side by side, glaring at each other the whole time. At the feast, everybody tries both. Half the village prefers one, half prefers the other. Nobody is proved right. Both cousins feel completely vindicated. They agree, grudgingly, that the other one's stew is \"not bad.\"",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What if we do both?\" says (friend), suddenly. \"Coconut AND lime?\" (subject) stares at (friend.him/her) in horror. Then, slowly, curiosity. They try it. It's... actually good. Very good. A new family recipe is born. Both grandparents, if they could taste it, would probably be outraged. The cousins are delighted.",
+   "src": "L425"
+  }
+ }
+}

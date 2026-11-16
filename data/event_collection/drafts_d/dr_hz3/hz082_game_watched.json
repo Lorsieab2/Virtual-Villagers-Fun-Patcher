@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Game Watched by a Thousand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz082_game_watched",
+  "source": "draft_hz2",
+  "lines": [
+   29,
+   39
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L29",
+  "ledger": [
+   {
+    "src": "L30",
+    "kind": "sensitivity",
+    "before": "a teenager",
+    "after": "(name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After a lively ball game, a teenager wonders whether distant people gather in crowds just to watch others play.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a lively ball game on the beach, (name1), a teenager, wonders whether distant people might gather in huge crowds just to watch others play.",
+   "src": "L30",
+   "choices": [
+    {
+     "label": "Imagine Enormous Crowds.",
+     "next": "a",
+     "src": "L31"
+    },
+    {
+     "label": "Imagine Games Played for Fun Alone.",
+     "next": "b",
+     "src": "L34"
+    },
+    {
+     "label": "Ask Who Gets to Play.",
+     "next": "c",
+     "src": "L37"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The players imagine a crowd so loud that no one could hear the score; they cheer each other twice as loudly in practice.",
+   "src": "L32"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A quiet villager says they would find such noise exhausting, and nobody argues.",
+   "src": "L33"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child suggests that distant children might play just as they do, with made-up rules and arguments.",
+   "src": "L35"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders whether games far away could become so serious that the fun goes out of them.",
+   "src": "L36"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The players wonder whether everyone far away would get a turn, or only the best; they decide everyone gets a turn here.",
+   "src": "L38"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager who uses a wheelchair imagines games built for every kind of body; the others start designing one immediately.",
+   "src": "L39"
+  }
+ }
+}

@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Tried It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm68_elder_tried",
+  "source": "draft_rm2",
+  "lines": [
+   414,
+   427
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "sensitivity",
+    "before": "A teenager",
+    "after": "(Name1), a teenager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager shows the elders a new way to tie thatch that seems faster, and most elders dismiss it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a teenager, shows the elders a new way to tie thatch that seems faster, and most elders dismiss it.",
+   "src": "L415",
+   "choices": [
+    {
+     "label": "Try the New Method Openly.",
+     "next": "a",
+     "src": "L416"
+    },
+    {
+     "label": "Ask the Teenager to Explain It Slowly.",
+     "next": "b",
+     "src": "L419"
+    },
+    {
+     "label": "Test Both Methods Side by Side.",
+     "next": "c",
+     "src": "L422"
+    },
+    {
+     "label": "Praise the Teenager's Curiosity.",
+     "next": "d",
+     "src": "L425"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder finds it faster and says so in front of everyone.",
+   "src": "L417"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The method is faster but less sturdy, and they agree to use it only for small huts.",
+   "src": "L418"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder understands the idea and suggests an improvement.",
+   "src": "L420"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The explanation is confusing, so the teenager simply demonstrates again.",
+   "src": "L421"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both roofs survive the next storm, and both methods are kept.",
+   "src": "L423"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new roof leaks in one corner, and the teenager fixes it without discouragement.",
+   "src": "L424"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The teenager feels encouraged to keep inventing.",
+   "src": "L426"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The praise is welcome, but the teenager wanted the method used, and says so; the elder agrees to try it.",
+   "src": "L427"
+  }
+ }
+}

@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hillside Music Afternoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy37_hillside_music",
+  "source": "anthology",
+  "lines": [
+   29223,
+   29236
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29223",
+  "ledger": [],
+  "description": "Musicians from different communities gather on a breezy hillside.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Musicians from different communities gather on a breezy hillside.",
+   "src": "L29224",
+   "choices": [
+    {
+     "label": "Play Together",
+     "next": "a",
+     "src": "L29225"
+    },
+    {
+     "label": "Take Turns Performing",
+     "next": "b",
+     "src": "L29228"
+    },
+    {
+     "label": "Teach Beginners",
+     "next": "c",
+     "src": "L29231"
+    },
+    {
+     "label": "Sit and Listen",
+     "next": "d",
+     "src": "L29234"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The melodies blend into a new tune.",
+   "src": "L29226"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rhythms clash and the musicians laugh.",
+   "src": "L29227"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each group enjoys hearing unfamiliar songs.",
+   "src": "L29229"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The afternoon runs late and several songs wait until next time.",
+   "src": "L29230"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "New musicians learn a simple rhythm.",
+   "src": "L29232"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The beginners prefer to clap along.",
+   "src": "L29233"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The listeners enjoy the music without pressure.",
+   "src": "L29235"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The wind grows loud and everyone moves downhill.",
+   "src": "L29236"
+  }
+ }
+}

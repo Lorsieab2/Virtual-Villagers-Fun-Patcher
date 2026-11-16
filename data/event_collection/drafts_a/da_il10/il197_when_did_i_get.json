@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When Did I Get Old?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il197_when_did_i_get",
+  "source": "da_il10",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder who still feels thirty-five catches their reflection in the stream and does not recognize it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Inside, (name1) feels about thirty. Maybe thirty-five. (He/She) still thinks of (him/her)self as one of the young ones, really. Then, kneeling to drink at the stream, (he/she) catches (his/her) reflection in the still water, and for a moment doesn't recognize the old face looking back. Then (he/she) does.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Laugh at It",
+     "next": "a",
+     "src": "L193"
+    },
+    {
+     "label": "Sit and Think About It",
+     "next": "b",
+     "src": "L196"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Well, look at you,\" (name1) says to the reflection. The reflection looks back, wrinkled and white-haired and a bit startled. (name1) pulls a face at it. It pulls a face back. (He/She) laughs out loud, and the reflection breaks up into ripples. (He/She) still feels thirty-five. (He/She) just looks like (he/she) has had a very interesting time getting here.",
+   "src": "L194"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) sits back on (his/her) heels. When did that happen? It doesn't feel like long ago that (he/she) was the young one being told off by the elders. Now (he/she) is the elder. (He/She) doesn't feel sad about it, exactly. Just surprised, the way you're surprised to find the tide has come in while you weren't looking. (He/She) drinks (his/her) water and goes home.",
+   "src": "L197"
+  }
+ }
+}

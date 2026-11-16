@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Most Comfortable Hammock in the World",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm07_most_comfortable",
+  "source": "draft_drm",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager asks a friend to test the fifth try at the most comfortable hammock ever: lie down and report, or point out the knot.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided that (subject.his/her) great work in life will be the most comfortable hammock ever made. Not the strongest. Not the biggest. The most comfortable. (subject.He/she) has tried four weaves and three kinds of fiber, and today (subject.he/she) has finished version five and asks (friend) to test it.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Lie Down and Report Back",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Point Out the Knot Under Your Shoulder",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) lies down. (friend.He/she) sways. (friend.He/she) closes (friend.his/her) eyes to concentrate on the comfort. (friend.He/she) wakes up two hours later with no idea where (friend.he/she) is. (subject) is sitting nearby, looking very satisfied. \"I'll take that,\" (subject.he/she) says, \"as a yes.\"",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's lovely,\" says (friend), \"except for a knot right here.\" (subject) groans. There's always a knot. (subject.He/she) unpicks the whole end and starts again. Version six will be perfect. (subject.He/she) said that about version five. (subject.He/she) is enjoying every minute of it.",
+   "src": "L89"
+  }
+ }
+}

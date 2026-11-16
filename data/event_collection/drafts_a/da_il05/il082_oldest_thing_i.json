@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Oldest Thing I Own",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il082_oldest_thing_i",
+  "source": "da_il05",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager is asked about the oldest thing they own, and fetches a small, chipped clay cup.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Sitting outside after dinner, (friend) asks a question out of nowhere: \"What's the oldest thing you own?\" (subject) has to think. Then (subject.he/she) goes into (subject.his/her) hut and comes back with a small, chipped clay cup that (subject.he/she) has had for as long as (subject.he/she) can remember. Nobody knows who made it. It has always just been there.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Tell the Cup's Story",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Wonder About Who Had It Before",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) tells (friend) everything (subject.he/she) knows about the cup, which isn't much: it was in the hut when (subject.he/she) was small, it got chipped the year of the big storm, and once (subject.he/she) dropped it and it bounced. (friend) goes and fetches (friend.his/her) own oldest thing, a worn wooden comb. They spend the evening trading stories about two very ordinary, very old objects, and both of them hold their things a little more carefully afterward.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) turns the cup over in (subject.his/her) hands. Somebody made it. Somebody drank from it, long before (subject) was born. Maybe lots of somebodies. (friend) and (subject) make up a few of them: a fisher who liked very hot tea, a child who used it to catch frogs. None of it is true, probably. The cup doesn't seem to mind.",
+   "src": "L29"
+  }
+ }
+}

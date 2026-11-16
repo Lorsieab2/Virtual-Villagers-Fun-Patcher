@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Places (name1) Has Never Been",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt36_places_has_never",
+  "source": "draft_tt",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen aged 14-17)"
+   },
+   {
+    "src": "L437",
+    "kind": "sensitivity",
+    "before": "When a child asks how to get there",
+    "after": "When (child), a child, asks how to get there",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L437",
+    "kind": "sensitivity",
+    "before": "The child's face falls.",
+    "after": "(child)'s face falls.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who has never left Isola tells the children about strange lands beyond the sea: keep going, or admit it is all made up.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has never left Isola, but tonight by the fire (subject.he/she) is telling the children all about the lands beyond the sea: where it rains upward, where fish fly and birds swim, and where people walk on their hands to keep their feet clean. The children hang on every word. (friend) is beginning to look suspicious.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Admit It's All Made Up",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) adds a land where everyone sleeps standing up, and another where the sea is as warm as stew. (friend) asks, \"Have you actually been to any of them?\" \"In my head,\" says (subject), \"every night.\" (friend) thinks about that. The next evening, (friend.he/she) comes back to the fire with a land of (friend.his/her) own.",
+   "src": "L434"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "When (child), a child, asks how to get there, (subject) admits that none of it is true. (child)'s face falls. \"But nobody knows what's really out there,\" (subject) adds. \"So it might as well be this.\" The children decide that's good enough, and spend the rest of the evening inventing lands of their own, with (friend) helping.",
+   "src": "L437"
+  }
+ }
+}

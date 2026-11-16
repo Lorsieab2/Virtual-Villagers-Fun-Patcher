@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rest Before the Roof",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm63_rest_before_roof",
+  "source": "draft_rm2",
+  "lines": [
+   339,
+   352
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L339",
+  "ledger": [
+   {
+    "src": "L340",
+    "kind": "sensitivity",
+    "before": "the crew leader notices",
+    "after": "(name1), the crew leader, notices",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A work crew has been rushing to finish a roof before the rains, and the crew leader sees everyone is exhausted.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A work crew has been rushing to finish a roof before the rains, and (name1), the crew leader, notices everyone is exhausted and making small mistakes.",
+   "src": "L340",
+   "choices": [
+    {
+     "label": "Stop for a Full Day of Rest.",
+     "next": "a",
+     "src": "L341"
+    },
+    {
+     "label": "Rest in Shifts.",
+     "next": "b",
+     "src": "L344"
+    },
+    {
+     "label": "Ask the Crew What They Need.",
+     "next": "c",
+     "src": "L347"
+    },
+    {
+     "label": "Invite More Helpers.",
+     "next": "d",
+     "src": "L350"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The crew returns refreshed and finishes faster than expected.",
+   "src": "L342"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rain arrives early, and the crew covers the open roof with mats in time.",
+   "src": "L343"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Half the crew rests while the other half works, and the roof keeps growing.",
+   "src": "L345"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The shifts confuse everyone, and they return to working together.",
+   "src": "L346"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They ask for shorter days and more water, which the leader arranges.",
+   "src": "L348"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Everyone says they are fine, but the leader calls a break anyway.",
+   "src": "L349"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Fresh hands make the work lighter, and the crew can rest.",
+   "src": "L351"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Few people are free, but the help that comes is welcome.",
+   "src": "L352"
+  }
+ }
+}

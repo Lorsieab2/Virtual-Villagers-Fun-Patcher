@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Around One Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf50_around_one_fire",
+  "source": "draft_blf",
+  "lines": [
+   590,
+   593
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L590",
+  "ledger": [
+   {
+    "src": "L591",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks several adults; a single popup, no choice)"
+   }
+  ],
+  "description": "Around the fire sit believers, doubters and the uninterested, and they all talk about the rain, as a village mostly does.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Tonight, around the fire, are: a villager who prays every morning, a villager who thinks the spirits are just stories, a villager who isn't sure, a villager who believes in something but won't say what, and a villager who has never given it a moment's thought. There's also a couple who have been together for years, a villager who has never wanted a partner and doesn't see why anyone would, someone with a chosen name, and someone in the brightest green wrap on Isola. Nobody is talking about any of that. They are talking about the rain. It's been raining for days. The rain is ruining the drying fish. Someone thinks it'll stop tomorrow; someone thinks it'll go on all week; someone thinks the frogs are getting too loud. Everybody agrees the fish stew is good tonight. One of them tells a terrible joke, and everyone groans, and then everyone laughs. It's a very ordinary evening. It's what a village looks like, most of the time.",
+   "src": "L593"
+  }
+ }
+}

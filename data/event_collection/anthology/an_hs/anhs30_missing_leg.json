@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Leg Is Not the Whole Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs30_missing_leg",
+  "source": "anthology",
+  "lines": [
+   29875,
+   29888
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29875",
+  "ledger": [
+   {
+    "src": "L29876",
+    "kind": "sensitivity",
+    "before": "A villager who lost a leg years ago is",
+    "after": "(villager), a villager who lost a leg years ago, is",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29885",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who lost a leg years ago is tired of being introduced by their injury.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), a villager who lost a leg years ago, is tired of being introduced by their injury.",
+   "src": "L29876",
+   "choices": [
+    {
+     "label": "Ask About Their Current Interests",
+     "next": "a",
+     "src": "L29877"
+    },
+    {
+     "label": "Invite Them to Lead an Activity",
+     "next": "b",
+     "src": "L29880"
+    },
+    {
+     "label": "Correct an Intrusive Question",
+     "next": "c",
+     "src": "L29883"
+    },
+    {
+     "label": "Treat the Villager as an Ordinary Neighbor",
+     "next": "d",
+     "src": "L29886"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29876"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They enthusiastically describe a new fishing technique.",
+   "src": "L29878"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They reveal they would rather discuss a recent family celebration.",
+   "src": "L29879",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29879"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their expertise impresses a group of apprentices.",
+   "src": "L29881"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They decline leadership because today they would rather rest.",
+   "src": "L29882"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The curious speaker apologizes and changes the subject.",
+   "src": "L29884"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) chooses to answer briefly, then sets a boundary.",
+   "src": "L29885"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They join a lively argument about the best fruit.",
+   "src": "L29887"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They complain about a hammock knot like everyone else.",
+   "src": "L29888"
+  }
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heirloom Gathering",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm33_heirloom",
+  "source": "openq97",
+  "lines": [
+   635,
+   637
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L636",
+  "ledger": [
+   {
+    "src": "L635",
+    "kind": "structural",
+    "text": "[M33]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L637",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Several families gather to share stories about their heirlooms.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "Several families gather to share stories about their heirlooms. One family brings a carved handle. Another unfolds a cloth carefully wrapped around an old ornament.",
+   "src": "L635,L637"
+  }
+ }
+}

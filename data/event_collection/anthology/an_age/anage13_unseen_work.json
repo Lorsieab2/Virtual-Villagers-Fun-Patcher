@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unseen Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage13_unseen_work",
+  "source": "anthology",
+  "lines": [
+   30317,
+   30331
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30317",
+  "ledger": [
+   {
+    "src": "L30318",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30319",
+    "kind": "sensitivity",
+    "before": "An adult who quietly repairs baskets and tools feels",
+    "after": "(adult), an adult who quietly repairs baskets and tools, feels",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30321",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30327",
+    "kind": "sensitivity",
+    "before": "The worker",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An adult who quietly repairs baskets and tools feels invisible beside the village's celebrated builders.",
+  "label_case": "title",
+  "cast_only": [
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(adult), an adult who quietly repairs baskets and tools, feels invisible beside the village's celebrated builders.",
+   "src": "L30319",
+   "choices": [
+    {
+     "label": "Recognize the Maintenance Publicly",
+     "next": "a",
+     "src": "L30320"
+    },
+    {
+     "label": "Rotate Routine Tasks",
+     "next": "b",
+     "src": "L30323"
+    },
+    {
+     "label": "Ask What Support Is Needed",
+     "next": "c",
+     "src": "L30326"
+    },
+    {
+     "label": "Discuss What Counts as Achievement",
+     "next": "d",
+     "src": "L30329"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrated\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30319"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult) is touched that someone noticed their work.",
+   "src": "L30321"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They dislike the attention but appreciate a practical offer of help.",
+   "src": "L30322",
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30322"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "More villagers understand how much effort maintenance requires.",
+   "src": "L30324"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The rotation exposes a training gap and prompts a useful apprenticeship.",
+   "src": "L30325"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult) requests better storage rather than praise.",
+   "src": "L30327"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They admit they need an occasional afternoon off and receive one.",
+   "src": "L30328"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers begin celebrating upkeep as well as new projects.",
+   "src": "L30330",
+   "text_only": [
+    {
+     "what": "\"celebrating\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30330"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The discussion reveals different ideas of contribution without settling on one ranking.",
+   "src": "L30331"
+  }
+ }
+}

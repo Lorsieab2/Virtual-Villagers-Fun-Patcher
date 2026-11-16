@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The End of the Rainbow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il114_end_rainbow",
+  "source": "da_il06",
+  "lines": [
+   158,
+   167
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L158",
+  "ledger": [
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A rainbow seems to come down just past the gardens. A villager wonders what is at the end of it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a rainbow over the island, and it seems to come down just past the gardens. (subject) has always wondered what's at the bottom of a rainbow. Today it's so close. (subject.He/She) could walk there. (friend) is already shaking (friend.his/her) head.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Walk Toward It",
+     "next": "a",
+     "src": "L163"
+    },
+    {
+     "label": "Ask (friend) What (friend.he/she) Thinks Is There",
+     "next": "b",
+     "src": "L166"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) walks past the gardens. The rainbow is now just past the stream. (subject.He/She) crosses the stream. Now it's just past the trees. By the time (subject.he/she) reaches the trees, the rainbow has faded away to nothing. (subject) stands there, slightly damp, a long way from home. \"It moved,\" (subject.he/she) reports to (friend) later. \"Rainbows do that,\" says (friend). \"I KNOW that now.\"",
+   "src": "L164"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Probably nothing,\" says (friend). \"Probably just more ground.\" (subject) thinks about it. \"But if it's just ground, why does the rainbow pick that bit?\" (friend) has no answer. They watch the rainbow until it fades, both privately wondering about that bit of ground.",
+   "src": "L167"
+  }
+ }
+}

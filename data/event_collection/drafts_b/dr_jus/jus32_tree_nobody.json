@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree Nobody Climbs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus32_tree_nobody",
+  "source": "draft_jus",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager broke the rule against climbing the brittle cliff to free a seabird chick: take it to the council, or talk to them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a rule that nobody climbs the old tree at the cliff edge; its branches are brittle, and it's a long way down. This morning (subject) climbed it anyway, to free a seabird chick tangled in fishing line near the top. The chick is free. (subject) is down safely. (friend) saw the whole thing and is still shaking.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Take It to the Council",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Talk to (subject) Yourself",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council agrees that (subject) broke the rule, that (subject.he/she) did it for a good reason, and that (subject.he/she) could have fallen. They argue for a long time about what all that adds up to. In the end they ask (subject) to help make a long hooked pole, kept by the tree, so the next tangled bird can be reached from the ground. Nobody is quite sure that settles it.",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"You could have fallen,\" says (friend). \"I know.\" \"You could have called someone.\" \"There wasn't time.\" \"There's always time to shout.\" (subject) thinks about this. \"...I'll shout next time.\" (friend) isn't sure (friend.he/she) believes it, but sits down beside (subject.him/her) anyway, and they watch the chick wobble about in the grass until its parent comes for it.",
+   "src": "L389"
+  }
+ }
+}

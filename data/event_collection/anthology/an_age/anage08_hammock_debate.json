@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammock Debate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage08_hammock_debate",
+  "source": "anthology",
+  "lines": [
+   30237,
+   30251
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30237",
+  "ledger": [
+   {
+    "src": "L30238",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30239",
+    "kind": "sensitivity",
+    "before": "Two teenagers want",
+    "after": "(teen1) and (teen2), two teenagers, want",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30239",
+    "kind": "sensitivity",
+    "before": "an elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30241",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30242",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30247",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30248",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two teenagers want to hang a hammock in the best shady spot, where an elder already rests each afternoon.",
+  "label_case": "title",
+  "cast_only": [
+   "teen1",
+   "teen2",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "teen1": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "teen2": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen1) and (teen2), two teenagers, want to hang a hammock in the best shady spot, where (elder) already rests each afternoon.",
+   "src": "L30239",
+   "choices": [
+    {
+     "label": "Negotiate a Shared Schedule",
+     "next": "a",
+     "src": "L30240"
+    },
+    {
+     "label": "Build a Second Safe Resting Place",
+     "next": "b",
+     "src": "L30243"
+    },
+    {
+     "label": "Ask the Elder About the Spot",
+     "next": "c",
+     "src": "L30246"
+    },
+    {
+     "label": "Find a Different Gathering Place",
+     "next": "d",
+     "src": "L30249"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) agrees to mornings and the teens take afternoons.",
+   "src": "L30241"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The teens discover (elder) needs the shade for a health reason and choose another spot.",
+   "src": "L30242",
+   "text_only": [
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30242"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "With adult help, they select sturdy supports without damaging a young tree.",
+   "src": "L30244"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their first location is unsuitable, and the teens accept the safety advice without giving up.",
+   "src": "L30245"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) tells a funny story about claiming the shade decades ago.",
+   "src": "L30247"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) invites them to sit and discuss why the place matters to each of them.",
+   "src": "L30248"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The teens turn a nearby clearing into their own quiet retreat.",
+   "src": "L30250"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They realize they wanted privacy more than the hammock itself and make a different plan.",
+   "src": "L30251"
+  }
+ }
+}

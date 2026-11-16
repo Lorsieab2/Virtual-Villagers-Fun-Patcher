@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seasons of It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif47_seasons",
+  "source": "draft_lif",
+  "lines": [
+   548,
+   551
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older; a single popup, no choice)"
+   }
+  ],
+  "description": "Walking through the gardens, a villager thinks of their life as the seasons of Isola and enjoys this one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Walking through the gardens, (name1) finds (him/her)self thinking of (his/her) life like the seasons on Isola. A wet green stretch when (he/she) was young, when everything grew too fast and (he/she) couldn't keep up. A long hot stretch in the middle, busy and dusty and full of work. A stormy patch (he/she) would rather not think about too much. And now this: a softer time, like the cool evenings when the rains are just ending, when things are ripening and there's a little time to sit. (He/she) doesn't know how many seasons are left. Nobody does. (He/she) picks a ripe fruit off a low branch, eats it standing up in the evening light, and decides that whatever season this is, it tastes good.",
+   "src": "L551"
+  }
+ }
+}

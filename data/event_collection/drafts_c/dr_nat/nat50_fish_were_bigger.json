@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish Were Bigger Then",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat50_fish_were_bigger",
+  "source": "draft_nat",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "An elder says the fish off the point were twice that size when they were young: ask them to show you, or tease them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has just come back from fishing with a good catch and is very pleased with (friend.him/her)self. (subject) looks at the fish and says, \"When I was young, the fish off the point were twice that size.\" (friend) has heard this before. Every elder says it. (friend) has always assumed elders just like to say things like that.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Ask (subject.him/her) to Show You",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Tease (subject.him/her) About It",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) to the canoe house, where an old jawbone of a fish hangs on the post from a catch long ago. It is enormous. (friend) stares at it. \"Those were ordinary,\" (subject) says. \"We had them most weeks.\" (friend) goes quiet. (friend.He/she) can't remember ever seeing a fish that big. Nobody can say whether they'll ever be that big again.",
+   "src": "L590"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"And you walked uphill both ways to catch them,\" says (friend). (subject) laughs. \"I'm not saying you're doing it wrong. I'm saying the sea's different.\" They argue about it pleasantly over dinner. Neither can prove a thing. Later, though, (friend) asks two other elders, separately. They both say the same. (friend.He/she) starts throwing back the very small ones after that.",
+   "src": "L593"
+  }
+ }
+}

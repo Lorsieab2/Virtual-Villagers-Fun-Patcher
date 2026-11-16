@@ -179,6 +179,195 @@ class FrozenHorizonAndRoleModels(unittest.TestCase):
                                                                "hz_part4": 7, "hz_part5": 8, "hz_vol2": 40})
 
 
+class FrozenDraftsA(unittest.TestCase):
+    """The owner-approved drafts of 2026-11-15, set A: twelve frozen sources, one series each."""
+
+    EVENTS = {"da_il01": 10, "da_il02": 30, "da_il03": 20, "da_il04": 20, "da_il05": 20, "da_il06": 20,
+              "da_il07": 20, "da_il08": 20, "da_il09": 20, "da_il10": 20, "da_wd": 50, "da_lo": 50}
+
+    def test_sha256_and_lines(self):
+        self.assertEqual(set(lib.DRAFTS_A), set(self.EVENTS))
+        for sid in lib.DRAFTS_A:
+            with self.subTest(sid):
+                self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+                rel = lib.SOURCES[sid][1].read_text(encoding="ascii").split(None, 1)[1].strip()
+                self.assertEqual(ROOT / rel, lib.SOURCES[sid][0])
+                self.assertEqual(len(lib.source_lines(sid)), lib.SOURCES[sid][2])
+
+    def test_rows_files_and_series(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        for sid, want in self.EVENTS.items():
+            with self.subTest(sid):
+                block = data["drafts_a"][sid]
+                self.assertEqual(block["uncovered_lines"], [])
+                self.assertEqual(block["overlaps"], [])
+                self.assertEqual(block["counts"]["series"], {sid: want})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), want)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                files = [p for p in cc.collection_files() if (lib.DRAFTS_A_DIR / sid) in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+
+
+class FrozenDraftsB(unittest.TestCase):
+    """The owner-approved draft event files, group B (2026-11-15): eight files, each its own frozen source (byte for
+    byte), 50 events each, one series per file, built by scripts/drafts_b/gen_drafts_b.py."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(len(lib.DRAFTS_B), 8)
+        for sid, (topic, n, section, prefix) in lib.DRAFTS_B.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                path = lib.SOURCES[sid][0]
+                rel = lib.SOURCES[sid][1].read_text(encoding="ascii").split(None, 1)[1].strip()
+                self.assertEqual(ROOT / rel, path)
+                self.assertEqual(path.read_bytes().count(b"\n"), n)
+                with lib.use_source(sid):
+                    self.assertTrue(lib.line(1).startswith("NEW EVENTS"))
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), 50)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                    self.assertTrue(r["id"].startswith(prefix.lower()), r["id"])
+                    self.assertEqual(r["games"], [1, 2, 3, 4, 5])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_B_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+                    for c in doc["nodes"]["setup"].get("choices", []):
+                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+
+
+class FrozenDraftsC(unittest.TestCase):
+    """The owner-approved draft event files, group C (2026-11-15), wired as group B: eight files, 50 events each, one
+    series per file; BLF-26/27 New Believers only; built by scripts/drafts_c/gen_drafts_c.py."""
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(len(lib.DRAFTS_C), 8)
+        vv5_only = set()
+        for sid, (topic, n, section, prefix) in lib.DRAFTS_C.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                path = lib.SOURCES[sid][0]
+                self.assertEqual(path.read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: 50})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), 50)
+                for r in rows:
+                    self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+                    if r["games"] != [1, 2, 3, 4, 5]:
+                        self.assertEqual(r["games"], [5], r["id"])
+                        vv5_only.add(r["id"][:5])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_C_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+                    for nd in doc["nodes"].values():      # BLF-36: setup_m / setup_f (the same-sex couple)
+                        for c in nd.get("choices", []):
+                            self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+        self.assertEqual(vv5_only, {"blf26", "blf27"})
+
+
+class FrozenDraftsD(unittest.TestCase):
+    """The owner-approved files, group D (2026-11-15): eight files, each one series; moments are a branch of equally
+    likely endings; no effects; Fathers 01-08 a male nursing parent; built by scripts/drafts_d/gen_drafts_d.py."""
+
+    WANT = {"draft_rm2": 50, "draft_hz2": 50, "moments500": 125, "draft_tim2": 50, "openq97": 35, "armor45": 45,
+            "draft_arm2": 50, "fathers30": 30}
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        self.assertEqual(set(lib.DRAFTS_D), set(self.WANT))
+        owner = lib.owner_titles()
+        for sid, (_name, n, section, _topic) in lib.DRAFTS_D.items():
+            with self.subTest(sid):
+                self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
+                self.assertEqual(lib.SOURCES[sid][0].read_bytes().count(b"\n"), n)
+                self.assertEqual(data[sid]["uncovered_lines"], [])
+                self.assertEqual(data[sid]["overlaps"], [])
+                self.assertEqual(data[sid]["counts"]["series"], {section: self.WANT[sid]})
+                rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+                self.assertEqual(len(rows), self.WANT[sid])
+                files = [p for p in cc.collection_files() if lib.DRAFTS_D_DIR / section in p.parents]
+                self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+                for p in files:
+                    doc = json.loads(p.read_text(encoding="utf-8"))
+                    self.assertEqual(doc["games"], [1, 2, 3, 4, 5], p.name)
+                    self.assertFalse(any(nd.get("effects") for nd in doc["nodes"].values()), p.name)
+                    for c in doc["nodes"]["setup"].get("choices", []):
+                        self.assertEqual(c["label"], lib.title_case_label(c["label"]), p.name)
+                    if sid in ("moments500", "draft_tim2"):
+                        kids = doc["nodes"]["setup"]["children"]
+                        self.assertEqual(len(kids), 4, p.name)
+                        self.assertFalse(any("weight" in k for k in kids), p.name)
+                    if sid == "moments500":
+                        self.assertIn(doc["collection"]["id"], owner)
+                    if sid == "fathers30":
+                        nursing = doc["roles"]["subject"].get("special") == "nursing_parent"
+                        num = int(p.stem[3:5])
+                        self.assertEqual(nursing, num <= 8 and num not in (5, 6, 7), p.name)
+                        if num in (5, 6, 7):   # after the birth: a man who is a recorded parent of the young child
+                            self.assertEqual(doc["roles"]["subject"]["relation"], {"parent_of": "friend"}, p.name)
+                            self.assertEqual(doc["roles"]["subject"]["sex"], "male")
+                        if nursing:
+                            self.assertEqual(doc["roles"]["subject"]["sex"], "male")
+
+
+class FrozenAnthology(unittest.TestCase):
+    """The owner's all-in-one Animals anthology (2026-11-15), frozen byte for byte: only its newest volumes are rows,
+    one series each, built by scripts/anthology_new/gen_anthology.py."""
+
+    WANT = {"an_mom": 8, "an_rel": 36, "an_child": 47, "an_fam": 24, "an_joy": 38, "an_hs": 42, "an_age": 36,
+            "an_jus": 32, "an_expr": 74, "an_fauna": 24}
+
+    def test_sha256_rows_and_files(self):
+        data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
+        sid = lib.ANTHOLOGY_ID
+        self.assertEqual(lib.recorded_sha256(sid), "95172b7948bc94afe35013d3ceb28092fc78790b8ba3bf67e5ac228aacbe4de2")
+        self.assertEqual(lib.source_sha256(sid), lib.recorded_sha256(sid))
+        rel = lib.ANTHOLOGY_HASH_FILE.read_text(encoding="ascii").split(None, 1)[1].strip()
+        self.assertEqual(ROOT / rel, lib.ANTHOLOGY)
+        self.assertEqual(lib.ANTHOLOGY.read_bytes().count(b"\n"), lib.ANTHOLOGY_LINES)
+        with lib.use_source(sid):
+            self.assertTrue(lib.line(59).startswith("[MOM-01]"))
+        self.assertEqual(data[sid]["uncovered_lines"], [])
+        self.assertEqual(data[sid]["overlaps"], [])
+        self.assertEqual(data[sid]["counts"]["series"], self.WANT)
+        rows = [r for r in data["rows"] if r["source"] == sid and r["kind"] == "event"]
+        self.assertEqual(len(rows), sum(self.WANT.values()))
+        for r in rows:
+            self.assertLessEqual(len(r["id"]), cm.VV1_ID_MAX, r["id"])
+            self.assertEqual(r["games"], [1, 2, 3, 4, 5])
+            self.assertEqual(r["series"], r["section"])
+        files = [p for p in cc.collection_files() if lib.ANTHOLOGY_DIR in p.parents]
+        self.assertEqual(sorted(p.stem for p in files), sorted(r["id"] for r in rows))
+        effects = {}
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(doc["collection"]["label_case"], "title", p.name)
+            for c in (c for nd in doc["nodes"].values() for c in nd.get("choices", [])):   # REL-04/26: two copies
+                self.assertEqual(c["label"], lib.title_case_label(c["label"].replace("{@Chief}", "Chief")).replace(
+                    "Chief", "{@Chief}"), p.name)
+            for nd in doc["nodes"].values():
+                for e in nd.get("effects", []):
+                    effects[e["do"]] = effects.get(e["do"], 0) + 1
+            for r in doc["roles"].values():
+                if r.get("special") == "nursing_parent":     # a carrying or nursing parent: an adult woman
+                    self.assertEqual((r["sex"], r["min_age"] >= 18), ("female", True), p.name)
+        # nothing harmful: hair dye (the random head look), REL-15's sex change, two couples' celebrations
+        self.assertEqual(effects, {"appearance": 5, "sex_change": 1, "celebrate": 4})
+
+
 class Manifest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

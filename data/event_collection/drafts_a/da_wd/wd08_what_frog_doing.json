@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Frog Doing in the Fruit Bowl?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd08_what_frog_doing",
+  "source": "da_wd",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A small green frog is sitting in the fruit bowl, and a villager only notices when a mango blinks.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There is a small green frog sitting in the fruit bowl, between a mango and a banana, as calm as anything. It's the same green as the unripe fruit. It's possible it's been there all morning, and nobody noticed. (subject) only noticed when the mango (subject.he/she) reached for blinked.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Scream a Little",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Gently Carry It Outside",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) lets out a small shriek. The frog leaps out of the bowl, bounces off (subject)'s shoulder, and lands on (friend), who also shrieks. The frog then hops calmly out of the door, while two grown adults stand clutching each other in the middle of the hut. It takes them a long time to stop laughing.",
+   "src": "L98"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) cups the frog in both hands. It sits there, cool and slightly damp, and doesn't struggle. (subject.He/She) carries it outside and puts it on a big wet leaf. It looks very much at home. (subject) goes back in and checks every single piece of fruit before (subject.he/she) eats any.",
+   "src": "L101"
+  }
+ }
+}

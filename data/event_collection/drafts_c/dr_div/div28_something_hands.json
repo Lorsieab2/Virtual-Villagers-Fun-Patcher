@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Something for the Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div28_something_hands",
+  "source": "draft_div",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen or adult and an elder)"
+   }
+  ],
+  "description": "An elder snaps at a villager who cannot sit still in council meetings: explain, or leave and come back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Council meetings are long. Very long. And (subject) cannot sit still through them. (subject.His/her) legs jiggle, (subject.his/her) fingers drum, (subject.he/she) shifts and fidgets and sighs, and it isn't rudeness: (subject.his/her) body simply won't stop. Today (friend), an elder, has been giving (subject.him/her) sharp looks all meeting. Finally (friend.he/she) says, \"Can't you sit still for once?\"",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Leave and Come Back",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm listening,\" says (subject). \"I listen better when I'm moving. If I sit still, all I can think about is sitting still.\" (friend) looks doubtful. So (subject) repeats, word for word, the last three things the council said. (friend) blinks. Next meeting, (friend) silently hands (subject) a hank of fiber to braid. (subject) braids a whole rope by the end. (subject.He/she) remembers everything.",
+   "src": "L338"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gets up, walks twice around the meeting hut, and comes back in. (friend) glares. But (subject) sits through the rest of the meeting much more calmly. Afterward (friend) asks, grudgingly, if that helped. (subject) says it did. (friend) thinks about this, and at the next meeting suggests a short walking break halfway through. Half the elders are secretly relieved.",
+   "src": "L341"
+  }
+ }
+}

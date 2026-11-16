@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After You, No, After You",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum13_after_you_after",
+  "source": "draft_hum",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two very polite villagers reach the latrine at the same urgent moment: insist on going second, or settle it fairly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There was a new kind of fruit at lunch, and a lot of it, and it is now clear that it disagreed with (subject) and (friend) at exactly the same moment. They arrive at the latrine together, from opposite directions, rather quickly. They stop. They are both very polite people.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Insist on Going Second",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Settle It Fairly",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"After you.\" \"No, after you.\" \"I insist.\" \"I insist more.\" This goes on a little too long, with both of them shifting from foot to foot. Finally they both say \"FINE!\" at once and hurry off in opposite directions to find a quiet bush instead. They never speak of it again. They both avoid that fruit for a while.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) holds out two sticks in (subject.his/her) fist, one long and one short. (friend) draws the short one and waits outside, stiff with dignity, humming loudly. When it's (friend.his/her) turn, (subject) stands outside humming the same tune, for privacy. Afterward they shake hands, like two people who have been through something together.",
+   "src": "L161"
+  }
+ }
+}

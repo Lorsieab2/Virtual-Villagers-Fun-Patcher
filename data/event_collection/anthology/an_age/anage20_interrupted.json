@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Interrupted Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage20_interrupted",
+  "source": "anthology",
+  "lines": [
+   30429,
+   30443
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30429",
+  "ledger": [
+   {
+    "src": "L30430",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30429",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30431",
+    "kind": "sensitivity",
+    "before": "A nursing mother",
+    "after": "(mother), a nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30431",
+    "kind": "sensitivity",
+    "before": "an apprentice",
+    "after": "(apprentice), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30433",
+    "kind": "sensitivity",
+    "before": "the apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30436",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30437",
+    "kind": "sensitivity",
+    "before": "the teacher",
+    "after": "(mother)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30443",
+    "kind": "sensitivity",
+    "before": "The mother",
+    "after": "(mother)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A nursing mother is teaching a craft when her baby needs feeding, and an apprentice assumes the lesson must end.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(mother), a nursing mother, is teaching a craft when her baby needs feeding, and (apprentice), an apprentice, assumes the lesson must end.",
+   "src": "L30431",
+   "choices": [
+    {
+     "label": "Ask the Teacher What She Prefers",
+     "next": "a",
+     "src": "L30432"
+    },
+    {
+     "label": "Let the Apprentice Practice Independently",
+     "next": "b",
+     "src": "L30435"
+    },
+    {
+     "label": "Invite Another Qualified Instructor Temporarily",
+     "next": "c",
+     "src": "L30438"
+    },
+    {
+     "label": "Reschedule Without Penalty",
+     "next": "d",
+     "src": "L30441"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "She continues explaining while feeding, and (apprentice) learns the technique.",
+   "src": "L30433"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "She chooses a break and resumes when ready.",
+   "src": "L30434"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(apprentice) completes a careful first attempt.",
+   "src": "L30436"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A mistake gives (mother) a useful example to discuss afterward.",
+   "src": "L30437"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The lesson continues smoothly without replacing her authority.",
+   "src": "L30439"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The substitute teaches differently, and the class compares both approaches.",
+   "src": "L30440"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The group returns at a time that works better for her.",
+   "src": "L30442"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(mother) asks that future lessons include flexible breaks for everyone.",
+   "src": "L30443"
+  }
+ }
+}

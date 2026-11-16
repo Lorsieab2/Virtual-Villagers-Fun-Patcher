@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il018_other_path",
+  "source": "da_il02",
+  "lines": [
+   129,
+   143
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L129",
+  "ledger": [
+   {
+    "src": "L131",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L143",
+    "kind": "structural",
+    "why": "a separator between events"
+   },
+   {
+    "src": "L133",
+    "kind": "casting",
+    "before": "watching a young apprentice at work",
+    "after": "watching (apprentice), a young apprentice, at work",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L141",
+    "kind": "casting",
+    "before": "watches the apprentice",
+    "after": "watches (apprentice)",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder watching a young apprentice remembers another path they might have taken long ago.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has lived in the village for many years. Today, while watching (apprentice), a young apprentice, at work, (subject.he/she) remembers a decision made long ago. There was another path (subject.he/she) might have taken, another life that might have unfolded. (subject) wonders about it sometimes.",
+   "src": "L133",
+   "choices": [
+    {
+     "label": "Share the Memory with (friend)",
+     "next": "a",
+     "src": "L135"
+    },
+    {
+     "label": "Keep the Thought Private",
+     "next": "b",
+     "src": "L139"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I nearly became a healer,\" (subject) says. \"What stopped you?\" asks (friend). \"I discovered I loved building things.\" (subject) looks at the nearby huts. \"I still wonder what might have happened.\" (friend) nods. There is no reason to suppose either life would have been better.",
+   "src": "L137"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) watches (apprentice) for a while, then returns to (subject.his/her) own work. The memory stays with (subject.him/her) through the afternoon, neither painful nor especially pleasant. Just another part of a long life.",
+   "src": "L141"
+  }
+ }
+}

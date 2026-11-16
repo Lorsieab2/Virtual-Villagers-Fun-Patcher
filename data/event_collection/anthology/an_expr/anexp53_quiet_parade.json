@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Parade",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp53_quiet_parade",
+  "source": "anthology",
+  "lines": [
+   32080,
+   32094
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32080",
+  "ledger": [
+   {
+    "src": "L32081",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32091",
+    "kind": "sensitivity",
+    "before": "A musician",
+    "after": "(musician), a musician,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32094",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Some villagers want a loud celebration while others prefer a peaceful procession.",
+  "label_case": "title",
+  "cast_only": [
+   "musician",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Some villagers want a loud celebration while others prefer a peaceful procession.",
+   "src": "L32082",
+   "choices": [
+    {
+     "label": "Split the Activities",
+     "next": "a",
+     "src": "L32083"
+    },
+    {
+     "label": "Choose a Softer Style",
+     "next": "b",
+     "src": "L32086"
+    },
+    {
+     "label": "Ask Who Is Affected",
+     "next": "c",
+     "src": "L32089"
+    },
+    {
+     "label": "Let People Opt Out",
+     "next": "d",
+     "src": "L32092"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32082"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Music and quiet walking both have space.",
+   "src": "L32084"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Organizers struggle with the schedule.",
+   "src": "L32085"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The gentle parade becomes unexpectedly popular.",
+   "src": "L32087"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Drummers feel their contribution was overlooked.",
+   "src": "L32088"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Caregivers request a calmer route.",
+   "src": "L32090"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(musician), a musician, suggests a designated performance area.",
+   "src": "L32091"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Some villagers enjoy the day privately.",
+   "src": "L32093"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(friend) brings food to someone resting at home.",
+   "src": "L32094",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32094"
+    }
+   ]
+  }
+ }
+}

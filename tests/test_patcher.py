@@ -1206,8 +1206,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_empty_stew_pot), no executable byte -- its companion writes its two sites at run time; 48 with Adults
         # Dropped on Mushrooms or Collectibles Are Confused (vv2_adult_confused), no executable byte -- its companion
         # writes the adult dispatcher's Confused call at run time; 49 with Children Play Tag and Build Sandcastles
-        # (vv2_children_play), no executable byte -- its companion writes its sites at run time.
-        self.assertEqual(len(feature_ids), 49)
+        # (vv2_children_play), no executable byte -- its companion writes its sites at run time; 50 with Change Sex
+        # and Gender Presentation (vv2_gender_presentation), no executable byte -- its companion writes its draw and
+        # conception sites at run time.
+        self.assertEqual(len(feature_ids), 50)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4160,6 +4162,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_game_log",
                 "vv2_totems_out_of_entries",
                 "vv2_original_look",
+                # Change Sex and Gender Presentation: in the Origins Change Appearance window.
+                "vv2_gender_presentation",
             # Render Unicode with In-Game Fonts: companion only, no executable bytes.
             "vv2_unicode_text",
             "vv2_translations",

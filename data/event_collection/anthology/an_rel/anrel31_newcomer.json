@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Newcomer's Chosen Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel31_newcomer",
+  "source": "anthology",
+  "lines": [
+   27467,
+   27480
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27467",
+  "ledger": [
+   {
+    "src": "L27468",
+    "kind": "sensitivity",
+    "before": "use a name different from",
+    "after": "use a name, (chosen), different from",
+    "why": "the lead (2026-11-15): a chosen name is the engine's new-name role (cie-v6-binary.md 28), shown in the story; nobody is renamed"
+   },
+   {
+    "src": "L27468",
+    "kind": "sensitivity",
+    "before": "A newcomer",
+    "after": "(newcomer), a newcomer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27470",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27473",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27474",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27476",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27477",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27479",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27480",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A newcomer asks the village to use a name different from the one they arrived with.",
+  "label_case": "title",
+  "cast_only": [
+   "newcomer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chosen": {
+   "kind": "stranger",
+   "new_name_for": "newcomer",
+   "sex": "same",
+   "last_name": "same"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(newcomer), a newcomer, asks the village to use a name, (chosen), different from the one they arrived with.",
+   "src": "L27468",
+   "choices": [
+    {
+     "label": "Use the Chosen Name",
+     "next": "a",
+     "src": "L27469"
+    },
+    {
+     "label": "Offer a Quiet Introduction",
+     "next": "b",
+     "src": "L27472"
+    },
+    {
+     "label": "Ask Whether the Old Name Should Remain Private",
+     "next": "c",
+     "src": "L27475"
+    },
+    {
+     "label": "Let the Newcomer Decide When to Share",
+     "next": "d",
+     "src": "L27478"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(newcomer) feels welcomed without needing to explain.",
+   "src": "L27470"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A few villagers ask how to pronounce it and practice.",
+   "src": "L27471"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(newcomer) meets friends at a comfortable pace.",
+   "src": "L27473"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(newcomer) prefers not to be introduced publicly yet.",
+   "src": "L27474"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(newcomer) appreciates the discretion.",
+   "src": "L27476"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(newcomer) says either name is fine in certain contexts.",
+   "src": "L27477"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(newcomer) feels in control of their story.",
+   "src": "L27479"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(newcomer) later chooses to explain the name's meaning.",
+   "src": "L27480"
+  }
+ }
+}

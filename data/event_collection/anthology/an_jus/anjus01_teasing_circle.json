@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teasing Circle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus01_teasing_circle",
+  "source": "anthology",
+  "lines": [
+   30719,
+   30733
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30719",
+  "ledger": [
+   {
+    "src": "L30720",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30721",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30729",
+    "kind": "sensitivity",
+    "before": "the excluded child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30730",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30733",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child is repeatedly mocked for the way they speak; the teasing has begun to shape who joins games.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) is repeatedly mocked for the way they speak; the teasing has begun to shape who joins games.",
+   "src": "L30721",
+   "choices": [
+    {
+     "label": "Ask the Child What Support They Want",
+     "next": "a",
+     "src": "L30722"
+    },
+    {
+     "label": "Speak to the Children Doing the Teasing",
+     "next": "b",
+     "src": "L30725"
+    },
+    {
+     "label": "Change How the Game Is Organized",
+     "next": "c",
+     "src": "L30728"
+    },
+    {
+     "label": "Arrange a Fair Repair",
+     "next": "d",
+     "src": "L30731"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They ask for a friend beside them at playtime.",
+   "src": "L30723"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They prefer a private conversation before anything public.",
+   "src": "L30724"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "One admits copying an older sibling and stops.",
+   "src": "L30726"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another minimizes the harm, prompting a firmer boundary.",
+   "src": "L30727"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Mixed teams give (child) a fresh start.",
+   "src": "L30729"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) asks that adults not force friendships.",
+   "src": "L30730"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "An apology is followed by consistent kinder behavior.",
+   "src": "L30732"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) accepts the apology but still needs distance.",
+   "src": "L30733"
+  }
+ }
+}

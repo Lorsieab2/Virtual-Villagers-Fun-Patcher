@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Bowl of Fruit Doing on the Beach?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd27_what_bowl_fruit",
+  "source": "da_wd",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L329",
+    "kind": "casting",
+    "before": "A visitor from another village",
+    "after": "(visitor), a visitor from another village,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A neat bowl of fresh fruit sits on a rock at the far end of the beach, with nobody around.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "visitor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "On a flat rock at the far end of the beach, where nobody ever goes, there's a bowl of fruit. A nice wooden bowl. Fresh fruit: a mango, two bananas and some berries, arranged very neatly. There's nobody around. It doesn't look like an offering. It doesn't look like anything. It just looks like someone forgot their lunch, in the strangest place possible.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Leave It Where It Is",
+     "next": "a",
+     "src": "L325"
+    },
+    {
+     "label": "Bring It Back to the Village",
+     "next": "b",
+     "src": "L328"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) decides it's not (subject.his/her) bowl to touch. (subject.He/She) walks on. When (subject.he/she) comes back that evening, the bowl is gone. (subject.He/She) never finds out whose it was. For weeks afterward, whenever (subject.he/she) walks past that rock, (subject.he/she) glances at it, just in case.",
+   "src": "L326"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) carries the bowl back to the village and asks around. (visitor), a visitor from another village, claims it with enormous relief: (visitor.he/she) put it down to look at a crab, wandered off to follow the crab, and couldn't remember where (visitor.he/she) left lunch. (subject) and the visitor share the fruit on the spot. The crab, apparently, got away.",
+   "src": "L329"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L326",
+   "before": "(his/hers)",
+   "after": "(his/her) bowl"
+  }
+ ]
+}

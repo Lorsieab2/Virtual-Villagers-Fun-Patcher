@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shells on the Brace",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div40_shells_brace",
+  "source": "draft_div",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an adult; in the story (name1) wears a back brace of bent wood and cord)"
+   }
+  ],
+  "description": "A teen wants to decorate their plain back brace with shells: the maker helps, or lets them do it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a curved spine, and wears a brace for part of every day: a frame of bent wood laced with cord, snug around (subject.his/her) middle. It does its job. It's also very plain. Today (subject) has a bowl of tiny shells and some thread, and is looking at the brace with an artist's eye. (friend), who made the brace, is watching nervously.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Help (subject.him/her) Decorate It",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Let (subject.him/her) Do It Alone",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) is worried it'll weaken the cord. (subject) promises to stitch only onto the outside. They work on it together all afternoon: rows of white shells, a little blue spiral, a tiny carved fish at the front. When (subject) puts it on, it clinks softly as (subject.he/she) walks. (subject.He/she) walks past every hut in the village twice.",
+   "src": "L482"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) nods and leaves (subject.him/her) to it. (subject) works for three days. The result is extraordinary: covered in shells, seeds and feathers, a bit heavy, and rather loud. (subject) is enormously proud. When (friend) comes to check the fit, (friend.he/she) can't help laughing. \"You can hear you coming from the beach.\" \"That's the idea,\" says (subject).",
+   "src": "L485"
+  }
+ }
+}

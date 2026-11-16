@@ -1,0 +1,63 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "These Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il186_these_hands",
+  "source": "da_il10",
+  "lines": [
+   68,
+   71
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L71",
+    "kind": "casting",
+    "before": "Then a child calls",
+    "after": "Then (child), a child, calls",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder sitting in the sun looks down at their own old hands, and thinks of everything they have done.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(subject) is sitting in the sun, and (subject.he/she) happens to look down at (subject.his/her) own hands. They're old hands now. Spotted and wrinkled, the knuckles a bit swollen, a little scar on one thumb from a knife that slipped long ago. (subject.He/She) turns them over. These hands have planted, and built, and mended, and cooked thousands of meals. They have held babies, and other hands, and once a very angry crab. They have waved goodbye and waved hello. (subject) looks at them for a long time, with a kind of surprised fondness, the way you'd look at an old friend you suddenly realize has been there the whole time. Then (child), a child, calls (subject.his/her) name, and the hands go back to work.",
+   "src": "L71"
+  }
+ }
+}

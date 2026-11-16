@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Face That Was Changed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his10_face_changed",
+  "source": "draft_his",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "In the evening light a villager sees an older face beneath the hero carving at the gate: tell people, or keep it between you.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The great carving of the hero at the village gate shows a figure holding up the sky, with a broad, calm face. But today, looking closely in the low evening light, (subject) can see that the face has been recarved. Underneath the calm face are the faint lines of an older one: thinner, with a different nose, and possibly a mustache. (friend) comes over to look.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Tell People",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Keep It Between You",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They mention it at the fire, and it causes an enormous argument. Was the hero someone else entirely? Did the carver make a mistake and fix it? Was the first face not heroic enough? One elder insists the hero DID have a mustache; another says that's nonsense. By the end of the night, the hero has six possible names and two possible faces. The carving goes on holding up the sky, unbothered.",
+   "src": "L122"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) decide not to start a fuss. But every time they pass the gate after that, they glance at each other and look at the faint old face behind the new one. Whoever the hero was, (other.he/she) had two faces, and nobody else knows. They find this enormously satisfying.",
+   "src": "L125"
+  }
+ }
+}

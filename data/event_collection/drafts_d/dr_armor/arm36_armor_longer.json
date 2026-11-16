@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Armor That No Longer Fits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm36_armor_longer",
+  "source": "armor45",
+  "lines": [
+   47,
+   47
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L47",
+  "ledger": [
+   {
+    "src": "L47",
+    "kind": "structural",
+    "text": "36. The Armor That No Longer Fits  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "A family discovers that inherited ceremonial armor fits none of its descendants.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A family discovers that inherited ceremonial armor fits none of its descendants. They consider adapting it or preserving it unchanged.",
+   "src": "L47"
+  }
+ }
+}

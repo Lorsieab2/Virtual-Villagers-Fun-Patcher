@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Busy Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif20_busy_years",
+  "source": "draft_lif",
+  "lines": [
+   230,
+   239
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 45 or older)"
+   }
+  ],
+  "description": "A villager whose busy years are over notices a bird they never saw before: watch it, or remember the busy years fondly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a long stretch of (his/her) life, (name1) was busy all the time: work, family, building, fixing, carrying, cooking, every single day, dawn to dark. Now things are a little quieter. Today, sitting outside with nothing urgent to do, (name1) notices a bird (he/she) has never seen before, then realizes it's probably been living in that tree for years.",
+   "src": "L233",
+   "choices": [
+    {
+     "label": "Watch the Bird",
+     "next": "o1",
+     "src": "L235"
+    },
+    {
+     "label": "Remember the Busy Years Fondly",
+     "next": "o2",
+     "src": "L238"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) watches the bird all afternoon. It has a nest. It has a mate. It has a whole life (he/she) never noticed. (He/she) wonders what else (he/she) missed in the busy years. A lot, probably. (He/she) doesn't regret being busy; those years mattered. But (he/she) decides to look up more now. (He/she) starts that very evening, and sees six more birds.",
+   "src": "L236"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) thinks about the busy years. They were exhausting. They were also full, of noise and people and things that needed doing. (He/she) misses them a little, the way you miss a loud friend who's moved away. It's quieter now. It's different. (He/she) watches the bird and thinks both kinds of years are good, in their way.",
+   "src": "L239"
+  }
+ }
+}

@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Paddle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp08_long_paddle",
+  "source": "anthology",
+  "lines": [
+   31360,
+   31374
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31360",
+  "ledger": [
+   {
+    "src": "L31361",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31367",
+    "kind": "sensitivity",
+    "before": "A nervous teen",
+    "after": "(teen), a nervous teen,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31368",
+    "kind": "sensitivity",
+    "before": "A veteran",
+    "after": "(veteran), a veteran,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two tribes propose a short canoe race along a sheltered stretch of coast.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "veteran"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "veteran": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two tribes propose a short canoe race along a sheltered stretch of coast.",
+   "src": "L31362",
+   "choices": [
+    {
+     "label": "Inspect the Conditions",
+     "next": "a",
+     "src": "L31363"
+    },
+    {
+     "label": "Pair Experienced Paddlers with Learners",
+     "next": "b",
+     "src": "L31366"
+    },
+    {
+     "label": "Make It a Relay",
+     "next": "c",
+     "src": "L31369"
+    },
+    {
+     "label": "Choose a Cooperative Voyage",
+     "next": "d",
+     "src": "L31372"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The race proceeds with watchers along shore.",
+   "src": "L31364"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Changing currents postpone the event.",
+   "src": "L31365"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(teen), a nervous teen, gains confidence.",
+   "src": "L31367"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(veteran), a veteran, learns to explain rather than shout.",
+   "src": "L31368"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both tribes laugh at a clumsy handoff.",
+   "src": "L31370"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One team requests a fairer course.",
+   "src": "L31371"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The paddlers collect drifting litter together.",
+   "src": "L31373"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They return with stories instead of a winner.",
+   "src": "L31374"
+  }
+ }
+}

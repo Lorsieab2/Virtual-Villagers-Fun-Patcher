@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lid",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon39_lid",
+  "source": "draft_hon",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L470",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L473",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Rain got into the grain jar, and a villager may have left the lid off: say it might have been you, or say you put it back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone left the lid off the big grain jar in the storehouse, and last night's rain got in. (subject) was in the storehouse yesterday. (subject.He/she) thinks (subject.he/she) put the lid back. (subject.He/she) is almost sure. Several other people were in there too. Now (friend) is going round asking.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Say It Might Have Been You",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Say You Put It Back",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It might have been me,\" says (subject). \"I was in there. I think I put it back, but I can't be certain.\" (friend) nods. \"Three other people said exactly the same thing.\" They all spread the wet grain out in the sun together. Nobody ever finds out who it was. From then on, there's a heavy stone on the lid.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L470"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I put it back,\" says (subject), because (subject.he/she) is fairly sure (subject.he/she) did. Everyone else says the same. So nobody can have left it off. And yet. (friend) sets a heavy stone on the lid and announces that from now on, the stone is in charge. Everyone seems quite relieved to have the stone in charge.",
+   "src": "L473",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L473"
+    }
+   ]
+  }
+ }
+}

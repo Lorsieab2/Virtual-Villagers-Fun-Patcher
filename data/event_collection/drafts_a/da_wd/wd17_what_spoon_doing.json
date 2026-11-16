@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Spoon Doing in a Nest?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd17_what_spoon_doing",
+  "source": "da_wd",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A nest blown down by the wind holds all the small shiny things that have gone missing from a villager's hut.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For weeks small things have been disappearing from around (name1)'s hut: a shiny shell, a bead, a carved spoon. Today, a strong wind knocks a bird's nest out of the tree beside the hut, and it lands at (name1)'s feet. In it, arranged with great care, are the shell, the bead, the spoon and several other things (name1) didn't even know were missing.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Take Them Back",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Leave the Nest Its Treasures",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) takes back the spoon, because it's (his/her) good spoon, and leaves the rest. (He/She) puts the nest back in the tree. The next morning, the spoon is gone again. (name1) stands under the tree with (his/her) hands on (his/her) hips. A bird looks down at (him/her) from a branch, with a very innocent expression.",
+   "src": "L206"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) puts the nest back in the tree with everything still in it. If the bird likes the spoon that much, it can have it. (He/She) carves (him/her)self a new one. That night (he/she) finds a single shiny feather on (his/her) doorstep. (He/She) decides it's a fair trade.",
+   "src": "L209"
+  }
+ }
+}

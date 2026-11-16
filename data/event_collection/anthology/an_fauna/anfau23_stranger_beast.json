@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Beast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau23_stranger_beast",
+  "source": "anthology",
+  "lines": [
+   32817,
+   32831
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32817",
+  "ledger": [
+   {
+    "src": "L32818",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32819",
+    "kind": "sensitivity",
+    "before": "A visitor",
+    "after": "(visitor), a visitor,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32827",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32828",
+    "kind": "sensitivity",
+    "before": "An eager listener",
+    "after": "(listener), an eager listener,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32831",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A visitor describes a large animal unlike any creature known locally.",
+  "label_case": "title",
+  "cast_only": [
+   "listener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  },
+  "listener": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(visitor), a visitor, describes a large animal unlike any creature known locally.",
+   "src": "L32819",
+   "choices": [
+    {
+     "label": "Ask for Details",
+     "next": "a",
+     "src": "L32820"
+    },
+    {
+     "label": "Compare Island Legends",
+     "next": "b",
+     "src": "L32823"
+    },
+    {
+     "label": "Welcome Uncertainty",
+     "next": "c",
+     "src": "L32826"
+    },
+    {
+     "label": "Draw the Creature",
+     "next": "d",
+     "src": "L32829"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The account becomes a useful oral record.",
+   "src": "L32821"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The description changes under questioning.",
+   "src": "L32822"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Old tales share intriguing features.",
+   "src": "L32824"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Similarities may be coincidence.",
+   "src": "L32825"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(visitor) feels respected without being believed automatically.",
+   "src": "L32827"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(listener), an eager listener, is disappointed by the lack of proof.",
+   "src": "L32828"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Artists create several wildly different beasts.",
+   "src": "L32830"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(visitor) laughs at the most extravagant version.",
+   "src": "L32831"
+  }
+ }
+}

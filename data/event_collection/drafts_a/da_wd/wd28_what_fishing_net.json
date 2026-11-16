@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Fishing Net Doing in a Tree?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd28_what_fishing_net",
+  "source": "da_wd",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's fishing net, left on the beach to dry, is draped across the top of a tall tree.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A whole fishing net is draped across the top of a tall tree at the edge of the village, spread out like washing. It's (subject)'s net. (subject) left it on the beach last night to dry. The beach is quite a long way from the tree. The net is quite a long way up.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Get It Down",
+     "next": "a",
+     "src": "L337"
+    },
+    {
+     "label": "Wonder How It Got There",
+     "next": "b",
+     "src": "L340"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) and (friend) spend most of the morning getting it down with long poles and a lot of muttering. When they finally untangle it, they find a small, very surprised bird caught gently in one corner. They free it, and it flies off, scolding. The net is fine. The tree is fine. Everyone is a bit out of breath.",
+   "src": "L338"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sits under the tree and thinks. A gust of wind? A very strong one, then. A prank? Nobody would be tall enough. (friend) suggests that maybe the net wanted to see the view. (subject) looks up at it, spread out over the leaves like a sail. It does look rather pleased with itself.",
+   "src": "L341"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Kids Look",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div44_kids_look",
+  "source": "draft_div",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 3-8; in the story (name1)'s face is shaped differently, with one side smaller than the other)"
+   }
+  ],
+  "description": "A small child stares at a villager whose face is shaped differently, to the parent's dismay: wave, or let the parent see to it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s face is shaped differently: one side is smaller than the other, and (subject.his/her) mouth sits a little to one side. (subject.He/she) is used to being looked at. Today a small child, (friend), is staring at (subject.him/her) with total concentration across the clearing, and (friend)'s parent is mortified, trying to turn the child's head away.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Wave at (friend)",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Let the Parent Handle It",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) waves. (friend) waves back. (subject) pulls a funny face. (friend) pulls one back. (subject) walks over, says hello to the parent, and says, \"Kids look. It's fine. They're working things out.\" (subject.He/she) crouches down. \"Hello. I'm (subject). My face is like this. What's yours like?\" (friend) shows (friend.his/her) face, scrunched up as far as it will go. They both laugh.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) carries on with (subject.his/her) work. Later, (friend)'s parent comes over, embarrassed, to apologize. (subject) shakes (subject.his/her) head. \"Don't. Just tell (friend.him/her) my name, so next time (friend.he/she) can say hello instead of staring.\" The next time, (friend) yells \"HELLO (subject)!\" across the whole village at the top of (friend.his/her) voice. It's an improvement.",
+   "src": "L533"
+  }
+ }
+}

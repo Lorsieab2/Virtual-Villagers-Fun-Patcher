@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boundary at Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus22_boundary_night",
+  "source": "anthology",
+  "lines": [
+   31055,
+   31069
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31055",
+  "ledger": [
+   {
+    "src": "L31056",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   }
+  ],
+  "description": "Unknown figures approach the village stores at night; guards must protect the community without assuming their intentions.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Unknown figures approach the village stores at night; guards must protect the community without assuming their intentions.",
+   "src": "L31057",
+   "choices": [
+    {
+     "label": "Call Out from a Safe Distance",
+     "next": "a",
+     "src": "L31058"
+    },
+    {
+     "label": "Secure Vulnerable Areas",
+     "next": "b",
+     "src": "L31061"
+    },
+    {
+     "label": "Use the Least Force Necessary",
+     "next": "c",
+     "src": "L31064"
+    },
+    {
+     "label": "Review the Incident Afterward",
+     "next": "d",
+     "src": "L31067"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The figures explain they are lost travelers.",
+   "src": "L31059"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The figures retreat and the guards avoid pursuing recklessly.",
+   "src": "L31060"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Families move away from the stores.",
+   "src": "L31062"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Guards keep a clear escape route and call for assistance.",
+   "src": "L31063"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A firm warning prevents entry.",
+   "src": "L31065"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A threatening advance is stopped without celebrating harm.",
+   "src": "L31066",
+   "text_only": [
+    {
+     "what": "\"celebrating\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31066"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The council improves lighting and watch rotations.",
+   "src": "L31068"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Villagers discuss mistakes without glorifying violence.",
+   "src": "L31069"
+  }
+ }
+}

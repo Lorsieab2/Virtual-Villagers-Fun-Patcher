@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Halfway There",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep24_halfway_there",
+  "source": "draft_dep",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers on a long walk to swap seeds wonder about turning back: keep going, or turn back together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are walking to a village on the far coast to swap seeds. It's further than they thought. Much further. They have stopped by a stream to rest, and (subject) has just said what both of them have been thinking for the last hour: \"We could turn back. Nobody would know.\"",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Turn Back Together",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They keep going. The second half is worse than the first, and there are mosquitoes. But they arrive at sunset to a warm welcome, a hot meal and more kinds of seeds than they have ever seen. \"Worth it?\" asks (friend). (subject) scratches a mosquito bite and thinks about it. \"Ask me tomorrow.\"",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They look at each other and turn round. Nobody says anything for a while. Then (friend) admits (friend.he/she) is relieved, and (subject) admits the same, and they laugh about it all the way home. They never do get the seeds. They tell people the walk was \"too far,\" which is true.",
+   "src": "L293"
+  }
+ }
+}

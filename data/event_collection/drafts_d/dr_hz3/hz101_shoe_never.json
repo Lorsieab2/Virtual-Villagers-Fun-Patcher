@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shoe That Never Touches Sand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz101_shoe_never",
+  "source": "draft_hz2",
+  "lines": [
+   258,
+   268
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L258",
+  "ledger": [
+   {
+    "src": "L259",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Brushing sand from their feet, a villager wonders whether distant people might wear shoes all day and never feel the ground.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Brushing sand from their feet, (name1) wonders whether distant people might wear shoes all day and never feel the ground.",
+   "src": "L259",
+   "choices": [
+    {
+     "label": "Imagine Hard Shoes.",
+     "next": "a",
+     "src": "L260"
+    },
+    {
+     "label": "Imagine Bare Feet.",
+     "next": "b",
+     "src": "L263"
+    },
+    {
+     "label": "Try Making Shoes.",
+     "next": "c",
+     "src": "L266"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager imagines shoes made of thick leather and wood, and wonders how anyone would climb trees.",
+   "src": "L261"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder thinks shoes might protect feet on hot, rough ground and sounds a little envious.",
+   "src": "L262"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests some distant people might go barefoot just like Isolans.",
+   "src": "L264"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says there could be as many ways of covering feet as there are lands.",
+   "src": "L265"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A weaver makes a pair of thick fiber sandals, and they become popular on the rocky path.",
+   "src": "L267"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The shoes fill with sand within minutes, and everyone laughs.",
+   "src": "L268"
+  }
+ }
+}

@@ -3,7 +3,7 @@
   * every variant of every game's shipped pack decompiled; every text, label, pool item and game word expanded for
     that game; each must be an indexed owner line or the frame (living-events.md section 1);
   * the MIX anchor: each of the 60 MIX examples, read from the frozen source, becomes its seed's variant 0 with
-    exactly the changes documented in living-events.md section 7 (the frame fix, the swaps, the sensitivity edits);
+    exactly the changes documented in living-events.md section 7 (the frame fix, the swaps, the equal alternatives);
   * the documented changes are the mixer's; the credits keep the Living Engine's credit line verbatim.
 """
 from __future__ import annotations
@@ -142,15 +142,17 @@ class MixAnchor(unittest.TestCase):
                 n = int(mix["setup_src"][1:])
                 m = SETUP_RE.match(mx.plain(lines[n - 1].strip()))
                 self.assertIsNotNone(m)
-                pa, pb = m["pa"], m["pb"]
+                pers = {"first": [m["pa"]], "second": [m["pb"]]}
                 ra, rb = m["ra"], m["rb"]
                 labels = [mx.plain(lines[n + 3 * i].strip())[3:] for i in range(4)]
-                outs = [[mx.plain(lines[n + 3 * i + j].strip())[4:] for j in (1, 2)] for i in range(4)]
+                outs = [[[mx.plain(lines[n + 3 * i + j].strip())[4:]] for j in (1, 2)] for i in range(4)]
                 drop = {"first": False, "second": False}
                 for c in self.changes:
                     if c["mix"] != mix["code"]:
                         continue
                     slot = "first" if c["what"].startswith("first") else "second"
+                    alternative = c["what"].endswith("(alternative)")
+                    self.assertEqual(alternative, c["rule"] == mx.ALT_RULE)
                     if "role" in c["what"]:
                         if slot == "first":
                             self.assertEqual(ra, c["before"])
@@ -161,32 +163,40 @@ class MixAnchor(unittest.TestCase):
                     elif "doubled word" in c["what"]:
                         drop[slot] = True
                     elif "personality" in c["what"]:
-                        if slot == "first":
-                            self.assertEqual(pa, c["before"])
-                            pa = c["after"]
-                        else:
-                            self.assertEqual(pb, c["before"])
-                            pb = c["after"]
+                        self.assertTrue(alternative)          # the owner's word stays, the other is its equal
+                        self.assertEqual(pers[slot], [c["before"]])
+                        pers[slot].append(c["after"])
                     else:
+                        self.assertTrue(alternative)
                         cm = re.match(r"choice ([ABCD]) outcome ([12])", c["what"])
                         i, j = "ABCD".index(cm[1]), int(cm[2]) - 1
-                        self.assertEqual(outs[i][j], c["before"])
-                        outs[i][j] = c["after"]
+                        self.assertEqual(outs[i][j], [c["before"]])
+                        outs[i][j].append(c["after"])
                 game, d = self.variant0["living_" + mix["seed"]]
                 words = d.get("words") or {}
+                pools = d.get("pools") or {}
 
-                def part(p, r, dropped):
+                def part(slot, r, pool):
                     word = r.split(" ", 1)[1]
-                    return r if dropped else f"{article(p)} {p} {word}"
-                want = (f"{lc.chief_form(m['seed'], game)} (first), {part(pa, ra, drop['first'])}, and (second), "
-                        f"{part(pb, rb, drop['second'])}, {mx.FRAME_TAIL}")
+                    if drop[slot]:
+                        return r
+                    if len(pers[slot]) == 2:
+                        items = [i if isinstance(i, str) else i["text"] for i in pools[pool]["items"]]
+                        self.assertEqual(items, [f"{article(p)} {p}" for p in pers[slot]])
+                        return "{" + pool + "} " + word
+                    p = pers[slot][0]
+                    return f"{article(p)} {p} {word}"
+                want = (f"{lc.chief_form(m['seed'], game)} (first), {part('first', ra, 'PA')}, and (second), "
+                        f"{part('second', rb, 'PB')}, {mx.FRAME_TAIL}")
                 start = d["nodes"][d["start"]]
                 self.assertEqual(lc.expand_words(start["text"], words, game), want)
                 self.assertEqual([lc.expand_words(c["label"], words, game) for c in start["choices"]], labels)
                 for c, (good, bad) in zip(start["choices"], outs):
                     kids = d["nodes"][c["next"]]["children"]
-                    self.assertEqual([d["nodes"][k["next"]]["text"] for k in kids[:2]], [good, bad])
-                    self.assertEqual([k["weight"] for k in kids[:2]], [mx.W_GOOD, mx.W_ADVERSE])
+                    n_kids = len(good) + len(bad)
+                    self.assertEqual([d["nodes"][k["next"]]["text"] for k in kids[:n_kids]], good + bad)
+                    self.assertEqual([k["weight"] for k in kids[:n_kids]],
+                                     [mx.W_GOOD // len(good)] * len(good) + [mx.W_ADVERSE // len(bad)] * len(bad))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "And What Do You Do?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea35_what_do_you_do",
+  "source": "draft_fea",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A visitor asks a villager with no single job what they do: say a bit of everything, or say you are still working it out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor at the fire is going round asking everyone what they do. \"I'm a builder.\" \"I'm a fisher.\" \"I'm a healer.\" The visitor turns to (name1). (name1) does a bit of everything. A bit of gardening, a bit of fishing, some carrying, some childminding. (He/she) has never had a single answer, and (he/she) is suddenly afraid it sounds like nothing.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Say It's a Bit of Everything",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Say \"I'm Still Working That Out\"",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"A bit of everything,\" says (name1). The visitor looks interested. \"That sounds useful.\" Somebody else chimes in: \"(name1)'s the one we all go to when something needs doing.\" (name1) is startled. (He/she) had never thought of it that way. (He/she) thinks about it all evening.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'm still working that out,\" says (name1), with a smile. The visitor laughs. \"Me too. I'm forty.\" The fire laughs with them, warmly. (name1) realizes (he/she) isn't the only one. Several people, later, quietly admit that they're not sure either.",
+   "src": "L425"
+  }
+ }
+}

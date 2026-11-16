@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Impossible Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il034_impossible",
+  "source": "da_il02",
+  "lines": [
+   385,
+   399
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L385",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L399",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A child asks whether a fish that could climb a tree would still be a fish.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) approaches (friend) with a question. \"If a fish could climb a tree, would it still be a fish?\" (friend) considers this carefully. Before (friend.he/she) can answer, (subject) asks another question. \"And if a tree could swim, would it be a fish?\"",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Answer Seriously",
+     "next": "a",
+     "src": "L391"
+    },
+    {
+     "label": "Ask What (subject) Thinks",
+     "next": "b",
+     "src": "L395"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"A fish would still be a fish,\" says (friend). \"Even in a tree?\" asks (subject). \"Even in a tree.\" (subject) nods thoughtfully. \"Then why can't fish climb trees?\" (friend) realizes this conversation may last all afternoon.",
+   "src": "L393"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I think the tree would be very confused,\" says (subject). \"And the fish?\" asks (friend). \"Very proud of itself.\" (friend) finds this difficult to dispute.",
+   "src": "L397"
+  }
+ }
+}

@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boat as Big as a Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz089_boat_big_village",
+  "source": "draft_hz2",
+  "lines": [
+   113,
+   123
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L113",
+  "ledger": [
+   {
+    "src": "L114",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After watching a distant speck that may have been a whale, a child wonders about boats as big as villages.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After watching a distant speck on the horizon that may have been a whale, (name1), a child, wonders whether distant people might build boats as big as villages.",
+   "src": "L114",
+   "choices": [
+    {
+     "label": "Imagine the Great Boat.",
+     "next": "a",
+     "src": "L115"
+    },
+    {
+     "label": "Imagine Who Would Live There.",
+     "next": "b",
+     "src": "L118"
+    },
+    {
+     "label": "Decide It Was a Whale.",
+     "next": "c",
+     "src": "L121"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Builders sketch a floating village with gardens on its deck; everyone agrees it would need very good builders.",
+   "src": "L116"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A fisher worries that such a boat would frighten all the fish away.",
+   "src": "L117"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children imagine families living on the sea forever, fishing from their own windows.",
+   "src": "L119"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders whether those people would miss solid ground.",
+   "src": "L120"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees it was probably a whale and cheers for it anyway.",
+   "src": "L122"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The speck never returns, and the question stays open.",
+   "src": "L123"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Help Not Wanted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il134_help_wanted",
+  "source": "da_il07",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager wants to fix their own roof alone, and a very kind friend keeps coming over to help.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is fixing (subject.his/her) own roof. (subject.He/She) wants to do it alone, with no help, to prove (subject.he/she) can. (friend), who is very kind, keeps coming over to help. (friend.He/She) holds the ladder. (friend.He/She) hands up leaves. (friend.He/She) suggests a better knot. (subject) is starting to grind (subject.his/her) teeth.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Ask (friend) to Let (subject.him/her) Do It",
+     "next": "a",
+     "src": "L169"
+    },
+    {
+     "label": "Accept the Help",
+     "next": "b",
+     "src": "L172"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I really appreciate it,\" (subject) says, \"but I want to do this one by myself.\" (friend) blinks, then smiles. \"Of course. Shout if you need me.\" (friend.He/She) sits a little way off and doesn't help at all. When (subject) finishes, the roof is a little lumpy, and entirely (subject.his/her) own. (friend) is the first to admire it.",
+   "src": "L170"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sighs and lets (friend) help. Together they finish in half the time, and the roof is very good. (subject) is grateful, and also a tiny bit annoyed, and decides both of those are allowed. Next time, (subject.he/she) thinks, (subject.he/she) might mention it before (friend) shows up with the ladder.",
+   "src": "L173"
+  }
+ }
+}

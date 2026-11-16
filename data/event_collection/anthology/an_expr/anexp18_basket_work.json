@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Basket's New Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp18_basket_work",
+  "source": "anthology",
+  "lines": [
+   31520,
+   31534
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31520",
+  "ledger": [
+   {
+    "src": "L31521",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31522",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31531",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31533",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(owner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31534",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(owner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A torn storage basket is headed for disposal until a villager imagines another use.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "elder",
+   "owner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "owner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A torn storage basket is headed for disposal until (villager) imagines another use.",
+   "src": "L31522",
+   "choices": [
+    {
+     "label": "Repair It",
+     "next": "a",
+     "src": "L31523"
+    },
+    {
+     "label": "Transform It",
+     "next": "b",
+     "src": "L31526"
+    },
+    {
+     "label": "Teach the Method",
+     "next": "c",
+     "src": "L31529"
+    },
+    {
+     "label": "Ask Before Altering",
+     "next": "d",
+     "src": "L31532"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The basket carries supplies again.",
+   "src": "L31524"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The old weave proves too weak for heavy loads.",
+   "src": "L31525"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The basket becomes a flower holder.",
+   "src": "L31527"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Its fibers become ties for garden stakes.",
+   "src": "L31528"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children learn how to mend without wasting.",
+   "src": "L31530"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) shares a stronger stitch.",
+   "src": "L31531"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(owner) agrees to a new purpose.",
+   "src": "L31533"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(owner) wants to preserve the basket as a keepsake.",
+   "src": "L31534"
+  }
+ }
+}

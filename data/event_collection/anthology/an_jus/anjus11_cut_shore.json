@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Cut at the Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus11_cut_shore",
+  "source": "anthology",
+  "lines": [
+   30879,
+   30893
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30879",
+  "ledger": [
+   {
+    "src": "L30880",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30881",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30884",
+    "kind": "sensitivity",
+    "before": "a healer",
+    "after": "(healer), a healer",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30889",
+    "kind": "sensitivity",
+    "before": "A companion",
+    "after": "(companion)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30890",
+    "kind": "sensitivity",
+    "before": "The injured villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30892",
+    "kind": "sensitivity",
+    "before": "The healer",
+    "after": "(healer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager cuts a foot on a sharp shell while gathering near the shore.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "healer",
+   "companion"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) cuts a foot on a sharp shell while gathering near the shore.",
+   "src": "L30881",
+   "choices": [
+    {
+     "label": "Stop and Assess",
+     "next": "a",
+     "src": "L30882"
+    },
+    {
+     "label": "Check the Shoreline",
+     "next": "b",
+     "src": "L30885"
+    },
+    {
+     "label": "Ask for Help Returning",
+     "next": "c",
+     "src": "L30888"
+    },
+    {
+     "label": "Plan Follow-Up",
+     "next": "d",
+     "src": "L30891"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The wound is cleaned and covered with available clean supplies.",
+   "src": "L30883"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The depth of the cut prompts prompt attention from (healer), a healer.",
+   "src": "L30884"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Sharp debris is removed from a common path.",
+   "src": "L30886"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Villagers mark the hazardous patch until it can be cleared.",
+   "src": "L30887"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(companion) offers steady support.",
+   "src": "L30889"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) prefers to walk slowly on their own.",
+   "src": "L30890",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30890"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(healer) watches for worsening pain or infection.",
+   "src": "L30892"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The wound heals, leaving a small reminder to wear suitable footwear.",
+   "src": "L30893"
+  }
+ }
+}

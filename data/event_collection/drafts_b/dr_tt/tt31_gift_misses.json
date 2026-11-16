@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift (name1) Misses",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt31_gift_misses",
+  "source": "draft_tt",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager gave a friend a favorite bowl and now misses it: ask to borrow it, or carve another one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A month ago, in a burst of generosity, (subject) gave (friend) (subject.his/her) favorite carved bowl. (friend) loves it and uses it every day. And every day (subject) sees it and misses it terribly, and wishes, just a little, that (subject.he/she) hadn't been quite so generous.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Ask to Borrow It",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Carve Another One",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks, very casually, whether (subject.he/she) might borrow the bowl \"just for one evening.\" (friend) hands it over gladly. (subject) eats (subject.his/her) dinner from it, perfectly happy, and gives it back. It becomes a habit: the bowl spends one evening a week at (subject)'s hut. (friend) doesn't mind at all.",
+   "src": "L374"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to carve (subject.him/her)self a bowl just like it. It takes weeks, and it isn't quite the same. But when (friend) sees it, (friend.he/she) says, \"Oh, now we match!\" That turns out to be nicer than having the original. Mostly.",
+   "src": "L377"
+  }
+ }
+}

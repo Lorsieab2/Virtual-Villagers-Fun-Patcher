@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Watchpost",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm26_forgotten",
+  "source": "armor45",
+  "lines": [
+   34,
+   34
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L34",
+  "ledger": [
+   {
+    "src": "L34",
+    "kind": "structural",
+    "text": "26. The Forgotten Watchpost  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Explorers discover an old lookout and fragments of shields and spear shafts, suggesting a history of vigilance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Explorers discover an old lookout and fragments of shields and spear shafts, suggesting a history of vigilance.",
+   "src": "L34"
+  }
+ }
+}

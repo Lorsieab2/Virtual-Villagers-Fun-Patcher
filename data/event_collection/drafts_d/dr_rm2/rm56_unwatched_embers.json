@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwatched Embers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm56_unwatched_embers",
+  "source": "draft_rm2",
+  "lines": [
+   234,
+   247
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L234",
+  "ledger": [
+   {
+    "src": "L235",
+    "kind": "sensitivity",
+    "before": "A villager walking past an empty hut sees",
+    "after": "(Name1), walking past an empty hut, sees",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager walking past an empty hut sees a cooking fire still smoldering with no one around and dry leaves blowing nearby.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), walking past an empty hut, sees a cooking fire still smoldering with no one around and dry leaves blowing nearby.",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Put the Fire Out Safely.",
+     "next": "a",
+     "src": "L236"
+    },
+    {
+     "label": "Sweep the Dry Leaves Away and Wait.",
+     "next": "b",
+     "src": "L239"
+    },
+    {
+     "label": "Find the Owner and Tell Them.",
+     "next": "c",
+     "src": "L242"
+    },
+    {
+     "label": "Suggest Fire Stones Around Every Cooking Pit.",
+     "next": "d",
+     "src": "L245"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager smothers the embers, and the owner thanks them on returning.",
+   "src": "L237"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The owner had banked the fire on purpose to keep it alive and explains, and they agree on a safer way to do it.",
+   "src": "L238"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The owner returns shortly, and nothing is lost.",
+   "src": "L240"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The wait takes all afternoon, and the villager finds the owner had gone fishing.",
+   "src": "L241"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The owner rushes back and banks the fire properly.",
+   "src": "L243"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The owner cannot be found, so the villager returns and smothers the embers.",
+   "src": "L244"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several households add a ring of stones the following week.",
+   "src": "L246"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some households think the idea fussy, but a few adopt it.",
+   "src": "L247"
+  }
+ }
+}

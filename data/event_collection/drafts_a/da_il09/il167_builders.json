@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Day with the Builders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il167_builders",
+  "source": "da_il09",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "text": "[effect: small Building skill, only where the game has one]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A teen's first day helping the builders is not going well: ask for one simple job, or keep trying everything.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Today (subject) gets to help the builders for the first time. (subject.He/She) has been looking forward to it for months. So far (subject.he/she) has dropped a bundle of thatch, tripped over a pole, and handed (friend) the wrong cord three times. (subject.He/She) is starting to wonder whether this was a terrible mistake.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Ask (friend) for a Simple Job",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Keep Trying Everything",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Could you give me one thing to do,\" says (subject), \"and I'll do it properly?\" (friend) hands (subject.him/her) the job of tying off the corners. (subject) does all four, slowly and very carefully. They're good. (friend) checks each one and nods. \"Tomorrow you can do the walls,\" (friend.he/she) says. (subject) walks home feeling about three feet taller.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L86"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) keeps trying to help with everything at once. By the end of the day (subject.he/she) is covered in bits of thatch and has done a little bit of everything, mostly not very well. \"Was I any use?\" (subject.he/she) asks. (friend) thinks honestly. \"Some. More than this morning.\" (subject) decides to take that.",
+   "src": "L89"
+  }
+ }
+}

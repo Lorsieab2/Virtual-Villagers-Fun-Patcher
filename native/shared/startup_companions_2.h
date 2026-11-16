@@ -74,6 +74,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
        child's pastime pick. */
     "VVFP Children Play.dll",
+    /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
+       keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
+    "VVFP Gender Presentation.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nest Above the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau08_nest_above",
+  "source": "anthology",
+  "lines": [
+   32562,
+   32576
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32562",
+  "ledger": [
+   {
+    "src": "L32563",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32569",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32570",
+    "kind": "sensitivity",
+    "before": "A watcher",
+    "after": "(villager), a watcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32576",
+    "kind": "sensitivity",
+    "before": "The storyteller",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A pair of birds builds a nest directly above a popular shortcut.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A pair of birds builds a nest directly above a popular shortcut.",
+   "src": "L32564",
+   "choices": [
+    {
+     "label": "Use Another Route",
+     "next": "a",
+     "src": "L32565"
+    },
+    {
+     "label": "Watch from Afar",
+     "next": "b",
+     "src": "L32568"
+    },
+    {
+     "label": "Mark a Quiet Boundary",
+     "next": "c",
+     "src": "L32571"
+    },
+    {
+     "label": "Tell a Story About the Pair",
+     "next": "d",
+     "src": "L32574"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The birds continue nesting peacefully.",
+   "src": "L32566"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Villagers grumble about the longer walk.",
+   "src": "L32567"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) witnesses careful nest-building.",
+   "src": "L32569"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager), a watcher, learns that patience matters.",
+   "src": "L32570"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Visitors understand where not to stand.",
+   "src": "L32572"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The sign needs explaining to younger children.",
+   "src": "L32573"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A funny tale becomes a bedtime favorite.",
+   "src": "L32575"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) admits the birds are not actually married.",
+   "src": "L32576"
+  }
+ }
+}

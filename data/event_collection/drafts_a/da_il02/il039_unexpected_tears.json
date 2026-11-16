@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Tears",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il039_unexpected_tears",
+  "source": "da_il02",
+  "lines": [
+   465,
+   479
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L465",
+  "ledger": [
+   {
+    "src": "L467",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L479",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager preparing lunch remembers something from years ago and begins to cry without knowing why.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been feeling perfectly ordinary all morning. Then, while preparing lunch, (subject.he/she) suddenly remembers something from years ago and begins to cry. The memory isn't entirely sad. In fact, parts of it are rather beautiful. (subject) isn't sure why the tears have come.",
+   "src": "L469",
+   "choices": [
+    {
+     "label": "Talk to (friend)",
+     "next": "a",
+     "src": "L471"
+    },
+    {
+     "label": "Spend Some Time Alone",
+     "next": "b",
+     "src": "L475"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) listens as (subject) describes the memory. \"I don't know why I'm crying,\" (subject) says. \"You don't have to know,\" replies (friend). They sit together for a while, and eventually the conversation turns to lunch.",
+   "src": "L473"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sits beneath a tree and lets the feeling pass at its own pace. After a while (subject.he/she) washes (subject.his/her) face and returns to preparing lunch. The memory stays with (subject.him/her), but the tears have stopped.",
+   "src": "L477"
+  }
+ }
+}

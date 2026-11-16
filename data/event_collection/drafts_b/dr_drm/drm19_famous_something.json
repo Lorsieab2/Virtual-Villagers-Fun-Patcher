@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Famous for Something",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm19_famous_something",
+  "source": "draft_drm",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult)"
+   }
+  ],
+  "description": "A young villager wants to be famous for anything at all and asks a friend what to try: suggest something kind, or something silly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to become famous. (subject.He/she) isn't fussy about what for. So far this week (subject.he/she) has tried being famous for the loudest whistle \\(a dog objected\\), the most coconuts carried at once \\(seven, briefly\\), and the longest time standing on one leg \\(interrupted by a crab\\). (subject.He/she) asks (friend) what (subject.he/she) should try next.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Suggest Something Kind",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Suggest Something Ridiculous",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What about being famous for being helpful?\" says (friend). (subject) is skeptical, but tries it. (subject.He/she) carries water for an elder, fixes a loose roof, and finds a child's lost sandal. Nobody makes a fuss. But by the end of the week three people have said, \"Oh, ask (subject), (subject.he/she)'ll help.\" It isn't fame. It's a bit better than fame.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Famous for the biggest hat,\" says (friend). (subject)'s eyes light up. The hat takes two days and is made of palm leaves, flowers and one small, offended lizard \\(released\\). It is enormous. (subject) wears it to dinner, and the whole fire bursts out laughing, and for one whole evening (subject) is, without question, famous.",
+   "src": "L233"
+  }
+ }
+}

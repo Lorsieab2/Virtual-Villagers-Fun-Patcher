@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Message That Didn't Arrive",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon09_message_didnt",
+  "source": "draft_hon",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L107",
+    "kind": "sensitivity",
+    "before": "Yesterday a fisher asked (name1)",
+    "after": "Yesterday (fisher), a fisher, asked (name1)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager forgot to pass on a message, and a friend missed the early fishing trip: explain, or try to make up for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday (fisher), a fisher, asked (subject) to tell (friend) that the morning fishing trip would leave early, at first light, not after breakfast. (subject) said of course. (subject) forgot. This morning (friend) arrives at the beach after breakfast, ready to go, and finds the canoes already gone.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Find (friend) and Explain",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Try to Make Up for It",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend.him/her) sitting on the sand. \"That was me. I was supposed to tell you, and I forgot.\" (friend) takes a moment. \"I was looking forward to it.\" \"I know.\" They sit together and watch the canoes far out on the water. (friend) doesn't say it's all right, because it isn't, quite. But (friend.he/she) doesn't send (subject) away, either.",
+   "src": "L110"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) borrows a little canoe and offers to take (friend) fishing (subject.him/her)self, close to the shore. They hardly catch anything. But it's a lovely morning, and by the end of it (friend) is laughing at (subject)'s terrible casting. When the fishers come back, (friend) tells them all about it before (subject) can.",
+   "src": "L113"
+  }
+ }
+}

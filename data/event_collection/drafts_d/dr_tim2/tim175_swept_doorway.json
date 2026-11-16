@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swept Doorway",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim175_swept_doorway",
+  "source": "draft_tim2",
+  "lines": [
+   352,
+   357
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L352",
+  "ledger": [
+   {
+    "src": "L353",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L354",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L355",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L356",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L357",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "At the end of the day, a villager sweeps the doorway and looks out at the village.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "At the end of the day, (name1) sweeps the doorway and looks out at the village. Smoke rises from several cooking fires, and the air smells of supper.",
+   "src": "L353,L354"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "At the end of the day, (name1) sweeps the doorway and looks out at the village. A neighbor waves, and (name1) waves back.",
+   "src": "L353,L355"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "At the end of the day, (name1) sweeps the doorway and looks out at the village. The first stars appear, and (name1) decides the sweeping can wait a moment.",
+   "src": "L353,L356"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "At the end of the day, (name1) sweeps the doorway and looks out at the village. (name1) leans on the broom and feels that today was a good day.",
+   "src": "L353,L357"
+  }
+ }
+}

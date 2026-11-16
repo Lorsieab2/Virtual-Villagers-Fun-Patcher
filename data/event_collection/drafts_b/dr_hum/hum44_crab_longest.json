@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crab with the Longest Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum44_crab_longest",
+  "source": "draft_hum",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   }
+  ],
+  "description": "A child insists everyone use their hermit crab's very long name: say the whole name, or suggest a shorter one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has adopted a hermit crab and given it a name: \"Little Shell Who Lives by the Big Rock Near the Water and Likes Seaweed but Not the Brown Kind.\" (subject) insists that everyone use its full name, every time. (friend) has just been asked to say good morning to it.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Say the Whole Name",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Suggest a Shorter Name",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Good morning, Little Shell Who Lives by the Big Rock Near the Water and Likes Seaweed but Not the Brown Kind,\" says (friend) solemnly. The crab does not respond. (subject) is satisfied. (friend) does this every day. By the end of the week (friend.he/she) can say it all in one breath, and is unreasonably proud of it.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What about just 'Shell'?\" (subject) looks shocked. Then (subject.he/she) thinks about it very carefully. \"No. But you can call it 'Little Shell Who Lives by the Big Rock,'\" (subject.he/she) offers, \"for short.\" (friend) accepts the compromise with gratitude.",
+   "src": "L533"
+  }
+ }
+}

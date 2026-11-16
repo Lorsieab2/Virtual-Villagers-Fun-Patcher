@@ -6,7 +6,7 @@ Pinned here:
     38 archetypes / 60 MIX / 95 MC situations with 760 outcomes / 35 MJ seeds;
   * every text field is the owner's text on its `src` line, and every MIX reproduces its source lines exactly;
   * ids are unique and namespaced (le_*, mc_*, mj_*), every reference resolves;
-  * the compatibility table (owner rule 2026-11-14) is exactly what its rules derive, the owner's MIX examples that
+  * the compatibility table (owner decision 2026-11-15) is exactly what its rules derive, the owner's MIX examples that
     break it are listed, and `combination_problems` refuses a combination the table forbids;
   * MC effects stay off strangers; MJ is held with no outcomes and no effects.
 
@@ -326,19 +326,20 @@ class CompatTest(unittest.TestCase):
         ix = index(BANK)
         # the owner's examples of what must never pair
         ex = BANK["compat"]["exclusions"]
-        laugh = next(c["id"] for c in BANK["choices"] if c["text"] == "Laugh along if nobody is hurt.")
-        memorable = next(a["id"] for a in BANK["archetypes"] if "memorable day" in a["text"])
-        elder = next(a["id"] for a in BANK["archetypes"] if "elder dies" in a["text"])
-        joke = next(a["id"] for a in BANK["approaches"] if a["text"].startswith("Make a joke"))
+        chief = next(a["id"] for a in BANK["approaches"] if a["text"] == "Ask the chief to decide")
+        magic = next(a["id"] for a in BANK["approaches"] if a["text"].startswith("Try a magical method"))
         for s in BANK["seeds"]:
             t = set(s["tags"])
-            if t & {"somber", "medical"}:
-                self.assertIn(memorable, ex["seed_archetype"][s["id"]])
-                self.assertIn(laugh, ex["seed_choice"][s["id"]])
-            if "belief" in t:
-                self.assertIn(joke, ex["seed_approach"][s["id"]])
-            if "celebration" in t or "elder_death_ok" not in t:
-                self.assertIn(elder, ex["seed_archetype"][s["id"]])
+            if "medical" in t:
+                self.assertIn(chief, ex["seed_approach"][s["id"]])
+            if "personal" in t:
+                self.assertIn(magic, ex["seed_approach"][s["id"]])
+            if "adult_only" in t:
+                self.assertEqual(ex["seed_role"][s["id"]], ["le_role_child", "le_role_teenager"])
+        # everything else is kept (owner decision, 2026-11-15): no seed or role x archetype, no seed x choice exclusion
+        self.assertEqual(ex["role_archetype"], {})
+        self.assertEqual(ex["seed_archetype"], {})
+        self.assertEqual(ex["seed_choice"], {})
         for s in ("le_res_02", "le_res_09", "le_emo_10", "le_fam_02"):
             self.assertIn(s, ix)
             self.assertIn("somber", ix[s]["tags"])
@@ -357,15 +358,14 @@ class CompatTest(unittest.TestCase):
             self.assertEqual(len(found[k]), len(listed[k]), k)
 
     def test_checker_refuses_forbidden_combinations(self):
-        combo = {"seed": "le_res_09", "first": {"role": "le_role_child", "personality": "le_pers_forgetful"},
-                 "second": {"role": "le_role_master_healer", "personality": "le_pers_warm"},
-                 "choices": ["le_app_play_02"], "archetypes": ["le_arc_good_08", "le_arc_rare_02"]}
+        combo = {"seed": "le_fam_06", "first": {"role": "le_role_child", "personality": "le_pers_forgetful"},
+                 "second": {"role": "le_role_confident_novice", "personality": "le_pers_confident"},
+                 "choices": ["le_app_act_07"], "archetypes": ["le_arc_good_08", "le_arc_rare_01"]}
         p = combination_problems(BANK, combo)
         self.assertTrue(any("x role le_role_child" in x for x in p))
-        self.assertTrue(any("personality le_pers_forgetful" in x for x in p))
-        self.assertTrue(any("le_app_play_02" in x for x in p))
-        self.assertTrue(any("le_arc_good_08" in x for x in p))
-        self.assertTrue(any("le_arc_rare_02" in x for x in p))
+        self.assertTrue(any("personality le_pers_confident" in x for x in p))
+        self.assertTrue(any("le_app_act_07" in x for x in p))
+        self.assertFalse(any("le_pers_forgetful" in x or "le_arc_good_08" in x or "le_arc_rare_01" in x for x in p))
         ok = {"seed": "le_art_09", "first": {"role": "le_role_storyteller", "personality": "le_pers_curious"},
               "second": {"role": "le_role_elderly_villager", "personality": "le_pers_warm"},
               "choices": ["le_cs_art_per_a"], "archetypes": ["le_arc_good_01", "le_arc_rare_02"]}

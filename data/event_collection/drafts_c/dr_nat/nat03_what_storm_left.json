@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What the Storm Left Behind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat03_what_storm_left",
+  "source": "draft_nat",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-13)"
+   }
+  ],
+  "description": "After a storm the tide line is thick with things that do not belong to the sea: gather it all up, or let the child keep treasures.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After last night's storm, the tide line is thick with seaweed, driftwood and things that don't belong to the sea: bright scraps of plastic, a sandal far too small for anyone on Isola, a lid with no pot, a long tangle of colored rope. (friend) is running along the beach with (friend.his/her) arms full of treasure. (subject) is looking at the whole long line of it, frowning.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Gather It All Up",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Let (friend) Keep the Treasures",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gets a basket, and then several more, and soon half the village is out on the sand. The good rope is kept. The odd lids become scoops. The rest goes in a pit far up the beach, away from the water. By evening the sand is clean. Three days later, after a smaller storm, there is more. (subject) sighs. Nobody knows where it all comes from. It just keeps coming.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is allowed to keep three things. (friend.He/she) chooses the tiny sandal, a red lid, and a piece of something hard and green that the sea has worn smooth. (friend.He/she) lines them up outside (friend.his/her) hut like a museum. Grown-ups come to look. Everybody has a theory about where they came from. Nobody's theory matches anybody else's.",
+   "src": "L41"
+  }
+ }
+}

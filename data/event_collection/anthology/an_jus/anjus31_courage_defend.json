@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Courage to Defend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus31_courage_defend",
+  "source": "anthology",
+  "lines": [
+   31199,
+   31213
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31199",
+  "ledger": [
+   {
+    "src": "L31200",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31203",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31204",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A hostile outsider threatens a family near the forest path, and several villagers must decide how to respond.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A hostile outsider threatens a family near the forest path, and several villagers must decide how to respond.",
+   "src": "L31201",
+   "choices": [
+    {
+     "label": "Move Bystanders to Safety",
+     "next": "a",
+     "src": "L31202"
+    },
+    {
+     "label": "Call for Coordinated Help",
+     "next": "b",
+     "src": "L31205"
+    },
+    {
+     "label": "Set a Clear Boundary",
+     "next": "c",
+     "src": "L31208"
+    },
+    {
+     "label": "Care for the Aftermath",
+     "next": "d",
+     "src": "L31211"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(teen) guides younger children away.",
+   "src": "L31203"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(adult) helps an injured elder reach shelter.",
+   "src": "L31204",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31204"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Watchers arrive and establish a safe perimeter.",
+   "src": "L31206"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The {@chief} listens to local knowledge rather than charging ahead.",
+   "src": "L31207"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A firm warning ends the confrontation.",
+   "src": "L31209"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The threat persists and defenders use only necessary force to stop immediate harm.",
+   "src": "L31210"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Those frightened receive quiet support.",
+   "src": "L31212"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The defenders discuss their fear without being expected to feel triumphant.",
+   "src": "L31213"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

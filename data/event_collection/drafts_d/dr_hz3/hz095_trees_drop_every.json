@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trees That Drop Every Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz095_trees_drop_every",
+  "source": "draft_hz2",
+  "lines": [
+   186,
+   196
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L186",
+  "ledger": [
+   {
+    "src": "L187",
+    "kind": "sensitivity",
+    "before": "A gardener",
+    "after": "(Name1), a gardener,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A gardener wonders whether in some distant land the trees might drop all their leaves at once and stand bare until they grow back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a gardener, wonders whether in some distant land the trees might drop all their leaves at once and stand bare until they grow back.",
+   "src": "L187",
+   "choices": [
+    {
+     "label": "Imagine It as Sad.",
+     "next": "a",
+     "src": "L188"
+    },
+    {
+     "label": "Imagine It as a Season.",
+     "next": "b",
+     "src": "L191"
+    },
+    {
+     "label": "Ask Whether It Could Happen Here.",
+     "next": "c",
+     "src": "L194"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A child imagines bare trees and feels sorry for them.",
+   "src": "L189"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder suggests the people there might find it beautiful, like a rest before new growth.",
+   "src": "L190"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether whole seasons might pass in ways Isolans have never seen.",
+   "src": "L192"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A farmer wonders how anyone would plan a harvest with such changes.",
+   "src": "L193"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village looks at Isola's evergreen trees and decides it probably will not.",
+   "src": "L195"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A gardener notices one tree that does drop most of its leaves and becomes fascinated.",
+   "src": "L196"
+  }
+ }
+}

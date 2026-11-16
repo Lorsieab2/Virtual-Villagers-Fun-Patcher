@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lonely, and Still Happy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam242_lonely_still",
+  "source": "draft_fam2",
+  "lines": [
+   500,
+   503
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult with no partner; a single popup, no choice)"
+   }
+  ],
+  "description": "A villager who loves living alone feels a small loneliness tonight and lets it pass through, lonely and happy at once.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) has lived on (his/her) own for years and loves it. (His/her) hut is exactly as (he/she) likes it. (He/she) eats when (he/she) wants, sleeps when (he/she) wants, sings badly without anybody complaining. Most evenings, (he/she) wouldn't trade it for anything. Tonight, though, (he/she) is sitting by (his/her) fire and feeling lonely, the way (he/she) sometimes does. Not a big loneliness. Just a small, quiet one, like a cool breeze through a crack in the wall. (He/she) doesn't think it means (he/she) should change anything. It's just a feeling, passing through, the way rain passes through. (He/she) wraps (him/her)self in a blanket, makes a cup of tea, and lets the feeling sit with (him/her) for a while. Tomorrow (he/she) might visit a friend. Or might not. Tonight (he/she) is lonely, and happy, and both of those are true.",
+   "src": "L503"
+  }
+ }
+}

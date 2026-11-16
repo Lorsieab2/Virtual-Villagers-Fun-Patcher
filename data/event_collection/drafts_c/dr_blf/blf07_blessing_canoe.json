@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Blessing the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf07_blessing_canoe",
+  "source": "draft_blf",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A believer asks to bless the new canoe of a villager who does not believe in blessings: let them bless it, or politely decline.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has built a fine new canoe. (friend), a believer, has asked if (friend.he/she) may bless it before it goes into the water: a few words, a sprinkle of seawater, a flower tucked into the bow. (subject) doesn't believe blessings do anything. (subject.He/she) also knows (friend) has blessed every canoe in the village for years.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Let (friend.him/her) Bless It",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Politely Decline",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Go ahead,\" says (subject). (friend) says the words, sprinkles the water, tucks in the flower. \"Does it do anything?\" (subject) asks afterwards, honestly curious. \"I believe it does,\" says (friend). \"And it can't hurt.\" The canoe is a good canoe. It never sinks. (subject) still doesn't believe in blessings. (subject.He/she) never takes the flower out, though.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Thank you,\" says (subject). \"I'd rather not. It isn't for me.\" (friend) nods, a little disappointed but not offended. \"It's your canoe.\" (subject) launches it without the blessing. It's a good canoe. It never sinks. When (friend) sees it out on the water, (friend.he/she) says a quiet blessing for it anyway, under (friend.his/her) breath, from the beach. (subject) never knows. It doesn't matter either way.",
+   "src": "L89"
+  }
+ }
+}

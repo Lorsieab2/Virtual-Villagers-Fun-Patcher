@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Driftwood Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim154_driftwood_fish",
+  "source": "draft_tim2",
+  "lines": [
+   205,
+   210
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L205",
+  "ledger": [
+   {
+    "src": "L206",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L207",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L208",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L209",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L210",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager whittles a small fish from a smooth piece of driftwood.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. The fish's tail is so lifelike that it seems ready to swim.",
+   "src": "L206,L207"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. (name1) gives it to a child, who carries it everywhere.",
+   "src": "L206,L208"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. The knife slips, and the fish loses a fin, so (name1) calls it a very brave fish.",
+   "src": "L206,L209"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) whittles a small fish from a smooth piece of driftwood. (name1) sets it on a windowsill where it catches the light each morning.",
+   "src": "L206,L210"
+  }
+ }
+}

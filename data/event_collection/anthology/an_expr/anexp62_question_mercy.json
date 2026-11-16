@@ -1,0 +1,157 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Question of Mercy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp62_question_mercy",
+  "source": "anthology",
+  "lines": [
+   32224,
+   32238
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32224",
+  "ledger": [
+   {
+    "src": "L32225",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   }
+  ],
+  "description": "After repeated harmful conduct, villagers debate whether a person who refuses accountability should be welcomed back immediately.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After repeated harmful conduct, villagers debate whether a person who refuses accountability should be welcomed back immediately.",
+   "src": "L32226",
+   "choices": [
+    {
+     "label": "Prioritize Safety",
+     "next": "a",
+     "src": "L32227"
+    },
+    {
+     "label": "Offer a Path to Repair",
+     "next": "b",
+     "src": "L32230"
+    },
+    {
+     "label": "Review Evidence",
+     "next": "c",
+     "src": "L32233"
+    },
+    {
+     "label": "Accept Uncertainty",
+     "next": "d",
+     "src": "L32236"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Clear limits protect those affected.",
+   "src": "L32228"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The person refuses the conditions and remains apart.",
+   "src": "L32229"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A concrete restitution plan is proposed.",
+   "src": "L32231"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The harmed party declines contact without penalty.",
+   "src": "L32232"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A false rumor is corrected.",
+   "src": "L32234"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A pattern of misconduct is confirmed.",
+   "src": "L32235"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The council postpones a final decision.",
+   "src": "L32237"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Villagers acknowledge that compassion does not erase consequences.",
+   "src": "L32238"
+  }
+ }
+}

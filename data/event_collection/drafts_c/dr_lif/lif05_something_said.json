@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Something (name1) Said Once",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif05_something_said",
+  "source": "draft_lif",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older)"
+   }
+  ],
+  "description": "A villager suddenly remembers an unkind remark from years ago: go and say sorry, or be kinder today instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Out of nowhere, while weeding, (name1) remembers something unkind (he/she) said to somebody years ago. It wasn't terrible. It was a sharp little remark, said to be clever. (He/she) remembers the person's face changing. (He/she) hadn't thought about it in years. Now (he/she) can't stop thinking about it.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Go and Say Sorry",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Be Kinder Today Instead",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The person still lives in the village, and (name1) goes and finds them. It's awkward. They don't even remember it at first. Then they do. \"Oh. That.\" They're quiet for a moment. \"Thank you for saying so.\" That's all. It doesn't fix anything that happened back then. (name1) walks home feeling lighter anyway, and a little foolish, and glad.",
+   "src": "L62"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) doesn't know if the person would even remember, or want to be reminded. So (he/she) just goes through the rest of the day more carefully, watching what (he/she) says. It's harder than (he/she) expected. At one point (he/she) opens (his/her) mouth to say something sharp and clever, and closes it again. (He/she) thinks that might be the closest thing to sorry (he/she) can manage today.",
+   "src": "L65"
+  }
+ }
+}

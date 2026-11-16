@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Congratulations That Came Hard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm73_congratulations",
+  "source": "draft_rm2",
+  "lines": [
+   489,
+   502
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L489",
+  "ledger": [
+   {
+    "src": "L490",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager hoped to be chosen as the new net-maker, but their close friend was chosen instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1) hoped to be chosen as the new net-maker, but their close friend was chosen instead.",
+   "src": "L490",
+   "choices": [
+    {
+     "label": "Congratulate the Friend Sincerely.",
+     "next": "a",
+     "src": "L491"
+    },
+    {
+     "label": "Admit the Disappointment Honestly.",
+     "next": "b",
+     "src": "L494"
+    },
+    {
+     "label": "Take Some Time Before Talking.",
+     "next": "c",
+     "src": "L497"
+    },
+    {
+     "label": "Ask to Learn from the Friend.",
+     "next": "d",
+     "src": "L500"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friend is delighted, and their bond grows stronger.",
+   "src": "L492"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The words come out stiffly, but the friend appreciates the effort.",
+   "src": "L493"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The friend understands and offers to share some of the work.",
+   "src": "L495"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The conversation is awkward, but both feel better afterward.",
+   "src": "L496"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "After a day alone, the villager congratulates the friend warmly.",
+   "src": "L498"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friend notices the distance and asks gently what is wrong.",
+   "src": "L499"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friend teaches eagerly, and the villager's skills grow.",
+   "src": "L501"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The villager realizes they would rather pursue a different craft entirely.",
+   "src": "L502"
+  }
+ }
+}
