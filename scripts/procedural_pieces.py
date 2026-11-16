@@ -367,7 +367,13 @@ def block_tags(text: str, slots: list[Slot]) -> tuple[int, int, int]:
         tags |= vp.TAG_LESSER
     vill = [s for s in slots if s.kind == 0]
     minor = any(s.max_age and s.max_age < 18 for s in vill)
-    if ROMANCE_RE.search(text):
+    adult = any(s.min_age >= 18 for s in vill)
+    if ROMANCE_RE.search(text) and minor and adult:
+        # the owner's own scene with a child and adults in it (a parent's new partner, a wedding): minor-centred,
+        # never mixed with romance from elsewhere (the romance pieces never travel: mark_portable)
+        tags |= vp.TAG_MINOR
+        never |= vp.TAG_ADULT_ROMANCE
+    elif ROMANCE_RE.search(text):
         tags |= vp.TAG_ROMANCE
         teen = bool(vill) and all(s.max_age and s.max_age <= 17 and s.min_age >= 13 for s in vill)
         if teen:
@@ -596,10 +602,14 @@ def le_file(bank, cat: dict, never_pairs) -> tuple[list[Piece], list[tuple[str, 
             if ident in lm.SECRET_CHOICES:
                 slots = [Slot("first", 0, 0, ADULT, 0, 0, vp.SF_BELIEVERS),
                          Slot("second", 0, 0, ADULT, 0, 0, vp.SF_BELIEVERS)]
-            cls = lm.choice_classes(bank, kind, ident)
-            tags = (vp.TAG_INVALIDATING | vp.TAG_LESSER) if "mocking" in cls else 0
-            if ident == "le_app_act_01":
-                tags |= vp.TAG_POWER                 # the chief decides
+            if kind == "approach":
+                ap = bank.app[ident]
+                mocking = ap["kind"] == "comedic" or "mocking" in ap["tags"]
+            else:
+                mocking = bool({"comedic", "mocking"} & set(bank.choice[ident]["tags"]))
+            tags = (vp.TAG_INVALIDATING | vp.TAG_LESSER) if mocking else 0
+            if kind == "approach" and bank.app[ident]["kind"] == "authority":
+                tags |= vp.TAG_POWER                 # the chief decides (S17: never for love or a couple)
             p = Piece(pid, vp.KIND_APPROACH, mood, 0, mask_of(gl), 1, 1, 0, 0, 0, tags, None, vp.title_case(t),
                       slots, src=f"bank {ident}")
             apps.setdefault(ident, []).append(p)
@@ -633,8 +643,6 @@ def le_file(bank, cat: dict, never_pairs) -> tuple[list[Piece], list[tuple[str, 
             mn, mx = 0, 0
             if aid in vulnerable_excl:
                 mn, mx = ADULT, 54                    # R1: never a child, a teenager or an elder
-            if any(e["do"] == "health_change" and e.get("min", 0) < 0 and e.get("role") == r for e in norm):
-                mn = max(mn, ADULT)                   # S8: no injury on a minor
             if "needs_elder" in arc["tags"] and r == "first":
                 mn, mx = max(mn, 55), 0
             harm = any(cg._harmful(e, games_all) and e.get("role") == r for e in norm)
@@ -654,10 +662,9 @@ def le_file(bank, cat: dict, never_pairs) -> tuple[list[Piece], list[tuple[str, 
         links = []
         n_group = sum(1 for x in bank.archetypes if x["group"] == arc["group"])
         w = max(1, min(1000, round(GROUP_LINK[arc["group"]] * 50 / n_group)))
-        for kind, ident in idents:
-            if lm.arc_ok_after(bank, kind, ident, aid):
-                for ap in apps[ident]:
-                    links.append(Link(ap.id, w))
+        for kind, ident in idents:          # the owner (2026-11-15): any answer may lead to any outcome
+            for ap in apps[ident]:
+                links.append(Link(ap.id, w))
         p = Piece(f"le_{code}_{aid[7:]}", vp.KIND_OUTCOME, mood, flags, mask_of(games_all), 1, 0, filters_of(fs),
                   notes_of(fs), 0, tags, lm.plain(arc["text"]), None, slots, 1, effects, 0, links,
                   src=f"bank {aid}")
@@ -700,21 +707,18 @@ def le_file(bank, cat: dict, never_pairs) -> tuple[list[Piece], list[tuple[str, 
                     for ap in apps[ident]:
                         forbid.append((sp.id, ap.id, f"living rule: {s['code']} x {ident}"))
             for aid, op in arcs.items():
-                if not bank.seed_allows(s["id"], "archetype", aid) or lm.seed_arc_rule(bank, s, aid):
+                if not bank.seed_allows(s["id"], "archetype", aid):
                     forbid.append((sp.id, op.id, f"living rule: {s['code']} x {aid}"))
             for (a, pa, b, pb), fp in frames.items():
                 ok = lm.possible_pair(bank, s, a, b) and all(
-                    p is None or lm.personality_ok(bank, s, r, p, False) for r, p in ((a, pa), (b, pb)))
+                    p is None or bank.role_allows_personality(r, p) for r, p in ((a, pa), (b, pb)))
                 if not ok:
                     forbid.append((sp.id, fp.id, f"living rule: {s['code']} x frame {a}/{b}"))
     for (a, pa, b, pb), fp in frames.items():
         for aid, op in arcs.items():
-            ok = bank.role_allows_archetype(a, aid) and bank.role_allows_archetype(b, aid) and lm.cast_ok(bank, aid, a, b)
+            ok = bank.role_allows_archetype(a, aid) and bank.role_allows_archetype(b, aid)
             if ok and "needs_elder" in bank.arc[aid]["tags"]:
                 ok = lm.resolve_role(bank, "elder", a, b) is not None
-            if ok and (pa or pb):
-                sens = lm.sensitive_slots(bank, [aid], a, b, games_all)
-                ok = not (("first" in sens and pa and lm.risky(bank, pa)) or ("second" in sens and pb and lm.risky(bank, pb)))
             if not ok:
                 forbid.append((fp.id, op.id, f"living rule: frame {a}/{b} x {aid}"))
         for kind, ident in idents:
@@ -806,6 +810,184 @@ def build(write: bool = True) -> dict[str, list[Piece]]:
 
 _SPLIT: list = []
 
+# ---- Cross-event mixing (the owner: "everything can be mixed with anything", where it makes sense) ----------------
+#
+# A collection event whose setup names a situation family (food, visitors, sickness, ...) goes into that family's
+# files ("x_<family>"), where every setup asks family 1: a setup takes approaches from any event of its family.  An
+# approach or outcome is PORTABLE when it names nothing particular to its own setup (no word of its own setup's text
+# or title outside the family's own words) and uses no unprefixed placeholder (whose role is its own event's
+# default); an approach is portable only with at least one portable outcome.  Pieces that are not portable keep to
+# their own setup (one EVENT BIT per event in the file).  Approaches with the same label and text are one piece whose
+# outcomes are all the events' (so the mix never shows the same button twice); a label shared by three or more
+# events (a generic one) weighs 1, a concrete one 10.
+
+FAMILIES: dict[str, str] = {
+    "food": "food fruit harvest meal feast stew cook cooking store storehouse hunger hungry starve eat berry crop "
+            "spoil spoiled bread breadfruit mushroom ration supper dinner",
+    "visitor": "visitor stranger traveler traveller newcomer guest castaway outsider wanderer arrive arrival "
+               "merchant trader canoe",
+    "sickness": "sick sickness ill illness fever cough injury injured wound wounded healer healing medicine "
+                "remedy herb pain hurt patient treatment cure care",
+    "weather": "storm rain wind drought flood thunder lightning hurricane cyclone weather heat cold",
+    "animal": "animal bird fish dolphin crab monkey turtle pig goat parrot lizard insect beetle snake spider shark "
+              "whale seal creature nest",
+    "craft": "build builder building hut tool weave weaver basket pottery potter craft carve carving canoe net "
+             "rope roof wall kiln",
+    "learning": "teach teacher lesson learn learning study research experiment apprentice scholar invention invent "
+                "discover discovery idea",
+    "arts": "song sing singer music musician dance dancer drum paint painting story storyteller poem verse art "
+            "artist mural",
+    "celebration": "festival feast celebrate celebration ceremony wedding gift party anniversary",
+    "conflict": "argue argument quarrel dispute disagree disagreement fight rival rivalry accuse accusation blame "
+                "jealous",
+    "family": "baby parent mother father sibling brother sister family grandparent grandmother grandfather "
+              "daughter son",
+    "children": "child children play game toy youngster",
+    "grief": "death die dying grave mourn mourning funeral loss lost memorial",
+    "belief": "spirit ancestor prayer pray shrine sacred omen ritual blessing curse god goddess faith",
+    "mystery": "strange mysterious glowing glow cave ancient ruin secret hidden vanish shadow",
+    "sea": "reef beach ocean lagoon boat shore wave tide sea island swim swimmer",
+    "farming": "farm farmer garden gardener field soil seed plant planting grow",
+    "leadership": "chief leader council elder decision rule law tradition custom",
+}
+STOP = set("""the and with that this from they their them have has had were was will would could should about after
+before into over more most some other others every each while when what which there here then than also only just
+very much many still even again back down away been being does done doing both same different new old own way part
+whole first last little small large good well make makes made take takes took give gives gave find finds found look
+looks seem seems become becomes became begin begins began keep keeps kept feel feels felt help helps helped need
+needs want wants know knows knew think thinks thought decide decides decided choose chooses chose offer offers
+offered ask asks asked tell tells told talk talks share shares work works worked place thing something nothing
+everything anything around through without within toward towards because though although might must cannot can
+your yours ours ourselves themselves himself herself itself villager villagers village tribe someone everyone
+anyone people person friend friends time times day days night morning evening afternoon together another others
+next soon later now never always often once twice almost enough rather quite perhaps maybe instead
+said says saying whose whom where why how into onto upon among
+gently quietly carefully slowly quickly simply really truly together everyone else other each its it's
+the and but for nor yet not all any are was her him his she its our out own too who why how get got let put say see saw yes way new old big bad far few off ago did does had has may can let lot one day end now use
+""".split())
+ROLE_SEX = ("mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle", "girl/boy",
+            "lady/gentleman")
+
+
+def stem(w: str) -> str:
+    w = w.lower().strip("'")
+    if w.endswith("'s"):
+        w = w[:-2]
+    if len(w) > 5 and w.endswith("ies"):
+        return w[:-3] + "y"
+    if len(w) > 6 and w.endswith("ing"):
+        return w[:-3]
+    if len(w) > 5 and w.endswith("ed"):
+        return w[:-2]
+    if len(w) > 5 and w.endswith("es"):
+        return w[:-2]
+    if len(w) > 4 and w.endswith("s") and not w.endswith("ss"):
+        return w[:-1]
+    return w
+
+
+FAM_STEMS = {f: {stem(w) for w in ws.split()} for f, ws in FAMILIES.items()}
+STOP_STEMS = {stem(w) for w in STOP}
+
+
+def words(text: str | None) -> set[str]:
+    if not text:
+        return set()
+    text = re.sub(r"\([^()]*\)|\{[^{}]*\}", " ", text)
+    out = set()
+    for w in re.findall(r"[A-Za-z']+", text):
+        s = stem(w)
+        if len(s) >= 3 and s not in STOP_STEMS:
+            out.add(s)
+    return out
+
+
+def classify(text: str) -> str | None:
+    ws = words(text)
+    best, score = None, 0
+    for f, st in FAM_STEMS.items():
+        n = len(ws & st)
+        if n > score:
+            best, score = f, n
+    return best
+
+
+_UNPREFIXED = {k.lower() for k in cg.KEYWORDS} | {k.lower() for k in cg.PRONOUNS_V6} | set(ROLE_SEX)
+
+
+def unprefixed(text: str | None) -> bool:
+    """A placeholder whose role is the event's default (no role prefix): its meaning changes with the setup."""
+    for inner in re.findall(r"\(([^()]*)\)", text or ""):
+        base = inner.split("|")[0]
+        if "." not in base and base.lower() in _UNPREFIXED:
+            return True
+    return False
+
+
+# Words any situation can hold: how villagers answer and feel, whatever the matter is.
+GENERIC = """advice elder elders wise wisdom listen listening patient patience calm calmly quiet wait waiting rest
+rested tired honest honestly honesty truth kind kindness gentle thank thanks thankful grateful gratitude proud pride
+happy happily glad relief relieved sorry apologize apologise apology apologizes forgive forgiveness laugh laughter
+laughing smile smiling grin cheer encourage encouragement encouraging support supportive comfort comforting
+reassure reassurance trust trusted worry worried nervous afraid fear brave bravery courage confident confidence doubt
+unsure uncertain uncertainty hope hopeful idea plan planning attempt effort practice practise improve improvement
+progress mistake fail failure succeed success understand understanding explain explanation agree agreement
+compromise decision space moment pause careful thoughtful feeling feelings heart warm warmly respect respectful fair
+fairly promise accept refuse suggest suggestion change changed continue stop start return calmer closer stronger
+happier wiser quietly openly gently patiently honestly kindly firmly together alone shared sharing opinion opinions
+question questions answer answers advice support worry options choice choices solution solutions problem problems
+matter matters situation concern concerns view views mind minds voice voices word words thanks smiles nod nods
+hug hugs tear tears cry cries crying everyone chance outcome result results lesson happen happens happened mood spirits morale grow
+grows learn learns learned experience effort""".split()
+GENERIC_STEMS = {stem(w) for w in GENERIC}
+
+SPEC: dict[str, set[str]] = {}          # piece id -> the words particular to its own setup it names
+SETUP_WORDS: dict[str, set[str]] = {}   # setup id -> its text's and title's words
+PORT: dict[str, bool] = {}              # piece id -> portable
+LABELS: collections.Counter = collections.Counter()   # a label's events (generic when 3 or more)
+
+
+def mark_portable(pieces: list[Piece], fam: str) -> None:
+    setups = [p for p in pieces if p.kind == vp.KIND_SETUP]
+    own: set[str] = set()
+    for s in setups:
+        own |= words(s.text) | words(s.label)
+    for s in setups:
+        SETUP_WORDS[s.id] = own
+    fw = FAM_STEMS[fam]
+    for p in pieces:
+        if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME):
+            # what the piece is about beyond any situation's common words and its family's own words: a piece that
+            # names anything more (a mat, a lesson, the mourning, a rope swing) belongs to its own setup
+            # A piece may travel to another setup only when every such word is also its OWN setup's (the scene it
+            # was written for named it) and the other setup names it too (word bits, mix_file).
+            # An outcome's (or an answer's popup's) words that its own setup does not name are what happens next
+            # (allowed); the words it shares with its own setup point back at that scene (particular).  A button's
+            # words are all particular unless common: an answer must suit the setup it is shown under.
+            # the family's own words are particular too (a "secret" outcome needs a setup that has a secret)
+            SPEC[p.id] = ((words(p.text) & own) | words(p.label)) - GENERIC_STEMS
+            # what happens next may bring at most one new particular word ("The old traditions and new ideas mix"
+            # tells its own story; "The patient asks for more time" can follow any setup with a patient)
+            news = words(p.text) - own - GENERIC_STEMS
+            PORT[p.id] = (SPEC[p.id] <= own and len(news) <= 1 and not unprefixed(p.text) and not unprefixed(p.label)
+                          and not p.tags & vp.TAG_ROMANCE and not ROMANCE_RE.search(f"{p.text} {p.label}")
+                          and short_scene(p.text) and not DEICTIC.search(p.label or ""))
+
+
+# A word pointing at something its own scene showed ("Friends admire it.", "Respect Its Space", "Learn It Too"):
+# under another setup it points at nothing.
+DEICTIC = re.compile(r"(?<![A-Za-z'])(it|its|this|that|these|those|there|then)(?![A-Za-z'])", re.I)
+
+
+def short_scene(text: str | None) -> bool:
+    """A text that can follow another event's setup: no dialogue (a spoken line answers its own scene's words) and
+    at most two short sentences (a longer passage tells its own story)."""
+    if not text:
+        return True
+    if DEICTIC.search(text):
+        return False
+    return '"' not in text and len(text) <= 200 and len(re.findall(r"[.!?](\s|$)", text)) <= 2
+
 
 def _split_all(never) -> dict:
     """The pieces of every group before any pair bit (the slow part; cached between validation rounds)."""
@@ -828,6 +1010,16 @@ def _split_all(never) -> dict:
         if ev is None:
             continue
         STATS["collection events split"] += 1
+        for lab in {p.label.lower().rstrip(".!") for p in ev.pieces if p.kind == vp.KIND_APPROACH}:
+            LABELS[lab] += 1
+        setup = next(p for p in ev.pieces if p.kind == vp.KIND_SETUP)
+        fam = classify(f"{setup.text} {setup.label}")
+        if fam:
+            mark_portable(ev.pieces, fam)
+            STATS[f"family {fam}"] += 1
+            groups.setdefault(f"x_{fam}", []).append((ev.pieces, []))
+            continue
+        STATS["no situation family (own event only)"] += 1
         rel = path.relative_to(COLLECTION).parts
         grp = _pid("_".join(rel[:-1]))[:20] or "misc"
         groups.setdefault(grp, []).append((ev.pieces, []))
@@ -871,20 +1063,174 @@ def fit_games(pieces: list[Piece]) -> None:
                 STATS["setup left out of a game: its title-case title is too wide"] += 1
 
 
+MIX_EVENTS = 12                         # events a mix file holds: one event bit each
+MIX_WORDS = 10                          # word bits a mix file may use (the rest: slot merges, validator pairs)
+W_CONCRETE, W_GENERIC = 10, 1
+
+
+def mix_file(name: str, part: list, never: list) -> list[Piece]:
+    """One cross-event file (docs/event-collection/procedural-pieces-data.md 3): family 1 for every setup and
+    approach; a piece travels to another event's setup when every particular word it uses is its own setup's and
+    that setup's too (word bits); anything else keeps to its own setup (event bits); one piece per shared answer;
+    the blocks."""
+    part = copy.deepcopy(part)
+    k = len(part)
+    ebits = [1 << (6 + i) for i in range(k)]
+    every = sum(ebits)
+    evi: dict[str, int] = {}
+    sw: list[set[str]] = []
+    for i, (ps, _fb) in enumerate(part):
+        own: set[str] = set()
+        for p in ps:
+            evi[p.id] = i
+            if p.kind == vp.KIND_SETUP:
+                own |= SETUP_WORDS.get(p.id, set())
+        sw.append(own)
+    all_pieces = [p for ps, _fb in part for p in ps]
+    movers = [p for p in all_pieces if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME) and PORT.get(p.id)]
+    # the words worth a bit: named by setups of two events or more, and by pieces that could travel with them
+    shared = collections.Counter(w for s in sw for w in s)
+    chosen: list[str] = []
+    budget = min(MIX_WORDS, 26 - k - 4)
+    while len(chosen) < budget:
+        best, gain = None, 0
+        have = set(chosen)
+        for w in sorted({w for p in movers for w in SPEC[p.id]} - have):
+            if shared[w] < 2:
+                continue
+            g = sum(1 for p in movers if w in SPEC[p.id] and SPEC[p.id] <= have | {w})
+            if g > gain:
+                best, gain = w, g
+        if best is None:
+            break
+        chosen.append(best)
+    wbits = {w: 1 << (6 + k + j) for j, w in enumerate(chosen)}
+    travel = {p.id: bool(PORT.get(p.id)) and SPEC[p.id] <= set(chosen) for p in all_pieces
+              if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME)}
+    needs: dict[str, set[str]] = {}
+    outs_of: dict[str, list[Piece]] = collections.defaultdict(list)
+    for o in all_pieces:
+        if o.kind == vp.KIND_OUTCOME:
+            for lk in o.links:
+                outs_of[lk.approach].append(o)
+    for a in all_pieces:
+        if a.kind == vp.KIND_APPROACH and travel[a.id]:
+            # an answer travels with an outcome that can always follow it there: it also needs the words of its
+            # travelling outcome that needs the fewest
+            outs = [o for o in outs_of[a.id] if travel[o.id]]
+            travel[a.id] = bool(outs)
+            if outs:
+                best = min(outs, key=lambda o: (len(SPEC[o.id] - SPEC[a.id]), o.id))
+                needs[a.id] = SPEC[a.id] | SPEC[best.id]
+            have_s = {sl.name for sl in a.slots}
+            for o in outs:              # it brings the villagers those outcomes act on (always "plain")
+                for sl in o.slots:
+                    if sl.name not in have_s and not sl.flags & vp.SF_OPTIONAL:
+                        a.slots.append(copy.deepcopy(sl))
+                        have_s.add(sl.name)
+    pieces: list[Piece] = []
+    keep: dict[tuple, Piece] = {}
+    seen_label: dict[str, Piece] = {}
+    rename: dict[str, str] = {}
+    for p in all_pieces:
+        i = evi[p.id]
+        p.topic = 1 << min(31, i)
+        if p.kind == vp.KIND_SETUP:
+            p.family = 1
+            p.tags |= ebits[i]
+            for w, bit in wbits.items():
+                if w not in sw[i]:
+                    p.tags |= bit       # this setup does not name w
+        if p.kind == vp.KIND_APPROACH:
+            p.family = 1
+            p.weight = W_GENERIC if LABELS[p.label.lower().rstrip(".!")] >= 3 else W_CONCRETE
+            if travel[p.id]:
+                key = (p.label.lower(), p.text, repr(p.slots), p.games, frozenset(needs.get(p.id, SPEC[p.id])))
+                lab = p.label.lower().rstrip(".!")
+                if key in keep:
+                    rename[p.id] = keep[key].id
+                    STATS["shared answers merged"] += 1
+                    continue
+                if lab in seen_label:
+                    travel[p.id] = False      # the same button with another text: keeps to its own setup
+                else:
+                    keep[key] = p
+                    seen_label[lab] = p
+        if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME):
+            if not travel[p.id]:
+                p.never |= every & ~ebits[i]
+                p.tags &= ~(vp.TAG_POWER | vp.TAG_INVALIDATING | vp.TAG_LESSER)
+            else:
+                for w in needs.get(p.id, SPEC[p.id]):
+                    p.never |= wbits[w]
+                STATS[f"travelling {vp.KIND_NAMES[p.kind]}s"] += 1
+        if p.filters & GRIEF:
+            p.never |= vp.TAG_INVALIDATING
+        if p.filters & SCORN:
+            p.never |= vp.TAG_LESSER
+        if p.tags & vp.TAG_MINOR:
+            p.never |= vp.TAG_POWER
+        pieces.append(p)
+    # no button twice: a travelling answer keeps away from the setup of any other event with the same label
+    by_label: dict[str, list[Piece]] = collections.defaultdict(list)
+    for p in pieces:
+        if p.kind == vp.KIND_APPROACH:
+            by_label[p.label.lower().rstrip(".!")].append(p)
+    for same in by_label.values():
+        for a in same:
+            if travel[a.id]:
+                for b in same:
+                    if b is not a and evi[b.id] != evi[a.id]:
+                        a.never |= ebits[evi[b.id]]
+    if rename:
+        for p in pieces:
+            if p.kind == vp.KIND_OUTCOME:
+                out, have = [], set()
+                for lk in p.links:
+                    aid = rename.get(lk.approach, lk.approach)
+                    if aid not in have:
+                        have.add(aid)
+                        out.append(Link(aid, lk.weight))
+                p.links = out
+    ids = {p.id for p in pieces}
+    forbid = [(x["a"], x["b"], x["why"]) for x in never if x["a"] in ids and x["b"] in ids]
+    forbid += merge_conflicts(pieces)
+    fit_games(pieces)
+    assign_bits(pieces, forbid, free=tuple(range(6 + k + len(chosen), 32)))
+    return pieces
+
+
 def _assemble(groups: dict, never: list, write: bool) -> dict[str, list[Piece]]:
     # parts below the file budget; family numbers per file
     files: dict[str, list[Piece]] = {}
     for grp, events in groups.items():
         parts: list[list[tuple[list[Piece], list]]] = [[]]
         size = 0
+        mix = grp.startswith("x_")
         for ev in events:
             est = sum(64 + 16 * (len(p.slots) + len(p.effects)) + 8 * len(p.links) + len(p.text or "")
                       + len(p.label or "") + len(p.id) + 4 for p in ev[0])
-            if parts[-1] and size + est > FILE_BUDGET:
+            if parts[-1] and (size + est > FILE_BUDGET or (mix and len(parts[-1]) >= MIX_EVENTS)):
                 parts.append([])
                 size = 0
             parts[-1].append(ev)
             size += est
+        if mix:
+            k = 0
+            queue = list(parts)
+            while queue:
+                part = queue.pop(0)
+                k += 1
+                name = f"{grp[:19]}_{k}"
+                try:
+                    files[name] = mix_file(name, part, never)
+                except ValueError:
+                    if len(part) < 2:
+                        raise
+                    k -= 1
+                    queue[:0] = [part[:len(part) // 2], part[len(part) // 2:]]
+                    STATS["mix files halved (pair bits)"] += 1
+            continue
         for k, part in enumerate(parts):
             name = grp if len(parts) == 1 else f"{grp[:21]}_{k + 1}"
             pieces: list[Piece] = []
@@ -1108,8 +1454,14 @@ def make_cast(game: int, rb, people: list[Villager]):
 # ---- Validation ----------------------------------------------------------------------------------------------------
 
 
+CG_SPEAKS = "speaks" in Path(cg.__file__).read_text(encoding="utf-8")
+
+
 def graph_problems(comp, game: int) -> list[str]:
     g = vp.graph_of(comp, game, notes=True)
+    if not CG_SPEAKS:
+        for r in g["roles"].values():      # this branch's vv_cie_graph has no "speaks" yet (island-events-ui has)
+            r.pop("speaks", None)
     try:
         _n, problems = cg.validate(g, scrolling=True)
     except Exception as ex:      # a crash is a problem
@@ -1156,6 +1508,20 @@ def block_problems(comp) -> list[tuple[str, str, str]]:
             out.append((p.id, q.id, "invalidating pain"))
         if p.tags & vp.TAG_LESSER and q.filters & filters_of(("F16", "F17")):
             out.append((p.id, q.id, "portraying someone as lesser"))
+    # sense across events: a piece from another event names nothing particular to its own setup that this setup
+    # lacks; no button twice
+    here = SETUP_WORDS.get(comp.setup.id, set())
+    for a, os in zip(comp.approaches, comp.outcomes):
+        for x in [a] + os:
+            if x.src != comp.setup.src and SPEC.get(x.id) and not SPEC[x.id] <= here:
+                out.append((comp.setup.id, x.id, "names something this setup does not have: "
+                            + ", ".join(sorted(SPEC[x.id] - here))))
+    labels = [a.label.lower().rstrip(".!") for a in comp.approaches]
+    for i, a in enumerate(comp.approaches):
+        for b in comp.approaches[i + 1:]:
+            if a.label.lower().rstrip(".!") == b.label.lower().rstrip(".!"):
+                out.append((a.id, b.id, "the same answer twice"))
+    del labels
     # sense: an outcome answers its approach; effects fit the cast roles
     for a, os in zip(comp.approaches, comp.outcomes):
         for o in os:
@@ -1297,8 +1663,18 @@ def summary(files: dict[str, list[Piece]]) -> dict:
 # ---- The owner's sample --------------------------------------------------------------------------------------------
 
 
+def _from(p, comp) -> str:
+    """Where a piece came from, when not the setup's own event."""
+    if p.src and p.src != comp.setup.src and "/" in p.src:
+        return f"   [from {Path(p.src).stem}]"
+    return ""
+
+
 def readable(comp, game: int) -> str:
     g = vp.graph_of(comp, game, notes=True)
+    if not CG_SPEAKS:
+        for r in g["roles"].values():
+            r.pop("speaks", None)
     n, problems = cg.validate(g, scrolling=True)
     bind = {}
     for name, v in comp.cast.items():
@@ -1318,14 +1694,14 @@ def readable(comp, game: int) -> str:
         lines.append("  " + ex(para))
     lines.append("")
     for i, (a, os) in enumerate(zip(comp.approaches, comp.outcomes), 1):
-        lines.append(f"  [{i}] {ex(a.label)}")
+        lines.append(f"  [{i}] {ex(a.label)}" + _from(a, comp))
         if a.text:
             lines.append(f"      {ex(a.text)}")
         total = sum(next(lk.weight for lk in o.links if lk.approach == a.id) for o in os)
         for o in os:
             w = next(lk.weight for lk in o.links if lk.approach == a.id)
             fx = ", ".join(json.dumps(vp.effect_json(e, [s.name for s in o.slots])) for e in o.effects)
-            lines.append(f"      -> ({w}/{total}) {ex(o.text)}" + (f"\n         effects: {fx}" if fx else ""))
+            lines.append(f"      -> ({w}/{total}) {ex(o.text)}" + _from(o, comp) + (f"\n         effects: {fx}" if fx else ""))
     cast = ", ".join(f"{r} = {v.name} ({v.age})" if isinstance(v, Villager) else f"{r} = a stranger"
                      for r, v in comp.cast.items())
     lines.append(f"  cast: {cast}")
@@ -1336,11 +1712,16 @@ def readable(comp, game: int) -> str:
 
 def sample(out: Path, per_game: int = 100) -> None:
     files = {n: vp.read_pcb(vp.write_pcb(ps), n) for n, ps in build(write=False).items()}
+    for n, pf in files.items():
+        src = {p.id: p.src for p in BUILT[n]}
+        for p in pf.pieces:
+            p.src = src.get(p.id, "")
     parts = ["Procedural Mixer Sample (for owner review)",
              "=" * 44,
              "",
              "Events the run-time mixer composes from pieces of your events and the Living bank (v1.35.97).",
-             "Every word is from your events; the mixer picks a setup, 2 to 4 of its answers, 1 to 3 of each",
+             "Every word is from your events; the mixer picks a setup, 2 to 4 answers (from any event of the same",
+             "situation family: [from ...] marks an answer or outcome from another event), 1 to 3 of each",
              "answer's outcomes, sometimes an opening line and sometimes a frame. Names are a model village.",
              "The (n/m) before an outcome is its chance after that answer.",
              ""]
@@ -1359,6 +1740,7 @@ def sample(out: Path, per_game: int = 100) -> None:
             k += 1
             parts += [f"--- VV{game} event {k} ---", readable(comp, game), ""]
     out.write_text("\n".join(parts) + "\n", encoding="utf-8")
+    print(json.dumps({k: v for k, v in STATS.items() if not k.startswith("family ")}, indent=1))
 
 
 def main(argv=None) -> None:
