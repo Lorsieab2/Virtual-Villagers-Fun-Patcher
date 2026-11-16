@@ -98,6 +98,62 @@ def escape_bare(text: str) -> str:
     return "".join(out)
 
 
+def _pr(role, partner=None, babies=None, **kw):
+    e = {"do": "pregnant", "role": role}
+    if partner:
+        e["partner"] = partner
+    if babies:
+        e["babies"] = babies
+    return {**e, **kw}
+
+
+# EFFECT lines the phrase table cannot read, mapped by hand (the coordinator, 2026-11-16): (event id, line) -> (what,
+# [effects] or, for "one of these, 50:50", [[effects], [effects]] as equally likely branches after the page).  "The
+# carrier is cast born female" (cie-v6-binary.md 31), so "whichever was born female" is the carrier role.
+OVERRIDES: dict[tuple[str, int], tuple[str, list[list[dict]]]] = {
+    ("s001_spring_talks_back", 27): (
+        "one of two, 50:50: loses a dislike at random, or 10 to 20 in a random skill other than Farming",
+        [[{"do": "preference", "role": "subject", "dislike": "random", "remove": True}],
+         [{"do": "skill", "role": "subject", "skills": ["Building", "Research", "Healing", "Parenting"],
+           "min": 10, "max": 20}]]),
+    ("s016_fertility_stone", 747): ("twins or triplets, 50:50",
+                                    [[_pr("subject", "friend", 2)], [_pr("subject", "friend", 3)]]),
+    ("b158_shrine_basket", 7300): ("a nursing baby (any birth sex)",
+                                   [[{"do": "nursing", "role": "subject", "any_birth_sex": True}]]),
+    ("b172_trader_baby", 7980): ("the baby is a nursing baby of (name2) (any birth sex)",
+                                 [[{"do": "nursing", "role": "friend", "any_birth_sex": True}]]),
+    ("b187_elder_hat", 8696): ("a new look and the old head look for (name2)",
+                               [[{"do": "appearance", "role": "friend", "head": "random"},
+                                 {"do": "old_look", "role": "friend"}]]),
+    ("b218_lost_little_ones", 10150): (
+        "two adults (the second the mother, born female, nursing the baby), then the girl",
+        [[{"do": "new_villager", "age": "adult"}, {"do": "new_villager", "age": "adult", "sex": "female"},
+          {"do": "nursing", "role": "$newest"}, {"do": "new_villager", "age": "child", "sex": "female"}]]),
+    ("b218_lost_little_ones", 10156): (
+        "two adults (the second the mother, born female, nursing the baby), the teen, then the girl",
+        [[{"do": "new_villager", "age": "adult"}, {"do": "new_villager", "age": "adult", "sex": "female"},
+          {"do": "nursing", "role": "$newest"}, {"do": "new_villager", "age": "teen"},
+          {"do": "new_villager", "age": "child", "sex": "female"}]]),
+    ("b260_warm_stone", 12142): ("the carrier (cast born female) with the other; twins or triplets, 50:50",
+                                 [[_pr("subject", "friend", 2)], [_pr("subject", "friend", 3)]]),
+    ("b260_warm_stone", 12148): ("the carrier (cast born female) with the other, one baby",
+                                 [[_pr("subject", "friend")]]),
+    ("b280_two_carved_totems", 13054): ("a body swap between the two", [[{"do": "body_swap", "role": "subject",
+                                                                          "with": "friend"}]]),
+    ("b304_waterfall_two", 14117): ("10 in a best skill for each (the engine's best skill is the villager's own)",
+                                    [[{"do": "skill", "role": "subject", "best": True, "min": 10, "max": 10},
+                                      {"do": "skill", "role": "friend", "best": True, "min": 10, "max": 10}]]),
+    ("b305_coconut_cried", 14159): ("a nursing baby for the healer (any birth sex)",
+                                    [[{"do": "nursing", "role": "healer", "any_birth_sex": True}]]),
+    ("b308_moon_shell", 14306): ("(neighbour name) pregnant, the engine's own partner",
+                                 [[_pr("neighbour")]]),
+    ("b324_hollow_log_drum", 15014): ("the young head look for (eldest name)",
+                                      [[{"do": "young_look", "role": "eldest"}]]),
+    ("b336_lazy_river", 15551): ("the carrier (cast born female) with the other, one baby",
+                                 [[_pr("subject", "friend")]]),
+}
+
+
 class LeftOut(Exception):
     """An event the collection cannot take as written (listed for the owner)."""
 
@@ -350,6 +406,10 @@ class Build:
             for hl, _body in ends:
                 m = owner._ENDING.match(lib.normalize_source_text(lib.line(hl)).strip())
                 _e, _r, notes = lenient_effects(m.group(5), games)
+                if (self.row["id"], hl) in OVERRIDES:
+                    self.note(hl, "instruction", "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): "
+                                                 + OVERRIDES[(self.row["id"], hl)][0])
+                    continue
                 for nt in notes:
                     if nt.startswith("UNMAPPED "):
                         self.unmapped.append(f"{self.row['id']} L{hl}: {nt[9:]}")
@@ -409,6 +469,18 @@ class Build:
                 oid = f"c{k}o{j}"
                 if oid in nodes:
                     nodes[oid]["src"] = span_src(body)
+                    ov = OVERRIDES.get((self.row["id"], hl))
+                    if ov:
+                        alts = copy.deepcopy(ov[1])
+                        nodes[oid].pop("effects", None)
+                        if len(alts) == 1:
+                            nodes[oid]["effects"] = alts[0]
+                        else:          # "one of these, 50:50": equally likely branches after the page
+                            assert not nodes[oid].get("children"), (self.row["id"], oid)
+                            nodes[oid]["children"] = []
+                            for i, effs in enumerate(alts, 1):
+                                nodes[f"{oid}_r{i}"] = {"type": "branch", "effects": effs}
+                                nodes[oid]["children"].append({"next": f"{oid}_r{i}"})
         # ---- placeholders, labels, effects -----------------------------------------------------------------------
         chief = games != [3]
         for n in nodes.values():

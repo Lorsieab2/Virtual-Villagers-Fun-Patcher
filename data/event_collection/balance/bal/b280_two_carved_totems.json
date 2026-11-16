@@ -25,7 +25,7 @@
    {
     "src": "L13054",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'BODY SWAP between two children, (child name1) and (child name2) (permanent)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a body swap between the two"
    },
    {
     "src": "L13034",
@@ -168,7 +168,14 @@
   },
   "c2o1": {
    "text": "In the morning, two very confused families find that their children have woken up in each other's sleeping mats, and each other's bodies. The children are delighted. Their parents are not. The elders say firmly that the spirits only say hello once. Within a month, the children are best friends, and nobody can remember which family each of them used to belong to.",
-   "src": "L13055"
+   "src": "L13055",
+   "effects": [
+    {
+     "do": "body_swap",
+     "role": "subject",
+     "with": "friend"
+    }
+   ]
   },
   "c2o2": {
    "text": "(subject) feels a little ashamed of nearly treating the posts like a joke, and spends the next week repainting them in red and white, slowly and carefully, the way the elders say they used to look. (subject.He/She) is much better at the work by the end than at the start. The posts look very fine. Nobody touches them.",

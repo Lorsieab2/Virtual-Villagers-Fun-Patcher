@@ -43,3 +43,9 @@ def test_equal_chances_and_seed_pieces():
     assert len({k.get("weight", 1) for k in kids}) == 1
     pieces = json.loads((ROOT / "data" / "procedural_pieces" / "go_seeds.json").read_text(encoding="utf-8"))
     assert any(p["event"] == "b001_undertow" and p["kind"] == 1 for p in pieces["pieces"])
+
+
+def test_mixer_only_event_is_in_no_manifest():
+    import build_event_collection_features as b
+    ev = {"id": "x", "games": [1], "mixer_only": True}          # never read further: it is skipped
+    assert b.manifest_text(1, [ev]).count("\n") == 2

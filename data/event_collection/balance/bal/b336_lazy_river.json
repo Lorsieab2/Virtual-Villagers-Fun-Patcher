@@ -25,17 +25,7 @@
    {
     "src": "L15551",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: \"(name) is PREGNANT, with (name2), the farmer's grown child, as the other parent (one baby) if (name) was born female and is 18 or older\""
-   },
-   {
-    "src": "L15551",
-    "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'otherwise (name2) is, with (name) as the other parent'"
-   },
-   {
-    "src": "L15551",
-    "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'if neither, this ending has no effect'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other, one baby"
    },
    {
     "src": "L15528",
@@ -210,7 +200,14 @@
   },
   "c2o2": {
    "text": "Working the row next to (subject) is (friend), the head farmer's grown child, who has a laugh like a waterfall and talks the whole afternoon. They bring in the harvest together, and then the next day's, and by the end of the season, they are inseparable. By the next rains, there is a baby on the way.",
-   "src": "L15552"
+   "src": "L15552",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend"
+    }
+   ]
   },
   "c2": {
    "text": "(subject) sighs, ties up the raft and walks across the village to the gardens, where the farmers hand (subject.him/her) a basket without a word...",

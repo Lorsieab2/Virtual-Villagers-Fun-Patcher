@@ -316,6 +316,9 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
             "section": meta.get("section", ""),
+            # collection.mixer_only (the coordinator, 2026-11-16): an event that already runs elsewhere (More Island
+            # Events' own DLL) gives only its mixer versions; its static form is in no manifest
+            "mixer_only": meta.get("mixer_only") is True,
             # The content controls written in (src/vv_event_content.py): the source's tag table's node tags.
             "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g),
                                                          content.extras_for(meta.get("source", "v28"), ident, g))[0]),
@@ -363,7 +366,7 @@ def manifest_text(game: int, events: list[dict], living_rows: list[dict] | None 
     rows = ["# Isola Grand Event Collection: the events of this game, read by VVFP Story Upgrades.dll.",
             "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
     for e in events:
-        if game in e["games"]:
+        if game in e["games"] and not e.get("mixer_only"):
             rows.append(manifest_line(game, e))
     for r in living_rows or []:
         rows.append(living_line(r))
@@ -617,7 +620,7 @@ def game_manifests(game: int, events: list[dict], variants: list, groups: dict[s
     """{file group: manifest-<group>.txt bytes} for one game."""
     per_group: dict[str, list[tuple[str, str]]] = {}
     for e in events:
-        if game in e["games"]:
+        if game in e["games"] and not e.get("mixer_only"):
             per_group.setdefault(groups[e["id"]], []).append((e["series"], manifest_line(game, e)))
     for r in living.manifest_rows(game, variants):
         per_group.setdefault(living_group(r["series"], lg), []).append((r["series"], living_line(r)))

@@ -25,17 +25,12 @@
    {
     "src": "L12142",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: '(name) or (name2), whichever was born female (or (name) if both were, chosen by the game), is PREGNANT, with the other as the other parent (twins or triplets, if the game allows)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other; twins or triplets, 50:50"
    },
    {
     "src": "L12148",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: '(name) or (name2), whichever was born female (aged 18 or older), is PREGNANT, with the other as the other parent (one baby)'"
-   },
-   {
-    "src": "L12148",
-    "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'if neither was, this ending becomes B2'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the carrier (cast born female) with the other, one baby"
    },
    {
     "src": "L12128",
@@ -160,7 +155,15 @@
   },
   "c1o2": {
    "text": "The stone hums so loudly that the water in the spring trembles. Some weeks later, (midwife), the healer, presses an ear to the belly, listens, and laughs. \"You must have asked very nicely,\" (subject.he/she) says. {#babies:There is one baby, a big strong one|There are twins|There are triplets}. The couple build an extra room on the hut before {#babies:it is|they're|they're} born.",
-   "src": "L12143"
+   "src": "L12143",
+   "children": [
+    {
+     "next": "c1o2_r1"
+    },
+    {
+     "next": "c1o2_r2"
+    }
+   ]
   },
   "c1": {
    "text": "They sit on the stone side by side, holding hands, feeling a bit silly. The stone gets warmer and warmer until it is almost hot, and then, very gently, it hums...",
@@ -178,7 +181,14 @@
   },
   "c2o1": {
    "text": "A few weeks later, a baby is on the way anyway, stone or no stone. \"See,\" says (friend), \"we didn't need it.\" The elders smile and say nothing. Privately, they think the stone can reach the spring perfectly well from where it sits.",
-   "src": "L12149"
+   "src": "L12149",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend"
+    }
+   ]
   },
   "c2o2": {
    "text": "No baby comes, not yet. Neither of them has ever liked being in the water, but the warm soak does them so much good that they go back every week, and before long they are paddling about in the lagoon as well, and then swimming out to the reef. \"We'll try the stone next time,\" (subject) says, every time, and they never quite do.",
@@ -211,6 +221,28 @@
     }
    ],
    "src": "L12146"
+  },
+  "c1o2_r1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 2
+    }
+   ]
+  },
+  "c1o2_r2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 3
+    }
+   ]
   }
  }
 }

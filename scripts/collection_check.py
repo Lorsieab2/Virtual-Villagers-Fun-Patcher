@@ -85,7 +85,8 @@ SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap", "sensitivity", "casting")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
                  "description_variants", "cast_only", "label_case",
-                 "exact_amounts")   # the owner's own skill amounts (the GO files: "gains 20 to 30 Farming")
+                 "exact_amounts",   # the owner's own skill amounts (the GO files: "gains 20 to 30 Farming")
+                 "mixer_only")      # only its mixer versions ship (More Island Events: its DLL runs the static)
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)

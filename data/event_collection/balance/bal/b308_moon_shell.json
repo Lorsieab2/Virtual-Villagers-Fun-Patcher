@@ -25,7 +25,7 @@
    {
     "src": "L14306",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: '(neighbour name), a villager born female aged 18 or older (not protected, not already pregnant), is PREGNANT, with her partner as the other parent (one baby)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): (neighbour name) pregnant, the engine's own partner"
    },
    {
     "src": "L14283",
@@ -187,7 +187,13 @@
   },
   "c2o2": {
    "text": "Nothing happens for (subject). But (neighbour), who lives next door and has walked past that doorway every day for a month, is suddenly pregnant, and not a little surprised. (subject) and (friend) decide that's a fine use for a moon shell, and give it to (neighbour) to keep for the baby.",
-   "src": "L14307"
+   "src": "L14307",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "neighbour"
+    }
+   ]
   },
   "c2": {
    "text": "(subject) hangs the moon shell in the doorway, where it turns slowly in the breeze and catches the light every evening...",

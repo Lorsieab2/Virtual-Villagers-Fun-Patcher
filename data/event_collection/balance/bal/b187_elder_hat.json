@@ -25,7 +25,7 @@
    {
     "src": "L8696",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'NEW LOOK for (name2), another villager (an elder\\'s shell-trimmed hat), and (name2) gets the \"old\" head look'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a new look and the old head look for (name2)"
    },
    {
     "src": "L8672",
@@ -187,7 +187,18 @@
   },
   "c2o2": {
    "text": "(elder) gives the hat to (friend) instead, who accepts it at once, and within a season looks fifteen years older and much more pleased with (subject.himself/herself). (subject) is relieved, mostly. (friend) tells (subject.him/her), rather often, what the council thinks about things.",
-   "src": "L8697"
+   "src": "L8697",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    },
+    {
+     "do": "old_look",
+     "role": "friend"
+    }
+   ]
   },
   "c2": {
    "text": "(subject) thanks (elder), very politely, and says (subject.he/she) isn't ready for a hat. \"Could you teach me something instead?\" (elder) looks at (subject.him/her) for a long moment, and laughs...",

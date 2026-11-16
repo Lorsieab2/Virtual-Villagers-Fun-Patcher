@@ -25,7 +25,7 @@
    {
     "src": "L27",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'one of these, 50:50: loses one dislike (at random), OR gains 10 to 20 in one random skill (never Farming)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): one of two, 50:50: loses a dislike at random, or 10 to 20 in a random skill other than Farming"
    },
    {
     "src": "L3",
@@ -180,7 +180,15 @@
   },
   "c2o2": {
    "text": "The water tastes faintly of honey, and something else, something like the first warm day after the rains. (Name) drinks, sits back on (his/her) heels, and feels a knot (he/she) didn't know (he/she) had come undone somewhere in (his/her) chest. (He/She) comes home humming. The next morning (he/she) picks up the one job (he/she) has always grumbled about, or never had the knack for, and does it, and does it well, and doesn't grumble once. The others keep glancing at (him/her) as if (he/she) might be ill. \"The spring,\" is all (name) will say.",
-   "src": "L28"
+   "src": "L28",
+   "children": [
+    {
+     "next": "c2o2_r1"
+    },
+    {
+     "next": "c2o2_r2"
+    }
+   ]
   },
   "c2": {
    "text": "(Name) decides that talking water is none of (his/her) business. (He/She) says \"No thank you,\" politely, and drinks. The spring goes very quiet, as if it is deciding whether to be offended...",
@@ -223,6 +231,34 @@
       ]
      },
      "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c2o2_r1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "dislike": "random",
+     "remove": true
+    }
+   ]
+  },
+  "c2o2_r2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building",
+      "Research",
+      "Healing",
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20
     }
    ]
   }
