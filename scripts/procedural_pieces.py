@@ -68,10 +68,19 @@ LESSER_RE = re.compile(r"(?<![A-Za-z])(mock\w*|ridicul\w+|make fun of|makes fun 
 def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
     """A normalized graph effect as a piece effect record (cie-v6-binary.md; the role byte a local slot)."""
     do = e["do"]
+    if e.get("target") or e.get("max_age"):
+        # a group target or an age cap needs the .cieg's selector byte and last field, which the piece record has
+        # no room for (procedural-pieces.md 2.5): the piece stays with the static event
+        raise Skip("an effect with a group target or an age cap")
     code = cg.EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
-    r = cg.effect_role(e)
-    slot = idx[r] if r is not None else vp.EVERY
+    r = e["role"] if do == "trait" else cg.effect_role(e)
+
+    def rx(name: str) -> int:
+        return cg.NEW_ROLES[name] if name in cg.NEW_ROLES else idx[name]
+    slot = rx(r) if r is not None else vp.EVERY
     flags, a, b, st = 0, 0, 0, None
+    if do == "skill" and e.get("best"):
+        flags |= cg.SKILL_BEST_FLAG
     if do in ("food", "tech"):
         flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
         b = e.get("max") or 0
@@ -97,6 +106,10 @@ def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
         st = e["action"]
     elif do == "mood":
         a = 1 if e["mood"] == "good" else -1
+    elif do == "repair":
+        st = cg.DAMAGE_ANY if e["structures"] == cg.DAMAGE_ANY else ",".join(e["structures"])
+    elif do == "presentation":
+        a = 1 if e.get("on") else 0
     elif do == "appearance":
         a, b = (cg.LOOK_KEEP if e.get(p) is None else cg.LOOK_RANDOM if e[p] == "random" else e[p]
                 for p in ("head", "body"))
@@ -106,26 +119,34 @@ def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
         a, b = e["min"], e["max"]
     elif do == "new_villager":
         a = cg.NEW_VILLAGER_AGES[e.get("age", "any")]
+        b = cg.NEW_VILLAGER_SEX[e.get("sex", "random")]
+        flags = cg.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
     elif do in ("pregnant", "nursing"):
-        flags = cg.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0
-        a = idx[e["partner"]] if e.get("partner") else vp.EVERY
+        flags = (cg.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cg.BABIES_FLAGS.get(e.get("babies"), 0)
+        a = rx(e["partner"]) if e.get("partner") else vp.EVERY
     elif do == "body_swap":
-        a = idx[e["with"]]
+        a = rx(e["with"])
+    elif do == "change_name" and e.get("name"):
+        st = e["name"]
+    elif do == "clone" and e.get("count") == 2:
+        a = 2
     elif do == "change_age":
         if "to" in e:
             flags = cg.CHANGE_AGE_TO[e["to"]]
         else:
             flags, (a, b) = cg.CHANGE_AGE_ADD, e["years"]
     elif do == "trait":
-        st = e["trait"]
+        a = cg.TRAIT_CODES[e["trait"]]
     return Effect(code, slot, flags, a, b, st)
 
 
 def effect_roles(e: dict) -> list[str]:
-    out = [r for r in (cg.effect_role(e), e.get("partner"), e.get("with")) if r]
+    """The cast roles an effect names (the event's new villagers, $newest / $previous, are not roles)."""
+    out = [r for r in (e["role"] if e.get("do") == "trait" else cg.effect_role(e), e.get("partner"), e.get("with"))
+           if r]
     if e.get("do") == "new_villager" and e.get("copy_of"):
         out.append(e["copy_of"])
-    return list(dict.fromkeys(out))
+    return [r for r in dict.fromkeys(out) if r not in cg.NEW_ROLES]
 
 
 # ---- Slots -----------------------------------------------------------------------------------------------------------
@@ -810,6 +831,74 @@ def build(write: bool = True) -> dict[str, list[Piece]]:
 
 _SPLIT: list = []
 
+GO_SEEDS = ROOT / "data" / "procedural_pieces" / "go_seeds.json"
+GO_TAGS = {"minor": vp.TAG_MINOR, "romance": vp.TAG_ROMANCE, "power": vp.TAG_POWER,
+           "invalidating": vp.TAG_INVALIDATING, "lesser": vp.TAG_LESSER}
+
+
+def go_events() -> list[tuple[str, list[Piece], str]]:
+    """The GO events' mixer seed pieces (feat/97-player-events: the owner's rewritten and balance events), one
+    event at a time: (event id, pieces, source).  Ids become "<event>_s" (the setup) and "<event>_<piece>", so the
+    rest of the build treats them as any split event; filters and notes are tagged here from the words and effects
+    (vv_event_content), as for the collection."""
+    if not GO_SEEDS.is_file():
+        return []
+    raw = json.loads(GO_SEEDS.read_text(encoding="utf-8"))["pieces"]
+    by_event: dict[str, list[dict]] = collections.OrderedDict()
+    for r in raw:
+        by_event.setdefault(r["event"], []).append(r)
+    out = []
+    for eid, rs in by_event.items():
+        ids = {r["id"]: (f"{eid}_s" if r["kind"] == vp.KIND_SETUP else f"{eid}_{r['id']}") for r in rs}
+        pieces = []
+        ok = True
+        for r in rs:
+            games = [x for x in r["games"] if x in GAMES]
+            roles = r["slots"]
+            try:
+                norm = _normalize_effects(r["effects"], roles, games or list(GAMES))
+            except ValueError as why:
+                SKIPS[f"GO: effects do not validate ({why})"[:120]] += 1
+                ok = False
+                break
+            harmed = {cg.effect_role(e) for e in norm if cg._harmful(e, games)}
+            carriers = {e["role"]: bool(e.get("any_birth_sex")) for e in norm
+                        if e.get("do") in ("pregnant", "nursing")}
+            names = list(roles)
+            slots = [role_slot(n, roles[n], set(r.get("speaks", [])), harmed, carriers) for n in names]
+            idx = {n: i for i, n in enumerate(names)}
+            try:
+                fx = [encode_effect(e, idx) for e in norm]
+            except Skip as why:
+                SKIPS[f"GO: {why}"] += 1
+                if r["kind"] == vp.KIND_SETUP:
+                    ok = False
+                    break
+                continue
+            words_ = " ".join(x for x in (r["text"], r["label"]) if x)
+            fs = ec._text_filters(words_) | {f for e in norm for f in ec.EFFECT_FILTERS.get(e["do"], ())}
+            tags = sum(GO_TAGS.get(t, 0) for t in r["tags"])
+            never = sum(GO_TAGS.get(t, 0) for t in r["never"])
+            if tags & vp.TAG_ROMANCE and r["age_band"] == vp.AGE_BAND_ADULT:
+                tags |= vp.TAG_ADULT_ROMANCE
+            flags = (vp.PF_DEADLY if any(e.code in vp.DEADLY_CODES for e in fx) else 0) \
+                | (vp.PF_BELIEVERS if games == [5] else 0) | (vp.PF_AUTO_LINES if fx else 0)
+            label = r["label"] or None
+            if label and r["kind"] in (vp.KIND_SETUP, vp.KIND_APPROACH):
+                label = vp.title_case(label)
+            pieces.append(Piece(ids[r["id"]], r["kind"], r["mood"], flags, mask_of(games), 0, 0, filters_of(fs),
+                                notes_of(fs), never, tags, r["text"] or None, label, slots,
+                                max(1, min(1000, r.get("weight", 1))), fx, r["age_band"],
+                                [Link(ids[a], w) for a, w in r["links"] if a in ids],
+                                src=f"go/{r['source']}/{eid}"))
+        kept = {p.id for p in pieces}
+        for p in pieces:
+            p.links = [lk for lk in p.links if lk.approach in kept]
+        pieces = [p for p in pieces if p.kind != vp.KIND_OUTCOME or p.links]
+        if ok and any(p.kind == vp.KIND_SETUP for p in pieces):
+            out.append((eid, pieces, rs[0]["source"]))
+    return out
+
 # ---- Cross-event mixing (the owner: "everything can be mixed with anything", where it makes sense) ----------------
 #
 # The readers' situation tags (data/event_collection/procedural_situations.json) decide which answers move
@@ -847,6 +936,30 @@ def _split_all(never) -> dict:
     bank = lm.Bank()
     VARIANTS = lm.generate(bank)
     groups: dict[str, list[tuple[list[Piece], list]]] = collections.OrderedDict()
+    def place(pieces: list[Piece], fallback: str) -> None:
+        """An event's pieces into its main situation's files (tagged) or its source's (not tagged yet)."""
+        for lab in {p.label.lower().rstrip(".!") for p in pieces if p.kind == vp.KIND_APPROACH}:
+            LABELS[lab] += 1
+        setup = next(p for p in pieces if p.kind == vp.KIND_SETUP)
+        eid = canon(setup.id)[:-2]
+        tags = SITU.get(eid)
+        if tags and tags.get("setup") and tags["setup"]["situations"]:
+            for p in pieces:
+                EVENT_OF[p.id] = eid
+            prime = tags["setup"]["situations"][0]
+            STATS[f"situation {prime}"] += 1
+            groups.setdefault(f"x_{prime}", []).append((pieces, []))
+            MOVERS.extend(movers_of(eid, pieces, tags))
+            return
+        STATS["no situation tags (own event only)"] += 1
+        groups.setdefault(fallback, []).append((pieces, []))
+
+    # the GO events' mixer seeds (data/procedural_pieces/go_seeds.json): preferred to the static form's split
+    go = go_events()
+    for eid, pieces, source in go:
+        STATS["GO events (mixer seeds)"] += 1
+        place(pieces, f"go_{source}"[:20])
+    go_ids = {eid for eid, _p, _s in go}
     # collection events, by source and section
     for path in sorted(COLLECTION.rglob("*.json")):
         if path.parent == COLLECTION or "content_tags" in path.parts:
@@ -854,28 +967,20 @@ def _split_all(never) -> dict:
         doc = json.loads(path.read_text(encoding="utf-8"))
         if doc.get("format") != "vvfp-cie-graph":
             continue
+        if (doc.get("collection") or {}).get("id") in go_ids:
+            STATS["collection events taken from the GO seeds instead"] += 1
+            continue
         STATS["collection events"] += 1
-        ev = event_pieces(path, doc, shared)
+        try:
+            ev = event_pieces(path, doc, shared)
+        except Skip as why:
+            SKIPS[str(why)] += 1
+            continue
         if ev is None:
             continue
         STATS["collection events split"] += 1
-        for lab in {p.label.lower().rstrip(".!") for p in ev.pieces if p.kind == vp.KIND_APPROACH}:
-            LABELS[lab] += 1
-        setup = next(p for p in ev.pieces if p.kind == vp.KIND_SETUP)
-        eid = canon(setup.id)[:-2]
-        tags = SITU.get(eid)
-        if tags and tags.get("setup") and tags["setup"]["situations"]:
-            for p in ev.pieces:
-                EVENT_OF[p.id] = eid
-            prime = tags["setup"]["situations"][0]
-            STATS[f"situation {prime}"] += 1
-            groups.setdefault(f"x_{prime}", []).append((ev.pieces, []))
-            MOVERS.extend(movers_of(eid, ev.pieces, tags))
-            continue
-        STATS["no situation tags (own event only)"] += 1
         rel = path.relative_to(COLLECTION).parts
-        grp = _pid("_".join(rel[:-1]))[:20] or "misc"
-        groups.setdefault(grp, []).append((ev.pieces, []))
+        place(ev.pieces, _pid("_".join(rel[:-1]))[:20] or "misc")
     # MC situations
     for code, items in mc_events(bank).items():
         for sid, doc, cat in items:
@@ -1073,6 +1178,8 @@ def mix_file(name: str, part: list, never: list, prime: str, index: int) -> list
                     p.never |= sbit
                 TRAVEL[(name, p.id)] = t
                 STATS[f"travelling {vp.KIND_NAMES[p.kind]}s"] += 1
+        if p.kind == vp.KIND_FLAVOUR and i is not None:
+            p.never |= every & ~ebits[i]        # an event's own opening lines open only its own setup
         if p.filters & GRIEF:
             p.never |= vp.TAG_INVALIDATING
         if p.filters & SCORN:
@@ -1436,7 +1543,7 @@ def block_problems(comp) -> list[tuple[str, str, str]]:
             if not any(lk.approach == a.id for lk in o.links):
                 out.append((a.id, o.id, "the outcome does not answer this approach"))
             for e in o.effects:
-                if e.slot == vp.EVERY:
+                if e.slot == vp.EVERY or e.slot in vp.NEW_SLOTS:
                     continue
                 m = roles[o.slots[e.slot].name]
                 if e.code in (28, 29) and m.special != vp.SPECIAL_CARRIER:

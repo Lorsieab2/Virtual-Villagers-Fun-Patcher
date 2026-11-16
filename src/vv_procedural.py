@@ -156,9 +156,9 @@ def write_pcb(pieces: list[Piece]) -> bytes:
             srec += _SLOT.pack(s(sl.name), sl.kind, sl.sex, sl.min_age, sl.max_age, sl.special, sl.flags, 0, 0)
             ns += 1
         for e in p.effects:
-            if e.code in (23, 25) or not 1 <= e.code <= 34:
+            if e.code not in CODE_EFFECT:
                 raise ValueError(f"{p.id}: effect code {e.code}")
-            if e.slot != EVERY and not 0 <= e.slot < len(p.slots):
+            if e.slot not in (EVERY, *NEW_SLOTS) and not 0 <= e.slot < len(p.slots):
                 raise ValueError(f"{p.id}: effect slot {e.slot}")
             erec += _EFFECT.pack(e.code, e.slot, e.flags, 0, e.a, e.b, s(e.string))
             ne += 1
@@ -532,18 +532,26 @@ NOTE_LABELS = ("Child death", "Pregnancy loss", "Bereavement", "Serious injury",
 CODE_EFFECT = {1: "food", 2: "tech", 3: "pay_award", 4: "kill", 5: "vanish", 6: "status", 7: "health",
                8: "preference", 9: "skill", 10: "sick", 11: "celebrate", 12: "action", 13: "mood",
                14: "health_change", 15: "skill_set", 16: "damage", 17: "appearance", 18: "die_unrecovered",
-               19: "baby_lost", 20: "birth_then_die", 21: "old_look", 22: "sex_change", 24: "deliver_early",
-               26: "trait", 27: "new_villager", 28: "pregnant", 29: "nursing", 30: "clone", 31: "body_swap",
-               32: "lose_name", 33: "change_name", 34: "change_age"}
+               19: "baby_lost", 20: "birth_then_die", 21: "old_look", 22: "sex_change", 23: "presentation",
+               24: "deliver_early", 26: "trait", 27: "new_villager", 28: "pregnant", 29: "nursing", 30: "clone",
+               31: "body_swap", 32: "lose_name", 33: "change_name", 34: "change_age", 35: "cure", 36: "repair",
+               37: "young_look"}    # vv_cie_graph.EFFECT_CODES (code 25 is reserved)
+NEW_SLOTS = {253: "$newest", 252: "$previous"}   # an effect's slot: the villagers the event itself made
 NEW_VILLAGER_AGES = {0: "any", 1: "child", 2: "teen", 3: "adult", 4: "elder"}
+NEW_VILLAGER_SEX = {0: "random", 1: "male", 2: "female"}
 CHANGE_AGE_TO = {0: "child", 1: "teen", 2: "18", 3: "adult", 4: "50", 5: "elder"}
+TRAITS = {1: "mute"}
+BABIES = {2: "roll", 4: 2, 6: 3}
 
 
 def effect_json(e: Effect, names: list[str]) -> dict:
     """An effect record as graph JSON, its local slots named (the .cieg decoding, cie-v6-binary.md)."""
     import vv_cie_graph as cg
+
+    def rn(i: int) -> str:
+        return NEW_SLOTS[i] if i in NEW_SLOTS else names[i]
     do = CODE_EFFECT[e.code]
-    role = None if e.slot == EVERY else names[e.slot]
+    role = None if e.slot == EVERY else rn(e.slot)
     out: dict = {"do": "skill" if do == "skill_set" else do}
     if do in ("food", "tech"):
         out.update(amount=e.a, scaled=bool(e.flags & 1), defer=bool(e.flags & 2))
@@ -555,11 +563,17 @@ def effect_json(e: Effect, names: list[str]) -> dict:
         out["who"] = "all" if role is None else role
     elif do == "damage":
         out.update(structures="any" if e.string == "any" else (e.string or "").split(","), min=e.a, max=e.b)
+    elif do == "repair":
+        out["structures"] = "any" if e.string == "any" else (e.string or "").split(",")
     elif do == "new_villager":
         if role is not None:
             out["copy_of"] = role
         if NEW_VILLAGER_AGES[e.a] != "any":
             out["age"] = NEW_VILLAGER_AGES[e.a]
+        if NEW_VILLAGER_SEX[e.b] != "random":
+            out["sex"] = NEW_VILLAGER_SEX[e.b]
+        if e.flags & 1:
+            out["child_of_newest"] = True
     elif do != "pay_award":
         out["role"] = role
         if do == "kill":
@@ -572,10 +586,11 @@ def effect_json(e: Effect, names: list[str]) -> dict:
             out.update(list="dislikes" if e.flags & 4 else "likes", preference="random" if e.flags & 8 else e.string)
             if e.flags & 16:
                 out["remove"] = True
-        elif do == "skill":
-            out.update(skills=(e.string or "").split(","), min=e.a, max=e.b)
-        elif do == "skill_set":
-            out.update(skills=(e.string or "").split(","), set=e.a)
+        elif do in ("skill", "skill_set"):
+            out.update(skills=(e.string or "").split(","))
+            out.update(dict(min=e.a, max=e.b) if do == "skill" else dict(set=e.a))
+            if e.flags & 32:
+                out["best"] = True
         elif do == "action":
             out["action"] = e.string
         elif do == "mood":
@@ -590,18 +605,26 @@ def effect_json(e: Effect, names: list[str]) -> dict:
             out.update(min=e.a, max=e.b)
         elif do in ("pregnant", "nursing"):
             if e.a != EVERY:
-                out["partner"] = names[e.a]
+                out["partner"] = rn(e.a)
             if e.flags & 1:
                 out["any_birth_sex"] = True
+            if e.flags & 6:
+                out["babies"] = BABIES[e.flags & 6]
         elif do == "body_swap":
-            out["with"] = names[e.a]
+            out["with"] = rn(e.a)
+        elif do == "change_name" and e.string:
+            out["name"] = e.string
+        elif do == "clone" and e.a == 2:
+            out["count"] = 2
         elif do == "change_age":
             if e.flags == 6:
                 out["years"] = [e.a, e.b]
             else:
                 out["to"] = CHANGE_AGE_TO[e.flags]
         elif do == "trait":
-            out["trait"] = e.string
+            out["trait"] = TRAITS[e.a]
+        elif do == "presentation":
+            out["on"] = e.a == 1
     return out
 
 
