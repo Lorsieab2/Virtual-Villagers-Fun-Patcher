@@ -810,3 +810,586 @@ THE RUMBLINGS -- CHANCES
   Its own place in the draw, as likely as one stock island event.
   Each finished structure ..... damaged 25% (if none is, one of them at random)
   Each damaged one loses ...... 10% to 100% of its building work, each whole percent equally likely (100%: unbuilt)
+
+
+
+The Lost Children - The Cooking Contest
+
+Today is the last day of the annual Cooking Contest! After many grueling weeks, (name1) and (name2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion. 
+
+(Name1) is.... (A)  (B). (Name2) is.... (A, must be different from name1) (B).
+
+(name1)'s biggest strength is (C), while (name2)'s is (C). (name1)'s biggest weakness is (F), while (name2)'s is (F). The judges like how (name1 or name2) prefers (D) cuisine. Compared to (other name), they believe (firstname)'s cooking style is (D). Overall, (name1 or name2) seems to be (G).
+
+A: (random from these options)
+
+a young, yet talented apprentice
+a studious pupil 
+an angry person
+a hopeful spirit 
+a determined leader
+a stubborn person
+a cocky, confident challenger
+an experienced chef 
+a magical prodigy
+a cool-headed person
+a hot-headed person
+an average person
+a person that has a few screws loose
+a genius
+an intuitive-minded person
+a quiet soul
+a person that talks before they act
+talented in many different fields
+a well-known leader
+
+B:
+that tries (his/her) hardest to please
+that handles pressure well
+that struggles with complicated problems, but eventually works things out.
+who prefers to keep things under wraps
+who has several decades' worth of knowledge
+has tried, failed and succeeded throughout life
+that never gives up
+that is persistent
+that likes to put others down
+that has a huge ego
+that believes (he/she) can do no wrong
+that cares about the quality of their work
+that excels at anything (he/she) does
+that makes careless mistakes
+that reflects on their shortcomings and mistakes
+that doesn't let difficult situations bother them
+who has risen up the ranks to get to this point
+
+C:
+that (he/she)'s good at remembering complex recipes
+that (he/she) has a vast array of knowledge in science
+that (he/she) has a vast array of knowledge in medicine
+that (he/she) knows how to take criticism
+that (he/she) has a photographic memory
+that (he/she) was taught many songs to help remember complicated recipes
+that (he/she) was taught botany and agriculture
+that (he/she) could hand-pick ingredients (himself/herself)
+that (he/she) was well-traveled
+that (he/she) studied well
+that (he/she) spent (his/her) time studying cuisine instead of other things
+that (he/she) has reliable friends.
+that (he/she) had grown up in a difficult environment
+that (his/her) parents taught them well
+that (he/she) was exposed to a variety of tastes
+that (he/she) was exposed to a variety of ingredients
+that (his/her) mentors taught them some tips and tricks
+that (he/she) is self-reliant
+that (he/she) does not crack under pressure
+that (he/she) uses their strong emotions to fuel their art.
+that (he/she) is a self-made (man/woman)
+that (he/she) has a big heart
+that (he/she) is emphathetic
+that (he/she) has only one goal in mind
+
+(F):
+that (he/she) doesn't ask for help
+that (he/she) doesn't speak up
+that (he/she) is so closed-minded
+that (he/she) lacks knowledge in some things
+that (he/she) is a slacker
+that (he/she) is too emotional
+that (he/she) is too pressured
+that (he/she) is too volatile
+that (he/she) doesn't care about others' feelings
+that (he/she) doesn't double-check (his/her) work
+that (he/she) doesn't value their work
+that (he/she) doesn't value their purpose
+that (he/she) doesn't see (his/her) potential
+that (he/she) is a loner
+that (he/she) underestimates themselves
+that (he/she) overstimates others
+that (he/she) overestimates themselves
+that (he/she) underestimates others
+that (he/she) has a poor memory
+that (he/she) is clumsy
+that (he/she) doesn't care for (himself/herself)
+that (he/she) lacks empathy 
+that (he/she) is too timid
+that (he/she) fears failure
+that (he/she) does not try
+that (he/she) doesn't put their talents to use
+that (he/she) did not have more time to study
+that (he/she) did not have more time to practice
+
+D:
+traditional Isolan
+contemporary Isolan
+fusion
+exotic
+foreign
+anachronistic
+unusual
+unexpectedly tasty
+kind of bizarre
+a mishmash of ingredients
+barely edible
+selective 
+haute
+blended
+visually unappealing
+outrageous
+insane
+crazy
+unassuming
+bland
+out-of-this-world
+down-to-earth
+traditional (tribe name)
+contemporary (tribe name)
+creative
+unconventional
+somewhat of an acquired taste
+
+G:
+the fan-favorite
+the underdog
+the obvious winner
+the dark horse
+the eccentric star
+the burgeoning master
+the culinary crowdpleaser
+the crowned champion
+the unexpected victor
+the star of the show
+the master of all culinarians
+the charismatic crowner
+the predicted winner
+the unpredicted winner
+the star stunner
+
+(name1) and (name2) are ready to face-off. They have the whole day to whip up (H), using whatever ingredients they may find around the island. The competitors have only five minutes to plan out their recipes before the competition starts.
+
+H:
+a grand feast
+a 3-tier cake
+a dish that combines old and new tastes
+an exotic fish dish
+a hearty meat stew
+a colorful veggie dish
+their go-to favorite dish
+something they've never cooked before
+a medley of rare flavors
+a revolutionary surprise
+a dish to feed the masses
+a dish even the pickiest villagers will love
+a reminisced childhood favorite
+a contemporary classic
+a dish fit for the gods
+a dish fit for a Chief
+a dish fit for the spirits
+a dish anyone would love
+a well-known dessert
+a pile of mush that tastes good
+a totally original creation
+something deliberately gross-looking yet delicious
+a dish that is uncomparably tasty
+an edible work of art
+their magnum opus of culinary prowess
+
+(name 1 or name2) sees their workstation and spots baskets of staple ingredients as well as some oddities. (He/she) has a particular recipe in mind, but is not sure whether to stick with it, or try something new.
+
+Stick with their original recipe:
+(name1 or 2) decides not to risk it and goes for the safe option. This dish has been loved by many, and (he/she) knows it can't compare to anything else. (He/she)  quickly gathers the ingredients, (I) (into/onto) (J). Then (he/she) (L) the (K) into a (J, different from the first J) to serve to the judges. (name1 or 2) seems (M) about (his/her) creation.
+
+(to N)
+
+Try a new recipe:
+(name1 or 2) decides that their initial recipe is too safe. To win a competition of this caliber, (he/she) needs to reach deep within and cook the most extraordinary dish Isola has ever seen! (He/she) quickly gathers the ingredients, (I) (into/onto) (J). Then (he/she) (L) the (K) into a (J, different from the first J) to serve to the judges. (name1 or 2) seems (M) about (his/her) creation.
+
+I:
+handpicking mushrooms
+pulling crops
+chopping carrots
+fermenting pickles
+mashing potatoes
+peeling cabbage
+roasting meat
+boiling shrimp
+slicing fish
+picking apples
+chucking seasonings
+mixing herbs
+throwing spices
+baking bread
+roasting veggies
+charring corn
+baking shellfish
+kneading flour
+grinding wheat
+making sweets
+picking flowers
+chopping up liver
+chopping up offal
+toasting nuts
+gathering snow
+pouring syrup
+dusting sugar
+
+J:
+a fine strainer
+a pot
+a plate
+a poultice
+a dish
+a cup
+a jeweled goblet
+a wooden bowl
+a cheesecloth
+a silver platter
+a serving tray
+a mortar and pestle
+a cauldron over the fire
+a shaker
+a glass bottle
+a complicated swan-shaped boat
+a curved-neck flask
+a beaker 
+a mold
+
+L:
+scoops
+slices
+stabs
+pours
+strains
+shakes
+plops
+places
+puts
+slops
+ladles
+spoons
+arranges
+slides
+serves
+drops
+pushes
+throws
+
+K:
+mixture
+greasy concotion
+grey chunks of goo
+eye-watering slime
+viscous soup
+perfect roast
+glistening stew
+hearty dish
+mouth-watering stew
+tiny cakes
+microscopic pieces
+bits and chunks
+elegant jellies
+rustic skewers
+complex layers
+fractured flakes
+homogenous helping
+mouth-watering hunks
+immaculate rainbow
+colorful concotion
+thick slab
+unmoving monster
+
+M:
+quite satisfied
+100% confident
+happy
+sad
+uncertain
+angry
+hopeful
+unsure
+neutral 
+scared
+nervewracked
+puzzled
+confused
+quietly proud
+ecstatic
+doubtful
+
+Finally, the bell tolls to signal the end of the cook-off. (name1) and (name2) carefully place their dishes on the judges' table, and hope for the best. 
+
+then one of these endings:
+
+A. After only a short deliberation, there is a clear answer. (4)
+
+B: After a heated discussion, the judges can't decide whose dish was better. They bring (name1) and (name2) back to break the news. (name1) (R) while (name2) (R different from name1). Eventually, the judges... (1).
+
+C:
+At first, the judges go to pick (name1 or name2) as the winner. They are impressed by (his/her) (O: depends on which option was chosen). However, some time after, (a few/some/all) of the judges get (a terrible stomachache/mild stomach discomfort/all-out food poisoning/severe food poisoning). (5)
+
+
+O: (his/her)... (fix grammar)
+ willingness to improvise
+  devotion to family recipes
+  sticking to well-known dishes
+ wacky use of color
+ impossiblly good flavor combinations
+inhuman knife skills
+ ability to create pleasant scenes with ordinary ingredients
+  creative choice in cuisine
+ bold choice in spice
+trying flavor combinations that aren't normally paired together
+making something so utterly revolting, yet insanely good
+pairing the weirdest ingredients ever
+their delicate presentation
+their spontaneity
+pride and passion
+their willingness to think outside the box
+their randomness
+their ability to distinguish fine flavors
+their cleverness and wit
+their charm
+
+
+P:
+hopes to compete against other tribes in the future
+wants to open an eatery
+wants to brag about their win
+wants to show all his/her friends his/her skills
+wants to go learn the culinary arts in an academic institution
+wants to cook for the great Chiefs and leaders
+wants to cook for (his/her) family
+wants to pass down his/her experiences to their children
+wants to teach each others the art of cooking
+wants to live a quiet life
+wants to cook in peace.
+wants to thank (his/her) (mentors/parents/friends/family/fellow competitor) for the (win/opportunity)
+wants to compete again next year
+will try their luck against other villages
+will travel to find other competitors to meddle with
+wants to showcase his/her award-winning dishes all around the world
+wants to stick it to all his/her detractors
+wants to help others feel better with his/her food
+
+Q:
+vows to beat (him/her) next year
+gracefully backs down
+congratulates them for the win
+jumps up and down screaming "It's not fair!"
+shrinks back in embarrassment
+crosses his/her arms, saying nothing
+nods his/her head in acknowledgement
+pats them on the back
+gives them a thumbs up
+argues for a re-do
+celebrates with (him/her) in joy
+claps for them
+stands proud at having gotten second place
+pouts
+goes off to practice more
+vows to come back after having studied more
+throws a small fit, then cools down
+hugs (him/her)
+tearfully concedes
+cries in shame
+tries (his/her) hardest not to break down in public
+humbly takes the loss in stride
+pretends he/she did not lose
+gives words of encouragement
+is thankful he/she got to compete with (him/her)
+challenges (him/her) to another cook-off soon!
+
+R:
+argues for a re-do
+deliberates
+considers (his/her) options
+tries to bribe the judges
+shouts
+whispers quietly
+pleads the judges to reconsider
+says nothing
+starts having an anxiety attack
+stands quietly
+gets lost in thought
+tries to whip up something else to sway the judges but is blocked
+tries to leave
+tries to excuse themselves to the latrine
+considers dropping out
+considers picking a fight
+simmers under the surface
+starts whimpering
+tries to prevent the judges from tasting (other name)'s dish
+tries to prevent the judges from tasting ((his/her) dish
+claims that the competition was rigged
+says (he/she) made a terrible mistake and wants a do-over
+
+(1):
+decide to give them BOTH the win. (3)
+choose (name1 or name2) as the clear winner. (4)
+choose (name1 or name2) as the winner by a hair. (4)
+choose (name1 or name2) as the winner by popular vote. (4)
+choose (name1 or name2) as the winner by blind taste-test. (4)
+tell them to whip up a second dish as the tie-breaker. (to 2)
+
+(2):
+
+This time, (name1 or 2) decides (to try something different/to appeal to the judges more/to copy (name2)'s dish/to make (his/her) (mother/father/grandmother/grandfather's old recipe. (then A or B, but a second tie-breaker cannot happen)
+
+(3):
+(name1) and (name2) are shocked at the decision. They stare at each other, mouths agape. Then suddenly, (5)
+
+
+(5):
+they burst out laughing. They soon become fast friends and acknowledge that neither is better than the other. Your village gains (large award) food. (the winner gains 100% skill in farming) 
+
+
+a mischievous smile breaks out on their faces. Looks like the fun isn't over yet. They will never stop one-upping each other, but for now, they decide to accept the (win/decision) together. Your village gains (large award) food. (the winner gains 100% skill in farming) 
+
+
+they start bickering, until (name1) or (name2) (gives up/pipes down/can't continue fighting.) It looks like they'll have to accept their decision... this year. Your village gains (large award) food. (the winner gains 100% skill in farming) 
+
+
+they mutually decide to congratulate each other. They end up celebrating in a whimsical dance party, to the surprise of everyone. Your village gains (large award) food. (the winner gains 100% skill in farming) 
+
+
+(4):
+(name1 or 2) beats (other name) in the culinary contest! The judges laud (him/her) for (O: depends on which option was chosen). (He/she) is unmatched and is crowned Culinary Champion of Isola! Now, (he/she) (P). (name2) (Q). Your village gains (large award) food. (the winner gains 100% skill in farming) 
+
+(5)
+They spend several days in recovery before deciding to... (6)
+They spend a few hours in the latrines before deciding to... (6)
+They spend some days getting medical care before deciding to... (6)
+They sit there, green-faced, before deciding to... (6)
+They spend 2 weeks in the hospital, before deciding to... (6)
+
+(6)
+declare (othername) the winner. (4)
+call off the competition entirely. (8)
+postpone the competition to next year. (8)
+declare no winner. (8)
+disqualify everyone. (8)
+accuse (name) of trying to kill them! The nerve! (7)
+permanently ban (name) from ever (cooking/competing/making stews/making potions) again. (leads to the villager disliking whatever is chosen here, or the following: herbs, alchemy, plants, fish, coconuts, anything involving farming or medicine)(7)
+throw (name) in prison for sabotage. (7)
+tell (name) to get better at cooking. (7)
+quietly tell (name) to give up their dreams of winning anything. (villager dislikes work) (7)
+
+(7)
+(name) (R except tries to prevent the judges from tasting their or the other person's dish). Unfortunately, their word is law, and (name) has to deal with the consequences of their actions even if they are misguided. (name) (Q where it makes sense and doesn't involve the other competitor). Who knows if (name) will try again after this humiliating loss?
+
+(8)
+they burst out laughing. They soon become fast friends and acknowledge that neither is better than the other. 
+
+a mischievous smile breaks out on their faces. Looks like the fun isn't over yet. They will never stop one-upping each other, but for now, they decide to accept the decision together. 
+
+they start bickering, until (name1) or (name2) (gives up/pipes down/can't continue fighting.) It looks like they'll have to accept their decision... this year. 
+
+
+they mutually decide to congratulate each other. They end up celebrating in a whimsical dance party, to the surprise of everyone. 
+
+
+
+VV1- The Child of Legend (requires the Golden Child)
+
+A few weeks have passed since the Golden Child of legend, (name) was born. Already he has shown unparalleled wisdom and an uncanny ability to generate things out of thin air. However, he hasn't spoken a word, even though he appears to be around five years old. 
+The other children seem to avoid him due to his special powers. (name) doesn't seem troubled, but no one can really understand what he's thinking. (name), the schoolteacher, is wondering how (he/she) can help little (name) integrate better with his peers.
+
+Try to speak with him:
+(teacher name) tries to ask little (name) some questions. "Are you alright? Are you feeling sick? Are you scared of the other kids? Do you need any help?" No matter what (he/she) says, (golden child name) does not respond. Instead, he... (2)
+
+Teach him something new: (teacher name) does not speak using words. Instead, (he/she) takes the opportunity to show him a new skill. (random from:1)  To (teacher)'s surprise, (golden child) picks up the new skill with ease, almost as if he was born to do it. In gratitude, (golden child)... (2)
+
+(He/she)....
+ (1): teaches him sign language
+teaches him ways to play fairly with others
+teaches him not to disrupt others while they're busy
+teaches him sharing
+teaches him how to draw 
+teaches him to hum a song
+teaches him how to control his emotions
+teaches him how to pick out letters from a board
+teaches him how to communicate his feelings through actions
+
+(2)
+gives (teacher) a big hug, (3)
+smiles (3)
+makes light shine on (him/her (the teacher)),
+conjures up a bunch of shiny new toys, (3) (earn tech points)
+conjures up a group of pretty flapping butterflies, (3)
+conjures up a bunch of iridescent bubbles, (3)
+conjures up a bouquet of colorful flowers, (3)
+conjures up a beautiful drawing, (3)
+nods in adult-like understanding (3)
+conjures up a funny fart noise, (3)
+conjures up a nice pile of snacks, (3) (earn food or restore crops or restore berries)
+
+(3)
+which moves (teacher name) to tears. (He/she) is overjoyed by the gesture and hugs him back before (4)
+which makes (teacher name) laugh. (he/she) enjoys seeing how (funny/creative/eccentric/spontaneous) he is, and tells everyone to sit in a circle before (4)
+which makes (teacher) name content. (he/she) clearly underestimated this little pupil, and (he/she) tells the other children to make a line before
+which surprises (teacher) greatly. (he/she) is astonished by his powers and brings him to the other children before (4)
+
+(4)
+introducing him to his classmates. It seems that (golden child) has made plenty of new friends!
+inviting everyone to a game. (golden child) takes turns winning and letting others have the spotlight, which makes him well-liked by his peers.
+letting him play next to his classmates. It seems that (golden child) is going to be just fine. The other children love seeing him create new thing out of nothing, and he soon becomes very popular within the class.
+
+
+
+New Believers -
+
+The Meaning of "Faith"
+
+Young (Child name) is having trouble learning (his/her) lessons. Today, (he/she) learned about the two factions that  shaped Isola's history. "Like two friends, Magic and Nature share the island together, (teacher name) said. But long ago, they got into a terrible fight. They fought and fought for a long time, and their conflict almost cost them their lives. It took a lot of faith for them to rebuild their friendship. Yes, children, faith is important to life. For without faith, one cannot truly thrive."
+
+(Name) has only two days to write an essay about what "faith" means to (him/her). But (he/she) doesn't really understand the topic. What should (name) write about?
+
+"Faith" means perseverance in adversity:
+Yes, "faith" must mean overcoming any problems with a kind and patient heart/with maturity/with quiet courage/with strength. (Name) scribbles down (his/her) thoughts and submits (his/her) work (4). (teacher) is surprised at the amount of detail (he/she) included. (2) or (5)
+
+"Faith" means sticking to what's right:
+Yes, "faith" must mean fighting for (what is correct/what you believe in), even if (the world is against you/people don't always understand your perspective). (Name) scribbles down (his/her) thoughts and submits (his/her) work (4). (teacher) is surprised at the amount of detail (he/she) included. (2) or (5)
+
+"Faith" means believing in the good of others:
+Yes, "faith" must mean thinking (the best of/highly of) others, (especially if they were former friends/because people have an innate goodness to them/because people might have made a mistake/because people are not as different as one thinks. (Name) scribbles down (his/her) thoughts and submits (his/her) work (4). (teacher) is surprised at the amount of detail (he/she) included. (2) or (5)
+
+"Faith" means believing in a higher power:
+Yes, "faith" must mean that (there is something supernatural/something natural/something magical/nothing/nothing apparent/the Chief/the leaders/the teachers/people are/there are spirits/there is a god/there are gods/there is a guiding hand/there is something/someone/perhaps (him/herself)/(his/her) parents (his/her) elders (is/are) in control of one's life, and that we must (respect the world around us/respect other people's beliefs/take charge of our own destiny/listen to them/believe what we want to believe/think for themselves. (Name) scribbles down (his/her) thoughts and submits (his/her) work (4). (teacher) is  surprised at the amount of detail (he/she) included. (2) or (5)
+
+"Faith" depends on one's individual beliefs:
+(Name) remains stumped by the cryptic question. There's a lot of things "faith" could refer to and (he/she) can't decide. Well, except for one thing: if (he/she) can't decide on a single thing, perhaps it means that "faith" means something different to different people. (He/she) decides to write (his/her) thoughts down and turns in the paper (4). (teacher) is surprised at the amount of detail (he/she) included and at (his/her) (cheekiness/utter defiance/refusal to answer the question/cleverness/intelligence/ability to think outside of the box). (2) or (5)
+
+Question the assignment itself:
+(Name) remains stumped by the cryptic question. There's a lot of things "faith" could refer to and (he/she) can't decide. Well, except for one thing: the question itself must have no right answer. Why ask it in such a vague way, then? (He/she) decides to write (his/her) thoughts down and turns in the paper (4). (teacher) is surprised at the amount of detail (he/she) included and at (his/her) (cheekiness/utter defiance/refusal to answer the question/cleverness/intelligence/ability to think outside of the box). (2) or (5)
+
+(2) After some time, (name) gets (his/her) paper back. (3)
+
+(3) 
+(he/she) gets points for creativity/completeness/grammar/spelling/rhetoric/use of pathos/ethos/logos/vocabulary/literary analysis/phonics but not the full marks. Oh well, (name) decides to ask (teacher) later for some clarification and pointers.
+
+(he/she) gets full marks and an Astounding Student award. (teacher) is impressed by (name)'s creativity/completeness/grammar/spelling/rhetoric/use of pathos/ethos/logos/vocabulary/literary analysis/phonics and writes a note of praise on their work.
+
+(he/she) gets a "Try Harder" note on their work. It seems that (name) has a lot more to learn/needs better spelling/needs to learn how to argue (his/her) points better/should alter the flow of their paper better/needs to improve their creativity/completeness/grammar/spelling/rhetoric/use of pathos/ethos/logos/vocabulary/literary analysis/phonics. Oh well, lesson learned.
+
+(he/she) gets a "See Me After Class" note on their work. It seems that (name) has not yet grasped essential language arts skills like proper spelling/rhetoric/use of pathos/ethos/logos/vocabulary/literary analysis/phonics/It seems that (name) has a lot more to learn/needs better spelling/needs to learn how to argue (his/her) points better/should alter the flow of their paper better. (child name) gets partial credit for at least turning SOMETHING in. Oh well, live and learn, I guess.
+
+(4):
+with a smile.
+with apprehension.
+with a blank face.
+with no idea what to expect.
+with confidence
+with nervousness
+with joy
+with fear.
+with a puzzled look
+with confusion
+with a frown
+
+(5) After some time, (name) gets (his/her) paper back. 
+
+(name) sees that (teacher) has written a "See Me After Class" note on their work. Not knowing what to expect, (he/she) sits down at (teacher)'s desk. (teacher he/she)... (6)
+
+(6)
+praises (child) for turning the assignment on its head/inside-out/upside-down. (he/she) says, "You raise an interesting point. Faith does not necessarily mean being forced into one single answer. It could mean the ability to question everything around us. One must use our own brains and hearts to come to the answer. Whether it is right or wrong is not up to me. It is up to you, and you alone."
+
+(child name) ponders (teacher)'s words. Although (he/she) doesn't fully grasp (teacher his/her) wisdom now, they remain with (him/her) and guide (him/her) as he grows up. (he/she) eventually turns into a wise young (man/woman) far beyond (his/her) years. (child villager gains skill in Research, Healing or Devotion) 

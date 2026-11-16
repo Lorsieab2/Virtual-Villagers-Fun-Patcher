@@ -374,7 +374,9 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "birth_then_die",                                              # cie-v6-binary.md 23
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
-              "deliver_early")                                               # ... 30
+              "deliver_early",                                               # ... 30
+              "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
+              "lose_name", "change_name", "change_age")                            # ... 31 (33, 34)
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
@@ -382,20 +384,32 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
-                     "deliver_early": 24,  # 30
+                     "deliver_early": 24,   # 30
+                     # 31 (the owner, 2026-11-15): known only at run time (the engine side)
+                     "new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31,
+                     "lose_name": 32, "change_name": 33, "change_age": 34,
                      # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
-                     # 32: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
+                     # 26: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
                      "trait": TRAIT_EFFECT_CODE})
+NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
+ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
+# 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
+CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
+CHANGE_AGE_ADD = 6
+CHANGE_AGE_YEARS_MAX = 120
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "trait": 0})                    # 32: never a change to the villager
+                    "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
+                    "lose_name": 0, "change_name": 0, "change_age": 0,
+                    "trait": 0})              # 31: known only at run time
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early")
+                                          "deliver_early", "pregnant", "nursing", "clone", "body_swap",
+                                          "lose_name", "change_name", "change_age")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -405,6 +419,7 @@ LOOK_KEEP = -2                # ... not changed
 # Section 21: kinship relations (the relations table; the header is then 104 bytes).
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
+PREF_REMOVE_FLAG = 16         # ... "remove": true takes the like / dislike away (random: one the villager holds)
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
@@ -866,9 +881,55 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
             problems.append(f"{where}: damage is 1..100 percent, min <= max")
         out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
+    elif do == "new_villager":
+        # Section 31, code 27: a random new villager, or (copy_of) one with that role's villager's looks.
+        known |= {"copy_of", "age"}
+        if "copy_of" in e:
+            if not isinstance(e["copy_of"], str):
+                problems.append(f"{where}: new_villager copy_of names a villager role")
+            out["copy_of"] = e["copy_of"]
+        age = e.get("age", "any")
+        if age not in NEW_VILLAGER_AGES:
+            problems.append(f"{where}: new_villager age is one of {', '.join(NEW_VILLAGER_AGES)}")
+            age = "any"
+        if age != "any":
+            out["age"] = age
     else:
         known.add("role")
         out["role"] = e.get("role", default_role)
+        if do in ("pregnant", "nursing"):
+            # Section 31, codes 28 / 29: the carrier (born female, 18+, unless any_birth_sex) and its partner.
+            known |= {"partner", "any_birth_sex"}
+            if "partner" in e:
+                if not isinstance(e["partner"], str) or e["partner"] == out["role"]:
+                    problems.append(f"{where}: {do} partner names another villager role")
+                out["partner"] = e["partner"]
+            if e.get("any_birth_sex", False) not in (True, False):
+                problems.append(f"{where}: any_birth_sex is true or false")
+            if e.get("any_birth_sex") is True:
+                out["any_birth_sex"] = True
+        elif do == "change_age":
+            # Section 31, code 34: to an age class, or by a number (or a range) of years.
+            known |= {"to", "years"}
+            if ("to" in e) == ("years" in e):
+                problems.append(f"{where}: change_age gives to or years, one of them")
+            if "to" in e:
+                if e["to"] not in CHANGE_AGE_TO:
+                    problems.append(f"{where}: change_age to is one of {', '.join(CHANGE_AGE_TO)}")
+                out["to"] = e["to"]
+            elif "years" in e:
+                y = e["years"]
+                lo, hi = (y, y) if isinstance(y, int) and not isinstance(y, bool) else \
+                    (tuple(y) if isinstance(y, list) and len(y) == 2 else (None, None))
+                m = CHANGE_AGE_YEARS_MAX
+                if not (_int_in(lo, -m, m) and _int_in(hi, -m, m) and lo <= hi and (lo, hi) != (0, 0)):
+                    problems.append(f"{where}: change_age years is N or [a, b] in -{m}..{m}, a <= b, not 0")
+                out["years"] = [lo, hi]
+        elif do == "body_swap":
+            known.add("with")
+            if not isinstance(e.get("with"), str) or e.get("with") == out["role"]:
+                problems.append(f"{where}: body_swap with names another villager role")
+            out["with"] = e.get("with")
         if do == "action":
             known.add("action")
             act = e.get("action")
@@ -960,6 +1021,13 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             elif word == PREF_RANDOM and not v6:
                 problems.append(f"{where}: a random preference needs format version {VERSION_V6}")
             out.update(list=lst, preference=word)
+            if v6 and "remove" in e:
+                # 24a: "remove": true takes the like / dislike away (flags bit 16; random: one the villager holds)
+                known.add("remove")
+                if e["remove"] not in (True, False):
+                    problems.append(f"{where}: preference remove is true or false")
+                if e["remove"] is True:
+                    out["remove"] = True
         elif do == "skill" and "set" not in out:
             known |= {"skills", "min", "max"}
             if v6 and "size" in e:
@@ -2173,7 +2241,7 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
     if do == "health_change":
         return e["min"] < 0
     if do == "preference":
-        return e["list"] == "dislikes"
+        return (e["list"] == "dislikes") != bool(e.get("remove"))   # a new dislike, or a like taken away
     if do == "skill":
         return "set" not in e and e["min"] < 0
     if do == "mood":
@@ -2190,6 +2258,8 @@ def effect_role(e: dict) -> str | None:
     """The role an effect acts on, or None (food, tech, an award, damage, a celebration of everyone)."""
     if e["do"] == "celebrate":
         return None if e["who"] == "all" else e["who"]
+    if e["do"] == "new_villager":
+        return e.get("copy_of")               # 31: the role byte names the villager copied (none: 0xFF)
     return e.get("role") if e["do"] in VILLAGER_EFFECTS_V6 else None
 
 
@@ -2629,6 +2699,8 @@ AUTO_LINES = {
     "health": "<R>'s health changes.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
+    "unlike": "<R> no longer likes <W>.",
+    "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
     "sick": "<R> falls sick.",
@@ -2696,7 +2768,7 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
     if do == "appearance":
         return [_auto_fill("hair" if e.get("body") is None else "look", r)]
     if do == "preference":
-        key = "dislike" if e["list"] == "dislikes" else "like"
+        key = ("un" if e.get("remove") else "") + ("dislike" if e["list"] == "dislikes" else "like")
         if e["preference"] != PREF_RANDOM:
             return [_auto_fill(key, r, word=e["preference"])]
         if fx is not None:
@@ -3683,7 +3755,7 @@ def _compile_v6(g: dict) -> bytes:
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
-                                                                 else 0)
+                                                                 else 0) | (PREF_REMOVE_FLAG if e.get("remove") else 0)
                 st = NONE if e["preference"] == PREF_RANDOM else s(e["preference"])
             elif do == "skill" and "set" in e:
                 a, st = e["set"], s(",".join(e["skills"]))
@@ -3702,6 +3774,18 @@ def _compile_v6(g: dict) -> bytes:
                 a, b = e["min"], e["max"]
             elif do == "trait":
                 a = TRAIT_CODES[e["trait"]]
+            elif do == "new_villager":
+                a = NEW_VILLAGER_AGES[e.get("age", "any")]
+            elif do in ("pregnant", "nursing"):
+                flags = ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0
+                a = ridx[e["partner"]] if e.get("partner") else 0xFF
+            elif do == "body_swap":
+                a = ridx[e["with"]]
+            elif do == "change_age":
+                if "to" in e:
+                    flags = CHANGE_AGE_TO[e["to"]]
+                else:
+                    flags, (a, b) = CHANGE_AGE_ADD, e["years"]
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3900,6 +3984,12 @@ def _decompile_v6(data: bytes) -> dict:
             elif do == "damage":
                 words = s(st)
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do == "new_villager":
+                if role != 0xFF:
+                    e["copy_of"] = role_ids[role]
+                age = {v: k for k, v in NEW_VILLAGER_AGES.items()}[a]
+                if age != "any":
+                    e["age"] = age
             elif do != "pay_award":
                 e["role"] = role_ids[role]
                 if do == "kill":
@@ -3911,6 +4001,8 @@ def _decompile_v6(data: bytes) -> dict:
                 elif do == "preference":
                     e.update(list="dislikes" if flags & 4 else "likes",
                              preference=PREF_RANDOM if flags & PREF_RANDOM_FLAG else s(st))
+                    if flags & PREF_REMOVE_FLAG:
+                        e["remove"] = True
                 elif do == "skill":
                     e.update(skills=s(st).split(","), min=a, max=b)
                 elif do == "skill_set":
@@ -3929,6 +4021,18 @@ def _decompile_v6(data: bytes) -> dict:
                     e["trait"] = {v: k for k, v in TRAIT_CODES.items()}[a]
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
+                elif do in ("pregnant", "nursing"):
+                    if a != 0xFF:
+                        e["partner"] = role_ids[a]
+                    if flags & ANY_BIRTH_SEX_FLAG:
+                        e["any_birth_sex"] = True
+                elif do == "body_swap":
+                    e["with"] = role_ids[a]
+                elif do == "change_age":
+                    if flags == CHANGE_AGE_ADD:
+                        e["years"] = [a, b]
+                    else:
+                        e["to"] = {v: k for k, v in CHANGE_AGE_TO.items()}[flags]
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,

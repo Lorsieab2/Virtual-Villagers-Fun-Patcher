@@ -728,6 +728,12 @@ one may also be written `"preference": "random"`.
   nothing is changed and nothing is refused.
 - A random dislike is harmful (section 7), as a fixed one.
 
+**24a. Taking a like or dislike away (the owner, 2026-11-15).** `{"do": "preference", "list": "likes" | "dislikes",
+"preference": w | "random", "remove": true}` (or `"like"` / `"dislike"` with `"remove": true`): flags bit 16 set
+(bit 4 still says dislikes, bit 8 random), a = b = 0. With a word, that like or dislike is removed; with `random`,
+one the villager holds. Automatic lines (section 25): "unlike" `<R> no longer likes <W>.` and "undislike"
+`<R> no longer dislikes <W>.`. Removing a like is harmful (section 7); removing a dislike is not.
+
 ## 25. Automatic outcome lines (the owner, 2026-11-14)
 
 Some outcomes are written only as instructions ("change hair color", "random like", "skill loss"). The effect is
@@ -932,3 +938,53 @@ in `data/event_collection/content_tags/<source>.json`.
 - **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
   words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
   `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+
+## 33. New villagers, pregnancy, nursing, clones, body swaps, names and ages (codes 27-34; the owner, 2026-11-15; numbered 31 in feat/97-food-tech)
+
+Collection effects, added only where an outcome's own text says it (`scripts/food_tech_additions.py`
+EFFECT_ADDITIONS; `docs/event-collection/food-tech-log.md`). `scripts/collection_check.py` validates them (check e);
+`src/vv_cie_graph.py` has their codes, so `normalize`, `_compile_v6` and `_decompile_v6` carry them (the round trip is
+exact). `new_villager`'s role byte is its `copy_of` role (0xFF none). (`graph_for_engine` would leave out any of these
+codes that a `vv_cie_graph` without them does not know.) The run-time side (story_graph.inc) is the engine's.
+
+| Code | do | role byte | flags | a | b | string |
+|---|---|---|---|---|---|---|
+| 27 | new_villager | `copy_of` role index, or 0xFF (a random new villager) | 0 | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | 0 | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 30 | clone | role index | 0 | 0 | 0 | NONE |
+| 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
+| 32 | lose_name | role index | 0 | 0 | 0 | NONE |
+| 33 | change_name | role index | 0 | 0 | 0 | NONE |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE |
+
+- **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
+  villager joins the tribe (a newcomer who stays, a castaway). With `copy_of`, the newcomer has the role's villager's
+  looks (head, body, sex) but its own likes, dislikes and skills, rolled from the game's lists (a lookalike, a double).
+  Never for visitors who leave.
+- **`{"do": "pregnant", "role": r}`** and **`{"do": "nursing", "role": r}`**, optionally `"partner": p` and
+  `"any_birth_sex": true`: the role's villager becomes pregnant, or has a nursing baby now. The carrier is cast born
+  female (any current sex), 18 or older, and never a villager already pregnant or nursing (the engine checks the
+  carrier when the effect applies; one that cannot carry is a refused change). The partner is `p` (the event's
+  recorded spouse or partner role) or, left out, an adult of the other birth sex. Parentage is recorded at conception
+  as usual. `any_birth_sex` (flags bit 0, value 1) lets a born-male villager carry: where the text involves magic (a
+  spell, a blessing, an enchanted spring, a spirit, a potion), or, for `nursing`, where the text has him caring for a
+  baby (his partner's, a single father, a deceased mother's child, a nursery or orphanage, an abandoned or rescued
+  infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
+  female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
+  Pregnancy).
+- **`{"do": "clone", "role": r}`**: an exact double of the role's villager joins the tribe (looks, likes, dislikes and
+  skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's.
+- **`{"do": "change_name", "role": r}`**: a real rename to a random default name from the game's own name lists
+  (either sex's), for "a villager wants to change their name".
+- **`{"do": "change_age", "role": r, "to": "child" | "teen" | "18" | "adult" | "50" | "elder"}`**, or
+  **`"years": n | [a, b]`** (-120..120, not 0; negative is younger): "teen" is 14-17, "adult" 20-49, "elder" 55-75;
+  "years" rolls a..b once at its place in the walk.
+- **Authoring (the owner, 2026-11-15):** a death is `kill` (a skeleton and a grave); a disappearance is `vanish` (no
+  skeleton). A permanent disability the text states may be a health loss (`health_change`, 10-90), a dislike of
+  running, work or learning (or another fitting dislike from the game's list), or the old head look (`old_look`) for
+  stress. Anything a stock event of that game can already do is allowed; an outcome may stay flavor only.
+- **`{"do": "body_swap", "role": a, "with": b}`**: the two villagers swap heads and bodies (looks only; names, ages,
+  skills and likes stay).
+- **`{"do": "lose_name", "role": r}`**: the villager's name becomes "?", as the stock bump-on-the-head event does.
+- Not harmful (section 7) and no automatic line (section 25) until the engine side is built.

@@ -815,8 +815,18 @@ def library_events(save_folder: Path | None, scrolling: bool = False) -> list[tu
 
 
 def read_event(path: Path) -> dict:
-    """An event file, every default filled in; ValueError when it is not an event at all."""
-    g, problems = cg.normalize(json.loads(Path(path).read_text(encoding="utf-8")))
+    """An event file, every default filled in; ValueError when it is not an event at all.  A Player Events .txt
+    file (src/vv_player_events.py) gives its first event."""
+    if Path(path).suffix.lower() == ".txt":
+        import vv_player_events
+        items, file_problems = vv_player_events.parse_file(Path(path))
+        events = [it for it in items if it.kind == "event" and it.graph]
+        if not events:
+            raise ValueError("; ".join(str(p) for p in file_problems) or "it has no event")
+        data = {k: v for k, v in events[0].graph.items() if k != "collection"}
+    else:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    g, problems = cg.normalize(data)
     if not g.get("nodes"):
         raise ValueError("; ".join(problems) or "it has no parts")
     return g
@@ -935,6 +945,15 @@ class Library:
                                ("New from The Aspiring Adventurer", self.new_from_example),
                                ("New from The Cave Explorers", self.new_from_cave)):
             button = ttk.Button(buttons, text=words, command=command)
+            button.pack(side="left", padx=(0, 4))
+            self.buttons[words] = button
+        # Player Events (src/vv_player_events.py): the event as a player file of the patcher's Player Events
+        # section, or as procedural mixer pieces.
+        player = ttk.Frame(outer)
+        player.pack(fill="x", pady=(4, 0))
+        for words, command in (("Save as Player Event...", self.save_player_event),
+                               ("Export as Mixer Pieces...", self.export_pieces)):
+            button = ttk.Button(player, text=words, command=command)
             button.pack(side="left", padx=(0, 4))
             self.buttons[words] = button
         # Whether the chosen game's popups scroll: read from the game's installed patches (detect_scrolling), never
@@ -3270,7 +3289,8 @@ class Library:
         if not self._leave_changes():
             return
         path = ASK_OPEN(parent=self.window, title="Import a Custom Island Event",
-                        filetypes=[("Custom Island Events", "*.json"), ("All files", "*.*")])
+                        filetypes=[("Custom Island Events", "*.json"), ("Player Event files", "*.txt"),
+                                   ("All files", "*.*")])
         if not path:
             return
         try:
@@ -3295,6 +3315,55 @@ class Library:
             SHOW_ERROR(TITLE, f"The event could not be exported: {exc}", parent=self.window)
             return None
         self.status.configure(text=f"Exported to {path}.", foreground="")
+        return Path(path)
+
+    def _player_folder(self) -> Path:
+        import vv_player_events
+        game = next((n for n in self.game_numbers if cg.GAMES[n].name == self.game_box.get()), None) \
+            if hasattr(self, "game_box") else None
+        return vv_player_events.ensure_game_folder(game) if game else vv_player_events.PLAYER_FOLDER
+
+    def save_player_event(self) -> Path | None:
+        """The event as a Player Events file (docs/player-events-format.md 5): the patcher's Player Events section
+        installs it into the game's Isola Grand Event Collection at patch time."""
+        import vv_player_events
+        folder = self._player_folder()
+        folder.mkdir(parents=True, exist_ok=True)
+        path = ASK_SAVE(parent=self.window, title="Save as a Player Event", defaultextension=".txt",
+                        initialdir=str(folder), initialfile=(self.stem or self.copy_stem()) + ".txt",
+                        filetypes=[("Player Event files", "*.txt")])
+        if not path:
+            return None
+        try:
+            write_atomic(Path(path), vv_player_events.event_file_text(self.g).encode("utf-8"))
+        except (OSError, TypeError) as exc:
+            SHOW_ERROR(TITLE, f"The event could not be saved as a Player Event: {exc}", parent=self.window)
+            return None
+        self.status.configure(text=f"Saved as a Player Event: {path}.", foreground="")
+        return Path(path)
+
+    def export_pieces(self) -> Path | None:
+        """The event as procedural mixer pieces (docs/player-events-format.md 6): its first question a setup, each
+        answer an approach, the pages each answer can reach its outcomes."""
+        import vv_player_events
+        try:
+            text = vv_player_events.pieces_file_text(self.g)
+        except (ValueError, KeyError, TypeError) as exc:
+            SHOW_ERROR(TITLE, f"The event could not be made into mixer pieces: {exc}", parent=self.window)
+            return None
+        folder = self._player_folder()
+        folder.mkdir(parents=True, exist_ok=True)
+        path = ASK_SAVE(parent=self.window, title="Export as Mixer Pieces", defaultextension=".txt",
+                        initialdir=str(folder), initialfile=(self.stem or self.copy_stem()) + " pieces.txt",
+                        filetypes=[("Player Event files", "*.txt")])
+        if not path:
+            return None
+        try:
+            write_atomic(Path(path), text.encode("utf-8"))
+        except OSError as exc:
+            SHOW_ERROR(TITLE, f"The pieces could not be exported: {exc}", parent=self.window)
+            return None
+        self.status.configure(text=f"Exported as mixer pieces: {path}.", foreground="")
         return Path(path)
 
     def close(self) -> None:

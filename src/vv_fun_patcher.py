@@ -10996,7 +10996,24 @@ def _copy_companion_files(
                 if generated_temp is not None:
                     generated_temp.cleanup()
     _write_unicode_font_choice(output_folder, fun_patches)
+    _write_player_events(output_folder, fun_patches)
     return copied
+
+
+def _write_player_events(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    """Player Events (src/vv_player_events.py): with the game's Isola Grand Event Collection row installed, the
+    player's own event and piece files compiled into its "Island Event Collection" folder.  A bad file or line is
+    left out and reported (vv_player_events.LAST_REPORTS, the GUI's dialog); nothing here can fail the patch."""
+    import vv_player_events
+    for feature in fun_patches:
+        game = next((n for n in range(1, 6) if feature.id == f"vv{n}_isola_grand_event_collection"), None)
+        if game is None:
+            continue
+        try:
+            report = vv_player_events.install(game, output_folder)
+        except Exception as exc:                      # noqa: BLE001 -- never fail a patch over a player's file
+            report = vv_player_events.InstallReport(skipped=[f"Player Events were left out: {exc}"])
+        vv_player_events.LAST_REPORTS[game] = report
 
 
 # Use Unicode Font (overrides in-game fonts): the typeface the game draws its text in, written beside

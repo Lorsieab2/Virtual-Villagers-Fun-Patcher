@@ -756,6 +756,15 @@ FILES = [
     "data/cie_label_widths.json",
     "data/cie_actions.json",
     "data/cie_villager_names.json",      # each game's first-name lists (named strangers, cie-v6-binary.md 16)
+    # Player Events (each game's Island Events section): the reader and compiler, its section, the content tagging
+    # it shares with the collection, the shared lists, the format, the AI prompt and the owner's tone reference.
+    "src/vv_player_events.py",
+    "src/vv_player_events_ui.py",
+    "src/vv_event_content.py",
+    "data/event_collection/shared_pools.json",
+    "docs/player-events-format.md",
+    "Player Events/Player Events - AI Prompt.txt",
+    "Player Events/Island Event Tone Reference - Lorsieab2's Handwritten Events.txt",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

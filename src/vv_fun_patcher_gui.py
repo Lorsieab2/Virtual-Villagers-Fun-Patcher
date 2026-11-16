@@ -48,6 +48,7 @@ import vv_genealogy_window
 import vv_game_mechanics_window
 import vv_stew_recipes_window
 import vv_cie_library_window
+import vv_player_events_ui
 import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
@@ -1770,6 +1771,7 @@ class App(tk.Tk):
         styles = (requirement_font, description_font, description_background)
         # Each game's search box, by tab name: (its text, its list, every row of the tab).
         self.patch_searches: dict[str, tuple[tk.StringVar, VirtualList, list]] = {}
+        self.player_event_sections: dict[int, vv_player_events_ui.PlayerEventsSection] = {}
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
             game_name = header.removeprefix("Virtual Villagers - ")
@@ -1886,6 +1888,7 @@ class App(tk.Tk):
             )
             listing.pack(fill="x")
         if not filters:
+            self._build_player_events(box, island_rows, filters, requirement_font)
             return
         head = ttk.Frame(box)
         head.pack(fill="x", pady=(8, 2))
@@ -1907,6 +1910,19 @@ class App(tk.Tk):
                               justify="left")
             words.pack(side="left", anchor="n")
             words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+        self._build_player_events(box, island_rows, filters, requirement_font)
+
+    def _build_player_events(self, box, island_rows: list, filters: list, requirement_font) -> None:
+        """Player Events (src/vv_player_events_ui.py): the player's own event files, the AI prompt and the tone
+        reference, at the end of the game's Island Events section."""
+        ids = [r[0].id for r in island_rows] + [p.id for p in filters]
+        game = next((int(i[2]) for i in ids if len(i) > 3 and i[:2] == "vv" and i[2] in "12345"), None)
+        if game is None:
+            return
+        try:
+            self.player_event_sections[game] = vv_player_events_ui.PlayerEventsSection(box, game, requirement_font)
+        except OSError as exc:
+            ttk.Label(box, text=f"Player Events could not open their folder: {exc}", wraplength=640).pack(anchor="w")
 
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
@@ -3180,6 +3196,7 @@ class App(tk.Tk):
     def _apply(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
+            self._save_player_events()
             source = self._source()
             build = identify(source)
             # Read every Tk variable here; the worker thread must not.
@@ -3241,13 +3258,21 @@ class App(tk.Tk):
                 "Modified game created",
                 [(build.title, source.parent, output.parent)],
             )
+            vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Patch failed", str(exc))
 
+    def _save_player_events(self) -> None:
+        """The Player Events boxes written to their files before a patch reads them (the worker never touches Tk)."""
+        for section in getattr(self, "player_event_sections", {}).values():
+            section.save_rules()
+            section.save()
+
     def _apply_all(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
+            self._save_player_events()
             sources = self._all_sources()
             # Read every Tk variable here; the worker thread must not.
             mode = self._mode()
@@ -3323,6 +3348,7 @@ class App(tk.Tk):
                     for (build, source), (output, _) in zip(validated, results, strict=True)
                 ],
             )
+            vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError, ValueError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
