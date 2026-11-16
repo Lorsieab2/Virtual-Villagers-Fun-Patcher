@@ -1044,3 +1044,7 @@ by the token's widest option, its placeholders at their widest. `simulate` shows
 - **`(his/hers)`**, with capitals (`(His/Hers)`, `(HIS/HERS)`) and a role prefix (`(friend.his/hers)`): the possessive
   that stands alone ("the choice was hers").
 - **appearance (17) takes a group target** (`"target"`, role byte 254) like the effects of section 32.
+- **`(renamed)`** (any capitals; engine a4f4f1d0b, section 33a on the engine's branch): the latest change_name's new
+  name (before any rename, the current name of the first change_name's villager). Body text and count options only,
+  never a label or a title; measured as a full name. `expand_v6` shows the binding `"$renamed"` when given, else the
+  graph's fixed change_name name, else "Renamed".
