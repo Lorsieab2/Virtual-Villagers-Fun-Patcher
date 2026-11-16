@@ -664,6 +664,37 @@ class NodeTitles(unittest.TestCase):
                 r.p.write(at, decide.encode() + b"\0")
                 self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
 
+    def test_the_chosen_label_titles_what_follows(self):
+        """The owner (2026-11-16): after a choice, the next popups take the chosen label as their title until the next
+        choice, unless the next node has a title of its own ("Show them" leads to "The Elders Decide", which keeps
+        its own); a label wider than the title area is never replaced by the event's title: it wraps, its rest the
+        page's first line."""
+        from test_cie_graph_v6 import TITLES
+        inv = "The Revolutionary Invention"
+        long_label = "Ask every elder what they would be good at doing tomorrow"
+        wide = copy.deepcopy(TITLES)
+        wide["nodes"]["q"]["choices"][1]["label"] = long_label
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game, label="Keep it quiet"):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(TITLES)))
+                shown = r.walk_through([1])
+                self.assertEqual(r.titles(), [inv, inv, "Keep it quiet"])
+            with self.subTest(game=game, label=long_label):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(wide)))
+                shown = r.walk_through([1])
+                last = r.titles()[-1]
+                self.assertNotEqual(last, inv)
+                self.assertTrue(long_label.startswith(last), last)
+                if last != long_label:
+                    rest = long_label[len(last):].strip()
+                    self.assertIn(rest, shown[-1][1], "the label's rest is the page's first line")
+
     def test_placeholders_in_titles(self):
         """17: on screen with the names (or pronouns when they do not fit); the log's entry with the real names (the
         owner: "(Name1)" is filled with the cast villager's name -- "Ana's No Good, Very Bad Day")."""

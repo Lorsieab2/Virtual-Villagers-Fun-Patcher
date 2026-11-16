@@ -3228,7 +3228,7 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.original_mask = vv1_mask_get(villager);
-    appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE || VV_IS_GOLDEN_CHILD(villager);
+    appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     /* 20 for both sexes: the head/body sheets are 20 rows and index 19 is the
        GOLDEN CHILD's head (pale, hairless) and body (gold) -- the last frame of
        male_heads/bodies (user-confirmed). Villager-creation RNG only rolls

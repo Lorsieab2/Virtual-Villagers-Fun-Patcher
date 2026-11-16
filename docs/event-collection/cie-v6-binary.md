@@ -990,6 +990,31 @@ only as far as the game's room allows, so the text says how many actually came:
   Memory only for the old pages: after a quit and a restore between pages, a page laid out before the rename may
   show the old name.
 
+### 33c. New Believers' Heathens and Faith (the owner, 2026-11-16; "VV5 Heathen Events - What Vanilla Does")
+
+- **A Heathen's role (`"heathen_ok": true` on a villager role):** role byte 13 bit 6 (`0x40`, beside SPEAKS `0x80`;
+  the flags byte 1 is full). Keep `believers_only` as it is (true): the engine casts such a role only among the
+  Heathens whatever byte 1 says, so a believer is never cast in it. In New Believers the role is cast as the
+  game's own picker `0x471870` casts a Heathen (Heathens-only on, special roles off): a Heathen, never roles 12-17
+  (the Heathen Doctor, the Heathen Chief, the three Masters, the Heathen Mommy), never sick, health above 0, listed
+  (present, not a body or a spirit); carrying or nursing allowed; the role's own ages and sex apply (a child under
+  14 for a child's story, 14 or more for an envoy). Default stays believers only. In the other games the bit is
+  ignored. Vanilla casts one Heathen an event; an event may name more.
+- **What may happen to a Heathen's role** (refused when the file is loaded, whatever is ticked, No Safeguards too):
+  `faith`, `join`, `action` (stopped, walked, posed), `health_change` down to -30 (minor harm, as The Missing Kids),
+  `sick`, `trait`. Never a death, a disappearance, an age, a skill, a like or dislike, a lower Faith.
+- **`faith` (code 38):** role; a = the Faith gained, 1..35 (vanilla +5..+35); b 0; no string. The game's
+  FAITH_ADD `0x468020`: a Heathen whose Faith ends above 0 joins the tribe the game's own way (its message, role,
+  counters, puzzle check; below 5 becomes 55). Auto line "<R> feels closer to the tribe."
+- **`join` (code 39):** role; a = b = 0; no string. A Heathen joins: SetFaith `0x467F90`(20, 1), then
+  `0x466880`(0), as The Defector. A believer already: nothing. Auto line "<R> joins the tribe."
+- **`apostasy` (code 40):** role (a believer's, never a Heathen's role); a = b = 0; no string. A believer becomes a
+  Heathen by their own choice (write it only where the player's answer has the believer choose it): SetFaith(-10,
+  1), then `0x466880`(1), as The Spa and The Cracked Mask. Harmful (protected villagers kept out). Auto line
+  "<R> becomes a Heathen."
+- Only in New Believers; in the other games the three do nothing. UNCONFIRMED live: the three routines are called
+  as thiscall on the villager's record, as the vanilla events call them.
+
 ### 33b. Other forms (the owner's files, 2026-11-16)
 
 - **`(his/hers)`**: the standalone possessive ("the choice was hers"), with the role prefix, the capital and ALL
@@ -998,6 +1023,9 @@ only as far as the game's room allows, so the text says how many actually came:
   `(<role id>.himself/herself)`, `(<role id>.man/woman)`, `(<role id>.woman/man)`, `(<role id>.boy/girl)`,
   `(<role id>.son/daughter)`, the role-sex words of section 5, and now `(<role id>.his/hers)`. `name1` / `name2` take
   no prefix: `(name2.his/her)` is not a form; write `(friend.his/her)` (name2 is the role `friend`).
+- **Group targets by age:** role byte 254 with byte 3 = 4 every elder (55 or more), 5 every child (under 14), 6 every
+  teen (14 to 17), 7 every adult (18 or more); the last H 0. A random like or dislike (preference with flags bit 8)
+  may now take a group too: each member draws their own word.
 - **Group targets on `appearance` (17):** role byte 254 takes `appearance` too; with a random head or body each
   member draws their own row (the game's random routine), so "a new look for three random villagers" gives three
   looks.

@@ -170,7 +170,12 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
                   or p == "vv5_respecting_the_legacy_of_isola"
                   # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
-                  or p.endswith("_gender_presentation")})
+                  or p.endswith("_gender_presentation")
+                  # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
+                  # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
+                  or p.endswith("_island_event_content_notes")
+                  or "_island_event_filter_f" in p
+                  or p.endswith("_island_events_any_time")})
 
     def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
@@ -378,6 +383,11 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_isola_grand_event_collection" for n in range(1, 6)}
         # ...and Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
+        # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
+        # only), the 28 content filters and No Safeguards for Island Events (off everywhere).
+        held_back |= {f"vv{n}_island_event_content_notes" for n in range(1, 6)}
+        held_back |= {f"vv{n}_island_event_filter_f{k:02d}" for n in range(1, 6) for k in range(1, 29)}
+        held_back |= {f"vv{n}_island_events_any_time" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

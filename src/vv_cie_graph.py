@@ -382,6 +382,7 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
 TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
+ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Isolan), cast as the game's picker casts one
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -1343,8 +1344,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                for flag in ("speaks", "heathen_ok"):
+                    # 32 / 33c: "speaks": true (the role's words have them speak; never a story-mute villager),
+                    # "heathen_ok": true (New Believers: an Isolan's role, cast only among the Heathens)
+                    if flag in r:
+                        if not isinstance(r[flag], bool):
+                            problems.append(f"{where}: {flag} is true or false")
+                        elif r[flag]:
+                            roles[rid][flag] = True
                 rel = r.get("relation")
                 if rel is not None:
                     # Section 21: one kinship relation to another villager role the event needs.
@@ -2729,8 +2738,14 @@ def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
                     out.append(Context(game, pset, frozenset(rset)))
                     continue
                 rset = with_aliases(g, rset)
+                req_if = (g.get("requirement") or {}).get("if")
                 for facts in _fact_sets(g, rset):
-                    out.append(Context(game, pset, frozenset(rset), facts))
+                    ctx = Context(game, pset, frozenset(rset), facts)
+                    # a context the event's own requirement refuses never runs (the content filters' skip groups,
+                    # src/vv_event_content.py): nothing of it is checked
+                    if req_if is not None and not cond_holds(req_if, ctx, ()):
+                        continue
+                    out.append(ctx)
     return out
 
 
@@ -2864,10 +2879,6 @@ AUTO_LINES = {
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
     "unlike": "<R> no longer likes <W>.",
-    "cure": "<R> is cured.",
-    "young_look": "<R> looks younger.",
-    "repair": "The damaged buildings are being repaired.",
-    "skill_best": "<R> gets better at what <P> does best.",
     "undislike": "<R> no longer dislikes <W>.",
     "skill+": "<R> learns more about <S>.",
     "skill-": "<R> feels less sure of <P> <S>.",
@@ -2889,6 +2900,15 @@ AUTO_LINES = {
     "old_look": "<R> looks older and more worn.",
     "sex_change": "<R>'s sex changes.",
     "presentation": "<R>'s look changes.",
+    # the engine's newer effects (cure 35, young look 37, repair 36, a skill gain to the villager's best skill)
+    "cure": "<R> is cured.",
+    "young_look": "<R> looks younger.",
+    "repair": "The damaged buildings are being repaired.",
+    "skill_best": "<R> gets better at what <P> does best.",
+    # New Believers' Faith (faith 38, join 39, apostasy 40)
+    "faith": "<R> feels closer to the tribe.",
+    "join": "<R> joins the tribe.",
+    "apostasy": "<R> becomes a Heathen.",
 }
 
 
@@ -3908,7 +3928,8 @@ def _compile_v6(g: dict) -> bytes:
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
                                  v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0), 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
+                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -4134,7 +4155,7 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
-        speaks, pick = bool(pick & ROLE_SPEAKS), pick & ~ROLE_SPEAKS
+        speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -4159,6 +4180,8 @@ def _decompile_v6(data: bytes) -> dict:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
             if speaks:
                 roles[rid]["speaks"] = True
+            if heathen:
+                roles[rid]["heathen_ok"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}
@@ -4817,9 +4840,23 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     title = event_title(lg, game, patches)   # 18
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
+    # The owner (2026-11-16, story_graph.inc cg_choice_title): after a choice the popups that follow take its label
+    # as their title until the next choice, unless the node after it has a title of its own; a title node of that
+    # part keeps its own.
+    choice_title, before = None, None
+
+    def shown_title(t):
+        # a chosen label is read as a button reads it (its game words, its names): ("label", raw)
+        return ("label", choice_title) if choice_title is not None and t == before else t
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         seen = seen + (nid,)
+        if at > 0 and lg["nodes"][path[at - 1]]["type"] == "question":
+            q = lg["nodes"][path[at - 1]]
+            label = next((c["label"] for c in q["choices"] if c["next"] == nid), None)
+            choice_title = label if label is not None and not n.get("title") else None
+            before = title
         if n["type"] == "branch":
             continue
         t = path_texts[at]
@@ -4829,11 +4866,11 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         else:
             texts.append(t)
             if room_after and n["type"] == "popup":
-                titles.append(title)   # shown in the question's own popup: its title
+                titles.append(shown_title(title))   # shown in the question's own popup: its title
                 title = n.get("title") or title
             else:
                 title = n.get("title") or title
-                titles.append(title)
+                titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
@@ -4842,7 +4879,38 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
               if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
               for t in texts]
-    titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+
+    def choice_shown(label: str) -> str:
+        # story_graph.inc cg_title_expand: the label in title case, its names (or pronouns when they do not fit)
+        t = title_case(label)
+        real = expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, label=True)
+        if title_fits(game, real):
+            return real
+        return expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, pronoun_names=True,
+                         label=True)
+
+    titles = [choice_shown(t[1]) if isinstance(t, tuple)
+              else title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    for i, t in enumerate(titles):
+        # story_graph.inc cg_title_wrap: a title wider than the title area is cut at a space where it fits; its rest
+        # is the page's first line
+        if t and not title_fits(game, t):
+            cut = -1
+            for k in range(1, len(t)):
+                if t[k] == " ":
+                    if not title_fits(game, t[:k]):
+                        break
+                    cut = k
+            if cut <= 0:
+                cut = len(t) - 1
+                while cut > 1 and not title_fits(game, t[:cut]):
+                    cut -= 1
+                rest = t[cut:]
+            else:
+                rest = t[cut + 1:]
+            titles[i] = t[:cut]
+            if i < len(popups):
+                popups[i] = rest + "\n" + popups[i]
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()
     for nid in path:

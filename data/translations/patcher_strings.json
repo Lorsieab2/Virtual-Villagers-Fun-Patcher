@@ -70334,6 +70334,51 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_more_events.sm_fill_more.s0",
+   "english": "the island event content filters to allow it",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s0",
+   "english": "A new island event, put together each time from the collection's pieces.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s1",
+   "english": "%s (varies)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = an island event's title",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -70345,6 +70390,188 @@
    ],
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_read_manifest.s0",
+   "english": "A collection manifest is larger than its 1 MB limit: it was skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_scan_group.s0",
+   "english": "A collection manifest has more events than its limit: the rest were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_scan_group.s1",
+   "english": "The collection's list could not be made: not enough memory. Some events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_add_group.s0",
+   "english": "The collection's index could not grow: not enough memory. Some files were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_collection.sc_pick_fill.s1",
+   "english": "The Pick Island Event list could not hold every event: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s43",
+   "english": "an effect is not one a Heathen may have",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_made_name.s0",
+   "english": "the villager",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_repair.s0",
+   "english": "  Repaired: %s (the builders finish it)\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s0",
+   "english": " joined the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s1",
+   "english": " became a Heathen.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s2",
+   "english": "'s Faith grew.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s3",
+   "english": "'s head look is now Young.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s4",
+   "english": " was cured.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
   },
   {
@@ -70420,6 +70647,342 @@
   {
    "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s34",
    "english": "<R> gets better at what <P> does best.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s35",
+   "english": "<R> feels closer to the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s36",
+   "english": "<R> joins the tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s12",
+   "english": "\"%s\" is kept out by the island event content filters. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s0",
+   "english": "A living events pack is larger than its 256 MB limit or too small: its events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s1",
+   "english": "A living events pack could not be read: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_living.lv_pack_for.s2",
+   "english": "A living events pack is damaged or of another version: its events were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s0",
+   "english": "Child death",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s1",
+   "english": "Pregnancy loss",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s2",
+   "english": "Serious injury",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s3",
+   "english": "Historical suffering",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.PC_NOTE_LABELS.s4",
+   "english": "Emotional distress",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s0",
+   "english": "The procedural events' pieces could not be read: not enough memory.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s1",
+   "english": "A procedural events' pieces file could not be read (or is past 1 MB): skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_load.s2",
+   "english": "A procedural events' pieces file is damaged or of another version: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_index.s0",
+   "english": "A procedural events' pieces file's name is not pieces-<letters, digits or _>.pcb: skipped.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_index.s1",
+   "english": "The procedural events' index could not grow: not enough memory. Some files were left out.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_write.s0",
+   "english": "Content note: ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_write.s1",
+   "english": "a%do%d",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number); %2 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_arm_check.s0",
+   "english": "its pieces can not be read: install the patch again",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s2",
+   "english": "the village to have the villagers it needs",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_buy.s0",
+   "english": "it can not happen right now.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_structures.ST_WHAT.s0",
+   "english": "Island Event Structures",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_traits.RS_KIND.s0",
+   "english": "Island Events",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_traits.rs_path.s0",
+   "english": "Island Event Story Traits - Save ",
    "games": [
     "vv1",
     "vv2",

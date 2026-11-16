@@ -1614,7 +1614,9 @@ def collection_files() -> list[Path]:
     """Every event file: data/event_collection/<section>/<id>.json and
     data/event_collection/companion/<section>/<id>.json and data/event_collection/living/<section>/<id>.json, and the
     same under horizon/ and rolemodels/."""
-    return sorted(list(lib.COLLECTION_DIR.glob("*/*.json")) + list(lib.COMPANION_DIR.glob("*/*.json"))
+    # content_tags/ holds the content tag tables (scripts/build_event_content_tags.py), not events
+    return sorted([p for p in lib.COLLECTION_DIR.glob("*/*.json") if p.parent.name != "content_tags"]
+                  + list(lib.COMPANION_DIR.glob("*/*.json"))
                   + list(lib.LIVING_DIR.glob("*/*.json")) + list(lib.HORIZON_DIR.glob("*/*.json"))
                   + list(lib.ROLEMODELS_DIR.glob("*/*.json")) + list(lib.DRAFTS_A_DIR.glob("*/*.json"))
                   + list(lib.DRAFTS_B_DIR.glob("*/*.json")) + list(lib.DRAFTS_C_DIR.glob("*/*.json"))
