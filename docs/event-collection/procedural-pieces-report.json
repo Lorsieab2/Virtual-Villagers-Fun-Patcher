@@ -1,342 +1,29 @@
 {
  "round": 2,
  "per_game": 2000,
- "graph_examples": {
-  "role healer: unknown fields speaks": "x_sickness_11 hea05_second_opinion_s hea05_second_opinion_s hea05_second_opinion_a0 hea05_second_opinion_a1 g14_lvuns24_shrine_miracle_a1 hea05_second_opinion_o_o1 hea05_second_opinion_o_o2 g14_lvuns24_shrine_miracle_o_b2 g14_lvuns24_shrine_miracle_o_b1",
-  "role friend: unknown fields speaks": "x_personal_change_4 anrel30_changing_hair_s anrel30_changing_hair_s anrel20_partners_a1 anrel30_changing_hair_a2 anrel20_partners_o_b1 anrel30_changing_hair_o_c1 anrel30_changing_hair_o_c2",
-  "role elder: unknown fields speaks": "x_celebration_4 anjoy08_hilltop_s anjoy08_hilltop_s anjoy08_hilltop_a0 g11_anjoy35_moonlit_story_a1 anjoy14_friendship_a1 anjoy08_hilltop_o_a1 anjoy08_hilltop_o_a2 g11_anjoy35_moonlit_story_o_b1 anjoy14_friendship_o_b1 anjoy14_friendship_o_b2",
-  "node q (A New Home without sick): (sick) is shown while sick may not be bound": "x_sickness_3 b276_swamp_fever_s b276_swamp_fever_s b276_swamp_fever_b276_a2 g5_anexp32_sleepless_a0 b276_swamp_fever_b276_a1 g8_anfau07_injured_a1 b276_swamp_fever_b276_o3 b276_swamp_fever_b276_o4 g5_anexp32_sleepless_o_a2 b276_swamp_fever_b276_o2 g8_anfau07_injured_o_b1 b276_swamp_fever_b276_f1",
-  "node a1 (A New Home without sick): (sick) is shown while sick may not be bound": "x_sickness_3 b276_swamp_fever_s b276_swamp_fever_s b276_swamp_fever_b276_a2 g5_anexp32_sleepless_a0 b276_swamp_fever_b276_a1 g8_anfau07_injured_a1 b276_swamp_fever_b276_o3 b276_swamp_fever_b276_o4 g5_anexp32_sleepless_o_a2 b276_swamp_fever_b276_o2 g8_anfau07_injured_o_b1 b276_swamp_fever_b276_f1",
-  "role subject: unknown fields speaks": "x_art_story_3 il027_terrible_poet_s il027_terrible_poet_s g21_anjoy25_empty_seat_a1 lbl100_awful_song_a0 c5b027_secret_talent_a1 c5b027_secret_talent_a0 g21_anjoy25_empty_seat_o_b1 lbl100_awful_song_o_e2 c5b027_secret_talent_o_e2 c5b027_secret_talent_o_e2",
-  "node a4: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new107_mirror_other_s new107_mirror_other_s new107_mirror_other_new_107_a1 g6_anfau23_stranger_beast_a1 new107_mirror_other_new_107_a2 new107_mirror_other_new_107_a3 new107_mirror_other_new_107_o1 new107_mirror_other_new_107_o2 g6_anfau23_stranger_beast_o_b2 g6_anfau23_stranger_beast_o_b1 new107_mirror_other_new_107_o4 new107_mirror_other_new_107_o3 new107_mirror_other_new_107_o6",
-  "role teen: unknown fields speaks": "x_leadership_3 anexp70_unspoken_rule_s anexp70_unspoken_rule_s anexp70_unspoken_rule_a1 anexp70_unspoken_rule_a3 anexp70_unspoken_rule_o_b2 anexp70_unspoken_rule_o_b1 anexp70_unspoken_rule_o_d1",
-  "role child: unknown fields speaks": "x_child_problem_6 anchd16_why_do_stars_s anchd16_why_do_stars_s anchd11_child_feared_a2 anchd16_why_do_stars_a1 anchd11_child_feared_o_c2 anchd16_why_do_stars_o_b1 anchd16_why_do_stars_o_b2",
-  "role adult: unknown fields speaks": "x_child_problem_6 anchd16_why_do_stars_s anchd16_why_do_stars_s anchd11_child_feared_a2 anchd16_why_do_stars_a1 anchd11_child_feared_o_c2 anchd16_why_do_stars_o_b1 anchd16_why_do_stars_o_b2",
-  "node q: (Head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s c5b093_moment_courage_a1 anexp33_overwhelmed_a0 b321_healers_week_b321_a2 g23_sss078_words_stuck_a0 c5b093_moment_courage_o_e2 anexp33_overwhelmed_o_a2 b321_healers_week_b321_o3 b321_healers_week_b321_o4 g23_sss078_words_stuck_o_a",
-  "node a3: (head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s c5b093_moment_courage_a1 anexp33_overwhelmed_a0 b321_healers_week_b321_a2 g23_sss078_words_stuck_a0 c5b093_moment_courage_o_e2 anexp33_overwhelmed_o_a2 b321_healers_week_b321_o3 b321_healers_week_b321_o4 g23_sss078_words_stuck_o_a",
-  "role villager: unknown fields speaks": "x_feelings_3 anhs30_missing_leg_s anhs30_missing_leg_s anfam13_unwelcome_joke_a2 anhs41_hard_clear_a1 anhs22_jealous_a2 anmom03_afternoon_a1 anfam13_unwelcome_joke_o_c1 anhs41_hard_clear_o_b2 anhs41_hard_clear_o_b1 anhs22_jealous_o_c1 anhs22_jealous_o_c2 anmom03_afternoon_o_b2 anmom03_afternoon_o_b1",
-  "role giver: unknown fields speaks": "x_kindness_1 anexp45_unwelcome_gift_s anexp45_unwelcome_gift_s g10_sss012_argument_help_a0 anexp04_flowers_a1 anexp45_unwelcome_gift_a1 anexp45_unwelcome_gift_a0 g10_sss012_argument_help_o_a anexp04_flowers_o_b2 anexp04_flowers_o_b1 anexp45_unwelcome_gift_o_b2 anexp45_unwelcome_gift_o_b1 anexp45_unwelcome_gift_o_a1",
-  "node o2_1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new106_blessing_tree_s new106_blessing_tree_s g8_anhs10_totem_everyone_a3 new106_blessing_tree_new_106_a3 new106_blessing_tree_new_106_a2 g8_anhs10_totem_everyone_o_d1 new106_blessing_tree_new_106_o6 new106_blessing_tree_new_106_o3 new106_blessing_tree_new_106_o4",
-  "node a2: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new106_blessing_tree_s new106_blessing_tree_s g8_anhs10_totem_everyone_a3 new106_blessing_tree_new_106_a3 new106_blessing_tree_new_106_a2 g8_anhs10_totem_everyone_o_d1 new106_blessing_tree_new_106_o6 new106_blessing_tree_new_106_o3 new106_blessing_tree_new_106_o4",
-  "node q: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_4 b244_fisher_tide_s b244_fisher_tide_s b244_fisher_tide_b244_a1 g14_sss075_night_sleep_a1 g11_lbl059_elder_wouldnt_a2 b244_fisher_tide_b244_o1 g14_sss075_night_sleep_o_b g11_lbl059_elder_wouldnt_o_e1 g11_lbl059_elder_wouldnt_o_e2 b244_fisher_tide_b244_f1",
-  "node a1: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_4 b244_fisher_tide_s b244_fisher_tide_s b244_fisher_tide_b244_a1 g14_sss075_night_sleep_a1 g11_lbl059_elder_wouldnt_a2 b244_fisher_tide_b244_o1 g14_sss075_night_sleep_o_b g11_lbl059_elder_wouldnt_o_e1 g11_lbl059_elder_wouldnt_o_e2 b244_fisher_tide_b244_f1",
-  "node o1_1: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_1 new126_child_feared_s new126_child_feared_s new126_child_feared_new_126_a2 new126_child_feared_new_126_a1 new126_child_feared_new_126_a3 g10_anfam01_unfinished_a1 new126_child_feared_new_126_o4 new126_child_feared_new_126_o3 new126_child_feared_new_126_o2 new126_child_feared_new_126_o1 new126_child_feared_new_126_o5 g10_anfam01_unfinished_o_b2",
-  "role cook: unknown fields speaks": "x_tradition_5 anjoy29_ancestor_bad_s anjoy29_ancestor_bad_s anjoy29_ancestor_bad_a3 anjoy29_ancestor_bad_a0 anjoy29_ancestor_bad_a1 anjoy29_ancestor_bad_o_d1 anjoy29_ancestor_bad_o_a2 anjoy29_ancestor_bad_o_b2",
-  "role newcomer: unknown fields speaks": "x_newcomer_9 b034_raft_morning_tide_s b034_raft_morning_tide_s b034_raft_morning_tide_b034_a3 g8_anexp28_visitor_accent_a3 b034_raft_morning_tide_b034_o2 g8_anexp28_visitor_accent_o_d1 b034_raft_morning_tide_b034_f2",
-  "node q: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_tradition_2 b114_grandmother_s b114_grandmother_s b114_grandmother_b114_a4 b114_grandmother_b114_a3 b114_grandmother_b114_a2 b114_grandmother_b114_o4 b114_grandmother_b114_o1 b114_grandmother_b114_o3 b114_grandmother_b114_o4 b114_grandmother_b114_o3 b114_grandmother_b114_f1",
-  "role grownup: unknown fields speaks": "x_fear_8 hea19_brave_stomach_s hea19_brave_stomach_s hea19_brave_stomach_a1 hea19_brave_stomach_a0 g17_sss090_fear_leaving_a0 g19_sss091_argument_grew_a0 hea19_brave_stomach_o_o2 hea19_brave_stomach_o_o1 g17_sss090_fear_leaving_o_a g19_sss091_argument_grew_o_a",
-  "role sibling: unknown fields speaks": "x_child_problem_12 anfam04_words_table_s anfam04_words_table_s anfam21_child_took_a1 anfam04_words_table_a3 anfam21_child_took_o_b2 anfam04_words_table_o_d1",
-  "role mentor: unknown fields speaks": "x_new_idea_5 cat061_astera_s cat061_astera_s cat061_astera_a1 cat061_astera_a2 g14_anrel12_unspoken_a3 cat061_astera_o_b cat061_astera_o_c g14_anrel12_unspoken_o_d1 g14_anrel12_unspoken_o_d2",
-  "node o2_2: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my039_clay_figure_s my039_clay_figure_s my039_clay_figure_my_039_a1 my039_clay_figure_my_039_a3 my039_clay_figure_my_039_o1 my039_clay_figure_my_039_o2 my039_clay_figure_my_039_o6 my039_clay_figure_my_039_o5",
-  "node a1: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_2 new198_stone_floats_s new198_stone_floats_s new198_stone_floats_new_198_a2 g15_c5b033_growing_child_a1 new198_stone_floats_new_198_a4 new198_stone_floats_new_198_o3 new198_stone_floats_new_198_o4 g15_c5b033_growing_child_o_e1 new198_stone_floats_new_198_o7 new198_stone_floats_new_198_o8 new198_stone_floats_new_198_f1",
-  "node a1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_lost_object_1 new171_record_washed_s new171_record_washed_s new171_record_washed_new_171_a2 new171_record_washed_new_171_a1 new171_record_washed_new_171_o4 new171_record_washed_new_171_o1 new171_record_washed_new_171_o2",
-  "node q: (fisher) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s g13_lvlife21_story_tablet_a0 b138_fisher_trip_b138_a3 g13_lvlife21_story_tablet_o_a2 b138_fisher_trip_b138_o5",
-  "node o2_1: (fisher) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s g13_lvlife21_story_tablet_a0 b138_fisher_trip_b138_a3 g13_lvlife21_story_tablet_o_a2 b138_fisher_trip_b138_o5",
-  "node q: (farmer) is not a placeholder (write \\( \\) for a parenthesis)": "x_tradition_2 b142_fig_fruits_once_s b142_fig_fruits_once_s b142_fig_fruits_once_b142_a4 b142_fig_fruits_once_b142_a3 b142_fig_fruits_once_b142_a2 b142_fig_fruits_once_b142_o3 b142_fig_fruits_once_b142_o2 b142_fig_fruits_once_b142_o4 b142_fig_fruits_once_b142_o3",
-  "node o1_1: (farmer) is not a placeholder (write \\( \\) for a parenthesis)": "x_tradition_2 b142_fig_fruits_once_s b142_fig_fruits_once_s b142_fig_fruits_once_b142_a4 b142_fig_fruits_once_b142_a3 b142_fig_fruits_once_b142_a2 b142_fig_fruits_once_b142_o3 b142_fig_fruits_once_b142_o2 b142_fig_fruits_once_b142_o4 b142_fig_fruits_once_b142_o3",
-  "role hurt: unknown fields speaks": "x_quarrel_3 anexp55_difficult_s anexp55_difficult_s anexp10_hammock_a0 anfam15_late_apology_a3 anexp25_disputed_a0 anexp55_difficult_a1 anexp10_hammock_o_a2 anfam15_late_apology_o_d2 anexp25_disputed_o_a2 anexp55_difficult_o_b2 anexp55_difficult_o_b1",
-  "node o3_1: (farmer) is not a placeholder (write \\( \\) for a parenthesis)": "x_tradition_2 b142_fig_fruits_once_s b142_fig_fruits_once_s g1_lvuns19_why_do_spirits_a2 b142_fig_fruits_once_b142_a3 b142_fig_fruits_once_b142_a1 g1_lvuns19_why_do_spirits_o_c2 b142_fig_fruits_once_b142_o5 b142_fig_fruits_once_b142_o2 b142_fig_fruits_once_b142_o1",
-  "node a2: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_1 new131_elder_garden_s new131_elder_garden_s new131_elder_garden_new_131_a1 new131_elder_garden_new_131_a3 new131_elder_garden_new_131_o2 new131_elder_garden_new_131_o1 new131_elder_garden_new_131_o5 new131_elder_garden_new_131_f1",
-  "role traveler: unknown fields speaks": "x_newcomer_12 b317_visitor_door_s b317_visitor_door_s b317_visitor_door_b317_a2 b317_visitor_door_b317_a1 g17_sss083_friend_needed_a0 g4_anjus16_story_a1 b317_visitor_door_b317_o3 b317_visitor_door_b317_o4 b317_visitor_door_b317_o1 g17_sss083_friend_needed_o_a g4_anjus16_story_o_b2",
-  "node a1: (loved one) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my037_forest_borrowed_s my037_forest_borrowed_s my037_forest_borrowed_my_037_a1 my037_forest_borrowed_my_037_a4 my037_forest_borrowed_my_037_a2 my037_forest_borrowed_my_037_a3 my037_forest_borrowed_my_037_o1 my037_forest_borrowed_my_037_o8 my037_forest_borrowed_my_037_o3 my037_forest_borrowed_my_037_o6",
-  "node a3: (Loved one) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my037_forest_borrowed_s my037_forest_borrowed_s my037_forest_borrowed_my_037_a1 my037_forest_borrowed_my_037_a4 my037_forest_borrowed_my_037_a2 my037_forest_borrowed_my_037_a3 my037_forest_borrowed_my_037_o1 my037_forest_borrowed_my_037_o8 my037_forest_borrowed_my_037_o3 my037_forest_borrowed_my_037_o6",
-  "node a1: (friend.his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_22 b217_swapping_shells_s b217_swapping_shells_s b217_swapping_shells_b217_a2 b217_swapping_shells_b217_a4 b217_swapping_shells_b217_o3 b217_swapping_shells_b217_o3 b217_swapping_shells_b217_f3",
-  "role musician: unknown fields speaks": "x_celebration_3 anexp53_quiet_parade_s anexp53_quiet_parade_s anexp53_quiet_parade_a1 anexp53_quiet_parade_a0 anage33_island_many_a2 anexp53_quiet_parade_a3 anexp53_quiet_parade_o_b1 anexp53_quiet_parade_o_b2 anexp53_quiet_parade_o_a2 anexp53_quiet_parade_o_a1 anage33_island_many_o_c2 anage33_island_many_o_c1 anexp53_quiet_parade_o_d1 anexp53_quiet_parade_o_d2",
-  "role little: unknown fields speaks": "x_feelings_10 il046_too_old_this_s il046_too_old_this_s il046_too_old_this_a0 il046_too_old_this_a1 g11_anchd41_question_about_a1 il046_too_old_this_o_a il046_too_old_this_o_b g11_anchd41_question_about_o_b1 g11_anchd41_question_about_o_b2",
-  "node o3_2: (Grandfather/Grandmother) is not a placeholder (write \\( \\) for a par": "x_child_problem_4 b210_grandchild_wish_s b210_grandchild_wish_s b210_grandchild_wish_b210_a2 anage04_nursery_a3 b210_grandchild_wish_b210_a1 b210_grandchild_wish_b210_o3 b210_grandchild_wish_b210_o4 anage04_nursery_o_d1 b210_grandchild_wish_b210_o1 b210_grandchild_wish_b210_o2 b210_grandchild_wish_b210_f4",
-  "node a2: (friend) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_6 new173_name_lost_magic_s new173_name_lost_magic_s new173_name_lost_magic_new_173_a3 new173_name_lost_magic_new_173_a2 new173_name_lost_magic_new_173_o6 new173_name_lost_magic_new_173_o5 new173_name_lost_magic_new_173_o4 new173_name_lost_magic_new_173_o3 new173_name_lost_magic_new_173_f3",
-  "node q label: (Young Name) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_3 b040_teaching_day_s b040_teaching_day_s g7_lvcir01_child_beneath_a2 b040_teaching_day_b040_a3 g16_rm13_garden_flowers_a3 g7_lvcir01_child_beneath_o_c2 b040_teaching_day_b040_o1 b040_teaching_day_b040_o4 g16_rm13_garden_flowers_o_d2 b040_teaching_day_b040_f3",
-  "node q: the label's (Young Name) is not a placeholder a label can show": "x_child_problem_3 b040_teaching_day_s b040_teaching_day_s g7_lvcir01_child_beneath_a2 b040_teaching_day_b040_a3 g16_rm13_garden_flowers_a3 g7_lvcir01_child_beneath_o_c2 b040_teaching_day_b040_o1 b040_teaching_day_b040_o4 g16_rm13_garden_flowers_o_d2 b040_teaching_day_b040_f3",
-  "node o3_1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 b150_grey_clay_s b150_grey_clay_s b150_grey_clay_b150_a4 b150_grey_clay_b150_a2 b150_grey_clay_b150_a3 b150_grey_clay_b150_a1 b150_grey_clay_b150_o5 b150_grey_clay_b150_o3 b150_grey_clay_b150_o4 b150_grey_clay_b150_o4 b150_grey_clay_b150_o1 b150_grey_clay_b150_o1 b150_grey_clay_b150_o2 b150_grey_clay_b150_f3",
-  "node o2_2: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_1 new122_secret_fort_s new122_secret_fort_s new122_secret_fort_new_122_a3 new122_secret_fort_new_122_a2 new122_secret_fort_new_122_a1 new122_secret_fort_new_122_o5 new122_secret_fort_new_122_o6 new122_secret_fort_new_122_o4 new122_secret_fort_new_122_o3 new122_secret_fort_new_122_o2 new122_secret_fort_new_122_o1 new122_secret_fort_new_122_f2",
-  "node a2: (\"Thank you for the fish. They are delicious. Who are you?\") is not a p": "x_strange_sign_12 my077_gift_unseen_s my077_gift_unseen_s my077_gift_unseen_my_077_a1 my077_gift_unseen_my_077_a3 my077_gift_unseen_my_077_a4 my077_gift_unseen_my_077_o2 my077_gift_unseen_my_077_o1 my077_gift_unseen_my_077_o6 my077_gift_unseen_my_077_o5 my077_gift_unseen_my_077_o8 my077_gift_unseen_my_077_o7 my077_gift_unseen_my_077_f1",
-  "node a2: (novice) is not a placeholder (write \\( \\) for a parenthesis)": "x_new_idea_1 new194_ant_trail_s new194_ant_trail_s new194_ant_trail_new_194_a1 new194_ant_trail_new_194_a4 new194_ant_trail_new_194_a3 new194_ant_trail_new_194_a2 new194_ant_trail_new_194_o2 new194_ant_trail_new_194_o1 new194_ant_trail_new_194_o8 new194_ant_trail_new_194_o5 new194_ant_trail_new_194_o6 new194_ant_trail_new_194_o4",
-  "node a1 (The Secret City without young): (young) is shown while young may not be": "x_elder_wish_2 new137_last_dance_s new137_last_dance_s new137_last_dance_new_137_a3 new137_last_dance_new_137_a2 new137_last_dance_new_137_a1 g10_rm35_elder_unfinished_a1 new137_last_dance_new_137_o5 new137_last_dance_new_137_o6 new137_last_dance_new_137_o4 new137_last_dance_new_137_o3 new137_last_dance_new_137_o2 new137_last_dance_new_137_o1 g10_rm35_elder_unfinished_o_b1",
-  "node a2 (The Secret City without young): (young) is shown while young may not be": "x_elder_wish_2 new137_last_dance_s new137_last_dance_s new137_last_dance_new_137_a3 new137_last_dance_new_137_a2 new137_last_dance_new_137_a1 g10_rm35_elder_unfinished_a1 new137_last_dance_new_137_o5 new137_last_dance_new_137_o6 new137_last_dance_new_137_o4 new137_last_dance_new_137_o3 new137_last_dance_new_137_o2 new137_last_dance_new_137_o1 g10_rm35_elder_unfinished_o_b1",
-  "role toddler: unknown fields speaks": "x_celebration_4 anjoy02_first_word_s anjoy02_first_word_s anjoy02_first_word_a1 anjoy02_first_word_a3 anjoy02_first_word_o_b1 anjoy02_first_word_o_b2 anjoy02_first_word_o_d2 anjoy02_first_word_o_d1",
-  "node q: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new105_night_exchanged_s new105_night_exchanged_s new105_night_exchanged_new_105_a1 new105_night_exchanged_new_105_a2 new105_night_exchanged_new_105_a3 g5_anfau23_stranger_beast_a0 new105_night_exchanged_new_105_o2 new105_night_exchanged_new_105_o1 new105_night_exchanged_new_105_o4 new105_night_exchanged_new_105_o3 new105_night_exchanged_new_105_o6 new105_night_exchanged_new_105_o5 g5_anfau23_stranger_beast_o_a2 g5_anfau23_stranger_beast_o_a1",
-  "node o1_1: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new105_night_exchanged_s new105_night_exchanged_s new105_night_exchanged_new_105_a1 new105_night_exchanged_new_105_a2 new105_night_exchanged_new_105_a3 g5_anfau23_stranger_beast_a0 new105_night_exchanged_new_105_o2 new105_night_exchanged_new_105_o1 new105_night_exchanged_new_105_o4 new105_night_exchanged_new_105_o3 new105_night_exchanged_new_105_o6 new105_night_exchanged_new_105_o5 g5_anfau23_stranger_beast_o_a2 g5_anfau23_stranger_beast_o_a1",
-  "role parent: unknown fields speaks": "x_feelings_2 anfam05_parent_sharp_s anfam05_parent_sharp_s anage09_friend_left_a2 g14_anrel21_friend_needed_a1 anexp34_angry_thought_a0 anage13_unseen_work_a2 anage09_friend_left_o_c2 anage09_friend_left_o_c1 g14_anrel21_friend_needed_o_b1 g14_anrel21_friend_needed_o_b2 anexp34_angry_thought_o_a2 anage13_unseen_work_o_c2",
-  "role scholar: unknown fields speaks": "x_strange_sign_36 lo35_cracked_lavastone_s lo35_cracked_lavastone_s lo35_cracked_lavastone_a0 g15_anchd07_why_sky_blue_a3 lo35_cracked_lavastone_o_a g15_anchd07_why_sky_blue_o_d2",
-  "role helper: unknown fields speaks": "x_sickness_4 b359_healer_sweet_s b359_healer_sweet_s anexp32_sleepless_a3 anage17_adult_needs_a2 anexp32_sleepless_o_d1 anage17_adult_needs_o_c2 anage17_adult_needs_o_c1",
-  "role third: unknown fields speaks": "x_sickness_13 hea35_both_please_s hea35_both_please_s g10_sss076_heavy_basket_a0 hea35_both_please_a0 g10_sss076_heavy_basket_o_a hea35_both_please_o_o1",
-  "role caregiver: unknown fields speaks": "x_child_problem_11 anfam01_unfinished_s anfam01_unfinished_s g18_anhs12_whose_word_law_a1 anfam01_unfinished_a3 anexp72_costume_crown_g4_a1 anexp59_difficult_a1 g18_anhs12_whose_word_law_o_b1 g18_anhs12_whose_word_law_o_b2 anfam01_unfinished_o_d2 anfam01_unfinished_o_d1 anexp72_costume_crown_g4_o_b2 anexp72_costume_crown_g4_o_b1 anexp59_difficult_o_b2",
-  "role loner: unknown fields speaks": "x_child_problem_10 anchd43_why_person_s anchd43_why_person_s anchd45_why_do_people_a3 anchd41_question_about_a1 anchd44_why_do_people_a1 anchd45_why_do_people_o_d1 anchd41_question_about_o_b2 anchd41_question_about_o_b1 anchd44_why_do_people_o_b1",
-  "node o1_2: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_1 new126_child_feared_s new126_child_feared_s new126_child_feared_new_126_a1 new126_child_feared_new_126_a3 new126_child_feared_new_126_o2 new126_child_feared_new_126_o1 new126_child_feared_new_126_o5 new126_child_feared_new_126_f3",
-  "role young: unknown fields speaks": "x_new_idea_2 anhs16_ways_knowing_s anhs16_ways_knowing_s anhs16_ways_knowing_a3 anhs16_ways_knowing_a1 g16_anage29_elder_wants_a2 anhs16_ways_knowing_a2 anhs16_ways_knowing_o_d1 anhs16_ways_knowing_o_b2 g16_anage29_elder_wants_o_c2 anhs16_ways_knowing_o_c1",
-  "node o1_1: (fisher) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s b138_fisher_trip_b138_a3 g4_lbl059_elder_wouldnt_a1 b138_fisher_trip_b138_o5 g4_lbl059_elder_wouldnt_o_e1 g4_lbl059_elder_wouldnt_o_e2",
-  "node q label: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_20 b163_dreaming_hammock_s b163_dreaming_hammock_s b163_dreaming_hammock_b163_a3 b163_dreaming_hammock_b163_a4 b163_dreaming_hammock_b163_o2 b163_dreaming_hammock_b163_o5",
-  "node q: the label's (Name2) is not a placeholder a label can show": "x_strange_sign_20 b163_dreaming_hammock_s b163_dreaming_hammock_s b163_dreaming_hammock_b163_a3 b163_dreaming_hammock_b163_a4 b163_dreaming_hammock_b163_o2 b163_dreaming_hammock_b163_o5",
-  "node a1: (scholar) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new177_two_histories_s new177_two_histories_s new177_two_histories_new_177_a1 new177_two_histories_new_177_a3 new177_two_histories_new_177_o2 new177_two_histories_new_177_o1 new177_two_histories_new_177_o6 new177_two_histories_new_177_o5",
-  "node a1: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new177_two_histories_s new177_two_histories_s new177_two_histories_new_177_a1 new177_two_histories_new_177_a3 new177_two_histories_new_177_o2 new177_two_histories_new_177_o1 new177_two_histories_new_177_o6 new177_two_histories_new_177_o5",
-  "node a3 (The Tree of Life without novice): (novice) is shown while novice may no": "x_new_idea_1 new192_plant_grew_s new192_plant_grew_s new192_plant_grew_new_192_a3 g10_lbl031_know_all_a1 new192_plant_grew_new_192_a4 new192_plant_grew_new_192_a2 new192_plant_grew_new_192_o5 g10_lbl031_know_all_o_e2 new192_plant_grew_new_192_o8 new192_plant_grew_new_192_o7 new192_plant_grew_new_192_o3 new192_plant_grew_new_192_o4",
-  "node a1: (Head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s b321_healers_week_b321_a1 anexp33_overwhelmed_a0 anjus25_sleepless_a2 c5b071_fear_success_a1 b321_healers_week_b321_o2 anexp33_overwhelmed_o_a2 anjus25_sleepless_o_c2 c5b071_fear_success_o_e1 c5b071_fear_success_o_e2",
-  "node o3_2: (in the cooking pot) is not a placeholder (write \\( \\) for a parenthe": "x_strange_sign_20 b154_memory_moths_s b154_memory_moths_s b154_memory_moths_b154_a4 b154_memory_moths_b154_a1 b154_memory_moths_b154_a3 b154_memory_moths_b154_o5 b154_memory_moths_b154_o2 b154_memory_moths_b154_o1 b154_memory_moths_b154_o2 b154_memory_moths_b154_o3",
-  "role sculptor: unknown fields speaks": "x_art_story_2 anexp47_sculptor_s anexp47_sculptor_s anexp47_sculptor_a0 anexp47_sculptor_a1 anexp47_sculptor_o_a2 anexp47_sculptor_o_b2 anexp47_sculptor_o_b1",
-  "role relative: unknown fields speaks": "x_art_story_2 anexp47_sculptor_s anexp47_sculptor_s anexp47_sculptor_a0 anexp47_sculptor_a1 anexp47_sculptor_o_a2 anexp47_sculptor_o_b2 anexp47_sculptor_o_b1",
-  "role builder: unknown fields speaks": "x_animal_4 anexp03_unsteady_cairn_s anexp03_unsteady_cairn_s anexp03_unsteady_cairn_a2 g6_cat142_ptarmigan_a0 anexp03_unsteady_cairn_o_c1 g6_cat142_ptarmigan_o_a",
-  "node a2: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_mistake_1 new164_love_letter_s new164_love_letter_s anhs20_pride_after_a0 new164_love_letter_new_164_a2 g14_rm27_quiet_apology_a1 anhs20_pride_after_a2 anhs20_pride_after_o_a2 new164_love_letter_new_164_o3 g14_rm27_quiet_apology_o_b2 anhs20_pride_after_o_c2",
-  "node o1_1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new106_blessing_tree_s new106_blessing_tree_s new106_blessing_tree_new_106_a3 new106_blessing_tree_new_106_a2 new106_blessing_tree_new_106_a1 g5_anfau23_stranger_beast_a0 new106_blessing_tree_new_106_o6 new106_blessing_tree_new_106_o4 new106_blessing_tree_new_106_o3 new106_blessing_tree_new_106_o1 g5_anfau23_stranger_beast_o_a2 g5_anfau23_stranger_beast_o_a1",
-  "node o1_2: (grave2) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_9 my115_stranger_season_s my115_stranger_season_s my115_stranger_season_my_115_a2 my115_stranger_season_my_115_a3 my115_stranger_season_my_115_a4 g5_my051_visitor_cradle_my_051_a1 my115_stranger_season_my_115_o3 my115_stranger_season_my_115_o4 my115_stranger_season_my_115_o5 my115_stranger_season_my_115_o6 my115_stranger_season_my_115_o7 my115_stranger_season_my_115_o8 g5_my051_visitor_cradle_my_051_o1",
-  "node a1: (grave1) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_9 my115_stranger_season_s my115_stranger_season_s my115_stranger_season_my_115_a2 my115_stranger_season_my_115_a3 my115_stranger_season_my_115_a4 g5_my051_visitor_cradle_my_051_a1 my115_stranger_season_my_115_o3 my115_stranger_season_my_115_o4 my115_stranger_season_my_115_o5 my115_stranger_season_my_115_o6 my115_stranger_season_my_115_o7 my115_stranger_season_my_115_o8 g5_my051_visitor_cradle_my_051_o1",
-  "node a2: (scholar) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new177_two_histories_s new177_two_histories_s g8_anhs23_apology_a1 new177_two_histories_new_177_a1 g8_anhs23_apology_o_b2 g8_anhs23_apology_o_b1 new177_two_histories_new_177_o1 new177_two_histories_new_177_o2 new177_two_histories_new_177_f2",
-  "node a2: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new177_two_histories_s new177_two_histories_s g8_anhs23_apology_a1 new177_two_histories_new_177_a1 g8_anhs23_apology_o_b2 g8_anhs23_apology_o_b1 new177_two_histories_new_177_o1 new177_two_histories_new_177_o2 new177_two_histories_new_177_f2",
-  "node o1_2: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_celebration_2 b238_island_wedding_s b238_island_wedding_s b238_island_wedding_b238_a2 g1_c5b001_fireside_chorus_a1 b238_island_wedding_b238_o4 b238_island_wedding_b238_o3 g1_c5b001_fireside_chorus_o_e2 b238_island_wedding_b238_f1",
-  "node a1: (friend) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_6 new173_name_lost_magic_s new173_name_lost_magic_s new173_name_lost_magic_new_173_a2 new173_name_lost_magic_new_173_a3 new173_name_lost_magic_new_173_o4 new173_name_lost_magic_new_173_o3 new173_name_lost_magic_new_173_o5 new173_name_lost_magic_new_173_f1",
-  "node o2_2: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new103_twin_mist_s new103_twin_mist_s new103_twin_mist_new_103_a2 new103_twin_mist_new_103_a3 new103_twin_mist_new_103_o4 new103_twin_mist_new_103_o6 new103_twin_mist_new_103_o5",
-  "role ally: unknown fields speaks": "x_child_problem_20 il168_scary_tree_s il168_scary_tree_s g12_fat18_father_mistake_a2 g6_sss073_child_could_sit_a0 il168_scary_tree_a0 g12_fat18_father_mistake_o_c1 g12_fat18_father_mistake_o_c2 g6_sss073_child_could_sit_o_a il168_scary_tree_o_a",
-  "node q: (young.his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_3 b016_grandchild_spell_s b016_grandchild_spell_s b016_grandchild_spell_b016_a3 b016_grandchild_spell_b016_a2 g14_lvuns17_child_saw_sky_a1 g13_lvppl29_circle_people_a2 b016_grandchild_spell_b016_o1 b016_grandchild_spell_b016_o2 b016_grandchild_spell_b016_o3 b016_grandchild_spell_b016_o4 g14_lvuns17_child_saw_sky_o_b2 g13_lvppl29_circle_people_o_c1",
-  "node a2 (New Believers without novice): (novice) is shown while novice may not b": "x_farming_1 new197_sick_plant_s new197_sick_plant_s new197_sick_plant_new_197_a2 new197_sick_plant_new_197_a4 new197_sick_plant_new_197_a1 g0_lvauth12_chief_rain_g27_a3 new197_sick_plant_new_197_o4 new197_sick_plant_new_197_o7 new197_sick_plant_new_197_o8 new197_sick_plant_new_197_o2 new197_sick_plant_new_197_o1 g0_lvauth12_chief_rain_g27_o_d1 g0_lvauth12_chief_rain_g27_o_d2",
-  "role fisher: unknown fields speaks": "x_new_idea_13 hum22_potion_made_s hum22_potion_made_s g13_sss086_heard_too_much_a2 hum22_potion_made_a0 g13_sss086_heard_too_much_o_c hum22_potion_made_o_o1",
-  "node q: (healer) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_2 b121_fever_tea_s b121_fever_tea_s b121_fever_tea_b121_a2 g1_lvauth06_master_healer_a2 b121_fever_tea_b121_o4 g1_lvauth06_master_healer_o_c2 g1_lvauth06_master_healer_o_c1",
-  "node o1_1: (healer) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_2 b121_fever_tea_s b121_fever_tea_s b121_fever_tea_b121_a2 g1_lvauth06_master_healer_a2 b121_fever_tea_b121_o4 g1_lvauth06_master_healer_o_c2 g1_lvauth06_master_healer_o_c1",
-  "role apprentice: unknown fields speaks": "x_celebration_5 anmom08_applause_s anmom08_applause_s anmom08_applause_a1 anrel27_festival_a1 anmom08_applause_a0 anmom08_applause_o_b2 anmom08_applause_o_b1 anrel27_festival_o_b2 anrel27_festival_o_b1 anmom08_applause_o_a1",
-  "node q (A New Home without young): (young) is shown while young may not be bound": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a3 b080_elder_hills_b080_a1 b080_elder_hills_b080_o4 b080_elder_hills_b080_o3 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2",
-  "node a2 (A New Home without young): (young) is shown while young may not be boun": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a3 b080_elder_hills_b080_a1 b080_elder_hills_b080_o4 b080_elder_hills_b080_o3 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2",
-  "node o2_2: (plan the work, check the joints, keep people fed) is not a placehold": "x_personal_change_1 new183_unwanted_s new183_unwanted_s g11_anrel12_unspoken_a3 new183_unwanted_new_183_a1 g11_anrel12_unspoken_o_d2 g11_anrel12_unspoken_o_d1 new183_unwanted_new_183_o1 new183_unwanted_new_183_o2",
-  "node a2: (mentor) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 new185_without_tasks_s new185_without_tasks_s new185_without_tasks_new_185_a1 new185_without_tasks_new_185_a2 new185_without_tasks_new_185_o2 new185_without_tasks_new_185_o3 new185_without_tasks_new_185_o4",
-  "node q (A New Home without fisher): (fisher) is shown while fisher may not be bo": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s b138_fisher_trip_b138_a4 g11_lvcir13_grandmother_a0 g8_sss075_night_sleep_a1 b138_fisher_trip_b138_o1 b138_fisher_trip_b138_o2 g11_lvcir13_grandmother_o_a2 g8_sss075_night_sleep_o_b",
-  "node o1_1 (A New Home without fisher): (fisher) is shown while fisher may not be": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s b138_fisher_trip_b138_a4 g11_lvcir13_grandmother_a0 g8_sss075_night_sleep_a1 b138_fisher_trip_b138_o1 b138_fisher_trip_b138_o2 g11_lvcir13_grandmother_o_a2 g8_sss075_night_sleep_o_b",
-  "node o2_1: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my039_clay_figure_s my039_clay_figure_s my039_clay_figure_my_039_a4 my039_clay_figure_my_039_a3 g0_rm15_different_answer_a1 my039_clay_figure_my_039_o7 my039_clay_figure_my_039_o8 my039_clay_figure_my_039_o5 my039_clay_figure_my_039_o6 g0_rm15_different_answer_o_b1",
-  "node a3: (making it purple too) is not a placeholder (write \\( \\) for a parenthe": "x_mistake_1 s094_spilled_dye_s s094_spilled_dye_s anhs20_pride_after_a2 anhs20_pride_after_a3 s094_spilled_dye_s094_a2 s094_spilled_dye_s094_a1 anhs20_pride_after_o_c2 anhs20_pride_after_o_d2 s094_spilled_dye_s094_o3 s094_spilled_dye_s094_o4 s094_spilled_dye_s094_o2 s094_spilled_dye_s094_o1",
-  "node q label: (Elder Name) is not a placeholder (write \\( \\) for a parenthesis)": "x_weather_3 b226_flood_s b226_flood_s b226_flood_b226_a4 b226_flood_b226_a1 b226_flood_b226_o3 b226_flood_b226_o2 b226_flood_b226_o1",
-  "node q: the label's (Elder Name) is not a placeholder a label can show": "x_weather_3 b226_flood_s b226_flood_s b226_flood_b226_a4 b226_flood_b226_a1 b226_flood_b226_o3 b226_flood_b226_o2 b226_flood_b226_o1",
-  "node q (A New Home without carver): (carver) is shown while carver may not be bo": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a3 b212_last_canoe_b212_a1 b212_last_canoe_b212_o1 b212_last_canoe_b212_o2 b212_last_canoe_b212_o1 b212_last_canoe_b212_f2",
-  "node o1_1 (A New Home without carver): (carver) is shown while carver may not be": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a3 b212_last_canoe_b212_a1 b212_last_canoe_b212_o1 b212_last_canoe_b212_o2 b212_last_canoe_b212_o1 b212_last_canoe_b212_f2",
-  "node q: (chief) is not a placeholder (write \\( \\) for a parenthesis)": "x_contest_2 b250_contest_best_s b250_contest_best_s g17_sss078_words_stuck_a1 b250_contest_best_b250_a2 g13_c5a031_shield_dance_a0 g17_sss078_words_stuck_o_b b250_contest_best_b250_o3 b250_contest_best_b250_o4 g13_c5a031_shield_dance_o_o2 b250_contest_best_b250_f1",
-  "node o1_1: (in the cooking pot) is not a placeholder (write \\( \\) for a parenthe": "x_strange_sign_20 b154_memory_moths_s b154_memory_moths_s b154_memory_moths_b154_a3 b154_memory_moths_b154_a4 g9_lvuns19_why_do_spirits_a2 b154_memory_moths_b154_a1 b154_memory_moths_b154_o3 b154_memory_moths_b154_o2 b154_memory_moths_b154_o5 g9_lvuns19_why_do_spirits_o_c2 b154_memory_moths_b154_o1 b154_memory_moths_b154_o2 b154_memory_moths_b154_f2",
-  "node q label: (Child Name) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_4 b249_grandchild_spell_s b249_grandchild_spell_s b249_grandchild_spell_b249_a1 anage04_nursery_a3 b249_grandchild_spell_b249_a2 b249_grandchild_spell_b249_o1 b249_grandchild_spell_b249_o2 anage04_nursery_o_d1 b249_grandchild_spell_b249_o3 b249_grandchild_spell_b249_o4 b249_grandchild_spell_b249_f3",
-  "node q: the label's (Child Name) is not a placeholder a label can show": "x_child_problem_4 b249_grandchild_spell_s b249_grandchild_spell_s b249_grandchild_spell_b249_a1 anage04_nursery_a3 b249_grandchild_spell_b249_a2 b249_grandchild_spell_b249_o1 b249_grandchild_spell_b249_o2 anage04_nursery_o_d1 b249_grandchild_spell_b249_o3 b249_grandchild_spell_b249_o4 b249_grandchild_spell_b249_f3",
-  "node o2_1: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_celebration_1 my036_empty_seat_feast_s my036_empty_seat_feast_s my036_empty_seat_feast_my_036_a2 my036_empty_seat_feast_my_036_a1 my036_empty_seat_feast_my_036_a4 my036_empty_seat_feast_my_036_a3 my036_empty_seat_feast_my_036_o3 my036_empty_seat_feast_my_036_o2 my036_empty_seat_feast_my_036_o1 my036_empty_seat_feast_my_036_o8 my036_empty_seat_feast_my_036_o7 my036_empty_seat_feast_my_036_o6 my036_empty_seat_feast_my_036_o5",
-  "node a2: (builder) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new187_shared_harvest_s new187_shared_harvest_s new187_shared_harvest_new_187_a1 new187_shared_harvest_new_187_a3 new187_shared_harvest_new_187_o2 new187_shared_harvest_new_187_o1 new187_shared_harvest_new_187_o6",
-  "node a1 (A New Home without young): (young) is shown while young may not be boun": "x_elder_wish_1 new131_elder_garden_s new131_elder_garden_s new131_elder_garden_new_131_a2 g14_anchd35_why_do_people_a1 new131_elder_garden_new_131_a1 g8_anage17_adult_needs_a0 new131_elder_garden_new_131_o3 new131_elder_garden_new_131_o4 g14_anchd35_why_do_people_o_b2 g14_anchd35_why_do_people_o_b1 new131_elder_garden_new_131_o1 new131_elder_garden_new_131_o2 g8_anage17_adult_needs_o_a1 g8_anage17_adult_needs_o_a2",
-  "node a3 (A New Home without young): (young) is shown while young may not be boun": "x_elder_wish_1 new131_elder_garden_s new131_elder_garden_s new131_elder_garden_new_131_a2 g14_anchd35_why_do_people_a1 new131_elder_garden_new_131_a1 g8_anage17_adult_needs_a0 new131_elder_garden_new_131_o3 new131_elder_garden_new_131_o4 g14_anchd35_why_do_people_o_b2 g14_anchd35_why_do_people_o_b1 new131_elder_garden_new_131_o1 new131_elder_garden_new_131_o2 g8_anage17_adult_needs_o_a1 g8_anage17_adult_needs_o_a2",
-  "node a2: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_1 new121_scientist_s new121_scientist_s new121_scientist_new_121_a1 new121_scientist_new_121_a3 new121_scientist_new_121_a2 g3_anexp21_festival_mask_a2 new121_scientist_new_121_o1 new121_scientist_new_121_o5 new121_scientist_new_121_o6 new121_scientist_new_121_o3 g3_anexp21_festival_mask_o_c1 new121_scientist_new_121_f3",
-  "role crafts: unknown fields speaks": "x_mistake_2 anjus08_wounded_pride_s anjus08_wounded_pride_s anjus06_punishment_a1 anjus08_wounded_pride_a1 anjus06_punishment_o_b1 anjus08_wounded_pride_o_b2 anjus08_wounded_pride_o_b1",
-  "node o1_1: (teacher) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 new124_teacher_s new124_teacher_s new124_teacher_new_124_a3 g8_anhs20_pride_after_a3 new124_teacher_new_124_a2 new124_teacher_new_124_o5 g8_anhs20_pride_after_o_d2 new124_teacher_new_124_o3 new124_teacher_new_124_o4",
-  "node a1: (teacher) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 new124_teacher_s new124_teacher_s new124_teacher_new_124_a3 g8_anhs20_pride_after_a3 new124_teacher_new_124_a2 new124_teacher_new_124_o5 g8_anhs20_pride_after_o_d2 new124_teacher_new_124_o3 new124_teacher_new_124_o4",
-  "role teacher: unknown fields speaks": "x_child_problem_9 anchd37_why_do_we_s anchd37_why_do_we_s anchd34_why_do_we_have_a2 anchd33_why_does_metal_a2 anchd34_why_do_we_have_a3 anchd40_why_do_some_a3 anchd34_why_do_we_have_o_c1 anchd33_why_does_metal_o_c2 anchd34_why_do_we_have_o_d2 anchd34_why_do_we_have_o_d1 anchd40_why_do_some_o_d1 anchd40_why_do_some_o_d2",
-  "role neighbor: unknown fields speaks": "x_quarrel_3 anfam17_neighbor_loud_s anfam17_neighbor_loud_s anfam17_neighbor_loud_a0 anfam15_late_apology_a1 anfam17_neighbor_loud_o_a1 anfam17_neighbor_loud_o_a2 anfam15_late_apology_o_b1",
-  "role asker: unknown fields speaks": "x_contest_3 il098_old_game_s il098_old_game_s il098_old_game_a1 g15_rm82_middle_sibling_a3 anfam10_cousins_a1 il098_old_game_o_b g15_rm82_middle_sibling_o_d1 anfam10_cousins_o_b1",
-  "node q label: (Healer Name) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_23 b237_mud_bath_s b237_mud_bath_s b237_mud_bath_b237_a2 b237_mud_bath_b237_a4 b237_mud_bath_b237_a1 b237_mud_bath_b237_a3 b237_mud_bath_b237_o3 b237_mud_bath_b237_o4 b237_mud_bath_b237_o3 b237_mud_bath_b237_o1 b237_mud_bath_b237_o1",
-  "node q: the label's (Healer Name) is not a placeholder a label can show": "x_strange_sign_23 b237_mud_bath_s b237_mud_bath_s b237_mud_bath_b237_a2 b237_mud_bath_b237_a4 b237_mud_bath_b237_a1 b237_mud_bath_b237_a3 b237_mud_bath_b237_o3 b237_mud_bath_b237_o4 b237_mud_bath_b237_o3 b237_mud_bath_b237_o1 b237_mud_bath_b237_o1",
-  "node a2: (parent) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new165_couple_chose_s new165_couple_chose_s new165_couple_chose_new_165_a2 new165_couple_chose_new_165_a3 g0_anfau18_scale_feather_a3 new165_couple_chose_new_165_a1 new165_couple_chose_new_165_o4 new165_couple_chose_new_165_o3 new165_couple_chose_new_165_o6 new165_couple_chose_new_165_o5 g0_anfau18_scale_feather_o_d2 g0_anfau18_scale_feather_o_d1 new165_couple_chose_new_165_o1",
-  "node a2: (Elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 b199_chief_bad_day_s b199_chief_bad_day_s anage10_public_a2 b199_chief_bad_day_b199_a3 anage10_public_o_c1 b199_chief_bad_day_b199_o2 b199_chief_bad_day_b199_o4",
-  "node q: (sick) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_4 b301_wrong_jar_s b301_wrong_jar_s anexp32_sleepless_a3 anage17_adult_needs_a3 anexp32_sleepless_o_d1 anage17_adult_needs_o_d1 anage17_adult_needs_o_d2 b301_wrong_jar_b301_f3",
-  "node a3: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_mistake_1 new164_love_letter_s new164_love_letter_s anhs20_pride_after_a0 g9_lvauth07_chief_could_g27_a0 new164_love_letter_new_164_a2 anhs20_pride_after_o_a2 g9_lvauth07_chief_could_g27_o_a1 g9_lvauth07_chief_could_g27_o_a2 new164_love_letter_new_164_o4 new164_love_letter_new_164_o3",
-  "node a3: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_mistake_1 new164_love_letter_s new164_love_letter_s anhs20_pride_after_a0 g9_lvauth07_chief_could_g27_a0 new164_love_letter_new_164_a2 anhs20_pride_after_o_a2 g9_lvauth07_chief_could_g27_o_a1 g9_lvauth07_chief_could_g27_o_a2 new164_love_letter_new_164_o4 new164_love_letter_new_164_o3",
-  "role old_friend: unknown fields speaks": "x_feelings_22 div18_way_says_hello_s div18_way_says_hello_s div18_way_says_hello_a0 g3_anrel11_private_truth_a2 div18_way_says_hello_a1 div18_way_says_hello_o_o1 g3_anrel11_private_truth_o_c1 div18_way_says_hello_o_o2",
-  "node a2 (A New Home without friend): (friend.his/her) is shown while friend may ": "x_strange_sign_22 b217_swapping_shells_s b217_swapping_shells_s b217_swapping_shells_b217_a4 b217_swapping_shells_b217_a2 b217_swapping_shells_b217_o3 b217_swapping_shells_b217_o4 b217_swapping_shells_b217_o3",
-  "node a2 (A New Home without partner): (partner) is shown while partner may not b": "x_newcomer_12 b351_bundle_breadfruit_s b351_bundle_breadfruit_s b351_bundle_breadfruit_b351_a1 b351_bundle_breadfruit_b351_a2 b351_bundle_breadfruit_b351_o1 b351_bundle_breadfruit_b351_o2 b351_bundle_breadfruit_b351_o4 b351_bundle_breadfruit_b351_o3",
-  "node o3_1: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_celebration_1 my036_empty_seat_feast_s my036_empty_seat_feast_s my036_empty_seat_feast_my_036_a3 my036_empty_seat_feast_my_036_a4 my036_empty_seat_feast_my_036_a1 my036_empty_seat_feast_my_036_o6 my036_empty_seat_feast_my_036_o5 my036_empty_seat_feast_my_036_o7 my036_empty_seat_feast_my_036_o8 my036_empty_seat_feast_my_036_o2 my036_empty_seat_feast_my_036_f2",
-  "role speaker: unknown fields speaks": "x_quarrel_5 anjus23_joke_funny_s anjus23_joke_funny_s anjus23_joke_funny_a0 anjus23_joke_funny_a3 anjus23_joke_funny_o_a1 anjus23_joke_funny_o_a2 anjus23_joke_funny_o_d2 anjus23_joke_funny_o_d1",
-  "node q label: (Builder Name) is not a placeholder (write \\( \\) for a parenthesis": "x_danger_3 b164_coconut_shy_s b164_coconut_shy_s b164_coconut_shy_b164_a4 b164_coconut_shy_b164_a3 b164_coconut_shy_b164_a2 b164_coconut_shy_b164_a1 b164_coconut_shy_b164_o4 b164_coconut_shy_b164_o1 b164_coconut_shy_b164_o3 b164_coconut_shy_b164_o3 b164_coconut_shy_b164_o4 b164_coconut_shy_b164_o2 b164_coconut_shy_b164_f3",
-  "node q: the label's (Builder Name) is not a placeholder a label can show": "x_danger_3 b164_coconut_shy_s b164_coconut_shy_s b164_coconut_shy_b164_a4 b164_coconut_shy_b164_a3 b164_coconut_shy_b164_a2 b164_coconut_shy_b164_a1 b164_coconut_shy_b164_o4 b164_coconut_shy_b164_o1 b164_coconut_shy_b164_o3 b164_coconut_shy_b164_o3 b164_coconut_shy_b164_o4 b164_coconut_shy_b164_o2 b164_coconut_shy_b164_f3",
-  "node a3: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_2 new137_last_dance_s new137_last_dance_s new137_last_dance_new_137_a1 g10_rm35_elder_unfinished_a1 new137_last_dance_new_137_a3 new137_last_dance_new_137_o2 g10_rm35_elder_unfinished_o_b1 new137_last_dance_new_137_o6 new137_last_dance_new_137_o5 new137_last_dance_new_137_f3",
-  "node a1: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_mistake_1 new164_love_letter_s new164_love_letter_s new164_love_letter_new_164_a2 new164_love_letter_new_164_a1 anhs20_pride_after_a3 new164_love_letter_new_164_o3 new164_love_letter_new_164_o4 new164_love_letter_new_164_o2 anhs20_pride_after_o_d2 new164_love_letter_new_164_f2",
-  "node a1: (aunt) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_3 new162_farmer_shy_s new162_farmer_shy_s new162_farmer_shy_new_162_a3 new162_farmer_shy_new_162_a2 new162_farmer_shy_new_162_o5 new162_farmer_shy_new_162_o6 new162_farmer_shy_new_162_o3 new162_farmer_shy_new_162_o4",
-  "role craftsperson: unknown fields speaks": "x_sickness_5 anhs28_hand_changed_s anhs28_hand_changed_s anhs27_broken_arm_long_a1 anhs28_hand_changed_a1 anjus12_fracture_a1 anhs27_broken_arm_long_o_b2 anhs27_broken_arm_long_o_b1 anhs28_hand_changed_o_b1 anhs28_hand_changed_o_b2 anjus12_fracture_o_b1",
-  "node q: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_animal_2 b156_old_well_s b156_old_well_s b156_old_well_b156_a1 g1_cat142_ptarmigan_a0 b156_old_well_b156_o1 g1_cat142_ptarmigan_o_a",
-  "node a3 (A New Home without novice): (novice) is shown while novice may not be b": "x_new_idea_1 new192_plant_grew_s new192_plant_grew_s new192_plant_grew_new_192_a1 new192_plant_grew_new_192_a3 new192_plant_grew_new_192_a4 new192_plant_grew_new_192_o1 new192_plant_grew_new_192_o5 new192_plant_grew_new_192_o6 new192_plant_grew_new_192_o7 new192_plant_grew_new_192_o8",
-  "node a3: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_2 new198_stone_floats_s new198_stone_floats_s new198_stone_floats_new_198_a3 new198_stone_floats_new_198_a4 new198_stone_floats_new_198_a1 new198_stone_floats_new_198_o5 new198_stone_floats_new_198_o6 new198_stone_floats_new_198_o8 new198_stone_floats_new_198_o7 new198_stone_floats_new_198_o1 new198_stone_floats_new_198_o2 new198_stone_floats_new_198_f2",
-  "node a1 (A New Home without carver): (carver) is shown while carver may not be b": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a1 g2_c5c026_unasked_a1 b212_last_canoe_b212_a3 b212_last_canoe_b212_o1 b212_last_canoe_b212_o2 g2_c5c026_unasked_o_e2 g2_c5c026_unasked_o_e1 b212_last_canoe_b212_o1",
-  "role judge: unknown fields speaks": "x_contest_5 hum43_tug_war_nobody_s hum43_tug_war_nobody_s hum43_tug_war_nobody_a1 g9_anexp07_village_games_a3 hum43_tug_war_nobody_a0 hum43_tug_war_nobody_o_o2 g9_anexp07_village_games_o_d2 g9_anexp07_village_games_o_d1 hum43_tug_war_nobody_o_o1",
-  "role grandparent: unknown fields speaks": "x_feelings_3 anhs07_embarrassing_s anhs07_embarrassing_s anhs41_hard_clear_a2 anhs22_jealous_a3 anhs41_hard_clear_o_c1 anhs41_hard_clear_o_c2 anhs22_jealous_o_d2",
-  "node o1_1: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_animal_2 b156_old_well_s b156_old_well_s b156_old_well_b156_a3 b156_old_well_b156_a2 b156_old_well_b156_o2 b156_old_well_b156_o4 b156_old_well_b156_f3",
-  "node q: (healer: his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_3 s042_midwife_dream_s s042_midwife_dream_s s042_midwife_dream_s042_a4 s042_midwife_dream_s042_a1 s042_midwife_dream_s042_o4 s042_midwife_dream_s042_o2 s042_midwife_dream_s042_o1 s042_midwife_dream_s042_f1",
-  "node o2_1: (adult) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_1 new121_scientist_s new121_scientist_s new121_scientist_new_121_a1 new121_scientist_new_121_a2 new121_scientist_new_121_a3 new121_scientist_new_121_o2 new121_scientist_new_121_o1 new121_scientist_new_121_o4 new121_scientist_new_121_o3 new121_scientist_new_121_o6 new121_scientist_new_121_o5 new121_scientist_new_121_f1",
-  "node a2: (friend.his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_2 b132_builders_wager_s b132_builders_wager_s b132_builders_wager_b132_a3 b132_builders_wager_b132_a2 g1_c5b019_little_wiser_a0 b132_builders_wager_b132_o5 b132_builders_wager_b132_o4 g1_c5b019_little_wiser_o_e1 g1_c5b019_little_wiser_o_e2 b132_builders_wager_b132_f1",
-  "node q: the label's (Name2) names friend, who may not be bound": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a1 b281_lotus_opened_dawn_b281_a2 b281_lotus_opened_dawn_b281_o1 b281_lotus_opened_dawn_b281_o2 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o3",
-  "node q (A New Home without partner, friend): (Name2) is shown while friend may n": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a1 b281_lotus_opened_dawn_b281_a2 b281_lotus_opened_dawn_b281_o1 b281_lotus_opened_dawn_b281_o2 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o3",
-  "role $newest: an id is 1..32 letters, digits or _": "x_newcomer_3 new170_newcomer_choice_s new170_newcomer_choice_s new170_newcomer_choice_new_170_a3 new170_newcomer_choice_new_170_a2 g5_lbl079_hidden_a0 new170_newcomer_choice_new_170_a1 new170_newcomer_choice_new_170_o6 new170_newcomer_choice_new_170_o5 new170_newcomer_choice_new_170_o4 g5_lbl079_hidden_o_e1 new170_newcomer_choice_new_170_o1 new170_newcomer_choice_new_170_o2 new170_newcomer_choice_new_170_f2",
-  "node a1: (name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_3 new170_newcomer_choice_s new170_newcomer_choice_s new170_newcomer_choice_new_170_a3 new170_newcomer_choice_new_170_a2 g5_lbl079_hidden_a0 new170_newcomer_choice_new_170_a1 new170_newcomer_choice_new_170_o6 new170_newcomer_choice_new_170_o5 new170_newcomer_choice_new_170_o4 g5_lbl079_hidden_o_e1 new170_newcomer_choice_new_170_o1 new170_newcomer_choice_new_170_o2 new170_newcomer_choice_new_170_f2",
-  "role singer: unknown fields speaks": "x_art_story_2 anexp12_nursery_song_s anexp12_nursery_song_s anexp12_nursery_song_a3 g19_anchd44_why_do_people_a1 anexp12_nursery_song_a1 anexp12_nursery_song_a0 anexp12_nursery_song_o_d1 anexp12_nursery_song_o_d2 g19_anchd44_why_do_people_o_b2 g19_anchd44_why_do_people_o_b1 anexp12_nursery_song_o_b2 anexp12_nursery_song_o_b1 anexp12_nursery_song_o_a2",
-  "node a4: (builder) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 new188_long_way_home_s new188_long_way_home_s new188_long_way_home_new_188_a1 anjus25_sleepless_a2 new188_long_way_home_new_188_a2 new188_long_way_home_new_188_a3 new188_long_way_home_new_188_o2 anjus25_sleepless_o_c2 new188_long_way_home_new_188_o4 new188_long_way_home_new_188_o6 new188_long_way_home_new_188_o5 new188_long_way_home_new_188_f2",
-  "role worker: unknown fields speaks": "x_leadership_3 anhs11_chief_nobody_g27_s anhs11_chief_nobody_g27_s anjus28_rule_hurt_g27_a0 anhs11_chief_nobody_g27_a0 anexp41_painted_g27_a0 anjus28_rule_hurt_g27_o_a1 anhs11_chief_nobody_g27_o_a2 anexp41_painted_g27_o_a2 anexp41_painted_g27_o_a1",
-  "node a3: (healer) is not a placeholder (write \\( \\) for a parenthesis)": "x_tradition_1 b005_blessing_stones_s b005_blessing_stones_s b005_blessing_stones_b005_a4 b005_blessing_stones_b005_a1 b005_blessing_stones_b005_a2 b005_blessing_stones_b005_o3 b005_blessing_stones_b005_o1 b005_blessing_stones_b005_o2 b005_blessing_stones_b005_o3 b005_blessing_stones_b005_f1",
-  "node a3: (\"Thank you for the fish. They are delicious. Who are you?\") is not a p": "x_strange_sign_12 my077_gift_unseen_s my077_gift_unseen_s my077_gift_unseen_my_077_a2 my077_gift_unseen_my_077_a1 my077_gift_unseen_my_077_a3 my077_gift_unseen_my_077_a4 my077_gift_unseen_my_077_o4 my077_gift_unseen_my_077_o1 my077_gift_unseen_my_077_o2 my077_gift_unseen_my_077_o5 my077_gift_unseen_my_077_o7 my077_gift_unseen_my_077_o8",
-  "role critic: unknown fields speaks": "x_leadership_3 anexp41_painted_g27_s anexp41_painted_g27_s anexp70_unspoken_rule_a1 anexp41_painted_g27_a0 anexp41_painted_g27_a2 anexp41_painted_g27_a1 anexp70_unspoken_rule_o_b2 anexp41_painted_g27_o_a1 anexp41_painted_g27_o_a2 anexp41_painted_g27_o_c2 anexp41_painted_g27_o_c1 anexp41_painted_g27_o_b2 anexp41_painted_g27_o_b1",
-  "node a1 (The Lost Children without young): (young) is shown while young may not ": "x_art_story_1 new138_grandparent_s new138_grandparent_s new138_grandparent_new_138_a1 new138_grandparent_new_138_a2 new138_grandparent_new_138_a3 g10_anjoy09_cave_echo_a2 new138_grandparent_new_138_o1 new138_grandparent_new_138_o2 new138_grandparent_new_138_o4 new138_grandparent_new_138_o3 new138_grandparent_new_138_o5 g10_anjoy09_cave_echo_o_c2 new138_grandparent_new_138_f2",
-  "node a2 (The Lost Children without young): (young) is shown while young may not ": "x_art_story_1 new138_grandparent_s new138_grandparent_s new138_grandparent_new_138_a1 new138_grandparent_new_138_a2 new138_grandparent_new_138_a3 g10_anjoy09_cave_echo_a2 new138_grandparent_new_138_o1 new138_grandparent_new_138_o2 new138_grandparent_new_138_o4 new138_grandparent_new_138_o3 new138_grandparent_new_138_o5 g10_anjoy09_cave_echo_o_c2 new138_grandparent_new_138_f2",
-  "role other: unknown fields speaks": "x_feelings_4 anrel02_crush_s anrel02_crush_s g9_sss080_many_feelings_a0 anrel02_crush_a3 g9_sss080_many_feelings_o_a anrel02_crush_o_d1",
-  "node a2: (head) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new167_partners_work_s new167_partners_work_s new167_partners_work_new_167_a2 new167_partners_work_new_167_a3 new167_partners_work_new_167_a1 new167_partners_work_new_167_o3 new167_partners_work_new_167_o4 new167_partners_work_new_167_o5 new167_partners_work_new_167_o6 new167_partners_work_new_167_o1 new167_partners_work_new_167_o2 new167_partners_work_new_167_f1",
-  "node a1: (sick) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_3 b255_coughing_season_s b255_coughing_season_s b255_coughing_season_b255_a2 g10_anhs24_small_cut_work_a1 b255_coughing_season_b255_o3 g10_anhs24_small_cut_work_o_b1",
-  "node o1_2: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new112_watch_night_s new112_watch_night_s new112_watch_night_new_112_a1 new112_watch_night_new_112_a3 g7_sss044_limit_power_a1 anage10_public_a2 new112_watch_night_new_112_o1 new112_watch_night_new_112_o2 new112_watch_night_new_112_o6 g7_sss044_limit_power_o_b anage10_public_o_c1 new112_watch_night_new_112_f3",
-  "role weaver: unknown fields speaks": "x_personal_change_3 anrel14_weaver_loved_s anrel14_weaver_loved_s g5_anrel29_villager_a1 anrel14_weaver_loved_a0 anrel12_unspoken_a3 g5_anrel29_villager_o_b1 g5_anrel29_villager_o_b2 anrel14_weaver_loved_o_a2 anrel14_weaver_loved_o_a1 anrel12_unspoken_o_d1",
-  "role elder1: unknown fields speaks": "x_elder_wish_6 anjus21_memory_war_s anjus21_memory_war_s anjoy33_elder_without_a0 anjus21_memory_war_a2 anjoy33_elder_without_o_a2 anjus21_memory_war_o_c1 anjus21_memory_war_o_c2",
-  "node o1_1: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b090_healer_steps_down_s b090_healer_steps_down_s b090_healer_steps_down_b090_a3 g13_lvlife21_story_tablet_a0 b090_healer_steps_down_b090_o3 g13_lvlife21_story_tablet_o_a2",
-  "node a3: (mentor) is not a placeholder (write \\( \\) for a parenthesis)": "x_personal_change_1 new184_fisher_wanted_s new184_fisher_wanted_s new184_fisher_wanted_new_184_a2 new184_fisher_wanted_new_184_a1 new184_fisher_wanted_new_184_a3 g14_anrel36_clothing_felt_a2 new184_fisher_wanted_new_184_o4 new184_fisher_wanted_new_184_o3 new184_fisher_wanted_new_184_o2 new184_fisher_wanted_new_184_o1 new184_fisher_wanted_new_184_o5 new184_fisher_wanted_new_184_o6 g14_anrel36_clothing_felt_o_c1",
-  "node q (The Lost Children without young): (young) is shown while young may not b": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a3 b080_elder_hills_b080_a1 b080_elder_hills_b080_a4 b080_elder_hills_b080_o3 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2",
-  "node a3: (friend) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_6 new173_name_lost_magic_s new173_name_lost_magic_s new173_name_lost_magic_new_173_a2 new173_name_lost_magic_new_173_a3 new173_name_lost_magic_new_173_a1 g12_lvauth22_chief_false_g27_a3 new173_name_lost_magic_new_173_o4 new173_name_lost_magic_new_173_o3 new173_name_lost_magic_new_173_o6 new173_name_lost_magic_new_173_o5 new173_name_lost_magic_new_173_o1 g12_lvauth22_chief_false_g27_o_d1 new173_name_lost_magic_new_173_f1",
-  "node a1: (Elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 b199_chief_bad_day_s b199_chief_bad_day_s b199_chief_bad_day_b199_a3 b199_chief_bad_day_b199_a2 anage10_public_a2 g4_lbl094_worker_strike_a0 b199_chief_bad_day_b199_o2 b199_chief_bad_day_b199_o4 b199_chief_bad_day_b199_o4 b199_chief_bad_day_b199_o3 anage10_public_o_c1 g4_lbl094_worker_strike_o_e3 b199_chief_bad_day_b199_f2",
-  "role practitioner: unknown fields speaks": "x_personal_change_2 anexp15_piercing_s anexp15_piercing_s anexp15_piercing_a2 anexp16_mark_meaning_a3 g13_anrel36_clothing_felt_a2 g11_anrel20_partners_a1 anexp15_piercing_o_c1 anexp15_piercing_o_c2 anexp16_mark_meaning_o_d1 g13_anrel36_clothing_felt_o_c1 g11_anrel20_partners_o_b1",
-  "node a1: (mentor) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 new185_without_tasks_s new185_without_tasks_s new185_without_tasks_new_185_a2 new185_without_tasks_new_185_a3 new185_without_tasks_new_185_a1 new185_without_tasks_new_185_o3 new185_without_tasks_new_185_o4 new185_without_tasks_new_185_o6 new185_without_tasks_new_185_o1 new185_without_tasks_new_185_o2 new185_without_tasks_new_185_f3",
-  "node a2 (The Lost Children without friend): (friend.his/her) is shown while frie": "x_strange_sign_18 b113_night_fishers_s b113_night_fishers_s b113_night_fishers_b113_a4 b113_night_fishers_b113_a2 b113_night_fishers_b113_a3 b113_night_fishers_b113_o2 b113_night_fishers_b113_o1 b113_night_fishers_b113_o3 b113_night_fishers_b113_o4 b113_night_fishers_b113_o3 b113_night_fishers_b113_o4",
-  "node a1: (Child) is not a placeholder (write \\( \\) for a parenthesis)": "x_contest_1 b202_tag_champion_s b202_tag_champion_s b202_tag_champion_b202_a4 b202_tag_champion_b202_a3 b202_tag_champion_b202_a2 b202_tag_champion_b202_o1 b202_tag_champion_b202_o4 b202_tag_champion_b202_o3 b202_tag_champion_b202_f2",
-  "node a4: (mentor) is not a placeholder (write \\( \\) for a parenthesis)": "x_feelings_1 new190_worker_said_s new190_worker_said_s g7_anhs20_pride_after_a2 new190_worker_said_new_190_a2 new190_worker_said_new_190_a1 new190_worker_said_new_190_a3 g7_anhs20_pride_after_o_c2 new190_worker_said_new_190_o3 new190_worker_said_new_190_o4 new190_worker_said_new_190_o1 new190_worker_said_new_190_o2 new190_worker_said_new_190_o6 new190_worker_said_new_190_o5 new190_worker_said_new_190_f3",
-  "node a1 (The Lost Children without sick): (sick) is shown while sick may not be ": "x_sickness_3 b255_coughing_season_s b255_coughing_season_s b255_coughing_season_b255_a2 g0_anage17_adult_needs_a3 g8_anfau07_injured_a1 b255_coughing_season_b255_o3 b255_coughing_season_b255_o4 g0_anage17_adult_needs_o_d2 g0_anage17_adult_needs_o_d1 g8_anfau07_injured_o_b1 g8_anfau07_injured_o_b2 b255_coughing_season_b255_f2",
-  "node q (The Lost Children without friend, partner): (Name2) is shown while frien": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a2 b281_lotus_opened_dawn_b281_a1 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o3 b281_lotus_opened_dawn_b281_o1 b281_lotus_opened_dawn_b281_o2",
-  "node q: (carver) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a3 g9_sss095_old_grief_a0 b212_last_canoe_b212_o1 g9_sss095_old_grief_o_a b212_last_canoe_b212_f1",
-  "node o1_1: (carver) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a3 g9_sss095_old_grief_a0 b212_last_canoe_b212_o1 g9_sss095_old_grief_o_a b212_last_canoe_b212_f1",
-  "role artist: unknown fields speaks": "x_child_problem_10 anchd44_why_do_people_s anchd44_why_do_people_s anchd44_why_do_people_a3 anexp11_playground_a2 anchd44_why_do_people_o_d2 anexp11_playground_o_c1 anexp11_playground_o_c2",
-  "node o3_2: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_8 my026_house_dreamed_s my026_house_dreamed_s my026_house_dreamed_my_026_a1 my026_house_dreamed_my_026_a2 my026_house_dreamed_my_026_a4 my026_house_dreamed_my_026_o1 my026_house_dreamed_my_026_o4 my026_house_dreamed_my_026_o3 my026_house_dreamed_my_026_o7 my026_house_dreamed_my_026_o8",
-  "node a3: (builder) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 new188_long_way_home_s new188_long_way_home_s anexp33_overwhelmed_a0 anjus25_sleepless_a2 new188_long_way_home_new_188_a3 anexp33_overwhelmed_o_a2 anjus25_sleepless_o_c2 new188_long_way_home_new_188_o5 new188_long_way_home_new_188_o6 new188_long_way_home_new_188_f1",
-  "node a1: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_child_problem_4 b147_children_spring_s b147_children_spring_s b147_children_spring_b147_a1 anage04_nursery_a3 anage03_swing_squeaks_a3 b147_children_spring_b147_o2 anage04_nursery_o_d1 anage03_swing_squeaks_o_d1 b147_children_spring_b147_f4",
-  "node a2 (The Lost Children without novice): (novice) is shown while novice may n": "x_new_idea_1 new195_two_kinds_ash_s new195_two_kinds_ash_s new195_two_kinds_ash_new_195_a3 new195_two_kinds_ash_new_195_a4 new195_two_kinds_ash_new_195_a1 new195_two_kinds_ash_new_195_o5 new195_two_kinds_ash_new_195_o6 new195_two_kinds_ash_new_195_o8 new195_two_kinds_ash_new_195_o7 new195_two_kinds_ash_new_195_o1 new195_two_kinds_ash_new_195_o2 new195_two_kinds_ash_new_195_f3",
-  "node a1: (friend.he/she) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_17 b086_pond_two_moons_s b086_pond_two_moons_s b086_pond_two_moons_b086_a2 b086_pond_two_moons_b086_a4 b086_pond_two_moons_b086_o4 b086_pond_two_moons_b086_o4 b086_pond_two_moons_b086_o2 b086_pond_two_moons_b086_f2",
-  "node o2_1 (The Lost Children without young): (young) is shown while young may no": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a3 b080_elder_hills_b080_a4 g10_hz007_people_grow_old_a2 b080_elder_hills_b080_o4 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2 g10_hz007_people_grow_old_o_c1",
-  "node q (The Lost Children without partner, friend): (Name2) is shown while frien": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a1 b281_lotus_opened_dawn_b281_a2 g3_cat143_tiger_shadow_a2 b281_lotus_opened_dawn_b281_o1 b281_lotus_opened_dawn_b281_o2 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o3 g3_cat143_tiger_shadow_o_c",
-  "node a2: (Child) is not a placeholder (write \\( \\) for a parenthesis)": "x_contest_1 b202_tag_champion_s b202_tag_champion_s b202_tag_champion_b202_a3 b202_tag_champion_b202_a4 b202_tag_champion_b202_a2 b202_tag_champion_b202_o4 b202_tag_champion_b202_o1 b202_tag_champion_b202_o3 b202_tag_champion_b202_f4",
-  "node o2_2 (The Lost Children without young): (young) is shown while young may no": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a3 b080_elder_hills_b080_a4 b080_elder_hills_b080_a2 b080_elder_hills_b080_o4 b080_elder_hills_b080_o2 b080_elder_hills_b080_o1 b080_elder_hills_b080_o3 b080_elder_hills_b080_o4 b080_elder_hills_b080_f2",
-  "node a1: (head) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new167_partners_work_s new167_partners_work_s new167_partners_work_new_167_a3 new167_partners_work_new_167_a1 new167_partners_work_new_167_o6 new167_partners_work_new_167_o1 new167_partners_work_new_167_o2",
-  "node q (The Secret City without fisher): (fisher) is shown while fisher may not ": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s b138_fisher_trip_b138_a4 b138_fisher_trip_b138_a3 b138_fisher_trip_b138_o1 b138_fisher_trip_b138_o2 b138_fisher_trip_b138_o5",
-  "node o1_1 (The Secret City without fisher): (fisher) is shown while fisher may n": "x_elder_wish_3 b138_fisher_trip_s b138_fisher_trip_s b138_fisher_trip_b138_a4 b138_fisher_trip_b138_a3 b138_fisher_trip_b138_o1 b138_fisher_trip_b138_o2 b138_fisher_trip_b138_o5",
-  "node a2: (head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s c5b093_moment_courage_a1 b321_healers_week_b321_a2 c5b071_fear_success_a0 b321_healers_week_b321_a1 c5b093_moment_courage_o_e2 b321_healers_week_b321_o4 c5b071_fear_success_o_e2 b321_healers_week_b321_o2",
-  "node a3: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_mistake_1 new164_love_letter_s new164_love_letter_s new164_love_letter_new_164_a3 anhs20_pride_after_a0 new164_love_letter_new_164_a1 anhs20_pride_after_a3 new164_love_letter_new_164_o6 new164_love_letter_new_164_o5 anhs20_pride_after_o_a2 new164_love_letter_new_164_o2 anhs20_pride_after_o_d2 new164_love_letter_new_164_f3",
-  "node q (The Secret City without sick): (sick) is shown while sick may not be bou": "x_sickness_3 b276_swamp_fever_s b276_swamp_fever_s b276_swamp_fever_b276_a2 g12_anhs25_bruised_knees_a1 b276_swamp_fever_b276_o4 b276_swamp_fever_b276_o3 g12_anhs25_bruised_knees_o_b1 b276_swamp_fever_b276_f3",
-  "node a1 (The Secret City without sick): (sick) is shown while sick may not be bo": "x_sickness_3 b276_swamp_fever_s b276_swamp_fever_s b276_swamp_fever_b276_a2 g12_anhs25_bruised_knees_a1 b276_swamp_fever_b276_o4 b276_swamp_fever_b276_o3 g12_anhs25_bruised_knees_o_b1 b276_swamp_fever_b276_f3",
-  "role crafter: unknown fields speaks": "x_craft_problem_2 anexp06_palm_leaf_s anexp06_palm_leaf_s anexp06_palm_leaf_a3 anexp06_palm_leaf_a2 anexp06_palm_leaf_o_d1 anexp06_palm_leaf_o_d2 anexp06_palm_leaf_o_c2 anexp06_palm_leaf_o_c1",
-  "node o1_1: (Name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new116_refused_duty_s new116_refused_duty_s new116_refused_duty_new_116_a3 new116_refused_duty_new_116_a2 new116_refused_duty_new_116_o5 new116_refused_duty_new_116_o3 new116_refused_duty_new_116_o4",
-  "node o1_1: (name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_lost_object_1 new113_lost_public_s new113_lost_public_s new113_lost_public_new_113_a2 new113_lost_public_new_113_a3 anjus03_stolen_woven_a0 new113_lost_public_new_113_o4 new113_lost_public_new_113_o3 new113_lost_public_new_113_o5 new113_lost_public_new_113_o6 anjus03_stolen_woven_o_a2",
-  "role partner1: unknown fields speaks": "x_personal_change_4 anrel19_couple_name_s anrel19_couple_name_s anrel19_couple_name_a3 anrel19_couple_name_a0 anrel19_couple_name_o_d2 anrel19_couple_name_o_d1 anrel19_couple_name_o_a1 anrel19_couple_name_o_a2",
-  "role partner2: unknown fields speaks": "x_personal_change_4 anrel19_couple_name_s anrel19_couple_name_s anrel19_couple_name_a3 anrel19_couple_name_a0 anrel19_couple_name_o_d2 anrel19_couple_name_o_d1 anrel19_couple_name_o_a1 anrel19_couple_name_o_a2",
-  "node a2: (Head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s anexp33_overwhelmed_a0 b321_healers_week_b321_a1 c5b093_moment_courage_a1 anjus25_sleepless_a2 anexp33_overwhelmed_o_a2 b321_healers_week_b321_o2 c5b093_moment_courage_o_e2 anjus25_sleepless_o_c2 b321_healers_week_b321_f2",
-  "node a2 (The Secret City without friend): (friend.he/she) is shown while friend ": "x_celebration_1 s058_old_friends_again_s s058_old_friends_again_s s058_old_friends_again_s058_a2 s058_old_friends_again_s058_a1 s058_old_friends_again_s058_o4 s058_old_friends_again_s058_o1 s058_old_friends_again_s058_o2",
-  "node a1: (builder) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new187_shared_harvest_s new187_shared_harvest_s new187_shared_harvest_new_187_a3 new187_shared_harvest_new_187_a2 new187_shared_harvest_new_187_a1 g9_anhs23_apology_a3 new187_shared_harvest_new_187_o6 new187_shared_harvest_new_187_o3 new187_shared_harvest_new_187_o1 new187_shared_harvest_new_187_o2 g9_anhs23_apology_o_d2 g9_anhs23_apology_o_d1 new187_shared_harvest_new_187_f1",
-  "node q (The Secret City without partner, friend): (Name2) is shown while friend ": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a1 b281_lotus_opened_dawn_b281_a2 b281_lotus_opened_dawn_b281_o1 b281_lotus_opened_dawn_b281_o2 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o3",
-  "node a1 (The Secret City without novice): (novice) is shown while novice may not": "x_new_idea_1 new196_tide_clock_s new196_tide_clock_s new196_tide_clock_new_196_a4 new196_tide_clock_new_196_a3 new196_tide_clock_new_196_o8 new196_tide_clock_new_196_o7 new196_tide_clock_new_196_o5 new196_tide_clock_new_196_o6",
-  "node o4_1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_danger_3 b128_goat_path_s b128_goat_path_s b128_goat_path_b128_a3 b128_goat_path_b128_a1 b128_goat_path_b128_a4 b128_goat_path_b128_a2 b128_goat_path_b128_o2 b128_goat_path_b128_o1 b128_goat_path_b128_o2 b128_goat_path_b128_o4 b128_goat_path_b128_o4 b128_goat_path_b128_f1",
-  "node q (The Secret City without friend, partner): (Name2) is shown while friend ": "x_strange_sign_24 b281_lotus_opened_dawn_s b281_lotus_opened_dawn_s b281_lotus_opened_dawn_b281_a2 b281_lotus_opened_dawn_b281_a1 g4_cat153_ocean_library_a3 g2_cat142_ptarmigan_a0 b281_lotus_opened_dawn_b281_o3 b281_lotus_opened_dawn_b281_o4 b281_lotus_opened_dawn_b281_o2 b281_lotus_opened_dawn_b281_o1 g4_cat153_ocean_library_o_d g2_cat142_ptarmigan_o_a",
-  "node q (The Secret City without child): (child) is shown while child may not be ": "x_child_problem_3 b134_kite_hill_wish_s b134_kite_hill_wish_s b134_kite_hill_wish_b134_a4 g4_rm61_lesson_move_a3 b134_kite_hill_wish_b134_a2 g9_lvcir14_tide_go_a2 b134_kite_hill_wish_b134_o5 g4_rm61_lesson_move_o_d2 b134_kite_hill_wish_b134_o4 b134_kite_hill_wish_b134_o3 g9_lvcir14_tide_go_o_c1 g9_lvcir14_tide_go_o_c2",
-  "node a3 (The Secret City without child): (child) is shown while child may not be": "x_child_problem_3 b134_kite_hill_wish_s b134_kite_hill_wish_s b134_kite_hill_wish_b134_a4 g4_rm61_lesson_move_a3 b134_kite_hill_wish_b134_a2 g9_lvcir14_tide_go_a2 b134_kite_hill_wish_b134_o5 g4_rm61_lesson_move_o_d2 b134_kite_hill_wish_b134_o4 b134_kite_hill_wish_b134_o3 g9_lvcir14_tide_go_o_c1 g9_lvcir14_tide_go_o_c2",
-  "node o4_1: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my039_clay_figure_s my039_clay_figure_s my039_clay_figure_my_039_a4 my039_clay_figure_my_039_a1 g15_anexp56_strange_dream_a1 my039_clay_figure_my_039_a3 my039_clay_figure_my_039_o7 my039_clay_figure_my_039_o8 my039_clay_figure_my_039_o2 my039_clay_figure_my_039_o1 g15_anexp56_strange_dream_o_b2 my039_clay_figure_my_039_o5",
-  "node q label: (Name1) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_1 s057_elder_gift_years_s s057_elder_gift_years_s g1_lvlife21_story_tablet_a0 s057_elder_gift_years_s057_a2 s057_elder_gift_years_s057_a1 g1_lvlife21_story_tablet_o_a2 s057_elder_gift_years_s057_o3 s057_elder_gift_years_s057_o2 s057_elder_gift_years_s057_o1 s057_elder_gift_years_s057_f1",
-  "node q: the label's (Name1) is not a placeholder a label can show": "x_elder_wish_1 s057_elder_gift_years_s s057_elder_gift_years_s g1_lvlife21_story_tablet_a0 s057_elder_gift_years_s057_a2 s057_elder_gift_years_s057_a1 g1_lvlife21_story_tablet_o_a2 s057_elder_gift_years_s057_o3 s057_elder_gift_years_s057_o2 s057_elder_gift_years_s057_o1 s057_elder_gift_years_s057_f1",
-  "node o1_2: (healer: he/she) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_3 s042_midwife_dream_s s042_midwife_dream_s s042_midwife_dream_s042_a1 s042_midwife_dream_s042_a3 s042_midwife_dream_s042_a2 g1_anjoy26_lost_village_a3 s042_midwife_dream_s042_o1 s042_midwife_dream_s042_o2 s042_midwife_dream_s042_o5 s042_midwife_dream_s042_o3 s042_midwife_dream_s042_o4 g1_anjoy26_lost_village_o_d2",
-  "node o1_1: (grave2) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_9 my115_stranger_season_s my115_stranger_season_s my115_stranger_season_my_115_a2 my115_stranger_season_my_115_a4 my115_stranger_season_my_115_a3 my115_stranger_season_my_115_o4 my115_stranger_season_my_115_o3 my115_stranger_season_my_115_o8 my115_stranger_season_my_115_o7 my115_stranger_season_my_115_o6 my115_stranger_season_my_115_f2",
-  "node a2: (loved one) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_9 my037_forest_borrowed_s my037_forest_borrowed_s my037_forest_borrowed_my_037_a4 my037_forest_borrowed_my_037_a1 my037_forest_borrowed_my_037_a2 my037_forest_borrowed_my_037_o7 my037_forest_borrowed_my_037_o8 my037_forest_borrowed_my_037_o1 my037_forest_borrowed_my_037_o2 my037_forest_borrowed_my_037_o4 my037_forest_borrowed_my_037_o3 my037_forest_borrowed_my_037_f3",
-  "role master: unknown fields speaks": "x_feelings_3 anfam12_apprentice_s anfam12_apprentice_s anfam12_apprentice_a0 anfam12_apprentice_a1 anfam12_apprentice_a2 g25_sss056_unsent_apology_a0 anfam12_apprentice_o_a2 anfam12_apprentice_o_b1 anfam12_apprentice_o_c2 anfam12_apprentice_o_c1 g25_sss056_unsent_apology_o_a",
-  "role dancer: unknown fields speaks": "x_child_problem_23 fea24_masks_s fea24_masks_s g11_anrel22_parent_wanted_a0 fea24_masks_a0 fea24_masks_a1 g0_anjus03_stolen_woven_a1 g11_anrel22_parent_wanted_o_a2 fea24_masks_o_o1 fea24_masks_o_o2 g0_anjus03_stolen_woven_o_b1",
-  "node a1: (head healer name) is not a placeholder (write \\( \\) for a parenthesis)": "x_fear_1 b321_healers_week_s b321_healers_week_s b321_healers_week_b321_a2 c5b093_moment_courage_a0 b321_healers_week_b321_a1 c5b093_moment_courage_a1 b321_healers_week_b321_o3 c5b093_moment_courage_o_e2 b321_healers_week_b321_o2 c5b093_moment_courage_o_e2",
-  "node a1: (healer) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_1 s068_long_illness_s s068_long_illness_s s068_long_illness_s068_a1 g9_sss040_clean_dressing_a2 s068_long_illness_s068_a2 g7_sss012_argument_help_a0 s068_long_illness_s068_o1 s068_long_illness_s068_o2 g9_sss040_clean_dressing_o_c s068_long_illness_s068_o4 g7_sss012_argument_help_o_a",
-  "role owner: unknown fields speaks": "x_lost_object_1 anjus03_stolen_woven_s anjus03_stolen_woven_s anjus03_stolen_woven_a3 anjus03_stolen_woven_a1 anjus03_stolen_woven_a0 anjus03_stolen_woven_a2 anjus03_stolen_woven_o_d2 anjus03_stolen_woven_o_d1 anjus03_stolen_woven_o_b1 anjus03_stolen_woven_o_b2 anjus03_stolen_woven_o_a2 anjus03_stolen_woven_o_a1 anjus03_stolen_woven_o_c1 anjus03_stolen_woven_o_c2",
-  "node o2_2: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new114_council_empty_s new114_council_empty_s new114_council_empty_new_114_a3 new114_council_empty_new_114_a1 new114_council_empty_new_114_a2 anage10_public_a2 new114_council_empty_new_114_o6 new114_council_empty_new_114_o5 new114_council_empty_new_114_o1 new114_council_empty_new_114_o2 new114_council_empty_new_114_o3 anage10_public_o_c1",
-  "node q (The Secret City without young): (young) is shown while young may not be ": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a4 b080_elder_hills_b080_a1 b080_elder_hills_b080_a3 g8_sss075_night_sleep_a1 b080_elder_hills_b080_o2 b080_elder_hills_b080_o1 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2 b080_elder_hills_b080_o3 g8_sss075_night_sleep_o_b b080_elder_hills_b080_f2",
-  "node o1_2 (The Secret City without young): (young) is shown while young may not ": "x_elder_wish_3 b080_elder_hills_s b080_elder_hills_s b080_elder_hills_b080_a4 b080_elder_hills_b080_a1 b080_elder_hills_b080_a3 g8_sss075_night_sleep_a1 b080_elder_hills_b080_o2 b080_elder_hills_b080_o1 b080_elder_hills_b080_o1 b080_elder_hills_b080_o2 b080_elder_hills_b080_o3 g8_sss075_night_sleep_o_b b080_elder_hills_b080_f2",
-  "node a1 (The Secret City without friend): (friend.He/She) is shown while friend ": "x_elder_wish_1 s057_elder_gift_years_s s057_elder_gift_years_s s057_elder_gift_years_s057_a2 s057_elder_gift_years_s057_a4 s057_elder_gift_years_s057_o4 s057_elder_gift_years_s057_o3 s057_elder_gift_years_s057_o6 s057_elder_gift_years_s057_o2 s057_elder_gift_years_s057_f3",
-  "node o2_1: (in the cooking pot) is not a placeholder (write \\( \\) for a parenthe": "x_strange_sign_20 b154_memory_moths_s b154_memory_moths_s b154_memory_moths_b154_a1 b154_memory_moths_b154_a2 b154_memory_moths_b154_a4 b154_memory_moths_b154_o2 b154_memory_moths_b154_o3 b154_memory_moths_b154_o5 b154_memory_moths_b154_f1",
-  "role rival: unknown fields speaks": "x_contest_3 anexp57_unfair_match_s anexp57_unfair_match_s anexp57_unfair_match_a0 anexp57_unfair_match_a2 anexp57_unfair_match_a1 g6_anjoy35_moonlit_story_a2 anexp57_unfair_match_o_a2 anexp57_unfair_match_o_a1 anexp57_unfair_match_o_c2 anexp57_unfair_match_o_c1 anexp57_unfair_match_o_b1 g6_anjoy35_moonlit_story_o_c1",
-  "node a1 (The Tree of Life without friend): (friend.his/her) is shown while frien": "x_mistake_1 s082_healer_mistake_s s082_healer_mistake_s s082_healer_mistake_s082_a1 anhs20_pride_after_a0 s082_healer_mistake_s082_a2 s082_healer_mistake_s082_o2 s082_healer_mistake_s082_o1 anhs20_pride_after_o_a2 s082_healer_mistake_s082_o4 s082_healer_mistake_s082_o3",
-  "node o2_1: (Name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new116_refused_duty_s new116_refused_duty_s g9_sss076_heavy_basket_a1 new116_refused_duty_new_116_a3 g9_sss076_heavy_basket_o_b new116_refused_duty_new_116_o6 new116_refused_duty_new_116_o5 new116_refused_duty_new_116_f1",
-  "node o2_2: (Name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new116_refused_duty_s new116_refused_duty_s g9_sss076_heavy_basket_a1 new116_refused_duty_new_116_a3 g9_sss076_heavy_basket_o_b new116_refused_duty_new_116_o6 new116_refused_duty_new_116_o5 new116_refused_duty_new_116_f1",
-  "node o3_1: (name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new101_spring_s new101_spring_s new101_spring_new_101_a1 new101_spring_new_101_a3 new101_spring_new_101_a2 g15_anjus20_missing_scout_g27_a1 new101_spring_new_101_o1 new101_spring_new_101_o2 new101_spring_new_101_o5 new101_spring_new_101_o4 g15_anjus20_missing_scout_g27_o_b2",
-  "node a3: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_contest_1 b202_tag_champion_s b202_tag_champion_s b202_tag_champion_b202_a3 b202_tag_champion_b202_a2 b202_tag_champion_b202_a1 g12_anexp72_costume_crown_g27_a2 b202_tag_champion_b202_o4 b202_tag_champion_b202_o4 b202_tag_champion_b202_o3 b202_tag_champion_b202_o1 b202_tag_champion_b202_o2 g12_anexp72_costume_crown_g27_o_c2 g12_anexp72_costume_crown_g27_o_c1 b202_tag_champion_b202_f2",
-  "node a1: (parent) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new165_couple_chose_s new165_couple_chose_s new165_couple_chose_new_165_a3 new165_couple_chose_new_165_a1 new165_couple_chose_new_165_a2 g7_anhs23_apology_a0 new165_couple_chose_new_165_o5 new165_couple_chose_new_165_o6 new165_couple_chose_new_165_o1 new165_couple_chose_new_165_o4 new165_couple_chose_new_165_o3 g7_anhs23_apology_o_a1",
-  "node o3_2: (elder) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_5 new102_second_shadow_s new102_second_shadow_s g4_anfau19_animal_symbol_a0 new102_second_shadow_new_102_a2 new102_second_shadow_new_102_a3 g4_anfau19_animal_symbol_o_a1 g4_anfau19_animal_symbol_o_a2 new102_second_shadow_new_102_o3 new102_second_shadow_new_102_o5 new102_second_shadow_new_102_o6 new102_second_shadow_new_102_f3",
-  "node a3: (over loud protests) is not a placeholder (write \\( \\) for a parenthesi": "x_child_problem_3 my085_box_storms_s my085_box_storms_s my085_box_storms_my_085_a4 g2_rm52_three_honest_a2 my085_box_storms_my_085_a2 my085_box_storms_my_085_a3 my085_box_storms_my_085_o7 my085_box_storms_my_085_o8 g2_rm52_three_honest_o_c1 my085_box_storms_my_085_o3 my085_box_storms_my_085_o4 my085_box_storms_my_085_o6 my085_box_storms_my_085_o5 my085_box_storms_my_085_f1",
-  "node a1 (The Tree of Life without young): (young) is shown while young may not b": "x_elder_wish_1 new132_forgotten_path_s new132_forgotten_path_s new132_forgotten_path_new_132_a2 new132_forgotten_path_new_132_a3 new132_forgotten_path_new_132_o3 new132_forgotten_path_new_132_o4 new132_forgotten_path_new_132_o5 new132_forgotten_path_new_132_o6",
-  "node a2 (The Tree of Life without young): (young) is shown while young may not b": "x_elder_wish_1 new132_forgotten_path_s new132_forgotten_path_s new132_forgotten_path_new_132_a2 new132_forgotten_path_new_132_a3 new132_forgotten_path_new_132_o3 new132_forgotten_path_new_132_o4 new132_forgotten_path_new_132_o5 new132_forgotten_path_new_132_o6",
-  "node o2_2: (healer: he/she) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_3 s042_midwife_dream_s s042_midwife_dream_s s042_midwife_dream_s042_a3 s042_midwife_dream_s042_a1 s042_midwife_dream_s042_a4 g8_c5b089_uncertain_a0 s042_midwife_dream_s042_o5 s042_midwife_dream_s042_o1 s042_midwife_dream_s042_o2 s042_midwife_dream_s042_o1 s042_midwife_dream_s042_o4 g8_c5b089_uncertain_o_e2 g8_c5b089_uncertain_o_e1 s042_midwife_dream_s042_f4",
-  "node a3: (parent) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_1 new165_couple_chose_s new165_couple_chose_s g11_anjoy14_friendship_a1 new165_couple_chose_new_165_a1 new165_couple_chose_new_165_a3 g11_anjoy14_friendship_o_b2 g11_anjoy14_friendship_o_b1 new165_couple_chose_new_165_o2 new165_couple_chose_new_165_o1 new165_couple_chose_new_165_o6 new165_couple_chose_new_165_o5",
-  "node q (The Tree of Life without friend): (name2) is shown while friend may not ": "x_strange_sign_5 new106_blessing_tree_s new106_blessing_tree_s new106_blessing_tree_new_106_a2 g8_anhs10_totem_everyone_a3 new106_blessing_tree_new_106_o4 new106_blessing_tree_new_106_o3 g8_anhs10_totem_everyone_o_d1 new106_blessing_tree_new_106_f2",
-  "node a1 (The Tree of Life without friend): (name2) is shown while friend may not": "x_strange_sign_5 new106_blessing_tree_s new106_blessing_tree_s new106_blessing_tree_new_106_a2 g8_anhs10_totem_everyone_a3 new106_blessing_tree_new_106_o4 new106_blessing_tree_new_106_o3 g8_anhs10_totem_everyone_o_d1 new106_blessing_tree_new_106_f2",
-  "node a2 (The Tree of Life without novice): (novice) is shown while novice may no": "x_farming_1 new197_sick_plant_s new197_sick_plant_s new197_sick_plant_new_197_a2 new197_sick_plant_new_197_a4 new197_sick_plant_new_197_a3 new197_sick_plant_new_197_o3 new197_sick_plant_new_197_o8 new197_sick_plant_new_197_o7 new197_sick_plant_new_197_o6 new197_sick_plant_new_197_o5",
-  "node a2 (The Tree of Life without friend): (name2) is shown while friend may not": "x_strange_sign_6 new110_dream_two_s new110_dream_two_s g13_lvppl24_stolen_harvest_a0 new110_dream_two_new_110_a2 g13_lvppl24_stolen_harvest_o_a2 new110_dream_two_new_110_o4 new110_dream_two_new_110_o3",
-  "node o2_1: (healer: he/she) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_3 s042_midwife_dream_s s042_midwife_dream_s g9_c5b089_uncertain_a1 s042_midwife_dream_s042_a1 s042_midwife_dream_s042_a3 g9_c5b089_uncertain_o_e1 s042_midwife_dream_s042_o2 s042_midwife_dream_s042_o1 s042_midwife_dream_s042_o5",
-  "node a1 (The Tree of Life without sick): (sick) is shown while sick may not be b": "x_sickness_3 b255_coughing_season_s b255_coughing_season_s b255_coughing_season_b255_a2 g5_anexp32_sleepless_a0 g0_anage17_adult_needs_a3 b255_coughing_season_b255_o4 b255_coughing_season_b255_o3 g5_anexp32_sleepless_o_a2 g0_anage17_adult_needs_o_d2",
-  "node a2 (The Tree of Life without friend): (Name2) is shown while friend may not": "x_strange_sign_6 new109_blue_flame_s new109_blue_flame_s new109_blue_flame_new_109_a1 new109_blue_flame_new_109_a2 new109_blue_flame_new_109_o1 new109_blue_flame_new_109_o2 new109_blue_flame_new_109_o3 new109_blue_flame_new_109_o4",
-  "node o2_2 (The Tree of Life without friend): (name2) is shown while friend may n": "x_strange_sign_6 new109_blue_flame_s new109_blue_flame_s new109_blue_flame_new_109_a1 new109_blue_flame_new_109_a2 new109_blue_flame_new_109_o1 new109_blue_flame_new_109_o2 new109_blue_flame_new_109_o3 new109_blue_flame_new_109_o4",
-  "node a4: (over loud protests) is not a placeholder (write \\( \\) for a parenthesi": "x_child_problem_3 my085_box_storms_s my085_box_storms_s my085_box_storms_my_085_a3 my085_box_storms_my_085_a4 my085_box_storms_my_085_a1 my085_box_storms_my_085_a2 my085_box_storms_my_085_o5 my085_box_storms_my_085_o6 my085_box_storms_my_085_o8 my085_box_storms_my_085_o7 my085_box_storms_my_085_o1 my085_box_storms_my_085_o4 my085_box_storms_my_085_o3 my085_box_storms_my_085_f4",
-  "node q (The Tree of Life without friend): (Name2) is shown while friend may not ": "x_strange_sign_20 b163_dreaming_hammock_s b163_dreaming_hammock_s b163_dreaming_hammock_b163_a4 b163_dreaming_hammock_b163_a1 b163_dreaming_hammock_b163_a3 b163_dreaming_hammock_b163_o5 b163_dreaming_hammock_b163_o2 b163_dreaming_hammock_b163_o1 b163_dreaming_hammock_b163_o2",
-  "node o4_1: (Name2) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new112_watch_night_s new112_watch_night_s new112_watch_night_new_112_a3 new112_watch_night_new_112_a2 anage10_public_a2 new112_watch_night_new_112_a1 new112_watch_night_new_112_o5 new112_watch_night_new_112_o6 new112_watch_night_new_112_o3 new112_watch_night_new_112_o4 anage10_public_o_c1 new112_watch_night_new_112_o2 new112_watch_night_new_112_f2",
-  "node q (The Tree of Life without carver): (carver) is shown while carver may not": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a1 b212_last_canoe_b212_a3 b212_last_canoe_b212_o1 b212_last_canoe_b212_o2 b212_last_canoe_b212_o1 b212_last_canoe_b212_f2",
-  "node a1 (The Tree of Life without carver): (carver) is shown while carver may no": "x_elder_wish_3 b212_last_canoe_s b212_last_canoe_s b212_last_canoe_b212_a1 b212_last_canoe_b212_a3 b212_last_canoe_b212_o1 b212_last_canoe_b212_o2 b212_last_canoe_b212_o1 b212_last_canoe_b212_f2",
-  "node o3_1: (healer) is not a placeholder (write \\( \\) for a parenthesis)": "x_sickness_2 b121_fever_tea_s b121_fever_tea_s b121_fever_tea_b121_a3 g14_lvmed11_water_must_a0 b121_fever_tea_b121_a2 g10_lvlife09_fever_river_a0 b121_fever_tea_b121_o2 b121_fever_tea_b121_o5 g14_lvmed11_water_must_o_a1 g14_lvmed11_water_must_o_a2 b121_fever_tea_b121_o4 g10_lvlife09_fever_river_o_a1",
-  "node a3: (grandchild) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_2 new169_old_couple_walk_s new169_old_couple_walk_s new169_old_couple_walk_new_169_a1 new169_old_couple_walk_new_169_a2 new169_old_couple_walk_new_169_a3 g8_lvuns35_question_elder_a2 new169_old_couple_walk_new_169_o2 new169_old_couple_walk_new_169_o4 new169_old_couple_walk_new_169_o5 new169_old_couple_walk_new_169_o6 g8_lvuns35_question_elder_o_c1 g8_lvuns35_question_elder_o_c2",
-  "node a2: (friend.he/she) is not a placeholder (write \\( \\) for a parenthesis)": "x_danger_2 b026_sleepwalker_s b026_sleepwalker_s b026_sleepwalker_b026_a1 b026_sleepwalker_b026_a2 b026_sleepwalker_b026_a4 g9_anexp63_sky_smoke_a0 b026_sleepwalker_b026_o1 b026_sleepwalker_b026_o2 b026_sleepwalker_b026_o4 b026_sleepwalker_b026_o4 b026_sleepwalker_b026_o3 g9_anexp63_sky_smoke_o_a2",
-  "node o1_2 (New Believers without friend): (friend.his/her) is shown while friend": "x_strange_sign_21 b177_shared_gourd_s b177_shared_gourd_s b177_shared_gourd_b177_a2 b177_shared_gourd_b177_a3 g16_c5b089_uncertain_a0 b177_shared_gourd_b177_a4 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o4 b177_shared_gourd_b177_o1 b177_shared_gourd_b177_o5 g16_c5b089_uncertain_o_e2 g16_c5b089_uncertain_o_e1 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o4",
-  "node o4_2 (New Believers without friend): (friend.his/her) is shown while friend": "x_strange_sign_21 b177_shared_gourd_s b177_shared_gourd_s b177_shared_gourd_b177_a2 b177_shared_gourd_b177_a3 g16_c5b089_uncertain_a0 b177_shared_gourd_b177_a4 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o4 b177_shared_gourd_b177_o1 b177_shared_gourd_b177_o5 g16_c5b089_uncertain_o_e2 g16_c5b089_uncertain_o_e1 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o4",
-  "node o2_2: (in the cooking pot) is not a placeholder (write \\( \\) for a parenthe": "x_strange_sign_20 b154_memory_moths_s b154_memory_moths_s b154_memory_moths_b154_a1 b154_memory_moths_b154_a2 b154_memory_moths_b154_a4 b154_memory_moths_b154_o1 b154_memory_moths_b154_o4 b154_memory_moths_b154_o3 b154_memory_moths_b154_o5 b154_memory_moths_b154_f3",
-  "node o2_1: (grave1) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_9 my115_stranger_season_s my115_stranger_season_s my115_stranger_season_my_115_a4 my115_stranger_season_my_115_a1 my115_stranger_season_my_115_a3 my115_stranger_season_my_115_a2 my115_stranger_season_my_115_o8 my115_stranger_season_my_115_o7 my115_stranger_season_my_115_o2 my115_stranger_season_my_115_o1 my115_stranger_season_my_115_o6 my115_stranger_season_my_115_o3 my115_stranger_season_my_115_o4 my115_stranger_season_my_115_f3",
-  "node o4_2: (grave2) is not a placeholder (write \\( \\) for a parenthesis)": "x_newcomer_9 my115_stranger_season_s my115_stranger_season_s my115_stranger_season_my_115_a4 my115_stranger_season_my_115_a1 my115_stranger_season_my_115_a3 my115_stranger_season_my_115_a2 my115_stranger_season_my_115_o8 my115_stranger_season_my_115_o7 my115_stranger_season_my_115_o2 my115_stranger_season_my_115_o1 my115_stranger_season_my_115_o6 my115_stranger_season_my_115_o3 my115_stranger_season_my_115_o4 my115_stranger_season_my_115_f3",
-  "node a3: (friend.his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_quarrel_2 b132_builders_wager_s b132_builders_wager_s b132_builders_wager_b132_a3 g16_sss056_unsent_apology_a0 b132_builders_wager_b132_a2 b132_builders_wager_b132_o5 g16_sss056_unsent_apology_o_a b132_builders_wager_b132_o4 b132_builders_wager_b132_f2",
-  "node o2_2: (child) is not a placeholder (write \\( \\) for a parenthesis)": "x_animal_2 b156_old_well_s b156_old_well_s g2_cat143_tiger_shadow_a1 b156_old_well_b156_a1 b156_old_well_b156_a2 b156_old_well_b156_a3 g2_cat143_tiger_shadow_o_b b156_old_well_b156_o1 b156_old_well_b156_o2 b156_old_well_b156_o4 b156_old_well_b156_o4 b156_old_well_b156_o2",
-  "node a1 (New Believers without young): (young) is shown while young may not be b": "x_elder_wish_1 new131_elder_garden_s new131_elder_garden_s new131_elder_garden_new_131_a2 new131_elder_garden_new_131_a3 new131_elder_garden_new_131_a1 new131_elder_garden_new_131_o3 new131_elder_garden_new_131_o4 new131_elder_garden_new_131_o6 new131_elder_garden_new_131_o5 new131_elder_garden_new_131_o2 new131_elder_garden_new_131_f1",
-  "node a2 (New Believers without young): (young) is shown while young may not be b": "x_elder_wish_1 new131_elder_garden_s new131_elder_garden_s new131_elder_garden_new_131_a2 new131_elder_garden_new_131_a3 new131_elder_garden_new_131_a1 new131_elder_garden_new_131_o3 new131_elder_garden_new_131_o4 new131_elder_garden_new_131_o6 new131_elder_garden_new_131_o5 new131_elder_garden_new_131_o2 new131_elder_garden_new_131_f1",
-  "node q (New Believers without child): (child) is shown while child may not be bo": "x_child_problem_3 b134_kite_hill_wish_s b134_kite_hill_wish_s b134_kite_hill_wish_b134_a2 b134_kite_hill_wish_b134_a4 b134_kite_hill_wish_b134_o3 b134_kite_hill_wish_b134_o4 b134_kite_hill_wish_b134_o5 b134_kite_hill_wish_b134_o1",
-  "node a1 (New Believers without child): (child) is shown while child may not be b": "x_child_problem_3 b134_kite_hill_wish_s b134_kite_hill_wish_s b134_kite_hill_wish_b134_a2 b134_kite_hill_wish_b134_a4 b134_kite_hill_wish_b134_o3 b134_kite_hill_wish_b134_o4 b134_kite_hill_wish_b134_o5 b134_kite_hill_wish_b134_o1",
-  "node a4: (grandchild) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_2 new169_old_couple_walk_s new169_old_couple_walk_s new169_old_couple_walk_new_169_a1 new169_old_couple_walk_new_169_a2 g6_lvcir13_grandmother_a1 new169_old_couple_walk_new_169_a3 new169_old_couple_walk_new_169_o2 new169_old_couple_walk_new_169_o1 new169_old_couple_walk_new_169_o3 g6_lvcir13_grandmother_o_b1 new169_old_couple_walk_new_169_o5 new169_old_couple_walk_new_169_o6 new169_old_couple_walk_new_169_f1",
-  "node o4_1: (name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_lost_object_1 new113_lost_public_s new113_lost_public_s anjus03_stolen_woven_a0 new113_lost_public_new_113_a3 g3_anjoy26_lost_village_a3 new113_lost_public_new_113_a2 anjus03_stolen_woven_o_a2 new113_lost_public_new_113_o5 new113_lost_public_new_113_o6 g3_anjoy26_lost_village_o_d2 new113_lost_public_new_113_o4",
-  "node o2_1 (New Believers without friend): (friend.his/her) is shown while friend": "x_strange_sign_21 b177_shared_gourd_s b177_shared_gourd_s b177_shared_gourd_b177_a4 b177_shared_gourd_b177_a2 b177_shared_gourd_b177_a3 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o4 b177_shared_gourd_b177_o3 b177_shared_gourd_b177_o1 b177_shared_gourd_b177_o5 b177_shared_gourd_b177_f1",
-  "node q (New Believers without friend): (name2) is shown while friend may not be ": "x_strange_sign_6 new110_dream_two_s new110_dream_two_s new110_dream_two_new_110_a1 new110_dream_two_new_110_a2 new110_dream_two_new_110_o2 new110_dream_two_new_110_o3 new110_dream_two_new_110_o4",
-  "node a1 (New Believers without friend): (name2) is shown while friend may not be": "x_strange_sign_6 new110_dream_two_s new110_dream_two_s new110_dream_two_new_110_a1 new110_dream_two_new_110_a2 new110_dream_two_new_110_o2 new110_dream_two_new_110_o3 new110_dream_two_new_110_o4",
-  "node o1_1: (friend.his/her) is not a placeholder (write \\( \\) for a parenthesis)": "x_strange_sign_21 b177_shared_gourd_s b177_shared_gourd_s b177_shared_gourd_b177_a4 g9_anjoy26_lost_village_a3 b177_shared_gourd_b177_o4 g9_anjoy26_lost_village_o_d2 b177_shared_gourd_b177_f3",
-  "node o4_2: (in the cooking pot) is not a placeholder (write \\( \\) for a parenthe": "x_strange_sign_20 b154_memory_moths_s b154_memory_moths_s b154_memory_moths_b154_a2 b154_memory_moths_b154_a4 b154_memory_moths_b154_a1 b154_memory_moths_b154_a3 b154_memory_moths_b154_o3 b154_memory_moths_b154_o4 b154_memory_moths_b154_o5 b154_memory_moths_b154_o2 b154_memory_moths_b154_o1 b154_memory_moths_b154_o2 b154_memory_moths_b154_o3",
-  "node o1_2: (name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_lost_object_1 new113_lost_public_s new113_lost_public_s new113_lost_public_new_113_a2 anjus03_stolen_woven_a0 new113_lost_public_new_113_o3 new113_lost_public_new_113_o4 anjus03_stolen_woven_o_a2 new113_lost_public_new_113_f3",
-  "node o2_1: (young) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_3 b090_healer_steps_down_s b090_healer_steps_down_s g1_c5c026_unasked_a0 b090_healer_steps_down_b090_a2 b090_healer_steps_down_b090_a3 g1_c5c026_unasked_o_e1 g1_c5c026_unasked_o_e2 b090_healer_steps_down_b090_o3 b090_healer_steps_down_b090_o3",
-  "node o2_1: (\"I'm caring for my thirst!\") is not a placeholder (write \\( \\) for a": "x_leadership_1 new115_water_jar_rule_s new115_water_jar_rule_s new115_water_jar_rule_new_115_a2 new115_water_jar_rule_new_115_a3 new115_water_jar_rule_new_115_o3 new115_water_jar_rule_new_115_o6 new115_water_jar_rule_new_115_o5 new115_water_jar_rule_new_115_f1",
-  "node a2: (grandchild) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_2 new169_old_couple_walk_s new169_old_couple_walk_s new169_old_couple_walk_new_169_a1 new169_old_couple_walk_new_169_a3 g8_lvuns35_question_elder_a2 new169_old_couple_walk_new_169_o1 new169_old_couple_walk_new_169_o5 new169_old_couple_walk_new_169_o6 g8_lvuns35_question_elder_o_c2",
-  "node a1 (New Believers without friend): (Name2) is shown while friend may not be": "x_strange_sign_6 new109_blue_flame_s new109_blue_flame_s new109_blue_flame_new_109_a2 g0_fwk024_voice_volcano_a2 new109_blue_flame_new_109_o3 new109_blue_flame_new_109_o4 g0_fwk024_voice_volcano_o_r1 g0_fwk024_voice_volcano_o_r3 g0_fwk024_voice_volcano_o_r2 new109_blue_flame_new_109_f2",
-  "node o1_2 (New Believers without friend): (name2) is shown while friend may not ": "x_strange_sign_6 new109_blue_flame_s new109_blue_flame_s new109_blue_flame_new_109_a2 g0_fwk024_voice_volcano_a2 new109_blue_flame_new_109_o3 new109_blue_flame_new_109_o4 g0_fwk024_voice_volcano_o_r1 g0_fwk024_voice_volcano_o_r3 g0_fwk024_voice_volcano_o_r2 new109_blue_flame_new_109_f2",
-  "node a2: (name3) is not a placeholder (write \\( \\) for a parenthesis)": "x_leadership_1 new116_refused_duty_s new116_refused_duty_s new116_refused_duty_new_116_a2 new116_refused_duty_new_116_a3 new116_refused_duty_new_116_o3 new116_refused_duty_new_116_o6 new116_refused_duty_new_116_f3",
-  "node a1: (grandchild) is not a placeholder (write \\( \\) for a parenthesis)": "x_elder_wish_2 new169_old_couple_walk_s new169_old_couple_walk_s new169_old_couple_walk_new_169_a3 new169_old_couple_walk_new_169_a2 g0_sss011_elder_unsteady_a1 new169_old_couple_walk_new_169_o6 new169_old_couple_walk_new_169_o3 g0_sss011_elder_unsteady_o_b"
- },
+ "graph_examples": {},
  "stats": {
   "vv1 drawn": 2000,
   "vv1 composed": 2000,
-  "vv1 graph problems": 837,
   "vv2 drawn": 2000,
   "vv2 composed": 2000,
-  "vv2 graph problems": 832,
   "vv3 drawn": 2000,
   "vv3 composed": 2000,
-  "vv3 graph problems": 787,
   "vv4 drawn": 2000,
   "vv4 composed": 2000,
-  "vv4 graph problems": 852,
   "vv5 drawn": 2000,
-  "vv5 composed": 2000,
-  "vv5 graph problems": 773
+  "vv5 composed": 2000
  },
  "rejections": {
-  "graph: role friend: unknown fields speaks": 1896,
-  "graph: role subject: unknown fields speaks": 1871,
-  "graph: role child: unknown fields speaks": 508,
-  "graph: role villager: unknown fields speaks": 411,
-  "graph: role adult: unknown fields speaks": 312,
-  "graph: role elder: unknown fields speaks": 293,
-  "graph: role mentor: unknown fields speaks": 85,
-  "fewer than 2 approaches with a plain outcome": 84,
-  "graph: role helper: unknown fields speaks": 43,
-  "graph: role scholar: unknown fields speaks": 35,
-  "graph: role newcomer: unknown fields speaks": 30,
-  "graph: node q: (elder) is not a placeholder (write \\( \\) for a parenthesis)": 22,
-  "graph: role traveler: unknown fields speaks": 20,
-  "graph: node a1: (adult) is not a placeholder (write \\( \\) for a parenthesis)": 19,
-  "graph: role healer: unknown fields speaks": 18,
-  "graph: node a1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": 18,
-  "graph: role teen: unknown fields speaks": 17,
-  "graph: role giver: unknown fields speaks": 17,
-  "graph: role apprentice: unknown fields speaks": 15,
-  "graph: role third: unknown fields speaks": 15,
-  "graph: node q: (name2) is not a placeholder (write \\( \\) for a parenthesis)": 13,
-  "graph: node q: (child) is not a placeholder (write \\( \\) for a parenthesis)": 12,
-  "graph: role cook: unknown fields speaks": 12,
-  "graph: role young: unknown fields speaks": 11,
-  "graph: node a2: (elder) is not a placeholder (write \\( \\) for a parenthesis)": 11,
-  "graph: node o1_1: (elder) is not a placeholder (write \\( \\) for a parenthesis)": 11,
-  "graph: role neighbor: unknown fields speaks": 10,
-  "graph: node q: (young) is not a placeholder (write \\( \\) for a parenthesis)": 10,
-  "graph: node a2: (young) is not a placeholder (write \\( \\) for a parenthesis)": 10,
-  "graph: node a2: (name2) is not a placeholder (write \\( \\) for a parenthesis)": 9
+  "fewer than 2 approaches with a plain outcome": 35
  },
  "new_pairs": [],
  "summary": {
   "kinds": {
-   "setup": 3369,
-   "approach": 16769,
-   "outcome": 24337,
-   "flavour": 2289,
+   "setup": 3355,
+   "approach": 16628,
+   "outcome": 24179,
+   "flavour": 1898,
    "frame": 1116
   },
   "files": {
@@ -357,39 +44,39 @@
     "pair bits": 12
    },
    "x_strange_sign_3": {
-    "bytes": 36989,
+    "bytes": 36687,
     "setup": 8,
-    "approach": 50,
-    "outcome": 68,
+    "approach": 48,
+    "outcome": 69,
     "flavour": 32,
     "pair bits": 12
    },
    "x_strange_sign_4": {
-    "bytes": 31460,
+    "bytes": 31759,
     "setup": 8,
-    "approach": 34,
-    "outcome": 58,
-    "flavour": 32,
+    "approach": 36,
+    "outcome": 64,
+    "flavour": 31,
     "pair bits": 13
    },
    "x_strange_sign_5": {
-    "bytes": 37606,
+    "bytes": 34687,
     "setup": 8,
-    "approach": 41,
-    "outcome": 74,
+    "approach": 48,
+    "outcome": 88,
     "flavour": 24,
     "pair bits": 13
    },
    "x_strange_sign_6": {
-    "bytes": 36176,
+    "bytes": 34061,
     "setup": 8,
-    "approach": 46,
-    "outcome": 82,
-    "flavour": 25,
-    "pair bits": 13
+    "approach": 49,
+    "outcome": 87,
+    "flavour": 24,
+    "pair bits": 14
    },
    "x_strange_sign_7": {
-    "bytes": 33814,
+    "bytes": 33503,
     "setup": 8,
     "approach": 48,
     "outcome": 89,
@@ -397,63 +84,63 @@
     "pair bits": 12
    },
    "x_strange_sign_8": {
-    "bytes": 33859,
+    "bytes": 35911,
     "setup": 8,
     "approach": 50,
     "outcome": 86,
-    "flavour": 24,
+    "flavour": 28,
     "pair bits": 13
    },
    "x_strange_sign_9": {
-    "bytes": 34033,
+    "bytes": 39931,
     "setup": 8,
     "approach": 49,
-    "outcome": 88,
-    "flavour": 24,
+    "outcome": 87,
+    "flavour": 32,
     "pair bits": 12
    },
    "x_strange_sign_10": {
-    "bytes": 33850,
+    "bytes": 37224,
     "setup": 8,
     "approach": 50,
     "outcome": 86,
-    "flavour": 25,
-    "pair bits": 12
+    "flavour": 32,
+    "pair bits": 13
    },
    "x_strange_sign_11": {
-    "bytes": 40138,
+    "bytes": 34416,
     "setup": 8,
     "approach": 49,
-    "outcome": 88,
-    "flavour": 32,
+    "outcome": 79,
+    "flavour": 30,
     "pair bits": 14
    },
    "x_strange_sign_12": {
-    "bytes": 37618,
+    "bytes": 27141,
     "setup": 8,
     "approach": 50,
-    "outcome": 87,
-    "flavour": 32,
+    "outcome": 54,
+    "flavour": 24,
     "pair bits": 13
    },
    "x_strange_sign_13": {
-    "bytes": 37658,
+    "bytes": 27006,
     "setup": 8,
     "approach": 49,
-    "outcome": 89,
-    "flavour": 32,
+    "outcome": 57,
+    "flavour": 24,
     "pair bits": 13
    },
    "x_strange_sign_14": {
-    "bytes": 29681,
+    "bytes": 26806,
     "setup": 8,
     "approach": 48,
-    "outcome": 65,
-    "flavour": 26,
+    "outcome": 58,
+    "flavour": 24,
     "pair bits": 13
    },
    "x_strange_sign_15": {
-    "bytes": 26775,
+    "bytes": 26168,
     "setup": 8,
     "approach": 50,
     "outcome": 54,
@@ -461,461 +148,456 @@
     "pair bits": 13
    },
    "x_strange_sign_16": {
-    "bytes": 26921,
+    "bytes": 28032,
     "setup": 8,
     "approach": 48,
-    "outcome": 57,
-    "flavour": 24,
+    "outcome": 59,
+    "flavour": 27,
     "pair bits": 12
    },
    "x_strange_sign_17": {
-    "bytes": 26584,
+    "bytes": 31059,
     "setup": 8,
     "approach": 50,
-    "outcome": 54,
-    "flavour": 24,
+    "outcome": 59,
+    "flavour": 32,
     "pair bits": 13
    },
    "x_strange_sign_18": {
-    "bytes": 26289,
+    "bytes": 29555,
     "setup": 8,
     "approach": 49,
-    "outcome": 56,
-    "flavour": 24,
+    "outcome": 58,
+    "flavour": 32,
     "pair bits": 12
    },
    "x_strange_sign_19": {
-    "bytes": 30045,
+    "bytes": 28834,
     "setup": 8,
-    "approach": 50,
-    "outcome": 57,
-    "flavour": 31,
+    "approach": 51,
+    "outcome": 52,
+    "flavour": 32,
     "pair bits": 12
    },
    "x_strange_sign_20": {
-    "bytes": 31704,
+    "bytes": 25396,
     "setup": 8,
-    "approach": 49,
-    "outcome": 64,
-    "flavour": 32,
+    "approach": 41,
+    "outcome": 52,
+    "flavour": 28,
     "pair bits": 14
    },
    "x_strange_sign_21": {
-    "bytes": 29345,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 57,
-    "flavour": 32,
-    "pair bits": 13
-   },
-   "x_strange_sign_22": {
-    "bytes": 28784,
-    "setup": 8,
-    "approach": 51,
-    "outcome": 53,
-    "flavour": 32,
-    "pair bits": 15
-   },
-   "x_strange_sign_23": {
-    "bytes": 26266,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 53,
-    "flavour": 29,
-    "pair bits": 13
-   },
-   "x_strange_sign_24": {
-    "bytes": 24914,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 53,
-    "flavour": 24,
-    "pair bits": 13
-   },
-   "x_strange_sign_25": {
-    "bytes": 24340,
+    "bytes": 24947,
     "setup": 8,
     "approach": 33,
     "outcome": 56,
     "flavour": 24,
-    "pair bits": 12
+    "pair bits": 13
    },
-   "x_strange_sign_26": {
-    "bytes": 23563,
+   "x_strange_sign_22": {
+    "bytes": 24306,
     "setup": 8,
     "approach": 34,
-    "outcome": 53,
+    "outcome": 55,
+    "flavour": 24,
+    "pair bits": 15
+   },
+   "x_strange_sign_23": {
+    "bytes": 23037,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 56,
     "flavour": 24,
     "pair bits": 13
    },
-   "x_strange_sign_27": {
-    "bytes": 23048,
+   "x_strange_sign_24": {
+    "bytes": 22610,
     "setup": 8,
-    "approach": 39,
-    "outcome": 70,
-    "flavour": 15,
+    "approach": 45,
+    "outcome": 75,
+    "flavour": 9,
+    "pair bits": 14
+   },
+   "x_strange_sign_25": {
+    "bytes": 23986,
+    "setup": 8,
+    "approach": 46,
+    "outcome": 78,
+    "pair bits": 13
+   },
+   "x_strange_sign_26": {
+    "bytes": 23848,
+    "setup": 8,
+    "approach": 38,
+    "outcome": 50,
+    "pair bits": 13
+   },
+   "x_strange_sign_27": {
+    "bytes": 15383,
+    "setup": 8,
+    "approach": 46,
+    "outcome": 51,
     "pair bits": 13
    },
    "x_strange_sign_28": {
-    "bytes": 20908,
+    "bytes": 16829,
     "setup": 8,
     "approach": 49,
-    "outcome": 88,
-    "pair bits": 14
+    "outcome": 52,
+    "pair bits": 12
    },
    "x_strange_sign_29": {
-    "bytes": 16266,
+    "bytes": 15392,
     "setup": 8,
-    "approach": 39,
+    "approach": 48,
+    "outcome": 48,
+    "pair bits": 13
+   },
+   "x_strange_sign_30": {
+    "bytes": 15324,
+    "setup": 8,
+    "approach": 46,
     "outcome": 48,
     "pair bits": 12
    },
-   "x_strange_sign_30": {
-    "bytes": 15821,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 55,
-    "pair bits": 13
-   },
    "x_strange_sign_31": {
-    "bytes": 16099,
+    "bytes": 14308,
     "setup": 8,
-    "approach": 48,
+    "approach": 40,
     "outcome": 49,
     "pair bits": 12
    },
    "x_strange_sign_32": {
-    "bytes": 15703,
+    "bytes": 16666,
     "setup": 8,
-    "approach": 49,
-    "outcome": 48,
+    "approach": 36,
+    "outcome": 43,
     "pair bits": 13
    },
    "x_strange_sign_33": {
-    "bytes": 14464,
+    "bytes": 18752,
     "setup": 8,
-    "approach": 41,
-    "outcome": 49,
+    "approach": 34,
+    "outcome": 39,
     "pair bits": 13
    },
    "x_strange_sign_34": {
-    "bytes": 14964,
+    "bytes": 19036,
     "setup": 8,
-    "approach": 41,
-    "outcome": 48,
-    "pair bits": 14
+    "approach": 32,
+    "outcome": 41,
+    "pair bits": 12
    },
    "x_strange_sign_35": {
-    "bytes": 17505,
+    "bytes": 18393,
     "setup": 8,
     "approach": 34,
     "outcome": 38,
-    "pair bits": 12
+    "pair bits": 11
    },
    "x_strange_sign_36": {
-    "bytes": 19124,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 14
-   },
-   "x_strange_sign_37": {
-    "bytes": 18618,
+    "bytes": 18042,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
+    "pair bits": 14
+   },
+   "x_strange_sign_37": {
+    "bytes": 18455,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 39,
     "pair bits": 13
    },
    "x_strange_sign_38": {
-    "bytes": 18141,
+    "bytes": 19231,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 14
    },
    "x_strange_sign_39": {
-    "bytes": 18248,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_strange_sign_40": {
-    "bytes": 18902,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 39,
-    "pair bits": 13
-   },
-   "x_strange_sign_41": {
-    "bytes": 19784,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 50,
-    "pair bits": 12
-   },
-   "x_strange_sign_42": {
-    "bytes": 20658,
+    "bytes": 21156,
     "setup": 9,
-    "approach": 47,
-    "outcome": 82,
+    "approach": 44,
+    "outcome": 80,
     "pair bits": 14
    },
-   "x_strange_sign_43": {
-    "bytes": 18009,
+   "x_strange_sign_40": {
+    "bytes": 18102,
     "setup": 8,
-    "approach": 40,
-    "outcome": 73,
+    "approach": 41,
+    "outcome": 72,
+    "pair bits": 12
+   },
+   "x_strange_sign_41": {
+    "bytes": 23422,
+    "setup": 8,
+    "approach": 45,
+    "outcome": 77,
+    "pair bits": 13
+   },
+   "x_strange_sign_42": {
+    "bytes": 53563,
+    "setup": 9,
+    "approach": 53,
+    "outcome": 94,
+    "pair bits": 13
+   },
+   "x_strange_sign_43": {
+    "bytes": 42987,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 72,
     "pair bits": 12
    },
    "x_strange_sign_44": {
-    "bytes": 15640,
-    "setup": 5,
-    "approach": 34,
-    "outcome": 64,
-    "pair bits": 9
+    "bytes": 17763,
+    "setup": 3,
+    "approach": 26,
+    "outcome": 44,
+    "pair bits": 8
    },
    "x_child_problem_1": {
-    "bytes": 35364,
+    "bytes": 35101,
     "setup": 8,
-    "approach": 38,
-    "outcome": 69,
-    "flavour": 27,
-    "pair bits": 11
+    "approach": 42,
+    "outcome": 77,
+    "flavour": 29,
+    "pair bits": 13
    },
    "x_child_problem_2": {
-    "bytes": 35771,
+    "bytes": 26147,
     "setup": 8,
-    "approach": 46,
-    "outcome": 79,
-    "flavour": 24,
+    "approach": 48,
+    "outcome": 69,
+    "flavour": 14,
     "pair bits": 11
    },
    "x_child_problem_3": {
-    "bytes": 33589,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 71,
-    "flavour": 29,
-    "pair bits": 12
-   },
-   "x_child_problem_4": {
-    "bytes": 27344,
-    "setup": 8,
-    "approach": 43,
-    "outcome": 72,
-    "flavour": 18,
-    "pair bits": 13
-   },
-   "x_child_problem_5": {
-    "bytes": 23156,
+    "bytes": 23010,
     "setup": 8,
     "approach": 48,
     "outcome": 88,
-    "pair bits": 10
+    "pair bits": 12
+   },
+   "x_child_problem_4": {
+    "bytes": 22367,
+    "setup": 8,
+    "approach": 46,
+    "outcome": 90,
+    "pair bits": 12
+   },
+   "x_child_problem_5": {
+    "bytes": 23107,
+    "setup": 8,
+    "approach": 48,
+    "outcome": 89,
+    "pair bits": 11
    },
    "x_child_problem_6": {
-    "bytes": 22783,
+    "bytes": 22610,
     "setup": 8,
     "approach": 49,
-    "outcome": 88,
-    "pair bits": 13
+    "outcome": 87,
+    "pair bits": 12
    },
    "x_child_problem_7": {
-    "bytes": 22924,
+    "bytes": 23020,
     "setup": 8,
     "approach": 49,
     "outcome": 88,
     "pair bits": 13
    },
    "x_child_problem_8": {
-    "bytes": 22742,
+    "bytes": 22671,
     "setup": 8,
     "approach": 48,
-    "outcome": 88,
-    "pair bits": 10
+    "outcome": 90,
+    "pair bits": 13
    },
    "x_child_problem_9": {
-    "bytes": 22336,
-    "setup": 8,
-    "approach": 51,
-    "outcome": 86,
+    "bytes": 22896,
+    "setup": 9,
+    "approach": 54,
+    "outcome": 94,
     "pair bits": 12
    },
    "x_child_problem_10": {
-    "bytes": 22622,
+    "bytes": 22846,
     "setup": 8,
     "approach": 48,
     "outcome": 88,
-    "pair bits": 11
+    "pair bits": 12
    },
    "x_child_problem_11": {
-    "bytes": 23507,
-    "setup": 9,
-    "approach": 52,
-    "outcome": 98,
-    "pair bits": 13
+    "bytes": 22586,
+    "setup": 8,
+    "approach": 48,
+    "outcome": 88,
+    "pair bits": 12
    },
    "x_child_problem_12": {
-    "bytes": 22673,
-    "setup": 8,
-    "approach": 50,
-    "outcome": 87,
+    "bytes": 24780,
+    "setup": 9,
+    "approach": 56,
+    "outcome": 93,
     "pair bits": 12
    },
    "x_child_problem_13": {
-    "bytes": 23008,
+    "bytes": 26885,
     "setup": 8,
-    "approach": 48,
-    "outcome": 89,
-    "pair bits": 11
+    "approach": 36,
+    "outcome": 62,
+    "pair bits": 12
    },
    "x_child_problem_14": {
-    "bytes": 24839,
-    "setup": 9,
-    "approach": 50,
-    "outcome": 98,
-    "pair bits": 11
-   },
-   "x_child_problem_15": {
-    "bytes": 16546,
+    "bytes": 14011,
     "setup": 8,
-    "approach": 42,
-    "outcome": 59,
-    "pair bits": 11
-   },
-   "x_child_problem_16": {
-    "bytes": 15183,
-    "setup": 8,
-    "approach": 46,
+    "approach": 39,
     "outcome": 43,
     "pair bits": 11
    },
+   "x_child_problem_15": {
+    "bytes": 15183,
+    "setup": 8,
+    "approach": 42,
+    "outcome": 47,
+    "pair bits": 11
+   },
+   "x_child_problem_16": {
+    "bytes": 14155,
+    "setup": 8,
+    "approach": 42,
+    "outcome": 46,
+    "pair bits": 10
+   },
    "x_child_problem_17": {
-    "bytes": 14513,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 49,
-    "pair bits": 12
-   },
-   "x_child_problem_18": {
-    "bytes": 14989,
-    "setup": 8,
-    "approach": 38,
-    "outcome": 51,
-    "pair bits": 13
-   },
-   "x_child_problem_19": {
-    "bytes": 15112,
+    "bytes": 15659,
     "setup": 8,
     "approach": 42,
     "outcome": 48,
-    "pair bits": 12
+    "pair bits": 13
    },
-   "x_child_problem_20": {
-    "bytes": 18712,
+   "x_child_problem_18": {
+    "bytes": 17763,
     "setup": 8,
     "approach": 36,
-    "outcome": 38,
+    "outcome": 46,
+    "pair bits": 13
+   },
+   "x_child_problem_19": {
+    "bytes": 19261,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 41,
+    "pair bits": 11
+   },
+   "x_child_problem_20": {
+    "bytes": 19319,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 37,
     "pair bits": 12
    },
    "x_child_problem_21": {
-    "bytes": 19587,
+    "bytes": 19333,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
     "pair bits": 13
    },
    "x_child_problem_22": {
-    "bytes": 18863,
+    "bytes": 19312,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 11
    },
    "x_child_problem_23": {
-    "bytes": 19483,
+    "bytes": 20315,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 11
    },
    "x_child_problem_24": {
-    "bytes": 20190,
+    "bytes": 20159,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 12
    },
    "x_child_problem_25": {
-    "bytes": 20340,
+    "bytes": 22658,
     "setup": 8,
-    "approach": 31,
-    "outcome": 42,
+    "approach": 46,
+    "outcome": 84,
     "pair bits": 12
    },
    "x_child_problem_26": {
-    "bytes": 20841,
+    "bytes": 22036,
     "setup": 8,
-    "approach": 37,
-    "outcome": 52,
-    "pair bits": 10
-   },
-   "x_child_problem_27": {
-    "bytes": 23857,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 88,
-    "pair bits": 13
-   },
-   "x_child_problem_28": {
-    "bytes": 20775,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 74,
-    "pair bits": 13
-   },
-   "x_child_problem_29": {
-    "bytes": 20477,
-    "setup": 8,
-    "approach": 43,
+    "approach": 47,
     "outcome": 77,
-    "pair bits": 10
-   },
-   "x_child_problem_30": {
-    "bytes": 22358,
-    "setup": 8,
-    "approach": 48,
-    "outcome": 83,
     "pair bits": 11
    },
-   "x_child_problem_31": {
-    "bytes": 20273,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 73,
-    "pair bits": 12
-   },
-   "x_child_problem_32": {
-    "bytes": 23231,
-    "setup": 10,
-    "approach": 48,
-    "outcome": 95,
-    "pair bits": 14
-   },
-   "x_child_problem_33": {
-    "bytes": 18402,
+   "x_child_problem_27": {
+    "bytes": 18916,
     "setup": 8,
     "approach": 43,
     "outcome": 69,
+    "pair bits": 12
+   },
+   "x_child_problem_28": {
+    "bytes": 22465,
+    "setup": 8,
+    "approach": 47,
+    "outcome": 87,
+    "pair bits": 13
+   },
+   "x_child_problem_29": {
+    "bytes": 20889,
+    "setup": 8,
+    "approach": 39,
+    "outcome": 76,
+    "pair bits": 11
+   },
+   "x_child_problem_30": {
+    "bytes": 23607,
+    "setup": 10,
+    "approach": 52,
+    "outcome": 91,
+    "pair bits": 11
+   },
+   "x_child_problem_31": {
+    "bytes": 19147,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 72,
+    "pair bits": 13
+   },
+   "x_child_problem_32": {
+    "bytes": 32043,
+    "setup": 8,
+    "approach": 42,
+    "outcome": 81,
+    "pair bits": 12
+   },
+   "x_child_problem_33": {
+    "bytes": 42803,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 75,
     "pair bits": 11
    },
    "x_child_problem_34": {
-    "bytes": 22469,
-    "setup": 8,
-    "approach": 47,
-    "outcome": 86,
-    "pair bits": 12
+    "bytes": 24142,
+    "setup": 7,
+    "approach": 45,
+    "outcome": 79,
+    "pair bits": 11
    },
    "x_food_shortage_1": {
     "bytes": 21600,
@@ -940,7 +622,7 @@
     "pair bits": 13
    },
    "x_farming_1": {
-    "bytes": 26859,
+    "bytes": 26875,
     "setup": 8,
     "approach": 40,
     "outcome": 63,
@@ -991,213 +673,206 @@
     "pair bits": 13
    },
    "x_animal_2": {
-    "bytes": 27990,
+    "bytes": 28161,
     "setup": 8,
     "approach": 50,
-    "outcome": 53,
+    "outcome": 54,
     "flavour": 28,
     "pair bits": 13
    },
    "x_animal_3": {
-    "bytes": 27956,
+    "bytes": 26938,
     "setup": 8,
-    "approach": 46,
-    "outcome": 56,
-    "flavour": 30,
+    "approach": 44,
+    "outcome": 55,
+    "flavour": 29,
     "pair bits": 12
    },
    "x_animal_4": {
-    "bytes": 23202,
+    "bytes": 22711,
     "setup": 8,
-    "approach": 36,
-    "outcome": 58,
-    "flavour": 21,
+    "approach": 38,
+    "outcome": 61,
+    "flavour": 18,
     "pair bits": 13
    },
    "x_animal_5": {
-    "bytes": 20451,
+    "bytes": 20583,
     "setup": 8,
-    "approach": 50,
-    "outcome": 87,
+    "approach": 49,
+    "outcome": 88,
     "pair bits": 13
    },
    "x_animal_6": {
-    "bytes": 21992,
+    "bytes": 21935,
     "setup": 9,
     "approach": 54,
     "outcome": 94,
     "pair bits": 13
    },
    "x_animal_7": {
-    "bytes": 16684,
+    "bytes": 16062,
     "setup": 8,
     "approach": 48,
-    "outcome": 58,
-    "pair bits": 13
+    "outcome": 54,
+    "pair bits": 12
    },
    "x_animal_8": {
-    "bytes": 16456,
+    "bytes": 16452,
     "setup": 8,
     "approach": 50,
     "outcome": 54,
     "pair bits": 12
    },
    "x_animal_9": {
-    "bytes": 16124,
+    "bytes": 16097,
     "setup": 8,
     "approach": 49,
     "outcome": 55,
     "pair bits": 11
    },
    "x_animal_10": {
-    "bytes": 16719,
+    "bytes": 16590,
     "setup": 8,
     "approach": 50,
     "outcome": 55,
     "pair bits": 12
    },
    "x_animal_11": {
-    "bytes": 15244,
+    "bytes": 15245,
     "setup": 8,
     "approach": 50,
     "outcome": 54,
     "pair bits": 12
    },
    "x_animal_12": {
-    "bytes": 15142,
+    "bytes": 15151,
     "setup": 8,
     "approach": 49,
     "outcome": 55,
     "pair bits": 11
    },
    "x_animal_13": {
-    "bytes": 15346,
+    "bytes": 15315,
     "setup": 8,
     "approach": 50,
     "outcome": 55,
     "pair bits": 12
    },
    "x_animal_14": {
-    "bytes": 16224,
+    "bytes": 16551,
     "setup": 8,
     "approach": 50,
     "outcome": 55,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_animal_15": {
-    "bytes": 15550,
+    "bytes": 15092,
     "setup": 8,
-    "approach": 45,
-    "outcome": 52,
+    "approach": 44,
+    "outcome": 51,
     "pair bits": 13
    },
    "x_animal_16": {
-    "bytes": 13762,
+    "bytes": 14005,
     "setup": 8,
     "approach": 41,
     "outcome": 47,
-    "pair bits": 12
-   },
-   "x_animal_17": {
-    "bytes": 17592,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 41,
     "pair bits": 13
    },
+   "x_animal_17": {
+    "bytes": 18016,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 40,
+    "pair bits": 12
+   },
    "x_animal_18": {
-    "bytes": 17952,
+    "bytes": 17800,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 11
    },
    "x_animal_19": {
-    "bytes": 17969,
+    "bytes": 17948,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 12
    },
    "x_animal_20": {
-    "bytes": 18625,
+    "bytes": 18715,
     "setup": 8,
     "approach": 34,
     "outcome": 38,
     "pair bits": 13
    },
    "x_animal_21": {
-    "bytes": 17927,
+    "bytes": 17931,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 12
    },
    "x_animal_22": {
-    "bytes": 18367,
+    "bytes": 18418,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 13
    },
    "x_animal_23": {
-    "bytes": 18687,
+    "bytes": 19052,
     "setup": 8,
     "approach": 34,
     "outcome": 38,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_animal_24": {
-    "bytes": 19636,
+    "bytes": 19583,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 12
    },
    "x_animal_25": {
-    "bytes": 19654,
+    "bytes": 19573,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 13
    },
    "x_animal_26": {
-    "bytes": 19898,
+    "bytes": 19850,
     "setup": 8,
     "approach": 34,
     "outcome": 38,
     "pair bits": 13
    },
    "x_animal_27": {
-    "bytes": 20604,
+    "bytes": 20359,
     "setup": 8,
-    "approach": 39,
-    "outcome": 57,
+    "approach": 40,
+    "outcome": 61,
     "pair bits": 13
    },
    "x_animal_28": {
-    "bytes": 18426,
+    "bytes": 18519,
     "setup": 8,
     "approach": 42,
     "outcome": 71,
     "pair bits": 13
    },
    "x_animal_29": {
-    "bytes": 22456,
+    "bytes": 22614,
     "setup": 9,
     "approach": 51,
-    "outcome": 88,
-    "pair bits": 13
-   },
-   "x_animal_30": {
-    "bytes": 8064,
-    "setup": 1,
-    "approach": 22,
-    "outcome": 30,
-    "pair bits": 6
+    "outcome": 91,
+    "pair bits": 12
    },
    "x_sea_danger_1": {
-    "bytes": 27598,
+    "bytes": 27614,
     "setup": 8,
     "approach": 39,
     "outcome": 48,
@@ -1205,7 +880,7 @@
     "pair bits": 14
    },
    "x_sea_danger_2": {
-    "bytes": 25430,
+    "bytes": 25446,
     "setup": 8,
     "approach": 39,
     "outcome": 53,
@@ -1235,7 +910,7 @@
     "pair bits": 14
    },
    "x_danger_2": {
-    "bytes": 26812,
+    "bytes": 26606,
     "setup": 8,
     "approach": 48,
     "outcome": 54,
@@ -1243,41 +918,41 @@
     "pair bits": 15
    },
    "x_danger_3": {
-    "bytes": 28089,
+    "bytes": 26098,
     "setup": 8,
-    "approach": 46,
-    "outcome": 58,
-    "flavour": 29,
+    "approach": 41,
+    "outcome": 57,
+    "flavour": 27,
     "pair bits": 14
    },
    "x_danger_4": {
-    "bytes": 22777,
-    "setup": 8,
-    "approach": 35,
-    "outcome": 58,
-    "flavour": 21,
-    "pair bits": 15
+    "bytes": 23606,
+    "setup": 9,
+    "approach": 44,
+    "outcome": 79,
+    "flavour": 12,
+    "pair bits": 14
    },
    "x_danger_5": {
-    "bytes": 24444,
-    "setup": 11,
-    "approach": 60,
-    "outcome": 98,
+    "bytes": 25767,
+    "setup": 10,
+    "approach": 51,
+    "outcome": 76,
     "pair bits": 14
    },
    "x_danger_6": {
-    "bytes": 14587,
+    "bytes": 14713,
     "setup": 8,
     "approach": 40,
     "outcome": 51,
     "pair bits": 14
    },
    "x_danger_7": {
-    "bytes": 22726,
-    "setup": 11,
-    "approach": 52,
-    "outcome": 90,
-    "pair bits": 15
+    "bytes": 21624,
+    "setup": 10,
+    "approach": 49,
+    "outcome": 87,
+    "pair bits": 14
    },
    "x_newcomer_1": {
     "bytes": 36248,
@@ -1296,39 +971,39 @@
     "pair bits": 14
    },
    "x_newcomer_3": {
-    "bytes": 34557,
+    "bytes": 35845,
     "setup": 8,
-    "approach": 48,
-    "outcome": 84,
-    "flavour": 24,
+    "approach": 50,
+    "outcome": 88,
+    "flavour": 25,
     "pair bits": 14
    },
    "x_newcomer_4": {
-    "bytes": 33787,
+    "bytes": 33154,
     "setup": 8,
     "approach": 48,
     "outcome": 89,
-    "flavour": 25,
+    "flavour": 24,
     "pair bits": 11
    },
    "x_newcomer_5": {
-    "bytes": 33963,
+    "bytes": 35389,
     "setup": 8,
     "approach": 49,
     "outcome": 89,
-    "flavour": 24,
+    "flavour": 26,
     "pair bits": 12
    },
    "x_newcomer_6": {
-    "bytes": 37649,
+    "bytes": 37645,
     "setup": 8,
     "approach": 48,
     "outcome": 90,
-    "flavour": 29,
+    "flavour": 32,
     "pair bits": 13
    },
    "x_newcomer_7": {
-    "bytes": 35587,
+    "bytes": 36612,
     "setup": 8,
     "approach": 50,
     "outcome": 87,
@@ -1336,110 +1011,110 @@
     "pair bits": 14
    },
    "x_newcomer_8": {
-    "bytes": 36644,
+    "bytes": 31335,
     "setup": 8,
     "approach": 48,
-    "outcome": 89,
-    "flavour": 32,
+    "outcome": 69,
+    "flavour": 27,
     "pair bits": 11
    },
    "x_newcomer_9": {
-    "bytes": 29715,
+    "bytes": 29568,
     "setup": 8,
     "approach": 48,
-    "outcome": 60,
-    "flavour": 25,
+    "outcome": 58,
+    "flavour": 28,
     "pair bits": 13
    },
    "x_newcomer_10": {
-    "bytes": 30029,
+    "bytes": 28454,
     "setup": 8,
-    "approach": 48,
-    "outcome": 59,
-    "flavour": 30,
+    "approach": 46,
+    "outcome": 55,
+    "flavour": 31,
     "pair bits": 12
    },
    "x_newcomer_11": {
-    "bytes": 26749,
+    "bytes": 24279,
     "setup": 8,
-    "approach": 43,
-    "outcome": 55,
-    "flavour": 29,
-    "pair bits": 14
-   },
-   "x_newcomer_12": {
-    "bytes": 24006,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 55,
+    "approach": 33,
+    "outcome": 57,
     "flavour": 24,
     "pair bits": 14
    },
-   "x_newcomer_13": {
-    "bytes": 22992,
+   "x_newcomer_12": {
+    "bytes": 22732,
     "setup": 8,
-    "approach": 49,
-    "outcome": 89,
-    "pair bits": 12
-   },
-   "x_newcomer_14": {
-    "bytes": 19883,
-    "setup": 8,
-    "approach": 48,
-    "outcome": 75,
+    "approach": 46,
+    "outcome": 79,
+    "flavour": 6,
     "pair bits": 14
    },
-   "x_newcomer_15": {
-    "bytes": 16449,
+   "x_newcomer_13": {
+    "bytes": 20996,
     "setup": 8,
-    "approach": 45,
+    "approach": 48,
+    "outcome": 82,
+    "pair bits": 13
+   },
+   "x_newcomer_14": {
+    "bytes": 15636,
+    "setup": 8,
+    "approach": 48,
     "outcome": 54,
-    "pair bits": 12
+    "pair bits": 13
+   },
+   "x_newcomer_15": {
+    "bytes": 16471,
+    "setup": 8,
+    "approach": 38,
+    "outcome": 48,
+    "pair bits": 13
    },
    "x_newcomer_16": {
-    "bytes": 16904,
+    "bytes": 18197,
     "setup": 8,
-    "approach": 36,
-    "outcome": 46,
-    "pair bits": 12
+    "approach": 34,
+    "outcome": 40,
+    "pair bits": 14
    },
    "x_newcomer_17": {
-    "bytes": 17905,
+    "bytes": 18394,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 11
    },
    "x_newcomer_18": {
-    "bytes": 19916,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 13
-   },
-   "x_newcomer_19": {
-    "bytes": 21853,
+    "bytes": 21894,
     "setup": 9,
     "approach": 45,
-    "outcome": 79,
-    "pair bits": 12
+    "outcome": 68,
+    "pair bits": 15
    },
-   "x_newcomer_20": {
-    "bytes": 18633,
+   "x_newcomer_19": {
+    "bytes": 18283,
     "setup": 8,
     "approach": 41,
-    "outcome": 72,
-    "pair bits": 13
+    "outcome": 71,
+    "pair bits": 14
+   },
+   "x_newcomer_20": {
+    "bytes": 30673,
+    "setup": 8,
+    "approach": 45,
+    "outcome": 78,
+    "pair bits": 14
    },
    "x_newcomer_21": {
-    "bytes": 15491,
+    "bytes": 25405,
     "setup": 5,
     "approach": 33,
-    "outcome": 58,
+    "outcome": 61,
     "pair bits": 9
    },
    "x_tradition_1": {
-    "bytes": 30966,
+    "bytes": 30559,
     "setup": 8,
     "approach": 45,
     "outcome": 59,
@@ -1447,686 +1122,677 @@
     "pair bits": 11
    },
    "x_tradition_2": {
-    "bytes": 29657,
+    "bytes": 27994,
     "setup": 8,
-    "approach": 48,
-    "outcome": 60,
-    "flavour": 28,
+    "approach": 46,
+    "outcome": 55,
+    "flavour": 30,
     "pair bits": 12
    },
    "x_tradition_3": {
-    "bytes": 26297,
+    "bytes": 24374,
     "setup": 8,
-    "approach": 40,
-    "outcome": 53,
-    "flavour": 28,
+    "approach": 32,
+    "outcome": 55,
+    "flavour": 24,
     "pair bits": 13
    },
    "x_tradition_4": {
-    "bytes": 23337,
+    "bytes": 22110,
     "setup": 8,
-    "approach": 38,
-    "outcome": 68,
-    "flavour": 15,
+    "approach": 44,
+    "outcome": 75,
     "pair bits": 13
    },
    "x_tradition_5": {
-    "bytes": 17126,
+    "bytes": 14803,
     "setup": 8,
-    "approach": 43,
-    "outcome": 59,
+    "approach": 40,
+    "outcome": 49,
     "pair bits": 13
    },
    "x_tradition_6": {
-    "bytes": 14835,
+    "bytes": 17127,
     "setup": 8,
-    "approach": 38,
-    "outcome": 48,
+    "approach": 36,
+    "outcome": 44,
     "pair bits": 13
    },
    "x_tradition_7": {
-    "bytes": 18179,
+    "bytes": 18315,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 13
    },
    "x_tradition_8": {
-    "bytes": 18481,
+    "bytes": 18227,
     "setup": 8,
     "approach": 30,
     "outcome": 42,
     "pair bits": 12
    },
    "x_tradition_9": {
-    "bytes": 18655,
+    "bytes": 18847,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 13
    },
    "x_tradition_10": {
-    "bytes": 19460,
+    "bytes": 19541,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
     "pair bits": 11
    },
    "x_tradition_11": {
-    "bytes": 19410,
+    "bytes": 19733,
     "setup": 8,
     "approach": 32,
     "outcome": 42,
     "pair bits": 12
    },
    "x_tradition_12": {
-    "bytes": 19837,
+    "bytes": 20248,
     "setup": 8,
     "approach": 31,
     "outcome": 42,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_tradition_13": {
-    "bytes": 20112,
+    "bytes": 19530,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
     "pair bits": 13
    },
    "x_tradition_14": {
-    "bytes": 19772,
+    "bytes": 20013,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
     "pair bits": 13
    },
    "x_tradition_15": {
-    "bytes": 19662,
+    "bytes": 19518,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 13
    },
    "x_tradition_16": {
-    "bytes": 19300,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
+    "bytes": 21748,
+    "setup": 9,
+    "approach": 42,
+    "outcome": 71,
     "pair bits": 13
    },
    "x_tradition_17": {
-    "bytes": 21129,
-    "setup": 9,
-    "approach": 45,
-    "outcome": 88,
-    "pair bits": 13
+    "bytes": 18986,
+    "setup": 8,
+    "approach": 40,
+    "outcome": 78,
+    "pair bits": 12
    },
    "x_tradition_18": {
-    "bytes": 20734,
-    "setup": 8,
-    "approach": 47,
-    "outcome": 84,
-    "pair bits": 13
+    "bytes": 13888,
+    "setup": 4,
+    "approach": 33,
+    "outcome": 56,
+    "pair bits": 9
    },
    "x_elder_wish_1": {
-    "bytes": 36713,
+    "bytes": 34867,
     "setup": 8,
-    "approach": 43,
-    "outcome": 71,
-    "flavour": 30,
+    "approach": 41,
+    "outcome": 72,
+    "flavour": 28,
     "pair bits": 16
    },
    "x_elder_wish_2": {
-    "bytes": 29653,
+    "bytes": 28372,
     "setup": 8,
-    "approach": 42,
-    "outcome": 68,
+    "approach": 45,
+    "outcome": 60,
     "flavour": 24,
-    "pair bits": 18
+    "pair bits": 16
    },
    "x_elder_wish_3": {
-    "bytes": 28131,
+    "bytes": 26830,
     "setup": 8,
-    "approach": 48,
-    "outcome": 53,
+    "approach": 41,
+    "outcome": 52,
     "flavour": 28,
     "pair bits": 12
    },
    "x_elder_wish_4": {
-    "bytes": 23809,
+    "bytes": 22948,
     "setup": 8,
-    "approach": 37,
-    "outcome": 55,
-    "flavour": 22,
-    "pair bits": 11
+    "approach": 45,
+    "outcome": 85,
+    "flavour": 3,
+    "pair bits": 12
    },
    "x_elder_wish_5": {
-    "bytes": 22925,
+    "bytes": 21338,
     "setup": 8,
-    "approach": 47,
-    "outcome": 90,
+    "approach": 46,
+    "outcome": 85,
     "pair bits": 13
    },
    "x_elder_wish_6": {
-    "bytes": 19811,
+    "bytes": 17337,
     "setup": 8,
-    "approach": 42,
-    "outcome": 75,
+    "approach": 40,
+    "outcome": 48,
     "pair bits": 13
    },
    "x_elder_wish_7": {
-    "bytes": 14936,
+    "bytes": 14464,
     "setup": 8,
-    "approach": 45,
+    "approach": 42,
     "outcome": 45,
-    "pair bits": 11
-   },
-   "x_elder_wish_8": {
-    "bytes": 13417,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 47,
     "pair bits": 12
    },
-   "x_elder_wish_9": {
-    "bytes": 15723,
+   "x_elder_wish_8": {
+    "bytes": 14336,
     "setup": 8,
-    "approach": 38,
+    "approach": 40,
     "outcome": 48,
+    "pair bits": 13
+   },
+   "x_elder_wish_9": {
+    "bytes": 18048,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 42,
     "pair bits": 11
    },
    "x_elder_wish_10": {
-    "bytes": 19066,
+    "bytes": 19630,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
-    "pair bits": 13
+    "pair bits": 12
    },
    "x_elder_wish_11": {
-    "bytes": 18532,
+    "bytes": 18237,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
     "pair bits": 12
    },
    "x_elder_wish_12": {
-    "bytes": 18355,
+    "bytes": 18917,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
     "pair bits": 12
    },
    "x_elder_wish_13": {
-    "bytes": 19825,
+    "bytes": 21412,
     "setup": 8,
-    "approach": 32,
-    "outcome": 41,
-    "pair bits": 11
+    "approach": 41,
+    "outcome": 69,
+    "pair bits": 10
    },
    "x_elder_wish_14": {
-    "bytes": 23266,
+    "bytes": 20550,
     "setup": 9,
-    "approach": 48,
-    "outcome": 91,
-    "pair bits": 13
+    "approach": 45,
+    "outcome": 83,
+    "pair bits": 12
    },
    "x_elder_wish_15": {
-    "bytes": 18948,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 77,
+    "bytes": 29995,
+    "setup": 9,
+    "approach": 44,
+    "outcome": 80,
     "pair bits": 13
    },
    "x_elder_wish_16": {
-    "bytes": 15098,
-    "setup": 4,
-    "approach": 31,
-    "outcome": 58,
-    "pair bits": 9
+    "bytes": 9782,
+    "setup": 2,
+    "approach": 24,
+    "outcome": 40,
+    "pair bits": 5
    },
    "x_art_story_1": {
-    "bytes": 29060,
+    "bytes": 27899,
     "setup": 8,
     "approach": 42,
-    "outcome": 66,
-    "flavour": 23,
+    "outcome": 68,
+    "flavour": 20,
     "pair bits": 13
    },
    "x_art_story_2": {
-    "bytes": 20677,
+    "bytes": 20565,
     "setup": 8,
     "approach": 50,
     "outcome": 88,
     "pair bits": 13
    },
    "x_art_story_3": {
-    "bytes": 15078,
+    "bytes": 14804,
     "setup": 8,
-    "approach": 39,
-    "outcome": 48,
+    "approach": 37,
+    "outcome": 42,
     "pair bits": 13
    },
    "x_art_story_4": {
-    "bytes": 18078,
+    "bytes": 18146,
     "setup": 8,
     "approach": 34,
     "outcome": 40,
     "pair bits": 12
    },
    "x_art_story_5": {
-    "bytes": 18002,
+    "bytes": 17916,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
     "pair bits": 13
    },
    "x_art_story_6": {
-    "bytes": 18436,
+    "bytes": 18698,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
-    "pair bits": 13
+    "pair bits": 12
    },
    "x_art_story_7": {
-    "bytes": 19301,
+    "bytes": 19122,
     "setup": 8,
-    "approach": 39,
-    "outcome": 68,
+    "approach": 40,
+    "outcome": 72,
     "pair bits": 12
    },
    "x_art_story_8": {
-    "bytes": 11955,
+    "bytes": 14727,
     "setup": 4,
     "approach": 27,
     "outcome": 49,
     "pair bits": 9
    },
    "x_sickness_1": {
-    "bytes": 28785,
+    "bytes": 27347,
     "setup": 8,
-    "approach": 48,
-    "outcome": 52,
-    "flavour": 27,
+    "approach": 51,
+    "outcome": 50,
+    "flavour": 26,
     "pair bits": 13
    },
    "x_sickness_2": {
-    "bytes": 27567,
+    "bytes": 26897,
     "setup": 8,
     "approach": 48,
-    "outcome": 51,
-    "flavour": 28,
+    "outcome": 45,
+    "flavour": 30,
     "pair bits": 14
    },
    "x_sickness_3": {
-    "bytes": 26119,
+    "bytes": 24908,
     "setup": 8,
-    "approach": 41,
-    "flavour": 29,
-    "outcome": 46,
+    "approach": 31,
+    "outcome": 52,
+    "flavour": 24,
     "pair bits": 12
    },
    "x_sickness_4": {
-    "bytes": 23742,
+    "bytes": 23208,
     "setup": 8,
-    "approach": 40,
-    "outcome": 58,
-    "flavour": 18,
-    "pair bits": 13
+    "approach": 46,
+    "outcome": 84,
+    "flavour": 3,
+    "pair bits": 14
    },
    "x_sickness_5": {
-    "bytes": 21865,
-    "setup": 8,
-    "approach": 45,
-    "outcome": 85,
-    "pair bits": 11
+    "bytes": 20354,
+    "setup": 9,
+    "approach": 42,
+    "outcome": 67,
+    "pair bits": 12
    },
    "x_sickness_6": {
-    "bytes": 15434,
+    "bytes": 15329,
     "setup": 8,
-    "approach": 40,
-    "outcome": 50,
+    "approach": 42,
+    "outcome": 48,
     "pair bits": 13
    },
    "x_sickness_7": {
-    "bytes": 15707,
+    "bytes": 17466,
     "setup": 8,
-    "approach": 42,
-    "outcome": 47,
+    "approach": 39,
+    "outcome": 45,
     "pair bits": 14
    },
    "x_sickness_8": {
-    "bytes": 19233,
+    "bytes": 19174,
     "setup": 8,
     "approach": 32,
-    "outcome": 45,
-    "pair bits": 12
+    "outcome": 41,
+    "pair bits": 14
    },
    "x_sickness_9": {
-    "bytes": 19759,
+    "bytes": 20329,
     "setup": 8,
     "approach": 32,
     "outcome": 42,
     "pair bits": 13
    },
    "x_sickness_10": {
-    "bytes": 20174,
+    "bytes": 20017,
     "setup": 8,
     "approach": 36,
     "outcome": 37,
     "pair bits": 13
    },
    "x_sickness_11": {
-    "bytes": 20458,
+    "bytes": 20359,
     "setup": 8,
     "approach": 32,
     "outcome": 42,
     "pair bits": 14
    },
    "x_sickness_12": {
-    "bytes": 20215,
+    "bytes": 20050,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
     "pair bits": 13
    },
    "x_sickness_13": {
-    "bytes": 19229,
+    "bytes": 19660,
     "setup": 8,
-    "approach": 35,
-    "outcome": 37,
+    "approach": 37,
+    "outcome": 43,
     "pair bits": 13
    },
    "x_sickness_14": {
-    "bytes": 21168,
-    "setup": 8,
-    "approach": 37,
-    "outcome": 68,
-    "pair bits": 12
-   },
-   "x_sickness_15": {
-    "bytes": 22587,
+    "bytes": 23394,
     "setup": 9,
-    "approach": 49,
-    "outcome": 84,
+    "approach": 45,
+    "outcome": 87,
     "pair bits": 14
    },
-   "x_sickness_16": {
-    "bytes": 19894,
+   "x_sickness_15": {
+    "bytes": 20247,
     "setup": 8,
-    "approach": 41,
-    "outcome": 71,
+    "approach": 46,
+    "outcome": 74,
     "pair bits": 13
    },
+   "x_sickness_16": {
+    "bytes": 20852,
+    "setup": 8,
+    "approach": 42,
+    "outcome": 71,
+    "pair bits": 14
+   },
    "x_sickness_17": {
-    "bytes": 20736,
+    "bytes": 20616,
     "setup": 8,
     "approach": 39,
     "outcome": 75,
     "pair bits": 12
    },
    "x_sickness_18": {
-    "bytes": 20012,
+    "bytes": 19725,
     "setup": 8,
     "approach": 39,
     "outcome": 73,
     "pair bits": 14
    },
    "x_sickness_19": {
-    "bytes": 20076,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 71,
-    "pair bits": 13
+    "bytes": 21456,
+    "setup": 9,
+    "approach": 43,
+    "outcome": 81,
+    "pair bits": 12
    },
    "x_sickness_20": {
-    "bytes": 22811,
+    "bytes": 24567,
     "setup": 9,
-    "approach": 48,
-    "outcome": 89,
-    "pair bits": 14
-   },
-   "x_sickness_21": {
-    "bytes": 23153,
-    "setup": 10,
-    "approach": 41,
-    "outcome": 102,
-    "pair bits": 13
-   },
-   "x_sickness_22": {
-    "bytes": 10620,
-    "setup": 3,
-    "approach": 23,
-    "outcome": 45,
-    "pair bits": 9
-   },
-   "x_quarrel_1": {
-    "bytes": 32694,
-    "setup": 8,
-    "approach": 39,
-    "outcome": 71,
-    "flavour": 26,
-    "pair bits": 11
-   },
-   "x_quarrel_2": {
-    "bytes": 28278,
-    "setup": 8,
     "approach": 46,
-    "outcome": 55,
-    "flavour": 27,
-    "pair bits": 10
-   },
-   "x_quarrel_3": {
-    "bytes": 21413,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 87,
-    "pair bits": 14
-   },
-   "x_quarrel_4": {
-    "bytes": 21367,
-    "setup": 8,
-    "approach": 48,
     "outcome": 88,
     "pair bits": 13
    },
-   "x_quarrel_5": {
-    "bytes": 18022,
+   "x_sickness_21": {
+    "bytes": 21458,
+    "setup": 9,
+    "approach": 40,
+    "outcome": 94,
+    "pair bits": 13
+   },
+   "x_quarrel_1": {
+    "bytes": 29880,
     "setup": 8,
-    "approach": 42,
-    "outcome": 70,
+    "approach": 43,
+    "outcome": 58,
+    "flavour": 28,
     "pair bits": 11
+   },
+   "x_quarrel_2": {
+    "bytes": 21418,
+    "setup": 8,
+    "approach": 48,
+    "outcome": 82,
+    "flavour": 3,
+    "pair bits": 11
+   },
+   "x_quarrel_3": {
+    "bytes": 21602,
+    "setup": 8,
+    "approach": 50,
+    "outcome": 86,
+    "pair bits": 14
+   },
+   "x_quarrel_4": {
+    "bytes": 23608,
+    "setup": 9,
+    "approach": 44,
+    "outcome": 80,
+    "pair bits": 12
+   },
+   "x_quarrel_5": {
+    "bytes": 12511,
+    "setup": 8,
+    "approach": 37,
+    "outcome": 41,
+    "pair bits": 10
    },
    "x_quarrel_6": {
-    "bytes": 12870,
+    "bytes": 14224,
     "setup": 8,
-    "approach": 41,
-    "outcome": 42,
-    "pair bits": 11
+    "approach": 50,
+    "outcome": 55,
+    "pair bits": 9
    },
    "x_quarrel_7": {
-    "bytes": 14537,
+    "bytes": 14617,
     "setup": 8,
     "approach": 51,
     "outcome": 54,
     "pair bits": 11
    },
    "x_quarrel_8": {
-    "bytes": 15395,
+    "bytes": 15389,
     "setup": 8,
     "approach": 48,
     "outcome": 57,
     "pair bits": 14
    },
    "x_quarrel_9": {
-    "bytes": 14826,
+    "bytes": 14912,
     "setup": 8,
     "approach": 48,
     "outcome": 58,
     "pair bits": 11
    },
    "x_quarrel_10": {
-    "bytes": 14489,
+    "bytes": 15574,
     "setup": 8,
     "approach": 50,
-    "outcome": 55,
+    "outcome": 54,
     "pair bits": 10
    },
    "x_quarrel_11": {
-    "bytes": 16179,
+    "bytes": 14839,
     "setup": 8,
-    "approach": 51,
-    "outcome": 51,
-    "pair bits": 12
+    "approach": 44,
+    "outcome": 45,
+    "pair bits": 14
    },
    "x_quarrel_12": {
-    "bytes": 13455,
+    "bytes": 14390,
     "setup": 8,
-    "approach": 42,
-    "outcome": 45,
-    "pair bits": 13
+    "approach": 40,
+    "outcome": 49,
+    "pair bits": 12
    },
    "x_quarrel_13": {
-    "bytes": 14231,
+    "bytes": 15833,
     "setup": 8,
-    "approach": 39,
-    "outcome": 49,
+    "approach": 34,
+    "outcome": 45,
     "pair bits": 11
    },
    "x_quarrel_14": {
-    "bytes": 16402,
+    "bytes": 18207,
     "setup": 8,
-    "approach": 35,
-    "outcome": 40,
-    "pair bits": 10
+    "approach": 33,
+    "outcome": 39,
+    "pair bits": 13
    },
    "x_quarrel_15": {
-    "bytes": 18686,
+    "bytes": 19256,
     "setup": 8,
     "approach": 35,
     "outcome": 38,
     "pair bits": 12
    },
    "x_quarrel_16": {
-    "bytes": 19724,
+    "bytes": 19010,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
     "pair bits": 13
    },
    "x_quarrel_17": {
-    "bytes": 18280,
+    "bytes": 17828,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
     "pair bits": 13
    },
    "x_quarrel_18": {
-    "bytes": 18335,
+    "bytes": 19074,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
-    "pair bits": 11
+    "pair bits": 10
    },
    "x_quarrel_19": {
-    "bytes": 18644,
+    "bytes": 18535,
     "setup": 8,
     "approach": 35,
     "outcome": 39,
     "pair bits": 12
    },
    "x_quarrel_20": {
-    "bytes": 18834,
+    "bytes": 20966,
     "setup": 8,
-    "approach": 33,
-    "outcome": 39,
+    "approach": 42,
+    "outcome": 73,
     "pair bits": 13
    },
    "x_quarrel_21": {
-    "bytes": 21930,
+    "bytes": 19579,
     "setup": 9,
-    "approach": 48,
-    "outcome": 92,
-    "pair bits": 11
+    "approach": 44,
+    "outcome": 84,
+    "pair bits": 12
    },
    "x_quarrel_22": {
-    "bytes": 17563,
+    "bytes": 32796,
     "setup": 8,
     "approach": 43,
-    "outcome": 73,
-    "pair bits": 10
+    "outcome": 75,
+    "pair bits": 12
    },
    "x_quarrel_23": {
-    "bytes": 12034,
-    "setup": 3,
-    "approach": 31,
-    "outcome": 46,
-    "pair bits": 7
+    "bytes": 15675,
+    "setup": 4,
+    "approach": 33,
+    "outcome": 50,
+    "pair bits": 6
    },
    "x_celebration_1": {
-    "bytes": 29168,
+    "bytes": 27694,
     "setup": 8,
-    "approach": 41,
-    "outcome": 58,
+    "approach": 42,
+    "outcome": 50,
     "flavour": 28,
     "pair bits": 15
    },
    "x_celebration_2": {
-    "bytes": 24911,
+    "bytes": 22756,
     "setup": 8,
-    "approach": 43,
-    "outcome": 47,
-    "flavour": 27,
-    "pair bits": 14
-   },
-   "x_celebration_3": {
-    "bytes": 23367,
-    "setup": 9,
-    "approach": 50,
-    "outcome": 93,
-    "flavour": 3,
+    "approach": 41,
+    "outcome": 71,
+    "flavour": 12,
     "pair bits": 15
    },
+   "x_celebration_3": {
+    "bytes": 22421,
+    "setup": 9,
+    "approach": 51,
+    "outcome": 97,
+    "pair bits": 14
+   },
    "x_celebration_4": {
-    "bytes": 20536,
+    "bytes": 20000,
     "setup": 8,
-    "approach": 49,
-    "outcome": 88,
+    "approach": 47,
+    "outcome": 83,
     "pair bits": 14
    },
    "x_celebration_5": {
-    "bytes": 18136,
+    "bytes": 15311,
     "setup": 8,
-    "approach": 41,
-    "outcome": 73,
+    "approach": 39,
+    "outcome": 52,
     "pair bits": 15
    },
    "x_celebration_6": {
-    "bytes": 15699,
+    "bytes": 18392,
     "setup": 8,
-    "approach": 38,
-    "outcome": 46,
-    "pair bits": 14
+    "approach": 32,
+    "outcome": 43,
+    "pair bits": 16
    },
    "x_celebration_7": {
-    "bytes": 19099,
+    "bytes": 19181,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
-    "pair bits": 16
+    "pair bits": 15
    },
    "x_celebration_8": {
-    "bytes": 19732,
+    "bytes": 20381,
     "setup": 8,
-    "approach": 38,
-    "outcome": 52,
+    "approach": 45,
+    "outcome": 76,
     "pair bits": 14
    },
    "x_celebration_9": {
-    "bytes": 19930,
-    "setup": 8,
-    "approach": 44,
-    "outcome": 78,
-    "pair bits": 14
+    "bytes": 20119,
+    "setup": 5,
+    "approach": 34,
+    "outcome": 58,
+    "pair bits": 11
    },
    "x_weather_1": {
     "bytes": 34752,
@@ -2145,19 +1811,19 @@
     "pair bits": 13
    },
    "x_weather_3": {
-    "bytes": 27183,
+    "bytes": 26064,
     "setup": 8,
-    "approach": 49,
-    "outcome": 53,
-    "flavour": 28,
+    "approach": 47,
+    "outcome": 51,
+    "flavour": 27,
     "pair bits": 14
    },
    "x_weather_4": {
-    "bytes": 20597,
+    "bytes": 23088,
     "setup": 8,
     "approach": 39,
-    "outcome": 52,
-    "flavour": 15,
+    "outcome": 54,
+    "flavour": 9,
     "pair bits": 15
    },
    "x_weather_5": {
@@ -2203,748 +1869,458 @@
     "pair bits": 15
    },
    "x_new_idea_1": {
-    "bytes": 35805,
+    "bytes": 34452,
     "setup": 8,
     "approach": 48,
-    "outcome": 83,
+    "outcome": 79,
     "flavour": 25,
     "pair bits": 10
    },
    "x_new_idea_2": {
-    "bytes": 23816,
+    "bytes": 22303,
     "setup": 8,
-    "approach": 43,
-    "outcome": 68,
-    "flavour": 13,
+    "approach": 42,
+    "outcome": 67,
+    "flavour": 10,
     "pair bits": 14
    },
    "x_new_idea_3": {
-    "bytes": 13941,
+    "bytes": 13898,
     "setup": 8,
     "approach": 41,
     "outcome": 47,
     "pair bits": 10
    },
    "x_new_idea_4": {
-    "bytes": 14422,
+    "bytes": 14174,
     "setup": 8,
-    "approach": 41,
-    "outcome": 49,
+    "approach": 40,
+    "outcome": 48,
     "pair bits": 13
    },
    "x_new_idea_5": {
-    "bytes": 14594,
+    "bytes": 14708,
     "setup": 8,
-    "approach": 45,
-    "outcome": 50,
+    "approach": 46,
+    "outcome": 52,
     "pair bits": 13
    },
    "x_new_idea_6": {
-    "bytes": 14486,
+    "bytes": 14473,
     "setup": 8,
     "approach": 49,
     "outcome": 55,
     "pair bits": 10
    },
    "x_new_idea_7": {
-    "bytes": 16124,
+    "bytes": 16150,
     "setup": 8,
     "approach": 47,
     "outcome": 58,
     "pair bits": 13
    },
    "x_new_idea_8": {
-    "bytes": 15579,
+    "bytes": 15683,
     "setup": 8,
-    "approach": 46,
+    "approach": 45,
     "outcome": 50,
-    "pair bits": 11
+    "pair bits": 12
    },
    "x_new_idea_9": {
-    "bytes": 16144,
+    "bytes": 16341,
     "setup": 8,
-    "approach": 36,
-    "outcome": 46,
-    "pair bits": 13
+    "approach": 37,
+    "outcome": 45,
+    "pair bits": 15
    },
    "x_new_idea_10": {
-    "bytes": 17949,
+    "bytes": 18170,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 12
    },
    "x_new_idea_11": {
-    "bytes": 18532,
+    "bytes": 18664,
     "setup": 8,
     "approach": 35,
     "outcome": 39,
     "pair bits": 13
    },
    "x_new_idea_12": {
-    "bytes": 19739,
+    "bytes": 19688,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 13
    },
    "x_new_idea_13": {
-    "bytes": 18193,
+    "bytes": 18295,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 11
    },
    "x_new_idea_14": {
-    "bytes": 20526,
+    "bytes": 20663,
     "setup": 8,
-    "approach": 33,
-    "outcome": 48,
+    "approach": 34,
+    "outcome": 52,
     "pair bits": 13
    },
    "x_new_idea_15": {
-    "bytes": 19111,
+    "bytes": 19005,
     "setup": 8,
     "approach": 42,
     "outcome": 71,
     "pair bits": 10
    },
    "x_new_idea_16": {
-    "bytes": 19407,
+    "bytes": 19353,
     "setup": 8,
     "approach": 41,
     "outcome": 72,
     "pair bits": 14
    },
    "x_new_idea_17": {
-    "bytes": 19200,
+    "bytes": 19595,
     "setup": 8,
-    "approach": 43,
-    "outcome": 75,
+    "approach": 44,
+    "outcome": 77,
     "pair bits": 11
    },
    "x_new_idea_18": {
-    "bytes": 19800,
+    "bytes": 19398,
     "setup": 8,
-    "approach": 44,
-    "outcome": 72,
+    "approach": 43,
+    "outcome": 70,
     "pair bits": 14
    },
    "x_new_idea_19": {
-    "bytes": 19518,
+    "bytes": 19493,
     "setup": 8,
     "approach": 41,
     "outcome": 73,
     "pair bits": 14
    },
    "x_new_idea_20": {
-    "bytes": 18154,
+    "bytes": 18141,
     "setup": 8,
     "approach": 42,
     "outcome": 71,
     "pair bits": 11
    },
    "x_new_idea_21": {
-    "bytes": 19228,
+    "bytes": 19279,
     "setup": 8,
     "approach": 39,
     "outcome": 74,
     "pair bits": 13
    },
    "x_new_idea_22": {
-    "bytes": 18994,
+    "bytes": 19146,
     "setup": 8,
     "approach": 42,
     "outcome": 71,
     "pair bits": 11
    },
    "x_new_idea_23": {
-    "bytes": 20222,
+    "bytes": 20205,
     "setup": 8,
     "approach": 42,
     "outcome": 72,
     "pair bits": 14
    },
    "x_new_idea_24": {
-    "bytes": 19961,
+    "bytes": 19868,
     "setup": 8,
     "approach": 40,
     "outcome": 74,
     "pair bits": 12
    },
    "x_new_idea_25": {
-    "bytes": 19279,
+    "bytes": 19077,
     "setup": 8,
     "approach": 44,
     "outcome": 74,
     "pair bits": 13
    },
    "x_new_idea_26": {
-    "bytes": 20136,
+    "bytes": 20474,
     "setup": 9,
-    "approach": 45,
-    "outcome": 82,
+    "approach": 46,
+    "outcome": 84,
     "pair bits": 13
    },
    "x_new_idea_27": {
-    "bytes": 26974,
+    "bytes": 30476,
     "setup": 7,
     "approach": 44,
     "outcome": 98,
     "pair bits": 8
    },
    "x_mistake_1": {
-    "bytes": 30351,
+    "bytes": 24045,
     "setup": 8,
-    "approach": 40,
-    "outcome": 66,
-    "flavour": 24,
+    "approach": 41,
+    "outcome": 68,
+    "flavour": 11,
     "pair bits": 15
    },
    "x_mistake_2": {
-    "bytes": 15880,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 56,
-    "pair bits": 15
-   },
-   "x_mistake_3": {
-    "bytes": 14706,
+    "bytes": 14056,
     "setup": 8,
     "approach": 45,
-    "outcome": 44,
+    "outcome": 42,
+    "pair bits": 14
+   },
+   "x_mistake_3": {
+    "bytes": 14579,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 48,
     "pair bits": 11
    },
    "x_mistake_4": {
-    "bytes": 16168,
+    "bytes": 18051,
     "setup": 8,
-    "approach": 37,
-    "outcome": 43,
-    "pair bits": 14
+    "approach": 33,
+    "outcome": 39,
+    "pair bits": 13
    },
    "x_mistake_5": {
-    "bytes": 17959,
+    "bytes": 17956,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
     "pair bits": 11
    },
    "x_mistake_6": {
-    "bytes": 18777,
+    "bytes": 19094,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 12
    },
    "x_mistake_7": {
-    "bytes": 19002,
+    "bytes": 18697,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
-    "pair bits": 14
+    "pair bits": 13
    },
    "x_mistake_8": {
-    "bytes": 18309,
+    "bytes": 18514,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
     "pair bits": 11
    },
    "x_mistake_9": {
-    "bytes": 18913,
+    "bytes": 19116,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 12
    },
    "x_mistake_10": {
-    "bytes": 19054,
+    "bytes": 19016,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 14
    },
    "x_mistake_11": {
-    "bytes": 18609,
+    "bytes": 19624,
     "setup": 8,
-    "approach": 32,
-    "outcome": 40,
+    "approach": 37,
+    "outcome": 52,
     "pair bits": 11
    },
    "x_mistake_12": {
-    "bytes": 21532,
-    "setup": 8,
-    "approach": 44,
-    "outcome": 75,
+    "bytes": 32189,
+    "setup": 10,
+    "approach": 51,
+    "outcome": 91,
     "pair bits": 12
    },
-   "x_mistake_13": {
-    "bytes": 8147,
-    "setup": 1,
-    "approach": 21,
-    "outcome": 32,
-    "pair bits": 7
-   },
    "x_personal_change_1": {
-    "bytes": 28964,
+    "bytes": 27406,
     "setup": 8,
-    "approach": 41,
-    "outcome": 64,
-    "flavour": 25,
+    "approach": 40,
+    "outcome": 58,
+    "flavour": 27,
     "pair bits": 11
    },
    "x_personal_change_2": {
-    "bytes": 23724,
+    "bytes": 20386,
     "setup": 8,
-    "approach": 40,
-    "outcome": 67,
-    "flavour": 17,
-    "pair bits": 11
+    "approach": 42,
+    "outcome": 79,
+    "flavour": 3,
+    "pair bits": 10
    },
    "x_personal_change_3": {
-    "bytes": 19828,
+    "bytes": 21232,
     "setup": 8,
-    "approach": 43,
-    "outcome": 80,
+    "approach": 45,
+    "outcome": 84,
     "pair bits": 10
    },
    "x_personal_change_4": {
-    "bytes": 21614,
+    "bytes": 18567,
     "setup": 8,
-    "approach": 46,
-    "outcome": 87,
+    "approach": 38,
+    "outcome": 64,
     "pair bits": 10
    },
    "x_personal_change_5": {
-    "bytes": 12344,
+    "bytes": 13477,
     "setup": 8,
-    "approach": 39,
-    "outcome": 36,
-    "pair bits": 11
-   },
-   "x_personal_change_6": {
-    "bytes": 15288,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 45,
+    "approach": 42,
+    "outcome": 40,
     "pair bits": 12
    },
+   "x_personal_change_6": {
+    "bytes": 16438,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 42,
+    "pair bits": 11
+   },
    "x_personal_change_7": {
-    "bytes": 18444,
+    "bytes": 18969,
     "setup": 8,
     "approach": 31,
     "outcome": 40,
     "pair bits": 11
    },
    "x_personal_change_8": {
-    "bytes": 18182,
+    "bytes": 17840,
     "setup": 8,
     "approach": 31,
     "outcome": 40,
     "pair bits": 11
    },
    "x_personal_change_9": {
-    "bytes": 18529,
+    "bytes": 18587,
     "setup": 8,
     "approach": 31,
     "outcome": 40,
-    "pair bits": 11
+    "pair bits": 10
    },
    "x_personal_change_10": {
-    "bytes": 17996,
+    "bytes": 18204,
     "setup": 8,
     "approach": 31,
     "outcome": 40,
     "pair bits": 11
    },
    "x_personal_change_11": {
-    "bytes": 18594,
+    "bytes": 18702,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 40,
+    "pair bits": 11
+   },
+   "x_personal_change_12": {
+    "bytes": 18641,
     "setup": 8,
     "approach": 31,
     "outcome": 40,
     "pair bits": 10
    },
-   "x_personal_change_12": {
-    "bytes": 18778,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 40,
-    "pair bits": 11
-   },
    "x_personal_change_13": {
-    "bytes": 18780,
+    "bytes": 19370,
     "setup": 8,
-    "approach": 31,
-    "outcome": 40,
+    "approach": 35,
+    "outcome": 52,
     "pair bits": 11
    },
    "x_personal_change_14": {
-    "bytes": 20014,
+    "bytes": 19193,
     "setup": 8,
-    "approach": 41,
+    "approach": 40,
     "outcome": 74,
     "pair bits": 11
    },
    "x_personal_change_15": {
-    "bytes": 17542,
+    "bytes": 23646,
     "setup": 8,
-    "approach": 39,
-    "outcome": 72,
+    "approach": 40,
+    "outcome": 74,
     "pair bits": 11
    },
    "x_personal_change_16": {
-    "bytes": 7478,
+    "bytes": 9847,
     "setup": 1,
-    "approach": 19,
-    "outcome": 32,
+    "approach": 18,
+    "outcome": 30,
     "pair bits": 3
    },
-   "x_leadership_1": {
-    "bytes": 33198,
-    "setup": 8,
-    "approach": 44,
-    "outcome": 72,
-    "flavour": 22,
-    "pair bits": 14
-   },
-   "x_leadership_2": {
-    "bytes": 25393,
-    "setup": 10,
-    "approach": 55,
-    "outcome": 105,
-    "pair bits": 13
-   },
-   "x_leadership_3": {
-    "bytes": 29226,
-    "setup": 13,
-    "approach": 69,
-    "outcome": 128,
-    "pair bits": 13
-   },
-   "x_leadership_4": {
-    "bytes": 14747,
-    "setup": 9,
-    "approach": 45,
-    "outcome": 47,
-    "pair bits": 11
-   },
-   "x_leadership_5": {
-    "bytes": 17975,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 43,
-    "pair bits": 14
-   },
-   "x_leadership_6": {
-    "bytes": 19044,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 14
-   },
-   "x_leadership_7": {
-    "bytes": 20301,
-    "setup": 8,
-    "approach": 35,
-    "outcome": 55,
-    "pair bits": 11
-   },
-   "x_leadership_8": {
-    "bytes": 24801,
-    "setup": 11,
-    "approach": 54,
-    "outcome": 105,
-    "pair bits": 13
-   },
-   "x_leadership_9": {
-    "bytes": 22445,
-    "setup": 9,
-    "approach": 51,
-    "outcome": 90,
-    "pair bits": 11
-   },
-   "x_lost_object_1": {
-    "bytes": 22009,
-    "setup": 8,
-    "approach": 39,
-    "outcome": 63,
-    "flavour": 9,
-    "pair bits": 13
-   },
-   "x_lost_object_2": {
-    "bytes": 13884,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 31,
-    "pair bits": 12
-   },
-   "x_lost_object_3": {
-    "bytes": 17216,
-    "setup": 8,
-    "approach": 30,
-    "outcome": 32,
-    "pair bits": 13
-   },
-   "x_lost_object_4": {
-    "bytes": 15553,
-    "setup": 7,
-    "approach": 29,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_feelings_1": {
-    "bytes": 30286,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 69,
-    "flavour": 25,
-    "pair bits": 12
-   },
-   "x_feelings_2": {
-    "bytes": 22715,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 89,
-    "pair bits": 11
-   },
-   "x_feelings_3": {
-    "bytes": 20775,
-    "setup": 8,
-    "approach": 48,
-    "outcome": 83,
-    "pair bits": 14
-   },
-   "x_feelings_4": {
-    "bytes": 21143,
-    "setup": 8,
-    "approach": 52,
-    "outcome": 84,
-    "pair bits": 13
-   },
-   "x_feelings_5": {
-    "bytes": 15643,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 60,
-    "pair bits": 12
-   },
-   "x_feelings_6": {
-    "bytes": 14247,
-    "setup": 8,
-    "approach": 40,
-    "outcome": 47,
-    "pair bits": 12
-   },
-   "x_feelings_7": {
-    "bytes": 15169,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 49,
-    "pair bits": 10
-   },
-   "x_feelings_8": {
-    "bytes": 13782,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 47,
-    "pair bits": 12
-   },
-   "x_feelings_9": {
-    "bytes": 16371,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 38,
-    "pair bits": 13
-   },
-   "x_feelings_10": {
-    "bytes": 16788,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_feelings_11": {
-    "bytes": 18529,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 42,
-    "pair bits": 12
-   },
-   "x_feelings_12": {
-    "bytes": 19216,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 10
-   },
-   "x_feelings_13": {
-    "bytes": 18218,
-    "setup": 8,
-    "approach": 35,
-    "outcome": 38,
-    "pair bits": 12
-   },
-   "x_feelings_14": {
-    "bytes": 18995,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 38,
-    "pair bits": 12
-   },
-   "x_feelings_15": {
-    "bytes": 18524,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
-   },
-   "x_feelings_16": {
-    "bytes": 18703,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_feelings_17": {
-    "bytes": 18751,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 41,
-    "pair bits": 10
-   },
-   "x_feelings_18": {
-    "bytes": 18054,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 39,
-    "pair bits": 13
-   },
-   "x_feelings_19": {
-    "bytes": 18101,
-    "setup": 8,
-    "approach": 35,
-    "outcome": 37,
-    "pair bits": 13
-   },
-   "x_feelings_20": {
-    "bytes": 18406,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_feelings_21": {
-    "bytes": 19557,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 43,
-    "pair bits": 16
-   },
-   "x_feelings_22": {
-    "bytes": 20104,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
-   },
-   "x_feelings_23": {
-    "bytes": 18699,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 39,
-    "pair bits": 12
-   },
-   "x_feelings_24": {
-    "bytes": 19659,
-    "setup": 8,
-    "approach": 35,
-    "outcome": 39,
-    "pair bits": 13
-   },
-   "x_feelings_25": {
-    "bytes": 19561,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
-   },
-   "x_feelings_26": {
-    "bytes": 19882,
-    "setup": 8,
-    "approach": 30,
-    "outcome": 42,
-    "pair bits": 15
-   },
-   "x_feelings_27": {
-    "bytes": 16944,
-    "setup": 6,
-    "approach": 40,
-    "outcome": 67,
-    "pair bits": 10
-   },
    "x_grief_1": {
-    "bytes": 32908,
+    "bytes": 30284,
     "setup": 8,
-    "approach": 44,
-    "outcome": 82,
-    "flavour": 25,
+    "approach": 46,
+    "outcome": 85,
+    "flavour": 19,
     "pair bits": 14
    },
    "x_grief_2": {
-    "bytes": 21579,
+    "bytes": 20618,
     "setup": 8,
-    "approach": 48,
-    "outcome": 89,
+    "approach": 46,
+    "outcome": 85,
     "pair bits": 15
    },
    "x_grief_3": {
-    "bytes": 15031,
+    "bytes": 13871,
     "setup": 8,
-    "approach": 39,
-    "outcome": 51,
-    "pair bits": 12
+    "approach": 41,
+    "outcome": 43,
+    "pair bits": 13
    },
    "x_grief_4": {
-    "bytes": 14562,
+    "bytes": 14498,
     "setup": 8,
-    "approach": 44,
-    "outcome": 44,
+    "approach": 42,
+    "outcome": 46,
     "pair bits": 15
    },
    "x_grief_5": {
-    "bytes": 14866,
+    "bytes": 15667,
     "setup": 8,
-    "approach": 39,
-    "outcome": 48,
+    "approach": 37,
+    "outcome": 46,
     "pair bits": 14
    },
    "x_grief_6": {
-    "bytes": 19401,
+    "bytes": 19928,
     "setup": 8,
-    "approach": 31,
-    "outcome": 43,
+    "approach": 33,
+    "outcome": 49,
     "pair bits": 12
    },
    "x_grief_7": {
-    "bytes": 19751,
+    "bytes": 19219,
     "setup": 8,
     "approach": 41,
-    "outcome": 73,
-    "pair bits": 13
+    "outcome": 75,
+    "pair bits": 12
    },
    "x_grief_8": {
-    "bytes": 18670,
+    "bytes": 18869,
     "setup": 8,
-    "approach": 40,
-    "outcome": 77,
+    "approach": 42,
+    "outcome": 81,
     "pair bits": 12
    },
    "x_grief_9": {
-    "bytes": 9803,
+    "bytes": 14564,
     "setup": 2,
-    "approach": 26,
-    "outcome": 40,
-    "pair bits": 9
+    "approach": 25,
+    "outcome": 34,
+    "pair bits": 8
    },
    "x_secret_1": {
     "bytes": 22514,
@@ -2989,199 +2365,354 @@
     "outcome": 55,
     "pair bits": 13
    },
-   "x_fear_1": {
-    "bytes": 20936,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 63,
-    "flavour": 9,
-    "pair bits": 12
-   },
-   "x_fear_2": {
-    "bytes": 14640,
-    "setup": 8,
-    "approach": 41,
-    "outcome": 48,
-    "pair bits": 12
-   },
-   "x_fear_3": {
-    "bytes": 16498,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 44,
-    "pair bits": 12
-   },
-   "x_fear_4": {
-    "bytes": 18433,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 40,
-    "pair bits": 14
-   },
-   "x_fear_5": {
-    "bytes": 18645,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 10
-   },
-   "x_fear_6": {
-    "bytes": 18919,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 38,
-    "pair bits": 13
-   },
-   "x_fear_7": {
-    "bytes": 19443,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 13
-   },
-   "x_fear_8": {
-    "bytes": 20363,
+   "x_lost_object_1": {
+    "bytes": 16295,
     "setup": 8,
     "approach": 37,
-    "outcome": 37,
+    "outcome": 53,
+    "flavour": 3,
     "pair bits": 12
    },
-   "x_fear_9": {
-    "bytes": 11103,
-    "setup": 3,
-    "approach": 22,
-    "outcome": 35,
-    "pair bits": 9
-   },
-   "x_contest_1": {
-    "bytes": 26020,
+   "x_lost_object_2": {
+    "bytes": 15800,
     "setup": 8,
-    "approach": 47,
-    "outcome": 51,
-    "flavour": 27,
-    "pair bits": 14
-   },
-   "x_contest_2": {
-    "bytes": 23630,
-    "setup": 8,
-    "approach": 42,
-    "outcome": 65,
-    "flavour": 16,
+    "approach": 31,
+    "outcome": 33,
     "pair bits": 13
    },
-   "x_contest_3": {
-    "bytes": 17688,
+   "x_lost_object_3": {
+    "bytes": 17377,
     "setup": 8,
-    "approach": 41,
-    "outcome": 56,
+    "approach": 30,
+    "outcome": 32,
+    "pair bits": 13
+   },
+   "x_lost_object_4": {
+    "bytes": 21300,
+    "setup": 7,
+    "approach": 31,
+    "outcome": 49,
+    "pair bits": 12
+   },
+   "x_contest_1": {
+    "bytes": 24264,
+    "setup": 8,
+    "approach": 43,
+    "outcome": 48,
+    "flavour": 25,
+    "pair bits": 12
+   },
+   "x_contest_2": {
+    "bytes": 24205,
+    "setup": 8,
+    "approach": 44,
+    "outcome": 75,
+    "flavour": 3,
+    "pair bits": 11
+   },
+   "x_contest_3": {
+    "bytes": 18414,
+    "setup": 8,
+    "approach": 34,
+    "outcome": 46,
     "pair bits": 12
    },
    "x_contest_4": {
-    "bytes": 18369,
+    "bytes": 18654,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 12
    },
    "x_contest_5": {
-    "bytes": 18889,
+    "bytes": 18609,
     "setup": 8,
     "approach": 32,
     "outcome": 42,
     "pair bits": 12
    },
    "x_contest_6": {
-    "bytes": 18281,
+    "bytes": 18536,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
     "pair bits": 12
    },
    "x_contest_7": {
-    "bytes": 19804,
+    "bytes": 20206,
     "setup": 8,
-    "approach": 37,
-    "outcome": 61,
+    "approach": 41,
+    "outcome": 65,
     "pair bits": 12
    },
    "x_contest_8": {
-    "bytes": 13429,
-    "setup": 3,
-    "approach": 26,
-    "outcome": 55,
+    "bytes": 10939,
+    "setup": 2,
+    "approach": 22,
+    "outcome": 46,
     "pair bits": 7
    },
    "x_craft_problem_1": {
-    "bytes": 26097,
+    "bytes": 25233,
     "setup": 8,
-    "approach": 47,
+    "approach": 45,
     "outcome": 48,
-    "flavour": 29,
+    "flavour": 28,
     "pair bits": 14
    },
    "x_craft_problem_2": {
-    "bytes": 22978,
+    "bytes": 22806,
     "setup": 8,
-    "approach": 41,
-    "outcome": 70,
-    "flavour": 12,
+    "approach": 43,
+    "outcome": 75,
+    "flavour": 9,
     "pair bits": 12
    },
    "x_craft_problem_3": {
-    "bytes": 16940,
+    "bytes": 16165,
     "setup": 8,
-    "approach": 44,
-    "outcome": 64,
+    "approach": 43,
+    "outcome": 59,
     "pair bits": 14
    },
    "x_craft_problem_4": {
-    "bytes": 15008,
+    "bytes": 15073,
     "setup": 8,
-    "approach": 42,
-    "outcome": 50,
+    "approach": 41,
+    "outcome": 47,
     "pair bits": 14
    },
    "x_craft_problem_5": {
-    "bytes": 18196,
+    "bytes": 18397,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 13
    },
    "x_craft_problem_6": {
-    "bytes": 18418,
+    "bytes": 18314,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
     "pair bits": 14
    },
    "x_craft_problem_7": {
-    "bytes": 19108,
+    "bytes": 19312,
     "setup": 8,
     "approach": 33,
     "outcome": 40,
     "pair bits": 12
    },
    "x_craft_problem_8": {
-    "bytes": 20330,
+    "bytes": 20533,
     "setup": 8,
-    "approach": 37,
-    "outcome": 52,
+    "approach": 39,
+    "outcome": 58,
     "pair bits": 14
    },
    "x_craft_problem_9": {
-    "bytes": 18245,
+    "bytes": 17997,
     "setup": 8,
-    "approach": 42,
-    "outcome": 74,
+    "approach": 41,
+    "outcome": 72,
     "pair bits": 13
    },
    "x_craft_problem_10": {
-    "bytes": 16363,
-    "setup": 6,
+    "bytes": 14685,
+    "setup": 5,
+    "approach": 36,
+    "outcome": 61,
+    "pair bits": 10
+   },
+   "x_feelings_1": {
+    "bytes": 23051,
+    "setup": 8,
+    "approach": 46,
+    "outcome": 86,
+    "flavour": 3,
+    "pair bits": 14
+   },
+   "x_feelings_2": {
+    "bytes": 22147,
+    "setup": 8,
+    "approach": 49,
+    "outcome": 89,
+    "pair bits": 12
+   },
+   "x_feelings_3": {
+    "bytes": 20442,
+    "setup": 8,
+    "approach": 50,
+    "outcome": 81,
+    "pair bits": 13
+   },
+   "x_feelings_4": {
+    "bytes": 16243,
+    "setup": 8,
+    "approach": 45,
+    "outcome": 62,
+    "pair bits": 13
+   },
+   "x_feelings_5": {
+    "bytes": 13490,
+    "setup": 8,
     "approach": 39,
-    "outcome": 67,
+    "outcome": 44,
     "pair bits": 11
+   },
+   "x_feelings_6": {
+    "bytes": 15008,
+    "setup": 8,
+    "approach": 40,
+    "outcome": 50,
+    "pair bits": 12
+   },
+   "x_feelings_7": {
+    "bytes": 14832,
+    "setup": 8,
+    "approach": 40,
+    "outcome": 48,
+    "pair bits": 11
+   },
+   "x_feelings_8": {
+    "bytes": 15998,
+    "setup": 8,
+    "approach": 36,
+    "outcome": 41,
+    "pair bits": 13
+   },
+   "x_feelings_9": {
+    "bytes": 16117,
+    "setup": 8,
+    "approach": 36,
+    "outcome": 36,
+    "pair bits": 13
+   },
+   "x_feelings_10": {
+    "bytes": 18179,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 12
+   },
+   "x_feelings_11": {
+    "bytes": 19255,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 42,
+    "pair bits": 12
+   },
+   "x_feelings_12": {
+    "bytes": 18878,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 41,
+    "pair bits": 10
+   },
+   "x_feelings_13": {
+    "bytes": 18652,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 38,
+    "pair bits": 12
+   },
+   "x_feelings_14": {
+    "bytes": 18451,
+    "setup": 8,
+    "approach": 36,
+    "outcome": 38,
+    "pair bits": 12
+   },
+   "x_feelings_15": {
+    "bytes": 18526,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 11
+   },
+   "x_feelings_16": {
+    "bytes": 18722,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 12
+   },
+   "x_feelings_17": {
+    "bytes": 18648,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 41,
+    "pair bits": 10
+   },
+   "x_feelings_18": {
+    "bytes": 18169,
+    "setup": 8,
+    "approach": 34,
+    "outcome": 39,
+    "pair bits": 13
+   },
+   "x_feelings_19": {
+    "bytes": 17967,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 37,
+    "pair bits": 13
+   },
+   "x_feelings_20": {
+    "bytes": 18923,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 41,
+    "pair bits": 11
+   },
+   "x_feelings_21": {
+    "bytes": 20443,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 43,
+    "pair bits": 15
+   },
+   "x_feelings_22": {
+    "bytes": 19542,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 10
+   },
+   "x_feelings_23": {
+    "bytes": 19058,
+    "setup": 8,
+    "approach": 34,
+    "outcome": 39,
+    "pair bits": 13
+   },
+   "x_feelings_24": {
+    "bytes": 19775,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 39,
+    "pair bits": 12
+   },
+   "x_feelings_25": {
+    "bytes": 19429,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 12
+   },
+   "x_feelings_26": {
+    "bytes": 24895,
+    "setup": 8,
+    "approach": 43,
+    "outcome": 74,
+    "pair bits": 11
+   },
+   "x_feelings_27": {
+    "bytes": 25424,
+    "setup": 5,
+    "approach": 33,
+    "outcome": 57,
+    "pair bits": 8
    },
    "x_kindness_1": {
     "bytes": 21194,
@@ -3217,6 +2748,133 @@
     "setup": 7,
     "approach": 41,
     "outcome": 78,
+    "pair bits": 11
+   },
+   "x_fear_1": {
+    "bytes": 17879,
+    "setup": 8,
+    "approach": 44,
+    "outcome": 58,
+    "flavour": 3,
+    "pair bits": 12
+   },
+   "x_fear_2": {
+    "bytes": 15090,
+    "setup": 8,
+    "approach": 39,
+    "outcome": 49,
+    "pair bits": 12
+   },
+   "x_fear_3": {
+    "bytes": 16749,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 42,
+    "pair bits": 11
+   },
+   "x_fear_4": {
+    "bytes": 18836,
+    "setup": 8,
+    "approach": 34,
+    "outcome": 40,
+    "pair bits": 14
+   },
+   "x_fear_5": {
+    "bytes": 18858,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 10
+   },
+   "x_fear_6": {
+    "bytes": 18712,
+    "setup": 8,
+    "approach": 36,
+    "outcome": 38,
+    "pair bits": 13
+   },
+   "x_fear_7": {
+    "bytes": 19773,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 41,
+    "pair bits": 13
+   },
+   "x_fear_8": {
+    "bytes": 20403,
+    "setup": 8,
+    "approach": 37,
+    "outcome": 37,
+    "pair bits": 12
+   },
+   "x_fear_9": {
+    "bytes": 11804,
+    "setup": 2,
+    "approach": 21,
+    "outcome": 37,
+    "pair bits": 8
+   },
+   "x_leadership_1": {
+    "bytes": 25728,
+    "setup": 10,
+    "approach": 58,
+    "outcome": 104,
+    "pair bits": 12
+   },
+   "x_leadership_2": {
+    "bytes": 27821,
+    "setup": 12,
+    "approach": 63,
+    "outcome": 121,
+    "pair bits": 14
+   },
+   "x_leadership_3": {
+    "bytes": 23277,
+    "setup": 11,
+    "approach": 51,
+    "outcome": 65,
+    "pair bits": 14
+   },
+   "x_leadership_4": {
+    "bytes": 16716,
+    "setup": 8,
+    "approach": 36,
+    "outcome": 45,
+    "pair bits": 11
+   },
+   "x_leadership_5": {
+    "bytes": 18855,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 14
+   },
+   "x_leadership_6": {
+    "bytes": 19263,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 14
+   },
+   "x_leadership_7": {
+    "bytes": 22031,
+    "setup": 9,
+    "approach": 46,
+    "outcome": 89,
+    "pair bits": 14
+   },
+   "x_leadership_8": {
+    "bytes": 29331,
+    "setup": 12,
+    "approach": 61,
+    "outcome": 113,
+    "pair bits": 14
+   },
+   "x_leadership_9": {
+    "bytes": 31564,
+    "setup": 7,
+    "approach": 41,
+    "outcome": 69,
     "pair bits": 11
    },
    "mc_isl": {
@@ -3359,60 +3017,61 @@
    }
   },
   "stats": {
-   "GO events (mixer seeds)": 671,
-   "situation strange_sign": 349,
-   "situation child_problem": 272,
+   "GO events (mixer seeds)": 553,
+   "situation strange_sign": 347,
+   "situation child_problem": 271,
    "situation food_shortage": 24,
    "situation farming": 42,
-   "situation animal": 233,
+   "situation animal": 232,
    "situation sea_danger": 29,
-   "situation danger": 56,
+   "situation danger": 55,
    "situation newcomer": 165,
-   "situation tradition": 144,
-   "situation elder_wish": 124,
+   "situation tradition": 140,
+   "situation elder_wish": 122,
    "situation art_story": 60,
-   "situation sickness": 171,
+   "situation sickness": 168,
    "situation quarrel": 179,
-   "situation celebration": 72,
+   "situation celebration": 69,
    "situation weather": 79,
    "situation new_idea": 213,
-   "situation mistake": 97,
+   "situation mistake": 96,
    "situation personal_change": 121,
-   "situation leadership": 71,
-   "situation lost_object": 31,
-   "situation feelings": 214,
    "situation grief": 66,
    "situation secret": 46,
-   "situation fear": 67,
-   "situation contest": 59,
-   "situation craft_problem": 77,
+   "situation lost_object": 31,
+   "situation contest": 58,
+   "situation craft_problem": 76,
+   "situation feelings": 213,
    "situation kindness": 39,
-   "collection events": 3251,
+   "situation fear": 66,
+   "collection events": 3369,
    "skill requirement dropped": 260,
    "age gap dropped": 27,
-   "collection events split": 2429,
-   "collection events taken from the GO seeds instead": 671,
-   "guest answers placed": 19623,
-   "travelling approachs": 21411,
-   "travelling outcomes": 30783,
+   "collection events split": 2525,
+   "situation leadership": 71,
+   "collection events taken from the GO seeds instead": 553,
+   "guest answers placed": 19497,
+   "travelling approachs": 21291,
+   "travelling outcomes": 30453,
    "approach left out of a game: its title-case label is too wide": 348
   },
   "skipped": {
    "no question (random outcomes only)": 621,
-   "GO: an effect with a group target or an age cap": 159,
+   "GO: an effect with a group target or an age cap": 142,
+   "GO: a placeholder for a role the event does not have": 118,
    "no needed villager and no stranger (the composer rejects it)": 49,
-   "a pool or an inline pick": 38,
+   "a pool or an inline pick": 42,
+   "an outcome that branches again": 39,
    "a nursing-parent role (no slot special for it)": 33,
-   "an outcome that branches again": 29,
    "an alias role": 24,
    "effects before the outcome": 16,
+   "an effect with a group target or an age cap": 9,
    "a role condition": 6,
    "an else": 2,
    "a requirement condition": 2,
    "GO: effects do not validate (role chief: a tribal_chief role that can be harmed needs protected allow (with auto its own": 1,
    "GO: effects do not validate (node o (A New Home): clone acts on fisher, who is already gone; node o (The Lost Children):": 1,
-   "a patch condition": 1,
-   "an effect with a group target or an age cap": 1
+   "a patch condition": 1
   }
  }
 }

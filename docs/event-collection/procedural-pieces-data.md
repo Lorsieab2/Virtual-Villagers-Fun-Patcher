@@ -178,27 +178,30 @@ bytes), draws a file per spec 4 and composes events per game, then checks each:
 Quick rounds (300 a game) run until one is clean, then the full round (2,000 a game); a failing pair goes into
 `procedural_never_with.json` and the rounds start again.
 
-## 7. The last run (2026-11-16, feat/97-food-tech 2cfea820c: 3,249 events)
+## 7. The last run (2026-11-16, feat/97-player-events 2d58434e1: 3,922 events with the GO events)
 
-- 2,428 of 3,249 collection events split. The rest stay static only: 621 have no question, 49 no needed villager or
-  stranger, 38 pools or inline picks, 33 nursing-parent roles, 29 an outcome that branches again, 24 alias roles,
-  16 effects before the question, 11 other conditions. 260 role skill requirements and 27 age gaps have no slot field
-  and are dropped from the pieces (the static events keep them).
-- Situation tags: all 2,428 setups, 4,646 answers and 9,078 outcomes read; 910 answers and 1,281 outcomes marked to move.
-  Every event is in a situation file (316 `x_` files, by main situation: child_problem 243, feelings 206, animal
-  202, new_idea 201, quarrel 163, sickness 141, strange_sign 135, tradition 115, personal_change 108, elder_wish 93,
-  mistake 90, newcomer 69, craft_problem 65, leadership 64, fear 64, grief 59, celebration 55, art_story 53, weather
-  50, contest 46, secret 44, farming 37, kindness 36, danger 25, lost_object 28, food_shortage 22, sea_danger 14).
+- **The GO events** (the owner's rewritten and balance events, sources rewrites / balance) come as mixer seed pieces,
+  `data/procedural_pieces/go_seeds.json` (8,855 pieces, opening lines included), read by `go_events()` beside the
+  split collection; an event the seeds hold is never split again from its static form. 553 of the 673 are read from
+  the seeds; 120 keep their static form's split instead: 118 because a text names a role the event's seeds do not
+  have, 2 because their effects do not validate. 142 single pieces are left out because an effect has a group target
+  or an age cap (the piece record has no field for the .cieg's selector byte and last field: an engine question).
+  Their own opening lines (flavour, 1,898) only open their own event's setup (event bits).
+- 2,525 collection events split from their static form (2,428 before the GO events, plus the GO events the seeds do
+  not cover). The rest stay static only (no question, pools, nursing-parent roles, ...: the report lists each reason).
+- Situation tags: 3,100 events, 6,515 answers read (the GO events in 7 more batches); 886 answers and 1,288 outcomes
+  move. The GO events are almost all scene-bound (6 of their answers move), but every GO setup takes guest answers
+  from the rest of the collection.
 - The broad situations were audited answer by answer (celebration, newcomer, tradition: 232 moving answers re-read,
   77 narrowed to the situations they really answer, 31 set to stay home), after the sample showed a grieving answer
   at a wedding garment, a canoe signal at a house guest's goodbye and "Record Both Accounts" under a fisher who
-  thanks the sea. 880 answers move now.
-- 5,172 guest answers placed in the files (each moving answer reaches many files of its situations).
-- 334 files, 6.5 MB, none past 48 KB: 2,697 setups, 13,100 approaches and 18,941 outcomes (guests included), 1,116
-  frames, no flavour lines. At most 16 pair bits a file.
-- 114 approaches are left out of a game where their title-case label is too wide (mostly VV1 / VV2).
-- Validator: 10,000 compositions (2,000 a game), every one composed, no graph, block or sense problem. The pairs it
-  found on the way: 4, all Living, all "portraying someone as lesser" (a mocking choice with the oddity seed ODD-08,
-  tagged bullying).
-- In the owner's sample, 366 of 500 events show at least one answer from another event, mostly beside the event's
-  own answers.
+  thanks the sea.
+- 6,499 guest answers placed in the files.
+- 413 files, 9.1 MB, none past 54 KB: 3,355 setups, 16,628 approaches and 24,179 outcomes (guests included), 1,898
+  flavour lines, 1,116 frames.
+- 116 approaches are left out of a game where their title-case label is too wide (mostly VV1 / VV2).
+- Validator: 10,000 compositions (2,000 a game), every one composed, no graph, block or sense problem (a graph no
+  piece pair explains now stops the run as unresolved; none). The pairs it found on the way: 4, all Living, all
+  "portraying someone as lesser" (a mocking choice with the oddity seed ODD-08, tagged bullying).
+- In the owner's sample, 334 of 500 events show at least one answer from another event, mostly beside the event's
+  own answers; 110 sample events are GO setups (62 of them with a borrowed answer).

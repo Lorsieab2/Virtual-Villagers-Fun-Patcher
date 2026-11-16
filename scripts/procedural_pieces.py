@@ -832,6 +832,7 @@ def build(write: bool = True) -> dict[str, list[Piece]]:
 _SPLIT: list = []
 
 GO_SEEDS = ROOT / "data" / "procedural_pieces" / "go_seeds.json"
+GO_TOKENS = {"made1", "made2", "award", "award_unit"}     # placeholders that name no cast role
 GO_TAGS = {"minor": vp.TAG_MINOR, "romance": vp.TAG_ROMANCE, "power": vp.TAG_POWER,
            "invalidating": vp.TAG_INVALIDATING, "lesser": vp.TAG_LESSER}
 
@@ -852,9 +853,24 @@ def go_events() -> list[tuple[str, list[Piece], str]]:
         ids = {r["id"]: (f"{eid}_s" if r["kind"] == vp.KIND_SETUP else f"{eid}_{r['id']}") for r in rs}
         pieces = []
         ok = True
+        # a piece's text may name an event role its seed did not list: it declares that role too (spec 2.7); a
+        # role the event does not have at all keeps the event static only
+        event_roles: dict[str, dict] = {}
+        for r in rs:
+            for n, spec in r["slots"].items():
+                event_roles.setdefault(n, spec)
         for r in rs:
             games = [x for x in r["games"] if x in GAMES]
-            roles = r["slots"]
+            roles = dict(r["slots"])
+            text = " ".join(x for x in (r["text"], r["label"]) if x)
+            for raw, ph in cg.placeholders_v6(text, event_roles):
+                if ph is not None and ph.role in event_roles:
+                    roles.setdefault(ph.role, event_roles[ph.role])
+                elif ph is None and raw[1:-1].split("|")[0].split(".")[0].lower() not in GO_TOKENS:
+                    ok = False
+            if not ok:
+                SKIPS["GO: a placeholder for a role the event does not have"] += 1
+                break
             try:
                 norm = _normalize_effects(r["effects"], roles, games or list(GAMES))
             except ValueError as why:
@@ -1459,7 +1475,14 @@ def make_cast(game: int, rb, people: list[Villager]):
 # ---- Validation ----------------------------------------------------------------------------------------------------
 
 
-CG_SPEAKS = "speaks" in Path(cg.__file__).read_text(encoding="utf-8")
+def _cg_speaks() -> bool:
+    """Does this branch's vv_cie_graph read a role's "speaks"? (island-events-ui's does.)"""
+    g = {"format": "vvfp-cie-graph", "version": 6, "title": "T", "games": [1], "start": "a",
+         "roles": {"subject": {"kind": "villager", "speaks": True}}, "nodes": {"a": {"text": "(subject) waves."}}}
+    return not cg.validate(g, scrolling=True)[1]
+
+
+CG_SPEAKS = _cg_speaks()
 
 
 def graph_problems(comp, game: int) -> list[str]:
@@ -1615,6 +1638,12 @@ def validate(per_game: int = 2000, rounds: int = 8, quick: int = 300) -> dict:
                   "new_pairs": [{"a": a, "b": b, "why": w} for (a, b), w in sorted(bad.items())]}
         print(json.dumps({"round": rnd, "per_game": size, "stats": dict(stats), "new pairs": len(bad),
                           "rejections": dict(reasons.most_common(12))}, indent=1), flush=True)
+        graph_bad = sum(v for k, v in stats.items() if k.endswith("graph problems"))
+        if graph_bad:
+            # a graph the engine would refuse that no piece pair explains: a splitter or twin bug, never "clean"
+            report["unresolved_graph_problems"] = graph_bad
+            print(f"UNRESOLVED GRAPH PROBLEMS: {graph_bad}", flush=True)
+            break
         if not bad:
             if size == per_game:
                 break
