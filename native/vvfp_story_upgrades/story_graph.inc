@@ -648,13 +648,30 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
    or . ! ?. */
 static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph);
 
-/* "(made1)" / "(made2)" (any case) at `s`: 1 or 2, else 0. */
+/* The names filled after the page's effects (cie-v6-binary.md 33a), any case at `s`: "(made1)" 1, "(made2)" 2,
+   "(renamed)" 3; else 0. */
 static int cg_made_ph(const char *s) {
+    static const char RENAMED[] = "(renamed)";
+    int k;
     if (s[0] == '(' && (s[1] == 'm' || s[1] == 'M') && (s[2] == 'a' || s[2] == 'A') && (s[3] == 'd' || s[3] == 'D')
         && (s[4] == 'e' || s[4] == 'E') && (s[5] == '1' || s[5] == '2') && s[6] == ')') {
         return s[5] - '0';
     }
-    return 0;
+    for (k = 0; RENAMED[k] != '\0'; ++k) {
+        char c = s[k];
+        if (c >= 'A' && c <= 'Z') {
+            c = (char)(c - 'A' + 'a');
+        }
+        if (c != RENAMED[k]) {
+            return 0;
+        }
+    }
+    return 3;
+}
+
+/* Its bytes: 7, "(renamed)" 9. */
+static int cg_made_len(int kind) {
+    return kind == 3 ? 9 : 7;
 }
 
 static int cg_count_token_in(const cg_graph *g, const char *s, int *which, const char **opts, int *olen) {
@@ -750,7 +767,7 @@ static void cg_made_fill(const char *opt, int n, int worst, int room, char *out,
     int i, o = 0;
     for (i = 0; i < n && o < cap - 1;) {
         int k = cg_made_ph(opt + i);
-        if (k > 0 && i + 7 <= n) {
+        if (k > 0 && i + cg_made_len(k) <= n) {
             char name[CG_NAME_BYTES + 16];
             const char *t;
             if (worst) {
@@ -765,7 +782,7 @@ static void cg_made_fill(const char *opt, int n, int worst, int room, char *out,
             for (t = name; *t != '\0' && o < cap - 1; ++t) {
                 out[o++] = *t;
             }
-            i += 7;
+            i += cg_made_len(k);
             continue;
         }
         out[o++] = opt[i++];
@@ -808,7 +825,7 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             if (label) {
                 return 0;              /* 33: the villagers made, in body text only */
             }
-            s += 6;
+            s += cg_made_len(cg_made_ph(s)) - 1;
             continue;
         }
         if (*s == '(') {
@@ -3615,11 +3632,11 @@ static int cg_glyph_fallback(char *out, int n, int cap) {
         const char *put = NULL;
         char c = copy[i];
         if (c == '(' && cg_made_ph(copy + i)) {
-            int c2;
-            for (c2 = 0; c2 < 7 && o < cap - 1; ++c2) {
+            int c2, len = cg_made_len(cg_made_ph(copy + i));
+            for (c2 = 0; c2 < len && o < cap - 1; ++c2) {
                 out[o++] = copy[i + c2];
             }
-            i += 6;
+            i += len - 1;
             continue;
         }
         if (c == '{' && copy[i + 1] == '#') {
@@ -4166,11 +4183,11 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                     out[o++] = 'W';
                 }
             } else {
-                for (c = 0; c < 7 && o < cap - 1; ++c) {
+                for (c = 0; c < cg_made_len(cg_made_ph(s)) && o < cap - 1; ++c) {
                     out[o++] = s[c];
                 }
             }
-            s += 7;
+            s += cg_made_len(cg_made_ph(s));
             continue;
         }
         if (*s != '(') {
@@ -4557,7 +4574,7 @@ static const char *cg_count_fill(const char *text) {
             for (t = name; *t != '\0' && o < (int)sizeof out - 1; ++t) {
                 out[o++] = *t;
             }
-            s += 7;
+            s += cg_made_len(cg_made_ph(s));
             continue;
         }
         if (n > 0) {
@@ -4579,8 +4596,58 @@ static const char *cg_count_fill(const char *text) {
     return out;
 }
 
+/* 33a: the renames the event made (change_name, lost name, mind swap), each with the display it was made on: a
+   later display laid out before it has the old name, and gets the new one (whole words; memory only). */
+#define CG_RENAMES 8
+static struct {
+    char was[CG_NAME_BYTES], now[CG_NAME_BYTES];
+    int display;
+} cg_renames[CG_RENAMES];
+static int cg_rename_count;
+static int cg_display_now = -1;           /* the display whose effects are being made */
+
+static int cg_word_char(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '\'';
+}
+
+/* Display `k`'s text with the later renames put in. */
+static const char *cg_renames_fill(const char *text, int k) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int r, o = 0, any = 0;
+    for (r = 0; r < cg_rename_count; ++r) {
+        any |= cg_renames[r].display < k && cg_renames[r].was[0] != '\0';
+    }
+    if (!any) {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        int hit = -1;
+        if (s == text || !cg_word_char(s[-1])) {
+            for (r = cg_rename_count - 1; r >= 0 && hit < 0; --r) {
+                int n = lstrlenA(cg_renames[r].was);
+                if (cg_renames[r].display < k && n > 0 && memcmp(s, cg_renames[r].was, (size_t)n) == 0
+                    && !cg_word_char(s[n])) {
+                    hit = r;
+                }
+            }
+        }
+        if (hit >= 0) {
+            const char *t;
+            for (t = cg_renames[hit].now; *t != '\0' && o < (int)sizeof out - 1; ++t) {
+                out[o++] = *t;
+            }
+            s += lstrlenA(cg_renames[hit].was);
+            continue;
+        }
+        out[o++] = *s++;
+    }
+    out[o] = '\0';
+    return out;
+}
+
 static const char *cg_display(int k) {
-    return k >= 0 && k < cg.display_count ? cg_count_fill(cg.displays + cg.display_off[k]) : "";
+    return k >= 0 && k < cg.display_count ? cg_count_fill(cg_renames_fill(cg.displays + cg.display_off[k], k)) : "";
 }
 
 /* ---- Per-node popup titles (docs/event-collection/cie-v6-binary.md 14) ------------------------------------- */
@@ -5064,8 +5131,30 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
 static int cg_newest[2] = { -1, -1 };
 static unsigned int cg_newest_id[2];
 
+static char cg_renamed_now[CG_NAME_BYTES];   /* (renamed): the name the latest rename gave ("" none yet) */
+static unsigned char *cg_target(const ce_adapter *a, int who, int *index);
+
 static void cg_made_name(int k, char *out, int cap) {
     const ce_adapter *a = ce_adapter_for(cg.game);
+    if (k == 3) {
+        int i;
+        if (cg_renamed_now[0] != '\0') {
+            lstrcpynA(out, cg_renamed_now, cap);
+            return;
+        }
+        /* before any rename: the current name of the villager the event's first change_name is for */
+        for (i = 0; i < cg_g.n_effect; ++i) {
+            const unsigned char *e = cg_effect_at(&cg_g, i);
+            int at = -1;
+            unsigned char *r = e[0] == CGE_CHANGE_NAME && a != NULL ? cg_target(a, e[1], &at) : NULL;
+            if (r != NULL) {
+                ce_copy_name(out, cap, r + a->off_name, a->name_bytes);
+                return;
+            }
+        }
+        lstrcpynA(out, "the villager", cap);
+        return;
+    }
     int pick = k == 2 && cg_newest[1] >= 0 ? 1 : 0;   /* (made1) the newest, (made2) the one before it */
     unsigned char *r = a != NULL && cg_newest[pick] >= 0 ? ce_same_villager(a, cg_newest[pick], cg_newest_id[pick])
                                                          : NULL;
@@ -5076,8 +5165,34 @@ static void cg_made_name(int k, char *out, int cap) {
     ce_copy_name(out, cap, r + a->off_name, a->name_bytes);
 }
 
+/* A villager renamed (or their likes changed: a mind swap) by this event: the run's roles that are them keep
+   following them (their identity holds the name) and show the new name; the rename kept for the later pages. */
+static void cg_renamed_record(const ce_adapter *a, const unsigned char *record, const char *was) {
+    int r;
+    char now[CG_NAME_BYTES];
+    ce_copy_name(now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);
+    for (r = 0; r < CG_MAX_ROLES; ++r) {
+        if ((cg.bound & (1u << r)) && !(cg.gone & (1u << r)) && a->record(cg.record[r]) == record) {
+            cg.identity[r] = ce_identity(a, record);
+            lstrcpynA(cg.name[r], now, CG_NAME_BYTES);
+        }
+    }
+    for (r = 0; r < 2; ++r) {
+        if (cg_newest[r] >= 0 && a->record(cg_newest[r]) == record) {
+            cg_newest_id[r] = ce_identity(a, record);
+        }
+    }
+    if (was != NULL && lstrcmpA(was, now) != 0 && cg_rename_count < CG_RENAMES) {
+        lstrcpynA(cg_renames[cg_rename_count].was, was, CG_NAME_BYTES);
+        lstrcpynA(cg_renames[cg_rename_count].now, now, CG_NAME_BYTES);
+        cg_renames[cg_rename_count++].display = cg_display_now;
+    }
+}
+
 static void cg_newest_reset(void) {
     cg_newest[0] = cg_newest[1] = -1;
+    cg_renamed_now[0] = '\0';
+    cg_rename_count = 0;
     cg_count_last[0] = cg_count_last[1] = -1;
 }
 
@@ -5527,6 +5642,8 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         olds[0] = names[0];
         olds[1] = names[1];
         cg_tell_renamed(game, 2, recs, olds);
+        cg_renamed_record(a, record, names[0]);
+        cg_renamed_record(a, other, names[1]);
         return;
     }
     case CGE_CHANGE_NAME: {
@@ -5542,6 +5659,8 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         recs[0] = record;
         olds[0] = was;
         cg_tell_renamed(game, 1, recs, olds);
+        cg_renamed_record(a, record, was);
+        ce_copy_name(cg_renamed_now, CG_NAME_BYTES, record + a->off_name, a->name_bytes);   /* (renamed) */
         return;
     }
     case CGE_CHANGE_AGE:
@@ -5558,6 +5677,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         recs[0] = record;
         olds[0] = was;
         cg_tell_renamed(game, 1, recs, olds);
+        cg_renamed_record(a, record, was);
         return;
     }
     default:
@@ -6671,6 +6791,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     const cg_history *h = &cg.path;
     int j;
     memset(r, 0, sizeof *r);
+    cg_display_now = k;
     cg_count_page[0] = cg_count_page[1] = 0;
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg.gone_at[k] = cg.gone;

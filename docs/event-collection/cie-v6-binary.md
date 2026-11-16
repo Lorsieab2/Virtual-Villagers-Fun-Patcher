@@ -968,6 +968,17 @@ only as far as the game's room allows, so the text says how many actually came:
   (memory only: after a quit and a restore between pages, "a newcomer").
 - **Fit:** the worst case is `W` x the game's name room.
 
+- **`(renamed)`** (any case) is the name the event's latest `change_name` (33) gave (random or fixed), filled after
+  the page's effects as `(made1)` is; before any rename, the current name of the villager the event's first
+  `change_name` is for. Body text and count options only.
+- **A renamed villager's role** (change_name, the lost name "?", a mind swap) keeps following them: the role's own
+  `(name)` / `(Name)` and the role shorthand show the new name on every later page -- pages laid out before the
+  rename have the old name put back as the new one (whole words), pages laid out after it have it already -- and the
+  role's later effects still reach them (their identity, which holds the name, is taken again). The rename's own
+  page keeps the names it was written with, so "(subject) is now called (renamed)." reads "Ana is now called Lani.".
+  Memory only for the old pages: after a quit and a restore between pages, a page laid out before the rename may
+  show the old name.
+
 ### 33b. Other forms (the owner's files, 2026-11-16)
 
 - **`(his/hers)`**: the standalone possessive ("the choice was hers"), with the role prefix, the capital and ALL
