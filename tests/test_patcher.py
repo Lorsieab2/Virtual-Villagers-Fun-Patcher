@@ -1192,10 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-10x Tech Cost
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-100x Tech Cost
         # (vv2_tech_cost_multiplier), its 35 price immediates only; 40 with Checked Skill Preferences are listed
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
-        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
+        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-100x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
         # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
@@ -4167,7 +4167,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
-            # 2-10x Tech Cost: the Tech screen's price immediates, x 3.
+            # 2-100x Tech Cost: the Tech screen's price immediates, x 3.
             "vv2_tech_cost_multiplier",
             "vv2_hungrier_villagers",
             "vv2_sickness_multiplier",
