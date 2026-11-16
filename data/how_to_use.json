@@ -269,7 +269,7 @@
       "guide": [
         "Off everywhere, Owner's Defaults and Select All too. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
         "All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events.",
-        "No population limit or trouble guard applies; only the villagers an event needs are still required. It applies to whichever island events are on in the game.",
+        "No population limit or trouble guard applies: anyone can be picked and any event can happen at any time, except when a pick makes no sense in the event (a child's role needs a child, a pregnancy needs a villager who can carry) or the event names someone the village does not have. It applies to whichever island events are on in the game.",
         "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village. Not yet tested in play."
       ]
     },
