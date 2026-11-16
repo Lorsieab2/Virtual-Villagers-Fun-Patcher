@@ -103,9 +103,8 @@
                             (0x4217DF, kept; the record guards' site).
           KEPT    subject: a random living villager of any age.
      [82] The Spyglass
-          LIFTED (part) 0x41F659  Exploration (world+0x2EA94) below 2 becomes 2 or below: setl bl -> setle bl.
-          KEPT-FOR-SAFETY  Exploration 3: "keep it" WRITES Exploration = 2 (0x421E7D), which would take a
-                            researched third level away; so at level 3 the event stays out.
+          KEPT (stock, the owner 2026-11-15: "keep the Spyglass fully vanilla")  Exploration (world+0x2EA94)
+                            below 2 (0x41F659): "keep it" WRITES Exploration = 2 (0x421E7D).
           KEPT    subject: a random living villager of any age.
      [83] The Love Note
           KEPT    0x41F65E..0x41F692  a living woman of 18 or more (the admirer) and a living man of 18 or more
@@ -144,8 +143,7 @@ static const ns_site NS_VV2_SITES[] = {
     { 0x41F5DDu, 3, { 0x0F, 0x9D, 0xC3 }, { 0xB3, 0x01, 0x90 } },
     /* [78] The Silver Mirror: population of 2 -- setge bl -> mov bl,1; nop */
     { 0x41F648u, 3, { 0x0F, 0x9D, 0xC3 }, { 0xB3, 0x01, 0x90 } },
-    /* [82] The Spyglass: Exploration below 2 -> 2 or below (3 would be lowered by the answer) -- setl -> setle */
-    { 0x41F659u, 3, { 0x0F, 0x9C, 0xC3 }, { 0x0F, 0x9E, 0xC3 } },
+    /* [82] The Spyglass: as in the stock game (the owner, 2026-11-15) -- no site. */
 };
 
 #define NS_VV2_COUNT (sizeof NS_VV2_SITES / sizeof NS_VV2_SITES[0])

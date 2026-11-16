@@ -32,14 +32,14 @@ GAMES = {
     2: (", and the Esteemed Elders' totem statues) is never cast or harmed.",
         "Lifted: an island event no longer waits for a villager of 14 or more; A Dangerous Mission no longer needs "
         "more than 60 villagers; The Ancient Gold Coin no longer needs Culture below 2; The Cursed Idol no longer "
-        "needs 250 food; The Silver Mirror no longer needs 2 villagers; The Spyglass comes at Exploration 2 too.",
+        "needs 250 food; The Silver Mirror no longer needs 2 villagers.",
         "Kept: a child for For The Birds and The Child Prodigy; a woman of 14 or more for Prettiest Tribe Girl; a "
         "woman and a man of 18 or more for The Love Note; a pregnant or nursing villager of 18 or more for Where Are "
         "The Infants?; someone in the memorial for Day of Honor; all 16 puzzles solved for The Epidemic, Rats!, The "
         "Foul Passing and Where Are The Infants?. Kept for safety: room for The Barrel O` Babies, Old Friends and The "
-        "Savage Child (the same check guards the villager table, so its hut tiers stay too); Exploration 3 for The "
-        "Spyglass (keeping it would take a researched level away); The Crystal Ball's villager of 14 or more (Fix "
-        "Vanilla Bugs rewrites those bytes)."),
+        "Savage Child (the same check guards the villager table, so its hut tiers stay too); The Crystal Ball's "
+        "villager of 14 or more (Fix Vanilla Bugs rewrites those bytes). The Spyglass is as in the normal game "
+        "(Exploration below 2: keeping it sets Exploration to 2)."),
     3: (", and nothing else: The Secret City keeps no object in its villager table) is never cast.",
         "Lifted: an island event no longer waits for a villager of 14 or more; \"not the Tribal Chief\" in every "
         "event; the head-counts (The Tsunami's 2 women and 2 men, The Science Fair's 3 children, The Daredevil's 2 "

@@ -33,7 +33,7 @@ NATIVE = ROOT / "native" / "vvfp_no_safeguards"
 LIST = "VVFP Installed Patches.txt"
 FAKE_FILE = 0x0000ABCD
 GAMES = (1, 2, 3, 4, 5)
-COUNTS = {1: 5, 2: 6, 3: 35, 4: 14, 5: 30}
+COUNTS = {1: 5, 2: 5, 3: 35, 4: 14, 5: 30}
 SITE = re.compile(r"\{\s*0x([0-9A-Fa-f]+)u,\s*(\d+),\s*\{([^}]*)\},\s*\{([^}]*)\}\s*\}")
 FREQUENCY = {1: (0x423883, 0x42390A, 0x423A61), 2: (0x42EF93, 0x42F01A, 0x42F171), 3: (0x4687FB, 0x468832, 0x4688C6),
              4: (0x43FAF7, 0x43FB35, 0x43FBC4), 5: (0x4427C1, 0x442828)}
