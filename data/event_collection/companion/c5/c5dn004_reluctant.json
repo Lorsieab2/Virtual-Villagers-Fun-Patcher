@@ -81,7 +81,7 @@
    "name": "Outcome 2",
    "popup": "append",
    "join": "paragraph",
-   "text": "Discover a preference for medicinal botany.",
+   "text": "Discover a preference for medicinal herbs.",
    "src": "L2696",
    "effects": [
     {
@@ -100,5 +100,12 @@
    "text": "Decide to pursue another specialty without shame.",
    "src": "L2697"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2696",
+   "before": "medicinal botany.",
+   "after": "medicinal herbs."
+  }
+ ]
 }

@@ -147,7 +147,19 @@
   "c2": {
    "name": "Outcome C2",
    "text": "The apprentice guesses incorrectly, and the {@chief} teaches careful checking.",
-   "src": "L23341"
+   "src": "L23341",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23341"
+    }
+   ]
   },
   "d": {
    "type": "branch",

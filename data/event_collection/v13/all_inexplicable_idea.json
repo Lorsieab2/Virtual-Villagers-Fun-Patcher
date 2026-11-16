@@ -636,6 +636,12 @@
      "min": 5,
      "max": 10,
      "src": "L7517-7520"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7517-7520"
     }
    ]
   },
@@ -721,6 +727,12 @@
      ],
      "min": 5,
      "max": 10,
+     "src": "L7569-7571"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
      "src": "L7569-7571"
     }
    ]

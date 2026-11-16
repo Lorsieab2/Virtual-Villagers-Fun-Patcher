@@ -125,7 +125,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The villager returns with valuable knowledge.",
-   "src": "L23126"
+   "src": "L23126",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L23126"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

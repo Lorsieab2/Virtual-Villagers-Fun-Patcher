@@ -75,7 +75,15 @@
   "a": {
    "name": "Answer A",
    "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
-   "src": "L6354"
+   "src": "L6354",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6354"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",

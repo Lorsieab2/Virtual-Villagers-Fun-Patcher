@@ -425,11 +425,11 @@ EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood":
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
+                    "presentation": 0,     # 31: "VVFP Gender Presentation.dll", known only at run time
                     "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
                     "lose_name": 0, "change_name": 0, "change_age": 0,              # 32: known only at run time
                     "cure": 0, "repair": 0, "young_look": 0,
-                    "trait": 0,
-                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "trait": 0})
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early", "presentation", "pregnant", "nursing", "clone",
@@ -495,7 +495,8 @@ COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
 KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
 # Engine 5ee2b3dc0: (made1) / (made2), the newest / the one before of the villagers the event made (new_villager,
 # clone), body text only (never a label or a title); measured as a full name.
-MADE_PLACEHOLDERS = {"made1": "$newest", "made2": "$previous"}
+MADE_PLACEHOLDERS = {"made1": "$newest", "made2": "$previous",
+                     "renamed": "$renamed"}     # a4f4f1d0b (33a): the latest change_name's new name
 PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
                "his/hers": ("his", "hers"),            # engine 5ee2b3dc0: the possessive that stands alone
                "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
@@ -1681,7 +1682,6 @@ def parse_inline(inner: str) -> list[tuple[int, str]] | None:
     """'3:red|1:blue' -> [(3, 'red'), (1, 'blue')]; None when it is not an inline pick of two or more."""
     if "|" not in inner or inner.startswith("#"):       # a count token is never a pick
         return None
-        return None
     out = []
     for alt in inner.split("|"):
         m = _INLINE_WEIGHT.match(alt)
@@ -2252,7 +2252,9 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 continue
             if p.what in MADE_PLACEHOLDERS:
                 made = bindings.get(MADE_PLACEHOLDERS[p.what])
-                word = made.name if made else "Newcomer"
+                fixed = next((e.get("name") for n in g["nodes"].values() for e in n.get("effects", [])
+                              if e.get("do") == "change_name" and e.get("name")), None)
+                word = made.name if made else (fixed or "Renamed") if p.what == "renamed" else "Newcomer"
                 out.append(word.upper() if p.upper else word)
                 continue
             b = bindings[aliases.get(p.role, p.role)]
@@ -3388,7 +3390,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if "{#" in text:
             problems.append(f"{where}: a count token stands only in body text, not a title")
         if any(p and p.what in MADE_PLACEHOLDERS for _r, p in placeholders_v6(text, g["roles"])):
-            problems.append(f"{where}: (made1) / (made2) stand only in body text, not a title")
+            problems.append(f"{where}: (made1), (made2) and (renamed) stand only in body text, not a title")
     for nid, n in g["nodes"].items():
         if n["type"] != "branch":
             _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)

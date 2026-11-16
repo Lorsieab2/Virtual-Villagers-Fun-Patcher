@@ -109,7 +109,15 @@
   "b1": {
    "name": "Outcome B1",
    "text": "The harvest improves without public conflict.",
-   "src": "L23110"
+   "src": "L23110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L23110"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",

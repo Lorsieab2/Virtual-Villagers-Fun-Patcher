@@ -82,7 +82,15 @@
   "a1": {
    "name": "Outcome A1",
    "text": "The preserved fish feeds the village during rough weather.",
-   "src": "L20801"
+   "src": "L20801",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L20801"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",

@@ -102,19 +102,24 @@ LIVING_SECTION = "living_engine"
 SECTION_WORDS = dict(SECTIONS)
 
 
-def manifest_path(game: int) -> Path:
-    return ROOT / "assets" / "event_collection" / f"vv{game}" / "manifest.txt"
+def manifest_paths(game: int) -> list[Path]:
+    """The game's manifest files: one per source section and per living series (living-pack.md 1)."""
+    return sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt"))
 
 
 @lru_cache(maxsize=None)
 def manifest(game: int) -> tuple[tuple[str, str, str], ...]:
-    """(id, title, series) of each event the patcher ships for this game, in the manifest's order."""
+    """(id, title, series) of each event the patcher ships for this game, in its manifests' order.  The static
+    events' mixer versions (living_st_*) are those events again, so the page lists the events once."""
     rows = []
-    for line in manifest_path(game).read_text(encoding="utf-8").splitlines():
-        if not line or line.startswith("#"):
-            continue
-        cells = line.split("\t")
-        rows.append((cells[0], cells[1], cells[4] if len(cells) > 4 else ""))
+    for path in manifest_paths(game):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line or line.startswith("#"):
+                continue
+            cells = line.split("\t")
+            if cells[0].startswith("living_st_"):
+                continue
+            rows.append((cells[0], cells[1], cells[4] if len(cells) > 4 else ""))
     return tuple(rows)
 
 

@@ -511,3 +511,10 @@ Contract (L26622), turned into checks for when outcomes arrive:
 - **U4.** The rule exclusions (C9, P1, P3) conflict with 3 of the owner's 60 MIX examples (section 7).
 - **U5.** "Teenager" is cast at 14-17 and "child" at 3-13; "apprentice", "rookie" and "confident novice" at 14-24.
 
+
+## Food and tech where the text fits (2026-11-15)
+
+The owner asked for food and tech-point gains and losses on outcomes whose own text already implies them
+("Where the text fits"). Every addition (event, node, effect and the justifying text) is a row of
+`scripts/food_tech_additions.py` ADDITIONS and is listed in `docs/event-collection/food-tech-log.md`. The
+generators apply the table as they write, so a regeneration keeps it; no text, choice, weight or other effect changed.

@@ -80,7 +80,19 @@
    "popup": "append",
    "join": "paragraph",
    "text": "The apprentice learns that caution can be a strength.",
-   "src": "L3570"
+   "src": "L3570",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3570"
+    }
+   ]
   }
  }
 }
