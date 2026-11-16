@@ -368,9 +368,10 @@ def show_patch_reports(parent) -> None:
     pe.LAST_REPORTS.clear()
     lines = []
     for game, r in sorted(reports.items()):
-        if r.skipped:
+        if r.skipped or r.notes:
             lines.append(f"{pe.GAME_NAMES[game]}: {len(r.installed)} player event(s) installed, "
-                         f"{r.pieces} piece(s); left out:")
+                         f"{r.pieces} piece(s)" + ("; left out:" if r.skipped else ""))
             lines += [f"  {x}" for x in r.skipped]
+            lines += [f"  Note: {x}" for x in r.notes]
     if lines:
         report_window(parent, "Player Events", "\n".join(lines))

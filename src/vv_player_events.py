@@ -52,11 +52,10 @@ INSTALLED_FOLDER = "Player Events"                         # beside the collecti
 GAME_NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
               5: "New Believers"}
 ID_PREFIX = "pl_"
-GROUP_PREFIX = "player_"
-LEGACY_GROUP = "collection"         # an older single manifest.txt, mirrored so the split-file draw still reads it
+GROUP_PREFIX = "pl_"                 # a player file's group: manifest-pl_<x>.txt, pieces-pl_<x>.pcb, pl_<x>_<n>.cieg
 VV1_ID_MAX = 22
 ID_MAX = 30
-GROUP_NAME_MAX = 24
+GROUP_NAME_MAX = 9                   # "manifest-<group>.txt" within VV1's 22-character file names (the collection's rule)
 THEME_FAVOUR = 3                     # a favoured theme's events and pieces weigh this much more in the draw
 MAX_DRAW_WEIGHT = cie.MAX_WEIGHT
 GUARDIANS_PATCH = "guardians_of_isola"
@@ -2087,15 +2086,25 @@ def themes_ok(themes: Iterable[str], settings: Settings) -> tuple[bool, int]:
     return True, THEME_FAVOUR if hit else 1
 
 
-def group_name(stem: str, taken: set[str]) -> str:
+def group_name(stem: str, taken: set[str]) -> tuple[str, str]:
+    """A player file's group: "pl_" and at most 6 more characters, so "manifest-<group>.txt" stays within VV1's
+    22-character file names (the collection's own deep-folder rule).  A short name is used as it is; a longer one is
+    its first two characters and a hash of the whole name (the same file always gets the same group).  Two files that
+    still meet get the next hash, and the note says so."""
     base = re.sub(r"[^a-z0-9_]+", "_", stem.lower()).strip("_") or "events"
-    base = base[:GROUP_NAME_MAX - len(GROUP_PREFIX) - 3]
-    name, k = base, 1
+    room = GROUP_NAME_MAX - len(GROUP_PREFIX)
+    name = GROUP_PREFIX + base if len(base) <= room else \
+        GROUP_PREFIX + base[:room - 4] + f"{zlib.crc32(stem.lower().encode('utf-8')) & 0xFFFF:04x}"
+    note = ""
+    k = 0
     while name in taken:
         k += 1
-        name = f"{base[:GROUP_NAME_MAX - len(GROUP_PREFIX) - 3]}{k}"
+        h = zlib.crc32(f"{stem.lower()}#{k}".encode("utf-8")) & 0xFFFF
+        clash = name
+        name = GROUP_PREFIX + base[:room - 4] + f"{h:04x}"
+        note = f"{stem}: its short name {clash} was already taken by another file, so it is {name}"
     taken.add(name)
-    return name
+    return name, note
 
 
 def manifest_line(game: int, c: Compiled) -> str:
@@ -2115,6 +2124,7 @@ class InstallReport:
     pieces: int = 0
     skipped: list[str] = field(default_factory=list)        # "file, line n: why"
     files: list[Path] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)          # e.g. two files' short names met
 
 
 def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[str, bytes], InstallReport]:
@@ -2133,7 +2143,9 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
         report.skipped += [str(p) for p in file_problems]
         if not items:
             continue
-        group = group_name(path.stem, taken)
+        group, note = group_name(path.stem, taken)
+        if note:
+            report.notes.append(note)
         rows = ["# Player Events: " + path.name.replace("\t", " "),
                 "# id\ttitle\tgames\tdraw weight\tseries\tcredit\tdescription\tGuardians title\tGuardians description"]
         pieces: list[Item] = []
@@ -2161,12 +2173,14 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
             if game not in (it.graph or {}).get("games", [1, 2, 3, 4, 5]):
                 continue
             k += 1
-            ident = (it.meta.get("id") or f"{ID_PREFIX}{group[:cap - len(ID_PREFIX) - 4]}_{k:03d}").lower()
+            ident = (it.meta.get("id") or f"{group}_{k:03d}").lower()
             if not ident.startswith(ID_PREFIX):
                 ident = ID_PREFIX + ident
             ident = re.sub(r"[^a-z0-9_]", "_", ident)[:cap]
-            while ident in used_ids:
-                ident = ident[:cap - 2] + f"{random.randrange(100):02d}"
+            if ident in used_ids:
+                again = f"{group}_{k:03d}"
+                report.notes.append(f"{label}: its Id {ident} is already used, so it is {again}")
+                ident = again
             used_ids.add(ident)
             c, probs = compile_item(it, ident)
             if c is None:
@@ -2179,12 +2193,12 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
             rows.append(manifest_line(game, c))
             report.installed.append(f"{path.name}: {c.title}")
         if len(rows) > 2:
-            out[f"manifest-{GROUP_PREFIX}{group}.txt"] = ("\n".join(rows) + "\n").encode("utf-8")
+            out[f"manifest-{group}.txt"] = ("\n".join(rows) + "\n").encode("utf-8")
         if pieces:
             data, probs = compile_pieces(pieces, game, mult)
             report.skipped += [str(p) for p in probs]
             if data:
-                out[f"pieces-{GROUP_PREFIX}{group}.pcb"] = data
+                out[f"pieces-{group}.pcb"] = data
                 report.pieces += len(pieces)
     return out, report
 
@@ -2193,8 +2207,7 @@ def _owned(name: str) -> bool:
     low = name.lower()
     return (low.startswith(f"manifest-{GROUP_PREFIX}") and low.endswith(".txt")) or \
         (low.startswith(f"pieces-{GROUP_PREFIX}") and low.endswith(".pcb")) or \
-        (low.startswith(ID_PREFIX) and low.endswith(".cieg")) or \
-        low in (f"manifest-{LEGACY_GROUP}.txt", f"living-{LEGACY_GROUP}.pak")
+        (low.startswith(ID_PREFIX) and low.endswith(".cieg"))
 
 
 def install(game: int, game_folder_path: Path, source: Path | None = None, settings: Settings | None = None,
@@ -2216,14 +2229,6 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
     out, report = compile_folder(game, source, settings)
     if out:
         coll.mkdir(parents=True, exist_ok=True)
-        splits = [p for p in coll.glob("manifest-*.txt") if not _owned(p.name)]
-        legacy = coll / "manifest.txt"
-        if not splits and legacy.is_file() and any(n.endswith(".txt") for n in out):
-            # The engine reads an older single manifest.txt only while no manifest-<group>.txt exists: mirror it
-            # (and its living.pak) as one more group so the built-in collection still comes.
-            out[f"manifest-{LEGACY_GROUP}.txt"] = legacy.read_bytes()
-            if (coll / "living.pak").is_file():
-                out[f"living-{LEGACY_GROUP}.pak"] = (coll / "living.pak").read_bytes()
         for name, data in out.items():
             tmp = coll / (name + ".tmp")
             tmp.write_bytes(data)
@@ -2242,7 +2247,8 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
             shutil.copyfile(p, shown / p.name)
     report_text = "\n".join(["Player Events installed for " + GAME_NAMES[game] + ":"] +
                             [f"  {x}" for x in report.installed] + [f"  pieces: {report.pieces}"] +
-                            (["Left out:"] + [f"  {x}" for x in report.skipped] if report.skipped else []))
+                            (["Left out:"] + [f"  {x}" for x in report.skipped] if report.skipped else []) +
+                            (["Notes:"] + [f"  {x}" for x in report.notes] if report.notes else []))
     (shown / "Player Events Report.txt").write_text(report_text + "\n", encoding="utf-8")
     return report
 

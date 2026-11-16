@@ -328,19 +328,27 @@ class InstallAndRules(unittest.TestCase):
             game = Path(tmp) / "Game"
             coll = game / pe.PATCHER_FILES / pe.COLLECTION_FOLDER
             coll.mkdir(parents=True)
-            (coll / "manifest.txt").write_text("# built in\nall_x\tX\t1\t1\t\t\t\t\t\n", encoding="utf-8")
+            (coll / "manifest-v28.txt").write_text("# built in\nall_x\tX\t1\t1\t\t\t\t\t\n", encoding="utf-8")
             (coll / "all_x.cieg").write_bytes(b"CIEG")
             (coll / "pl_stale_001.cieg").write_bytes(b"old")
+            (coll / "manifest-pl_old.txt").write_text("# an earlier patch's\n", encoding="utf-8")
             report = pe.install(1, game, src, pe.Settings(), root)
             names = sorted(p.name for p in coll.iterdir())
-            self.assertIn("manifest-player_my_events.txt", names)
-            self.assertIn("pieces-player_pieces.pcb", names)
-            self.assertIn("manifest-collection.txt", names)          # the older single manifest still read
+            mine = pe.group_name("My Events", set())[0]
+            self.assertTrue(mine.startswith("pl_my") and len(mine) == 9, mine)
+            self.assertEqual(pe.group_name("My Events", set())[0], mine)          # the same every patch
+            self.assertIn(f"manifest-{mine}.txt", names)
+            self.assertIn("pieces-pl_pieces.pcb", names)
+            self.assertEqual(names.count("manifest-v28.txt"), 1)                   # the collection's own, untouched
+            self.assertEqual((coll / "manifest-v28.txt").read_text(encoding="utf-8")[:10], "# built in")
+            self.assertFalse([n for n in names if "collection" in n])              # nothing copied any more
             self.assertIn("all_x.cieg", names)
             self.assertNotIn("pl_stale_001.cieg", names)
+            self.assertNotIn("manifest-pl_old.txt", names)
+            self.assertTrue(all(len(n) <= 22 for n in names if n.startswith(("manifest-", "pieces-"))), names)
             self.assertEqual(len(report.installed), 1)
             self.assertTrue(any("A Broken One" in s or "line" in s for s in report.skipped))
-            rows = [r for r in (coll / "manifest-player_my_events.txt").read_text(encoding="utf-8").splitlines()
+            rows = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()
                     if not r.startswith("#")]
             ident, title, games, weight = rows[0].split("\t")[:4]
             self.assertTrue((coll / f"{ident}.cieg").is_file())
@@ -351,7 +359,7 @@ class InstallAndRules(unittest.TestCase):
             self.assertTrue((shown / pe.TONE_NAME).is_file())
             # Favoured themes weigh three times; Only my themes leaves the others out; ticked rules are enforced.
             pe.install(1, game, src, pe.Settings(favour=["comedy"]), root)
-            row = [r for r in (coll / "manifest-player_my_events.txt").read_text(encoding="utf-8").splitlines()
+            row = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()
                    if not r.startswith("#")][0]
             self.assertEqual(row.split("\t")[3], "3")
             r2 = pe.install(1, game, src, pe.Settings(favour=["sea"], only_my_themes=True), root)
@@ -363,6 +371,17 @@ class InstallAndRules(unittest.TestCase):
             r4 = pe.install(1, game, src, pe.Settings(rules={"no_deaths": True}), root)
             self.assertEqual(r4.installed, [])
             self.assertTrue(any("No deaths" in s for s in r4.skipped))
+
+    def test_long_file_names_get_short_groups_and_collisions_are_reported(self):
+        taken: set[str] = set()
+        a, note_a = pe.group_name("Stories of the Sea", taken)
+        self.assertEqual((len(a), note_a), (pe.GROUP_NAME_MAX, ""))
+        self.assertEqual(pe.group_name("short", set()), ("pl_short", ""))
+        b, note_b = pe.group_name("Stories of the Sea", taken)        # a second file that meets the first
+        self.assertNotEqual(a, b)
+        self.assertEqual(len(b), pe.GROUP_NAME_MAX)
+        self.assertIn("already taken", note_b)
+        self.assertLessEqual(len(f"manifest-{b}.txt"), 22)
 
     def test_settings_and_rules_files_round_trip(self):
         with tempfile.TemporaryDirectory() as tmp:
