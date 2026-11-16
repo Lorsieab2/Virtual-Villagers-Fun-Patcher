@@ -539,6 +539,51 @@ class Casting(unittest.TestCase):
                 r.walk_through()
                 self.assertIn(r.state()["records"][0], (1, 2), "only the villagers with the top value")
 
+    def test_highest_holds_with_heathen_ok_too(self):
+        # Codex P2 (PR #771): role byte 13 holds the picker with the speaks and heathen_ok bits; both are masked.
+        game = self.run_game()
+        g = cast_graph(skill={"names": ["Farming"], "min": 1, "pick": "highest"}, heathen_ok=True, speaks=True)
+        g["nodes"]["p"]["effects"] = []
+        data = compiled(g)
+        for roll in range(3):
+            with self.subTest(roll=roll):
+                r = V6(game, [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 30, False),
+                              (2, "m", 32, "Cal", 30, False)])
+                r.rolls([roll] * 40)
+                self.assertIsNone(r.queue6(data))
+                r.walk_through()
+                self.assertIn(r.state()["records"][0], (1, 2), "only the villagers with the top value")
+
+    def test_a_procedural_apostasy_is_harmful(self):
+        # Codex P2 (PR #771): a composed event's apostasy (40) takes the harm guard and the protected flag, as the
+        # engine's own cg_effect_harmful counts it -- never a nursing parent with the safeguards on.
+        game = self.run_game()
+        r = V6(game, [(0, "m", 30, "Adam", 0, False)])
+        at = r.p.alloc(32)
+        for code, harmful in ((40, 1), (39, 0), (38, 0), (4, 1)):   # apostasy, join, faith, kill
+            r.p.write(at, bytes([code, 0, 0, 0]) + bytes(16))
+            self.assertEqual(r.p.export("VvfpStoryProbeProceduralHarmful", at), harmful, code)
+        self.assertTrue(cg._harmful({"do": "apostasy", "role": "subject"}, [5]), "the compiler's guard too")
+
+    def test_a_heathen_reached_through_an_alias_keeps_vanillas_list(self):
+        # Codex P2 (PR #771): an alias standing for a heathen_ok role resolves to a Heathen -- an effect off the
+        # Heathens' list is refused on them, as on the Heathen's own role.
+        if not have_stock("vv5"):
+            self.skipTest("no New Believers")
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Storm", "games": [5],
+             "roles": {"isolan": {"kind": "villager", "min_age": 14, "heathen_ok": True},
+                       "someone": {"kind": "alias", "of": ["isolan"]}},
+             "start": "p",
+             "nodes": {"p": {"text": "(isolan.Name) is caught in the storm.",
+                             "effects": [{"do": "kill", "role": "someone"}]}}}
+        data = compiled(g)
+        r = V6("vv5", [(0, "m", 30, "Adam", 0, False)])
+        r.p.write(r.v.record(0) + 0x1CEC, b"\1")          # a Heathen
+        r.rolls([0] * 40)
+        self.assertIsNone(r.queue6(data))
+        r.walk_through()
+        self.assertEqual(r.p.read(r.v.record(0) + r.v.L["active"], 1), b"\1", "the Heathen lives")
+
     def test_a_harm_capable_role_never_takes_a_nursing_parent(self):
         game = self.run_game()
         g = cast_graph()
@@ -694,6 +739,31 @@ class NodeTitles(unittest.TestCase):
                 if last != long_label:
                     rest = long_label[len(last):].strip()
                     self.assertIn(rest, shown[-1][1], "the label's rest is the page's first line")
+
+    def test_a_wrapped_label_never_cuts_the_text_without_scrolling(self):
+        """Codex P2 (PR #771): without Scrolling Popups a label wider than the title area puts its rest on each page's
+        first line -- the pages are laid out with that line kept free, so the page's text is never cut."""
+        from test_cie_graph_v6 import TITLES
+        long_label = "Ask every elder what they would be good at doing tomorrow"
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                for words in range(4, 70, 3):          # one page, a full page, then two
+                    wide = copy.deepcopy(TITLES)
+                    wide["nodes"]["q"]["choices"][1]["label"] = long_label
+                    wide["nodes"]["n"]["text"] = "(Name) waits. " + "A word. " * words + "Zebra ends it."
+                    r = V6(game, TWO)
+                    process = r.p
+                    # paging without scrolling takes more steps than the emulator's usual limit
+                    r.p.call = lambda address, args=(), **kw: type(process).call(
+                        process, address, args, **{**kw, "limit": 40_000_000})
+                    r.p.export("VvfpStoryProbeGraphScroll", 0)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(wide)))
+                    text = " ".join(" ".join(t for _k, t, _l in r.walk_through([1])).split())
+                    self.assertIn("Zebra ends it.", text, (words, text[-200:]))
+                    self.assertEqual(text.count("A word."), words, words)
 
     def test_the_title_is_the_choice_picked(self):
         """Codex P2 (PR #771): both choices lead to the same node -- each one's own label titles what follows."""
