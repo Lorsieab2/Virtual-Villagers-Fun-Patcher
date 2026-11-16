@@ -889,8 +889,8 @@ def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
             edits = feature.raw.get("patches") or []
             if edits and fp._patches_present(data, edits):
                 found.add(feature.id)
-        # 2-10x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
-        # bytes: it is in the exe when every price site holds one multiplier from 2 to 10.
+        # 2-100x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
+        # bytes: it is in the exe when every price site holds one multiplier from 2 to 100.
         import vv_game_mechanics_tech_time as tech_time
         if tech_time.multiplier_in_bytes(game, data):
             found.add(tech_time.multiplier_feature(game))
@@ -1005,7 +1005,7 @@ def items_facts(village: "Village") -> list[Fact]:
     # about it at all); each module gives it one line of its own.
     if village.has(f"vv{village.game}_super_secret_golden_mushroom") is not True:
         found = [fact for fact in found if "golden mushroom" not in fact.text.lower()]
-    # 2-10x Tech Cost: each technology level's price, stock then multiplied (src/vv_game_mechanics_tech_time.py).
+    # 2-100x Tech Cost: each technology level's price, stock then multiplied (src/vv_game_mechanics_tech_time.py).
     found = importlib.import_module("vv_game_mechanics_tech_time").multiplied_item_facts(village, found)
     # The same topics on every tab (the owner, 2026-10-27: "Same between the virtual villagers games"): a topic another
     # game has and this one does not gets one "Not in" line (src/vv_game_mechanics_parity.py).

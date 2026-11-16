@@ -1,4 +1,4 @@
-"""Hungrier Villagers (2-10x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
+"""Hungrier Villagers (2-100x Meals) (all five games) and Classic VV Difficulty (The Tree of Life, New Believers).
 The traces are in scripts/build_hungrier_villagers_features.py and scripts/build_classic_vv_difficulty_features.py.
 
   * Each game's two meal sites decode, patched at every N, to the same instruction taking 2 x N food.
@@ -79,7 +79,7 @@ class Meals(unittest.TestCase):
         md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
         for game, sites in SITES.items():
             pe = pefile.PE(str(stock_path(game)), fast_load=True)
-            for n in range(1, 11):
+            for n in (*range(1, 11), 63, 64):
                 data = stock_path(game).read_bytes() if n == 1 else with_n(game, n)
                 for va, length in sites:
                     at = pe.get_offset_from_rva(va - pe.OPTIONAL_HEADER.ImageBase)
@@ -110,7 +110,7 @@ class Meals(unittest.TestCase):
                 uc.reg_write(UC_X86_REG_ESP, esp + 16)
 
             uc.hook_add(UC_HOOK_CODE, notice, begin=NOTICE[game], end=NOTICE[game])
-            for n in range(2, 11):
+            for n in (*range(2, 11), 64):
                 for before in (0, 1, 2 * n - 1, 2 * n, 2 * n + 1, 500, 8_000):
                     uc.mem_write(food, struct.pack("<i", before))
                     esp = 0x0100_8000
@@ -151,18 +151,24 @@ class Publish(unittest.TestCase):
         builds = {b.id: b for b in patcher.load_builds()}
         for game in NAMES:
             ids = [f"vv{game}_hungrier_villagers"]
-            for n in (2, 5, 10):
+            # x 65 to x 100 are written as x 64: -128 is the most the meal's signed byte holds, never wrapped
+            # round to a food gain.
+            for n, written in ((2, 2), (5, 5), (10, 10), (64, 64), (65, 64), (100, 64)):
                 data, applied = patcher.render_patched_bytes(stock_path(game), builds[f"vv{game}"], "stock", ids)
                 patcher.apply_meal_multiplier(data, f"vv{game}", n, applied)
                 with self.subTest(game=game, n=n):
                     for p in manifest(game)["patches"]:
-                        self.assertEqual(data[int(p["offset"], 16)], (-2 * n) & 0xFF)
-                    self.assertEqual(patcher.meal_multiplier_applied(applied), n)
+                        self.assertEqual(data[int(p["offset"], 16)], (-2 * written) & 0xFF)
+                        self.assertGreaterEqual(-2 * written, -128)
+                    self.assertEqual(patcher.meal_multiplier_applied(applied), written)
 
     def test_out_of_range_is_refused(self) -> None:
-        for bad in (1, 11, True, 2.0, "3"):
+        for bad in (1, 101, True, 2.0, "3"):
             with self.assertRaises(patcher.PatcherError):
                 patcher.validate_meal_multiplier(bad)
+        for good in (2, 10, 100):
+            self.assertEqual(patcher.validate_meal_multiplier(good), good)
+        self.assertEqual(patcher.MEAL_MULTIPLIER_SAFE_MAXIMUM, 64)
 
 
 class Registration(unittest.TestCase):
@@ -175,11 +181,12 @@ class Registration(unittest.TestCase):
             self.assertTrue(owners_default_fun_patch_selection(patch_id))
             self.assertTrue(select_all_fun_patch_selection(patch_id))
 
-    def test_the_slider_is_2_to_10_default_2(self) -> None:
-        self.assertEqual(list(patcher.MEAL_MULTIPLIER_RANGE), list(range(2, 11)))
+    def test_the_slider_is_2_to_100_default_2(self) -> None:
+        self.assertEqual(list(patcher.MEAL_MULTIPLIER_RANGE), list(range(2, 101)))
         self.assertEqual(patcher.MEAL_MULTIPLIER_DEFAULT, 2)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 7}), 7)
-        for bad in ({}, {"meal_multiplier": 11}, {"meal_multiplier": True}, None):
+        self.assertEqual(saved_meal_multiplier({"meal_multiplier": 100}), 100)
+        for bad in ({}, {"meal_multiplier": 101}, {"meal_multiplier": True}, None):
             self.assertEqual(saved_meal_multiplier(bad), 2)
 
     def test_classic_ticks_the_harder_patches_and_owners_defaults_sets_sliders_to_2(self) -> None:

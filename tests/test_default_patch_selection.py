@@ -127,7 +127,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
                   or p.endswith("_unicode_font")
-                  # 2-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
+                  # 2-100x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
                   or p.endswith("_tech_cost_multiplier")
                   # Science Collectibles Only Count When Complete: a difficulty change too.
                   or p.endswith("_science_collectibles_complete")
@@ -137,7 +137,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Collectible Spawn Timing works like VV1-3 (the owner, 2026-11-08): a difficulty change too.
                   or p == "vv4_collectible_spawn_like_vv3"
                   or p == "vv4_harder_fishing_unlock"
-                  # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
+                  # 2-100x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
                   # Yellow Fruit Trees are No Longer Unlimited, a Classic VV Difficulty piece (the owner, 2026-11-08).
                   or p == "vv4_yellow_fruit_trees_limited"
@@ -367,9 +367,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
         # ...and Move the "Playing in the dirt" Spot, the alternative of Puddle Play Moves to the Lake Shore.
         held_back |= {"vv5_playing_in_the_dirt_spot"}
-        # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
+        # ...and 2-100x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
-        # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
+        # ...and Classic VV Difficulty, which would tick 2-100x Tech Cost through its dependencies.
         held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
         # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
         # Population (the owner, 2026-11-12).
@@ -389,7 +389,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
     def test_tech_cost_multiplier_is_ticked_only_by_its_own_box(self) -> None:
         """The owner (2026-11-06): "7 should be default off for everything.
         players who want it must explicitly choose it." -- the fresh-install
-        default, Default Patches and Select All leave every game's 2-10x Tech
+        default, Default Patches and Select All leave every game's 2-100x Tech
         Cost unticked.  Owner's Defaults ticks it (the owner, 2026-11-07:
         "sure, default them on in vv1-3 too!")."""
         from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection

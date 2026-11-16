@@ -1,11 +1,12 @@
-"""Generate data/vv<N>_tech_cost_multiplier_feature.json (all five games): 2-10x Tech Cost, off by default.
+"""Generate data/vv<N>_tech_cost_multiplier_feature.json (all five games): 2-100x Tech Cost, off by default.
 
 The owner (2026-11-06): "Default OFF: "Triple Tech Cost" = triples all technologies so they have 3x the normal cost.
 makes the game super hard."  And: "7 should be default off for everything. players who want it must explicitly
 choose it": Default Patches, Owner's Defaults and Select All all leave it unticked (src/vv_fun_patcher_gui.py).
-Then (2026-11-07): "instead of a flat "Triple Tech Cost", how about a slider? 2-10x Tech Cost" - the player can
-manually adjust how hard the game will be!!!!!!": the row is "2-10x Tech Cost", and the patcher window's slider
-picks the multiplier, a whole number 2 to 10 (3 unless the player moves it).
+Then (2026-11-07): "instead of a flat "Triple Tech Cost", how about a slider? 2-100x Tech Cost" - the player can
+manually adjust how hard the game will be!!!!!!": the row is "2-100x Tech Cost", and the patcher window's slider
+picks the multiplier, a whole number 2 to 100 (3 unless the player moves it; the owner, 2026-11-15: every such
+slider 2x to 100x).
 
 THE MULTIPLIER.  The manifest's "after" bytes are the default, x 3 (so a plain render, and every catalog test,
 gives x 3).  When the patcher publishes a build it writes each site again as its stock value x N
@@ -40,9 +41,9 @@ whose `cmp [points], price / jge` refuses with too few points (VV3 string 0x34, 
 two factions (Nature, Magic) are technologies 5 and 6 of the same table, so the faction choice costs N times too.
 
 THE CHANGE: each price in place, x N -- no code is added, no routine is changed, nothing claims executable space.
-The table's zero entries (a level a new village already has) stay 0.  The biggest price at x 10 is 2,500,000 (VV1
+The table's zero entries (a level a new village already has) stay 0.  The biggest price at x 100 is 25,000,000 (VV1
 Medicine level 3), far inside the signed 32-bit range every comparison uses.  At x 4 and more some prices have
-seven digits; the owner (2026-11-07): a label running slightly over is fine.
+seven digits, at x 40 and more eight; the owner (2026-11-07): a label running slightly over is fine.
 
 NOT CHANGED: nothing else reads these prices.  Every other tech-point cost keeps its number, each its own
 immediate or table: the clothes (5,000: VV1's F6 change with the patcher, VV3 0x4228A2, and VV4's and VV5's), The
@@ -60,8 +61,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 IMAGE_BASE = 0x400000
 FACTOR = 3                     # the manifest's own bytes: the slider's default
-MULTIPLIERS = range(2, 11)     # the slider: 2 to 10
-NAME = "2-10x Tech Cost"
+MULTIPLIERS = range(2, 101)    # the slider: 2 to 100
+NAME = "2-100x Tech Cost"
 
 # A New Home and The Lost Children: the three routines' (start, end) VAs, each starting on an instruction.
 ROUTINES = {
@@ -156,8 +157,8 @@ def description(game: int) -> str:
         listed = "; ".join(f"{name} " + ", ".join(levels) for name, levels in rows.items())
     faction = (" The two factions, Nature and Magic, are technologies too: choosing one costs that many times as "
                "much." if game == 3 else "")
-    return ("Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you "
-            "choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless "
+    return ("Every technology level on the Tech screen costs 2 to 100 times its normal price in tech points: you "
+            "choose the multiplier with the 2-100x Tech Cost slider in the patcher window (a whole number, 3 unless "
             f"you move it). The normal prices are: {listed}. At x 3, for example, a 5,000-point level costs 15,000. "
             "The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer "
             "tech points than that, and buying takes exactly that many." + faction + " Research, tech points from "
@@ -184,7 +185,7 @@ def feature(game: int, stock: bytes) -> dict:
         where = ("the Tech screen's hover label (0x%X), information box (0x%X) and buy handler (0x%X), each a "
                  "price immediate" % tuple(r[0] for r in ROUTINES[game].values()))
         behaviour = [
-            f"Every technology price immediate in {where}, x N (the slider, 2 to 10; 3 by default): the shown "
+            f"Every technology price immediate in {where}, x N (the slider, 2 to 100; 3 by default): the shown "
             "price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and "
             "spends nothing) and the amount it takes (sub) are the same multiplied number.",
         ]
@@ -199,7 +200,7 @@ def feature(game: int, stock: bytes) -> dict:
             })
         callers = ", ".join("0x%X" % c for c in GETTER_CALLERS[game])
         behaviour = [
-            f"Every non-zero entry of the technology price table 0x{table:X}, x N (the slider, 2 to 10; 3 by "
+            f"Every non-zero entry of the technology price table 0x{table:X}, x N (the slider, 2 to 100; 3 by "
             f"default). Its only reader is the getter 0x{getter:X}, called by the Tech screen's hover label, "
             f"information box and purchase ({callers}): the shown price, the purchase's refusal threshold and the "
             "amount it takes are the same multiplied number.",
