@@ -90,7 +90,8 @@ def any_time_row(game: int) -> dict:
                  "happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New "
                  "Believers' story villagers included), except when a pick would make no sense in the event -- a "
                  "child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can "
-                 "carry -- or the event names someone the village does not have (no Chief, no Chief event). Objects "
+                 "carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a "
+                 "leader can be anyone). Objects "
                  "that are not living villagers, such as The Lost Children's totem statues, are never picked, and "
                  "the guards against crashes and damaged saves stay. "
                  f"Off by default, in Owner's Defaults and in Select All too. {UNVERIFIED}",
