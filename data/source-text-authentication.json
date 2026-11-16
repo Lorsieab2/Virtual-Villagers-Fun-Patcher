@@ -98,7 +98,7 @@
     },
     {
       "path": "data/candidates/vv5_expanded_time_warp_map.json",
-      "sha256": "740406A187C2D63E25FCDE5046E0D1DB65875888952150B2DB9ADB4352D8C235"
+      "sha256": "4A27D1E867440F44E46CD5CE128347717230203446D717B2EC19619612E67649"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate.json",
@@ -114,7 +114,7 @@
     },
     {
       "path": "data/candidates/vv5_task9_native_actions_map.json",
-      "sha256": "54022F7D8F4D56C65DCBD4E15B381CFF3112F65BA2E14C1585E457B8250F83AA"
+      "sha256": "9EB296B116598F6A34AE81818136B09F168662B15FBA79F2CF9B57A18766D5BC"
     },
     {
       "path": "data/expanded_256_static_repair_integration.json",
@@ -142,15 +142,15 @@
     },
     {
       "path": "data/vv5_expanded_time_warp.json",
-      "sha256": "1BAEEE3FFF45E0D75E34D4BFE06AA648A0470842EA345673F162F77C3ECEF13D"
+      "sha256": "96731C5F0587057D450BF6D0C83A6B791145FFFF6C9E21A5D7C962E8C25A5BC2"
     },
     {
       "path": "data/vv5_origins_feature.json",
-      "sha256": "19B6F10F12DECECE71CC81BFD972480AD378E30E3699F68792D7BA09EF6F0513"
+      "sha256": "5F56DA473985F71EE6978D04B570E2C900D2F9A2B20AAB0041514A206E7AD3BF"
     },
     {
       "path": "data/vv5_task9_native_actions.json",
-      "sha256": "F250518B33A586B984C080D70B7600AEAEBE3F2737DE81E1AE1AED941161D99C"
+      "sha256": "F461D0C8D23474A5CA1D5BFD7E717A166478A091F29C9D9A8B127526A1D6D25F"
     },
     {
       "path": "assets/unicode_fonts/SOURCES.json",

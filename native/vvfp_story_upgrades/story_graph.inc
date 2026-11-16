@@ -167,8 +167,10 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_BIRTH_THEN_DIE = 20,
        /* cie-v6-binary.md 27 */
        CGE_OLD_LOOK = 21,
-       /* cie-v6-binary.md 29 (23 is kept for a cross-sex body look) */
+       /* cie-v6-binary.md 29 */
        CGE_SEX_CHANGE = 22,
+       /* cie-v6-binary.md 31: the gender presentation, set (a = 1) or cleared (a = 0) */
+       CGE_PRESENTATION = 23,
        /* cie-v6-binary.md 30 */
        CGE_DELIVER_EARLY = 24 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
@@ -1026,9 +1028,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_DELIVER_EARLY;
+                       || e[0] == CGE_PRESENTATION || e[0] == CGE_DELIVER_EARLY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY));
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
+                                         || e[0] == CGE_DELIVER_EARLY));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1070,6 +1073,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_DELIVER_EARLY:
                 /* 30: the newborn's extra health loss, a range -99..-1, or none (0, 0). */
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
+                break;
+            case CGE_PRESENTATION:
+                /* 31: a = 1 the other sex's look, 0 the villager's own again. */
+                ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;
                 break;
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
@@ -1521,6 +1528,58 @@ static int cg_sex_change_role(int role) {
     return 0;
 }
 
+/* Is `role` a carrier: a nursing_parent role, or the one a baby_lost effect names (cie-v6-binary.md 22)?  Only a
+   villager born female is cast for it (the owner, 2026-11-15; cg_born_female). */
+static int cg_carrier_role(int role) {
+    const unsigned char *spec = cg_role_at(&cg_g, role);
+    int i;
+    if (cg_g.version >= 6 && spec[9] == 3) {
+        return 1;
+    }
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_BABY_LOST && (int)e[1] == role) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+#ifdef VVFP_TEST
+/* The birth sex as the test build sees it: -1 the real rule; else bit i set: record i was born male. */
+static int test_graph_born_male = -1;
+#endif
+
+/* Was the villager in record `r` (record index `index`) born female?  "VVFP Gender Presentation.dll" keeps the birth
+   sex (VvfpBornFemale); without it the save's Sex Changes log tells (native/shared/sex_change.h). */
+static int cg_born_female(int game, const unsigned char *r, int index) {
+    HMODULE dll;
+    vvfp_gp_born_female_fn born;
+#ifdef VVFP_TEST
+    if (test_graph_born_male >= 0) {
+        return index < 0 || index >= 31 || !(test_graph_born_male & (1 << index));
+    }
+#endif
+    (void)index;
+    dll = GetModuleHandleA(VVFP_GP_DLL);
+    born = dll != NULL ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, "VvfpBornFemale") : NULL;
+    return born != NULL ? born(game, r) == 1 : vv_sex_born_female_by_log(game, r);
+}
+
+/* Is `role` the one a presentation effect names (cie-v6-binary.md 31)?  Such a role never casts the Golden Child,
+   The Secret City's Tribal Chief or stand-in, or New Believers' story villagers (native/shared/sex_change.h
+   vv_sex_change_refusal); an alias's member drawn as one of them is refused when the effect is made. */
+static int cg_presentation_role(int role) {
+    int i;
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_PRESENTATION && (int)e[1] == role) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* The youngest a nursing parent is cast, in age units (20 a year): children never carry in events (the owner,
    2026-11-15).  baby_lost acts only on a nursing_parent role (the compiler's rule), so it never reaches a child. */
 #define CG_NURSING_MIN_AGE (18 * 20)
@@ -1548,6 +1607,12 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)) {
         return 0;                      /* the Golden Child is never cast for a sex change */
+    }
+    if (cg_presentation_role(role) && vv_sex_change_refusal(game, r, index) != VV_SEX_OK) {
+        return 0;                      /* nor any special villager for a gender presentation */
+    }
+    if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
+        return 0;                      /* only a villager born female is cast as a carrier */
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
         return 0;
@@ -4446,6 +4511,38 @@ static int cg_old_look(int game, const unsigned char *record, int index) {
     return vvfp_head_look_find(game, &api) && api.set(game, record, VVFP_HEAD_LOOK_OLD) == 1;
 }
 
+#ifdef VVFP_TEST
+/* "VVFP Gender Presentation.dll" as the test build sees it (cie-v6-binary.md 31): -1 the real one; 0 none; 1
+   installed, each choice set recorded (the record's index, the choice). */
+static int test_graph_presentation = -1;
+static int test_graph_presentation_set[16][2];
+static int test_graph_presentations;
+#endif
+
+/* cie-v6-binary.md 31: the villager in record `index` is drawn with the other sex's look (`on` 1) or their own again
+   (0) -- the choice Change Appearance's "Gender presentation" offers, kept in "VVFP Gender Presentation.dll"'s own
+   per-save file (never a record field; the sex field is not written).  0 when it cannot be made (the companion is
+   not in the game, its draws do not follow the choice, a special villager, the write failed). */
+static int cg_presentation(int game, const unsigned char *record, int index, int on) {
+    vvfp_gp_api api;
+    if (vv_sex_change_refusal(game, record, index) != VV_SEX_OK) {
+        return 0;
+    }
+#ifdef VVFP_TEST
+    if (test_graph_presentation >= 0) {
+        if (test_graph_presentation == 0) {
+            return 0;
+        }
+        if (test_graph_presentations < 16) {
+            test_graph_presentation_set[test_graph_presentations][0] = index;
+            test_graph_presentation_set[test_graph_presentations++][1] = on;
+        }
+        return 1;
+    }
+#endif
+    return vvfp_gp_find(game, &api) && api.set(game, record, on) == 1;
+}
+
 /* ---- The sex field changed (docs/event-collection/cie-v6-binary.md 29) ------------------------------------ */
 
 /* Why villager `record` cannot have their sex changed now (a CE_WHY_*), or -1 when they can: a special villager
@@ -4679,6 +4776,16 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
         }
         cg.identity[role] = ce_identity(a, record);
         cg_extra_add(cg.name[role], female ? "'s sex is now male." : "'s sex is now female.");
+        return;
+    }
+    if (e[0] == CGE_PRESENTATION) {
+        /* 31: the gender presentation, through Gender Presentation's own file (nothing in the save is written) */
+        int on = (int)cg_u32(e + 4) == 1;
+        if (!cg_presentation(game, record, index, on)) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        cg_extra_add(cg.name[role], on ? " is now drawn with the other sex's look." : " is drawn with their own look again.");
         return;
     }
     if (e[0] == CGE_OLD_LOOK) {
@@ -4923,6 +5030,7 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "baby_lost", "<R>'s baby is lost." },
     { "old_look", "<R> looks older and more worn." },
     { "sex_change", "<R>'s sex changes." },
+    { "presentation", "<R>'s look changes." },
 };
 
 /* Line `key` with the role's placeholders and the words put in, after a line break when `out` has text already. */
@@ -5005,6 +5113,7 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_BABY_LOST: cg_auto_add(out, cap, "baby_lost", role, "", ""); break;
         case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
         case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
+        case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", ""); break;
         case CGE_DAMAGE: cg_auto_add(out, cap, "damage", -1, "", ""); break;
         case CGE_CELEBRATE: cg_auto_add(out, cap, role < 0 ? "celebrate_all" : "celebrate", role, "", ""); break;
         case CGE_MOOD: cg_auto_add(out, cap, lo > 0 ? "mood+" : "mood-", role, "", ""); break;
@@ -7264,6 +7373,27 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
         out[2 * i + 1] = test_graph_head_look_set[i][1];
     }
     return test_graph_head_looks;
+}
+
+/* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
+    test_graph_born_male = born_male;
+}
+
+/* "VVFP Gender Presentation.dll" as the test build sees it (29): `mode` -1 the real one, 0 none, 1 installed (and the
+   record cleared); returns the choices set so far, each (record index, on) into `out` (at most `cap` pairs). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphPresentation(int mode, int *out, int cap) {
+    int i;
+    if (mode >= -1 && mode <= 1) {
+        test_graph_presentation = mode;
+        test_graph_presentations = 0;
+        return 0;
+    }
+    for (i = 0; i < test_graph_presentations && i < cap && out != NULL; ++i) {
+        out[2 * i] = test_graph_presentation_set[i][0];
+        out[2 * i + 1] = test_graph_presentation_set[i][1];
+    }
+    return test_graph_presentations;
 }
 
 /* "VVFP Last Names.dll" (27) as the test build sees it: -1 the real check, 0 none, 1 in.  Returns how many sex

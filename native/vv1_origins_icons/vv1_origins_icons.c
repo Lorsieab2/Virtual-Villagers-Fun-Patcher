@@ -2954,6 +2954,9 @@ static int vv1_confirm_head_genetics_warning(HWND window) {
 
 /* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the window's dice. */
 static unsigned int appearance_rng;
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free.  The
+   preview's appearance_state.male is the drawn sex. */
+static vvfp_gp_window appearance_gp;
 
 /* The "Change sex..." button is shown only when the change is offered for the shown villager: never for the
    Golden Child (native/shared/sex_change_ui.h vvfp_ax_change_sex_offered). */
@@ -2969,6 +2972,8 @@ static void appearance_offer_sex(HWND window) {
 /* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
    to original or a random. */
 static void appearance_show(HWND window) {
+    appearance_state.male = vvfp_gp_window_sex(&appearance_gp, 1, appearance_state.villager) == VV_GENDER_MALE;
+    vvfp_gp_window_show(window, &appearance_gp, 1, appearance_state.villager);
     SetDlgItemTextA(window, IDC_MASK_LABEL, vv1_mask_name(vv1_mask_get(appearance_state.villager)));
     if (appearance_look_offered) {
         CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
@@ -2987,6 +2992,11 @@ static int appearance_extra(HWND window, unsigned int command) {
     if (command == VVFP_AX_UNDO) {
         appearance_revert();
         appearance_look = appearance_look_was;
+        appearance_gp.on = appearance_gp.was;
+    } else if (command == VVFP_AX_PRESENTATION) {
+        if (!vvfp_gp_window_toggle(window, &appearance_gp, 1, appearance_state.villager)) {
+            return 1;
+        }
     } else if (command == VVFP_AX_RESET) {
         int h, b, m;
         if (!vvfp_original_look(1, appearance_state.villager, &h, &b, &m) || h < 0 || h >= count
@@ -3174,6 +3184,13 @@ static INT_PTR CALLBACK appearance_dialog(
             if (mask_changed) {
                 vv1_mask_sidecar_save();
             }
+            if (!changed && vvfp_gp_window_changed(&appearance_gp)) {
+                /* Only the gender presentation: kept, free, no "unchanged" report (0, as Cancel). */
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 1, appearance_state.villager);
+                EndDialog(window, 0);
+                return TRUE;
+            }
+            (void)vvfp_gp_window_keep(window, &appearance_gp, 1, appearance_state.villager);
             EndDialog(window, changed ? 1 : 2);
             return TRUE;
         }
@@ -3223,6 +3240,7 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_look = appearance_look_was =
         appearance_look_offered ? appearance_look_api.get(1, villager) : VVFP_HEAD_LOOK_AUTO;
     appearance_rng = GetTickCount() | 1u;
+    vvfp_gp_window_open(&appearance_gp, 1, villager);
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
     result = (int)DialogBoxParamA(

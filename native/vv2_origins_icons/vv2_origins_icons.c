@@ -1434,11 +1434,18 @@ static unsigned int vv2_appearance_rng;
 static unsigned char *vv2_appearance_live;
 static int vv2_appearance_index;
 static int vv2_appearance_hair_head(int colour);
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free.  The
+   preview's vv2_appearance_sex is the drawn sex. */
+static vvfp_gp_window vv2_appearance_gp;
 
 /* Every control as the chosen values say: the window's start, and after Undo changes or Reset to
    original. */
 static void vv2_appearance_show(HWND window) {
     vv2_appearance_old = vvfp_head_look_old(vv2_appearance_look, vv2_appearance_age);
+    if (vv2_appearance_live != NULL) {
+        vv2_appearance_sex = vvfp_gp_window_sex(&vv2_appearance_gp, 2, vv2_appearance_live) == 1 ? 0 : 1;
+    }
+    vvfp_gp_window_show(window, &vv2_appearance_gp, 2, vv2_appearance_live);
     if (vv2_appearance_look_offered) {
         CheckRadioButton(window, IDC_VV2_LOOK_AUTO, IDC_VV2_LOOK_OLD, IDC_VV2_LOOK_AUTO + vv2_appearance_look);
     }
@@ -1495,7 +1502,15 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             vv2_appearance_body = vv2_appearance_open_body;
             vv2_appearance_mask = vv2_appearance_open_mask;
             vv2_appearance_look = vv2_appearance_open_look;
+            vv2_appearance_gp.on = vv2_appearance_gp.was;
             vv2_appearance_show(window);
+            return TRUE;
+        }
+        if (command == VVFP_AX_PRESENTATION) {
+            if (vv2_appearance_live != NULL
+                && vvfp_gp_window_toggle(window, &vv2_appearance_gp, 2, vv2_appearance_live)) {
+                vv2_appearance_show(window);
+            }
             return TRUE;
         }
         if (command == VVFP_AX_RESET) {
@@ -1580,6 +1595,9 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            if (vv2_appearance_live != NULL) {
+                (void)vvfp_gp_window_keep(window, &vv2_appearance_gp, 2, vv2_appearance_live);
+            }
             EndDialog(window, 1);
             return TRUE;
         }
@@ -2816,7 +2834,7 @@ int __stdcall ShowVV2AppearanceChooser(
 ) {
     INT_PTR result;
     int *tech;
-    int sex, age, h, b, m, orig_head, orig_body, orig_mask, look_was, look_changed, same;
+    int sex, age, h, b, m, orig_head, orig_body, orig_mask, look_was, look_changed, same, gp_open;
     if (player == 0 || record == 0 || idx < 0 || idx >= VV2_MASK_TABLE_BYTES) {
         return 0;
     }
@@ -2845,6 +2863,8 @@ int __stdcall ShowVV2AppearanceChooser(
     vv2_appearance_live = record;
     vv2_appearance_index = idx;
     vv2_appearance_rng = GetTickCount() | 1u;
+    vvfp_gp_window_open(&vv2_appearance_gp, 2, record);
+    gp_open = vv2_appearance_gp.was;
 
     result = DialogBoxParamA(
         module_instance,
@@ -2859,6 +2879,9 @@ int __stdcall ShowVV2AppearanceChooser(
     look_changed = vv2_appearance_look_offered && vv2_appearance_look != look_was;
     same = vv2_appearance_head == orig_head && vv2_appearance_body == orig_body && vv2_appearance_mask == orig_mask;
     /* OK with nothing actually changed: write nothing, charge nothing. */
+    if (same && !look_changed && vv2_appearance_gp.was != gp_open) {
+        return 0;               /* only the gender presentation, kept on OK and free */
+    }
     if (same && !look_changed) {
         ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
         return 0;
