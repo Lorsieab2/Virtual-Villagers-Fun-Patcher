@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Women and a Net",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf11_two_women_net",
+  "source": "draft_blf",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adult women who are partners (where the game records it); in games with no record, any two adult women)"
+   }
+  ],
+  "description": "Two women come home from fishing with one small fish and a hopelessly tangled net: keep arguing, or give up and laugh.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been fishing together all morning, and they have come home with exactly one small fish and a very large, very tangled net. (subject) says (friend) tangled it. (friend) says (subject) tangled it. They are sitting on the beach, back to back, untangling it from opposite ends and arguing.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Keep Arguing",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Give Up and Laugh",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"You threw it wrong.\" \"I threw it perfectly. You pulled too early.\" \"I pulled at exactly the right moment.\" The net gets slowly untangled. The argument does not. By evening the net is perfect, and they walk home still bickering, holding hands, carrying their one small fish between them. It's a very small dinner. They have a lovely evening.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suddenly laughs. \"We're both terrible at this.\" \"We really are,\" says (subject). They give up on the net, go for a swim instead and come home with no fish at all. A neighbor gives them some. That night they agree that tomorrow they'll try the other side of the reef, and that it will definitely be (friend)'s fault if it goes wrong.",
+   "src": "L137"
+  }
+ }
+}

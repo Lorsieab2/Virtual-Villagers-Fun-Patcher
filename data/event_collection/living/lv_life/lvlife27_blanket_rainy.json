@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blanket for the Rainy Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife27_blanket_rainy",
+  "source": "living",
+  "lines": [
+   20980,
+   20991
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20980",
+  "ledger": [
+   {
+    "src": "L20991",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Families disagree whether blankets should be thick, light, or layered for Isola's humid nights.",
+  "cast_only": [
+   "elder",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Families disagree whether blankets should be thick, light, or layered for Isola's humid nights.",
+   "src": "L20981",
+   "choices": [
+    {
+     "label": "Weave a thick blanket.",
+     "next": "a",
+     "src": "L20982"
+    },
+    {
+     "label": "Weave a light, breathable blanket.",
+     "next": "b",
+     "src": "L20985"
+    },
+    {
+     "label": "Make a layered design.",
+     "next": "c",
+     "src": "L20988"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "It comforts an elder during a cool storm.",
+   "src": "L20983"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The heavy cloth stays damp and becomes unpleasant.",
+   "src": "L20984"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The blanket dries quickly and suits most nights.",
+   "src": "L20986"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child complains of cold during mountain rains.",
+   "src": "L20987"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The blanket adapts to changing weather.",
+   "src": "L20989"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The added stitching takes longer than the family expected.",
+   "src": "L20990"
+  }
+ }
+}

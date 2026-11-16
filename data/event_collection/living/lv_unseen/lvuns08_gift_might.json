@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift That Might Be a Warning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns08_gift_might",
+  "source": "living",
+  "lines": [
+   22271,
+   22282
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22271",
+  "ledger": [
+   {
+    "src": "L22282",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A carved token unlike any village design appears in a fishing net.",
+  "cast_only": [
+   "musician",
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carved token unlike any village design appears in a fishing net.",
+   "src": "L22272",
+   "choices": [
+    {
+     "label": "Interpret it as an invitation.",
+     "next": "a",
+     "src": "L22273"
+    },
+    {
+     "label": "Interpret it as a warning.",
+     "next": "b",
+     "src": "L22276"
+    },
+    {
+     "label": "Keep multiple explanations.",
+     "next": "c",
+     "src": "L22279"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A musician writes a welcoming song for imagined visitors.",
+   "src": "L22274"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "No response ever comes, and the token remains unexplained.",
+   "src": "L22275"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village watches the coast more closely.",
+   "src": "L22277"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A researcher points out that the token may be driftwood art.",
+   "src": "L22278"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The catalogue records competing interpretations.",
+   "src": "L22280"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Future generations continue arguing about its meaning.",
+   "src": "L22281"
+  }
+ }
+}

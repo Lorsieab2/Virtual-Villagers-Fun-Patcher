@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pebble Shrine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf13_pebble_shrine",
+  "source": "draft_blf",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-11 and an adult)"
+   }
+  ],
+  "description": "A child has built a little pebble shrine for whoever might be listening: ask to leave something too, or leave it be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has built a little shrine at the edge of the garden: a pile of pebbles, a shell on top, a flower and a feather. (subject.He/she) visits it every day and tells it things. (friend) asks (subject.him/her) what it's for. (subject) thinks hard. \"It's for whoever,\" (subject.he/she) says. \"In case someone's listening.\"",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Ask If (friend.he/she) Can Leave Something",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Leave It Be",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Can I leave something too?\" asks (friend). (subject) considers this very seriously. \"You can leave a shell,\" (subject.he/she) says. (friend) finds a shell and adds it to the pile. (subject) inspects it and moves it slightly to the left. \"There,\" (subject.he/she) says, satisfied. (friend) visits the shrine sometimes after that. (friend.He/she) isn't sure why. It just feels nice.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) nods. \"That sounds like a good shrine.\" (friend.He/she) leaves (subject) to it. Over the next weeks, (friend.he/she) notices the shrine growing: more shells, a little carved fish, a bird's egg \\(empty\\). Whatever (subject) believes, (subject.he/she) believes it with great care. That seems like the important part.",
+   "src": "L161"
+  }
+ }
+}

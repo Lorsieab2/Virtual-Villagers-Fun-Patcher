@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "All These Years, and We Never Asked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf23_all_these_years",
+  "source": "draft_blf",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults or elders who are partners (where the game records it)"
+   }
+  ],
+  "description": "A couple together for years realize they have never asked whether the other believes: talk about it, or laugh and leave it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for a very long time. Tonight, out of nowhere, (friend) asks, \"Do you believe in the spirits?\" They both realize they've never actually talked about it. (subject) thinks. \"Not really. Do you?\" \"Yes,\" says (friend). \"Always have.\" There is a pause.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Talk About It",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Laugh and Leave It",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They talk late into the night. (friend) explains what (friend.he/she) believes. (subject) explains why (subject.he/she) doesn't. They don't change each other's minds. They don't try. At the end (subject) says, \"How did we never talk about this?\" \"It never got in the way,\" says (friend). They go to bed exactly as close as before. Maybe a little closer.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They both start laughing. \"All this time!\" \"It never came up!\" \"It clearly never mattered!\" They leave it there. Over the next few weeks they notice the little things they never noticed before: (friend)'s quiet words at meals, (subject)'s silence at the same moments. Neither of them minds. They just see each other a little more clearly.",
+   "src": "L281"
+  }
+ }
+}

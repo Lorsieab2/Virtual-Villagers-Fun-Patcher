@@ -1,0 +1,69 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Care of Heirlooms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm35_care_heirlooms",
+  "source": "openq97",
+  "lines": [
+   643,
+   645
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L644",
+  "ledger": [
+   {
+    "src": "L643",
+    "kind": "structural",
+    "text": "[M35]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L645",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L643",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A young villager learns that inheriting an object also means caring for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), a young villager, learns that inheriting an object also means caring for it. The young villager checks the wrapping for wear. The elder shows where it should be kept dry.",
+   "src": "L643,L645"
+  }
+ }
+}

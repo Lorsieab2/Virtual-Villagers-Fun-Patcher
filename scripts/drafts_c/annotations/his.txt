@@ -1,0 +1,272 @@
+HIS-01
+DESC: A teen asks why every song of the dry-season festival is about rain, and the elder has no idea: ask around, or hold a rain dance.
+ROLES: name1=55+ name2=14-17
+REVIEW: ok
+
+HIS-02
+DESC: An elder quotes the Old Fisher for everything, though half the sayings contradict each other: point it out, or make up a new one.
+ROLES: name1=55+ name2=18-25
+REVIEW: ok
+
+HIS-03
+DESC: High in the forest two villagers find old garden terraces nobody ever mentioned: clear one terrace, or leave it as it is.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-04
+DESC: A name on the canoe-landing post was scratched out and carved again beside it: ask an elder what it means, or leave it alone.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+HIS-05
+DESC: A villager must lead the long, terrible Song of the First Canoe this year: sing it exactly as written, or suggest changing it.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-06
+DESC: In old hearths deep in the forest, a villager and a child find a tiny clay bowl: take it home, or put it back.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+HIS-07
+DESC: An elder goes quiet on seeing a teen use the cliff path nobody takes: ask why, or let it be.
+ROLES: name1=55+ name2=14-17
+FIX O2: 2=2 3=2
+REVIEW: ok (an old loss is only implied)
+
+HIS-08
+DESC: A child asks an elder why the fires facing the sea are covered every night: tell the older reason, or say it is just what we do.
+ROLES: name1=55+ name2=6-13
+REVIEW: ok (an old danger is only implied)
+
+HIS-09
+DESC: At a child's naming day, an elder tells how their people came across the sea with nothing: tell it as always, or take questions.
+ROLES: name1=55+ name2=6-13
+FIX O1: 3=1
+REVIEW: ok (displacement is only implied; the place left is unnamed)
+
+HIS-10
+DESC: In the evening light a villager sees an older face beneath the hero carving at the gate: tell people, or keep it between you.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=s
+REVIEW: ok
+
+HIS-11
+DESC: A child suffers through the plain boiled root eaten before the harvest feast: explain why, or let them grumble.
+ROLES: name1=18+ name2=5-13
+REVIEW: ok
+
+HIS-12
+DESC: Two villagers each insist their way of tying the wedding knot is the old way: ask an elder, or let the couple choose.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O1: "They go to the oldest villager they can find. The old villager looks" => "They go to [e], the oldest villager they can find. [e] looks"
+REVIEW: ok
+
+HIS-13
+DESC: A young villager asks what an elder's lullaby in a lost language means: admit nobody knows, or tell the little that is left.
+ROLES: name1=55+ name2=18-25
+REVIEW: ok
+
+HIS-14
+DESC: A child asks about the one gap in the row of remembering stones: share theories, or leave the gap alone.
+ROLES: name1=18+ name2=6-13
+REVIEW: ok
+
+HIS-15
+DESC: The council asks two villagers to name the year, which has no name yet: suggest something dignified, or go straight for the pig.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-16
+DESC: An elder laughs at a villager's ancient pendant, having watched it carved as a child: ask for the story, or keep the legend going.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+HIS-17
+DESC: Old hidden carvings show the storm hero was a quiet old woman with no name in the songs: tell the village, or ask an elder.
+ROLES: name1=55+ name2=18+
+REVIEW: ok
+
+HIS-18
+DESC: A carver has always wanted to finish the half-carved log behind the meeting hut: finish it, or leave it unfinished.
+ROLES: name1=18+ name2=55+
+REVIEW: ok
+
+HIS-19
+DESC: A child brings flowers to an old grave with no name, and an elder follows: ask who it is, or leave the flowers quietly.
+ROLES: name1=5-13 name2=55+
+REVIEW: ok
+
+HIS-20
+DESC: Digging a pit, a villager finds a rotted bag of drilled trading shells: try to work out the story, or restring them.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-21
+DESC: An elder hears children tell an old sad story with a happy new ending: tell them the old ending, or let the new one be.
+ROLES: name1=55+ name2=5-13
+REVIEW: ok
+
+HIS-22
+DESC: An elder asks children to climb off the stone with two carved handprints: tell what it means, or let them keep climbing.
+ROLES: name1=55+ name2=6-13
+REVIEW: ok (an old conflict and its peace are only implied)
+
+HIS-23
+DESC: Two villagers find an old, empty settlement left neat, every door tied shut: untie one door, or leave every door tied.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-24
+DESC: Everyone says the founders' Old Stew is delicious, and a villager tips theirs into a bush: admit it, or keep up the tradition.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-25
+DESC: A teen asks an elder for the grown-up version of the story of the Long Walk Inland: tell them, or ask them to wait.
+ROLES: name1=55+ name2=14-17
+FIX L1: 1=2
+FIX L2: 1=2
+REVIEW: ok (an old danger is only implied)
+
+HIS-26
+DESC: On the yearly quiet day, a small child whispers how much longer: explain it simply, or go for a quiet walk.
+ROLES: name1=18+ name2=5-12
+FIX O2: 2=1
+REVIEW: ok (an old sickness is only remembered)
+
+HIS-27
+DESC: In the oldest storehouse two villagers find old notched tally sticks: work them out together, or ask the oldest villager.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O2: "The oldest villager squints" => "[e], the oldest villager, squints"
+EDIT O2: "says the elder." => "says [e]."
+REVIEW: ok
+
+HIS-28
+DESC: A young villager realizes nobody knows why Isola's oldest joke is funny: ask an elder, or work out what the tall one was.
+ROLES: name1=55+ name2=18-25
+FIG: e=elder:55+
+EDIT O2: "asks the oldest villager, who laughs" => "asks [e], the oldest villager, who laughs"
+REVIEW: ok
+
+HIS-29
+DESC: Lunching on the huge carved stone the ancestors left resting halfway up the hill: try to finish the job, or leave it to rest.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-30
+DESC: At very low tide a villager sees an old wall of fitted stones under the water: wade out and look, or watch from the beach.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-31
+DESC: The Turtle Dance has long been danced around an empty space, and a villager asks to learn that part: teach it, or keep the space.
+ROLES: name1=18+ name2=18+
+FIX L1: 1=2
+REVIEW: ok
+
+HIS-32
+DESC: A villager finds old wax-sealed seeds unlike any grown on Isola: plant them, or keep them as they are.
+ROLES: name1=18+ name2=55+
+FIX O1: 1=1
+REVIEW: ok
+
+HIS-33
+DESC: A child wants to add a handprint to the old red handprints in the cave: let them add one, or keep the cave as it is.
+ROLES: name1=18+ name2=6-13
+FIX O1: 2=2
+REVIEW: ok
+
+HIS-34
+DESC: A villager from the shore huts and one from the hill huts meet at the best fishing spot at noon: ask why, or keep the old ways.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-35
+DESC: A child asks why an elder always keeps a packed bundle by the door: tell them why, or say it is just a habit.
+ROLES: name1=55+ name2=5-12
+FIX L1: 1=2
+FIX O2: 1=2
+REVIEW: ok (an old flight is only implied)
+
+HIS-36
+DESC: A child asks an elder about the one leader on the carved post with no story at all: tell what you know, or make up a story.
+ROLES: name1=55+ name2=6-13
+REVIEW: ok (the notes ask for the game's word for the leader; the text says "leader", never "chief", so it reads right in every game as written)
+
+HIS-37
+DESC: The rains have uncovered old bones in the stream bank: study them and rebury them, or cover them again now.
+ROLES: name1=18+ name2=55+
+FIX O2: 1=1
+REVIEW: ok (an ancient burial; nobody dies)
+
+HIS-38
+DESC: A young villager plans a hut below the old flood line on the cliff: build above the line, or below with an escape path.
+ROLES: name1=55+ name2=18-25
+REVIEW: ok
+
+HIS-39
+DESC: A villager asks whether the nine places in the canoe-builders' star chant are real: say they are real, or say nobody knows.
+ROLES: name1=18+ name2=55+
+REVIEW: ok
+
+HIS-40
+DESC: A young healer finds an old remedy on the healers' boards known to make burns worse: scratch it out, or leave it with a warning.
+ROLES: name1=18-25 name2=55+
+REVIEW: ok
+
+HIS-41
+DESC: The lucky carved figure's nose is nearly rubbed away: suggest rubbing something else, or let the nose go.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-42
+DESC: A child asks why couples hop at every wedding: tell the official reason, or ask what the child thinks.
+ROLES: name1=18+ name2=5-12
+FIX L1: 1=2
+FIG: e=elder:55+
+EDIT O1: "Then an elder sitting nearby snorts." => "Then [e], an elder sitting nearby, snorts."
+EDIT O1: "the elder says" => "[e] says"
+REVIEW: ok
+
+HIS-43
+DESC: An elder who was there laughs as a child sings the song of the Great Rescue: tell what really happened, or let the song stand.
+ROLES: name1=55+ name2=5-13
+REVIEW: ok
+
+HIS-44
+DESC: An elder brings a young villager to hang their first fishhook on the old wall of hooks: hang it with a story, or quietly.
+ROLES: name1=55+ name2=18-25
+REVIEW: ok
+
+HIS-45
+DESC: Nobody can make the old shiny black pots anymore, and a villager decides to try: keep experimenting, or give up gracefully.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-46
+DESC: An elder climbs to the children's cliff fort and knows it was once a hiding place: tell the children, or just let them play.
+ROLES: name1=55+ name2=6-13
+REVIEW: ok (an old danger is only implied)
+
+HIS-47
+DESC: A villager learns the builder of the first meeting hut cut down the sacred grove: talk about both sides, or keep the story.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+HIS-48
+DESC: A child cast as the First Fire in the founding play wants a bigger part: give them a bigger part, or explain why the fire matters.
+ROLES: name1=18+ name2=5-13
+REVIEW: ok
+
+HIS-49
+DESC: An elder calls a teen canoe-sharer, the old word for friend, and neither knows the other's word: explain yours, or ask theirs.
+ROLES: name1=55+ name2=14-17
+REVIEW: ok
+
+HIS-50
+DESC: Digging a hole for fun, a child finds layers of old fires, shells and a red bead, then adds their own layer.
+ROLES: name1=6-13
+REVIEW: ok

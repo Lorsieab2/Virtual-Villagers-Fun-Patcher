@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sea Urchins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea45_sea_urchins",
+  "source": "draft_fea",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager gathering seaweed freezes, sure they will step on a sea urchin: borrow thick sandals, or gather from the sand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The rocks at low tide are full of sea urchins, black and spiky and sitting very still in the pools. (subject) is supposed to be gathering seaweed among them, and (subject.he/she) is frozen on a rock, absolutely sure (subject.he/she) is about to step on one. Everyone else is hopping about quite happily. (friend) is watching.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Ask to Borrow Thick Sandals",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Gather from the Sand Instead",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) has thick bark sandals, and lends them. With the sandals on, (subject) is still nervous, but (subject.he/she) can move. (subject.He/she) watches every step and gathers less seaweed than anyone else. Nobody minds. At the end of the day (subject) hasn't stepped on a single urchin. Neither has anyone else.",
+   "src": "L542"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) climbs off the rocks and gathers the seaweed that has washed up on the sand. It's not as good, and there's less of it. But (subject.his/her) heart has stopped pounding. \"Good thinking,\" says (friend), dropping a load of rock seaweed beside (subject.him/her). \"Someone needs to get the sand bits.\" (subject) isn't sure that's true. It's kind.",
+   "src": "L545"
+  }
+ }
+}

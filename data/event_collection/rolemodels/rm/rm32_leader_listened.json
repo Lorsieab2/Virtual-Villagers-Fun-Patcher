@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Who Listened",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm32_leader_listened",
+  "source": "rolemodels",
+  "lines": [
+   67,
+   67
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L67",
+  "ledger": [
+   {
+    "src": "L67",
+    "kind": "structural",
+    "text": "EVENT RM-32  -  THE LEADER WHO LISTENED SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A village leader proposes changing the work schedule, but several villagers worry about their family responsibilities.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A village leader proposes changing the work schedule, but several villagers worry that the new hours will interfere with family responsibilities.",
+   "src": "L67",
+   "choices": [
+    {
+     "label": "Invite Those Affected to Explain Their Concerns.",
+     "next": "a",
+     "src": "L67"
+    },
+    {
+     "label": "Try the Schedule for a Short Period.",
+     "next": "b",
+     "src": "L67"
+    },
+    {
+     "label": "Ask Workers to Propose Alternatives.",
+     "next": "c",
+     "src": "L67"
+    },
+    {
+     "label": "Keep the Existing Schedule Until a Better Plan Is Ready.",
+     "next": "d",
+     "src": "L67"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The leader discovers a practical adjustment that had not been considered.",
+   "src": "L67"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The concerns conflict, and the group agrees that further discussion is necessary.",
+   "src": "L67"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The trial reveals which tasks benefit from the change.",
+   "src": "L67"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several families struggle with the arrangement, and the leader restores the earlier hours.",
+   "src": "L67"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A quiet farmer suggests a compromise that accommodates most households.",
+   "src": "L67"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "No single proposal satisfies everyone, but the discussion clarifies the tradeoffs.",
+   "src": "L67"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villagers appreciate being given time to consider the change.",
+   "src": "L67"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some work remains inconvenient, and the leader acknowledges the unresolved problem.",
+   "src": "L67"
+  }
+ }
+}

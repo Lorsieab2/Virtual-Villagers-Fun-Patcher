@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Asks the Young",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv29_elder_asks_young",
+  "source": "draft_adv",
+  "lines": [
+   338,
+   347
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L338",
+  "ledger": [
+   {
+    "src": "L339",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   },
+   {
+    "src": "L344",
+    "kind": "instruction",
+    "text": "[effect: (name2) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An elder asks a teen to teach a new knucklebones game without being polite: teach properly, or go easy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has watched the young villagers playing a new game with knucklebones that (subject.he/she) doesn't understand at all. Today (subject.he/she) sits down next to (friend) and says, \"Teach me. And tell me if I'm doing it wrong. Don't be polite about it.\"",
+   "src": "L341",
+   "choices": [
+    {
+     "label": "Teach (subject.him/her) Properly",
+     "next": "o1",
+     "src": "L343"
+    },
+    {
+     "label": "Go Easy on (subject.him/her)",
+     "next": "o2",
+     "src": "L346"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) teaches (subject.him/her) properly. (subject) is terrible. (friend) tells (subject.him/her) so. (subject) laughs and tries again. By the end of the afternoon (subject) can play, badly. \"You're a better teacher than half the elders,\" (subject) says. (friend) goes very pink.",
+   "src": "L344",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "friend",
+     "src": "L344"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) goes easy, letting (subject) win a few rounds. (subject) notices immediately. \"I said don't be polite!\" (friend) grins and stops being polite. (subject) loses every game for the rest of the afternoon, and enjoys every one of them.",
+   "src": "L347"
+  }
+ }
+}

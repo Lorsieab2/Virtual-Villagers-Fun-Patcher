@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancient Arrowheads",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm16_ancient",
+  "source": "armor45",
+  "lines": [
+   24,
+   24
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L24",
+  "ledger": [
+   {
+    "src": "L24",
+    "kind": "structural",
+    "text": "16. The Ancient Arrowheads  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Weathered arrowheads are uncovered. Scholars disagree about whether they were used for hunting, defense, or ceremony.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Weathered arrowheads are uncovered. Scholars disagree about whether they were used for hunting, defense, or ceremony.",
+   "src": "L24"
+  }
+ }
+}

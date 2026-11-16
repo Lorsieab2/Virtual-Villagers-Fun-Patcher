@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Value of a Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz065_value_day",
+  "source": "horizon",
+  "lines": [
+   875,
+   885
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L875",
+  "ledger": [],
+  "description": "A fisher asks whether distant people count every hour of work and sell their time for tokens.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher asks whether distant people count every hour of work and sell their time for tokens.",
+   "src": "L876",
+   "choices": [
+    {
+     "label": "Imagine Regular Wages.",
+     "next": "a",
+     "src": "L877"
+    },
+    {
+     "label": "Imagine Unfairness.",
+     "next": "b",
+     "src": "L880"
+    },
+    {
+     "label": "Compare Isolan Duties.",
+     "next": "c",
+     "src": "L883"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A young worker likes the possibility of predictable pay.",
+   "src": "L878"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder wonders who decides what care work is worth.",
+   "src": "L879"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council imagines exhausting shifts and little rest.",
+   "src": "L881"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A craftsperson asks whether people could refuse dangerous work.",
+   "src": "L882"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers discuss shared harvests, barter, and personal obligations without pretending their own system is perfect.",
+   "src": "L884"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A parent notes that unpaid household labor is still labor.",
+   "src": "L885"
+  }
+ }
+}

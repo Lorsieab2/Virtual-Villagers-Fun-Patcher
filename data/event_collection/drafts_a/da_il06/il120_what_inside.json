@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Inside a Stone?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il120_what_inside",
+  "source": "da_il06",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child wants to know what is inside an ordinary round stone: crack it open, or keep the mystery.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has picked up an ordinary round stone and is thinking very hard about what's inside it. More stone, probably. But what if it's something else? What if every stone is hiding something, and nobody has ever looked? (subject.He/She) brings it to (friend) and asks for help opening it.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Help Crack It Open",
+     "next": "a",
+     "src": "L229"
+    },
+    {
+     "label": "Suggest Keeping the Mystery",
+     "next": "b",
+     "src": "L232"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) taps it carefully against a bigger rock until it splits. Inside it's just more stone, grey all the way through, but there's a thin line of sparkly bits running down the middle, glittering in the sun. (subject) gasps as though it's treasure. To (subject.him/her), it is. (subject.He/She) sleeps with half of it under (subject.his/her) pillow.",
+   "src": "L230"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"If we open it,\" says (friend), \"we'll know. If we don't, it could be anything.\" (subject) thinks about this very seriously. Then (subject.he/she) puts the stone in (subject.his/her) pocket, unopened. For the next week, (subject.he/she) tells everyone (subject.he/she) has a stone that could be anything inside. Nobody can prove (subject.him/her) wrong.",
+   "src": "L233"
+  }
+ }
+}

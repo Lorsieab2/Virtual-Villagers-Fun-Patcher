@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jewel With a Hidden Compartment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss026_jewel_hidden",
+  "source": "companion",
+  "lines": [
+   6327,
+   6335
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6327",
+  "ledger": [
+   {
+    "src": "L6335",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A jeweler finds a locket holding a tiny map drawn by an unknown hand.",
+  "cast_only": [
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A jeweler discovers a locket containing a tiny map drawn by an unknown hand.",
+   "src": "L6328",
+   "choices": [
+    {
+     "label": "Follow the map locally",
+     "next": "a",
+     "src": "L6329"
+    },
+    {
+     "label": "Ask historians to examine it",
+     "next": "b",
+     "src": "L6331"
+    },
+    {
+     "label": "Return it to the family",
+     "next": "c",
+     "src": "L6333"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "It leads to an old storage niche and a mundane but moving family record.",
+   "src": "L6330"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Several competing interpretations emerge, none conclusive.",
+   "src": "L6332"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The family chooses privacy; rumors about buried treasure continue.",
+   "src": "L6334"
+  }
+ }
+}

@@ -504,6 +504,11 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
          "the moment it is picked up -- its food and Mushrooms Found, once -- even if the villager is moved or "
          "stops before the food store (in the normal game it counts only at the food store).", C),
+        # The drop's adult call 0x425168: area 0x21 -> the Confused action 0x440040 and the message bar
+        # (data/builds.json vv1_adult_confused: "VVFP Adult Confused.dll").
+        ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "
+         "14 or more dropped on a mushroom does the game's own Confused action and the message bar says \"Only "
+         "children can see and pick up mushrooms.\" (in the normal game the grown-up just stands there).", C),
     )),
     Entry(ITEM, "Collectibles", (
         ("A New Home has none.", E),

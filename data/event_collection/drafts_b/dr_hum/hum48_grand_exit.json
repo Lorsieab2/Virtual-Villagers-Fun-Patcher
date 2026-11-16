@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grand Exit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum48_grand_exit",
+  "source": "draft_hum",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager loses at stones again, storms off grandly and walks into the doorpost: keep walking, or laugh at yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just lost (subject.his/her) fourth game of stones in a row to (friend), and decides the moment calls for a dramatic exit. (subject.He/she) stands up, announces, \"I am finished with this game forever,\" turns grandly on (subject.his/her) heel, and walks straight into the doorpost. Not hard. Just with a firm \"bonk.\"",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Keep Walking",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Laugh at Yourself",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) steps sideways round the doorpost, as though it was part of the plan all along, and walks out with great dignity. A moment later (subject.he/she) comes back in. \"One more game.\" (friend) sets out the stones without a word. (subject) wins. Neither of them ever mentions the doorpost.",
+   "src": "L578"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) stands there rubbing (subject.his/her) forehead, and then starts to laugh. So does (friend). They try to set up another game, but can't stop laughing long enough to play it. \"Forever,\" says (friend), every few minutes, for the rest of the evening.",
+   "src": "L581"
+  }
+ }
+}

@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Picture Caught in an Instant",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz121_picture_caught",
+  "source": "draft_hz2",
+  "lines": [
+   498,
+   508
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching an artist paint slowly, a child wonders whether distant people might catch a picture in an instant.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching an artist paint slowly, (name1), a child, wonders whether distant people might capture a picture in a single moment, as if catching a reflection.",
+   "src": "L499",
+   "choices": [
+    {
+     "label": "Imagine Instant Pictures.",
+     "next": "a",
+     "src": "L500"
+    },
+    {
+     "label": "Imagine Slow Art.",
+     "next": "b",
+     "src": "L503"
+    },
+    {
+     "label": "Ask What a Picture Is For.",
+     "next": "c",
+     "src": "L506"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children imagine pictures of every day, every meal and every smile.",
+   "src": "L501"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder wonders whether so many pictures would make each one feel less special.",
+   "src": "L502"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The artist says the slow making is part of the joy.",
+   "src": "L504"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar suggests both kinds might exist side by side.",
+   "src": "L505"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees that pictures help people remember.",
+   "src": "L507"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager says some memories are better kept only in the mind.",
+   "src": "L508"
+  }
+ }
+}

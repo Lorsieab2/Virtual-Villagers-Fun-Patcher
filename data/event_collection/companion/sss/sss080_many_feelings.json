@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day of Too Many Feelings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss080_many_feelings",
+  "source": "companion",
+  "lines": [
+   6895,
+   6903
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6895",
+  "ledger": [
+   {
+    "src": "L6903",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A normally patient teen bursts into tears after several small frustrations.",
+  "cast_only": [
+   "teen",
+   "sibling"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "sibling": {
+   "kind": "villager",
+   "min_age": 14,
+   "relation": {
+    "sibling_of": "teen"
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A normally patient teen bursts into tears after several small frustrations.",
+   "src": "L6896",
+   "choices": [
+    {
+     "label": "Give them room to settle",
+     "next": "a",
+     "src": "L6897"
+    },
+    {
+     "label": "Ask whether they want company",
+     "next": "b",
+     "src": "L6899"
+    },
+    {
+     "label": "Demand an explanation immediately",
+     "next": "c",
+     "src": "L6901"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They return later and explain what built up.",
+   "src": "L6898"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A sibling sits nearby without interrogating them.",
+   "src": "L6900"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The argument worsens; both later repair it.",
+   "src": "L6902"
+  }
+ }
+}

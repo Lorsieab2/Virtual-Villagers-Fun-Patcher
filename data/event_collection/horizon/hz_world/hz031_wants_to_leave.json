@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Wants to Leave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz031_wants_to_leave",
+  "source": "horizon",
+  "lines": [
+   401,
+   411
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L401",
+  "ledger": [],
+  "description": "A teenager wonders whether a distant city might offer opportunities unavailable on Isola.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teenager wonders whether a distant city might offer opportunities unavailable on Isola - and whether leaving would mean abandoning family.",
+   "src": "L402",
+   "choices": [
+    {
+     "label": "Encourage Exploration.",
+     "next": "a",
+     "src": "L403"
+    },
+    {
+     "label": "Encourage Roots.",
+     "next": "b",
+     "src": "L406"
+    },
+    {
+     "label": "Discuss Both Desires.",
+     "next": "c",
+     "src": "L409"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The teenager begins studying navigation and languages, though no voyage is promised.",
+   "src": "L404"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent worries about distance and danger; they agree to keep talking.",
+   "src": "L405"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A mentor helps the teenager discover unfamiliar work within the village.",
+   "src": "L407"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The teenager feels unheard and withdraws; the mentor later apologizes.",
+   "src": "L408"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family imagines travel and return as possibilities rather than opposites.",
+   "src": "L410"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They acknowledge that some departures are permanent and cannot be made painless by optimism.",
+   "src": "L411"
+  }
+ }
+}

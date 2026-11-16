@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tangled Blessing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum19_tangled_blessing",
+  "source": "draft_hum",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder tangles the words of the first catch blessing: laugh first, or start again with dignity.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the little gathering for the first catch of the season, (name1) stands up to say the traditional words: \"May your nets be full and your fish be fat.\" What (he/she) actually says, with great solemnity, is: \"May your fish be full and your nets be fat.\" A pause. (He/she) tries again. \"May your fats be... nish...\"",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Laugh First",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Start Again with Dignity",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) laughs before anyone else can, a big warm laugh, and everyone joins in. \"Fat nets,\" (he/she) says, wiping (his/her) eyes. \"Why not?\" That season the fishers call their nets \"the fat ones.\" The catch is good, whether or not the words had anything to do with it.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) closes (his/her) eyes, takes a deep breath, and says the words perfectly, slowly, every one in its place. Then (he/she) sits down. Then, very quietly, to nobody in particular, (he/she) says, \"Fat nets,\" and the people sitting nearest shake with silent laughter for the rest of the gathering.",
+   "src": "L233"
+  }
+ }
+}

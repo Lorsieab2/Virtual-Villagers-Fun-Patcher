@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everything Tastes Good Today",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day01_everything",
+  "source": "draft_day",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Everything a villager eats today tastes wonderful, even a plain root: share some with a friend, or keep it to yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There is no reason for it, but today everything (subject) eats is delicious. Breakfast: the best coconut of (subject.his/her) life. The water from the stream: sweet and cold. A handful of nuts at midday: outstanding. (subject.He/she) is now standing at the cooking fire, holding a plain piece of roasted root, looking at it with wonder. (friend) asks what's wrong.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Share Some with (friend)",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Taste this,\" says (subject). (friend) tastes it. \"It's a root.\" \"I know,\" says (subject). \"Isn't it wonderful?\" (friend) tastes it again, more carefully. \"It's a perfectly normal root.\" (subject) is not discouraged in the least. (subject.He/she) eats the rest with enormous pleasure, while (friend) watches, baffled.",
+   "src": "L14"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing and eats the root slowly, savoring every bite. It's a plain root. It's also, today, a feast. (subject.He/she) doesn't know why today is like this. (subject.He/she) doesn't care. By dinner, the fish is so good (subject.he/she) has to close (subject.his/her) eyes. Tomorrow, probably, food will just be food again.",
+   "src": "L17",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L17"
+    }
+   ]
+  }
+ }
+}

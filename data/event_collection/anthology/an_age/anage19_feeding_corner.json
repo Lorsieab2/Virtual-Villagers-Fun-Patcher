@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Feeding Corner",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage19_feeding_corner",
+  "source": "anthology",
+  "lines": [
+   30413,
+   30427
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30413",
+  "ledger": [
+   {
+    "src": "L30414",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30413",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30415",
+    "kind": "sensitivity",
+    "before": "A nursing mother",
+    "after": "(mother), a nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30423",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30427",
+    "kind": "sensitivity",
+    "before": "The mother",
+    "after": "(mother)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A nursing mother wants somewhere comfortable to feed her baby without being separated from village life.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(mother), a nursing mother, wants somewhere comfortable to feed her baby without being separated from village life.",
+   "src": "L30415",
+   "choices": [
+    {
+     "label": "Create an Optional Shaded Corner",
+     "next": "a",
+     "src": "L30416"
+    },
+    {
+     "label": "Ask What Comfort Means to Her",
+     "next": "b",
+     "src": "L30419"
+    },
+    {
+     "label": "Invite Other Caregivers to Contribute",
+     "next": "c",
+     "src": "L30422"
+    },
+    {
+     "label": "Leave the Arrangement Flexible",
+     "next": "d",
+     "src": "L30425"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "She enjoys the choice of privacy while remaining near friends.",
+   "src": "L30417"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "She prefers feeding among the group, and everyone respects that too.",
+   "src": "L30418"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "She requests water and a supportive seat rather than a separate area.",
+   "src": "L30420"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "She asks for a hammock nearby for rest, with a safe separate sleep space for the baby.",
+   "src": "L30421"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) weaves a screen that can be moved as needed.",
+   "src": "L30423"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group offers too many suggestions, and she gently asks them to listen first.",
+   "src": "L30424"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The corner becomes useful to several caregivers with different preferences.",
+   "src": "L30426"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(mother) changes her mind from day to day without anyone treating it as a problem.",
+   "src": "L30427"
+  }
+ }
+}

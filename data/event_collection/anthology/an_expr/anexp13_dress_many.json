@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dress of Many Lives",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp13_dress_many",
+  "source": "anthology",
+  "lines": [
+   31440,
+   31454
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31440",
+  "ledger": [
+   {
+    "src": "L31441",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31442",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31444",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31445",
+    "kind": "sensitivity",
+    "before": "The owner",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31447",
+    "kind": "sensitivity",
+    "before": "The maker",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31448",
+    "kind": "sensitivity",
+    "before": "The maker",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31450",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31451",
+    "kind": "sensitivity",
+    "before": "The wearer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31454",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager wants to remake an old ceremonial garment into everyday clothing.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "helper",
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) wants to remake an old ceremonial garment into everyday clothing.",
+   "src": "L31442",
+   "choices": [
+    {
+     "label": "Ask Its Owner",
+     "next": "a",
+     "src": "L31443"
+    },
+    {
+     "label": "Consult the Maker",
+     "next": "b",
+     "src": "L31446"
+    },
+    {
+     "label": "Design a New Style",
+     "next": "c",
+     "src": "L31449"
+    },
+    {
+     "label": "Share Its Story",
+     "next": "d",
+     "src": "L31452"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(helper) gives enthusiastic permission.",
+   "src": "L31444"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(helper) requests that a meaningful piece remain intact.",
+   "src": "L31445"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(helper) suggests a reversible alteration.",
+   "src": "L31447"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(helper) admits the cloth is too fragile.",
+   "src": "L31448"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(teen) creates a striking practical outfit.",
+   "src": "L31450"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) chooses comfort over spectacle.",
+   "src": "L31451"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The garment inspires a reuse workshop.",
+   "src": "L31453"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(helper) asks that the family history be told accurately.",
+   "src": "L31454"
+  }
+ }
+}

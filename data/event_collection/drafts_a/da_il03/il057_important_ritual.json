@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Important Ritual",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il057_important_ritual",
+  "source": "da_il03",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L191",
+    "kind": "casting",
+    "before": "Today, a visitor from another village notices",
+    "after": "Today, (visitor), a visitor from another village, notices",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L194",
+    "kind": "casting",
+    "before": "The visitor nods",
+    "after": "(visitor) nods",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L197",
+    "kind": "casting",
+    "before": "The visitor thinks",
+    "after": "(visitor) thinks",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A visitor asks why a villager taps their bowl three times before every meal: make something up, or tell the truth.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  },
+  "visitor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Before every meal, (subject) taps the edge of (subject.his/her) bowl three times. (subject.He/She) started doing it as a small child and has no idea why. Today, (visitor), a visitor from another village, notices and asks what it means.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Make Something Up",
+     "next": "a",
+     "src": "L193"
+    },
+    {
+     "label": "Tell the Truth",
+     "next": "b",
+     "src": "L196"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"It's to let the food know it's about to be eaten,\" says (subject) solemnly. \"Out of respect.\" (visitor) nods slowly and taps (visitor.his/her) own bowl three times. By the end of the meal, half the table is doing it. (subject) has started a tradition by accident.",
+   "src": "L194",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L194"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I don't actually know,\" (subject) admits. \"I just always have.\" (visitor) thinks about this. \"I always put my left sandal on first,\" (visitor.he/she) confesses. \"Every single day.\" They look at each other with deep understanding.",
+   "src": "L197"
+  }
+ }
+}

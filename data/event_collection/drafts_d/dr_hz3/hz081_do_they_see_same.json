@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do They See the Same Moon?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz081_do_they_see_same",
+  "source": "draft_hz2",
+  "lines": [
+   17,
+   27
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L17",
+  "ledger": [
+   {
+    "src": "L18",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "On a clear night, a child asks whether people on the far side of the sea are looking at the same moon right now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On a clear night, (name1), a child, asks whether people on the far side of the sea are looking at the same moon right now.",
+   "src": "L18",
+   "choices": [
+    {
+     "label": "Imagine the Same Moon.",
+     "next": "a",
+     "src": "L19"
+    },
+    {
+     "label": "Imagine a Different Sky.",
+     "next": "b",
+     "src": "L22"
+    },
+    {
+     "label": "Ask What They Might Feel Looking Up.",
+     "next": "c",
+     "src": "L25"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An elder says that if anyone is out there, the moon would be the one thing everyone shares; the child waves at it, just in case.",
+   "src": "L20"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A navigator points out that it might be daytime somewhere else, and the child is astonished that the moon could be \"taking turns.\"",
+   "src": "L21"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether distant lands might see different stars; the idea makes the night feel larger.",
+   "src": "L23"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic says there is no way to know, and the child decides to keep both ideas.",
+   "src": "L24"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent imagines a distant parent pointing at the moon for a sleepy child; the village falls quiet.",
+   "src": "L26"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A fisher says perhaps some people are too busy to look up at all, and everyone laughs because they know someone like that.",
+   "src": "L27"
+  }
+ }
+}

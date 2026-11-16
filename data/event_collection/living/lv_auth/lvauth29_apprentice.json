@@ -1,0 +1,178 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's Dangerous Discovery",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth29_apprentice",
+  "source": "living",
+  "lines": [
+   23779,
+   23793
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23779",
+  "ledger": [
+   {
+    "src": "L23793",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A novice discovers a powerful dye that stains cloth beautifully but irritates skin.",
+  "cast_only": [
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "wearer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A novice discovers a powerful dye that stains cloth beautifully but irritates skin.",
+   "src": "L23780",
+   "choices": [
+    {
+     "label": "Let the master decide its use.",
+     "next": "a",
+     "src": "L23781"
+    },
+    {
+     "label": "Let the apprentice present the evidence.",
+     "next": "b",
+     "src": "L23784"
+    },
+    {
+     "label": "Test it on materials, not people.",
+     "next": "c",
+     "src": "L23787"
+    },
+    {
+     "label": "Abandon the dye.",
+     "next": "d",
+     "src": "L23790"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The master finds a safe decorative purpose.",
+   "src": "L23782"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The master dismisses the risk and a wearer becomes ill.",
+   "src": "L23783",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "wearer",
+     "src": "L23783"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village restricts direct contact with the dye.",
+   "src": "L23785"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The novice's warnings are exaggerated, damaging trust.",
+   "src": "L23786"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The dyers find a useful application away from skin.",
+   "src": "L23788"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The dye ruins several valuable fabrics.",
+   "src": "L23789"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The village avoids further harm.",
+   "src": "L23791"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The apprentice mourns the loss of a promising discovery.",
+   "src": "L23792"
+  }
+ }
+}

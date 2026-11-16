@@ -1,0 +1,88 @@
+# EVENT-FAUNA-001..024: Animals of Fur, Feathers, Scales, Claws and Hooves.  Animals, their injuries and deaths are
+# story text; the ELIGIBILITY tag is the casting.
+FAU-001
+R villager 14+ @A2,C1 : impatient observer | naturalist
+
+FAU-002
+R villager 14+ @A1,D2 : knowledgeable villager | artist
+R child 3-13 @B2 : frightened child
+
+FAU-003
+R adult 18+ @A2,B1 : impatient worker | observer
+R child 3-13 @D1 : child
+
+FAU-004
+R caregiver 18+ @A2 : caregiver
+
+FAU-005
+R villager 14+ @A1,D2 : trained observer | fearful villager
+
+FAU-006
+R crafts 18+ : craftsperson | artist
+R child 3-13 @C2 : child
+
+FAU-007
+R child 3-13 @A2 : curious child
+R caretaker 14+ @B1 : capable caretaker
+
+FAU-008
+R child 3-13 @B1 : child
+R villager 14+ @B2,D2 : watcher | storyteller
+
+FAU-009
+R villager 14+ : villager
+R naturalist 14+ @B1 : naturalist
+R friend 14+ @D2 : friend
+E S: "a villager who once frightened it" => "[villager], who once frightened it"
+E D1: "The bird and villager avoid" => "The bird and [villager] avoid"
+
+FAU-010
+R listener 14+ @A2 : nervous listener
+R elder 55+ @D2 : elder
+
+FAU-011
+R child 3-13 @C1 : suspected child
+
+FAU-012
+R child 3-13 @A2 : child
+R villager 14+ @B2,C1 : villager | artist
+
+FAU-013
+R owner 14+ @A2 : owner
+
+FAU-014
+R tracker 14+ @B1 : experienced tracker
+R listener 14+ @D2 : listener
+
+FAU-015
+
+FAU-016
+R villager 14+ @B1,C1,D2 : worried villager | naturalist | builder
+
+FAU-017
+R explorer 3+ @B2 : disappointed explorer
+
+FAU-018
+R child1 3-13 :
+R child2 3-13 :
+E S: "Two children argue" => "[child1] and [child2], two children, argue"
+
+FAU-019
+R artist 14+ @D2 : artist
+
+FAU-020
+R caretaker 14+ @B1 : caretaker
+
+FAU-021
+R caretaker 14+ @A2,B1 : caretaker | knowledgeable keeper
+R child 3-13 @C1 : child
+R elder 55+ @D2 : elder
+
+FAU-022
+
+FAU-023
+R visitor stranger : visitor
+R listener 14+ @C2 : eager listener
+
+FAU-024
+R child 3-13 : child

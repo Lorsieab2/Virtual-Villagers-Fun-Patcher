@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Teen's Return",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss066_missing_teen",
+  "source": "companion",
+  "lines": [
+   6739,
+   6747
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6739",
+  "ledger": [
+   {
+    "src": "L6747",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teenager missing on a coastal outing returns exhausted after two nights.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teenager who vanished on a coastal outing returns exhausted after two nights, having sheltered from a storm.",
+   "src": "L6740",
+   "choices": [
+    {
+     "label": "Listen before judging",
+     "next": "a",
+     "src": "L6741"
+    },
+    {
+     "label": "Set fair consequences",
+     "next": "b",
+     "src": "L6743"
+    },
+    {
+     "label": "Give them time to recover",
+     "next": "c",
+     "src": "L6745"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a teenager who vanished",
+     "reason": "the teen has returned: nobody vanishes now",
+     "src": "L6740"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Their account reveals a dangerous gap in the village's trail markers.",
+   "src": "L6742"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The teen helps repair equipment and inform younger children about the risk.",
+   "src": "L6744"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The family postpones arguments; later conversations address fear, trust, and responsibility.",
+   "src": "L6746"
+  }
+ }
+}

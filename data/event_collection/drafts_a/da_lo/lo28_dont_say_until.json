@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Don't Say It Until It's in the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo28_dont_say_until",
+  "source": "da_lo",
+  "lines": [
+   333,
+   342
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L333",
+  "ledger": [
+   {
+    "src": "L334",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L342",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager hooks a huge fish, and a friend says they have got it before it is in the canoe.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has hooked something big. Really big. (subject.He/She) is pulling it slowly toward the canoe, and (friend) gasps, \"That's the biggest fish I've ever seen! We've got it!\" (subject) groans out loud. Everyone knows you never, ever say you've got it before it's in the canoe.",
+   "src": "L336",
+   "choices": [
+    {
+     "label": "Pull Harder",
+     "next": "a",
+     "src": "L338"
+    },
+    {
+     "label": "Hand (friend.him/her) the Line",
+     "next": "b",
+     "src": "L341"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) pulls with everything (subject.he/she) has. The fish fights. The canoe rocks. And then, just as it reaches the side, the line snaps and the fish is gone. (subject) stares at (friend). (friend) stares at the water. \"Was that me?\" (friend.he/she) whispers. \"Maybe,\" says (subject). \"Or the line was old.\" They never find out.",
+   "src": "L339"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"You said it,\" says (subject). \"You bring it in.\" (friend), terrified, takes the line, and with a great deal of splashing and shouting, hauls the fish into the canoe. It's enormous. They both collapse laughing. \"So it's not bad luck to say it?\" \"Apparently not. Or you were lucky.\"",
+   "src": "L342",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L342"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing collapses in the story (a tower of shells, a pile); no building is damaged",
+     "src": "L342"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Biggles and the Missing Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss035_biggles_missing",
+  "source": "companion",
+  "lines": [
+   6421,
+   6429
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6421",
+  "ledger": [
+   {
+    "src": "L6429",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child who got lost in the woods says Biggles pointed the way home.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child who got lost in the woods claims 'Biggles' pointed toward home. Their description changes whenever someone asks.",
+   "src": "L6422",
+   "choices": [
+    {
+     "label": "Focus on the child's safety",
+     "next": "a",
+     "src": "L6423"
+    },
+    {
+     "label": "Ask gentle questions",
+     "next": "b",
+     "src": "L6425"
+    },
+    {
+     "label": "Respect the story",
+     "next": "c",
+     "src": "L6427"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Adults thank the child for telling them and improve trail markers.",
+   "src": "L6424"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The child remembers a birdcall and a pale figure, but cannot say more.",
+   "src": "L6426"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The village neither mocks nor declares it true; the child keeps a private drawing.",
+   "src": "L6428"
+  }
+ }
+}

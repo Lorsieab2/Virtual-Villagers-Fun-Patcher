@@ -64,6 +64,7 @@ TEST_BUILDS = {
     "assets/easier_healing/VVFP VV1 Easier Healing.dll": ("VVFP VV1 Easier Healing.test.dll", "vv1_easier_healing"),
     "assets/research_at_max/VVFP VV1 Research At Max.dll": ("VVFP VV1 Research At Max.test.dll",
                                                             "vv1_research_at_max"),
+    "assets/scrolling_popups/VVFP Scrolling Popups.dll": ("VVFP Scrolling Popups.test.dll", "vvfp_scrolling_popups"),
 }
 
 # Test builds of code the shipped DLLs compile from a shared header, with no

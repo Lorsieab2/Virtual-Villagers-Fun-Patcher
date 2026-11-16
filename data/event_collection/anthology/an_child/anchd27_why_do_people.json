@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do People Argue?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd27_why_do_people",
+  "source": "anthology",
+  "lines": [
+   27962,
+   27975
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27962",
+  "ledger": [
+   {
+    "src": "L27963",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27965",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(adult), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27966",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27971",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27972",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27974",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27975",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child hears two adults disagree about how to prepare a feast.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) hears two adults disagree about how to prepare a feast.",
+   "src": "L27963",
+   "choices": [
+    {
+     "label": "Explain Differing Opinions.",
+     "next": "a",
+     "src": "L27964"
+    },
+    {
+     "label": "Model a Compromise.",
+     "next": "b",
+     "src": "L27967"
+    },
+    {
+     "label": "Ask the Child for Ideas.",
+     "next": "c",
+     "src": "L27970"
+    },
+    {
+     "label": "Explain Boundaries.",
+     "next": "d",
+     "src": "L27973"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult), a caregiver, says kind people can want different things.",
+   "src": "L27965"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) learns that disagreement need not end friendship.",
+   "src": "L27966"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The adults prepare two dishes when supplies allow.",
+   "src": "L27968"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The adults agree to take turns choosing recipes.",
+   "src": "L27969"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) suggests a surprisingly practical schedule.",
+   "src": "L27971"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) proposes an impossible plan, and the adults explain why.",
+   "src": "L27972"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) learns that shouting is not necessary to disagree.",
+   "src": "L27974"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) sees the adults apologize for speaking sharply.",
+   "src": "L27975"
+  }
+ }
+}

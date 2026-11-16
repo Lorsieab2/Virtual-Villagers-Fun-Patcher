@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Price of a Legend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns31_price_legend",
+  "source": "living",
+  "lines": [
+   22570,
+   22581
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22570",
+  "ledger": [
+   {
+    "src": "L22581",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare forest bird is hunted because villagers believe its feather wards off misfortune."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare forest bird is hunted because villagers believe its feather wards off misfortune.",
+   "src": "L22571",
+   "choices": [
+    {
+     "label": "Restrict hunting and seek alternatives.",
+     "next": "a",
+     "src": "L22572"
+    },
+    {
+     "label": "Permit limited gathering of naturally shed feathers.",
+     "next": "b",
+     "src": "L22575"
+    },
+    {
+     "label": "Question the protective claim.",
+     "next": "c",
+     "src": "L22578"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bird population appears to recover over several seasons.",
+   "src": "L22573"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some families feel a cherished custom has been dismissed.",
+   "src": "L22574"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The ceremony continues without killing birds.",
+   "src": "L22576"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Feathers remain scarce, prompting new designs.",
+   "src": "L22577"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A scientist finds no reliable evidence for the feather's power.",
+   "src": "L22579",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22579"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Believers maintain the symbol has value beyond measurable effects.",
+   "src": "L22580"
+  }
+ }
+}

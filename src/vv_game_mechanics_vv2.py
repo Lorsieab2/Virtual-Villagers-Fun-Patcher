@@ -18,6 +18,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_events_vv2 as catalog
@@ -35,6 +36,20 @@ FIRE_HOURS = {gm.FAST: 10, gm.NORMAL: 20, gm.SLOW: 40}
 GOLDEN = "vv2_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv2_collectibles_stay_collected"
+# Empty the Stew Pot from the Science Hut Door (on by default; data/builds.json vv2_empty_stew_pot,
+# "VVFP VV2 Empty Stew.dll"): the drop 0x430AF9 on the doorway (feet x 780..819, y 550..609) while the pot holds a
+# ready stew (+0x3044C) queues a walk to the pot whose callback runs the pot's own empty 0x425B20 (only for the stew
+# it was queued for, by its deadline +0x30450); a cooking-hater runs away (0x4454E0 word 0x31 -> 0x44B010); under 14
+# (+0x530 < 280), no ready stew or elsewhere: the stock drop.  The food: 10 left the store when "Adding food to the
+# stew" finished (callback 46, 0x46236C), before the stew existed.
+EMPTY_STEW = "vv2_empty_stew_pot"
+EMPTY_STEW_EFFECT = (
+    "a villager of 14 or more dropped on the science hut's doorway while a ready stew is in the pot walks to the pot "
+    "and empties it (\"Emptying the pot\"), so a new stew can be made at once; a villager who dislikes cooking runs "
+    "away instead, a stew still being made is left alone, and no food is lost or given back (the stew's 10 food "
+    "was used when the food went in)")
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv2_adult_confused"
 HUNGRIER = "vv2_hungrier_villagers"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
@@ -140,7 +155,8 @@ HIDDEN_LINES = (
 # The stew pot (state +0x3043C..+0x30455, past the saved range +8..+0x30378, so never saved).  The cook routine
 # 0x425B90 (called when the last ingredient goes in, 0x4620A1..0x4623BA) sets the stew +0x3044C at once and
 # the pot's end +0x30450 to the real clock 0x403200 + 900 (0x425BA2); the world update empties the pot with
-# 0x425B20 once 0x403200 passes it (0x42EBCC..0x42EBE7) -- nothing else empties it, and eating (0x461040,
+# 0x425B20 once 0x403200 passes it (0x42EBCC..0x42EBE7) -- nothing else in the stock game empties it (the
+# patcher's Empty the Stew Pot from the Science Hut Door runs the same 0x425B20: EMPTY_STEW), and eating (0x461040,
 # from 0x4623E9) leaves it.  Nothing reads +0x30450 for the screen, so no countdown is shown.  The stews'
 # effects (0x461040 and the routines it calls: 0x455330, 0x45CD00, 0x450580, 0x454AB0, 0x455AC0, 0x453430,
 # 0x44B010, 0x45FBF0, 0x44B1B0, 0x449B70) never read the clock: each acts once, when eaten.  Checked again
@@ -317,6 +333,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "a mushroom or collectible counts the moment the child picks it up -- the food and Mushrooms "
             "Found, or the piece with its messages, once -- even if the child is moved or stops before the "
             "end of the trip")), gm.CODE)
+    # The adult dispatcher's case 0x42FCAB (call 0x42FCAE): the same Confused action, the message by the area
+    # (data/builds.json vv2_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom is Confused and the message bar says \"Only "
+            "children can see and pick up mushrooms.\"; on a collectible, \"Only children can see and pick "
+            "up collectibles.\" (in the normal game it says \"Only children can see collectibles.\" for "
+            "both)")), gm.CODE)
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once The Overgrown Gong Piece is solved"
@@ -375,12 +399,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                          + (" This village has had no tier C result yet, so its next ring is tier C." if gong_first
                             else ""), gm.SAVE)
     out.extend(events.event_facts(village, extra=catalog.EXTRA))
+    out.extend(events.collection_facts(village))       # Isola Grand Event Collection, with its patch only
 
     # -- Other ---------------------------------------------------------------------------
     # The fuel (0x4624CF..0x46253F): only on a fire still burning, its end becomes the clock + 0x8CA0, 0x11940 or
     # 0x23280 seconds (Fast, any other speed, Slow); a cold pit is left alone.  "Its end is a moment on the game's
     # clock of real seconds": the clock 0x403200; the speed change and the pause: 0x43B5A0.
     fire = real(FIRE_END)
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
+        add("Other", line, ok)
     add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
                                  ("was burning when it was saved" if paused and _i32(data, FIRE_END) > _i32(data, LAST_TICK)
                                   else "is out"))
@@ -408,6 +435,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         village, "vv2_fix_vanilla_bugs", "it is drawn once, in the same place and size, flickering through the "
         "village fire's 7 pictures, a new one every 231 milliseconds as in the village view"), gm.CODE, True))
     add("Other", STEW_POT_LINE, gm.RUNNING)
+    if village.has(EMPTY_STEW) is not False:
+        add("Other", gm.patch_words(village, EMPTY_STEW, EMPTY_STEW_EFFECT), gm.CODE)
     add("Other", STEW_EFFECT_LINE, gm.RUNNING)
     # An unburied body's removal is under Death and graves (it stood here too).
     for line, ok in HIDDEN_LINES:

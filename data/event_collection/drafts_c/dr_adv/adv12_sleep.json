@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sleep on It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv12_sleep",
+  "source": "draft_adv",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   }
+  ],
+  "description": "An elder tells a villager to sleep on a decision, but morning brings no answer: sleep on it again, or decide at breakfast.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has to decide whether to take on an apprentice. (friend) says, \"Sleep on it. Things are clearer in the morning.\" So (subject) sleeps on it. In the morning, (subject.he/she) wakes up, lies in bed and checks. Nothing is clearer. If anything, it's foggier.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Sleep on It Again",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Decide at Breakfast",
+     "next": "o2",
+     "src": "L142"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides to sleep on it another night. And another. By the fourth morning (subject.he/she) still doesn't know, but (subject.he/she) has slept very well. (friend) asks how it's going. \"I'm well rested,\" says (subject). \"And undecided.\" (friend) nods sagely. \"That's allowed too.\" The apprentice question waits a while. Nobody minds.",
+   "src": "L140"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "At breakfast, halfway through a mango, (subject) suddenly says \"Yes\" out loud. Everyone looks at (subject.him/her). \"I'll take the apprentice,\" (subject.he/she) says. \"I just decided.\" Maybe it was the sleeping. Maybe it was the mango. (friend) takes credit anyway, and (subject) lets (friend.him/her).",
+   "src": "L143"
+  }
+ }
+}

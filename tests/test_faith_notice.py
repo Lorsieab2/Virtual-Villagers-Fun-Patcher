@@ -303,6 +303,22 @@ class FaithNoticeCompanion(unittest.TestCase):
         self.assertFalse(v.heathen())
         self.assertIsNone(v.pending(100000))
 
+    def test_a_branching_events_heathen_counts_as_a_conversion(self):
+        """The owner (2026-11-12): a branching Custom Island Event's "becomes a Heathen" COUNTS as a faith
+        conversion -- "VVFP Story Upgrades.dll" (story_graph.inc) calls VvfpFaithNoticeCount, and the popup tells of
+        it with the drift's, under "other" (a reason out of range is "other" too); another game's is ignored."""
+        v = Village(rendered(()))
+        quiet = gen_quiet()
+        v.proc.tick = 2000
+        v.proc.export("VvfpFaithNoticeCount", 5, 4)
+        v.proc.export("VvfpFaithNoticeCount", 4, 4)
+        v.proc.export("VvfpFaithNoticeCount", 5, 99)
+        self.assertIsNone(v.pending(2000 + quiet - 1), "it waits the same quiet")
+        self.assertEqual(v.pending(2000 + quiet), (2, (0, 0, 0, 0, 2)))
+        v.proc.tick = 2100
+        v.drift(faith=1, food=100, rolls=[0])
+        self.assertEqual(v.pending(2100 + quiet), (3, (0, 1, 0, 0, 2)), "one popup with the drift's")
+
     def test_a_catch_up_is_one_popup_after_the_quiet(self):
         v = Village(rendered(()))
         quiet = gen_quiet()

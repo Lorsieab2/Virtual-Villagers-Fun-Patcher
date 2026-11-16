@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Chicken Doing on the Roof?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd20_what_chicken",
+  "source": "da_wd",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A chicken is crowing at dawn on the roof of a villager's hut: climb up and get it down, or give up and get up.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a chicken on the roof of (name1)'s hut. It's dawn. It is crowing. It has been crowing, at full volume, directly above (name1)'s sleeping mat, for some time. (name1) has no idea how it got up there, and is beginning not to care, as long as it stops.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Climb Up and Get It Down",
+     "next": "a",
+     "src": "L241"
+    },
+    {
+     "label": "Give Up and Get Up",
+     "next": "b",
+     "src": "L244"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) climbs up onto the roof in the half-dark. The chicken watches (him/her) come, then flaps calmly off the roof and lands on the next hut, where it begins crowing again. A muffled shout comes from inside that hut. (name1), sitting on (his/her) own roof in the dawn light, starts laughing and can't stop.",
+   "src": "L242"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) gets up. If the chicken wants (him/her) awake, (he/she) is awake. (He/She) watches the sunrise, which is beautiful. The chicken stops crowing the moment (name1) comes outside, looks down at (him/her) with satisfaction, and goes to sleep in the thatch. (name1) is now the only person awake in the whole village.",
+   "src": "L245"
+  }
+ }
+}

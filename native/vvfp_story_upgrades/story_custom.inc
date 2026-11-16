@@ -180,9 +180,108 @@ typedef struct {
        game's revive makes (its own health field or setter), without the
        revive's clock and stop.  Health 0 is the adapter's kill. */
     void (*set_health)(int index, int health);
+    /* cie-v6-binary.md 23: a nursing parent's babies born now by the game's own delivery (ce_birth_now): the
+       babies made, 0 when the parent was not nursing, -1 when the game did not deliver (nothing changed); *early
+       = 1 when the nursing was cut short.  NULL = not offered. */
+    int (*deliver)(int index, int *early);
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
+
+/* ---- The baby is born now (cie-v6-binary.md 23) --------------------------------------------------------------
+
+   In every game the nursing time is one field on the parent: the processed-age counter copied at the conception.
+   The game's own villager catch-up, once per age unit while the processed age is below the age and the health
+   above 0, makes the babies -- new villager records at 40 units, by the game's own creators -- once the processed
+   age is more than 40 units past it, and clears the field and the litter.  So the birth comes now when the field is
+   made due and the parent is credited one age unit (a one-villager, one-unit Time Warp) and the game's own
+   catch-up runs: it processes that unit -- every other villager is caught up already (each game's update runs the
+   catch-up before its island-event trigger) -- and its delivery makes the babies with every patch's birth hooks. */
+typedef struct {
+    unsigned int age;              /* i32: the age, in units (20 a year) */
+    unsigned int processed;        /* i32: the age the catch-up has processed */
+    unsigned int nursing;          /* i32: the processed age at the conception; 0 = not nursing */
+    unsigned int health;           /* i32: the health (1..100 while alive) */
+    void (*catch_up)(void);        /* the game's own catch-up, once */
+} ce_birth_layout;
+
+#define CE_NURSING_UNITS 40         /* the creators' age for a baby: the nursing time (every delivery's push 0x28) */
+#define CE_EARLY_DEFICIT_MAX 50     /* the owner: "a health deficit" for an early birth; scaled (a judgement call) */
+#define CE_EARLY_DEFICIT_MIN 5
+
+/* The health an early-born baby loses: round(50 * the share of the nursing time still to come), 5..50. */
+static int ce_early_deficit(int elapsed) {
+    int deficit = (CE_EARLY_DEFICIT_MAX * (CE_NURSING_UNITS - elapsed) + CE_NURSING_UNITS / 2) / CE_NURSING_UNITS;
+    return deficit < CE_EARLY_DEFICIT_MIN ? CE_EARLY_DEFICIT_MIN
+         : deficit > CE_EARLY_DEFICIT_MAX ? CE_EARLY_DEFICIT_MAX : deficit;
+}
+
+/* cie-v6-binary.md 30: the health each new baby loses beyond the early birth's own deficit (deliver_early's roll;
+   0 for birth_then_die), set by the graph around the adapter's deliver. */
+static int ce_birth_extra;
+
+static int ce_birth_now(const ce_adapter *a, const ce_birth_layout *b, int index, int *early) {
+    static unsigned char was[CE_MAX_RECORDS];
+    unsigned char *parent = a->record(index);
+    int count = a->record_count < CE_MAX_RECORDS ? a->record_count : CE_MAX_RECORDS;
+    int nursing, processed, age, elapsed, i, babies = 0;
+    *early = 0;
+    if (parent == NULL) {
+        return -1;
+    }
+    nursing = *(int *)(parent + b->nursing);
+    processed = *(int *)(parent + b->processed);
+    age = *(int *)(parent + b->age);
+    if (nursing == 0) {
+        return 0;
+    }
+    if (processed - CE_NURSING_UNITS - 1 <= 0 || age < processed) {
+        return -1;                 /* never the case for a nursing parent the game made */
+    }
+    elapsed = processed - nursing;
+    elapsed = elapsed < 0 ? 0 : elapsed > CE_NURSING_UNITS ? CE_NURSING_UNITS : elapsed;
+    for (i = 0; i < count; ++i) {
+        const unsigned char *r = a->record(i);
+        was[i] = (unsigned char)(r != NULL && a->listed(r));
+    }
+    *(int *)(parent + b->nursing) = processed - CE_NURSING_UNITS - 1;   /* due: 40 units past it, and one */
+    *(int *)(parent + b->age) = age + 1;                                 /* the one unit the catch-up processes */
+    __try {
+        b->catch_up();
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    if (*(int *)(parent + b->nursing) != 0) {
+        /* Not delivered: as it was (the age too, unless the unit was processed). */
+        *(int *)(parent + b->nursing) = nursing;
+        if (*(int *)(parent + b->processed) == processed) {
+            *(int *)(parent + b->age) = age;
+        }
+        return -1;
+    }
+    for (i = 0; i < count; ++i) {
+        unsigned char *r = a->record(i);
+        if (was[i] || r == NULL || !a->listed(r)) {
+            continue;
+        }
+        ++babies;              /* a record free before the catch-up holding a living villager now: a baby */
+        {
+            /* Born early (the owner): the age the nursing reached (0 would be the creators' "a random age"), and
+               the health deficit; a frail newborn (section 30) loses ce_birth_extra more. */
+            int loss = (elapsed < CE_NURSING_UNITS ? ce_early_deficit(elapsed) : 0) + ce_birth_extra;
+            int left = *(const int *)(r + b->health) - loss;
+            if (elapsed < CE_NURSING_UNITS) {
+                int keep = elapsed > 0 ? elapsed : 1;
+                *(int *)(r + b->age) = keep;
+                *(int *)(r + b->processed) = keep;
+            }
+            if (loss > 0 && a->set_health != NULL) {
+                a->set_health(i, left < 1 ? 1 : left);     /* the game's own health write (the adapters') */
+            }
+        }
+    }
+    *early = babies > 0 && elapsed < CE_NURSING_UNITS;
+    return babies;
+}
 
 /* ---- The armed event ----------------------------------------------------- */
 
@@ -547,11 +646,12 @@ static const char *ce_empty_refusal(int game, const char *refusal);
    goes on past its visitor check for it (story_empty_village.inc ce_trigger_bypass), and the island
    timer's keeper puts the opening event's own time back after it (island_timer_keep.h).  The Time
    Skip and Faith notices keep waiting for the opening events as before (A New Home's and The Lost
-   Children's arm refusal for a notice).  Kept as a function for its callers; it holds nothing. */
+   Children's arm refusal for a notice).  Kept as a function for its callers; it holds only a branching event from
+   the library whose roles the village cannot fill now (the owner, 2026-11-12: keep waiting rather than run broken;
+   story_graph.inc cg_holds), made due again once it can (ce_opening_tick). */
 static int ce_held(int game, int counted) {
-    (void)game;
     (void)counted;
-    return 0;
+    return cg_holds(game);
 }
 
 /* The game whose trigger, on this run, found its Island Events Seen count still 0 -- set by the count
@@ -1771,10 +1871,18 @@ static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     int notice;
     int first;
+    int graph;
+    int counted = 0;
     if (a == NULL || !ce_plain_pending(game) || ce_held(game, 1)) {
         return 0;
     }
-    notice = ce_armed_is_notice;
+    /* A page of a branching event from the library (story_graph.inc): its roles bound first; only the event's
+       own first page is the island event, every other page a notice. */
+    graph = cg_owns_armed(game);
+    if (graph && !cg_prepare(game)) {
+        return 0;
+    }
+    notice = graph ? !cg_counted_next() : ce_armed_is_notice;
     /* An empty village's event before its first island event: not counted,
        so that first one is still the game's visitor (story_empty_village.inc). */
     first = ce_dead_first == game || (!notice && ce_first_before == game);
@@ -1788,11 +1896,15 @@ static int ce_deliver(int game, char *text, int size) {
         ce_requeue_due = game;           /* the event it went ahead of comes next */
         ce_requeue_game = 0;
     }
-    ce_apply(a, &ce_armed_event, &ce_last_result);
-    if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
-        /* The outcome lines do not fit: the title and description were
-           checked when the event was queued, so show those alone. */
-        ce_compose(a, &ce_armed_event, NULL, text, size);
+    if (graph) {
+        (void)cg_deliver(game, text, size, &counted);   /* its page (and, on its first, every effect) */
+    } else {
+        ce_apply(a, &ce_armed_event, &ce_last_result);
+        if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
+            /* The outcome lines do not fit: the title and description were
+               checked when the event was queued, so show those alone. */
+            ce_compose(a, &ce_armed_event, NULL, text, size);
+        }
     }
     if (notice || first) {
         ce_uncount_notice(game);   /* the time skip's notice is not an island event */
@@ -1878,6 +1990,10 @@ static int ce_refusal_for_notice;
 #ifdef VVFP_TEST
 static int test_choice_cap;        /* TEST build: every game may ask (the hooks are tested apart) */
 static int test_roll = -1;         /* TEST build: the next roll, -1 = the real source */
+static int test_rolls[64];         /* TEST build: the next rolls, in order, before test_roll */
+static int test_roll_count;
+static int test_roll_next;
+static int test_roll_tail = -1;    /* TEST build: every roll after the list (-1 = the real source) */
 #endif
 
 /* Whether `game` can ask a question: its delivery hook is in place. */
@@ -1897,6 +2013,36 @@ static int ce_has_effects(const ce_event *e) {
         || e->revive_count > 0;
 }
 
+/* The game of adapter `a` (1..5), 0 when none. */
+static int ce_game_of(const ce_adapter *a) {
+    int g;
+    for (g = 1; g <= 5; ++g) {
+        if (ce_adapter_for(g) == a) {
+            return g;
+        }
+    }
+    return 0;
+}
+
+/* `label` measured as the game measures it in its story font (story_label_widths.h): a label may be wider than
+   its button (the owner, 2026-11-13), the two buttons are one above the other, so only the screen limits it. */
+static int ce_label_px(const ce_adapter *a, const char *label) {
+    int g = ce_game_of(a), n = 0, total = 0;
+    if (g == 0) {
+        return 0;
+    }
+    for (; *label != '\0'; ++label, ++n) {
+        unsigned char c = (unsigned char)*label;
+        total += CE_LABEL_PX[g - 1][(c >= 32 && c < 127 ? c : 'A') - 32];
+    }
+    return n > 0 ? total + CE_LABEL_SPACING[g - 1] * (n - 1) : 0;
+}
+
+static int ce_label_max_px(const ce_adapter *a) {
+    int g = ce_game_of(a);
+    return g == 0 ? 0x7FFFFFFF : CE_LABEL_MAX_PX[g - 1];
+}
+
 /* Why `label` cannot be a button's label in this game, or NULL. */
 static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
     static char reason[96];
@@ -1909,6 +2055,9 @@ static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
     if (lstrlenA(label) > ce_label_width(a)) {
         wsprintfA(reason, "A button label is %d characters at most in this game.", ce_label_width(a));
         return reason;
+    }
+    if (ce_label_px(a, label) > ce_label_max_px(a)) {
+        return "That button label is wider than the screen in this game. Shorten it.";
     }
     return NULL;
 }
@@ -2037,10 +2186,17 @@ static int ce_random_below(const ce_adapter *a, int n) {
         return 0;
     }
 #ifdef VVFP_TEST
+    if (test_roll_next < test_roll_count) {
+        r = test_rolls[test_roll_next++] % n;
+        return r < 0 ? r + n : r;
+    }
     if (test_roll >= 0) {
         r = test_roll;
         test_roll = -1;
         return r % n;
+    }
+    if (test_roll_tail >= 0) {
+        return test_roll_tail % n;
     }
 #endif
     if (a->rand_below != NULL) {
@@ -2124,6 +2280,9 @@ static int ce_choice_featured(int game) {
     if (a == NULL || c == NULL) {
         return -1;
     }
+    if (cg_owns_armed(game) || cg_owns_asked(game)) {
+        return cg_featured(game);      /* a branching event's question is about its subject */
+    }
     if (c->featured_record > 0) {
         unsigned char *record = a->record(c->featured_record - 1);
         if (ce_choice_may_show(a, record) && ce_identity(a, record) == c->featured_identity) {
@@ -2179,7 +2338,12 @@ static int ce_choice_roll(const ce_adapter *a, const ce_choice *c, int button) {
 static int ce_choice_begin(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     ce_layout l;
+    int graph;
     if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
+        return 0;
+    }
+    graph = cg_owns_armed(game);       /* a branching event's question (story_graph.inc) */
+    if (graph && !cg_prepare(game)) {
         return 0;
     }
     if (ce_dead_first == game || ce_first_before == game) {
@@ -2200,8 +2364,12 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_asked_village = ce_armed_village;
     lstrcpynA(ce_asked_title, ce_armed_event.title, sizeof ce_asked_title);
     ce_asked_event = ce_armed_event;
-    l = ce_question_layout(a);
-    ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
+    if (graph) {
+        cg_begin_question(game, text, size);
+    } else {
+        l = ce_question_layout(a);
+        ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
+    }
     STORY_COUNT(delivered);
     /* The question coming on screen is written to the queue file now, not at
        the companion's next 250 ms tick: the popup may stop that path, and a
@@ -2215,12 +2383,20 @@ static int ce_choice_asked(int game) {
     return ce_asked && ce_asked_game == game;
 }
 
-/* The asked question's button label (button 0 or 1), or NULL. */
+/* The asked question's answers: two, or a branching event's question's two to four (format version 4). */
+static int ce_choice_answers(int game) {
+    if (!ce_choice_asked(game)) {
+        return 2;
+    }
+    return cg_owns_asked(game) ? cg_asked_answers() : 2;
+}
+
+/* The asked question's button label (button 0 the first, up to ce_choice_answers - 1), or NULL. */
 static const char *ce_choice_label(int game, int button) {
-    if (!ce_choice_asked(game) || button < 0 || button > 1) {
+    if (!ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game)) {
         return NULL;
     }
-    return ce_choice_store[ce_asked_store].labels[button];
+    return cg_owns_asked(game) ? cg_label(button) : ce_choice_store[ce_asked_store].labels[button];
 }
 
 /* The asked question's title (for a game that shows the title on its own),
@@ -2243,7 +2419,7 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     const ce_outcome *o;
     ce_layout l;
     int k;
-    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1) {
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game)) {
         return 0;
     }
     ce_asked = 0;
@@ -2253,6 +2429,15 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     if (!story_village_is(game, &ce_asked_village)) {
         STORY_COUNT(discarded);
         return 0;
+    }
+    if (cg_answering(game)) {
+        /* A branching event's answer: that button's history, every effect, its first page (story_graph.inc). */
+        if (!cg_resolve(game, button, text, size)) {
+            return 0;
+        }
+        ce_last_button = button;
+        ce_last_outcome = 0;
+        return 1;
     }
     c = &ce_choice_store[ce_asked_store];
     k = ce_choice_roll(a, c, button);
@@ -2304,8 +2489,11 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
     if (size > 0) {
         out[0] = '\0';
     }
-    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1 || size <= 0) {
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game) || size <= 0) {
         return 0;
+    }
+    if (cg_owns_asked(game)) {
+        return cg_tallest(game, button, out, size);   /* the page that button's answer shows first */
     }
     c = &ce_choice_store[ce_asked_store];
     l = ce_result_layout(a);

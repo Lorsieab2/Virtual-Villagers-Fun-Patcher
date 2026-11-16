@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Terrible Poet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il027_terrible_poet",
+  "source": "da_il02",
+  "lines": [
+   273,
+   287
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L273",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L287",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager has written a proud poem about the sea in which nearly every line ends with the word moon.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has written a poem. It is about the sea, the moon, and the mysterious beauty of coconuts. Unfortunately, nearly every line ends with the word \"moon.\" (subject) is extremely proud of it and asks (friend) for an opinion.",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Offer a Suggestion",
+     "next": "a",
+     "src": "L279"
+    },
+    {
+     "label": "Praise (subject)'s Creativity",
+     "next": "b",
+     "src": "L283"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"It's very enthusiastic,\" says (friend). \"Perhaps you could use a different word occasionally?\" (subject) considers this and replaces one occurrence of \"moon\" with \"spoon.\" The poem now makes considerably less sense. (subject) likes it even more.",
+   "src": "L281"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) says that the poem is certainly unlike anything (friend.he/she) has heard before. (subject) beams. That evening (subject.he/she) begins a second poem, this time about fish. (friend) hopes it will contain fewer moons.",
+   "src": "L285"
+  }
+ }
+}

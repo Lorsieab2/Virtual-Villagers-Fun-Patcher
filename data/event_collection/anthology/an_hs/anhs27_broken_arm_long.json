@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Broken Arm and a Long Recovery",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs27_broken_arm_long",
+  "source": "anthology",
+  "lines": [
+   29830,
+   29843
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29830",
+  "ledger": [
+   {
+    "src": "L29831",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29833",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29836",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29842",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "After an accidental fall, a villager has a suspected broken arm and faces weeks of limited work.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After an accidental fall, (villager) has a suspected broken arm and faces weeks of limited work.",
+   "src": "L29831",
+   "choices": [
+    {
+     "label": "Arrange Immediate Care and Support",
+     "next": "a",
+     "src": "L29832"
+    },
+    {
+     "label": "Ask What Help They Actually Want",
+     "next": "b",
+     "src": "L29835"
+    },
+    {
+     "label": "Adapt Their Responsibilities",
+     "next": "c",
+     "src": "L29838"
+    },
+    {
+     "label": "Make Space for Difficult Feelings",
+     "next": "d",
+     "src": "L29841"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The limb is stabilized and (villager) receives careful attention.",
+   "src": "L29833"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The injury requires prolonged rest, and friends organize practical help.",
+   "src": "L29834",
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29834"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) requests assistance with only a few tasks.",
+   "src": "L29836"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They are overwhelmed by offers and ask for fewer visitors.",
+   "src": "L29837"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They find a useful teaching role while recovering.",
+   "src": "L29839"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new tasks are frustrating at first, but the arrangement improves.",
+   "src": "L29840"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) admits fear about their future skills.",
+   "src": "L29842"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They alternate between hope and irritation without being told to stay positive.",
+   "src": "L29843"
+  }
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Made-Up Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt11_made_up_stars",
+  "source": "draft_tt",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-10)"
+   },
+   {
+    "src": "L134",
+    "kind": "sensitivity",
+    "before": "to an elder who knows the old star names",
+    "after": "to (elder), an elder who knows the old star names",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L134",
+    "kind": "sensitivity",
+    "before": "The elder listens",
+    "after": "(elder) listens",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks an adult the names of the stars, and the adult starts inventing them: keep naming them, or admit it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has asked (subject) to tell (friend.him/her) the names of the stars. (subject) doesn't know them. But (friend) is looking up at (subject.him/her) with complete trust, so (subject) points and says, \"That's the Fishhook. That's the Old Turtle. And those three are... the Three Cousins.\" (subject.He/she) has just made all of it up.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Keep Naming Them",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Admit You Made Them Up",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) names twenty more: the Sleepy Pig, the Lost Sandal, the Cooking Pot. (friend) memorizes every one, and the next day proudly recites them to (elder), an elder who knows the old star names. (elder) listens to the whole list and says, \"Those are better than ours.\" Soon all the village children use (subject)'s names.",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After the third star (subject) laughs and confesses that (subject.he/she) doesn't know the real names. (friend) thinks about this. \"Then can we make up the rest together?\" They lie in the grass for an hour naming every star they can see. The next night neither of them can remember a single name, so they do it all again.",
+   "src": "L137"
+  }
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Keeper of Unfinished Records",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat154_keeper",
+  "source": "companion",
+  "lines": [
+   8945,
+   8955
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8945",
+  "ledger": [
+   {
+    "src": "L8955",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "An elderly scientist with hundreds of uncertain sketches fears dying before the catalogue is done.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elderly scientist has hundreds of sketches with uncertain names and fears dying before completing the catalogue.",
+   "src": "L8946",
+   "choices": [
+    {
+     "label": "Train apprentices",
+     "next": "a",
+     "src": "L8947"
+    },
+    {
+     "label": "Publish with uncertainty labels",
+     "next": "b",
+     "src": "L8949"
+    },
+    {
+     "label": "Focus on one beloved species",
+     "next": "c",
+     "src": "L8951"
+    },
+    {
+     "label": "Keep everything private",
+     "next": "d",
+     "src": "L8953"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The records become a multigenerational project.",
+   "src": "L8948",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8948"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Other scholars can correct mistakes without erasing the elder's work.",
+   "src": "L8950"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder completes a careful monograph and finds peace with what remains unknown.",
+   "src": "L8952"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The collection survives only if family members later discover it.",
+   "src": "L8954"
+  }
+ }
+}

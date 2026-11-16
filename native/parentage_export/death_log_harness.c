@@ -687,6 +687,7 @@ int main(int argc, char **argv) {
             villager(5, "Mama", 900, 8, 8);
             *(int *)(rec(5) + MOM[game_index].sex) = MOM[game_index].female;
             *(int *)(rec(5) + MOM[game_index].litter) = 2;
+            *(int *)(rec(5) + MOM[game_index].litter - 4u) = 500;   /* carrying: conceived at age 500 */
             villager(6, "Babe", 0, 2, 2);
             if (birth != NULL && birth_litter != NULL) {
                 birth(game, "Babe", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
@@ -705,6 +706,7 @@ int main(int argc, char **argv) {
                     villager(7, "Mama", 100, 8, 8);           /* a second mother who looks the same */
                     *(int *)(rec(7) + MOM[game_index].sex) = MOM[game_index].female;
                     *(int *)(rec(7) + MOM[game_index].litter) = 3;
+                    *(int *)(rec(7) + MOM[game_index].litter - 4u) = 450;
                     birth(game, "Babe2", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
                     read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
                     {
@@ -712,7 +714,27 @@ int main(int argc, char **argv) {
                         CHECK(at != NULL && strstr(at, "Born as") == NULL,
                               "two mothers it could be: no line");
                     }
+                    /* The look-alike not carrying is not the mother: the carrier's litter again. */
+                    *(int *)(rec(7) + MOM[game_index].litter - 4u) = 0;
+                    birth(game, "Babe3", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
+                    read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
+                    {
+                        const char *at = strstr(text, "  Child: Babe3\r\n");
+                        CHECK(at != NULL && strstr(at, "  Born as: Twin\r\n") != NULL,
+                              "a look-alike who is not carrying is never the mother");
+                    }
                     rec(7)[g->active] = 0;
+                    /* The carrier is male now (a sex changed mid-pregnancy, or a man made to carry): still the
+                       carrying parent, the litter read off his record (the owner, 2026-11-15). */
+                    *(int *)(rec(5) + MOM[game_index].sex) = MOM[game_index].female - 1;
+                    birth(game, "Babe4", 2, 2, "Mama", 8, 8, "Papa", 1, 1, rec(6));
+                    read_log("Births and Conceptions", "Births and Conceptions Log", game, 1);
+                    {
+                        const char *at = strstr(text, "  Child: Babe4\r\n");
+                        CHECK(at != NULL && strstr(at, "  Born as: Twin\r\n") != NULL,
+                              "a male carrier: Born as: Twin");
+                    }
+                    *(int *)(rec(5) + MOM[game_index].sex) = MOM[game_index].female;
                 }
             }
             rec(5)[g->active] = 0;

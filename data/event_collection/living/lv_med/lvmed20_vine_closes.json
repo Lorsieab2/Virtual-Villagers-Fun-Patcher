@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Vine That Closes Wounds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed20_vine_closes",
+  "source": "living",
+  "lines": [
+   20466,
+   20477
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20466",
+  "ledger": [
+   {
+    "src": "L20477",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare vine secretes a sticky resin that might seal wounds better than ordinary dressings, but only a few vines remain.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "botanist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare vine secretes a sticky resin that might seal wounds better than ordinary dressings, but only a few vines remain.",
+   "src": "L20467",
+   "choices": [
+    {
+     "label": "Harvest the remaining resin for an urgent patient.",
+     "next": "a",
+     "src": "L20468"
+    },
+    {
+     "label": "Collect only naturally fallen resin.",
+     "next": "b",
+     "src": "L20471"
+    },
+    {
+     "label": "Propagate the vine before using it widely.",
+     "next": "c",
+     "src": "L20474"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The wound closes, but the vine population is badly damaged.",
+   "src": "L20469"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The resin irritates the wound, and the healers return to familiar care.",
+   "src": "L20470",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20470"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The limited resin helps with small wounds but cannot treat the current injury.",
+   "src": "L20472",
+   "text_only": [
+    {
+     "what": "the current injury",
+     "reason": "the patient's wound is the premise; nobody is hurt now",
+     "src": "L20472"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The healer preserves the vines and begins a careful trial.",
+   "src": "L20473"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The botanist succeeds in growing a few new vines.",
+   "src": "L20475",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20475"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The cuttings fail, and the village debates whether the plant should be left untouched.",
+   "src": "L20476"
+  }
+ }
+}

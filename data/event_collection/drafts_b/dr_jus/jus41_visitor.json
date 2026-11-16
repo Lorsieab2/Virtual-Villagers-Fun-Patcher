@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor in the Storehouse",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus41_visitor",
+  "source": "draft_jus",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A hungry visitor from another village was found eating in the storehouse at night: hear the visitor out, or ask the night watcher.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Late last night, (subject) found a stranger in the village storehouse: a visitor from another village on the far side of the island, thin and exhausted, eating dried fruit with both hands. (subject) called for help. The visitor didn't run. The elders asked the visitor to stay the night at the meeting place, with food, water and a blanket, and (friend) sitting by the door, until things could be talked over in the morning. It is morning now.",
+   "src": "L491",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L491"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Hear the Visitor Out",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Ask (friend) What (friend.he/she) Thinks",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The visitor explains: a long walk, a wrong turn in the hills, three days without food. The elders listen. The visitor offers to work off what was eaten. The elders accept, but feed the visitor properly first. (friend), who sat by the door all night, reports that the visitor slept like a stone and snored, which several people seem to find reassuring.",
+   "src": "L494",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L494"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend), who sat up all night, says the visitor slept like someone who hadn't slept in days, and that the first thing the visitor asked on waking was whether there was anything to mend in return. The elders send the visitor home with food for the walk. A carved bone hook is found on the storehouse step the next morning. Nobody saw it left, but everybody knows who left it.",
+   "src": "L497",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L497"
+    }
+   ]
+  }
+ }
+}

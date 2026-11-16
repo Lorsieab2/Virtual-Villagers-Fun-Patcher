@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The City That Never Sleeps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz010_city_never",
+  "source": "horizon",
+  "lines": [
+   136,
+   146
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L136",
+  "ledger": [],
+  "description": "A night watchkeeper wonders whether some distant settlements are so large that work and conversation continue all night.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A night watchkeeper wonders whether some distant settlements are so large that work and conversation continue all night.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Imagine the Night Workers.",
+     "next": "a",
+     "src": "L138"
+    },
+    {
+     "label": "Imagine Artificial Daylight.",
+     "next": "b",
+     "src": "L141"
+    },
+    {
+     "label": "Imagine Complete Silence.",
+     "next": "c",
+     "src": "L144"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Healers, bakers, guards, and travelers populate an imagined city that glows with activity.",
+   "src": "L139"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A tired watchkeeper asks who protects the workers' rest; the villagers discuss shifts and fatigue.",
+   "src": "L140"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers theorize about light produced without an open flame, but cannot agree how it would work.",
+   "src": "L142"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child worries that constant brightness might hide the stars; the astronomer agrees it could change the night.",
+   "src": "L143"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group concludes that even a huge city might contain quiet rooms and sleeping children.",
+   "src": "L145"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager who struggles with noise wonders whether quiet could be difficult to find in crowded places.",
+   "src": "L146"
+  }
+ }
+}

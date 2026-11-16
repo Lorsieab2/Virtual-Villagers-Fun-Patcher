@@ -145,8 +145,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         module = importlib.import_module(f"vv_game_mechanics_events_vv{village.game}")
     except ImportError:
         return []
-    return event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
-                       getattr(module, "EXTRA", ()))
+    return (event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
+                        getattr(module, "EXTRA", ()))
+            + collection_facts(village))
+
+
+def collection_facts(village: gm.Village) -> list[gm.Fact]:
+    """The Isola Grand Event Collection's lines (src/vv_game_mechanics_collection.py), with its patch only."""
+    import vv_game_mechanics_collection as collection
+    return collection.facts(village)
 
 
 def share(percent: float, count: int) -> str:

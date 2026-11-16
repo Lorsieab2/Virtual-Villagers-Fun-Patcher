@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Heirlooms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm43_festival",
+  "source": "armor45",
+  "lines": [
+   54,
+   54
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L54",
+  "ledger": [
+   {
+    "src": "L54",
+    "kind": "structural",
+    "text": "43. The Festival of Heirlooms  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Families bring ancestral tools, shields, staffs and ceremonial armor to a gathering to exchange stories.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Families bring ancestral tools, shields, staffs, and ceremonial armor to a gathering, exchanging stories without competing over whose history matters most.",
+   "src": "L54"
+  }
+ }
+}

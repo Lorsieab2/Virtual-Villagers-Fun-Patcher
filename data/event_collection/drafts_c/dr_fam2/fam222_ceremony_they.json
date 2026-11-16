@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ceremony They Didn't Want",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam222_ceremony_they",
+  "source": "draft_fam2",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it) and an elder relative of one of them (where the game records it)"
+   }
+  ],
+  "description": "A relative is planning a joining ceremony for a couple who do not want one: say no firmly, or agree to a tiny party.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have lived together happily for years. They've never had a joining ceremony and they don't want one: they don't like being the center of attention, and they don't need anyone to tell them they're a family. (third), (subject)'s relative, thinks this is a tragedy and has started planning one for them anyway.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Tell (third) No, Firmly",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Agree to a Tiny Party",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Please stop,\" says (subject). \"We don't want a ceremony. We love you, and we're not doing it.\" (third) looks crushed. \"I just wanted to celebrate you.\" \"Then come for dinner,\" says (friend). \"Bring those honey cakes. That's our kind of celebration.\" (third) comes for dinner. With honey cakes, and a very small garland, which (third.he/she) can't resist. They let (third.him/her) have the garland.",
+   "src": "L266",
+   "text_only": [
+    {
+     "what": "\"celebrate\", \"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L266"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"No ceremony,\" says (subject). \"But we'll have a little dinner. Just family. No speeches.\" (third) agrees, delighted. There are, of course, speeches. Small ones. (third) cries. (subject) and (friend) roll their eyes at each other and hold hands under the table. It's not what they wanted. It's not so bad either.",
+   "src": "L269"
+  }
+ }
+}

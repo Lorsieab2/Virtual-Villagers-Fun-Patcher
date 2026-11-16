@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spearmaker's Craft",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm09_spearmaker_craft",
+  "source": "armor45",
+  "lines": [
+   17,
+   17
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L17",
+  "ledger": [
+   {
+    "src": "L17",
+    "kind": "structural",
+    "text": "09. The Spearmaker's Craft  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L17",
+    "kind": "sensitivity",
+    "before": "An artisan",
+    "after": "(Name1), an artisan,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An artisan makes spears for hunting, ceremony, and village defense. An apprentice notices that each carries a different meaning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), an artisan, makes spears for hunting, ceremony, and village defense. An apprentice notices that each carries a different meaning.",
+   "src": "L17"
+  }
+ }
+}

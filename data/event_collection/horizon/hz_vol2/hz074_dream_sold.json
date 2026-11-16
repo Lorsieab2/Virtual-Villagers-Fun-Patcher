@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream That Can Be Sold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz074_dream_sold",
+  "source": "horizon",
+  "lines": [
+   983,
+   993
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L983",
+  "ledger": [],
+  "description": "A storyteller wonders whether distant people could earn a living by creating performances, stories, games, or images.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A storyteller wonders whether distant people could earn a living by creating performances, stories, games, or images.",
+   "src": "L984",
+   "choices": [
+    {
+     "label": "Celebrate Artists.",
+     "next": "a",
+     "src": "L985"
+    },
+    {
+     "label": "Question Fame.",
+     "next": "b",
+     "src": "L988"
+    },
+    {
+     "label": "Discuss Imitation.",
+     "next": "c",
+     "src": "L991"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A singer imagines reaching listeners on another shore.",
+   "src": "L986"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A craftsperson wonders how creators could be paid without losing control of their work.",
+   "src": "L987"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A shy villager fears strangers judging every performance.",
+   "src": "L989"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child thinks recognition sounds wonderful until the storyteller asks about privacy.",
+   "src": "L990"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council imagines machines copying a singer's voice without permission.",
+   "src": "L992"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A researcher asks whether copying a style is the same as stealing a specific work.",
+   "src": "L993"
+  }
+ }
+}

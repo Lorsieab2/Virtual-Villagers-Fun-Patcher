@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Second-Guessed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv33_second_guessed",
+  "source": "draft_adv",
+  "lines": [
+   386,
+   395
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L386",
+  "ledger": [
+   {
+    "src": "L387",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L392",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L395",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Everyone second-guesses a villager who planted beans in the north garden: stand by it, or start to doubt.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) decided to plant beans in the north garden this year instead of melons. Now it seems that everybody has a view. (friend) says the soil there is wrong for beans. (third) says beans attract beetles. Someone else says (other.his/her) grandmother never planted beans in the north garden, ever. The beans are already in the ground.",
+   "src": "L389",
+   "choices": [
+    {
+     "label": "Stand by It",
+     "next": "o1",
+     "src": "L391"
+    },
+    {
+     "label": "Start to Doubt",
+     "next": "o2",
+     "src": "L394"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Thank you all,\" says (subject). \"The beans are in. We'll see.\" The beans grow. Some beetles do arrive. Not many. The harvest is fine. Not wonderful, not terrible. (friend) and (third) never mention it again. (subject) doesn't bring it up either. That's how you know everybody was a little bit right.",
+   "src": "L392",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L392"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "By the third day of opinions, (subject) is lying awake worrying about beans. (subject.He/she) digs half of them up and puts melons in. In the end, both crops do about the same. (subject) laughs at (subject.him/her)self, a little ruefully. Next year, (subject.he/she) decides, (subject.he/she) will plant whatever (subject.he/she) likes, and tell nobody until it's up.",
+   "src": "L395",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L395"
+    }
+   ]
+  }
+ }
+}

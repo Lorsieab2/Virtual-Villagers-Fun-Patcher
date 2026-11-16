@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rainy Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il158_rainy_day",
+  "source": "da_il08",
+  "lines": [
+   206,
+   215
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L206",
+  "ledger": [
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Pouring rain keeps a villager stuck in their hut with nothing left to do: visit a friend, or let the day be slow.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It's pouring with rain. Nobody can work outside. (subject) is stuck in (subject.his/her) hut, and (subject.he/she) has already mended everything that needed mending, sorted everything that needed sorting, and swept the floor twice. The rain shows no sign of stopping. (subject) is restless.",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Go and Visit (friend)",
+     "next": "a",
+     "src": "L211"
+    },
+    {
+     "label": "Let the Day Be Slow",
+     "next": "b",
+     "src": "L214"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) runs through the rain to (friend)'s hut and arrives soaking wet. (friend) is also restless. They play a game with pebbles that neither of them really knows the rules to, and argue about the rules, and make up new rules. By the time the rain stops, they have invented a whole new game, and they keep playing anyway.",
+   "src": "L212"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) gives up trying to be useful and lies down to listen to the rain. It drums on the roof, then softens, then drums again. (subject.He/She) doesn't fall asleep. (subject.He/She) doesn't think about anything much. When the rain finally stops, (subject.he/she) is surprised to find the whole day has gone, and (subject.he/she) doesn't mind at all.",
+   "src": "L215"
+  }
+ }
+}

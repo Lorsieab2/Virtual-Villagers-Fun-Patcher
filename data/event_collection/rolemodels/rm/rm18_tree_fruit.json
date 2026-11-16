@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree with Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm18_tree_fruit",
+  "source": "rolemodels",
+  "lines": [
+   39,
+   39
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L39",
+  "ledger": [
+   {
+    "src": "L39",
+    "kind": "structural",
+    "text": "EVENT RM-18  -  THE TREE WITH FRUIT SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A family finds a tree heavy with ripe fruit, while several branches also shelter feeding birds.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family finds a tree heavy with ripe fruit, while several branches also shelter feeding birds.",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Gather Only the Fruit Within Easy Reach.",
+     "next": "a",
+     "src": "L39"
+    },
+    {
+     "label": "Collect Fallen Fruit That Is Still Sound.",
+     "next": "b",
+     "src": "L39"
+    },
+    {
+     "label": "Ask an Experienced Gatherer How Much to Take.",
+     "next": "c",
+     "src": "L39"
+    },
+    {
+     "label": "Share the Harvest with Neighboring Households.",
+     "next": "d",
+     "src": "L39"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family collects enough for supper without disturbing the birds.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Much of the fruit remains high above them, and they decide to return another day.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family fills a small basket and leaves the branches untouched.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Most fallen fruit is spoiled, so they seek food elsewhere.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L39"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gatherer explains how to harvest without damaging the tree.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The gatherer recommends waiting until more fruit ripens.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several families enjoy a small portion of fresh fruit.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The fruit is insufficient for everyone, and the family agrees to gather more when available.",
+   "src": "L39",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L39"
+    }
+   ]
+  }
+ }
+}

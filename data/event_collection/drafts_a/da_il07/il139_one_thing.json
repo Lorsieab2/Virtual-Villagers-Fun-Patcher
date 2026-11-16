@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Thing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il139_one_thing",
+  "source": "da_il07",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager's friend is good at everything, and today they discover the friend cannot whistle.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) is good at everything. Fishing, building, cooking, singing, telling stories. (subject) is (friend.his/her) friend, and (subject) is happy for (friend.him/her), and also, very privately, a tiny bit tired of it. Today, by sheer luck, they discover that (friend) cannot whistle. At all. (friend.He/She) purses (friend.his/her) lips and blows, and nothing comes out but air.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Teach (friend.him/her)",
+     "next": "a",
+     "src": "L229"
+    },
+    {
+     "label": "Enjoy It Quietly",
+     "next": "b",
+     "src": "L232"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) shows (friend) how to shape (friend.his/her) lips and where to put (friend.his/her) tongue. (friend) is hopeless. It's wonderful. They spend the afternoon at it, and by sunset (friend) manages one thin, wobbly little note. (friend.He/She) is delighted. (subject) is delighted too, for (friend.him/her), and only very slightly smug.",
+   "src": "L230"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) whistles a little tune, just once, very casually. Then (subject.he/she) says nothing at all. (friend) looks at (subject.him/her). \"That's very good,\" (friend.he/she) says. \"Thank you,\" says (subject). (subject.He/She) walks home feeling enormously cheerful and doesn't entirely know why. Actually, (subject.he/she) knows exactly why.",
+   "src": "L233"
+  }
+ }
+}

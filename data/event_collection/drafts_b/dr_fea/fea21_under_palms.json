@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Under the Palms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea21_under_palms",
+  "source": "draft_fea",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager will not walk under coconut palms and a friend asks why: explain, or take the straight path just once.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) will not walk under coconut palms. Ever. (subject.He/she) walks round them, sometimes a long way round, keeping one eye on the coconuts at all times. People tease (subject.him/her) about it, gently. Today (friend) is walking with (subject.him/her) and asks why (subject.he/she) won't just take the straight path.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Take the Straight Path Just Once",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Coconuts are heavy,\" says (subject). \"They fall without warning. And they're up there, every one of them, waiting.\" (friend) laughs, then stops, and looks up at the palms, and thinks about it. \"Huh,\" (friend.he/she) says. From then on, (friend) walks round the palms too. (subject) feels very vindicated.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes a deep breath and walks under the palms with (friend). Halfway along, a coconut drops with a thud, a good distance away. Both of them jump. \"SEE?\" says (subject). (friend) admits (friend.he/she) sees. They take the long way home.",
+   "src": "L257"
+  }
+ }
+}

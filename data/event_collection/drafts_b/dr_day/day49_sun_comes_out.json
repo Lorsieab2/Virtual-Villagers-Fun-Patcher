@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sun Comes Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day49_sun_comes_out",
+  "source": "draft_day",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "After seven days of rain a villager wakes to sunshine: wake everyone, or enjoy it alone first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has rained for seven days without stopping. The paths are mud, the huts smell damp, and everyone is sick of everyone else. This morning (name1) woke up to silence: no drumming on the roof. (He/she) steps outside. The sky is blue. The sun is out. Steam is rising from every roof in the village.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Wake Everyone",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Enjoy It Alone First",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) runs from hut to hut shouting, \"THE SUN!\" People stumble out, blinking. Then everybody is outside at once, hanging out bedding, letting the children run, laughing at nothing. It's the happiest the village has been in a week. By evening, everyone loves everyone again.",
+   "src": "L590"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) doesn't wake anyone. (He/she) sits on a log outside (his/her) hut and turns (his/her) face to the sun and stays there, eyes closed, for a long, warm, quiet while. The village wakes up around (him/her) gradually, one delighted cry at a time. (name1) had the first of it to (him/her)self. That was the best part.",
+   "src": "L593"
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Round Face That Counts the Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz086_round_face",
+  "source": "draft_hz2",
+  "lines": [
+   77,
+   87
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L77",
+  "ledger": [
+   {
+    "src": "L78",
+    "kind": "sensitivity",
+    "before": "a scholar",
+    "after": "(name1), a scholar,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching a shadow stick, a scholar wonders whether distant people carry small objects that tell the time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching a shadow stick, (name1), a scholar, wonders whether distant people might carry small objects with round faces and turning arms that tell them the time.",
+   "src": "L78",
+   "choices": [
+    {
+     "label": "Imagine Such a Device.",
+     "next": "a",
+     "src": "L79"
+    },
+    {
+     "label": "Imagine Living by It.",
+     "next": "b",
+     "src": "L82"
+    },
+    {
+     "label": "Prefer the Sun.",
+     "next": "c",
+     "src": "L85"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The scholar sketches a circle with pointing arms; a child asks why anyone would need to know the time so exactly.",
+   "src": "L80"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder imagines it made of metal and tiny wheels, and admits it sounds impossibly fiddly.",
+   "src": "L81"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A villager imagines never being late again; another imagines always being reminded that they are late.",
+   "src": "L83"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders whether people who watch time so closely might forget to watch the sky.",
+   "src": "L84"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village agrees the sun is a good enough clock for Isola.",
+   "src": "L86"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A teenager secretly wishes for such a device so they would stop missing supper.",
+   "src": "L87"
+  }
+ }
+}

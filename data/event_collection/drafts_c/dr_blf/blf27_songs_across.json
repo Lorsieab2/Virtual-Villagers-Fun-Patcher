@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Songs Across the Clearing",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "blf27_songs_across",
+  "source": "draft_blf",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a believer and one Isolan from outside the village; VV5 only)"
+   },
+   {
+    "src": "L320",
+    "kind": "note",
+    "why": "the heading's \"(VV5 only)\": the event is New Believers only"
+   }
+  ],
+  "description": "Gathering in the forest, a believer hears an Isolan singing by a stream: ask about the song, or listen from a distance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been gathering in the forest and has heard singing: an Isolan, (friend), sitting by a stream, singing a song (subject) has never heard. It's beautiful. (friend) stops when (friend.he/she) sees (subject), and looks wary.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Ask About the Song",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Listen from a Distance",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That was lovely,\" says (subject). \"What is it?\" (friend) studies (subject.him/her) for a while. Then (friend.he/she) says it's an old song about the stream. (friend.He/she) sings a little more. (subject) listens, then, a little shyly, sings a village song in return. They don't agree to anything or promise anything. They just swapped songs. (subject) walks home humming both.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) steps back and sits a little way off. After a moment, (friend) starts singing again, a little more quietly. (subject) listens until the end. Then (subject.he/she) gets up and goes home without a word. Over the next weeks, (subject.he/she) hums the tune without meaning to. It isn't a village song, and (subject.he/she) never sings it aloud. (subject.He/she) hums it very quietly, only to (subject.him/her)self.",
+   "src": "L329"
+  }
+ }
+}

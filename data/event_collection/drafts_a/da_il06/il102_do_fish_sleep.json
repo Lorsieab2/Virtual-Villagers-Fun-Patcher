@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do Fish Sleep?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il102_do_fish_sleep",
+  "source": "da_il06",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager lies awake wondering whether fish sleep, and goes down to the tide pools before dawn to find out.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been lying awake wondering whether fish sleep. They don't have eyelids. They're always moving. But they must get tired, surely? After a whole day of swimming? Before dawn, (subject) gets up, takes a torch and goes down to the tide pools to find out.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Watch Quietly",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Wake (friend) to Come and See",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) crouches by a tide pool, very still. The little fish hang in the water, barely moving, tucked under ledges. Are they asleep? Are they just thinking? One of them drifts sideways and gives a small, startled twitch, exactly the way (subject) does when (subject.he/she) dozes off by the fire. (subject) decides that's a yes.",
+   "src": "L26"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) is not delighted to be woken. (friend.He/She) comes anyway, wrapped in a blanket and grumbling. They crouch over the pool together. \"Are they asleep?\" whispers (subject). \"I was,\" whispers (friend). Then (friend.he/she) sees a fish slowly bump into a rock and drift away without noticing. They both have to cover their mouths so they don't laugh and wake it.",
+   "src": "L29"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Was There",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his43_elder_there",
+  "source": "draft_his",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-13)"
+   }
+  ],
+  "description": "An elder who was there laughs as a child sings the song of the Great Rescue: tell what really happened, or let the song stand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every child knows the story of the Great Rescue: the night the river flooded, and the brave villagers formed a human chain across the water and saved all the goats. There's a song about it. (friend) is singing it, and (subject), who was eight at the time, has started laughing.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Tell What Really Happened",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Let the Song Stand",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It was mostly mud,\" (subject) says. \"We all fell over. Repeatedly. Somebody lost their tunic. Half the goats got out by themselves and stood on a rock watching us. One of them bit the leader.\" (friend) is torn between horror and delight. \"But the song!\" \"The song's better,\" (subject) admits. \"Keep singing it. Just know there was a lot of mud.\"",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) just smiles and listens. Sometimes the song is truer than what happened, (subject.he/she) thinks, in a way. They were brave, in the mud. Later, though, (subject.he/she) tells (friend) one detail: \"The goat that bit the leader? That was MY goat.\" (friend) is impressed by this beyond anything in the song.",
+   "src": "L521"
+  }
+ }
+}

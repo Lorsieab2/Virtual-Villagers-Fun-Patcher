@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dry Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway02_dry_well",
+  "source": "living",
+  "lines": [
+   22720,
+   22734
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22720",
+  "ledger": [
+   {
+    "src": "L22734",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The village well yields less water every morning.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village well yields less water every morning.",
+   "src": "L22721",
+   "choices": [
+    {
+     "label": "Seek a hidden spring with Nature knowledge.",
+     "next": "a",
+     "src": "L22722"
+    },
+    {
+     "label": "Try a water-finding spell.",
+     "next": "b",
+     "src": "L22725",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Measure water use and repair leaks.",
+     "next": "c",
+     "src": "L22728"
+    },
+    {
+     "label": "Hold a ceremony and ration fairly.",
+     "next": "d",
+     "src": "L22731"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A patch of damp-loving plants reveals a nearby seep.",
+   "src": "L22723"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The plants indicate old moisture, not a usable spring.",
+   "src": "L22724"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Water rises briefly from a crack, raising new questions.",
+   "src": "L22726"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The spell fails, leaving the adept unsure why.",
+   "src": "L22727"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Careful records reveal a wasteful channel.",
+   "src": "L22729"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The repairs help, but drought continues.",
+   "src": "L22730"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The ceremony encourages shared restraint.",
+   "src": "L22732"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Families quarrel over whether the ration is fair.",
+   "src": "L22733"
+  }
+ }
+}

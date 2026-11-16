@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Way to Mourn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl17_other_way",
+  "source": "living",
+  "lines": [
+   21882,
+   21893
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21882",
+  "ledger": [
+   {
+    "src": "L21893",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A visiting community holds a funeral unlike any the villagers have seen.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visiting community holds a funeral unlike any the villagers have seen.",
+   "src": "L21883",
+   "choices": [
+    {
+     "label": "Attend respectfully.",
+     "next": "a",
+     "src": "L21884"
+    },
+    {
+     "label": "Ask about the customs.",
+     "next": "b",
+     "src": "L21887"
+    },
+    {
+     "label": "Keep to local traditions.",
+     "next": "c",
+     "src": "L21890"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The visitors welcome the quiet presence.",
+   "src": "L21885"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A villager learns that silence can mean different things in different ceremonies.",
+   "src": "L21886"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The visitors explain their beliefs without asking others to adopt them.",
+   "src": "L21888"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A careless question causes hurt, followed by an apology.",
+   "src": "L21889"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers honor their own practices.",
+   "src": "L21891"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child wonders why different people remember the dead differently.",
+   "src": "L21892"
+  }
+ }
+}

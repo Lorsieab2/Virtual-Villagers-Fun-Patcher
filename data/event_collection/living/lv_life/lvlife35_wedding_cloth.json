@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Cloth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife35_wedding_cloth",
+  "source": "living",
+  "lines": [
+   21084,
+   21095
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21084",
+  "ledger": [
+   {
+    "src": "L21095",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two partners want a ceremony garment that combines patterns from different families.",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two partners want a ceremony garment that combines patterns from different families.",
+   "src": "L21085",
+   "choices": [
+    {
+     "label": "Weave both family motifs.",
+     "next": "a",
+     "src": "L21086"
+    },
+    {
+     "label": "Invent a new pattern together.",
+     "next": "b",
+     "src": "L21089"
+    },
+    {
+     "label": "Wear traditional garments and exchange new sashes.",
+     "next": "c",
+     "src": "L21092"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The garment becomes a symbol of shared history.",
+   "src": "L21087"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The families argue over whose motif should be most visible.",
+   "src": "L21088"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The partners delight in a design uniquely their own.",
+   "src": "L21090"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder feels hurt until the partners explain its meaning.",
+   "src": "L21091"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both families recognize their customs in the ceremony.",
+   "src": "L21093"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new sashes become so popular that the weavers struggle to keep up.",
+   "src": "L21094"
+  }
+ }
+}

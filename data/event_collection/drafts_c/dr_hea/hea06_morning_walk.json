@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Morning Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea06_morning_walk",
+  "source": "draft_hea",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "meets an old fisher who walks",
+    "after": "meets (fisher), an old fisher who walks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A healer suggests a restless, snappish villager walk every morning: try it for a week, or try it once.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been restless and snappish for a while, and (subject.he/she) knows it. (friend) suggests a walk every morning before breakfast, all the way to the big rock and back. \"It doesn't fix everything,\" says (friend). \"But some people find their thoughts sit down better after their legs have been somewhere.\"",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Try It for a Week",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Try It Once",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The first morning is cold and damp and (subject) hates it. The second is a little better. On the third, (subject.he/she) meets (fisher), an old fisher who walks the same way every day, and they start walking together. By the end of the week (subject) is still restless some days. But (subject.he/she) has a walking friend now, and (subject.he/she) is a bit less snappish before breakfast. That's something.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) walks to the big rock once, comes home with sand in (subject.his/her) sandals and decides that mornings are for sleeping. \"I'm not a walker,\" (subject.he/she) tells (friend). \"That's alright,\" says (friend). \"Not everyone is. Let's think of something else.\" They think of something else: an hour of weaving in the quiet before dinner. It helps a little. Walking would never have suited (subject) anyway.",
+   "src": "L77"
+  }
+ }
+}

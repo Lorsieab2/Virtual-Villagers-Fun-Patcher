@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Day at the Kiln",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm87_last_day_kiln",
+  "source": "draft_rm2",
+  "lines": [
+   700,
+   713
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L700",
+  "ledger": [
+   {
+    "src": "L701",
+    "kind": "sensitivity",
+    "before": "An elderly potter",
+    "after": "(Name1), an elderly potter,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elderly potter announces that they are ready to stop working, and the village must decide how to respond.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), an elderly potter, announces that they are ready to stop working, and the village must decide how to respond.",
+   "src": "L701",
+   "choices": [
+    {
+     "label": "Celebrate the Potter's Work.",
+     "next": "a",
+     "src": "L702"
+    },
+    {
+     "label": "Ask the Potter to Teach One More Lesson.",
+     "next": "b",
+     "src": "L705"
+    },
+    {
+     "label": "Keep the Kiln Ready in Case They Return.",
+     "next": "c",
+     "src": "L708"
+    },
+    {
+     "label": "Ask What the Potter Wants Next.",
+     "next": "d",
+     "src": "L711"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village holds a gathering, and the potter is deeply moved.",
+   "src": "L703"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The potter prefers a quiet farewell, and the village honors that.",
+   "src": "L704"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The potter agrees and shares a technique nobody else knew.",
+   "src": "L706"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The potter declines, saying it is time to rest, and the village respects it.",
+   "src": "L707"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The potter visits occasionally and makes a pot for fun.",
+   "src": "L709"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The potter never returns, and the kiln passes to an apprentice.",
+   "src": "L710"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The potter wants to fish, and the fishers welcome them.",
+   "src": "L712"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The potter wants to simply rest and watch the sea.",
+   "src": "L713"
+  }
+ }
+}

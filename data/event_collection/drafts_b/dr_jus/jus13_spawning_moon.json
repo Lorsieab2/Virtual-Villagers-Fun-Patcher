@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spawning Moon Rule",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus13_spawning_moon",
+  "source": "draft_jus",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager fished the reef at the spawning moon against the old rule: bring it to the council, or talk to them first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's an old rule in the village: nobody fishes the reef on the nights around the spawning moon, so that the fish can breed. (subject) went anyway, and came back with a full net. (friend), who keeps the rule every year, saw (subject.him/her) come in.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Bring It to the Council",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Talk to (subject) First",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council asks (subject) why. (subject.He/she) says the rule is old and the reef is full of fish. The council doesn't agree. It asks (subject) to give the catch to the whole village rather than keep it, and to stay away from the reef at the next spawning moon. Some villagers think that's too harsh, others too soft. The rule stands.",
+   "src": "L158"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) waits for (subject.him/her) on the beach. \"You know the rule.\" \"I know. I thought one night wouldn't matter.\" \"That's what everyone would think.\" (subject) looks at the net for a long time. Then (subject.he/she) wades back into the water and lets the smallest fish go. It isn't all of them. It's something.",
+   "src": "L161"
+  }
+ }
+}

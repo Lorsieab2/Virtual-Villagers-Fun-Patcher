@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weather-Readers Far Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz110_weather_readers",
+  "source": "draft_hz2",
+  "lines": [
+   366,
+   376
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L366",
+  "ledger": [
+   {
+    "src": "L367",
+    "kind": "sensitivity",
+    "before": "a fisher",
+    "after": "(name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After an unexpected storm, a fisher wonders whether distant people can tell when storms are coming far in advance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After an unexpected storm, (name1), a fisher, wonders whether distant people can tell when storms are coming far in advance.",
+   "src": "L367",
+   "choices": [
+    {
+     "label": "Imagine Wise Weather-Readers.",
+     "next": "a",
+     "src": "L368"
+    },
+    {
+     "label": "Imagine Them Surprised Too.",
+     "next": "b",
+     "src": "L371"
+    },
+    {
+     "label": "Improve Isola's Own Weather-Reading.",
+     "next": "c",
+     "src": "L374"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher imagines people who watch clouds, winds and birds just as Isolans do.",
+   "src": "L369"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar wonders whether they might have tools that measure the wind and the weight of the air.",
+   "src": "L370"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that storms might surprise everyone, everywhere, sometimes.",
+   "src": "L372"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child finds this oddly comforting.",
+   "src": "L373"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The fishers agree to share their observations each morning.",
+   "src": "L375"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about what the clouds mean and keep arguing happily.",
+   "src": "L376"
+  }
+ }
+}

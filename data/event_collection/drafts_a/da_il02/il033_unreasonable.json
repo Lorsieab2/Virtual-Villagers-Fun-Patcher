@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unreasonable Grudge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il033_unreasonable",
+  "source": "da_il02",
+  "lines": [
+   369,
+   383
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L369",
+  "ledger": [
+   {
+    "src": "L371",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L383",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager still feels irritated about a tiny scratch a friend left on a borrowed basket three weeks ago.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Three weeks ago, (friend) borrowed (subject)'s favorite basket and returned it with a small scratch. (subject) said it was fine. It was, in fact, fine. Nevertheless, every time (subject) sees the scratch, (subject.he/she) remembers the incident and feels mildly irritated.",
+   "src": "L373",
+   "choices": [
+    {
+     "label": "Mention the Scratch",
+     "next": "a",
+     "src": "L375"
+    },
+    {
+     "label": "Keep Using the Basket",
+     "next": "b",
+     "src": "L379"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"That scratch?\" says (friend). \"I thought you said it was fine.\" \"It is fine,\" replies (subject). They stare at each other. Then (subject) laughs. \"I think I've been annoyed about a basket for three weeks.\" (friend) agrees that this is a rather long time.",
+   "src": "L377"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) carries the basket to the fields. By the end of the day it has acquired two more scratches. (subject.He/She) looks at all three and decides the basket has become rather distinguished.",
+   "src": "L381"
+  }
+ }
+}

@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Best Stick",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day15_best_stick",
+  "source": "draft_day",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-8 and an adult)"
+   }
+  ],
+  "description": "A child has found the best stick that ever existed and shows it off: admire it properly, or ask what it can do.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has found the best stick. It is long and straight, with a little fork at one end and a knob at the other. It is, (subject.he/she) is certain, the best stick that has ever existed. (subject.He/she) has been carrying it all day. It has been a sword, a spear, a walking stick, a fishing rod and a horse. (subject.He/she) shows it to (friend).",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Admire the Stick Properly",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Ask What It Can Do",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) takes the stick and examines it carefully, turns it over, tests its balance. \"This,\" (friend.he/she) says, \"is an exceptional stick.\" (subject) glows. (subject.He/she) takes it to bed. (subject.He/she) takes it to breakfast. Three days later (subject.he/she) finds a better stick, and the first one is forgotten forever.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What can it do?\" asks (friend). (subject) shows (friend.him/her). It can point at things. It can draw in the sand. It can knock a coconut off a low branch, nearly. It can stir a puddle. By the end of the demonstration, (friend) also wants a stick. (subject) helps (friend.him/her) find one. It is a good stick. Not as good.",
+   "src": "L185"
+  }
+ }
+}

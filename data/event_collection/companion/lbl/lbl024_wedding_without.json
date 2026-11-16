@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Without Music",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl024_wedding_without",
+  "source": "companion",
+  "lines": [
+   4100,
+   4110
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4100",
+  "ledger": [
+   {
+    "src": "L4101",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4109",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4110",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A couple's planned celebration loses its musicians to bad weather.",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "partner1",
+    "years": 10
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A couple's planned celebration loses its musicians to bad weather.",
+   "src": "L4102",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4103"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4104"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4105"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "celebration",
+     "reason": "a couple's wedding, not the village's celebration (rule 7)",
+     "src": "L4102"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "Guests sing together without instruments.",
+   "src": "L4106"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A novice drummer saves the festivities.",
+   "src": "L4107"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The couple chooses a quiet private ceremony instead.",
+   "src": "L4108"
+  }
+ }
+}

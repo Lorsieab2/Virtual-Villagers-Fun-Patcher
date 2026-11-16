@@ -767,6 +767,107 @@ static void follow_cases(void) {
     DeleteFileA(path);
 }
 
+/* ---- a sex change (native/shared/sex_change.h) -------------------------
+
+   Nishi [5], a daughter of Kito and Chika, has her sex changed.  She is the
+   same villager: her parents stay hers in play (VvfpVillagerSexChanged) and
+   after a reload; when the save was not saved after the change, the slot's
+   "Sex Changes" log says so; two of her name are never guessed; and a parent
+   recorded in the father's or the mother's place is found though their sex
+   changed (vv1_only_looks_in), only when the log names them. */
+
+static void sex_log(const char *text) {
+    char folder[MAX_PATH], file[MAX_PATH], exe[MAX_PATH], *base, *dot;
+    GetModuleFileNameA(NULL, exe, MAX_PATH);
+    base = strrchr(exe, '\\');
+    base = base ? base + 1 : exe;
+    dot = strrchr(base, '.');
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+    wsprintfA(folder, "%s\\LDW\\%s\\" VV_DATA_FOLDER "\\Sex Changes", g_docs, base);
+    CreateDirectoryA(folder, NULL);
+    wsprintfA(file, "%s\\Sex Changes - Save %d.txt", folder, SLOT);
+    DeleteFileA(file);
+    if (text != NULL) {
+        write_all(file, text, (DWORD)lstrlenA(text));
+    }
+}
+
+static void flip(unsigned char *records, int index, unsigned char *was) {
+    unsigned char *rec = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    int *g = (int *)(rec + VV1_GENDER_OFFSET);
+    memcpy(was, rec, VV1_RECORD_STRIDE);
+    *g = *g == 1 ? 2 : 1;
+}
+
+static void sex_cases(void) {
+    static unsigned char file[16 + sizeof(g_roster) + sizeof(g_entries) + 4096];
+    static unsigned char was[VV1_RECORD_STRIDE];
+    DWORD size = 0;
+    int h = -1, b = -1;
+
+    /* In play: the word reaches the companion; the parents stay hers, and the file says so at once. */
+    sex_log(NULL);
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    flip(after_load, 5, was);
+    check(vv1_sex_changed(SLOT, after_load, after_load + 5 * VV1_RECORD_STRIDE, was) == 1,
+          "sex change: the change is carried");
+    tick(after_load, 5);
+    check(has_parents(5, 1) && g_roster[5].gender == 1, "sex change: in play the parents stay theirs");
+    fresh();
+    tick(after_load, 5);
+    check(g_loaded_slot == SLOT && has_parents(where(after_load, "Nishi"), 1),
+          "sex change: written at once, a reload with the new sex finds them");
+    read_all(path, file, sizeof file, &size);
+
+    /* Without the word the same frames lose them (what the export is for). */
+    write_owner_sidecar();
+    memcpy(after_load, before_load, sizeof(after_load));
+    play(after_load, 2);
+    flip(after_load, 5, was);
+    tick(after_load, 5);
+    check(!has_parents(5, 1), "sex change: without the word the parents are not hers (the control)");
+
+    /* The save not saved after the change: the file says male, the save female. */
+    memcpy(after_load, before_load, sizeof(after_load));
+    write_all(path, file, size);
+    fresh();
+    tick(after_load, 5);
+    check(!has_parents(5, 1), "sex change: without the log, a save older than the change does not find them");
+    write_all(path, file, size);
+    sex_log("F\tM\tNishi\r\n");
+    fresh();
+    tick(after_load, 5);
+    check(g_loaded_slot == SLOT && has_parents(5, 1), "sex change: with the slot's log naming them, it does");
+
+    /* Two of that name and family on screen: never a guess. */
+    write_all(path, file, size);
+    put(after_load, OWNER_VILLAGERS, "Nishi", 0, 39);
+    fresh();
+    tick(after_load, 5);
+    check(!has_parents(5, 1) && !has_parents(OWNER_VILLAGERS, 1), "sex change: a namesake is never guessed");
+
+    /* A parent recorded in the father's place whose sex changed since: found only with the log. */
+    memcpy(after_load, before_load, sizeof(after_load));
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_GENDER_OFFSET) = 2;      /* Kito, now female */
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 3;
+    *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 9;
+    sex_log(NULL);
+    vv1_only_looks_in(after_load, SLOT, "Kito", 1, &h, &b);
+    check(h == -1 && b == -1, "sex change: without the log a father is never taken for a woman of his name");
+    sex_log("M\tF\tKito\r\n");
+    vv1_only_looks_in(after_load, SLOT, "Kito", 1, &h, &b);
+    check(h == 3 && b == 9, "sex change: with the log the recorded father is found, whatever his sex now");
+    h = b = -1;
+    vv1_only_looks_in(after_load, SLOT, "Chika", 0, &h, &b);
+    check(h == 0 && b == 0, "sex change: (Chika, the mother, is found as before)");
+    sex_log(NULL);
+    DeleteFileA(path);
+}
+
 /* ---- the title screen's seeded founders (the owner's v1.35.67 loss) ----
 
    At startup A New Home reads every slot to list it (0x41D260); an empty
@@ -1372,6 +1473,7 @@ int main(int argc, char **argv) {
     }
 
     follow_cases();
+    sex_cases();
     title_screen_cases();
     departed_list_cases();
 

@@ -1,0 +1,39 @@
+{
+  "id": "vv4_children_play",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Children Play Tag",
+  "description": "Children play tag, a new play choice using the game's own unused \"Playing tag\" words. Each time a child picks something to play, one roll of 1 to 15 decides: 1 is tag, anything else the child's usual choices with their usual odds (sandcastles on the beach are the game's own and unchanged): tag is 1 pick in 15. **The Lost Children's tag rule**: every child who is not sick, has empty hands and does not dislike playing joins, the child who started is \"It\", and they run together through the places the game's own \"Running around\" uses; it needs at least two children, otherwise the child picks as usual. **A child who dislikes playing never starts or joins it.** While playing, the game counts the children as \"Running around\". **On by default.** **Needs no other patch.** **Works the same with every other patch and in every population mode.** **Children play only while the game runs, as in the stock game: nothing happens while it is closed.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Children Play.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Children Play Tag",
+  "dependencies": [],
+  "behavior_changes": [
+    "The pastime pick's call (0x4658D7 -> 0x465260) goes to the companion. Unless the child dislikes Playing (0x12 in +0x1E6C), rand(15) (0x4036D0): 0 tag, else the stock pick.",
+    "Tag: the players are every record in use (+0x1CC4), not a body (+0x1CC7), alive, under 0x118, not sick (+0x1C48), hands empty (+0x1CDC = -1) and not disliking Playing, and the starter; with fewer than two the stock pick runs. Each player: stop 0x468C60, do-action 0x45DEC0 \"Running around\" (0x46), stop again, string 0x1EB (the starter 0x1EC) through 0x44D3D0 into +0x1CE4 (0x4724E0, 39 bytes), six walks 0x469050 at speed 150 through the six places of \"Running around\" (0x450F10) in one order shared by the players, its last step 0x469EC0(1, 4, 1, 0.0), and the queue started (0x46A030)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the call(s) at run time, only after verifying every one is the stock call; all are written or none.",
+    "The stock pick, its choices and their odds among themselves are unchanged; a child who dislikes Playing gets it exactly as stock.",
+    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it).",
+    "The action The Tree of Life records for a tag player (+0x1CE0) is the stock \"Running around\" (0x46), set by the game's own do-action; its readers (0x42EB09, 0x42F211, 0x42F266, 0x42F2D9, 0x42F330, 0x436897, 0x43A5EB, 0x46788F) test only other actions. The save keeps only the record's windows (0x45DB30: +0x1B8C, +0x1C34, +0x1C5C and the likes and dislikes), so neither the action, the tag text (+0x1CE4) nor the queue is ever saved; a load resets them (0x45D8A0)."
+  ],
+  "evidence_status": "the stock pastime picks, tag and sandcastle routines traced statically; the companion's install, its odds over many picks, who plays and where, emulated on the rendered executable in tests/test_children_play.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/children_play/VVFP Children Play.dll",
+      "destination": "VVFP Children Play.dll",
+      "sha256": "B32B81EA3157CBA611723E170C4C77975FE8566CB4B02A2659AB3A3B06997BE8"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4658D7",
+      "stock_bytes": "E884F9FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "a call of the child pastime pick 0x465260 goes to the companion's pick, which adds tag and sandcastles as normal play choices and otherwise calls it",
+      "installed_by": "VVFP Children Play.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

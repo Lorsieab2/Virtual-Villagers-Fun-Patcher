@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Web Across the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat20_web_across_door",
+  "source": "draft_nat",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager walks face-first into the same spider's web every morning: use the back door, or move the spider.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning, (name1) steps out of (his/her) hut and walks face-first into a spider web. Every evening, the spider builds a new one, a great golden wheel across the doorway, perfect and shining. The spider is large, harmless and extremely patient. (name1) is running out of patience.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Use the Back Door",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Move the Spider",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) starts going in and out through the back of the hut, where (he/she) has to duck under the low eaves. It's awkward. It's undignified. But every morning (he/she) gets to look at the web in the front doorway with the sun coming through it, and it's honestly beautiful. Visitors are told to come round the back. Most of them think (he/she) has lost (his/her) mind.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) gently scoops the spider onto a stick and carries it to a bush a good way off. The next morning, there's no web. (name1) feels oddly lonely about it. The morning after that, there is a web across the doorway again. It's a different spider, or the same one, or its cousin. (name1) walks into it. (He/she) laughs and goes round the back.",
+   "src": "L245"
+  }
+ }
+}

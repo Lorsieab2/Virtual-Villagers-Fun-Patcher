@@ -1,0 +1,75 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il010_little_voice",
+  "source": "da_il01",
+  "lines": [
+   113,
+   122
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L113",
+  "ledger": [
+   {
+    "src": "L114",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child building a tall tower of shells hears a little voice that says it will fall.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) is building the tallest tower of shells anyone has ever built. Partway up, a little voice in (his/her) head says: It's going to fall. You're not good at this. Everyone will laugh. (name1) stops, hand in the air, holding one very small shell.",
+   "src": "L116",
+   "choices": [
+    {
+     "label": "Put the Shell on Anyway",
+     "next": "a",
+     "src": "L118"
+    },
+    {
+     "label": "Take the Tower Down and Build a Wall Instead",
+     "next": "b",
+     "src": "L121"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) puts the shell on top. The tower wobbles. It wobbles some more. It stays up! (name1) shrieks so loudly that three villagers come running to see. The little voice is very quiet for the rest of the day.",
+   "src": "L119"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Walls are better anyway,\" (name1) decides. (He/She) builds a long, wonderful wall that winds all the way around a tide pool. The crabs inside seem very impressed. The little voice has nothing to say about walls.",
+   "src": "L122"
+  }
+ }
+}

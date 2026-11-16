@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council of Four Voices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway24_council_four",
+  "source": "living",
+  "lines": [
+   23072,
+   23086
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23072",
+  "ledger": [
+   {
+    "src": "L23086",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A landslide threatens homes, and four advisers propose different responses.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A landslide threatens homes, and four advisers propose different responses.",
+   "src": "L23073",
+   "choices": [
+    {
+     "label": "Ask the Nature master to reinforce the hillside.",
+     "next": "a",
+     "src": "L23074"
+    },
+    {
+     "label": "Ask the Science master to study the slope.",
+     "next": "b",
+     "src": "L23077"
+    },
+    {
+     "label": "Ask the Magic master to stabilize the rocks.",
+     "next": "c",
+     "src": "L23080",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Ask the spiritual elder to guide a communal departure.",
+     "next": "d",
+     "src": "L23083"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Roots help hold the soil, though the work takes seasons.",
+   "src": "L23075"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The plants fail to establish before the next rain.",
+   "src": "L23076"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A survey identifies the safest relocation site.",
+   "src": "L23078"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The survey is incomplete when the slope moves again.",
+   "src": "L23079"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A dangerous boulder settles into place.",
+   "src": "L23081"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The spell fails, and the adept urges evacuation.",
+   "src": "L23082"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A ceremony helps families leave together.",
+   "src": "L23084"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Some villagers refuse to wait for the ritual and depart early.",
+   "src": "L23085"
+  }
+ }
+}

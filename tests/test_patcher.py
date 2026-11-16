@@ -1198,8 +1198,18 @@ class ManifestTests(unittest.TestCase):
         # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
-        # byte -- its companion moves the pickup jobs' award steps at run time.
-        self.assertEqual(len(feature_ids), 43)
+        # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
+        # (vv2_scrolling_popups), no executable byte -- its companion writes its call sites at run time; 45 with
+        # More Island Events (vv2_more_island_events), no executable byte -- its companion writes its five sites at
+        # run time; 46 with Isola Grand Event Collection (vv2_isola_grand_event_collection), no executable byte --
+        # data files the Story / Cheat Upgrades companion reads; 47 with Empty the Stew Pot from the Science Hut Door
+        # (vv2_empty_stew_pot), no executable byte -- its companion writes its two sites at run time; 48 with Adults
+        # Dropped on Mushrooms or Collectibles Are Confused (vv2_adult_confused), no executable byte -- its companion
+        # writes the adult dispatcher's Confused call at run time; 49 with Children Play Tag and Build Sandcastles
+        # (vv2_children_play), no executable byte -- its companion writes its sites at run time; 50 with Change Sex
+        # and Gender Presentation (vv2_gender_presentation), no executable byte -- its companion writes its draw and
+        # conception sites at run time.
+        self.assertEqual(len(feature_ids), 50)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2626,6 +2636,9 @@ class StockIntegrationTests(unittest.TestCase):
                 # Requires the Origins upgrades row excluded above.
                 "vv1_story_cheat_upgrades",
                 "vv1_story_cheat_upgrades_cost_tech_points",
+                # Require Story / Cheat Upgrades, excluded above.
+                "vv1_more_island_events",
+                "vv1_isola_grand_event_collection",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4149,6 +4162,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_game_log",
                 "vv2_totems_out_of_entries",
                 "vv2_original_look",
+                # Change Sex and Gender Presentation: in the Origins Change Appearance window.
+                "vv2_gender_presentation",
             # Render Unicode with In-Game Fonts: companion only, no executable bytes.
             "vv2_unicode_text",
             "vv2_translations",
@@ -4166,6 +4181,17 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_preferred_job_graves",
             # Picked Up Collectibles Stay Collected When Dropped: companion only, no executable bytes.
             "vv2_collectibles_stay_collected",
+            # Scrolling Popups: companion only, no executable bytes.
+            "vv2_scrolling_popups",
+            "vv2_more_island_events",
+            # Isola Grand Event Collection: data files the Story companion reads, no executable bytes.
+            "vv2_isola_grand_event_collection",
+            # Empty the Stew Pot from the Science Hut Door: companion only, no executable bytes.
+            "vv2_empty_stew_pot",
+            # Adults Dropped on Mushrooms or Collectibles Are Confused: companion only, no executable bytes.
+            "vv2_adult_confused",
+            # Children Play Tag and Build Sandcastles: companion only, no executable bytes.
+            "vv2_children_play",
             },
         )
         for mode in ALL_MODES:

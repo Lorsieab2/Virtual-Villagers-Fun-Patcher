@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hermit Crab Hotel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il173_hermit_crab",
+  "source": "da_il09",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child lays out empty shells on the sand as a hotel for hermit crabs who need a bigger room.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has noticed that some hermit crabs on the beach are living in shells that are much too small for them. This seems very unfair. So (subject.he/she) has collected every empty shell (subject.he/she) can find and laid them out in a row on the sand, from small to large. It's a hotel, (subject.he/she) explains to (friend). For crabs who need a bigger room.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Watch and Wait Together",
+     "next": "a",
+     "src": "L157"
+    },
+    {
+     "label": "Leave the Hotel Open Overnight",
+     "next": "b",
+     "src": "L160"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They sit very still and watch. For a long time nothing happens. Then a crab in a shell that's far too small wanders over, inspects three shells, climbs out of its old one and dashes into a bigger one, all in the blink of an eye. (subject) grabs (friend)'s arm so hard it hurts. \"IT WORKED!\"",
+   "src": "L158"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) leaves the shells out overnight. In the morning (subject.he/she) runs down to check. Some of the shells have moved. Some have gone. There's a very small old shell left where a big one used to be. (subject) can't be sure what happened, but (subject.he/she) decides the hotel had a very good night.",
+   "src": "L161"
+  }
+ }
+}

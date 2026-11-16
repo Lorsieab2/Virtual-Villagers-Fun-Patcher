@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Terrible Advice from an Older Sibling",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv13_terrible_advice",
+  "source": "draft_adv",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an older sibling aged 18-25 (where the game records it)"
+   },
+   {
+    "src": "L152",
+    "kind": "sensitivity",
+    "before": "The other teen, as far as",
+    "after": "(teen), the other teen, as far as",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L155",
+    "kind": "sensitivity",
+    "before": "The other teen smiles",
+    "after": "(teen), the other teen, smiles",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teen who likes someone gets terrible advice from an older sibling: try it anyway, or do the opposite.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) likes someone (subject.his/her) own age and doesn't know what to do about it. (subject.He/she) asks (friend), (friend.his/her) older sibling, who has opinions about everything. (friend) leans back and says, very confidently, \"Ignore them completely. Then they'll notice you.\" This is the worst advice (subject) has ever heard.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Try It Anyway",
+     "next": "o1",
+     "src": "L151"
+    },
+    {
+     "label": "Do the Opposite",
+     "next": "o2",
+     "src": "L154"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tries ignoring them for a day. It's agony. (teen), the other teen, as far as (subject) can tell, doesn't notice a thing. At the end of the day, (subject) gives up and says hello. They talk about fishing for an hour. It's nice. (subject) goes home and tells (friend) that (friend.his/her) advice was rubbish. (friend) shrugs. \"Worked for me once.\"",
+   "src": "L152"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides that if (friend) says ignore, the answer is probably to say hello. So (subject.he/she) does. (teen), the other teen, smiles and says hello back. That's all, but it's enough for one day. (subject) doesn't tell (friend) anything. (friend) finds out anyway, the way older siblings always do, and is insufferable about it for a week, as though it was (friend.his/her) plan all along.",
+   "src": "L155"
+  }
+ }
+}

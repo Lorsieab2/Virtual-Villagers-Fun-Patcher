@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Looking Two Ways",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div23_looking_two_ways",
+  "source": "draft_div",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-13 and another child; in the story (name1)'s eyes point in slightly different directions)"
+   }
+  ],
+  "description": "A younger child asks which of a child's eyes to look at, since one drifts outward: answer back, or ignore it and keep playing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s eyes don't point quite the same way; one tends to drift a little outward. It's always been like that. Today a younger child, (friend), squints at (subject.him/her) and says, \"You're looking at me funny. Which eye do I look at?\"",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Answer (friend.him/her) Back",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Ignore It and Keep Playing",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Either,\" says (subject). \"I'm looking at you with this one and the parrot behind you with the other.\" (friend) spins round. There is, in fact, a parrot. (friend) is deeply impressed. For the rest of the day (friend.he/she) follows (subject) around asking what (subject.his/her) other eye is looking at. Most of the answers are made up. Some of them aren't.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) has heard it a hundred times and doesn't feel like answering. \"Do you want to play or not?\" (subject.he/she) says. (friend) does. They play crabs-and-fishers until dark, and (friend) never asks again. Later, at home, (friend) tells (friend.his/her) family about (subject)'s amazing fish-catching technique. It doesn't occur to (friend.him/her) to mention the eyes.",
+   "src": "L281"
+  }
+ }
+}

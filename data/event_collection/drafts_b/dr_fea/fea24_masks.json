@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Masks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea24_masks",
+  "source": "draft_fea",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-8 and an adult)"
+   },
+   {
+    "src": "L290",
+    "kind": "sensitivity",
+    "before": "underneath is a perfectly ordinary",
+    "after": "underneath is (dancer), a perfectly ordinary",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L290",
+    "kind": "sensitivity",
+    "before": "the dancer says",
+    "after": "(dancer) says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L290",
+    "kind": "sensitivity",
+    "before": "Less of the dancer.",
+    "after": "Less of (dancer).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A small child is terrified of the festival dancers' masks: meet a dancer up close, or watch from further back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "dancer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "dancer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's festival night, and the dancers have put on their big carved masks: huge eyes, enormous painted mouths, feathers everywhere. Everyone is cheering. (subject) is hiding behind (friend)'s legs, holding on very tightly, absolutely terrified.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Take (subject.him/her) to Meet a Dancer",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Watch from Further Back",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) waves one of the dancers over. The dancer kneels down, slowly lifts off the mask, and underneath is (dancer), a perfectly ordinary, smiling villager (subject) knows. \"It's just me,\" (dancer) says. (subject) stares. Then (subject.he/she) touches the mask very carefully. (subject.He/she) is still a bit scared of the masks. Less of (dancer).",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) picks (subject) up and moves to the very back, near the trees, where the masks are small and far away. From here, the dancing is beautiful. (subject) watches with (subject.his/her) face half hidden in (friend)'s shoulder, peeking. By the end of the night, (subject.he/she) is peeking with both eyes.",
+   "src": "L293"
+  }
+ }
+}

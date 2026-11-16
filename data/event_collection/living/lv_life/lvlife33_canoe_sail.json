@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Sail of Leaves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife33_canoe_sail",
+  "source": "living",
+  "lines": [
+   21058,
+   21069
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21058",
+  "ledger": [
+   {
+    "src": "L21069",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A sailor wants a new sail woven from palm fiber instead of familiar cloth.",
+  "cast_only": [
+   "sailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "sailor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A sailor wants a new sail woven from palm fiber instead of familiar cloth.",
+   "src": "L21059",
+   "choices": [
+    {
+     "label": "Try the palm-fiber sail.",
+     "next": "a",
+     "src": "L21060"
+    },
+    {
+     "label": "Use the traditional sail.",
+     "next": "b",
+     "src": "L21063"
+    },
+    {
+     "label": "Combine both materials.",
+     "next": "c",
+     "src": "L21066"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The canoe moves well in a gentle breeze.",
+   "src": "L21061"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The sail tears in rough wind, and the sailor returns safely to shore.",
+   "src": "L21062"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The voyage is predictable and uneventful.",
+   "src": "L21064"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The old sail becomes waterlogged, inspiring another experiment.",
+   "src": "L21065"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The reinforced sail lasts through several trips.",
+   "src": "L21067"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Its extra weight makes the canoe harder to handle.",
+   "src": "L21068"
+  }
+ }
+}

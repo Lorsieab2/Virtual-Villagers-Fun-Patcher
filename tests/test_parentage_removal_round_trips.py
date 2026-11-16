@@ -118,14 +118,26 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 # built with the row it conflicts with.
                 and item.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
             ]
+            def needs(patch_id: str) -> set[str]:
+                """The row and every row it requires, directly or through another."""
+                seen, todo = set(), [patch_id]
+                while todo:
+                    pid = todo.pop()
+                    if pid not in seen:
+                        seen.add(pid)
+                        todo.extend(patcher.get_fun_patch(pid).raw.get("dependencies") or ())
+                return seen
+
             without_origins = [
                 item
                 for item in every
                 if not item.endswith(ORIGINS_SUFFIXES)
                 # Story / Cheat Upgrades requires the public Origins upgrades
                 # row, so it cannot be selected without it -- nor can the row
-                # that makes it cost tech points, which requires it.
-                and "_story_cheat_upgrades" not in item
+                # that makes it cost tech points, which requires it -- nor any row
+                # that requires it in turn (More Island Events, the Isola Grand Event
+                # Collection, Classic VV Difficulty through More Island Events).
+                and not any("_story_cheat_upgrades" in need for need in needs(item))
             ]
 
             for label, requested in SELECTION_FORMS(every, without_origins):

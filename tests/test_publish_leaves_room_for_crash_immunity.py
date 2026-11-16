@@ -151,6 +151,15 @@ class PublishLeavesRoomForCrashImmunityTests(unittest.TestCase):
                     # Story / Cheat Upgrades requires the Origins upgrades row.
                     and "_story_cheat_upgrades" not in feature_id
                 ]
+                # ...and a row that needs one left out (More Island Events and the Isola Grand Event Collection
+                # need Story / Cheat Upgrades; Classic VV Difficulty needs More Island Events) cannot be ticked
+                # either: drop it too, until nothing changes.
+                needs = {f.id: list(f.raw.get("dependencies") or []) for f in load_fun_patches()}
+                while True:
+                    trimmed = [i for i in selected if all(d in selected for d in needs.get(i, []))]
+                    if trimmed == selected:
+                        break
+                    selected = trimmed
                 self.assertTrue(
                     selected, f"{game_id} has no non-Origins features to compose"
                 )

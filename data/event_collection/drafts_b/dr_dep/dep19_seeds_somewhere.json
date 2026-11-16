@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Seeds from Somewhere Else",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep19_seeds_somewhere",
+  "source": "draft_dep",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A departing traveler gives a villager seeds from a faraway home: plant them right away, or keep them safe for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Before leaving, a traveler presses a small leaf packet into (name1)'s hand. Inside are a dozen dark, wrinkled seeds. \"From where I grew up,\" they say. \"Plant them, if you like.\" Then they are gone along the coast, and (name1) is left holding seeds that look like nothing that grows on this side of the island.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Plant Them Right Away",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Keep Them Safe for Now",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) plants all twelve in the best corner of the garden. Four come up. They grow into a tall, thin plant with fuzzy leaves and flowers that only open at night. Nobody has any idea what it is or whether you can eat it. (name1) waters it every day anyway. It smells, after dark, like nothing else on the island.",
+   "src": "L230"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) keeps the seeds in a little pot by (his/her) sleeping mat. (He/she) isn't ready to plant them. Planting them would mean they might not grow. Every now and then (he/she) takes the packet out and looks at it. Maybe next season. The seeds don't mind waiting. Seeds are good at that.",
+   "src": "L233"
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fishers Who Take Too Much",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz125_fishers_take",
+  "source": "draft_hz2",
+  "lines": [
+   546,
+   556
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L546",
+  "ledger": [
+   {
+    "src": "L547",
+    "kind": "sensitivity",
+    "before": "a fisher",
+    "after": "(name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After a poor catch, a fisher wonders whether distant fishers might have nets so large they could empty the sea.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a poor catch, (name1), a fisher, wonders whether distant fishers might have nets so large they could empty the sea.",
+   "src": "L547",
+   "choices": [
+    {
+     "label": "Imagine Huge Nets.",
+     "next": "a",
+     "src": "L548"
+    },
+    {
+     "label": "Imagine Careful Fishers.",
+     "next": "b",
+     "src": "L551"
+    },
+    {
+     "label": "Look at Isola's Own Fishing.",
+     "next": "c",
+     "src": "L554"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher imagines great nets dragged by enormous boats and feels uneasy.",
+   "src": "L549"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar wonders whether such fishing could leave nothing for the next generation.",
+   "src": "L550"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests distant fishers might follow rules about how much to take, as some Isolans do.",
+   "src": "L552"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic says rules are only as good as the people who follow them.",
+   "src": "L553"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The fishers agree to rest one fishing spot for a season.",
+   "src": "L555"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The fishers disagree and agree to watch the fish more closely before deciding.",
+   "src": "L556"
+  }
+ }
+}

@@ -1,0 +1,391 @@
+DAY-01
+DESC: Everything a villager eats today tastes wonderful, even a plain root: share some with a friend, or keep it to yourself.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DAY-02
+DESC: A villager wakes up grumpy for no reason as a friend arrives far too cheerful: say so, or try to be pleasant.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1
+O2: 111
+REVIEW: ok
+
+DAY-03
+DESC: Three good things happen to a villager before breakfast: tell a friend, or wait and see what comes next.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 1
+O2: 11
+REVIEW: ok
+
+DAY-04
+DESC: A villager hangs out every mat and blanket in a perfect drying wind: help hang things, or just admire the wind.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 2
+O2: 111
+REVIEW: ok
+
+DAY-05
+DESC: A villager has a bright red sunburnt nose and a friend brings a green remedy: accept it, or pretend nothing is wrong.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13 g=grownup:18+
+EDIT O2: "A child asks" => "[c], a child, asks"
+EDIT O2: "A grown-up asks" => "[g], a grown-up, asks"
+S: 11
+O1: 1
+O2: 111
+REVIEW: ok
+
+DAY-06
+DESC: Two villagers keep bumping into each other all day by accident: spend the rest of the day together, or go opposite ways.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DAY-07
+DESC: For once a villager has the hut all to themselves: do absolutely nothing, or do all the things you never get to.
+ROLES: name1=18+
+S: 11
+O1: 11111
+O2: 1111
+REVIEW: ok
+
+DAY-08
+DESC: A villager has one line of a children's song stuck in their head: sing it out loud, or try to think of a different song.
+ROLES: name1=18+ name2=18+
+S: 111
+O2: 1
+REVIEW: ok
+
+DAY-09
+DESC: After a great morning's work, a villager finds a goat finishing their lunch: laugh, or be annoyed.
+ROLES: name1=18+ name2=18+
+S: 1111111
+O1: 2
+O2: 11
+REVIEW: ok
+
+DAY-10
+DESC: A villager gets home just as the rain pours down, without a drop on them: watch from the doorway, or invite someone in.
+ROLES: name1=18+ name2=18+
+S: 1111
+O1: 111
+REVIEW: ok
+
+DAY-11
+DESC: A villager had a brilliant idea at dawn and has completely forgotten it: try to remember, or let it go.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1111
+O2: 111
+REVIEW: ok
+
+DAY-12
+DESC: The whole village is cheerful but one villager just feels flat: say you are not in the mood, or go somewhere quieter.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 2
+O2: 111
+REVIEW: ok
+
+DAY-13
+DESC: A villager wakes from a nap to find the whole afternoon gone: ask what time it is, or pretend you meant to do that.
+ROLES: name1=18+ name2=18+
+S: 111111
+O1: 11
+O2: 1
+REVIEW: ok
+
+DAY-14
+DESC: After a big wind there is sand in absolutely everything a villager owns: give up on the sand, or clean everything.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 111
+O2: 1
+REVIEW: ok
+
+DAY-15
+DESC: A child has found the best stick that ever existed and shows it off: admire it properly, or ask what it can do.
+ROLES: name1=4-8 name2=18+
+S: 111
+O1: 2111
+O2: 22
+REVIEW: ok
+
+DAY-16
+DESC: A villager's wall falls over at sunset after a whole day's work: say it was a terrible day, or start again right now.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 22
+O2: 111
+REVIEW: ok
+
+DAY-17
+DESC: For no clear reason everyone keeps saying hello to a villager: ask a friend what is happening, or say hello back louder.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+ c=child:3-13
+EDIT S: "An elder called" => "[e], an elder, called"
+EDIT S: "A child ran" => "[c], a child, ran"
+EDIT O2: "to the elder" => "to [e]"
+S: 1
+O1: 1
+REVIEW: ok
+
+DAY-18
+DESC: It is the most beautiful day of the season and a villager is exhausted: go swimming anyway, or stay in the shade.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 11111
+O2: 111
+REVIEW: ok
+
+DAY-19
+DESC: Overnight every fruit near a villager's hut has ripened at once: give them away, or make something with them.
+ROLES: name1=18+ name2=18+
+S: 1
+REVIEW: ok
+
+DAY-20
+DESC: A little bird sings all day on the post outside a villager's hut: sit outside with it, or try to whistle the song back.
+ROLES: name1=18+ name2=18+
+O1: 1
+O2: 1
+REVIEW: ok
+
+DAY-21
+DESC: A seagull tries to drag off the biggest fish a villager has caught all season: chase the gull, or let it have the fish.
+ROLES: name1=18+
+S: 111
+O1: 1
+REVIEW: ok
+
+DAY-22
+DESC: A villager stepped in a deep puddle at dawn and both sandals will not dry: take them off, or squelch on.
+ROLES: name1=18+ name2=18+
+O1: 1111
+O2: 111
+REVIEW: ok
+
+DAY-23
+DESC: After a night of rain a child gazes at the biggest puddle with desperate hope: say yes, or say yes after a change of clothes.
+ROLES: name1=4-9 name2=18+
+FIG: c=child:3-13
+EDIT O2: "Then a child jumps" => "Then [c], another child, jumps"
+S: 11
+O2: 12
+REVIEW: ok
+
+DAY-24
+DESC: An elder's sore knees do not hurt at all today: take a long walk, or enjoy it quietly.
+ROLES: name1=55+
+S: 11
+O1: 1111111
+O2: 1
+REVIEW: ok
+
+DAY-25
+DESC: A villager's long-standing back pain is bad today: ask what would help, or leave them to rest.
+ROLES: name1=18+ name2=18+
+S: 11111
+O1: 2
+L2: 1
+O2: 111
+REVIEW: ok
+
+DAY-26
+DESC: A villager has badly overslept and the whole day has started wrong: rush to catch up, or accept a late start.
+ROLES: name1=18+
+S: 1
+O1: 1111
+O2: 111
+REVIEW: ok
+
+DAY-27
+DESC: It is far too hot for anyone to do anything: go swimming at midday, or lie very still in the shade.
+ROLES: name1=18+ name2=18+
+S: 1
+REVIEW: ok
+
+DAY-28
+DESC: After weeks of heat a cool breeze blows through the village: stay and enjoy it a while, or get on with the day.
+ROLES: name1=18+
+S: 11
+O1: 1
+O2: 1
+REVIEW: ok
+
+DAY-29
+DESC: A villager's long-awaited melon is finally ripe and a friend is on the path: share it, or eat it alone.
+ROLES: name1=18+ name2=18+
+S: 1
+O2: 111
+REVIEW: ok
+
+DAY-30
+DESC: Searching for a lost knife, a villager finds a beautiful shell instead: keep looking for the knife, or call it even.
+ROLES: name1=18+ name2=18+
+S: 111111
+O1: 11111
+O2: 1111
+REVIEW: ok
+
+DAY-31
+DESC: A villager is praised for stacking bowls, not for the clever work they did: say thank you, or mention the clever thing.
+ROLES: name1=18+ name2=18+
+O1: 1
+REVIEW: ok
+
+DAY-32
+DESC: A villager has called a friend by the wrong name three times, the last at the fire: apologize and laugh, or blame the day.
+ROLES: name1=18+ name2=18+
+S: 111
+O2: 12
+REVIEW: ok
+
+DAY-33
+DESC: A villager cannot get the cooking fire to light while everyone waits for dinner: ask for help, or keep trying.
+ROLES: name1=18+ name2=18+
+O1: 11
+REVIEW: ok
+
+DAY-34
+DESC: A villager wakes up feeling splendid and bursting with energy for no reason: ask what happened, or get out of the way.
+ROLES: name1=18+ name2=18+
+FIG: e=elder:55+
+EDIT O2: "carries water for an elder" => "carries water for [e], an elder"
+S: 1111
+O1: 1111
+O2: 11
+REVIEW: ok
+
+DAY-35
+DESC: A villager cannot get the plug out of a honey jar and it has become personal: hand it to a friend, or keep trying alone.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 21
+O2: 1
+REVIEW: ok
+
+DAY-36
+DESC: Two villagers sit in a doorway watching a long, gentle rain: talk about nothing, or stay quiet.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DAY-37
+DESC: People keep being kind to a villager in small ways for no clear reason: ask a friend why, or just accept it.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT S: "A child gave" => "[c], a child, gave"
+S: 11111
+O1: 11
+O2: 11111
+REVIEW: ok
+
+DAY-38
+DESC: A villager wakes wanting to do nice things and leaves fruit for a friend, who is suspicious: own up, or say nothing.
+ROLES: name1=18+ name2=18+
+FIG: n=neighbor:18+
+EDIT S: "fetched water for a neighbor" => "fetched water for [n]"
+S: 11
+O1: 2
+O2: 1
+REVIEW: ok
+
+DAY-39
+DESC: One mosquito kept a villager awake all night and the day stretches ahead: go easy on yourself, or carry on as usual.
+ROLES: name1=18+ name2=18+
+S: 1111
+L1: 1
+O1: 11111
+O2: 1112
+REVIEW: ok
+
+DAY-40
+DESC: A villager is restless and cannot sit still today: ask them to help with something heavy, or go for a run.
+ROLES: name1=18+ name2=18+
+S: 1111
+L1: 1
+O1: 11
+O2: 11
+REVIEW: ok
+
+DAY-41
+DESC: A villager wants to be alone all day as a cheerful friend approaches: say so, or go somewhere nobody will find you.
+ROLES: name1=18+ name2=18+
+S: 111111
+O1: 11
+O2: 11111
+REVIEW: ok
+
+DAY-42
+DESC: The smell of the smoking fish racks keeps drawing a villager past them: admit you are hungry, or pretend you are busy.
+ROLES: name1=18+ name2=18+
+FIG: f=fisher:18+
+EDIT O1: "one of the fishers takes pity" => "[f], one of the fishers, takes pity"
+S: 1
+O2: 1
+REVIEW: ok
+
+DAY-43
+DESC: Two villagers resting in the grass have been watching cloud shapes far too long: keep watching, or get back to work.
+ROLES: name1=18+ name2=18+
+REVIEW: ok
+
+DAY-44
+DESC: A villager complimented a friend's basket and got an odd look in return: ask about it, or let it go.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 22
+O2: 2221
+REVIEW: ok
+
+DAY-45
+DESC: A small child has had a very bad day and sits glaring at the ground: listen to all of it, or offer a small treat.
+ROLES: name1=4-9 name2=18+
+FIG: b=child:8-13
+EDIT S: "a bigger child said" => "[b], a bigger child, said"
+S: 111111
+O1: 21
+O2: 2
+REVIEW: ok
+
+DAY-46
+DESC: A bored, cross teen is lying across the hut doorway so everyone must step over: leave them be, or offer a job.
+ROLES: name1=14-17 name2=18+
+S: 11111
+L1: 1
+O1: 11
+O2: 111
+REVIEW: ok
+
+DAY-47
+DESC: A villager has just eaten the best mango of the year: tell everyone, or keep it a secret.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DAY-48
+DESC: A villager has found the perfect skipping stone at the calm lagoon: throw it, or keep it.
+ROLES: name1=18+ name2=18+
+S: 111
+O2: 11111
+REVIEW: ok
+
+DAY-49
+DESC: After seven days of rain a villager wakes to sunshine: wake everyone, or enjoy it alone first.
+ROLES: name1=18+
+S: 1
+O2: 11111
+REVIEW: ok
+
+DAY-50
+DESC: Two villagers sit outside a hut at sundown and agree that nothing much happened today.
+ROLES: name1=18+ name2=18+
+S: 1111111
+REVIEW: ok

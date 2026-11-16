@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Goodbye",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c010_goodbye",
+  "source": "companion",
+  "lines": [
+   2153,
+   2164
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2153",
+  "ledger": [
+   {
+    "src": "L2156",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L2160",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2164",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "Someone regrets an abrupt goodbye to a loved one who died: tell a friend, or remember alone.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Someone regrets ending a conversation abruptly before a loved one died.",
+   "src": "L2154",
+   "choices": [
+    {
+     "label": "Tell a trusted friend.",
+     "next": "ending",
+     "src": "L2157"
+    },
+    {
+     "label": "Spend time alone remembering.",
+     "next": "ending",
+     "src": "L2158"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A friend listens without trying to fix the regret.",
+   "src": "L2161"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They begin a small remembrance ritual.",
+   "src": "L2162"
+  }
+ }
+}

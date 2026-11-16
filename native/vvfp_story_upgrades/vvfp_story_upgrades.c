@@ -70,6 +70,8 @@
 #include "../shared/patcher_files.h"
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
+#include "../shared/head_look.h"           /* the old head look effect (cie-v6-binary.md 27) */
+#include "../shared/gender_presentation.h" /* the presentation effect (cie-v6-binary.md 31) */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
    UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
@@ -79,6 +81,9 @@
 #endif
 #include "story_targets.h"
 #include "story_custom.h"
+#include "story_label_widths.h"   /* each game's button-label widths (scripts/build_cie_label_widths.py) */
+#include "../shared/vvfp_multi_answer.h"   /* a question's third and fourth answers (The Secret City .. New Believers) */
+#include "../shared/vvfp_multi_answer_12.h"   /* ... and in A New Home and The Lost Children */
 
 enum {
     IDD_PICK = 301,
@@ -105,6 +110,7 @@ typedef struct {
 } story_village;
 static unsigned int story_village_generation;
 static int story_current_slot(int game);
+static void lv_village_reset(int game, int slot);   /* story_living.inc: Start Over deletes its history */
 
 static story_village story_village_now(int game) {
     story_village v;
@@ -124,6 +130,9 @@ static int pick_game;
 static DWORD pick_tick;
 static const story_event *pick_event;
 static story_village pick_village;
+/* 1 while the armed pick is the Isola Grand Event Collection's rare roll's (story_collection.inc): it was never the
+   player's, so its lapse or refusal is never told to the player. */
+static int pick_natural;
 /* The outcome of the last pick, shown the next time the chooser opens when
    the game could not run it. */
 static const story_event *last_failed_event;
@@ -181,6 +190,42 @@ static void story_island_arming(int game, void *field, unsigned int value);
 /* ... and by the locks below: a bought island event is on its way until the
    game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
 static int story_bought_on_its_way(int game);
+/* Defined with the branching Custom Island Events (story_graph.inc), used earlier. */
+static int cg_holds(int game);
+static int cg_owns_armed(int game);
+static int cg_owns_asked(int game);
+static int cg_answering(int game);
+static int cg_prepare(int game);
+static int cg_counted_next(void);
+static int cg_deliver(int game, char *text, int size, int *counted);
+static void cg_begin_question(int game, char *text, int size);
+static int cg_resolve(int game, int button, char *text, int size);
+static int cg_tallest(int game, int button, char *out, int size);
+static int cg_asked_answers(void);
+static int cg_answer_closes(int game);   /* G1: the question popup closes at the click */
+/* One popup per island event (story_graph.inc; native/shared/one_popup.h). */
+static int cg_op_begun_take(int game);
+static int cg_op_rows(int game);
+static int cg_op_ok(int game, char *text, int size);
+static const char *cg_op_title(void);
+/* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
+static int cs_multi;
+static void *cs_dialog;
+static void __cdecl cs_after_ctor(void *dialog);
+static const char *cg_label(int button);   /* the asked question's button labels (story_graph.inc; format 6: up to 7) */
+static int cg_featured(int game);
+static int cg_busy(int game);
+static void cg_tick(int game);
+/* Defined with the Isola Grand Event Collection's rare roll (story_collection.inc), used earlier. */
+static void sc_tick(int game);
+static int sc_pick_fill(int game);
+static int sc_pick_buy(int game, HWND owner, int i);
+static void sc_library_add(int game);
+static void cg_village_seen(int game, int slot, const unsigned int *roster);
+static void cg_flush_file(int game, int slot, const unsigned int *roster);
+static void cg_village_reset(int game, int slot);
+static INT_PTR CALLBACK cg_library_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+static int cg_library_purchase(int game, HWND owner);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -280,7 +325,7 @@ static int drop_lapsed_pick(void) {
     if (pick_slot >= 0 && STORY_TICK() - pick_tick > PICK_TIMEOUT_MS) {
         pick_slot = -1;
         oc_lapsed();
-        last_failed_event = pick_event;
+        last_failed_event = pick_natural ? NULL : pick_event;
         last_failed_lapsed = 1;
         STORY_COUNT(lapsed);
         return 1;
@@ -325,7 +370,7 @@ static int choose_from_table(int game, unsigned int table, int current) {
     }
     STORY_COUNT(refused);
     oc_refused(game);
-    last_failed_event = event;
+    last_failed_event = pick_natural ? NULL : event;
     last_failed_lapsed = 0;
     return current;
 }
@@ -378,7 +423,27 @@ __declspec(naked) static void vv3_stub(void) {
         ret
     custom:
         mov edx, eax
+        cmp dword ptr [cs_multi], 0
+        jne multi
         push 0x419BE2
+        ret
+    multi:
+        /* A question of 3 or 4 answers (story_objects.inc): 0x419BE2..0x419BEA as the presenter runs them -- push
+           the object, the dialog at [esp + 0xF4], the call 0x419BEA makes (whatever it calls now) -- then the extra
+           answers, and on at 0x419BEF. */
+        push edx
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x419BEB
+        mov eax, dword ptr [eax]
+        add eax, 0x419BEF
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x419BEF
         ret
     }
 }
@@ -413,8 +478,28 @@ __declspec(naked) static void vv4_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4CCA28]
-    custom:
         push 0x4180FE
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x4180FE
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x4180FE..0x418106 as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xDC]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x418107
+        mov eax, dword ptr [eax]
+        add eax, 0x41810B
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41810B
         ret
     }
 }
@@ -450,8 +535,28 @@ __declspec(naked) static void vv5_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4DC850]
-    custom:
         push 0x418962
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x418962
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x418962..0x41896A as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x41896B
+        mov eax, dword ptr [eax]
+        add eax, 0x41896F
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41896F
         ret
     }
 }
@@ -749,6 +854,23 @@ static int story_title_skills_float(int game) {
     return a != NULL && a->skills_float;
 }
 
+#ifdef VVFP_TEST
+/* The test build: the companions told and the history record counted, never looked for (cie-v6-binary.md 29). */
+static int test_graph_sex_told, test_graph_sex_history;
+static int test_sex_tell(int game, int slot, const unsigned char *record, const unsigned char *before) {
+    (void)game; (void)slot; (void)record; (void)before;
+    ++test_graph_sex_told;
+    return 0;
+}
+static void test_sex_history(int game, const unsigned char *record) {
+    (void)game; (void)record;
+    ++test_graph_sex_history;
+}
+#define VV_SEX_TELL_OWNERS test_sex_tell
+#define VV_SEX_HISTORY test_sex_history
+#endif
+#include "../shared/villager_rekey.h"
+#include "../shared/sex_change.h"         /* a villager's sex changed (cie-v6-binary.md 29) */
 #include "story_titles.inc"
 
 /* Villagers renamed as the village loaded (story_titles.inc titles_renamed): the game's name field. */
@@ -760,6 +882,16 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     return titles_renamed(game, slot, count, records, old_names, (unsigned int)a->off_name,
                           (unsigned int)a->name_bytes);
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): the custom title's fingerprint holds no sex, so it stays
+   theirs; the looks kept with it take the new sex now (titles_sex_changed). */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    (void)before;
+    if (ce_adapter_for(game) == NULL || record == NULL) {
+        return 0;
+    }
+    return titles_sex_changed(game, slot, (const unsigned char *)record);
 }
 
 #include "story_outcomes.inc"
@@ -957,6 +1089,10 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     /* A Custom Island Event goes first: the event it went ahead of comes next,
        and one a barrel went ahead of is made due again (story_custom_ui.inc). */
     ce_requeue_tick(game);
+    /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
+    cg_tick(game);
+    /* The Isola Grand Event Collection's separate rare roll after a natural island event (story_collection.inc). */
+    sc_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1073,6 +1209,7 @@ static void label_of(const story_event *e, char *out, size_t size) {
     }
 }
 
+#include "story_more_events.inc"   /* Pick Island Event: More Island Events' events (v1.35.97) */
 #include "story_outcomes_ui.inc"
 
 /* Arms `event` for `game`: makes the island event due and remembers the
@@ -1086,6 +1223,7 @@ static int arm_pick(int game, const story_event *event) {
     pick_tick = STORY_TICK();
     pick_event = event;
     pick_village = story_village_now(game);
+    pick_natural = 0;
     return 1;
 }
 
@@ -1097,6 +1235,7 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
     sq_village_reset(game, slot);   /* its queue's file goes with it */
     titles_village_reset(game, slot);   /* and its custom titles (story_titles.inc) */
     faith_notice_village_reset(game);   /* and the believers waiting for their popup (story_faith_notice.inc) */
+    lv_village_reset(game, slot);       /* and its Living Events history (story_living.inc) */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its
@@ -1161,6 +1300,9 @@ static int story_pick_island_event(int game, HWND owner) {
     if (chosen < 0) {
         return 0;
     }
+    if (chosen >= SM_ROW) {
+        return sm_buy(game, owner, sm_list.k[chosen - SM_ROW]);   /* a More Island Events event */
+    }
     event = &g->events[chosen];
     settings = &chooser.settings[chosen];
     label_of(event, label, sizeof label);
@@ -1213,6 +1355,26 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_time_skip.inc"
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
+/* The Living Event Engine (story_living.inc), called by the branching engine and the collection's roll. */
+static int lv_is_living(const char *id);
+static int lv_entry_living(int i);
+static int lv_arm_entry(int game, int i, int origin, int cast);
+static const char *lv_check_entry(int game, int i);
+static int lv_map_entries(int game);
+static int lv_draw_prepare(int game, unsigned char *left);
+static int lv_series_weight(int i);
+static int lv_library_path(const char *path);
+static int lv_library_load(int game, const char *path);
+static void lv_library_armed(int game);
+static int lv_library_entry(int game, int i, char *path);
+static void lv_on_finish(int game);
+#ifdef VVFP_TEST
+static int lv_test_has_pack(void);
+#endif
+
+#include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
+#include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
+#include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -1354,6 +1516,35 @@ __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int positio
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeArmedSlot(void) {
     return pick_slot;
+}
+
+/* Arms More Island Events' registry entry `k` WITHOUT any dialog or making the island event due (the tests drive the
+   draw), at test tick `tick`: the slot armed, or -1 when the entry is not in this game. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreArm(int game, int k, DWORD tick) {
+    if (game < 1 || game > 5 || sm_describe(game, k) < 0) {
+        return -1;
+    }
+    test_tick = tick;
+    install_state[game] = 1;
+    pick_slot = sm_slot_of(game, k);
+    pick_game = game;
+    pick_tick = tick;
+    pick_event = &sm_event;
+    pick_village = story_village_now(game);
+    pick_more = k;
+    return pick_slot;
+}
+
+/* The Pick Island Event list's More Island Events entries for `game` as the chooser fills them: their registry
+   indices in k[], 1 / 0 possible now in possible[] (at most `cap`); the count. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreList(int game, int *k, int *possible, int cap) {
+    int i;
+    sm_fill(game);
+    for (i = 0; i < sm_list.count && i < cap; ++i) {
+        k[i] = sm_list.k[i];
+        possible[i] = sm_list.possible[i];
+    }
+    return sm_list.count;
 }
 
 /* Arms `event` for `game` exactly as the dialog's purchase does, without
@@ -1582,6 +1773,16 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceCap(int on) {
 /* The next roll is `roll` (modulo the chances' total), -1 = the real source. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetRoll(int roll) {
     test_roll = roll;
+}
+
+/* The next `count` rolls are `rolls`, in order (each modulo its draw's range), before the one above. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSetRolls(const int *rolls, int count) {
+    int i;
+    test_roll_count = count < 0 ? 0 : (count > 64 ? 64 : count);
+    test_roll_next = 0;
+    for (i = 0; i < test_roll_count; ++i) {
+        test_rolls[i] = rolls[i];
+    }
 }
 
 /* The pure weighted pick: which of `count` outcomes with `chances` the

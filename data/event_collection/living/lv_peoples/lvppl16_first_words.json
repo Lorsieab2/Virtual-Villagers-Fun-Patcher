@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl16_first_words",
+  "source": "living",
+  "lines": [
+   21869,
+   21880
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21869",
+  "ledger": [
+   {
+    "src": "L21880",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Visitors speak a language the villagers do not understand.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Visitors speak a language the villagers do not understand.",
+   "src": "L21870",
+   "choices": [
+    {
+     "label": "Learn a few words.",
+     "next": "a",
+     "src": "L21871"
+    },
+    {
+     "label": "Use gestures and pictures.",
+     "next": "b",
+     "src": "L21874"
+    },
+    {
+     "label": "Keep the visitors at a distance.",
+     "next": "c",
+     "src": "L21877"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers learn greetings and begin a cautious friendship.",
+   "src": "L21872"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A mispronounced word causes laughter rather than offense.",
+   "src": "L21873"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The visitors understand the offer of food.",
+   "src": "L21875",
+   "text_only": [
+    {
+     "what": "the offer of food",
+     "reason": "what the visitors understand; nothing is gained or lost",
+     "src": "L21875"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A gesture is misunderstood, and both groups become embarrassed.",
+   "src": "L21876"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The visitors camp elsewhere without conflict.",
+   "src": "L21878"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The distance leaves both sides uncertain about the other's intentions.",
+   "src": "L21879"
+  }
+ }
+}

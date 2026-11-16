@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seal Who Gave Rides",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt21_seal_gave_rides",
+  "source": "draft_tt",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 4-9)"
+   }
+  ],
+  "description": "A child begs an adult to ask a seal for the ride from the adult's old story: ask the seal politely, or tell the truth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has told (friend) many times about the seal that once gave (subject.him/her) a ride all the way round the bay, while (subject) held onto its neck and the waves splashed past. Today a seal is lying on the rocks in the sun, and (friend) is tugging at (subject)'s arm. \"Ask it for a ride!\"",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Ask the Seal Politely",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Tell (friend) What Really Happened",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) walks a little closer and says, very politely, \"Would you give us a ride?\" The seal opens one eye, looks at (subject) for a long moment, and rolls over with its back to them. \"It's tired,\" (subject) explains. \"It's had a busy morning.\" (friend) accepts this completely, and they tiptoe away so as not to disturb it.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"The truth is,\" says (subject), crouching down, \"I swam next to one. Just next to it, for a little while. It was the best swim I ever had.\" (friend) thinks about this. \"That's still good,\" (friend.he/she) decides. They sit and watch the seal sleep, and it turns out to be quite enough.",
+   "src": "L257"
+  }
+ }
+}

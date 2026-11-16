@@ -1,0 +1,225 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Popular Bully",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus02_popular_bully",
+  "source": "anthology",
+  "lines": [
+   30735,
+   30749
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30735",
+  "ledger": [
+   {
+    "src": "L30736",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30737",
+    "kind": "sensitivity",
+    "before": "A well-liked teenager",
+    "after": "(bully), a well-liked teenager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30737",
+    "kind": "sensitivity",
+    "before": "a quieter peer",
+    "after": "(target), a quieter peer",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30742",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(bully)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30743",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30745",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30748",
+    "kind": "sensitivity",
+    "before": "The harmed teen",
+    "after": "(target)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A well-liked teenager repeatedly humiliates a quieter peer, and bystanders are afraid of losing their own standing.",
+  "label_case": "title",
+  "cast_only": [
+   "bully",
+   "target",
+   "elder",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "bully": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "target": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(bully), a well-liked teenager, repeatedly humiliates (target), a quieter peer, and bystanders are afraid of losing their own standing.",
+   "src": "L30737",
+   "choices": [
+    {
+     "label": "Hear the Targeted Teen Privately",
+     "next": "a",
+     "src": "L30738"
+    },
+    {
+     "label": "Hold the Instigator Accountable",
+     "next": "b",
+     "src": "L30741"
+    },
+    {
+     "label": "Invite Bystanders to Act",
+     "next": "c",
+     "src": "L30744"
+    },
+    {
+     "label": "Restore Trust Over Time",
+     "next": "d",
+     "src": "L30747"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They describe a pattern no adult had noticed.",
+   "src": "L30739"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They ask for protection without a public confrontation.",
+   "src": "L30740"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(bully) accepts a proportionate consequence and begins changing.",
+   "src": "L30742"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They argue that everyone laughed; (elder) explains laughter is not consent.",
+   "src": "L30743"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) interrupts the next insult without escalating.",
+   "src": "L30745"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some admit their silence helped the pattern continue.",
+   "src": "L30746"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(target) chooses limited contact.",
+   "src": "L30748"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The community measures improvement by conduct, not a single apology.",
+   "src": "L30749"
+  }
+ }
+}

@@ -18,6 +18,7 @@ import struct
 from pathlib import Path
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -34,6 +35,8 @@ BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
 # Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
 COLLECTED = "vv4_collectibles_stay_collected"
+# Adults Dropped on Mushrooms or Collectibles Are Confused (on by default).
+CONFUSED = "vv4_adult_confused"
 HUNGRIER = "vv4_hungrier_villagers"
 CLASSIC = "vv4_classic_vv_difficulty"
 SPAWN_LIKE_VV3 = "vv4_collectible_spawn_like_vv3"
@@ -474,6 +477,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "a mushroom a child has picked up counts wherever the child puts it down, once, not only at the "
             "food bin; one dropped on the stew pot is left to the pot (collectibles already count "
             "anywhere)")), gm.CODE)
+    # The drop's do-action calls 0x41324C / 0x413266 / 0x413284: an adult gets the Confused action 0x1A and the
+    # status line (data/builds.json vv4_adult_confused: "VVFP Adult Confused.dll").
+    if village.has(CONFUSED) is not False:
+        add("Mushrooms", gm.patch_words(village, CONFUSED, (
+            "a villager of 14 or more dropped on a mushroom or collectible does the game's own Confused "
+            "action and the status line says \"Only children can see and pick up mushrooms.\" or \"Only "
+            "children can see and pick up collectibles.\" (in the normal game the grown-up just stands "
+            "there)")), gm.CODE)
     add("Collectibles", "The others are collectibles: 81.98% common, 13.01% uncommon, 5.01% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in every other "
                         "real-life hour (the odd whole hours counted from the save's clock base).", gm.RUNNING)
@@ -569,6 +580,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in CHANCE_V4:
         add("Chance and timers", line, ok)
     for line, ok in STEW_LINES:
+        add("Other", line, ok)
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
     add("Other", stew_pot_line(speed), gm.RUNNING)
     add("Other", GRATE_LINE, gm.OWNER)

@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unclaimed Painting",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp54_unclaimed",
+  "source": "anthology",
+  "lines": [
+   32096,
+   32110
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32096",
+  "ledger": [
+   {
+    "src": "L32097",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32103",
+    "kind": "sensitivity",
+    "before": "A shy apprentice",
+    "after": "(apprentice), a shy apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32107",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32110",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A beautiful painting appears near the communal shelter without a signature.",
+  "label_case": "title",
+  "cast_only": [
+   "apprentice",
+   "villager",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A beautiful painting appears near the communal shelter without a signature.",
+   "src": "L32098",
+   "choices": [
+    {
+     "label": "Praise It Publicly",
+     "next": "a",
+     "src": "L32099"
+    },
+    {
+     "label": "Invite the Maker to Speak",
+     "next": "b",
+     "src": "L32102"
+    },
+    {
+     "label": "Protect the Work",
+     "next": "c",
+     "src": "L32105"
+    },
+    {
+     "label": "Discuss Ownership",
+     "next": "d",
+     "src": "L32108"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The anonymous artist feels secretly pleased.",
+   "src": "L32100"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The attention makes the artist uncomfortable.",
+   "src": "L32101"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(apprentice), a shy apprentice, steps forward.",
+   "src": "L32103"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Nobody claims it and the mystery remains.",
+   "src": "L32104"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The painting is moved out of the rain.",
+   "src": "L32106"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) asks whether it was meant to be temporary.",
+   "src": "L32107"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The community agrees not to alter it without consent.",
+   "src": "L32109"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) wonders whether art needs a name.",
+   "src": "L32110"
+  }
+ }
+}

@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Stone That Doesn't Cure Colds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf20_stone_doesnt",
+  "source": "draft_blf",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or researcher)"
+   },
+   {
+    "src": "L245",
+    "kind": "instruction",
+    "text": "[effect: small research or tech gain, only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager who studies healing notices the family's green stone does not cure colds: share what they saw, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) believes that holding a certain smooth green stone cures a cold in a day. (subject.His/her) whole family has always believed it. (friend), who studies healing, has noticed that people holding the stone get better in about the same time as people who don't. (friend) wonders whether to say anything.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "(friend) Shares What (friend.he/she) Saw",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "(friend) Says Nothing",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tells (subject), gently: everyone seems to take about four days, stone or no stone. (subject) is quiet. \"So it doesn't work?\" \"I don't think it cures colds,\" says (friend). \"That doesn't mean everything your family believes is wrong. Just this one thing.\" (subject) thinks about it. (subject.He/she) keeps the stone anyway. It's comforting to hold. Comfort counts.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides the stone isn't hurting anyone. (friend.He/she) keeps watching, though, and keeps notes. Months later (subject) gets a bad cold and the stone doesn't help at all. (subject.He/she) asks (friend) about it. (friend) tells (subject.him/her) what (friend.he/she) noticed. \"Oh,\" says (subject). \"I'll still hold it,\" (subject.he/she) decides. \"But I'll drink your tea too.\"",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L245"
+    }
+   ]
+  }
+ }
+}

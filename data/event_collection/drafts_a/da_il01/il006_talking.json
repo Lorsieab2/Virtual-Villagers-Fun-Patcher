@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Talking-To",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il006_talking",
+  "source": "da_il01",
+  "lines": [
+   71,
+   80
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L71",
+  "ledger": [
+   {
+    "src": "L72",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager rehearses an apology for a broken bowl, and its owner is standing right behind them.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is pacing behind the huts, muttering. \"Okay. Okay. You're going to walk up and say: 'I'm sorry I broke your bowl.' Not 'it was already cracked.' Just 'sorry.' You can do this.\" (subject.He/She) takes a deep breath. Then (subject.he/she) practices it again. And again. (friend), the bowl's owner, is standing right behind (subject.him/her).",
+   "src": "L74",
+   "choices": [
+    {
+     "label": "Turn Around",
+     "next": "a",
+     "src": "L76"
+    },
+    {
+     "label": "(friend) Quietly Walks Away",
+     "next": "b",
+     "src": "L79"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) turns around, sees (friend), and makes a noise like a startled bird. \"...I'm sorry I broke your bowl,\" (subject.he/she) manages. (friend) raises an eyebrow. \"It WAS already cracked,\" (subject.he/she) admits. They both burst out laughing.",
+   "src": "L77"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) slips off before (subject) notices. An hour later (subject) finally knocks, says \"I'm sorry I broke your bowl,\" exactly as practiced, and (friend) says \"Thank you,\" with a perfectly straight face. (friend.He/She) never mentions overhearing the rehearsal. Not even once. Not even a little.",
+   "src": "L80"
+  }
+ }
+}

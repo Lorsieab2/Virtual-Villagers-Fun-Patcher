@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The House of Many Families",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz075_many_families",
+  "source": "horizon",
+  "lines": [
+   995,
+   1005
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L995",
+  "ledger": [],
+  "description": "A parent wonders whether distant people raise children in households of many shapes.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A parent wonders whether distant people raise children in households of many shapes, with relatives, friends, or chosen caregivers.",
+   "src": "L996",
+   "choices": [
+    {
+     "label": "Imagine Shared Care.",
+     "next": "a",
+     "src": "L997"
+    },
+    {
+     "label": "Imagine Small Households.",
+     "next": "b",
+     "src": "L1000"
+    },
+    {
+     "label": "Ask What Matters.",
+     "next": "c",
+     "src": "L1003"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An elder praises the thought of many trusted adults helping a child grow.",
+   "src": "L998"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent warns that more caregivers can also mean disagreements about responsibility.",
+   "src": "L999"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A villager admires the privacy of a home with only one or two people.",
+   "src": "L1001"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another worries about loneliness when help is far away.",
+   "src": "L1002"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group agrees that safety and dependable care matter more than one household pattern.",
+   "src": "L1004"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child asks who gets to decide what counts as family.",
+   "src": "L1005"
+  }
+ }
+}

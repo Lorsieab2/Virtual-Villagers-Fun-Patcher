@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Whose Pig, Whose Melons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus35_whose_pig_whose",
+  "source": "draft_jus",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's pig ate every ripe melon in a neighbor's garden: ask the elders, or make a deal.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s pig got loose in the night, wandered into (friend)'s garden and ate every ripe melon in it. The pig is now asleep in the shade, as round as a melon itself. (friend) wants something done. (subject) says pigs will be pigs.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Ask the Elders",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Make a Deal",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders rule that a pig is its keeper's responsibility. (subject) is to make up for the melons with fish over the next few catches, and to keep the pig tied at night. (subject) grumbles, then agrees. The pig is unrepentant. (friend), eating fish, says the melons were better, but fish will do.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) offers the pig's services instead: after the harvest, the pig will be put in (friend)'s garden to dig over the beds and eat the weeds. The pig is delighted. The beds are beautifully dug. (friend) admits it's a better deal than (friend.he/she) expected, right up until the pig finds the one melon (friend) missed.",
+   "src": "L425"
+  }
+ }
+}

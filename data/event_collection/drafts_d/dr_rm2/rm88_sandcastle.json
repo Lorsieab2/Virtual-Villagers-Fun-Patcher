@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sandcastle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm88_sandcastle",
+  "source": "draft_rm2",
+  "lines": [
+   715,
+   728
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L715",
+  "ledger": [
+   {
+    "src": "L716",
+    "kind": "sensitivity",
+    "before": "An older child",
+    "after": "(Name1), an older child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An older child accidentally knocks over a younger child's sandcastle while running past.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), an older child, accidentally knocks over a younger child's sandcastle while running past.",
+   "src": "L716",
+   "choices": [
+    {
+     "label": "Apologize and Help Rebuild It.",
+     "next": "a",
+     "src": "L717"
+    },
+    {
+     "label": "Build a Wall to Protect the New One.",
+     "next": "b",
+     "src": "L720"
+    },
+    {
+     "label": "Ask How the Younger Child Wants It Built.",
+     "next": "c",
+     "src": "L723"
+    },
+    {
+     "label": "Offer to Fetch Water for a Moat.",
+     "next": "d",
+     "src": "L726"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The castle grows bigger than before, and both children laugh.",
+   "src": "L718"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The younger child needs a moment to stop crying before accepting help.",
+   "src": "L719"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The wall becomes a game, and other children join in.",
+   "src": "L721"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The wall gets knocked over too, and the children laugh about it.",
+   "src": "L722"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The younger child directs, and the older one happily follows.",
+   "src": "L724"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The younger child wants to build alone, and the older one respects that.",
+   "src": "L725"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The moat is a huge success.",
+   "src": "L727"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The moat floods the castle, and both children dissolve into giggles.",
+   "src": "L728"
+  }
+ }
+}

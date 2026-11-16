@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fair Promotion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl092_fair_promotion",
+  "source": "companion",
+  "lines": [
+   5008,
+   5018
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5008",
+  "ledger": [
+   {
+    "src": "L5009",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5017",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5018",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Two capable villagers seek the same leadership role.",
+  "cast_only": [
+   "candidate1",
+   "candidate2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "candidate1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "candidate2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two capable villagers seek the same leadership role.",
+   "src": "L5010",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5011"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5012"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5013"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The council chooses based on demonstrated skill.",
+   "src": "L5014",
+   "text_only": [
+    {
+     "what": "council",
+     "reason": "rule 7: councils and appointments are told only",
+     "src": "L5014"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The applicants agree to share duties.",
+   "src": "L5015"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A perceived slight sparks a lasting rivalry.",
+   "src": "L5016"
+  }
+ }
+}

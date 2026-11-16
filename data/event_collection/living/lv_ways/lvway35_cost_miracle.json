@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cost of a Miracle",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway35_cost_miracle",
+  "source": "living",
+  "lines": [
+   23248,
+   23262
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23248",
+  "ledger": [
+   {
+    "src": "L23262",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer offers a powerful magical treatment for a gravely ill patient."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer offers a powerful magical treatment for a gravely ill patient.",
+   "src": "L23249",
+   "choices": [
+    {
+     "label": "Attempt the magic with informed consent.",
+     "next": "a",
+     "src": "L23250"
+    },
+    {
+     "label": "Use familiar supportive treatments.",
+     "next": "b",
+     "src": "L23253"
+    },
+    {
+     "label": "Seek spiritual comfort alongside care.",
+     "next": "c",
+     "src": "L23256"
+    },
+    {
+     "label": "Let the patient decide after hearing every option.",
+     "next": "d",
+     "src": "L23259"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a gravely ill patient",
+     "reason": "the premise: it happened before the event; nobody is harmed now",
+     "src": "L23249"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient improves, but the healer needs weeks to recover.",
+   "src": "L23251",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L23251"
+    },
+    {
+     "do": "health_change",
+     "role": "healer",
+     "min": -30,
+     "max": -10,
+     "src": "L23251"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The spell fails, and the patient asks for comfort care.",
+   "src": "L23252"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient stabilizes gradually.",
+   "src": "L23254"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The illness progresses despite careful attention.",
+   "src": "L23255",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L23255"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient feels supported, though the illness remains.",
+   "src": "L23257"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient declines ritual and requests quiet company.",
+   "src": "L23258"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The patient chooses a modest treatment and feels respected.",
+   "src": "L23260"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The patient asks to stop treatment and spend time with family.",
+   "src": "L23261"
+  }
+ }
+}

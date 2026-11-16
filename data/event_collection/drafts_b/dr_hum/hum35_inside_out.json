@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Inside Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum35_inside_out",
+  "source": "draft_hum",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L425",
+    "kind": "sensitivity",
+    "before": "Then a child does it.",
+    "after": "Then (child), a child, does it.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has worn a tunic inside out all day and a friend has just noticed: tell them, or turn your own inside out too.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been wearing (subject.his/her) tunic inside out all day. The seams are on the outside. The pattern is on the inside. It's quite obvious. Nobody has said anything. Now, in the evening, (friend) has finally noticed, and is wondering whether to say.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Tell (subject.him/her)",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Turn Your Own Inside Out Too",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Since this morning?\" asks (subject), looking down at the seams. \"Since this morning.\" (subject) thinks about all the people (subject.he/she) has talked to today. Then (subject.he/she) decides it doesn't matter, and keeps it on inside out to see how many more people notice. The answer is none.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) quietly turns (friend.his/her) own tunic inside out and sits down beside (subject). Then (child), a child, does it. By the next morning, a dozen villagers are wearing their clothes inside out. (subject), who has by then turned (subject.his/her) own the right way round, has no idea why. (subject.He/she) decides it must be a new fashion, and turns it back again to join in.",
+   "src": "L425"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L425",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

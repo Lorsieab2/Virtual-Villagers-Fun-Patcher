@@ -1,0 +1,397 @@
+DEP-01
+DESC: A villager spends the first night alone in a new hut and cannot sleep: go back to the old hut for one night, or stay.
+ROLES: name1=18-25
+S: 1
+O1: 11111
+O2: 1111
+REVIEW: ok
+
+DEP-02
+DESC: A villager is invited away to learn dyeing but frets about the garden: ask a friend to tend it, or leave everything as it is.
+ROLES: name1=18+ name2=18+
+S: 1111
+O2: 11111
+REVIEW: ok
+
+DEP-03
+DESC: A villager has packed far too much for a three-day walk: unpack it together with a friend, or take all of it.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DEP-04
+DESC: A villager forgets a carefully practiced goodbye speech as a beloved guest leaves: say it anyway, or just hug.
+ROLES: name1=18+
+S: 1
+O1: 1
+O2: 1
+REVIEW: ok
+
+DEP-05
+DESC: A villager's hut-mate has moved out, leaving half the hut bare: move into the space, or leave it for now.
+ROLES: name1=18+
+FIG: h=hutmate:18+
+EDIT S: "The villager who shared (name1)'s hut has moved" => "[h], who shared (name1)'s hut, has moved"
+EDIT S: "They are fine. They wave every morning." => "[h:He/she] is fine. [h:He/she] waves every morning."
+O1: 111
+O2: 1111
+REVIEW: ok
+
+DEP-06
+DESC: A villager walking a visitor to the edge of the village keeps going: turn back at the next rock, or walk one more bend.
+ROLES: name1=18+
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DEP-07
+DESC: A villager who has built a sailing canoe tells a friend they mean to sail away: help them get ready, or ask them to wait a season.
+ROLES: name1=25+ name2=18+
+S: 1111
+L1: 1
+O1: 1
+L2: 1
+REVIEW: FLAG casting line names only name1 (adult aged 25 or older); name2 is used throughout, cast as 18+.
+
+DEP-08
+DESC: A villager camping far from home with a friend is suddenly homesick: talk about home, or count the stars instead.
+ROLES: name1=18+ name2=18+
+S: 1
+O1: 12
+O2: 1
+REVIEW: ok
+
+DEP-09
+DESC: A messenger offers to carry a message for a villager who has nobody to write to: send one to nobody in particular, or send none.
+ROLES: name1=18+
+S: 11
+O1: 1
+O2: 111
+REVIEW: ok
+
+DEP-10
+DESC: A teen finds an old post with a forgotten mark and asks an elder about it: tell what you remember, or say you know too little.
+ROLES: name1=55+ name2=14-17
+S: 21
+O1: 1
+O2: 1
+REVIEW: ok
+
+DEP-11
+DESC: An old traveler has sat at the edge of the trees for two days, looking at the village: invite them to the fire, or leave food.
+ROLES: name1=18+
+O2: 1
+REVIEW: ok
+
+DEP-12
+DESC: A small child is running away from home forever because bedtime is unfair: walk along with them, or offer to carry the mat.
+ROLES: name1=5-9 name2=18+
+S: 1111
+L1: 1
+O2: 11
+REVIEW: ok
+
+DEP-13
+DESC: A villager spends a last afternoon with a work crew before changing jobs: share a last lunch, or slip away quietly.
+ROLES: name1=18+
+S: 111
+O2: 111111
+REVIEW: ok
+
+DEP-14
+DESC: An elder is left alone in a hut built for many people: fill it with something, or invite a friend to dinner.
+ROLES: name1=55+ name2=18+
+O1: 1
+REVIEW: FLAG casting line names only an elder; name2 appears in L2 and O2, cast as 18+.
+
+DEP-15
+DESC: A teen asks to camp two nights at the far beach with a friend: say yes with a few conditions, or ask them to wait a little.
+ROLES: name1=14-17 name2=18+
+FIG: f=teen:14-17
+EDIT S: "(name1) and a friend want to walk" => "(name1) and [f], a friend, want to walk"
+S: 1
+O1: 111
+L2: 1
+O2: 2
+REVIEW: ok
+
+DEP-16
+DESC: A traveler who has stayed a whole season wants to leave but dreads the goodbyes: help them say goodbye, or let them go quietly.
+ROLES: name1=18+
+O2: 1
+REVIEW: ok
+
+DEP-17
+DESC: A villager leaving for a few days keeps turning to wave at a friend: keep waving, or go back inside.
+ROLES: name1=18+ name2=18+
+S: 112
+O1: 2
+O2: 212
+REVIEW: ok
+
+DEP-18
+DESC: Two villagers both want the last place in the fishing canoe: draw straws, or give the place away.
+ROLES: name1=18+ name2=18+
+O1: 1121
+O2: 22
+REVIEW: ok
+
+DEP-19
+DESC: A departing traveler gives a villager seeds from a faraway home: plant them right away, or keep them safe for now.
+ROLES: name1=18+
+O2: 111
+REVIEW: ok
+
+DEP-20
+DESC: Half the village turns up to help a villager move huts, and it is chaos: take charge, or let it happen.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT S: "A child is wearing the cooking pot as a hat." => "[c], a child, is wearing the cooking pot as a hat."
+EDIT O1: "Pot: off the child." => "Pot: off [c]."
+O2: 1
+REVIEW: ok
+
+DEP-21
+DESC: A homesick villager sneaks home early from a long walk and meets a friend on the path: pretend not to notice, or say you're glad.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 1
+O2: 111
+REVIEW: ok
+
+DEP-22
+DESC: A visiting healer who taught a villager about plants leaves tomorrow: ask one last question, or just say thank you.
+ROLES: name1=18+
+O1: 1
+REVIEW: ok
+
+DEP-23
+DESC: A villager finally sets off to live by the far lagoon, then sits down on the hilltop: unpack, or keep the bag packed by the door.
+ROLES: name1=18+
+S: 111
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DEP-24
+DESC: Two villagers on a long walk to swap seeds wonder about turning back: keep going, or turn back together.
+ROLES: name1=18+ name2=18+
+O2: 2
+REVIEW: ok
+
+DEP-25
+DESC: A villager moving huts cannot part with an old cracked cooking pot: keep it, or leave it for the next person.
+ROLES: name1=18+
+O2: 111
+REVIEW: ok
+
+DEP-26
+DESC: A child misses a visitor who left and asks a grown-up if they will go away too: promise to stay, or answer honestly.
+ROLES: name1=4-9 name2=18+
+S: 1
+O1: 2
+REVIEW: ok
+
+DEP-27
+DESC: A departing traveler gives a villager a carved post almost as tall as a hut: put it outside the hut, or ask where it looks best.
+ROLES: name1=18+
+S: 1
+O2: 1
+REVIEW: ok
+
+DEP-28
+DESC: A villager always leaves the evening fire first, and a friend asks if something is wrong: explain, or just say goodnight.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 1
+O2: 122
+REVIEW: ok
+
+DEP-29
+DESC: A teen learning to build wants to watch the builders of another village for a few days: give your blessing, or ask why.
+ROLES: name1=14-17 name2=18+
+S: 111
+O1: 1
+O2: 122
+REVIEW: ok
+
+DEP-30
+DESC: A villager who dreams of living alone on a tiny island paddles out to try it: stay until sunset, or come back for dinner.
+ROLES: name1=18+
+S: 11
+O1: 1111
+O2: 1111
+REVIEW: ok
+
+DEP-31
+DESC: A villager leaving for five days gives a friend five shells to count the days: count them down faithfully, or lose count.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "On the third day a child borrows" => "On the third day [c], a child, borrows"
+S: 111
+O1: 21
+O2: 1
+REVIEW: ok
+
+DEP-32
+DESC: A villager whose new roof leaks comes back to the old hut to stay a few nights: make a joke of it, or just say thank you.
+ROLES: name1=18+
+S: 111111
+O1: 1111
+O2: 11
+REVIEW: ok
+
+DEP-33
+DESC: A villager who has never been on a long journey stops at the stone travelers touch for luck: touch it anyway, or leave it.
+ROLES: name1=18+
+S: 111
+O1: 11
+O2: 11111
+REVIEW: ok
+
+DEP-34
+DESC: A village dog follows a villager setting off on a three-day walk: take the dog, or send it home.
+ROLES: name1=18+
+FIG: c=child:3-13
+EDIT O2: "Eventually a child runs out" => "Eventually [c], a child, runs out"
+S: 1
+REVIEW: ok
+
+DEP-35
+DESC: A villager comes home after three days away and a friend had not noticed: say it stung, or keep it to yourself.
+ROLES: name1=18+ name2=18+
+FIG: c=child:3-13
+EDIT O2: "The next morning a child runs up" => "The next morning [c], a child, runs up"
+S: 1
+O1: 1
+O2: 11
+REVIEW: ok
+
+DEP-36
+DESC: An elder moving nearer the water must hand the old garden plot to another villager: introduce every plant, or just hand it over.
+ROLES: name1=55+ name2=18+
+S: 1111
+O1: 1
+O2: 211
+REVIEW: FLAG casting line names only an elder; name2 receives the garden plot, cast as 18+.
+
+DEP-37
+DESC: A teen wants a hut of their own, right now: help build it, or ask them to wait a year.
+ROLES: name1=16-17 name2=18+
+S: 1111
+O1: 11111
+L2: 1
+O2: 11
+REVIEW: ok
+
+DEP-38
+DESC: A villager kept off the canoes for a season after risky trips sits alone on the beach: keep them company, or give them space.
+ROLES: name1=18+ name2=18+
+S: 111
+L1: 1
+O1: 11
+L2: 1
+O2: 12
+REVIEW: ok
+
+DEP-39
+DESC: A villager writes a list of landmarks for the way home and a friend wants to add some: let them add some, or keep it serious.
+ROLES: name1=18+ name2=18+
+S: 11
+O1: 21
+O2: 1
+REVIEW: ok
+
+DEP-40
+DESC: A villager planned a perfect last day with a departing visitor, and it is pouring: do everything anyway, or stay inside and talk.
+ROLES: name1=18+
+REVIEW: FLAG casting line says two adults but the text uses only name1; cast name1 only.
+
+DEP-41
+DESC: The old hut where a villager grew up is being taken down: take one piece of it, or watch from a distance.
+ROLES: name1=18+
+FIG: c=child:3-13
+EDIT O2: "and a child is playing there" => "and [c], a child, is playing there"
+S: 1
+O1: 1
+O2: 1111
+REVIEW: ok
+
+DEP-42
+DESC: With one foot in the trading canoe, a villager suddenly feels they do not want to go: get in the canoe, or wave the others off.
+ROLES: name1=18+
+S: 11
+O1: 1111
+O2: 11
+REVIEW: ok
+
+DEP-43
+DESC: A child on a first sleepover at a friend's hut sits awake in the dark: walk them home, or sit up and tell a story.
+ROLES: name1=5-9 name2=18+
+FIG: f=child:5-9
+EDIT S: "at a friend's hut" => "at [f]'s hut"
+EDIT S: "the friend is asleep" => "[f] is asleep"
+EDIT S: "(name2), the friend's grown-up" => "(name2), [f]'s grown-up"
+EDIT O1: "runs back to the friend's hut" => "runs back to [f]'s hut"
+S: 11
+L1: 1
+O1: 111
+O2: 1111
+REVIEW: ok
+
+DEP-44
+DESC: A villager borrowing a friend's hut finds everything slightly wrong, even a staring owl: turn the owl round, or get used to it.
+ROLES: name1=18+ name2=18+
+S: 111
+O1: 12
+O2: 11111
+REVIEW: ok
+
+DEP-45
+DESC: Two villagers find a washed-up gourd holding a message from unknown travelers: tell everyone, or keep it and wonder.
+ROLES: name1=18+ name2=18+
+O2: 11
+REVIEW: ok
+
+DEP-46
+DESC: An elder wants to walk to the far beach once more, though it is a long way: go with them, or offer to carry the food.
+ROLES: name1=55+ name2=18+
+S: 11111
+L1: 1
+O1: 11
+O2: 1
+REVIEW: ok
+
+DEP-47
+DESC: A traveler asks a villager who has never wanted to leave whether they ever think of it: say so, or think about it properly.
+ROLES: name1=18+
+S: 1111
+O1: 1
+O2: 111
+REVIEW: ok
+
+DEP-48
+DESC: A villager gives a tired traveler a corner for the night, and the traveler snores loudly: lie awake and laugh, or sleep outside.
+ROLES: name1=18+
+S: 11
+O1: 1
+O2: 11
+REVIEW: ok
+
+DEP-49
+DESC: A teen torn between staying and leaving sits on the big hill, and an elder joins them: say you felt the same, or just sit.
+ROLES: name1=14-17 name2=55+
+S: 1
+O2: 21
+REVIEW: ok
+
+DEP-50
+DESC: An elder sits outside the hut in the evening, and a child asks whether they ever went away.
+ROLES: name1=55+
+FIG: c=child:3-13
+EDIT S: "A child stops in front of" => "[c], a child, stops in front of"
+EDIT S: "The child finds this hilarious" => "[c] finds this hilarious"
+S: 111111111
+REVIEW: ok

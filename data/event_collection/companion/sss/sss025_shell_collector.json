@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell Collector's Debt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss025_shell_collector",
+  "source": "companion",
+  "lines": [
+   6317,
+   6325
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6317",
+  "ledger": [
+   {
+    "src": "L6325",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A shell collector has promised more rare shells than the shoreline can supply.",
+  "cast_only": [
+   "collector"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "collector": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A shell collector promises more rare shells than the shoreline can supply and fears losing an important customer.",
+   "src": "L6318",
+   "choices": [
+    {
+     "label": "Tell the truth",
+     "next": "a",
+     "src": "L6319"
+    },
+    {
+     "label": "Collect more aggressively",
+     "next": "b",
+     "src": "L6321"
+    },
+    {
+     "label": "Teach apprentices to reuse fragments",
+     "next": "c",
+     "src": "L6323"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The customer agrees to wait or choose another design.",
+   "src": "L6320"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The beach is stripped of shells and children complain they can no longer find any.",
+   "src": "L6322"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A new mosaic craft grows from the shortage.",
+   "src": "L6324"
+  }
+ }
+}

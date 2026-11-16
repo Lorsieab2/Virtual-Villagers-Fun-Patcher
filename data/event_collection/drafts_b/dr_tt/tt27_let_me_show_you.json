@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Let Me Show You",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt27_let_me_show_you",
+  "source": "draft_tt",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult aged 18-25 and an adult aged 40 or older)"
+   }
+  ],
+  "description": "A young villager offers to show an experienced one a better way to clean fish: let them show you, or make it a race.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just learned a quick way to clean a fish with one long cut, and is very pleased with it. (subject.He/she) spots (friend) cleaning fish by the shore and kindly offers to show (friend.him/her) \"a much better way.\" (friend) has been cleaning fish, perfectly well, for most of (friend.his/her) life.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Show You",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Make It a Race",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) puts down (friend.his/her) knife and watches the whole demonstration, nodding. \"Very good,\" (friend.he/she) says, and goes back to doing it (friend.his/her) own way, twice as fast. (subject) watches for a while. \"...That's a good way too,\" (subject.he/she) says. \"Is it?\" says (friend). \"I'll think about it.\"",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Ten fish each,\" says (friend). (subject) is barely on (subject.his/her) fourth when (friend) puts down (friend.his/her) knife. (subject) finishes, looks at the two piles, and says, \"Mine are neater.\" They are, slightly. (friend) agrees generously, and they cook them all for dinner together.",
+   "src": "L329"
+  }
+ }
+}

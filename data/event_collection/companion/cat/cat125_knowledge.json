@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Flower of Knowledge: The Uncertain Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat125_knowledge",
+  "source": "companion",
+  "lines": [
+   8597,
+   8607
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_magic_plants",
+  "title_src": "L8597",
+  "ledger": [
+   {
+    "src": "L8607",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A visitor asks a gardener for a cutting of a Nox Orchid, known in Isolan lore as the Flower of Knowledge."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "gardener": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A gardener tends a Nox Orchid, remembered in Isolan lore as the Flower of Knowledge. A visitor asks for a rare cutting to test its reputed gift.",
+   "src": "L8598",
+   "choices": [
+    {
+     "label": "Share only a viable propagated cutting",
+     "next": "a",
+     "src": "L8599"
+    },
+    {
+     "label": "Observe and record over a season",
+     "next": "b",
+     "src": "L8601"
+    },
+    {
+     "label": "Keep the plant intact",
+     "next": "c",
+     "src": "L8603"
+    },
+    {
+     "label": "Offer a blessing instead of material",
+     "next": "d",
+     "src": "L8605"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A new plant may establish elsewhere, but the parent must recover and the claimed gift remains uncertain.",
+   "src": "L8600",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "gardener",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8600"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The gardener logs growth, fragrance, fruiting or visitors; ordinary patterns coexist with unusual anecdotes.",
+   "src": "L8602",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "gardener",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8602"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The gardener protects a scarce specimen, disappointing the visitor but preserving future options.",
+   "src": "L8604"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The visitor accepts a meaningful gesture; no one claims it replaces practical study.",
+   "src": "L8606"
+  }
+ }
+}

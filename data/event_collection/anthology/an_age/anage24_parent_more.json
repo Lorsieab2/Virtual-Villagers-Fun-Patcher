@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parent Who Is More Than a Parent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage24_parent_more",
+  "source": "anthology",
+  "lines": [
+   30493,
+   30507
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30493",
+  "ledger": [
+   {
+    "src": "L30494",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30493",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30495",
+    "kind": "sensitivity",
+    "before": "A nursing mother",
+    "after": "(mother), a nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30503",
+    "kind": "sensitivity",
+    "before": "A trusted caregiver",
+    "after": "(caregiver), a trusted caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A nursing mother misses the music, research, and friendships that mattered to her before her baby arrived.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "caregiver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female",
+   "special": "nursing_parent"
+  },
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(mother), a nursing mother, misses the music, research, and friendships that mattered to her before her baby arrived.",
+   "src": "L30495",
+   "choices": [
+    {
+     "label": "Make Space for Her Favorite Hobby",
+     "next": "a",
+     "src": "L30496"
+    },
+    {
+     "label": "Invite Her into a Research Discussion",
+     "next": "b",
+     "src": "L30499"
+    },
+    {
+     "label": "Arrange Voluntary Shared Caregiving",
+     "next": "c",
+     "src": "L30502"
+    },
+    {
+     "label": "Ask How She Wants to Be Known",
+     "next": "d",
+     "src": "L30505"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "She joins a brief evening song circle and feels like herself again.",
+   "src": "L30497"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "She discovers her tastes have changed and tries something new.",
+   "src": "L30498"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "She contributes an observation that advances the group's question.",
+   "src": "L30500"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "She enjoys listening without needing to prove anything.",
+   "src": "L30501"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(caregiver), a trusted caregiver, gives her a little uninterrupted time.",
+   "src": "L30503"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "She chooses to keep her baby nearby and still participates.",
+   "src": "L30504"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Friends remember to ask about her work as well as her baby.",
+   "src": "L30506"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "She says parenthood is central to her right now, and they respect that too.",
+   "src": "L30507"
+  }
+ }
+}

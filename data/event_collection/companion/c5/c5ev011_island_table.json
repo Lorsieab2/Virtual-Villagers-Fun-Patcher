@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island Table",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev011_island_table",
+  "source": "companion",
+  "lines": [
+   3394,
+   3402
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3398",
+  "ledger": [
+   {
+    "src": "L3394",
+    "kind": "structural",
+    "why": "the group heading 'DIET, FOODWAYS AND COOKING'"
+   },
+   {
+    "src": "L3402",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "Cooks prepare a meal of breadfruit, taro, greens, squash, coconut, beans and herbs.",
+  "cast_only": [
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "Cooks prepare a meal of breadfruit, taro, leafy greens, roasted squash, coconut, beans, and fragrant herbs.",
+   "src": "L3399",
+   "children": [
+    {
+     "next": "e1_vv1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A visitor shares a different way to season the dish.",
+   "src": "L3401"
+  },
+  "e1_vv1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A child discovers a favorite vegetable.",
+   "src": "L3400",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "child",
+     "list": "likes",
+     "preference": "turnips",
+     "src": "L3400"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A child discovers a favorite vegetable.",
+   "src": "L3400",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "child",
+     "list": "likes",
+     "preference": "vegetables",
+     "src": "L3400"
+    }
+   ]
+  }
+ }
+}

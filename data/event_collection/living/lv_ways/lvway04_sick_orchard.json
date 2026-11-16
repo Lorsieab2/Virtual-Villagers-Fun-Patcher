@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sick Orchard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway04_sick_orchard",
+  "source": "living",
+  "lines": [
+   22752,
+   22766
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22752",
+  "ledger": [
+   {
+    "src": "L22766",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Fruit trees are dropping leaves before harvest."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fruit trees are dropping leaves before harvest.",
+   "src": "L22753",
+   "choices": [
+    {
+     "label": "Offer prayers at the oldest tree.",
+     "next": "a",
+     "src": "L22754"
+    },
+    {
+     "label": "Inspect roots, insects, and soil.",
+     "next": "b",
+     "src": "L22757"
+    },
+    {
+     "label": "Try a new magical growth charm.",
+     "next": "c",
+     "src": "L22760",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Follow the elders' pruning method.",
+     "next": "d",
+     "src": "L22763"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers gather to care for neglected roots afterward.",
+   "src": "L22755"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The trees continue to decline despite the ceremony.",
+   "src": "L22756"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A careful apprentice identifies waterlogged ground.",
+   "src": "L22758",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22758"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apparent culprit proves harmless, delaying the answer.",
+   "src": "L22759"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "New leaves emerge, but the fruit remains scarce.",
+   "src": "L22761"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The charm produces no visible change.",
+   "src": "L22762"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The orchard recovers gradually.",
+   "src": "L22764"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The old method proves unsuitable for the new trees.",
+   "src": "L22765"
+  }
+ }
+}

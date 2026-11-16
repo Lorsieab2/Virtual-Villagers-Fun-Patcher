@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knot by the Bed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea15_knot_bed",
+  "source": "draft_hea",
+  "lines": [
+   176,
+   188
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-10, an adult relative of the child (where the game records it), a spiritual leader or elder, and a healer or elder)"
+   }
+  ],
+  "description": "A child has bad dreams; a spiritual leader offers a woven knot and a healer offers talking: hang the knot, talk, or both.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third",
+   "fourth"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fourth": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been having bad dreams and wakes up crying most nights. (friend), the spiritual leader, has offered a small woven knot to hang by the bed, which some families use to keep bad dreams away. (third), the healer, has suggested talking about the dreams in the daytime, when they're less frightening. (fourth), (subject)'s relative, isn't sure which to try.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Hang the Knot",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Talk About the Dreams",
+     "next": "o2",
+     "src": "L184"
+    },
+    {
+     "label": "Both",
+     "next": "o3",
+     "src": "L187"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) weaves the knot with (subject) watching, and lets (subject.him/her) choose the color. (subject) chooses all of them. It hangs by the bed, bright and lumpy. The bad dreams don't stop at once. But when (subject) wakes up, (subject.he/she) reaches for the knot, holds it, and goes back to sleep. Whether the knot does anything or (subject) does, nobody can say. Nobody needs to.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "In the sunlight, (subject) tells (third) about the dream: a big wave, very tall, coming up the beach. (third) asks what (subject) would do if (subject.he/she) could do anything. \"Climb on a turtle,\" says (subject) firmly. They draw the turtle together. The dreams come less often. One night (subject) wakes up and says, \"I got on the turtle.\" (subject.He/she) seems very pleased about it.",
+   "src": "L185"
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(fourth) decides there's no harm in both. The knot hangs by the bed, and in the daytime (subject) talks about the dreams. (friend) and (third) nod to each other politely at the fire, two people with different ideas about the same child. The dreams fade over a few weeks. Everyone takes a little credit. (subject) takes the most.",
+   "src": "L188"
+  }
+ }
+}

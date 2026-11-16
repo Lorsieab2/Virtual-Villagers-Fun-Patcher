@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breadfruit Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum30_breadfruit_joke",
+  "source": "draft_hum",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L359",
+    "kind": "sensitivity",
+    "before": "Today a child who has seen this happen many times finally asks",
+    "after": "Today (child), a child who has seen this happen many times, finally asks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L362",
+    "kind": "sensitivity",
+    "before": "The child waits patiently",
+    "after": "(child) waits patiently",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L362",
+    "kind": "sensitivity",
+    "before": "That evening the child is heard",
+    "after": "That evening (child) is heard",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L365",
+    "kind": "sensitivity",
+    "before": "The child doesn't laugh",
+    "after": "(child) doesn't laugh",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two old friends laugh at a breadfruit joke neither can remember, and a child asks why: try to explain, or make up a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Years ago, (subject) and (friend) shared a joke about a breadfruit. Neither of them can remember what the joke was. But whenever one of them says the word \"breadfruit,\" both of them dissolve into helpless laughter. Today (child), a child who has seen this happen many times, finally asks them what's so funny about breadfruit.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Try to Explain",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Make Up a New One",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They try. They really try. \"Well, there was a breadfruit,\" begins (subject), \"and it...\" \"...and it...\" says (friend), and they're gone again. (child) waits patiently, then gives up and wanders off. That evening (child) is heard saying \"breadfruit\" to a group of friends and laughing helplessly, with no idea why.",
+   "src": "L362"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) makes one up on the spot. \"Why did the breadfruit roll down the hill? Because it was on a roll.\" It's dreadful. (child) doesn't laugh even slightly. (subject) and (friend) laugh so hard they have to lie down on the ground. Now there are two breadfruit jokes, and they only know one of them.",
+   "src": "L365"
+  }
+ }
+}

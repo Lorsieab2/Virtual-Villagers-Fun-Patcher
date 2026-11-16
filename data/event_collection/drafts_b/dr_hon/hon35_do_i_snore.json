@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do I Snore?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon35_do_i_snore",
+  "source": "draft_hon",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend asks a villager whether they snore, and they snore very loudly: tell the truth, or soften it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has just come back from a night sleeping out on the beach with a group of friends, and everyone is looking at (friend.him/her) a little strangely this morning. (friend.He/she) asks (subject), who was there too, \"Be honest. Do I snore?\" (subject) was awake half the night. (friend) snores like a canoe being dragged over gravel.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Tell the Truth",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Soften It",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"...Yes,\" says (subject). \"Quite a lot.\" (friend) looks horrified. \"How much is quite a lot?\" \"Like a canoe being dragged over gravel.\" (friend) puts (friend.his/her) face in (friend.his/her) hands, and then starts to laugh. \"That's why everyone moved.\" The next time, (friend) sleeps a little way off from the group, and everybody sleeps well, including (friend).",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"A little,\" says (subject). \"Sometimes.\" \"Oh, good.\" The next night (friend) sleeps in the middle of the group, and nobody else sleeps at all. In the morning (friend) looks round at all the tired faces and asks (subject) again. \"Be honest. Properly honest.\" (subject) tells (friend.him/her). (friend) laughs so hard (friend.he/she) has to sit down.",
+   "src": "L425"
+  }
+ }
+}

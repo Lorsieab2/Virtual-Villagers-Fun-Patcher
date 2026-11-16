@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lavastone at the Sickbed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo33_lavastone_sickbed",
+  "source": "da_lo",
+  "lines": [
+   393,
+   405
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L393",
+  "ledger": [
+   {
+    "src": "L394",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); the casting line asks for a villager who is sick or has low health: no role condition can ask for that, so the fever is story text"
+   },
+   {
+    "src": "L400",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains health]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L400",
+    "kind": "structural",
+    "text": "(About 6 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L401",
+    "kind": "instruction",
+    "text": "[no effect]",
+    "why": "the draft's effect note, never shown: no effect"
+   },
+   {
+    "src": "L401",
+    "kind": "structural",
+    "text": "(About 3 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L402",
+    "kind": "instruction",
+    "text": "[effect: (name2) gains a little health now, but loses some later]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L402",
+    "kind": "structural",
+    "text": "(About 1 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   }
+  ],
+  "description": "A villager with a fever is not getting better, and a friend has a lavastone some say can help the sick.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has been ill with a fever for days, and the usual remedies aren't helping. (subject) has a lavastone, a small golden one, and has heard that some people hold them over the sick. Nobody knows if it works. Nobody knows how, or what else it might do. (friend), half awake, says (friend.he/she) is willing to try.",
+   "src": "L396",
+   "choices": [
+    {
+     "label": "Try the Stone",
+     "next": "a",
+     "src": "L398"
+    },
+    {
+     "label": "Use Only the Usual Remedies",
+     "next": "b",
+     "src": "L404"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The fever breaks that night. (friend) wakes in the morning weak but clear-eyed, and asks for food. Nobody knows if it was the stone. (subject) keeps it wrapped and doesn't use it again lightly.",
+   "src": "L400",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 10,
+     "max": 30,
+     "src": "L400"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L400"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Nothing changes. The stone cools. (friend) recovers slowly over the next days, the ordinary way, with rest and broth. Maybe the stone helped a little. Maybe not.",
+   "src": "L401"
+  },
+  "a3": {
+   "name": "Outcome A3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The stone's glow flickers, and the fever eases, but (friend) feels oddly drained for a long while afterward, as if something was taken in exchange.",
+   "src": "L402",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 5,
+     "max": 15,
+     "src": "L402"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "feels oddly drained for a long while afterward (\"loses some later\")",
+     "reason": "rule 9: no game makes a later health loss; the gain now is the effect",
+     "src": "L402"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) holds the stone over (friend)'s chest, and it grows warm, then hot, then glows brighter than (subject) has ever seen.",
+   "src": "L399",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 6,
+     "odds": "About 6 in 10"
+    },
+    {
+     "next": "a2",
+     "weight": 3,
+     "odds": "About 3 in 10"
+    },
+    {
+     "next": "a3",
+     "weight": 1,
+     "odds": "About 1 in 10"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) puts the stone away. \"We don't know what it does,\" (subject.he/she) says. \"I'd rather not find out on you.\" (friend) agrees. They carry on with rest, broth and herbs. The fever lasts a few more days, then lifts. (friend) is weak for a while, but recovers. (subject) never regrets the choice, and never stops wondering about the stone either.",
+   "src": "L405"
+  }
+ }
+}

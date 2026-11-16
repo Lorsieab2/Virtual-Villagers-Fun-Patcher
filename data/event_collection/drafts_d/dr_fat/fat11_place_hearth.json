@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Place at the Hearth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat11_place_hearth",
+  "source": "fathers30",
+  "lines": [
+   222,
+   240
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L222",
+  "ledger": [
+   {
+    "src": "L223",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L224",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L228",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L230",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L231",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L233",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L234",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L236",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L237",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L239",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L240",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L226",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager agrees to become the primary caregiver of a child who needs a home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1) agrees to become the primary caregiver of a child who needs a home. As he prepares a sleeping mat, he realizes that love alone will not organize tomorrow's meals.",
+   "src": "L226",
+   "choices": [
+    {
+     "label": "Ask Neighbors for Practical Help",
+     "next": "a",
+     "src": "L229"
+    },
+    {
+     "label": "Prepare the Home Himself",
+     "next": "b",
+     "src": "L232"
+    },
+    {
+     "label": "Let the Child Choose a Comfort Item",
+     "next": "c",
+     "src": "L235"
+    },
+    {
+     "label": "Take a Quiet Day Together",
+     "next": "d",
+     "src": "L238"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They help arrange meals and childcare for his first week.",
+   "src": "L230"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Everyone offers advice at once, and he has to organize it.",
+   "src": "L231"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He creates a welcoming space with small handmade toys.",
+   "src": "L233"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He forgets a basic supply and rushes to borrow it.",
+   "src": "L234"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child picks a familiar blanket and relaxes a little.",
+   "src": "L236"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child chooses nothing yet; he leaves the offer open.",
+   "src": "L237"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They begin learning each other's habits without pressure.",
+   "src": "L239"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child misses their old routine, and he listens patiently.",
+   "src": "L240"
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Land with No Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz088_land_shore",
+  "source": "draft_hz2",
+  "lines": [
+   101,
+   111
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L101",
+  "ledger": [
+   {
+    "src": "L102",
+    "kind": "sensitivity",
+    "before": "A fisher",
+    "after": "(Name1), a fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A fisher wonders whether there could be people who live so far from the sea that they have never seen a wave.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a fisher, wonders whether there could be people who live so far from the sea that they have never seen a wave.",
+   "src": "L102",
+   "choices": [
+    {
+     "label": "Imagine Their Wonder.",
+     "next": "a",
+     "src": "L103"
+    },
+    {
+     "label": "Imagine Their Own Wonders.",
+     "next": "b",
+     "src": "L106"
+    },
+    {
+     "label": "Ask How They Would Eat.",
+     "next": "c",
+     "src": "L109"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher imagines someone seeing the sea for the first time and weeping with joy; the idea moves the listeners.",
+   "src": "L104"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child imagines them being frightened by the noise and hiding from the waves.",
+   "src": "L105"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that land without sea might have wonders Isolans have never imagined, like rivers wider than the lagoon.",
+   "src": "L107"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic says such a place sounds dry and dull, and a scholar reminds them that \"dull\" is a guess too.",
+   "src": "L108"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A cook imagines meals with no fish at all and is quietly horrified.",
+   "src": "L110"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer says they might grow grains and roots, just like Isolan gardens, only more.",
+   "src": "L111"
+  }
+ }
+}

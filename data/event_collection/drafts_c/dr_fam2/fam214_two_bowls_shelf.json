@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Bowls on the Shelf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam214_two_bowls_shelf",
+  "source": "draft_fam2",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult whose first partner has died and who has a new partner (where the game records it)"
+   }
+  ],
+  "description": "A villager's new partner picks up the bowl that belonged to their first partner: ask about it, or put it back without a word.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s first partner died years ago. Now (subject) has a new partner, (friend), and they're setting up a hut together. On the shelf, (subject) has put a carved wooden bowl. It was (subject.his/her) first partner's, and (subject.he/she) eats from it every day. (friend) picks it up and turns it over in (friend.his/her) hands.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "(friend) Asks About It",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "(friend) Puts It Back Without a Word",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Tell me about them,\" says (friend), holding the bowl carefully. (subject) does: how they laughed, the terrible jokes, the bowl they carved one rainy season. (friend) listens to all of it. Then (friend.he/she) puts the bowl back in pride of place. \"It stays,\" (friend.he/she) says. (subject)'s eyes are wet. Loving (friend) doesn't mean loving (subject.his/her) first partner less. Both of them understand that.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) just puts the bowl back, right in the middle of the shelf, and arranges the other things around it. (subject) watches. Neither of them says anything. Later that evening, (subject) tells (friend.him/her) a story about (subject.his/her) first partner, unprompted. (friend) listens and laughs at the right moments. That bowl will be on that shelf for as long as they live there.",
+   "src": "L173"
+  }
+ }
+}

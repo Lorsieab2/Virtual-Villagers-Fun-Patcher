@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coral That Was Not a Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir23_coral_stone",
+  "source": "living",
+  "lines": [
+   21530,
+   21541
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21530",
+  "ledger": [
+   {
+    "src": "L21541",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child breaks living coral to make jewelry, believing it to be ordinary rock.",
+  "cast_only": [
+   "child",
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child breaks living coral to make jewelry, believing it to be ordinary rock.",
+   "src": "L21531",
+   "choices": [
+    {
+     "label": "Explain that the reef is made by living creatures.",
+     "next": "a",
+     "src": "L21532"
+    },
+    {
+     "label": "Allow limited harvesting.",
+     "next": "b",
+     "src": "L21535"
+    },
+    {
+     "label": "Create coral-inspired designs without taking coral.",
+     "next": "c",
+     "src": "L21538"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child stops collecting living coral and uses washed-up fragments.",
+   "src": "L21533"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child feels ashamed until the jeweler helps repair the damage where possible.",
+   "src": "L21534"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The jewelry sells well, but the reef shows signs of harm.",
+   "src": "L21536"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The council debates how much harvesting the reef can endure.",
+   "src": "L21537"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The jeweler makes beautiful patterns from clay and shell.",
+   "src": "L21539"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some customers complain that the imitation lacks the original color.",
+   "src": "L21540"
+  }
+ }
+}

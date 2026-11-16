@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Every Story Is True",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf43_every_story_true",
+  "source": "draft_blf",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-10 and an adult)"
+   }
+  ],
+  "description": "A child who believes every story is upset that three tales of how the island began disagree: explain, or tell a fourth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) believes every story (subject.he/she) hears: that the island was made by a giant turtle, that the stars are holes in a blanket, that eating fish skin makes you swim faster. Today (subject.he/she) has been told three different stories about how the island began, and (subject.he/she) is very upset that they can't all be right.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Explain That People Believe Different Things",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Tell (subject.him/her) a Fourth Story",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"People tell lots of stories,\" says (friend). \"Some people believe one, some another, and some think they're just stories. Nobody knows for certain.\" (subject) frowns deeply. \"Then which one do YOU think?\" (friend) tells (subject.him/her). (subject) thinks about it. \"I like the turtle one best,\" (subject.he/she) decides. \"You're allowed to,\" says (friend).",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Have you heard the one about the very tired bird?\" says (friend). (subject) hasn't. (friend) makes up a fourth story, about a bird so tired it laid an egg in the sea and the egg became the island. (subject) listens, rapt. \"Is that true?\" \"It's a story,\" says (friend). (subject) nods. (subject.He/she) believes it immediately. Some things can't be helped.",
+   "src": "L521"
+  }
+ }
+}

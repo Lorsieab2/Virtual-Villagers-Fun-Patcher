@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dangerous Proof",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_14_proof",
+  "source": "v28",
+  "lines": [
+   10593,
+   10599
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10593",
+  "ledger": [
+   {
+    "src": "L10594",
+    "kind": "note",
+    "why": "the cast: TEENS 14-17; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10598",
+    "kind": "note",
+    "text": "or, on a rare enabled branch,",
+    "why": "designer words: the rare death is a weighted sub-branch"
+   },
+   {
+    "src": "L10599",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A teenager climbs toward a forbidden overlook to prove a local legend."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A teen tries to prove a local legend by climbing to a forbidden overlook.",
+   "src": "L10595",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 20
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They find evidence that changes the story.",
+   "src": "L10596",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10596"
+    }
+   ]
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A friend talks them into turning back.",
+   "src": "L10597"
+  },
+  "c_injury": {
+   "name": "Outcome C: injury",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A fall causes severe injury.",
+   "src": "L10598",
+   "src_cut": [
+    {
+     "src": "L10598",
+     "text": "death"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen",
+     "min": -60,
+     "max": -40,
+     "src": "L10598"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "death",
+     "reason": "the rare death is its own sub-branch page",
+     "src": "L10598"
+    }
+   ]
+  },
+  "c_death": {
+   "name": "Outcome C: death",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A fall causes death.",
+   "src": "L10598",
+   "src_cut": [
+    {
+     "src": "L10598",
+     "text": "severe injury"
+    }
+   ],
+   "effects": [
+    {
+     "do": "kill",
+     "role": "teen",
+     "cause": "unknown",
+     "src": "L10598"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "injury",
+     "reason": "the severe injury is its own sub-branch page",
+     "src": "L10598"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c_injury",
+     "weight": 20
+    },
+    {
+     "next": "c_death",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ]
+  }
+ }
+}

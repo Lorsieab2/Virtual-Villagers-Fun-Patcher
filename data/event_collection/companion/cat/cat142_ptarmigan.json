@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ptarmigan on the Mountain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat142_ptarmigan",
+  "source": "companion",
+  "lines": [
+   8801,
+   8811
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8801",
+  "ledger": [
+   {
+    "src": "L8811",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A pale bird appears on Isola's coolest high ridge, and nobody agrees whether it belongs there.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A pale bird appears on Isola's coolest high ridge. Nobody can agree whether it belongs there.",
+   "src": "L8802",
+   "choices": [
+    {
+     "label": "Record the sighting",
+     "next": "a",
+     "src": "L8803"
+    },
+    {
+     "label": "Search for tracks",
+     "next": "b",
+     "src": "L8805"
+    },
+    {
+     "label": "Consult elders",
+     "next": "c",
+     "src": "L8807"
+    },
+    {
+     "label": "Leave the ridge undisturbed",
+     "next": "d",
+     "src": "L8809"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A careful sketch includes doubts about identification.",
+   "src": "L8804"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The trail ends in rock and fog; a second bird is not found.",
+   "src": "L8806"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A legend mentions white mountain birds but gives no firm answer.",
+   "src": "L8808"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The bird disappears before anyone settles its identity.",
+   "src": "L8810",
+   "text_only": [
+    {
+     "what": "the bird disappears",
+     "reason": "a bird flies off; no villager disappears",
+     "src": "L8810"
+    }
+   ]
+  }
+ }
+}

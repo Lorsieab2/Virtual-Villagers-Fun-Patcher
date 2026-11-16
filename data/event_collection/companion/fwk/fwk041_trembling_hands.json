@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Trembling Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk041_trembling_hands",
+  "source": "companion",
+  "lines": [
+   5860,
+   5867
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5860",
+  "ledger": [
+   {
+    "src": "L5866",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5867",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "An aging healer notices their hands shake during delicate work.",
+  "cast_only": [
+   "healer",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 55,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An aging healer notices their hands shake during delicate work.",
+   "src": "L5861",
+   "choices": [
+    {
+     "label": "Continue with supervision and adapt techniques.",
+     "next": "outcome",
+     "src": "L5862"
+    },
+    {
+     "label": "Teach an apprentice and move into consultation.",
+     "next": "outcome",
+     "src": "L5863"
+    },
+    {
+     "label": "Hide the problem and risk a serious error.",
+     "next": "outcome",
+     "src": "L5864"
+    },
+    {
+     "label": "Retire from procedures but remain a valued mentor.",
+     "next": "outcome",
+     "src": "L5865"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5866"
+  }
+ }
+}

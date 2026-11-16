@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The List from Ages Ago",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il099_list_ages_ago",
+  "source": "da_il05",
+  "lines": [
+   218,
+   227
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager tidying their hut finds a list written as a teenager of things to do when grown up.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Tidying (subject.his/her) hut, (subject) finds a scrap of old bark with writing on it, in the wobbly hand of a teenager. It's a list: THINGS I WILL DO WHEN I'M GROWN UP. Number one: be the best fisher on Isola. Number two: never eat beans again. Number three: have a pet seabird called Captain. (subject) sits down on the floor to read the rest.",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Show It to (friend)",
+     "next": "a",
+     "src": "L223"
+    },
+    {
+     "label": "Read It Alone",
+     "next": "b",
+     "src": "L226"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) reads the list and laughs until (friend.he/she) cries. \"Did you do any of these?\" (subject) thinks. \"I'm a decent fisher. I eat beans all the time. No Captain.\" \"So one out of three?\" \"Half out of three.\" They agree that's a perfectly respectable score for a whole life so far.",
+   "src": "L224"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) reads the whole list slowly. Some of it makes (subject.him/her) laugh. Some of it makes (subject.him/her) a little wistful. Some of it (subject.he/she) doesn't remember wanting at all. (subject.He/She) doesn't feel like a failure or a success, just like someone who used to be fifteen. (subject.He/She) tucks the list away again. The seabird, (subject.he/she) thinks, is still technically possible.",
+   "src": "L227"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Words (name1) Doesn't Remember Saying",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il194_words_doesnt",
+  "source": "da_il10",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager thanks an elder for something wise they said years ago, and the elder does not remember saying it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) sits down next to (subject) and says, \"Do you remember what you said to me when I was fifteen? About the canoe?\" (subject) does not remember. (friend) tells (subject.him/her): years ago, (subject) told (friend.him/her) that a canoe that leaks is still a canoe. (friend) has thought about it ever since. \"It helped me, more than once,\" (friend.he/she) says.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Admit You Don't Remember",
+     "next": "a",
+     "src": "L157"
+    },
+    {
+     "label": "Ask What (subject.he/she) Meant by It",
+     "next": "b",
+     "src": "L160"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm so sorry,\" says (subject). \"I don't remember saying it at all.\" (friend) laughs. \"It doesn't matter. I remember.\" (subject) is quiet for a moment. It's a strange feeling, finding out something (subject.he/she) said has been living in someone else's head all these years. (subject.He/She) hopes (subject.he/she) mostly said nice things.",
+   "src": "L158"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What did I mean?\" asks (subject). (friend) blinks. \"I thought you'd know.\" They puzzle over it together. Maybe it meant that broken things are still useful. Maybe it meant (subject) was too lazy to fix the canoe that day. (subject) honestly can't say. They decide the first one is better, and keep it.",
+   "src": "L161"
+  }
+ }
+}

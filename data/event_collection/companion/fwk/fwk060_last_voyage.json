@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Voyage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk060_last_voyage",
+  "source": "companion",
+  "lines": [
+   6031,
+   6038
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6031",
+  "ledger": [
+   {
+    "src": "L6037",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L6038",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A veteran sailor wonders whether one more long journey is worth the danger.",
+  "cast_only": [
+   "sailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "sailor": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A veteran sailor wonders whether one more long journey is worth the danger.",
+   "src": "L6032",
+   "choices": [
+    {
+     "label": "Retire and pass down navigational knowledge.",
+     "next": "outcome",
+     "src": "L6033"
+    },
+    {
+     "label": "Lead a short supervised trip.",
+     "next": "outcome",
+     "src": "L6034"
+    },
+    {
+     "label": "Ignore declining stamina and risk an accident.",
+     "next": "outcome",
+     "src": "L6035"
+    },
+    {
+     "label": "Choose a different role in future expeditions.",
+     "next": "outcome",
+     "src": "L6036"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "risk an accident",
+     "reason": "a risk named on a choice; nobody is hurt",
+     "src": "L6032"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L6037"
+  }
+ }
+}

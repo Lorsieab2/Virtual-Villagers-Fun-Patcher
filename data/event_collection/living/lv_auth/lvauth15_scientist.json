@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scientist Who Was Too Certain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth15_scientist",
+  "source": "living",
+  "lines": [
+   23555,
+   23569
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23555",
+  "ledger": [
+   {
+    "src": "L23569",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A master scientist announces a rare blossom cures every fever.",
+  "cast_only": [
+   "scientist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A master scientist announces a rare blossom cures every fever.",
+   "src": "L23556",
+   "choices": [
+    {
+     "label": "Distribute the blossom widely.",
+     "next": "a",
+     "src": "L23557"
+    },
+    {
+     "label": "Ask an apprentice to repeat the tests.",
+     "next": "b",
+     "src": "L23560"
+    },
+    {
+     "label": "Use established supportive care.",
+     "next": "c",
+     "src": "L23563"
+    },
+    {
+     "label": "Publish the uncertain evidence.",
+     "next": "d",
+     "src": "L23566"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Several villagers recover, encouraging further study.",
+   "src": "L23558"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some become sicker, and the scientist withdraws the claim.",
+   "src": "L23559"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice finds the remedy only helps some patients.",
+   "src": "L23561",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23561"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apprentice's small sample gives misleading results.",
+   "src": "L23562"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Most patients improve without the blossom.",
+   "src": "L23564"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A severe case worsens despite careful treatment.",
+   "src": "L23565"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The village learns to distinguish hope from proof.",
+   "src": "L23567"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The cautious report frustrates families seeking certainty.",
+   "src": "L23568"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe-Keeper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus06_canoe_keeper",
+  "source": "draft_jus",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The longtime canoe-keeper has been missing things, and canoes have drifted off: give the role to someone else, or share it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For years (subject) has been the village canoe-keeper, the one who makes sure the canoes are pulled up and tied each night. Lately (subject.he/she) has had a lot on (subject.his/her) mind, and has been missing things. Twice now a canoe has drifted off on the tide; one was found on the rocks with a crack in it. The council has asked (subject), and (friend), who found the cracked canoe, to come and talk about it.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Give the Role to Someone Else",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Share the Role",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council asks (friend) to take over as canoe-keeper. (subject) is hurt; it has been (subject.his/her) job a long time, and (subject.he/she) says so. The council listens, and doesn't change its mind, but asks (subject) to teach (friend) everything (subject.he/she) knows. (subject) does. (subject.He/she) still walks down to the beach most evenings to look at the canoes, just to be sure.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) and (friend) to share the job, one checking after the other. (subject) isn't sure whether to feel trusted or watched. Probably both. But the canoes stay put all season, and somewhere along the way the evening walk to the beach becomes the part of the day both of them like best.",
+   "src": "L77"
+  }
+ }
+}

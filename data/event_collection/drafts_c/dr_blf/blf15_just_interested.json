@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Just Not Interested",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf15_just_interested",
+  "source": "draft_blf",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "After an hour of a friend's talk of spirits and signs, a villager admits they are not interested: the friend is puzzled, or hurt.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is very spiritual, and has been telling (subject) all about the meaning of the stars, the spirits in the trees and the signs in the clouds. (subject) has been listening politely for an hour. Finally (friend) asks, \"So what do you think about all that?\" (subject) thinks honestly. \"I don't really think about it at all,\" (subject.he/she) says. \"It's just not something I'm interested in.\"",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "(friend) Is Puzzled",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "(friend) Is a Little Hurt",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) looks genuinely puzzled. \"But don't you wonder?\" \"Not really,\" says (subject). \"I wonder about whether the fish will bite tomorrow.\" (friend) laughs, a little uncertainly. Then, slowly, more naturally. \"Alright. Tell me about the fish, then.\" (subject) does. It turns out (friend) knows nothing about fish. They both learn something.",
+   "src": "L182"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is quiet. (friend.He/she) had hoped (subject) would be interested. \"Sorry,\" says (subject). \"I don't mean it's silly. It's just not mine.\" (friend) nods slowly. \"That's alright. I suppose not everyone needs it.\" They walk on in an awkward silence that fades after a while. They're still friends. They just talk about other things.",
+   "src": "L185"
+  }
+ }
+}

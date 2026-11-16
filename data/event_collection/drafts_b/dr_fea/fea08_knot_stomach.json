@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knot in the Stomach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea08_knot_stomach",
+  "source": "draft_fea",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager feels a knot of dread with no reason at all: have a friend sit with them, or go for a walk.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "All evening, (subject) has had a knot in (subject.his/her) stomach. Nothing is wrong. Dinner was good. The weather's fine. Everyone is well. But the feeling is there, tight and heavy, as if something bad is about to happen, and (subject.he/she) can't think what. (friend) notices (subject.him/her) staring into the fire.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Sit with (subject.him/her)",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Go for a Walk",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down. \"Something wrong?\" \"I don't know,\" says (subject). \"Nothing. Everything feels wrong and nothing is.\" (friend) doesn't try to fix it. (friend.He/she) just stays. They sit together until the fire is embers. The knot is still there when (subject) goes to bed. It's gone by morning. (subject.He/she) never finds out what it was.",
+   "src": "L98"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gets up and walks down to the beach. The waves come in, go out. The knot doesn't go. But walking helps a little, and the sound of the sea helps a little, and after a long while (subject.he/she) is tired enough to sleep. Some feelings don't come with reasons. (subject) is learning to let them come and go.",
+   "src": "L101"
+  }
+ }
+}

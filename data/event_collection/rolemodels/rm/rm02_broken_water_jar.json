@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Water Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm02_broken_water_jar",
+  "source": "rolemodels",
+  "lines": [
+   7,
+   7
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7",
+  "ledger": [
+   {
+    "src": "L7",
+    "kind": "structural",
+    "text": "EVENT RM-02  -  THE BROKEN WATER JAR SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A young apprentice accidentally cracks a communal water jar while moving supplies, and nobody sees what happened.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young apprentice accidentally cracks a communal water jar while moving supplies, and nobody sees what happened.",
+   "src": "L7",
+   "choices": [
+    {
+     "label": "Tell the Keeper Immediately.",
+     "next": "a",
+     "src": "L7"
+    },
+    {
+     "label": "Quietly Attempt a Repair Before Reporting It.",
+     "next": "b",
+     "src": "L7"
+    },
+    {
+     "label": "Ask a Friend for Advice.",
+     "next": "c",
+     "src": "L7"
+    },
+    {
+     "label": "Leave a Note Beside the Jar.",
+     "next": "d",
+     "src": "L7"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The keeper is disappointed but appreciates the honesty and helps arrange a repair.",
+   "src": "L7"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The apprentice spends the afternoon replacing the damaged jar's bindings.",
+   "src": "L7"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The repair holds, and the apprentice explains both the accident and the work afterward.",
+   "src": "L7"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The crack spreads, reminding the apprentice why damaged containers should be reported promptly.",
+   "src": "L7"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The friend accompanies the apprentice to the keeper, making the admission less frightening.",
+   "src": "L7"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friend offers to take responsibility, but the apprentice declines and tells the truth.",
+   "src": "L7"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The keeper reads the explanation and asks the apprentice to help inspect the damage.",
+   "src": "L7"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The note is overlooked, and the apprentice realizes a direct conversation is still needed.",
+   "src": "L7"
+  }
+ }
+}

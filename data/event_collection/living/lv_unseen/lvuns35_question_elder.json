@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Question of the Elder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns35_question_elder",
+  "source": "living",
+  "lines": [
+   22622,
+   22633
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22622",
+  "ledger": [
+   {
+    "src": "L22633",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Near death, an elder asks whether they will see loved ones again.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Near death, an elder asks whether they will see loved ones again.",
+   "src": "L22623",
+   "choices": [
+    {
+     "label": "Offer the hope of reunion without certainty.",
+     "next": "a",
+     "src": "L22624"
+    },
+    {
+     "label": "Speak about returning to the circle of life.",
+     "next": "b",
+     "src": "L22627"
+    },
+    {
+     "label": "Ask what the elder believes.",
+     "next": "c",
+     "src": "L22630"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "near death",
+     "reason": "the elder's age and illness: no outcome says they die",
+     "src": "L22623"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder smiles and rests beside family.",
+   "src": "L22625"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder says hope is comforting but still fears the unknown.",
+   "src": "L22626"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder remembers gardens planted with loved ones.",
+   "src": "L22628"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder replies that memory cannot replace a familiar voice.",
+   "src": "L22629"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder shares a private conviction and feels heard.",
+   "src": "L22631"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder admits uncertainty, and the family remains close.",
+   "src": "L22632"
+  }
+ }
+}

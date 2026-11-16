@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council of Closed Shores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns03_council_closed",
+  "source": "living",
+  "lines": [
+   22206,
+   22217
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22206",
+  "ledger": [
+   {
+    "src": "L22217",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rumor claims that distant peoples might seek Isola's timber, reefs, or rare plants.",
+  "cast_only": [
+   "explorer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rumor claims that distant peoples might seek Isola's timber, reefs, or rare plants.",
+   "src": "L22207",
+   "choices": [
+    {
+     "label": "Keep the island secret.",
+     "next": "a",
+     "src": "L22208"
+    },
+    {
+     "label": "Prepare rules for hypothetical visitors.",
+     "next": "b",
+     "src": "L22211"
+    },
+    {
+     "label": "Assume goodwill unless shown otherwise.",
+     "next": "c",
+     "src": "L22214"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The council limits signals and distant voyages.",
+   "src": "L22209"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Young explorers question whether secrecy can last.",
+   "src": "L22210"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council drafts protections for land and residents.",
+   "src": "L22212"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Debate over who may speak for Isola remains unresolved.",
+   "src": "L22213"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers practice courteous greetings for people they may never meet.",
+   "src": "L22215"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder worries that kindness without caution could be exploited.",
+   "src": "L22216"
+  }
+ }
+}

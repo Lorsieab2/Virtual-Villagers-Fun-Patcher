@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canceled Voyage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm69_canceled_voyage",
+  "source": "draft_rm2",
+  "lines": [
+   429,
+   442
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L429",
+  "ledger": [
+   {
+    "src": "L430",
+    "kind": "sensitivity",
+    "before": "an experienced fisher",
+    "after": "(name1), an experienced fisher,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Friends planned a canoe trip to a nearby islet, but an experienced fisher sees signs of a coming storm.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Friends planned a canoe trip to a nearby islet, but (name1), an experienced fisher, sees signs of a coming storm and must decide whether to speak up.",
+   "src": "L430",
+   "choices": [
+    {
+     "label": "Warn the Group Plainly.",
+     "next": "a",
+     "src": "L431"
+    },
+    {
+     "label": "Explain the Signs.",
+     "next": "b",
+     "src": "L434"
+    },
+    {
+     "label": "Offer a Shorter Trip Instead.",
+     "next": "c",
+     "src": "L437"
+    },
+    {
+     "label": "Go Along to Watch the Weather.",
+     "next": "d",
+     "src": "L440"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The trip is postponed, and the storm arrives that afternoon.",
+   "src": "L432"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The storm passes far away, and the group is disappointed, but the fisher stands by the warning.",
+   "src": "L433"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The friends learn to read the clouds themselves.",
+   "src": "L435"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The friends disagree with the reading, but they choose caution.",
+   "src": "L436"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group explores the nearby shore and enjoys the day.",
+   "src": "L438"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The shorter trip feels dull, but everyone is safe.",
+   "src": "L439"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The fisher turns the canoes back at the first sign of trouble.",
+   "src": "L441"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The weather holds, and the fisher enjoys the trip as much as anyone.",
+   "src": "L442"
+  }
+ }
+}

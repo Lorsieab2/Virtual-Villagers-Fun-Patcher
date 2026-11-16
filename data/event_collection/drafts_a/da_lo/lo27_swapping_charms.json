@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Swapping Charms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo27_swapping_charms",
+  "source": "da_lo",
+  "lines": [
+   321,
+   330
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L321",
+  "ledger": [
+   {
+    "src": "L322",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers swap their lucky charms for a day, just to see what happens.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) carries a smooth green stone for luck. (friend) carries a little carved fish for luck. Today, joking, they swap, just for one day, to see what happens.",
+   "src": "L324",
+   "choices": [
+    {
+     "label": "Compare Days",
+     "next": "a",
+     "src": "L326"
+    },
+    {
+     "label": "Decide Luck Isn't in the Charm",
+     "next": "b",
+     "src": "L329"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject), with the fish, has a wonderful day: (subject.his/her) work goes smoothly, and (subject.he/she) finds a ripe mango nobody else noticed. (friend), with the stone, has a terrible day: (friend.he/she) drops a basket and stubs a toe. That evening, (friend) hands the stone back very quickly. (subject) hands the fish back very slowly.",
+   "src": "L327"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They both have ordinary days. Nothing special. In the evening, they swap back. \"I didn't feel any different,\" says (friend). \"Neither did I,\" says (subject). \"Maybe the luck is in the person holding it.\" (friend) thinks about that. \"Then why carry them at all?\" (subject) shrugs. \"They're nice to hold.\"",
+   "src": "L330"
+  }
+ }
+}

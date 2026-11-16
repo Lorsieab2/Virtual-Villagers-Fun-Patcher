@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's That Crab Wearing?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd11_what_crab_wearing",
+  "source": "da_wd",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A hermit crab walks past wearing a small clay cup instead of a shell: find it a shell, or find the cup's owner.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A hermit crab is walking across the sand outside the huts. That's normal. What's not normal is that, instead of a shell, it is wearing a small clay cup. A real cup, the kind used for tea, with a chip in the rim. It is wearing it very confidently.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Find It a Proper Shell",
+     "next": "a",
+     "src": "L133"
+    },
+    {
+     "label": "Find Out Whose Cup It Is",
+     "next": "b",
+     "src": "L136"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) gathers a few empty shells of different sizes and lays them in front of the crab. The crab inspects them all, very carefully, one by one. Then it ignores every single one and walks off, still wearing the cup. (subject) decides that it's the crab's choice. (subject.He/She) hopes the cup's owner doesn't miss it too much.",
+   "src": "L134"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) asks around. The cup belongs to (friend), who lost it on the beach a few days ago. \"I want it back,\" says (friend). They look at the crab. The crab looks back. \"...Actually,\" says (friend), \"it suits it better.\" (friend.He/She) makes (friend.him/her)self a new cup instead.",
+   "src": "L137"
+  }
+ }
+}

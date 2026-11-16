@@ -1,0 +1,107 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Talent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il047_hidden_talent",
+  "source": "da_il03",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L83",
+    "kind": "casting",
+    "before": "Today a carver leaves",
+    "after": "Today (carver), a carver, leaves",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L86",
+    "kind": "instruction",
+    "text": "[effect: small Building or craft skill, where the game has a fitting one]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager who has never carved anything whittles a very good little turtle: show someone, or keep it a secret.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "carver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has never once in (subject.his/her) life tried to carve anything. Today (carver), a carver, leaves a knife and a block of soft wood lying around, and (subject), just to pass the time, starts whittling. An hour later (subject.he/she) is holding a very small, very good turtle.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Show (friend)",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Keep It as a Secret",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) turns the turtle over in (friend.his/her) hands. \"You made this? Today?\" (subject) nods, slightly alarmed. \"Why didn't you ever say you could do this?\" \"I didn't know I could!\" (subject) is not sure whether to be proud or annoyed about all the years (subject.he/she) wasn't carving. (subject.He/She) decides on proud.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L86"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) puts the turtle on the windowsill and doesn't mention it to anyone. Every now and then (subject.he/she) picks it up and looks at it. It's nice to know there's something inside you that you hadn't met yet.",
+   "src": "L89"
+  }
+ }
+}

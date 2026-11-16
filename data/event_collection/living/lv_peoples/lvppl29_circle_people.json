@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Circle of Different People",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl29_circle_people",
+  "source": "living",
+  "lines": [
+   22042,
+   22053
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22042",
+  "ledger": [
+   {
+    "src": "L22053",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child asks why people who seem so different still need one another.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks why people who seem so different still need one another.",
+   "src": "L22043",
+   "choices": [
+    {
+     "label": "Speak of shared needs.",
+     "next": "a",
+     "src": "L22044"
+    },
+    {
+     "label": "Celebrate their differences.",
+     "next": "b",
+     "src": "L22047"
+    },
+    {
+     "label": "Admit that cooperation can be difficult.",
+     "next": "c",
+     "src": "L22050"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child notices that everyone needs food, safety, and companionship.",
+   "src": "L22045",
+   "text_only": [
+    {
+     "what": "everyone needs food",
+     "reason": "the child's thought; nothing is gained or lost",
+     "src": "L22045"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child asks why people sometimes deny those things to others.",
+   "src": "L22046"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child becomes curious about unfamiliar crafts and customs.",
+   "src": "L22048"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child learns that difference does not guarantee agreement.",
+   "src": "L22049"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child understands that trust takes work.",
+   "src": "L22051"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child decides to invite a shy visitor to play.",
+   "src": "L22052"
+  }
+ }
+}

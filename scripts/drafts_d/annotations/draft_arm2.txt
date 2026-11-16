@@ -1,0 +1,150 @@
+# Armor, Weapons and Heirlooms ARM-46..ARM-95: one popup each.  The 15-point review: weapons as tools, heirlooms and
+# records of craft; nobody is struck or hurt; past conflict only hinted at (64, 69, 87); 66's wheelchair user is a
+# craftsperson, the disability not the subject; 58 turtles: only shells the sea brings in.  The file's "LIVING EVENT
+# ENGINE - MORE FLAVOR TEXT" block is a notes row (mixer seed: pending; another agent handles the mixer).
+ARM-46
+NAME: "an elder's keepsakes" => "(name1)'s keepsakes"
+ROLES: name1=55+
+REVIEW: ok (the elder's keepsakes: "the elder only smiles" keeps the role word)
+ARM-47
+REVIEW: ok
+ARM-48
+REVIEW: ok (no single person)
+ARM-49
+NAME: "Its keeper says" => "Its keeper, (name1), says"
+ROLES: name1=18+
+REVIEW: ok
+ARM-50
+REVIEW: ok (the sling aims well clear of the birds)
+ARM-51
+REVIEW: ok
+ARM-52
+NAME: "Its newest keeper fits" => "Its newest keeper, (name1), fits"
+ROLES: name1=18+
+REVIEW: ok
+ARM-53
+NAME: "by a grandchild who" => "by (name1), a grandchild who"
+ROLES: name1=3+
+REVIEW: ok
+ARM-54
+REVIEW: ok (no single person)
+ARM-55
+REVIEW: ok (adults put the baby down; no child carries a baby)
+ARM-56
+NAME: "Its owner says" => "Its owner, (name1), says"
+ROLES: name1=18+
+REVIEW: ok
+ARM-57
+NAME: "Its keeper is" => "Its keeper, (name1), is"
+ROLES: name1=18+
+REVIEW: ok
+ARM-58
+DESC: A family's ceremonial ornament is made from a turtle shell that, they say, washed ashore long ago.
+REVIEW: ok (no single person; future ornaments only from shells the sea brings in)
+ARM-59
+DESC: A ceremonial paddle carved from the bone of a long-stranded whale has never touched the water.
+REVIEW: ok
+ARM-60
+REVIEW: ok
+ARM-61
+NAME: "The keeper decides" => "The keeper, (name1), decides"
+ROLES: name1=18+
+REVIEW: ok
+ARM-62
+DESC: Padded practice gear stuffed with coconut fiber is restuffed after many years of use.
+REVIEW: ok (no single person)
+ARM-63
+REVIEW: ok (no single person)
+ARM-64
+REVIEW: ok (no single person; a troubled past only implied, nobody asked to explain)
+ARM-65
+REVIEW: ok (no single person; no bird is hunted in the event)
+ARM-66
+NAME: "by a villager who uses" => "by (name1), who uses"
+ROLES: name1=18+
+REVIEW: ok (the craft is the subject, not the wheelchair)
+ARM-67
+REVIEW: ok
+ARM-68
+REVIEW: ok
+ARM-69
+NAME: "An artisan restoring an old shield leaves" => "(Name1), an artisan restoring an old shield, leaves"
+ROLES: name1=18+
+REVIEW: ok
+ARM-70
+REVIEW: ok (no single person)
+ARM-71
+DESC: An apprentice notices that an old ceremonial spear is wrapped for a very small hand.
+REVIEW: ok
+ARM-72
+NAME: "A neighbor's family" => "(Name1)'s family"
+ROLES: name1=18+
+REVIEW: ok (a storm took a hut in the past; implied, no injuries)
+ARM-73
+NAME: none
+REVIEW: ok (a dancer's mask: the role word is the object's, kept unnamed)
+ARM-74
+REVIEW: ok
+ARM-75
+DESC: A great grinding stone at the edge of the village is worn with grooves from generations of sharpening.
+REVIEW: ok (no single person)
+ARM-76
+REVIEW: ok
+ARM-77
+REVIEW: ok
+ARM-78
+NAME: "the oldest farmer says" => "(name1), the oldest farmer, says"
+ROLES: name1=55+
+DESC: A ceremonial blade is used only to cut the first stalk of each year's harvest.
+REVIEW: ok
+ARM-79
+REVIEW: ok (no single person)
+ARM-80
+NAME: "A villager who joined the family as a grown adult is invited" => "(Name1), who joined the family as a grown adult, is invited"
+ROLES: name1=18+
+DESC: A villager who joined the family as a grown adult is invited to paint a symbol on the family shield.
+REVIEW: ok
+ARM-81
+REVIEW: ok (no single person)
+ARM-82
+DESC: The keeper of the storehouse sings a long song naming every implement instead of keeping a written list.
+NAME: "The keeper of the storehouse does" => "(Name1), the keeper of the storehouse, does"
+ROLES: name1=18+
+REVIEW: ok
+ARM-83
+NAME: "An elder's walking cane" => "(Name1)'s walking cane"
+ROLES: name1=55+
+REVIEW: ok ("The elder says" keeps the role word)
+ARM-84
+REVIEW: ok (choosing not to hunt and hunting are both respected)
+ARM-85
+REVIEW: ok
+ARM-86
+REVIEW: ok (no single person)
+ARM-87
+DESC: At a remembrance gathering, archers lay down arrows with their points removed.
+REVIEW: ok (no single person; a troubled time only implied; both explanations kept)
+ARM-88
+NAME: "A toolmaker's apprentice is" => "(Name1), a toolmaker's apprentice, is"
+ROLES: name1=14+
+REVIEW: ok
+ARM-89
+REVIEW: ok (no single person)
+ARM-90
+DESC: An old spear shaft hangs in the meeting place, notched to measure canoe lengths and children's heights.
+REVIEW: ok (no single person)
+ARM-91
+REVIEW: ok (no single person; the shield's origin stays a guess, no place named)
+ARM-92
+REVIEW: ok (no single person)
+ARM-93
+DESC: During the storm season, villagers wear thick woven mats over their heads and shoulders.
+REVIEW: ok
+ARM-94
+DESC: An old training exercise has become a children's game played with padded sticks.
+REVIEW: ok (no single person; play, nobody is struck)
+ARM-95
+NAME: "an elder who lives alone" => "(name1), an elder who lives alone"
+ROLES: name1=55+
+DESC: A ceremonial spear belongs to the whole village, and each year a different household keeps it.
+REVIEW: ok

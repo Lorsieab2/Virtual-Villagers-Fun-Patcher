@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Farmer Who Wants the Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk048_farmer_wants",
+  "source": "companion",
+  "lines": [
+   5923,
+   5930
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5923",
+  "ledger": [
+   {
+    "src": "L5929",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5930",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A skilled farmer dreams of becoming an astronomer.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A skilled farmer dreams of becoming an astronomer.",
+   "src": "L5924",
+   "choices": [
+    {
+     "label": "Study at night while farming.",
+     "next": "outcome",
+     "src": "L5925"
+    },
+    {
+     "label": "Seek a mentor and change professions.",
+     "next": "outcome",
+     "src": "L5926"
+    },
+    {
+     "label": "Abandon the dream out of fear.",
+     "next": "outcome",
+     "src": "L5927"
+    },
+    {
+     "label": "Combine sky observations with planting knowledge.",
+     "next": "outcome",
+     "src": "L5928"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5929"
+  }
+ }
+}

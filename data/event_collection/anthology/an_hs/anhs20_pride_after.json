@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Pride After a Public Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs20_pride_after",
+  "source": "anthology",
+  "lines": [
+   29725,
+   29738
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29725",
+  "ledger": [
+   {
+    "src": "L29726",
+    "kind": "sensitivity",
+    "before": "A skilled craftsperson",
+    "after": "(craftsperson), a skilled craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29728",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29732",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29737",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A skilled craftsperson makes an obvious error in front of their apprentices and becomes defensive.",
+  "label_case": "title",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(craftsperson), a skilled craftsperson, makes an obvious error in front of their apprentices and becomes defensive.",
+   "src": "L29726",
+   "choices": [
+    {
+     "label": "Offer Help Privately",
+     "next": "a",
+     "src": "L29727"
+    },
+    {
+     "label": "Acknowledge the Mistake Openly",
+     "next": "b",
+     "src": "L29730"
+    },
+    {
+     "label": "Give Them Space",
+     "next": "c",
+     "src": "L29733"
+    },
+    {
+     "label": "Make a Gentle Joke Only If Welcome",
+     "next": "d",
+     "src": "L29736"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(craftsperson) accepts assistance without losing face.",
+   "src": "L29728"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They initially refuse, then quietly correct the mistake themselves.",
+   "src": "L29729"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentices appreciate seeing expertise coexist with fallibility.",
+   "src": "L29731"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(craftsperson) feels exposed and needs time before speaking again.",
+   "src": "L29732"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They return later with a repaired object and a small smile.",
+   "src": "L29734"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The silence is mistaken for disapproval until someone checks in.",
+   "src": "L29735"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(craftsperson) laughs and invents a nickname for the mistake.",
+   "src": "L29737"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The joke lands badly, and the speaker apologizes promptly.",
+   "src": "L29738"
+  }
+ }
+}

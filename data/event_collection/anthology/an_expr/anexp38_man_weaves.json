@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Man Who Weaves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp38_man_weaves",
+  "source": "anthology",
+  "lines": [
+   31840,
+   31854
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31840",
+  "ledger": [
+   {
+    "src": "L31841",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31842",
+    "kind": "sensitivity",
+    "before": "but another child calls",
+    "after": "but (critic), another child, calls",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31842",
+    "kind": "sensitivity",
+    "before": "A boy",
+    "after": "(boy)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31844",
+    "kind": "sensitivity",
+    "before": "The critic",
+    "after": "(critic)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31845",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31847",
+    "kind": "sensitivity",
+    "before": "The boy",
+    "after": "(boy)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31854",
+    "kind": "sensitivity",
+    "before": "A girl",
+    "after": "(girl)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A boy enjoys weaving decorative ribbons, but another child calls the activity unsuitable for boys.",
+  "label_case": "title",
+  "cast_only": [
+   "boy",
+   "critic",
+   "elder",
+   "girl"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "boy": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "sex": "male"
+  },
+  "critic": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "girl": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(boy) enjoys weaving decorative ribbons, but (critic), another child, calls the activity unsuitable for boys.",
+   "src": "L31842",
+   "choices": [
+    {
+     "label": "Ask Why",
+     "next": "a",
+     "src": "L31843"
+    },
+    {
+     "label": "Let the Craft Speak",
+     "next": "b",
+     "src": "L31846"
+    },
+    {
+     "label": "Discuss Fairness",
+     "next": "c",
+     "src": "L31849"
+    },
+    {
+     "label": "Invite Everyone",
+     "next": "d",
+     "src": "L31852"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(critic) cannot explain the rule.",
+   "src": "L31844"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) describes how work varies across families.",
+   "src": "L31845"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(boy) makes an admired ribbon.",
+   "src": "L31847"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The ribbon breaks and he cheerfully tries again.",
+   "src": "L31848"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children agree skills are not assigned by gender.",
+   "src": "L31850"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One child needs more time to change their mind.",
+   "src": "L31851"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several adults join the weaving.",
+   "src": "L31853"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(girl) chooses the running games instead.",
+   "src": "L31854"
+  }
+ }
+}

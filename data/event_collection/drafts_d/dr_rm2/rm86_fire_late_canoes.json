@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire for the Late Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm86_fire_late_canoes",
+  "source": "draft_rm2",
+  "lines": [
+   685,
+   698
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L685",
+  "ledger": [
+   {
+    "src": "L686",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Two canoes are still out after sunset, and a villager decides to keep a fire burning on the beach.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two canoes are still out after sunset, and (name1) decides to keep a fire burning on the beach.",
+   "src": "L686",
+   "choices": [
+    {
+     "label": "Keep It Burning All Night.",
+     "next": "a",
+     "src": "L687"
+    },
+    {
+     "label": "Ask Others to Take Turns.",
+     "next": "b",
+     "src": "L690"
+    },
+    {
+     "label": "Add Green Leaves for More Smoke.",
+     "next": "c",
+     "src": "L693"
+    },
+    {
+     "label": "Light Lanterns Along the Shore.",
+     "next": "d",
+     "src": "L696"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The canoes find their way home by the light.",
+   "src": "L688"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The canoes had stayed on another beach and return in the morning, grateful for the thought.",
+   "src": "L689"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The fire stays bright, and everyone gets some sleep.",
+   "src": "L691"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The turns are confusing, and the fire nearly goes out once.",
+   "src": "L692"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The smoke helps the canoes find the beach at dawn.",
+   "src": "L694"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The smoke drifts into the village, and some villagers cough and complain.",
+   "src": "L695"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The lanterns make a glowing path for the canoes.",
+   "src": "L697"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The wind blows out half of them, and the villager relights them patiently.",
+   "src": "L698"
+  }
+ }
+}

@@ -1,0 +1,74 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Marks on the Post",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il094_marks_post",
+  "source": "da_il05",
+  "lines": [
+   158,
+   167
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L158",
+  "ledger": [
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager leaning on an old hut post notices the notches that marked how tall they grew each year.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "On one of the old hut posts there are little notches carved at different heights. (name1)'s parents used to mark how tall (he/she) was every year. The lowest notch is about knee high. The highest is a little below (his/her) chin. Today, leaning against the post, (name1) notices them for the first time in years.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Measure Again",
+     "next": "a",
+     "src": "L163"
+    },
+    {
+     "label": "Just Look",
+     "next": "b",
+     "src": "L166"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) stands with (his/her) back to the post and carefully carves a new notch at the top of (his/her) head. It's barely above the last one. (He/She) looks at the whole row: a little person growing up the post, year after year, until (he/she) stopped. (name1) touches the bottom notch and smiles.",
+   "src": "L164"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) runs (his/her) thumb down the notches, one by one. Some years were big jumps. Some were barely anything. (He/She) tries to remember who (he/she) was at each one. Some years come back clearly. Some don't. (He/She) leaves the post as it is.",
+   "src": "L167"
+  }
+ }
+}

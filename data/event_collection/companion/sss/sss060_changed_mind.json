@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Who Changed Their Mind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss060_changed_mind",
+  "source": "companion",
+  "lines": [
+   6679,
+   6687
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6679",
+  "ledger": [
+   {
+    "src": "L6687",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A skilled healer no longer enjoys healing and would rather work with gemstones.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A skilled healer admits they no longer enjoy healing and would rather work with gemstones.",
+   "src": "L6680",
+   "choices": [
+    {
+     "label": "Try a short apprenticeship",
+     "next": "a",
+     "src": "L6681"
+    },
+    {
+     "label": "Stay part-time in the hospital",
+     "next": "b",
+     "src": "L6683"
+    },
+    {
+     "label": "Continue healing for now",
+     "next": "c",
+     "src": "L6685"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They discover gem cutting is harder than expected but deeply satisfying.",
+   "src": "L6682"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They balance two roles until a successor is trained.",
+   "src": "L6684"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They feel useful yet increasingly restless; the question returns in a later event.",
+   "src": "L6686"
+  }
+ }
+}

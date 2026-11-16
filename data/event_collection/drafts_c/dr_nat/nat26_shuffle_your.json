@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Shuffle Your Feet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat26_shuffle_your",
+  "source": "draft_nat",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen aged 14-17)"
+   },
+   {
+    "src": "L317",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L317",
+    "kind": "sensitivity",
+    "before": "A healer soaks the foot",
+    "after": "(healer), a healer, soaks the foot",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teen has stopped shuffling their feet in the stingray shallows: show them why, or let them find out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The stingrays like to rest in the warm shallows, buried just under the sand where nobody can see them. Every child on Isola is taught to shuffle their feet when they wade, so the rays feel them coming and glide away. (friend) thinks shuffling looks ridiculous and has started walking normally. (subject) has noticed.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Show (friend.him/her) Why",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Let (friend.him/her) Find Out",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) out to the shallows and shuffles slowly forward. Ahead of them, a patch of sand suddenly lifts and becomes a ray, wide and grey, gliding off like a blanket in the wind. Then another. Then three more. (friend) stands very still, counting how many (friend.he/she) almost stepped on that week. (friend.He/she) shuffles all the way back to shore without being asked.",
+   "src": "L314"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing. A few days later, (friend) comes limping up the beach, foot swollen, eyes watering, having stepped right on one. The ray was fine. (friend) is not. (healer), a healer, soaks the foot in hot water, and the pain eases slowly. (friend) shuffles everywhere afterward, even on dry land, for a week.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L317"
+    }
+   ]
+  }
+ }
+}

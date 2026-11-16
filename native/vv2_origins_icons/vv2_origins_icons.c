@@ -1430,12 +1430,22 @@ static const unsigned char *vv2_appearance_record;
 static int vv2_appearance_open_head, vv2_appearance_open_body, vv2_appearance_open_mask;
 static int vv2_appearance_open_look;
 static unsigned int vv2_appearance_rng;
+/* Change sex... (native/shared/sex_change_ui.h) writes the live record at once: the record and its index. */
+static unsigned char *vv2_appearance_live;
+static int vv2_appearance_index;
 static int vv2_appearance_hair_head(int colour);
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free.  The
+   preview's vv2_appearance_sex is the drawn sex. */
+static vvfp_gp_window vv2_appearance_gp;
 
 /* Every control as the chosen values say: the window's start, and after Undo changes or Reset to
    original. */
 static void vv2_appearance_show(HWND window) {
     vv2_appearance_old = vvfp_head_look_old(vv2_appearance_look, vv2_appearance_age);
+    if (vv2_appearance_live != NULL) {
+        vv2_appearance_sex = vvfp_gp_window_sex(&vv2_appearance_gp, 2, vv2_appearance_live) == 1 ? 0 : 1;
+    }
+    vvfp_gp_window_show(window, &vv2_appearance_gp, 2, vv2_appearance_live);
     if (vv2_appearance_look_offered) {
         CheckRadioButton(window, IDC_VV2_LOOK_AUTO, IDC_VV2_LOOK_OLD, IDC_VV2_LOOK_AUTO + vv2_appearance_look);
     }
@@ -1492,7 +1502,15 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             vv2_appearance_body = vv2_appearance_open_body;
             vv2_appearance_mask = vv2_appearance_open_mask;
             vv2_appearance_look = vv2_appearance_open_look;
+            vv2_appearance_gp.on = vv2_appearance_gp.was;
             vv2_appearance_show(window);
+            return TRUE;
+        }
+        if (command == VVFP_AX_PRESENTATION) {
+            if (vv2_appearance_live != NULL
+                && vvfp_gp_window_toggle(window, &vv2_appearance_gp, 2, vv2_appearance_live)) {
+                vv2_appearance_show(window);
+            }
             return TRUE;
         }
         if (command == VVFP_AX_RESET) {
@@ -1510,6 +1528,15 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
                 vv2_appearance_look = VVFP_HEAD_LOOK_AUTO;
             }
             vv2_appearance_show(window);
+            return TRUE;
+        }
+        if (command == VVFP_AX_CHANGE_SEX) {
+            /* Made at once on Yes, not by OK, Cancel or Undo changes: the previews and the hair colours
+               follow the new sex, the same head and body rows. */
+            if (vvfp_ax_change_sex(window, 2, vv2_appearance_live, vv2_appearance_index)) {
+                vv2_appearance_sex = *(int *)(vv2_appearance_live + VV2_SEX_OFFSET) == 1 ? 0 : 1;
+                vv2_appearance_show(window);
+            }
             return TRUE;
         }
         if (command == VVFP_AX_RANDOM_HEAD) {
@@ -1568,6 +1595,9 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            if (vv2_appearance_live != NULL) {
+                (void)vvfp_gp_window_keep(window, &vv2_appearance_gp, 2, vv2_appearance_live);
+            }
             EndDialog(window, 1);
             return TRUE;
         }
@@ -1785,6 +1815,37 @@ static unsigned int vv2_fnv_text(unsigned int h, const unsigned char *text, int 
     return h;
 }
 
+/* One living record's identity: name, gender and the parents' names -- of
+   which only the gender ever changes, by a sex change (native/shared/
+   sex_change.h).  Never 0. */
+static unsigned int vv2_record_identity(const unsigned char *rec) {
+    unsigned int h = vv2_fnv_text(2166136261u, rec + VV2_NAME_OFFSET, VV2_NAME_CAPACITY);
+    int k;
+    h = (h ^ 0xFFu) * 16777619u;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ rec[VV2_IDENTITY_SEX + k]) * 16777619u;
+    }
+    h = vv2_fnv_text(h, rec + VV2_FATHER_OFFSET, VV2_NAME_CAPACITY);
+    h = (h ^ 0xFEu) * 16777619u;
+    h = vv2_fnv_text(h, rec + VV2_MOTHER_OFFSET, VV2_NAME_CAPACITY);
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
+/* The part of it a rename leaves alone: gender and the parents' names.  Never 0. */
+static unsigned int vv2_record_stable(const unsigned char *rec) {
+    unsigned int h = 2166136261u;
+    int k;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ rec[VV2_IDENTITY_SEX + k]) * 16777619u;
+    }
+    h = vv2_fnv_text(h, rec + VV2_FATHER_OFFSET, VV2_NAME_CAPACITY);
+    h = (h ^ 0xFEu) * 16777619u;
+    h = vv2_fnv_text(h, rec + VV2_MOTHER_OFFSET, VV2_NAME_CAPACITY);
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
 /* Fill out[] with each living record's identity: name, gender and the
    parents' names, none of which changes during a life.  Never 0 for a
    living record.  Returns the number of living villagers. */
@@ -1792,22 +1853,11 @@ static int vv2_roster_identities(const unsigned char *base, unsigned int *out) {
     int i, live = 0;
     for (i = 0; i < VV2_RECORD_COUNT; ++i) {
         const unsigned char *rec = base + (unsigned int)i * VV2_RECORD_STRIDE;
-        unsigned int h;
-        int k;
         out[i] = 0;
         if (rec[VV2_ACTIVE_OFFSET] == 0) {
             continue;
         }
-        h = vv2_fnv_text(2166136261u, rec + VV2_NAME_OFFSET, VV2_NAME_CAPACITY);
-        h = (h ^ 0xFFu) * 16777619u;
-        for (k = 0; k < 4; ++k) {
-            h = (h ^ rec[VV2_IDENTITY_SEX + k]) * 16777619u;
-        }
-        h = vv2_fnv_text(h, rec + VV2_FATHER_OFFSET, VV2_NAME_CAPACITY);
-        h = (h ^ 0xFEu) * 16777619u;
-        h = vv2_fnv_text(h, rec + VV2_MOTHER_OFFSET, VV2_NAME_CAPACITY);
-        h = (h ^ 0xFDu) * 16777619u;
-        out[i] = h ? h : 1u;
+        out[i] = vv2_record_identity(rec);
         ++live;
     }
     return live;
@@ -1833,6 +1883,20 @@ static void vv2_roster_stables(const unsigned char *base, unsigned int *out) {
         h = (h ^ 0xFDu) * 16777619u;
         out[i] = h ? h : 1u;
     }
+}
+
+/* A SEX CHANGE (native/shared/sex_change.h): the records of the array
+   vv2_sex_base, for the slot's "Sex Changes" log and the pair a change
+   leaves (villager_rekey.h). */
+static const unsigned char *vv2_sex_base;
+
+static const unsigned char *vv2_sex_record(int index) {
+    return vv2_sex_base != NULL && index >= 0 && index < VV2_RECORD_COUNT
+        ? vv2_sex_base + (unsigned int)index * VV2_RECORD_STRIDE : NULL;
+}
+
+static int vv2_sex_present(const unsigned char *rec) {
+    return rec[VV2_ACTIVE_OFFSET] != 0;
 }
 
 /* How many of the recorded villagers in `a` are in `b` at the same record
@@ -2028,6 +2092,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
     unsigned char buf[VV2_MASK_TABLE_BYTES];
     int i;
     int status;
+    int sex_changed = 0;
     /* FAIL CLOSED: the clear precedes EVERY exit, so a load that does not
        complete cannot leave the PREVIOUS village's masks on screen. That
        outranks preserving a locked legacy sidecar: showing one village's
@@ -2080,6 +2145,18 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
     memcpy(buf, file + 4 + sizeof(filesnap), sizeof(buf));
     memcpy(&magic, file, sizeof(magic));
     weak = magic == VV2_MASK_SIDECAR_MAGIC;
+    if (!weak && base != 0) {
+        /* A villager the slot's log names whose sex the save and the file
+           tell differently (the save not saved after the change,
+           native/shared/sex_change.h): each identity the file keeps for them
+           reads as the one they have now -- by the log's pairs and those a
+           change in this session left -- before the village test and the
+           follow. */
+        vv2_sex_base = base;
+        (void)vv_sex_log_note(2, VV2_MASK_SLOT_NOW, VV2_RECORD_COUNT, vv2_sex_record, vv2_sex_present,
+                              vv2_record_identity);
+        sex_changed = vv_rekey_apply(VV2_MASK_SLOT_NOW, filesnap, VV2_RECORD_COUNT);
+    }
     if (weak) {
         /* a name-only file is compared with names (none while no village is up) */
         if (base != 0) {
@@ -2102,6 +2179,9 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
             /* Written against the records as they were; a reload has packed
                them since.  Each mask goes to its villager. */
             g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak, 0) || weak;
+            if (sex_changed > 0) {
+                g_vv2_rewrite_after_load = 1;   /* written again under the identities they have now */
+            }
             if (weak) {
                 vv_om_from_names(VV2_RECORD_COUNT, g_vv2_mask_id, names, live);
             }
@@ -2423,6 +2503,40 @@ static int __stdcall vv2_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live with
+   the new sex, `before` a copy as it was.  The mask stays theirs.  The
+   identity holds the sex, so the village sync would take them for a new
+   occupant of their record and drop the mask: the record's roster entry, its
+   stable part (so a later rename is still told as one) and the identity its
+   mask was stored with take the new identity now, and the file is written
+   under it.  The pair is kept for the slot too, for a file read later in this
+   session.  1 when anything was carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    const unsigned char *now = (const unsigned char *)record;
+    unsigned int from, to, was;
+    int index, carried;
+    if (game != 2 || record == NULL || before == NULL) {
+        return 0;
+    }
+    vv2_sex_base = *(unsigned char **)(UINT_PTR)0x00499F24u;
+    was = vv2_record_identity((const unsigned char *)before);
+    carried = vv_sex_changed_note(slot, now, (const unsigned char *)before, VV2_RECORD_COUNT, vv2_sex_record,
+                                  vv2_sex_present, vv2_record_identity, &from, &to);
+    index = vv2_story_index((void *)record);
+    /* The record itself is the villager: no guess, so this is done even when another villager still
+       carries the old identity (the pair is then not kept). */
+    if (g_vv2_have_roster && slot >= 1 && slot == g_vv2_slot && index >= 0 && g_vv2_roster[index] == was) {
+        g_vv2_roster[index] = vv2_record_identity(now);
+        g_vv2_stable[index] = vv2_record_stable(now);
+        if (g_vv2_mask_id[index] == was) {
+            g_vv2_mask_id[index] = g_vv2_roster[index];
+        }
+        (void)vv2_mask_sidecar_save();
+        carried = 1;
+    }
+    return carried;
+}
+
 /* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
    Warp above, at most the years one Time Warp buys at the current speed.
    The game's villager tick (the catch-up loop that replays the new age
@@ -2720,7 +2834,7 @@ int __stdcall ShowVV2AppearanceChooser(
 ) {
     INT_PTR result;
     int *tech;
-    int sex, age, h, b, m, orig_head, orig_body, orig_mask, look_was, look_changed, same;
+    int sex, age, h, b, m, orig_head, orig_body, orig_mask, look_was, look_changed, same, gp_open;
     if (player == 0 || record == 0 || idx < 0 || idx >= VV2_MASK_TABLE_BYTES) {
         return 0;
     }
@@ -2746,7 +2860,11 @@ int __stdcall ShowVV2AppearanceChooser(
     orig_mask = vv2_appearance_open_mask = vv2_appearance_mask;
     vv2_appearance_open_look = vv2_appearance_look;
     vv2_appearance_record = record;
+    vv2_appearance_live = record;
+    vv2_appearance_index = idx;
     vv2_appearance_rng = GetTickCount() | 1u;
+    vvfp_gp_window_open(&vv2_appearance_gp, 2, record);
+    gp_open = vv2_appearance_gp.was;
 
     result = DialogBoxParamA(
         module_instance,
@@ -2761,6 +2879,9 @@ int __stdcall ShowVV2AppearanceChooser(
     look_changed = vv2_appearance_look_offered && vv2_appearance_look != look_was;
     same = vv2_appearance_head == orig_head && vv2_appearance_body == orig_body && vv2_appearance_mask == orig_mask;
     /* OK with nothing actually changed: write nothing, charge nothing. */
+    if (same && !look_changed && vv2_appearance_gp.was != gp_open) {
+        return 0;               /* only the gender presentation, kept on OK and free */
+    }
     if (same && !look_changed) {
         ShowVV2UpgradeResult(VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
         return 0;

@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Surpassed the Master",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk058_surpassed",
+  "source": "companion",
+  "lines": [
+   6013,
+   6020
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6013",
+  "ledger": [
+   {
+    "src": "L6019",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L6020",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A young artisan becomes more skilled than the elder who trained them.",
+  "cast_only": [
+   "artisan",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "artisan": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A young artisan becomes more skilled than the elder who trained them.",
+   "src": "L6014",
+   "choices": [
+    {
+     "label": "Celebrate the student's achievement.",
+     "next": "outcome",
+     "src": "L6015"
+    },
+    {
+     "label": "Feel jealous and become distant.",
+     "next": "outcome",
+     "src": "L6016"
+    },
+    {
+     "label": "Collaborate on a new technique.",
+     "next": "outcome",
+     "src": "L6017"
+    },
+    {
+     "label": "Retire with pride but mixed emotions.",
+     "next": "outcome",
+     "src": "L6018"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "celebrate",
+     "reason": "the master's own pride in the student, not a village celebration",
+     "src": "L6014"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L6019"
+  }
+ }
+}

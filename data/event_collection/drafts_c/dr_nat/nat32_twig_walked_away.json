@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twig That Walked Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat32_twig_walked_away",
+  "source": "draft_nat",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 3-10 and another villager)"
+   }
+  ],
+  "description": "A small child's drawing twig walked off their hand: find it again, or tell everyone about the walking twig.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) picked up a twig to draw in the sand with, and the twig walked off (subject.his/her) hand. (subject.He/she) is now standing frozen, pointing at a bush, unable to say anything except \"It walked. It WALKED.\" (friend) comes over to look. On the bush, among the twigs, one twig has very thin legs.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Find It Again",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Tell Everyone About the Walking Twig",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) and (subject) spend ages searching the bush. Every twig looks like a twig. (subject) gets more and more frustrated. Then (friend) points very slowly: there it is, swaying gently, pretending to be blown by the wind. (subject) is so impressed (subject.he/she) can hardly breathe. (subject.He/she) spends the rest of the day pointing at twigs and asking, \"Is THAT one an animal?\" Most of them aren't.",
+   "src": "L386"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells everybody. Nobody believes (subject.him/her). (subject) leads a group of disbelieving grown-ups back to the bush. They can't find it. (subject) is furious. Then a leaf on a different branch opens its wings and turns out to be a moth. The grown-ups go quiet. They start looking at every bush a little more carefully on the way home.",
+   "src": "L389"
+  }
+ }
+}

@@ -62,6 +62,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
             found,
             {
                 "native/parentage_export/death_log_harness.c",
+                "native/parentage_export/event_entry_harness.c",
                 "native/parentage_export/held_slot_harness.c",
                 "native/parentage_export/pending_harness.c",
                 "native/parentage_export/select_holes_harness.c",

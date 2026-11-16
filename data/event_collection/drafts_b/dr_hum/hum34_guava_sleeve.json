@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guava in the Sleeve",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum34_guava_sleeve",
+  "source": "draft_hum",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L407",
+    "kind": "sensitivity",
+    "before": "against the foot of the eldest elder",
+    "after": "against the foot of (elder), the eldest elder",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L410",
+    "kind": "sensitivity",
+    "before": "The eldest elder picks up the guava",
+    "after": "(elder) picks up the guava",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L410",
+    "kind": "sensitivity",
+    "before": "Then the elder takes",
+    "after": "Then (elder) takes",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "The eldest elder picks it up",
+    "after": "(elder) picks it up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "The elder eats it",
+    "after": "(elder) eats it",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "when the elder gives",
+    "after": "when (elder) gives",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A hidden guava rolls out of a villager's sleeve across the elders' meeting: claim it, or stay perfectly still.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The elders' meeting is a long one, and (subject) has hidden a ripe guava in (subject.his/her) sleeve, for later. In the middle of a long, quiet pause, the guava slips out, drops to the floor and rolls, slowly and perfectly, right across the middle of the circle, coming to rest against the foot of (elder), the eldest elder.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Claim It",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Stay Perfectly Still",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That's mine,\" says (subject) into the silence. (elder) picks up the guava, considers it, and hands it back. Then (elder) takes a mango out of a sleeve, and someone else produces a handful of nuts, and it turns out nearly everyone has brought a snack. The meeting becomes a picnic. It is the most agreeable meeting in years.",
+   "src": "L410"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Nobody claims it. (elder) picks it up, looks at it and asks, \"Is this part of today's business?\" Nobody answers. (elder) eats it, very slowly, and the meeting goes on. (subject) sits very quietly, and very hungrily, until the end, when (elder) gives (subject.him/her) a small wink.",
+   "src": "L413"
+  }
+ }
+}

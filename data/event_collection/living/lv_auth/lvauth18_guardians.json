@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guardians' Council",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvauth18_guardians",
+  "source": "living",
+  "lines": [
+   23603,
+   23617
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23603",
+  "ledger": [
+   {
+    "src": "L23617",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two Isolan communities disagree over who should guide a shared irrigation project.",
+  "cast_only": [
+   "worker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "patch": "guardians_of_isola"
+  }
+ },
+ "roles": {
+  "worker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two Isolan communities disagree over who should guide a shared irrigation project.",
+   "src": "L23604",
+   "choices": [
+    {
+     "label": "Let our {@chief} direct it.",
+     "next": "a",
+     "src": "L23605"
+    },
+    {
+     "label": "Let the other community's expert lead.",
+     "next": "b",
+     "src": "L23608"
+    },
+    {
+     "label": "Form a joint council.",
+     "next": "c",
+     "src": "L23611"
+    },
+    {
+     "label": "Allow each community to manage its own section.",
+     "next": "d",
+     "src": "L23614"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The project proceeds efficiently.",
+   "src": "L23606"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The other community resents being excluded.",
+   "src": "L23607"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Their local knowledge improves the channels.",
+   "src": "L23609"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Our workers feel their concerns are ignored.",
+   "src": "L23610"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The groups compromise and share the benefits.",
+   "src": "L23612"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Decisions slow as old disputes resurface.",
+   "src": "L23613"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Both groups innovate in different ways.",
+   "src": "L23615"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The channels fail to meet at the border.",
+   "src": "L23616"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "words": {
+  "chief": {
+   "*": "leader"
+  }
+ }
+}

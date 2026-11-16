@@ -47,6 +47,7 @@ import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
 import vv_stew_recipes_window
+import vv_cie_library_window
 import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
@@ -234,6 +235,18 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Island Events Scale With Stored Food and Tech Points, is off through ALTERNATIVE_OFF_FUN_PATCH_IDS and off in
     # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
+    # Scrolling Popups (all five games; the owner, 2026-11-12): off by default, on in
+    # Owner's Defaults, which ticks it like every default-off patch it does not name; not in Classic VV Difficulty.
+    + ["vv%d_scrolling_popups" % game for game in (1, 2, 3, 4, 5)]
+    # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
+    # Owner's Defaults (and in Classic VV Difficulty where a game has it).
+    + ["vv%d_more_island_events" % game for game in range(1, 6)]
+    # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
+    # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
+    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
+    # Defaults and OFF everywhere else" -- off here and in Select All.
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -298,6 +311,10 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
+    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
+    + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -2221,6 +2238,14 @@ class App(tk.Tk):
             command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
         ).pack(side="left")
         self._help_button(stew_tools, "stew_recipes").pack(side="left", padx=(2, 0))
+        # Custom Island Event Library (the owner, 2026-11-12: the branching editor lives in the patcher): write,
+        # check and keep branching Custom Island Events in a game's save folder, for the game's picker.
+        ttk.Button(
+            stew_tools,
+            text="Custom Island Event Library...",
+            command=lambda: vv_cie_library_window.open_cie_library(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(stew_tools, "custom_island_event_library").pack(side="left", padx=(2, 0))
         slot_tools = ttk.Frame(box)
         slot_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
@@ -5907,6 +5932,7 @@ class App(tk.Tk):
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
         recorded_own = vv_last_names.own_rules_now(folder, number, info.slot, people)
+        sex_changed = vv_last_names._sex_changed(folder, info.slot)   # a parent whose sex changed keeps their rule
         saved_own = {k: r for k, r in recorded_own.items() if k in living_keys}
         # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
         written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
@@ -6046,7 +6072,7 @@ class App(tk.Tk):
             return vv_last_names.expected_last_names(
                 people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
                 vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,
-                lambda v, last: not too_long(v, last))
+                lambda v, last: not too_long(v, last), sex_changed)
 
         def given() -> dict:
             return {key: should for key, (should, _used, _either) in expected().items()}

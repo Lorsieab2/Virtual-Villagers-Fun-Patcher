@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blue Cloth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl02_blue_cloth",
+  "source": "living",
+  "lines": [
+   21678,
+   21689
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21678",
+  "ledger": [
+   {
+    "src": "L21689",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dyer discovers a brilliant blue pigment and offers to recolor a villager's clothing.",
+  "cast_only": [
+   "villager",
+   "dyer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "dyer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dyer discovers a brilliant blue pigment and offers to recolor a villager's clothing.",
+   "src": "L21679",
+   "choices": [
+    {
+     "label": "Choose the new blue.",
+     "next": "a",
+     "src": "L21680"
+    },
+    {
+     "label": "Keep the original color.",
+     "next": "b",
+     "src": "L21683"
+    },
+    {
+     "label": "Ask for a subtler shade.",
+     "next": "c",
+     "src": "L21686"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager wears the blue clothing with delight.",
+   "src": "L21681",
+   "text_only": [
+    {
+     "what": "the blue clothing",
+     "reason": "rule 8: the games have no chosen-colour action (clothing); hair dye is the random new head look (the owner)",
+     "src": "L21681"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The dye runs in the rain, and the villager requests another color.",
+   "src": "L21682"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager keeps the old clothes, remembering who made them.",
+   "src": "L21684"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The dyer saves the pigment for someone else.",
+   "src": "L21685"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The softened blue becomes the villager's favorite color.",
+   "src": "L21687"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The mixture turns green, surprising both dyer and customer.",
+   "src": "L21688"
+  }
+ }
+}

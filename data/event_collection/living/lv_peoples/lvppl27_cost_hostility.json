@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cost of Hostility",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl27_cost_hostility",
+  "source": "living",
+  "lines": [
+   22016,
+   22027
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22016",
+  "ledger": [
+   {
+    "src": "L22027",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patrol reports strangers near a valuable spring.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patrol reports strangers near a valuable spring.",
+   "src": "L22017",
+   "choices": [
+    {
+     "label": "Confront them aggressively.",
+     "next": "a",
+     "src": "L22018"
+    },
+    {
+     "label": "Speak before deciding.",
+     "next": "b",
+     "src": "L22021"
+    },
+    {
+     "label": "Watch from afar.",
+     "next": "c",
+     "src": "L22024"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The strangers retreat, leaving the spring unused by both sides.",
+   "src": "L22019"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The confrontation frightens a child and prompts criticism at home.",
+   "src": "L22020"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The strangers explain that they are lost travelers.",
+   "src": "L22022"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A tense discussion establishes a shared water schedule.",
+   "src": "L22023"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The travelers depart without incident.",
+   "src": "L22025"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The lack of contact allows fearful rumors to spread.",
+   "src": "L22026"
+  }
+ }
+}

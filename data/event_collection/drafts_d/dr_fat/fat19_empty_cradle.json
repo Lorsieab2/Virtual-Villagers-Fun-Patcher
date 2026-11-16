@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Cradle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat19_empty_cradle",
+  "source": "fathers30",
+  "lines": [
+   390,
+   408
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L390",
+  "ledger": [
+   {
+    "src": "L391",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L392",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L396",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L398",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L399",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L401",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L402",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L404",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L405",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L407",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L408",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L394",
+    "kind": "sensitivity",
+    "before": "A father stands",
+    "after": "(Name1), a father, stands",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A family has lost a pregnancy they had hoped would bring a child into their home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family has lost a pregnancy they had hoped would bring a child into their home. (Name1), a father, stands beside the cradle he carved, unsure whether to put it away.",
+   "src": "L394",
+   "choices": [
+    {
+     "label": "Keep the Cradle for Now",
+     "next": "a",
+     "src": "L397"
+    },
+    {
+     "label": "Speak with Someone Who Has Grieved",
+     "next": "b",
+     "src": "L400"
+    },
+    {
+     "label": "Make a Small Remembrance",
+     "next": "c",
+     "src": "L403"
+    },
+    {
+     "label": "Spend Time with His Partner or Loved Ones",
+     "next": "d",
+     "src": "L406"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He finds comfort in leaving it where it is.",
+   "src": "L398"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Seeing it hurts, and he later asks someone to move it.",
+   "src": "L399"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He feels less alone without being told to move on.",
+   "src": "L401"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their experiences differ, but the conversation still matters.",
+   "src": "L402"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "He carves a symbol and places it in a quiet spot.",
+   "src": "L404"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "He begins the carving but cannot finish it yet.",
+   "src": "L405"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They share memories and sit together without forcing words.",
+   "src": "L407"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They grieve differently and agree to give each other space.",
+   "src": "L408"
+  }
+ }
+}

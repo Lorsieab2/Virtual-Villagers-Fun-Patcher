@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo49_visitor_gift",
+  "source": "da_lo",
+  "lines": [
+   596,
+   605
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L599",
+    "kind": "casting",
+    "before": "A visitor from another village has come",
+    "after": "(visitor), a visitor from another village, has come",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A visitor from another village presses a small, green, glowing lavastone into a villager's hand.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "visitor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(visitor), a visitor from another village, has come to stay for a few days, and on the last morning, (visitor.he/she) presses something into (subject)'s hand: a lavastone, small and green and glowing faintly. \"You were kind to me,\" says the visitor. \"In my village, we give these to people we want to remember.\" (subject) has never been given anything like it.",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Accept It",
+     "next": "a",
+     "src": "L601"
+    },
+    {
+     "label": "Ask the Visitor What It Does",
+     "next": "b",
+     "src": "L604"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) thanks the visitor, and holds the stone all day. It doesn't seem to do anything in particular. It's warm. It glows faintly green at night. (subject) keeps it by (subject.his/her) bed. Whenever (subject.he/she) sees it, (subject.he/she) thinks of the visitor, and hopes the visitor is thinking of (subject.him/her) too. Maybe that's what it does.",
+   "src": "L602"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What does it do?\" asks (subject). The visitor smiles. \"Nobody in my village really knows. Some say it brings luck. Some say it helps you remember. My grandmother said it was a little piece of the island's heart. I think it's just nice to hold.\" (subject) closes (subject.his/her) hand around it. It is, in fact, very nice to hold.",
+   "src": "L605"
+  }
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a022_second_shadow",
+  "source": "companion",
+  "lines": [
+   542,
+   564
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L547",
+  "ledger": [
+   {
+    "src": "L543",
+    "kind": "structural",
+    "why": "the group heading 'ASTRONOMY'"
+   },
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L553",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L558",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L560",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L562",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L564",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "An astronomer records the shadow of a tall pole at different times of day."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "astronomer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An astronomer records the shadow of a tall pole at different times of day.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L554"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L555"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L556"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "The observations improve the village's calendar.",
+   "src": "L558",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "astronomer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L558"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "Cloudy skies interrupt the experiment for weeks.",
+   "src": "L560"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A young apprentice notices a seasonal change in the shadow's path.",
+   "src": "L562"
+  }
+ }
+}

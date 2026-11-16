@@ -274,6 +274,11 @@ class Process:
     def _api_GetFileAttributesW(self):
         return 0xFFFFFFFF, 4             # INVALID_FILE_ATTRIBUTES: not there
 
+    # A file opened by its path (the Story companion's installed patches' list, story_graph.inc
+    # cg_installed_load): by default not there.  A test that needs a file answers it itself.
+    def _api_CreateFileW(self):
+        return 0xFFFFFFFF, 28            # INVALID_HANDLE_VALUE
+
     # native/shared/save_layout.h asks which of a file's two names is there (and when each was
     # written); by default neither is.
     def _api_GetFileAttributesExW(self):

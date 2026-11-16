@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Plants (name1) Forgot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon37_plants_forgot",
+  "source": "draft_hon",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager forgot to water a friend's herbs for two days: water them and tell, or water them and hope.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "While (friend) was away for a few days, (subject) promised to water (friend.his/her) little herb garden. (subject) remembered on the first day, and the second. Then (subject.he/she) forgot. (friend) is due back this afternoon, and the herbs are drooping like tired children.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Water Them and Tell (friend.him/her)",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Water Them and Hope",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) waters them well, and when (friend) gets home, tells (friend.him/her) straight away. \"I missed two days. They drooped. Some might not come back.\" (friend) walks along the row, touching each plant. By evening most of them have perked up. Two haven't. \"I liked those two,\" (friend.he/she) says quietly. The next week, (subject) helps (friend.him/her) plant new ones.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) waters them and says nothing. By evening most have perked up. Two haven't. (friend) crouches beside those two for a long time. \"Did they get dry?\" (subject) hesitates. \"...I missed a couple of days.\" (friend) nods slowly. \"Thank you for telling me,\" (friend.he/she) says, and nothing more.",
+   "src": "L449"
+  }
+ }
+}

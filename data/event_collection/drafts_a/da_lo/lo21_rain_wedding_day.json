@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Rain on the Wedding Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo21_rain_wedding_day",
+  "source": "da_lo",
+  "lines": [
+   249,
+   258
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L249",
+  "ledger": [
+   {
+    "src": "L250",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L258",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "It pours with rain on a wedding day, and an old friend insists that rain is the best luck there is.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It's the day of a wedding, and it's pouring with rain. The couple are sheltering under a palm-leaf awning, looking at the grey sky in dismay. (name1), an old friend, comes over, soaking wet, beaming. \"Rain on a wedding day! That's the best luck there is!\" One of the couple asks whether (he/she) just made that up.",
+   "src": "L252",
+   "choices": [
+    {
+     "label": "Insist It's True",
+     "next": "a",
+     "src": "L254"
+    },
+    {
+     "label": "Admit You Might Have Made It Up",
+     "next": "b",
+     "src": "L257"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Absolutely true,\" says (name1). \"Everyone knows it.\" (He/She) has no idea if anyone knows it. But the couple cheer up, and step out into the rain to be married anyway, getting completely soaked, laughing the whole time. Years later, they still tell everyone that rain on your wedding day is the best luck there is.",
+   "src": "L255"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I might have made it up,\" admits (name1). \"But it sounded right.\" The couple look at each other and laugh. \"Then let's make it true,\" says one of them, and they walk out into the rain. Everyone follows, and the whole wedding happens in the rain, and it's the most fun anyone can remember.",
+   "src": "L258",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L258"
+    }
+   ]
+  }
+ }
+}

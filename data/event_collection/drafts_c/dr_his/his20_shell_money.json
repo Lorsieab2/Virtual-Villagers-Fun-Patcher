@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell Money",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his20_shell_money",
+  "source": "draft_his",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a scientist or an elder)"
+   }
+  ],
+  "description": "Digging a pit, a villager finds a rotted bag of drilled trading shells: try to work out the story, or restring them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Digging a new storage pit, (subject) has found a rotted bag full of small, polished shells, each with a hole drilled through it, strung on what was once cord. Hundreds of them. (friend) looks at them and says that long ago, before anyone now living, shells like this were traded with people from across the sea. Then the trading stopped. Nobody knows why.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Try to Work Out the Story",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Restring Them",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They spread the shells out and look. Some are from Isola's beaches. Some aren't from anywhere they know. Some have tiny scratches like counting marks. (subject) and (friend) come up with a dozen stories: a falling-out, a storm that sank the trading canoes, the other people simply moving away. They can't prove any of them. They keep the shells together, in a new bag, as they were found.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) restrings the shells on fresh cord, and the long string is hung in the meeting hut. Visitors ask about it. Each villager who explains it tells a slightly different version. (friend) notices that, after a few months, the most popular version involves a heroic canoe race that almost certainly never happened. (friend.He/she) decides not to say anything.",
+   "src": "L245"
+  }
+ }
+}

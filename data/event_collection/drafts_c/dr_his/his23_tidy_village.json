@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tidy Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his23_tidy_village",
+  "source": "draft_his",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers find an old, empty settlement left neat, every door tied shut: untie one door, or leave every door tied.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Far up the coast, past the point, (subject) and (friend) have found an old settlement, long empty. What's strange about it is how neat it is. Every hut's door was tied shut with cord. The cooking stones were stacked. The pots were turned upside down, as if the people meant to come back next season and wanted everything ready.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Untie One Door",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Leave Every Door Tied",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) wants to look inside one hut. (friend) is uneasy, but agrees. Inside: sleeping mats rolled and tied, a basket of dried gourds, a child's spinning top on a shelf. Nothing broken. Nobody left in a hurry. They tie the door shut again, carefully, just as it was. On the walk home, neither of them can stop wondering what the people were waiting for, and why they never came back.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"They tied them shut,\" says (friend). \"Let's leave them shut.\" (subject) agrees. They walk the length of the empty village and don't touch anything. At the far end, (subject) finds (subject.him/her)self straightening a fallen pot, turning it the right way, upside down, like all the others. It feels important. They go home and tell everyone the old village is still waiting.",
+   "src": "L281"
+  }
+ }
+}

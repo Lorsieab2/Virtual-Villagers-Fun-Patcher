@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(name1) Sings to the Beans",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt46_sings_beans",
+  "source": "draft_tt",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager credits singing for the best beans in the village, and a friend doubts it: keep singing, or try an experiment.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s bean plants are the best in the village this year: tall, green and heavy with beans. (subject) is quite sure this is because (subject.he/she) sings to them every morning. (friend), whose beans are smaller, points out that (subject)'s garden is also the one closest to the stream, gets the most sun, and had a whole heap of good compost dug into it last season.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Keep Singing",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Try an Experiment",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) keeps singing, out of conviction. (friend) quietly starts singing to (friend.his/her) own beans too, just in case. The next season both gardens do well. (subject) credits the singing. (friend) credits the compost. For the sake of peace, they agree it was probably both.",
+   "src": "L554"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sings to one half of the row and leaves the other half in silence. At the end of the season, the beans are exactly the same on both sides. \"...The quiet half could hear,\" (subject) concludes. (friend) gives up arguing and helps (subject.him/her) pick them.",
+   "src": "L557"
+  }
+ }
+}

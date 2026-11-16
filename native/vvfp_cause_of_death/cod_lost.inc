@@ -149,13 +149,13 @@ static int lost_vv1_father(int index, char *name, int capacity, int *head, int *
     return vv1_stash_state == 1 && index >= 0 && vv1_stash(index, name, capacity, head, body);
 }
 
-/* "Lost before birth": her `babies`, never born, `how` she was lost ("died",
-   "disappeared").  Not for New Believers' Heathens, whose pregnancies the
-   Births and Conceptions log never opened. */
-static void lost_record(const unsigned char *record, int babies, const char *how) {
+/* "Lost before birth": her `babies`, never born, and `what` happened (one
+   line, at most 160 characters).  Not for New Believers' Heathens, whose
+   pregnancies the Births and Conceptions log never opened. */
+static void lost_record_what(const unsigned char *record, int babies, const char *what) {
     const struct game_records *r = &REC[g_game];
     const struct lost_layout *l = &LOST[g_game];
-    char before[512];
+    char before[640];
     char mother[64], father[64], fh[16], fb[16];
     int head = -1, body = -1, known = 0;
     if (babies <= 0 || (r->heathen != 0u && record[r->heathen] != 0)) {
@@ -196,9 +196,17 @@ static void lost_record(const unsigned char *record, int babies, const char *how
               "  Mother: %s\n    Head: %d\n    Body: %d\n"
               "  Father: %s\n    Head: %s\n    Body: %s\n"
               "  Babies nursing: %d\n"
-              "  What happened: the mother %s while nursing; never born\n",
+              "  What happened: %s\n",
               mother, *(const int *)(record + r->head), *(const int *)(record + r->body),
-              father, fh, fb, babies, how);
+              father, fh, fb, babies, what);
     COD_COUNT(lost);
     (void)cod_write(LOG_LOST_BIRTH, record, cod_index_of(record) >= 0, before, NULL, 0);
+}
+
+/* ... `how` she was lost ("died", "disappeared"): "the mother <how> while
+   nursing; never born". */
+static void lost_record(const unsigned char *record, int babies, const char *how) {
+    char what[96];
+    wsprintfA(what, "the mother %s while nursing; never born", how);
+    lost_record_what(record, babies, what);
 }

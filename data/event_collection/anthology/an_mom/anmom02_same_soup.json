@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Soup",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anmom02_same_soup",
+  "source": "anthology",
+  "lines": [
+   68,
+   75
+  ],
+  "section": "an_mom",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_mom",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "sensitivity",
+    "before": "Two cooks insist",
+    "after": "(cook1) and (cook2), two cooks, insist",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two cooks insist their family soups taste completely different.",
+  "label_case": "title",
+  "cast_only": [
+   "cook1",
+   "cook2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(cook1) and (cook2), two cooks, insist their family soups taste completely different.",
+   "src": "L69",
+   "choices": [
+    {
+     "label": "Compare Bowls.",
+     "next": "a",
+     "src": "L70"
+    },
+    {
+     "label": "Let the Guests Decide.",
+     "next": "b",
+     "src": "L73"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The cooks discover they used the same ingredients and burst out laughing.",
+   "src": "L71"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One cook prefers the other's soup despite the recipes matching.",
+   "src": "L72"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The guests disagree cheerfully, and both pots are emptied.",
+   "src": "L74"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The guests ask for more bread instead of choosing a winner.",
+   "src": "L75"
+  }
+ }
+}

@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fair Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm21_fair_contest",
+  "source": "rolemodels",
+  "lines": [
+   45,
+   45
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L45",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "structural",
+    "text": "EVENT RM-21  -  THE FAIR CONTEST SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Several children prepare for a running contest, but one child worries that the uneven ground gives some runners an advantage.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several children prepare for a running contest, but one child worries that the uneven ground gives some runners an advantage.",
+   "src": "L45",
+   "choices": [
+    {
+     "label": "Inspect the Course Together.",
+     "next": "a",
+     "src": "L45"
+    },
+    {
+     "label": "Let the Children Decide on Reasonable Adjustments.",
+     "next": "b",
+     "src": "L45"
+    },
+    {
+     "label": "Ask a Neutral Adult to Supervise.",
+     "next": "c",
+     "src": "L45"
+    },
+    {
+     "label": "Offer Several Ways to Participate.",
+     "next": "d",
+     "src": "L45"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children agree on a clearer route before the race begins.",
+   "src": "L45"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The ground remains uneven, so they choose a different activity.",
+   "src": "L45"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The runners agree on a course everyone considers acceptable.",
+   "src": "L45"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The discussion reveals different ideas of fairness, and the contest is postponed.",
+   "src": "L45"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The adult helps settle the disagreement without choosing a favorite.",
+   "src": "L45"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children discover that they can resolve most of the issue themselves.",
+   "src": "L45"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Some children race while others help mark the route and record results.",
+   "src": "L45"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One child still feels left out, prompting the organizers to reconsider the plan.",
+   "src": "L45"
+  }
+ }
+}

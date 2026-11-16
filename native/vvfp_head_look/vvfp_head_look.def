@@ -6,3 +6,4 @@ EXPORTS
     VvfpHeadLookSet=_VvfpHeadLookSet@12
     VvfpHeadLookSetMany=_VvfpHeadLookSetMany@16
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

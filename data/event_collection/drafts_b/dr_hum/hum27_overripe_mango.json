@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Overripe Mango",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum27_overripe_mango",
+  "source": "draft_hum",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L329",
+    "kind": "sensitivity",
+    "before": "A passing child declares",
+    "after": "(child), a passing child, declares",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager squeezes an overripe mango and it bursts in a friend's face: apologize, laughing, or offer the friend the rest of it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is testing a mango to see whether it's ripe. It is. It is very ripe. It is so ripe that when (subject.he/she) gives it the gentlest squeeze, it bursts, and a jet of golden pulp shoots across the path and hits (friend) right in the face.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Apologize, Laughing",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Offer (friend.him/her) the Rest of It",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tries to say sorry, but can't stop laughing. (friend) slowly wipes the mango off (friend.his/her) face, tastes it, and says, \"...That's actually a very good mango.\" They pick the rest of the tree together. (friend) squeezes every single mango in (subject)'s direction, \"just to check.\"",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) holds out the burst mango sheepishly. (friend) takes it, looks (subject) in the eye, and squeezes. (subject) gets the other half. They stand facing each other, dripping and sticky. (child), a passing child, declares it the best thing that has happened all week.",
+   "src": "L329"
+  }
+ }
+}

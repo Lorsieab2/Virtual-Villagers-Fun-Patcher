@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Borrowing a Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep44_borrowing_hut",
+  "source": "draft_dep",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager borrowing a friend's hut finds everything slightly wrong, even a staring owl: turn the owl round, or get used to it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s roof is being rethatched, so (subject.he/she) is sleeping in (friend)'s hut for a few nights while (friend) stays with family. Everything in it is very slightly wrong. The water jar is on the wrong side. The mat faces the wrong way. There is a carved owl on a shelf that seems to be looking directly at (subject.him/her) wherever (subject.he/she) goes.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Turn the Owl Round",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Get Used to It",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) turns the owl to face the wall. Better. On the last morning, before giving the hut back, (subject.he/she) turns it round again and puts everything back exactly as it was. (friend) comes home and immediately says, \"You turned the owl.\" (subject) has no idea how (friend.he/she) knew.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides to live like (friend) for a few nights: water jar on the left, mat facing the door, the owl watching. By the third night (subject.he/she) quite likes it. When (subject.he/she) goes home to (subject.his/her) own hut, (subject.he/she) moves the water jar to the left. (subject.He/she) never moves it back.",
+   "src": "L533"
+  }
+ }
+}

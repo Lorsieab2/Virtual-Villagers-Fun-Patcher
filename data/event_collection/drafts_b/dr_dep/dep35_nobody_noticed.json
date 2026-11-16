@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Nobody Noticed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep35_nobody_noticed",
+  "source": "draft_dep",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L425",
+    "kind": "sensitivity",
+    "before": "The next morning a child runs up",
+    "after": "The next morning (child), a child, runs up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager comes home after three days away and a friend had not noticed: say it stung, or keep it to yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just come back from three days away gathering reeds. (subject.He/she) walks into the village expecting, maybe, a wave or two. (friend) looks up from the fire and says, \"Oh, were you away?\" (subject) stops. It's such a small thing. It still stings.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Say It Stung",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Three days,\" says (subject). \"I was gone three days.\" (friend) looks genuinely startled, then a bit ashamed. \"I'm sorry. I didn't notice. That's not great.\" It doesn't fix the sting entirely. But (friend) asks about the trip and actually listens, and (subject) finds (subject.he/she) feels less invisible by the end of the evening.",
+   "src": "L422"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Just a few days,\" says (subject), and goes to unpack. It bothers (subject.him/her) all evening. The next morning (child), a child, runs up and says, \"You were gone! I counted! Three days!\" and hugs (subject.his/her) legs. It doesn't make up for the rest of it. It does help.",
+   "src": "L425"
+  }
+ }
+}

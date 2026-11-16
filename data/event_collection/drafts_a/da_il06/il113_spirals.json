@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Spirals Everywhere",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il113_spirals",
+  "source": "da_il06",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Once a villager notices one spiral, they see spirals everywhere: show a friend, or draw them all.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It started with a shell. (subject) noticed the spiral on it, curling round and round into the middle. Then (subject.he/she) noticed the same spiral in a fern unrolling. Then in the middle of a flower. Then in the water going round in a little whirlpool by the rocks. Now (subject.he/she) sees spirals everywhere, and (subject.he/she) can't stop.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Show (friend)",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Draw Them All",
+     "next": "b",
+     "src": "L154"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) takes (friend) on a tour of spirals: shell, fern, flower, whirlpool, the curl of a snail, the pattern on a pinecone. \"Why do so many things do it?\" (subject) asks. (friend) doesn't know. Neither does (subject). They both walk home staring at everything, and (friend) trips over a root that is, (friend.he/she) swears, slightly spiral.",
+   "src": "L152"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) spends the evening drawing every spiral (subject.he/she) found, one after another, on a big piece of bark. They're not the same, exactly. But they're all cousins, somehow. (subject.He/She) doesn't understand it. (subject.He/She) pins the bark up on the wall anyway, where (subject.he/she) can look at it.",
+   "src": "L155"
+  }
+ }
+}

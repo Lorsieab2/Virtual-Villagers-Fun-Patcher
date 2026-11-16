@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Choice of the Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway31_choice",
+  "source": "living",
+  "lines": [
+   23184,
+   23198
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23184",
+  "ledger": [
+   {
+    "src": "L23198",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer's apprentice questions a treatment taught by their mentor."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer's apprentice questions a treatment taught by their mentor.",
+   "src": "L23185",
+   "choices": [
+    {
+     "label": "Follow the mentor's method.",
+     "next": "a",
+     "src": "L23186"
+    },
+    {
+     "label": "Try the apprentice's alternative with consent.",
+     "next": "b",
+     "src": "L23189"
+    },
+    {
+     "label": "Ask a second healer.",
+     "next": "c",
+     "src": "L23192"
+    },
+    {
+     "label": "Let the patient choose among explained options.",
+     "next": "d",
+     "src": "L23195"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient improves and the apprentice learns a useful technique.",
+   "src": "L23187",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L23187"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23187"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The treatment fails, and the mentor agrees to review it.",
+   "src": "L23188"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient experiences relief, though the cause is uncertain.",
+   "src": "L23190"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient worsens, and the apprentice asks for help.",
+   "src": "L23191",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L23191"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The consultation produces a cautious combined plan.",
+   "src": "L23193"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healers disagree, and the patient requests a clearer explanation.",
+   "src": "L23194"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The patient values having a say in their care.",
+   "src": "L23196"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The patient asks for more time rather than deciding immediately.",
+   "src": "L23197"
+  }
+ }
+}

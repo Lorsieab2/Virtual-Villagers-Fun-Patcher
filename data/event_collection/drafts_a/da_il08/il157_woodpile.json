@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Woodpile",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il157_woodpile",
+  "source": "da_il08",
+  "lines": [
+   194,
+   203
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L194",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has just stacked the perfect woodpile, and a friend pulls a piece out of the middle.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has just finished stacking the firewood. It's perfect. Every piece is the right way round, the big ones are at the bottom, and the whole stack is as neat as a wall. (subject) steps back to admire it. Then (friend) comes along and, without looking, pulls a piece out of the middle.",
+   "src": "L197",
+   "choices": [
+    {
+     "label": "Hold Your Breath",
+     "next": "a",
+     "src": "L199"
+    },
+    {
+     "label": "Show (friend.him/her) the Top",
+     "next": "b",
+     "src": "L202"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The stack wobbles. (subject) freezes. (friend) freezes, piece of wood in hand, finally realizing what (friend.he/she) has done. The stack wobbles again, and then settles. Both of them let out a long breath. \"...Take one from the top next time,\" says (subject). \"Yes,\" says (friend). \"Yes. Definitely.\"",
+   "src": "L200"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"From the TOP,\" says (subject), pointing. (friend) looks at the piece in (friend.his/her) hand, then at the hole in the middle of the perfect stack. \"Sorry.\" (friend.He/She) carefully tries to slide it back in. It doesn't fit. (subject) sighs, takes it, and fixes it (subject.him/her)self. It is still, (subject) decides, a very good stack.",
+   "src": "L203"
+  }
+ }
+}

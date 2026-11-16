@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Partner's Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam224_partner_child",
+  "source": "draft_fam2",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-12 whose parent is (name1)'s new partner (where the game records it; otherwise story only)"
+   }
+  ],
+  "description": "A villager's new partner's child says they are not their parent: give the child space, or sit outside too.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just started living with (subject.his/her) new partner and the partner's child, (friend). (subject) is trying very hard. (subject.He/she) has made (friend)'s favorite food, carved (friend.him/her) a little boat and offered to teach (friend.him/her) to fish. (friend) is having none of it. \"You're not my parent,\" (friend.he/she) says, and goes to sit outside.",
+   "src": "L287",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L287"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Give (friend.him/her) Space",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Sit Outside Too",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) doesn't follow. (subject.He/she) puts the little boat on (friend)'s sleeping mat and leaves it there. Nothing happens for a week. Then one morning the boat is gone, and later (subject) sees (friend) sailing it in a puddle. Neither of them mentions it. It's a start. A small one. Some things take a long time.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes and sits outside too, a little distance away. \"You're right,\" (subject.he/she) says. \"I'm not your parent. You've already got one of those. I'd just like to be someone you can count on.\" (friend) says nothing. But (friend.he/she) doesn't move away. They sit there until dinner. It's not friendship yet. It isn't nothing.",
+   "src": "L293"
+  }
+ }
+}

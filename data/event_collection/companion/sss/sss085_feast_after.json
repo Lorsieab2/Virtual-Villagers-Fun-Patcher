@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast After a Loss",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss085_feast_after",
+  "source": "companion",
+  "lines": [
+   6945,
+   6953
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6945",
+  "ledger": [
+   {
+    "src": "L6953",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A grieving parent cannot bear to attend the first harvest feast since their child died.",
+  "cast_only": [
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A parent cannot bear to attend the first harvest feast since their child died.",
+   "src": "L6946",
+   "choices": [
+    {
+     "label": "Respect their absence",
+     "next": "a",
+     "src": "L6947"
+    },
+    {
+     "label": "Offer a quiet remembrance",
+     "next": "b",
+     "src": "L6949"
+    },
+    {
+     "label": "Ask them to help prepare food",
+     "next": "c",
+     "src": "L6951"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Friends leave a meal without expecting conversation.",
+   "src": "L6948"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The parent chooses whether to participate.",
+   "src": "L6950"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They accept a small task on one day and decline on another.",
+   "src": "L6952",
+   "text_only": [
+    {
+     "what": "help prepare food",
+     "reason": "a small task at the feast; no food is made or stored",
+     "src": "L6952"
+    }
+   ]
+  }
+ }
+}

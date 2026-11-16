@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Day Without Anything Remarkable",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz006_day_unremarkable",
+  "source": "horizon",
+  "lines": [
+   84,
+   94
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L84",
+  "ledger": [],
+  "description": "A child assumes life beyond Isola must be an endless adventure. A tired farmer doubts it.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child assumes life beyond Isola must be an endless adventure. A tired farmer doubts it.",
+   "src": "L85",
+   "choices": [
+    {
+     "label": "Imagine an Ordinary Working Day.",
+     "next": "a",
+     "src": "L86"
+    },
+    {
+     "label": "Imagine a Day of Leisure.",
+     "next": "b",
+     "src": "L89"
+    },
+    {
+     "label": "Ask Whether Ordinary Days Matter.",
+     "next": "c",
+     "src": "L92"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They invent a distant worker who misplaces a tool, eats lunch, and comes home tired; the child is disappointed and amused.",
+   "src": "L87"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The farmer wonders whether some people work at night or indoors; the group considers how many routines are possible.",
+   "src": "L88"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children invent festivals, games, books, and quiet afternoons for people they will never meet.",
+   "src": "L90"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A caregiver asks who does the necessary work while others rest; the conversation becomes a debate about fairness.",
+   "src": "L91"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A villager says that a peaceful uneventful day can be a gift after hardship.",
+   "src": "L93"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another admits that sameness can feel stifling; both perspectives are allowed to stand.",
+   "src": "L94"
+  }
+ }
+}

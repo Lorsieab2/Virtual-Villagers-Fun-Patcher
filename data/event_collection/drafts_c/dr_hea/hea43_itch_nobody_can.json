@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Itch Nobody Can See",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea43_itch_nobody_can",
+  "source": "draft_hea",
+  "lines": [
+   515,
+   524
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L515",
+  "ledger": [
+   {
+    "src": "L516",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A villager with an itch nobody can see wonders if the healer will believe them: ask straight out, or ask for something cool.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For a week, (subject)'s arm has itched. There's no rash, no bite, no mark. Just an itch, deep down, driving (subject.him/her) slowly out of (subject.his/her) mind. Someone at the fire said, \"Maybe it's in your head.\" (subject) has come to (friend), not sure if (subject.he/she) is going to be believed.",
+   "src": "L518",
+   "choices": [
+    {
+     "label": "Ask (friend) Straight Out",
+     "next": "o1",
+     "src": "L520"
+    },
+    {
+     "label": "Just Ask for Something Cool",
+     "next": "o2",
+     "src": "L523"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Do you think I'm imagining it?\" (subject) asks. \"No,\" says (friend). \"I can't see it, but you can feel it, and that's what counts. Lots of things don't leave marks.\" (friend.He/she) wraps the arm in a cool wet leaf and tells (subject) to try not to scratch. The itch fades after a few more days. Nobody ever finds out why. (subject) never forgets being believed.",
+   "src": "L521"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't explain. (subject.He/she) just asks for something cooling. (friend) gives (subject.him/her) a cool salve and says, \"If it doesn't help, come back. Itches without rashes are real. They're just harder to solve.\" (subject) goes home feeling oddly grateful for that one sentence. The itch takes a week to go. The sentence stays much longer.",
+   "src": "L524"
+  }
+ }
+}

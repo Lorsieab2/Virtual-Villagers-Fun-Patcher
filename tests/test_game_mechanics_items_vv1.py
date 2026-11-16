@@ -71,7 +71,7 @@ PINNED = {
     "The well": "C",
     "The school": "C",
     "The cemetery": "C",
-    "Mushrooms": "EEC",
+    "Mushrooms": "EECC",
     "Collectibles": "E",
     "The food store": "C",
     "Research": "EC",

@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Tool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il156_wrong_tool",
+  "source": "da_il08",
+  "lines": [
+   182,
+   191
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has cut reeds all morning with the fish knife instead of the reed knife, and a friend just noticed.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has spent all morning cutting reeds with what (subject.he/she) thought was the reed knife. It isn't. It's the knife for scaling fish. It's much too small and the wrong shape, and (subject) has cut a whole pile of reeds with it anyway, slowly, wondering why the job was so hard today. (friend) has just noticed.",
+   "src": "L185",
+   "choices": [
+    {
+     "label": "Laugh About It",
+     "next": "a",
+     "src": "L187"
+    },
+    {
+     "label": "Finish the Job with the Wrong One",
+     "next": "b",
+     "src": "L190"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) hands (subject.him/her) the real reed knife. (subject) cuts one reed with it in a single swipe. (subject.He/She) stares at the pile of reeds (subject.he/she) cut the hard way. \"Well,\" (subject.he/she) says, \"I've got very strong wrists now.\" They both laugh until they have to sit down.",
+   "src": "L188"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I've come this far,\" says (subject), and finishes the last few reeds with the fish knife, out of sheer stubbornness. (friend) watches, baffled. It takes much longer. (subject) is very proud of (subject.him/her)self, for reasons (subject.he/she) cannot really explain.",
+   "src": "L191"
+  }
+ }
+}

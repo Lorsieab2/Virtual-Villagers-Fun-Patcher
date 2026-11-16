@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where Do Lavastones Come From?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo50_where_do",
+  "source": "da_lo",
+  "lines": [
+   608,
+   617
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L608",
+  "ledger": [
+   {
+    "src": "L609",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child holding a lavastone asks where they come from, and an adult has heard too many answers.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been holding a lavastone, very carefully, while (friend) watches. \"Where do they come from?\" (subject.he/she) asks. \"Does somebody make them? Do they grow? Did they fall from the sky?\" (friend) opens (friend.his/her) mouth to answer, and realizes (friend.he/she) has heard at least five different answers in (friend.his/her) life, and doesn't know which one is true.",
+   "src": "L611",
+   "choices": [
+    {
+     "label": "Tell (subject.him/her) All of Them",
+     "next": "a",
+     "src": "L613"
+    },
+    {
+     "label": "Ask What (subject.he/she) Thinks",
+     "next": "b",
+     "src": "L616"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) tells (subject) every answer (friend.he/she) has ever heard: they are the island's heat, cooled into stone. They are gifts from the spirits. They are what's left of the stars. They are just a kind of rock nobody has understood yet. (subject) listens to all of them very seriously. \"Which one do you believe?\" \"Some days one, some days another.\" (subject) thinks this is a very sensible answer.",
+   "src": "L614"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What do you think?\" asks (friend). (subject) looks at the stone for a long time. \"I think they come from somewhere warm,\" (subject.he/she) says. \"And they're a bit lonely. So they like being held.\" (friend) can't argue with that. Nobody can. It might even be right.",
+   "src": "L617"
+  }
+ }
+}

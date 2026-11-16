@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Dinner by (name1)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il164_dinner",
+  "source": "da_il09",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A teen announces they are cooking dinner tonight, all of it, alone: stay out of the way, or offer one piece of advice.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has announced that (subject.he/she) is cooking dinner tonight. All of it. Alone. Nobody is allowed near the fire. (friend) has been banished to the doorway, from where (friend.he/she) can hear a lot of clattering, one small yelp, and, at one point, (subject) saying \"no, no, no\" to a fish.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Stay Out of the Way",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Offer One Piece of Advice",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) stays in the doorway, as instructed, for a very long time. At last (subject) brings out the food: fish that is a little black on one side, roots that are a little hard in the middle, and a sauce nobody has ever seen before. (subject) watches (friend.him/her) taste it, barely breathing. It's actually good. Not perfect. Good. (friend) has seconds, and means it.",
+   "src": "L50",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L50"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Just one thing,\" calls (friend) from the doorway. \"Turn the fish.\" There is a pause. \"I KNOW,\" says (subject). Then, a moment later, the sound of a fish being turned. Dinner is good. Neither of them mentions the fish. (subject) is quietly very proud, and announces that (subject.he/she) will cook again next week, whether anyone likes it or not.",
+   "src": "L53"
+  }
+ }
+}

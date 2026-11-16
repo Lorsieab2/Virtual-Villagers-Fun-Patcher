@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hands That Never Rest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz053_hands_never_rest",
+  "source": "horizon",
+  "lines": [
+   731,
+   741
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L731",
+  "ledger": [],
+  "description": "A craftsperson imagines workshops where enormous mechanisms make hundreds of identical baskets, garments, or tools.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A craftsperson imagines workshops where enormous mechanisms make hundreds of identical baskets, garments, or tools.",
+   "src": "L732",
+   "choices": [
+    {
+     "label": "Celebrate Abundance.",
+     "next": "a",
+     "src": "L733"
+    },
+    {
+     "label": "Study the Workers.",
+     "next": "b",
+     "src": "L736"
+    },
+    {
+     "label": "Ask About Waste.",
+     "next": "c",
+     "src": "L739"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village imagines useful objects becoming affordable to more families.",
+   "src": "L734"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An artisan fears that uniform goods might displace locally meaningful work.",
+   "src": "L735"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child asks who gathers materials and tends the mechanisms.",
+   "src": "L737"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A builder imagines dangerous conditions hidden behind plentiful products.",
+   "src": "L738"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers wonder where broken objects and leftover materials go.",
+   "src": "L740"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A researcher suggests that efficiency means little if forests and waters bear the cost.",
+   "src": "L741"
+  }
+ }
+}

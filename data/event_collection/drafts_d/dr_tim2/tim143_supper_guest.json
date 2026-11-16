@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Supper Guest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim143_supper_guest",
+  "source": "draft_tim2",
+  "lines": [
+   128,
+   133
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L130",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L131",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L132",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L133",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A small gecko watches a villager from the roof beam during supper.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A small gecko watches (name1) from the roof beam during supper. (name1) leaves a crumb on the floor, and the gecko darts down to inspect it.",
+   "src": "L129,L130"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A small gecko watches (name1) from the roof beam during supper. It chirps loudly, as if commenting on the meal.",
+   "src": "L129,L131"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A small gecko watches (name1) from the roof beam during supper. (name1) decides the gecko is a welcome guest and names it.",
+   "src": "L129,L132"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A small gecko watches (name1) from the roof beam during supper. It catches a moth with remarkable speed, and the family applauds.",
+   "src": "L129,L133"
+  }
+ }
+}

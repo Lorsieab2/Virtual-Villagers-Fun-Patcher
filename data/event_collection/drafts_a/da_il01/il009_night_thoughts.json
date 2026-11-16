@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Night Thoughts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il009_night_thoughts",
+  "source": "da_il01",
+  "lines": [
+   107,
+   110
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L107",
+  "ledger": [
+   {
+    "src": "L108",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager lies awake thinking about everything at once, until the frogs start singing.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "It's late. Everyone in (name1)'s hut is asleep except (name1). (He/She) is thinking about everything at once: whether the roof will hold if it rains, whether (he/she) said the wrong thing at dinner, whether the stars are the same stars that (his/her) grandparents looked at, whether anyone else ever lies awake like this. Somewhere outside, a frog starts singing. Then another. Then about forty more. (name1) gives up on the big questions, laughs quietly into the dark, and listens to the frogs until morning.",
+   "src": "L110"
+  }
+ }
+}

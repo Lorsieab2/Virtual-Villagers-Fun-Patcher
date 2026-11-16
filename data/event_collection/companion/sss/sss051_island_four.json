@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island's Four Voices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss051_island_four",
+  "source": "companion",
+  "lines": [
+   6585,
+   6593
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6585",
+  "ledger": [
+   {
+    "src": "L6593",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager feels watched by the forest and wonders whether Isola itself is alive.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager feels watched by the forest, hears a strange hum, notices repeating dreams, and wonders whether Isola itself is alive.",
+   "src": "L6586",
+   "choices": [
+    {
+     "label": "Consider magic",
+     "next": "a",
+     "src": "L6587"
+    },
+    {
+     "label": "Consider nature and science",
+     "next": "b",
+     "src": "L6589"
+    },
+    {
+     "label": "Consider spirits - or reject the premise",
+     "next": "c",
+     "src": "L6591"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They experiment with attention and will, discovering changes in their own perception but no conclusive proof.",
+   "src": "L6588"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They track wind, animals, and sleep patterns; several clues fit, others remain puzzling.",
+   "src": "L6590"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Prayer comforts one villager; another laughs at the idea of a living island. Neither is punished for believing differently.",
+   "src": "L6592"
+  }
+ }
+}

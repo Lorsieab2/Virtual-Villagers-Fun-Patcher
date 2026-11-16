@@ -366,3 +366,14 @@ EVENTS = (
         "\"Confront him\": +20 to 44 Research, up to 100, and the villager's name becomes \"?\".",
         f"\"Watch him work\": {M} 1,000 tech points.")),
 )
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+from vv_game_mechanics_adventurer import (adventurer_event, diving_for_treasure_event,  # noqa: E402
+                                          troubling_signs_event)
+
+EVENTS = EVENTS + (adventurer_event(3), troubling_signs_event(), diving_for_treasure_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(3), rumblings_event(3))

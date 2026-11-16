@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandparent's Net",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim047_grandparent_net",
+  "source": "moments500",
+  "lines": [
+   785,
+   799
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L786",
+  "ledger": [
+   {
+    "src": "L785",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L789",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L790",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L793",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L794",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L797",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L798",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L787",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L791",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L795",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L799",
+    "kind": "sensitivity",
+    "before": "A grandparent",
+    "after": "(Name1), a grandparent,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A grandparent demonstrates how to mend a fishing net.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L787"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. The elder admits the technique took years to master.",
+   "src": "L791"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. A small mistake becomes a reason to try again, not a scolding.",
+   "src": "L795"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a grandparent, demonstrates how to mend a fishing net. The lesson lasts longer than planned because neither wants to stop.",
+   "src": "L799"
+  }
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Forgets Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss004_healer_forgets",
+  "source": "companion",
+  "lines": [
+   6103,
+   6111
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6103",
+  "ledger": [
+   {
+    "src": "L6111",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An experienced healer forgets patients' names, and a younger colleague corrects them in public.",
+  "cast_only": [
+   "healer",
+   "colleague"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "colleague": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An experienced healer remembers symptoms but sometimes forgets patients' names. A younger colleague starts correcting them in public.",
+   "src": "L6104",
+   "choices": [
+    {
+     "label": "Discuss it privately",
+     "next": "a",
+     "src": "L6105"
+    },
+    {
+     "label": "Ask the healer what support they want",
+     "next": "b",
+     "src": "L6107"
+    },
+    {
+     "label": "Review duties together",
+     "next": "c",
+     "src": "L6109"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They develop discreet patient markers and avoid unnecessary embarrassment.",
+   "src": "L6106"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The healer requests written records and keeps practicing, though not every day is easy.",
+   "src": "L6108"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The healer chooses more teaching and fewer exhausting night shifts; expertise remains valued.",
+   "src": "L6110"
+  }
+ }
+}

@@ -1,0 +1,79 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Remember This for Me",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il091_remember_this_me",
+  "source": "da_il05",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child asks an elder to remember that they found a perfectly ordinary grey pebble today.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) runs up to (friend), an elder, holding out a perfectly ordinary grey pebble. \"I found this today,\" (subject.he/she) says. \"Will you remember that I found it? In case I forget?\" (friend) looks at the pebble. It is, honestly, a very ordinary pebble.",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Promise to Remember",
+     "next": "a",
+     "src": "L127"
+    },
+    {
+     "label": "Ask Why It Matters",
+     "next": "b",
+     "src": "L130"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I promise,\" says (friend) solemnly. \"Today, by the stream, you found a grey pebble.\" (subject) nods, satisfied, and runs off. Several days later (subject.he/she) comes back and asks, \"What did I find?\" (friend) tells (subject.him/her). (subject) looks deeply impressed. So, a little, is (friend).",
+   "src": "L128"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Why do you want me to remember?\" asks (friend). (subject) thinks about it. \"Because you remember lots of things. So you can remember mine too.\" (friend) is quiet for a moment. \"Alright,\" (friend.he/she) says. \"Grey pebble. By the stream. I'll keep it safe.\" (friend.He/She) does.",
+   "src": "L131"
+  }
+ }
+}

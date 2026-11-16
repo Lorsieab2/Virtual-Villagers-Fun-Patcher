@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Gets to Decide?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage32_gets_decide",
+  "source": "anthology",
+  "lines": [
+   30621,
+   30635
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30621",
+  "ledger": [
+   {
+    "src": "L30622",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30623",
+    "kind": "sensitivity",
+    "before": "A child, a teenager, an adult, and an elder all disagree",
+    "after": "(child), (teen), (adult), and (elder) all disagree",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30625",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30634",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child, a teenager, an adult, and an elder all disagree about a rule for the shared play area.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "teen",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child), (teen), (adult), and (elder) all disagree about a rule for the shared play area.",
+   "src": "L30623",
+   "choices": [
+    {
+     "label": "Hear the Youngest Users First",
+     "next": "a",
+     "src": "L30624"
+    },
+    {
+     "label": "Ask Teens to Draft Alternatives",
+     "next": "b",
+     "src": "L30627"
+    },
+    {
+     "label": "Ask Adults to Evaluate Safety",
+     "next": "c",
+     "src": "L30630"
+    },
+    {
+     "label": "Ask Elders to Provide History",
+     "next": "d",
+     "src": "L30633"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) points out a hazard invisible from adult height.",
+   "src": "L30625"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The children explain that a rule intended to help actually excludes their favorite safe game.",
+   "src": "L30626"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The teens propose a fair schedule with room for different ages.",
+   "src": "L30628"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their plan overlooks toddlers, and they revise it after feedback.",
+   "src": "L30629"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Adults identify which restrictions are necessary and which are merely convenient.",
+   "src": "L30631"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Parents disagree about supervision, prompting clearer shared expectations.",
+   "src": "L30632"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) recalls why the rule was introduced after an old accident.",
+   "src": "L30634"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Another elder remembers an earlier version that balanced freedom and care more effectively.",
+   "src": "L30635"
+  }
+ }
+}

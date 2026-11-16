@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Know-It-All Returns",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl031_know_all",
+  "source": "companion",
+  "lines": [
+   4195,
+   4205
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4195",
+  "ledger": [
+   {
+    "src": "L4196",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4204",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4205",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A confident pupil interrupts a lesson with a bold claim.",
+  "cast_only": [
+   "pupil",
+   "teacher",
+   "classmate"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "pupil": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "classmate": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A confident pupil interrupts a lesson with a bold claim.",
+   "src": "L4197",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4198"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4199"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4200"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The pupil is correct and earns praise for careful reasoning.",
+   "src": "L4201"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A demonstration gently reveals a misconception.",
+   "src": "L4202"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The teacher asks them to help a struggling classmate.",
+   "src": "L4203"
+  }
+ }
+}

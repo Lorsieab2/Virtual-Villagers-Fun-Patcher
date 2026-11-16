@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal Keeper's Doubt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth13_animal_keeper",
+  "source": "living",
+  "lines": [
+   23523,
+   23537
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23523",
+  "ledger": [
+   {
+    "src": "L23537",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A master animal keeper insists a frightened working animal is merely stubborn.",
+  "cast_only": [
+   "keeper",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A master animal keeper insists a frightened working animal is merely stubborn.",
+   "src": "L23524",
+   "choices": [
+    {
+     "label": "Follow the master's routine.",
+     "next": "a",
+     "src": "L23525"
+    },
+    {
+     "label": "Ask a new apprentice to observe.",
+     "next": "b",
+     "src": "L23528"
+    },
+    {
+     "label": "Rest the animal and inspect its needs.",
+     "next": "c",
+     "src": "L23531"
+    },
+    {
+     "label": "Stop using the animal for this task.",
+     "next": "d",
+     "src": "L23534"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The animal settles with familiar handling.",
+   "src": "L23526"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The animal grows distressed and refuses to work.",
+   "src": "L23527"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice notices an injury and calls for care.",
+   "src": "L23529",
+   "text_only": [
+    {
+     "what": "an injury",
+     "reason": "the animal's injury, not a villager's",
+     "src": "L23529"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The apprentice misreads normal behavior and delays work.",
+   "src": "L23530"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The animal recovers and returns to lighter duties.",
+   "src": "L23532"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village must carry supplies by hand.",
+   "src": "L23533"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The animal thrives in a different role.",
+   "src": "L23535"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Workers struggle to replace its labor.",
+   "src": "L23536"
+  }
+ }
+}

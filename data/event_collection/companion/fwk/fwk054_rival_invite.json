@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Rival's Invitation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk054_rival_invite",
+  "source": "companion",
+  "lines": [
+   5977,
+   5984
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5977",
+  "ledger": [
+   {
+    "src": "L5983",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5984",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A villager is invited to work with a former rival.",
+  "cast_only": [
+   "villager",
+   "rival"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rival": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager receives an offer to collaborate with a former rival.",
+   "src": "L5978",
+   "choices": [
+    {
+     "label": "Accept with clear boundaries.",
+     "next": "outcome",
+     "src": "L5979"
+    },
+    {
+     "label": "Refuse and pursue a different project.",
+     "next": "outcome",
+     "src": "L5980"
+    },
+    {
+     "label": "Attempt cooperation and uncover old resentment.",
+     "next": "outcome",
+     "src": "L5981"
+    },
+    {
+     "label": "Discover an unexpected friendship.",
+     "next": "outcome",
+     "src": "L5982"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5983"
+  }
+ }
+}

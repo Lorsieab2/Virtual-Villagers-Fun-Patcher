@@ -159,6 +159,8 @@
 #include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/vv1_grey_hair.h"  /* the sheet Grey Hair at 55 draws a head from */
+#include "../shared/per_save.h"       /* the save's own folder (vv1_sex_log) */
+#include "../shared/sex_change.h"     /* a sex change keeps a villager's parents (VvfpVillagerSexChanged) */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -323,6 +325,7 @@ static int g_may_replace;                     /* the file at the path is one thi
 static int g_other_aside;                     /* the file at the path is ANOTHER village's: kept aside, never
                                                  replaced, before this table's first write (vv1_parents_save) */
 static int g_load_followed;                   /* the last load moved entries: the file is behind the table */
+static int g_load_followed_sex;               /* ...or took a villager's new sex from the slot's log */
 /* What happened to each record THIS SESSION, for the first-load cross-check
    (vv1_crosscheck.inc).  The parentage log holds a session's records in
    memory until the village is saved, so a villager born this session -- the
@@ -992,15 +995,12 @@ static int vv_migrate_legacy_sidecar(const char *new_path,
     return 1;
 }
 
-static int vv1_parents_path(char *out, size_t n, int slot) {
-    char docs[MAX_PATH];
+/* The Documents folder (docs[MAX_PATH]) and the executable's name without its folder or extension
+   (base[MAX_PATH]): the save folder is "<docs>\LDW\<base>".  0 when either cannot be told. */
+static int vv1_save_folder(char *docs, char *base) {
     char exe[MAX_PATH];
-    char *base;
-    char *dot;
+    char *at, *dot;
     DWORD exelen;
-    if (slot < 1 || slot > 5) {
-        return 0;
-    }
     if (FAILED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, docs))) {
         return 0;
     }
@@ -1008,11 +1008,24 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
     if (exelen == 0 || exelen >= MAX_PATH) {
         return 0;
     }
-    base = strrchr(exe, '\\');
-    base = base ? base + 1 : exe;
-    dot = strrchr(base, '.');
+    at = strrchr(exe, '\\');
+    at = at ? at + 1 : exe;
+    dot = strrchr(at, '.');
     if (dot != NULL) {
         *dot = '\0';
+    }
+    lstrcpyA(base, at);
+    return 1;
+}
+
+static int vv1_parents_path(char *out, size_t n, int slot) {
+    char docs[MAX_PATH];
+    char base[MAX_PATH];
+    if (slot < 1 || slot > 5) {
+        return 0;
+    }
+    if (!vv1_save_folder(docs, base)) {
+        return 0;
     }
     if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(base)
             + sizeof("\\LDW\\\\" VV_DATA_FOLDER
@@ -1284,6 +1297,79 @@ static int vv1_set_aside(const char *path) {
    sidecar -- short, wrong magic, another slot's -- is set aside first and
    then counts as absent; if it cannot be set aside it is BLOCKED too.  A
    file whose roster is empty has nothing to contradict and is taken. */
+/* A SEX CHANGE (native/shared/sex_change.h).  The slot's "Sex Changes" log, NUL-terminated in log[cap], found
+   beside this companion's own data ("<save folder>\Virtual Villagers Fun Patcher Data\Sex Changes\", routed to
+   the save's own folder as the parents file is): each line "<old>\t<new>\t<name>", old and new M or F.  0 when
+   there is none. */
+static int vv1_save_folder(char *docs, char *base);
+
+static int vv1_sex_log(int slot, char *log, DWORD cap) {
+    char docs[MAX_PATH], exe[MAX_PATH], path[MAX_PATH * 2];
+    HANDLE h;
+    DWORD got = 0;
+    log[0] = '\0';
+    if (slot < 1 || slot > 5 || cap < 2 || !vv1_save_folder(docs, exe)) {
+        return 0;
+    }
+    if ((size_t)lstrlenA(docs) + (size_t)lstrlenA(exe) + 96 > MAX_PATH - VV_DATA_RESERVE) {
+        return 0;
+    }
+    wsprintfA(path, "%s\\LDW\\%s\\" VV_DATA_FOLDER "\\Sex Changes\\Sex Changes - Save %d.txt", docs, exe, slot);
+    (void)vv_ps_route_a(path, MAX_PATH - VV_DATA_RESERVE + 1, 0);
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, log, cap - 1u, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    log[got] = '\0';
+    return got > 0;
+}
+
+/* The file's roster against the village now, for the villagers the slot's log names: a living entry whose
+   villager is in the village now with the other sex -- the only villager of that name and family scalar there,
+   and the only entry of them -- takes the sex they have now, so their parents stay theirs (the file was written
+   after the change, and the save before it; or the other way round).  Two of them, on either side, are never
+   guessed.  Returns how many entries were taken. */
+static int vv1_sex_follow_roster(int slot, vv1_occupant *roster, const unsigned char *records) {
+    static char log[VV_SEX_LOG_MAX];
+    static vv1_occupant now[VV1_RECORD_COUNT];
+    int i, j, taken = 0;
+    if (!vv1_sex_log(slot, log, sizeof log)) {
+        return 0;
+    }
+    vv1_take_roster(records, now);
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        int same = 0, other = 0, kept = 0, at = -1;
+        if (!roster[i].gender || roster[i].departed || !vv_sex_log_names(log, roster[i].name)) {
+            continue;
+        }
+        for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+            if (now[j].gender && now[j].scalar == roster[i].scalar
+                && strncmp(now[j].name, roster[i].name, VV1_NAME_CAPACITY) == 0) {
+                if (now[j].gender == roster[i].gender) {
+                    ++same;
+                } else {
+                    ++other;
+                    at = j;
+                }
+            }
+            if (roster[j].gender && !roster[j].departed && roster[j].scalar == roster[i].scalar
+                && strncmp(roster[j].name, roster[i].name, VV1_NAME_CAPACITY) == 0) {
+                ++kept;
+            }
+        }
+        if (same == 0 && other == 1 && kept == 1) {
+            roster[i].gender = now[at].gender;
+            ++taken;
+        }
+    }
+    return taken;
+}
+
 static int vv1_parents_load(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     HANDLE file;
@@ -1379,6 +1465,10 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
         roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
     }
+    /* Villagers whose sex changed (the slot's log): their entries are theirs, before anything is matched. */
+    if (vv1_sex_follow_roster(slot, roster, records) > 0) {
+        g_load_followed_sex = 1;
+    }
     if (vv1_roster_overlap(records, roster) == 0) {
         if (departed != NULL) {
             HeapFree(GetProcessHeap(), 0, departed);
@@ -1426,6 +1516,8 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
            keep the old layout until the next birth or death. */
         g_load_followed = memcmp(g_roster, roster, sizeof(g_roster)) != 0;
     }
+    g_load_followed |= g_load_followed_sex;
+    g_load_followed_sex = 0;
     /* The session starts here: a villager the file does not know is one born
        in a session since it was written (their Birth record IS in the log
        file), not one who arrived in this one. */
@@ -2420,26 +2512,40 @@ typedef int (__stdcall *vv1_rule_last_name3_t)(char *name, unsigned int room, co
 /* A parent whose looks the entry did not record: the looks of the one living
    villager of that name and sex, when there is exactly one (else they stay
    unknown, -1, and the parent has no rule of their own). */
-static void vv1_only_looks(const char *parent, int male, int *head, int *body) {
-    const unsigned char *records = vv1_records();
-    int i, found = 0, h = -1, b = -1;
+/* ...a parent whose sex changed since (native/shared/sex_change.h) is still that parent: with nobody of that name
+   and the parent's place's sex living, the one living villager of that name and the other sex -- only when the
+   slot's "Sex Changes" log names them. */
+static void vv1_only_looks_in(const unsigned char *records, int slot, const char *parent, int male, int *head,
+                              int *body) {
+    static char log[VV_SEX_LOG_MAX];
+    int i, pass, found = 0, h = -1, b = -1;
     if (records == NULL || parent[0] == '\0') {
         return;
     }
-    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
-        const unsigned char *r = records + (size_t)i * VV1_RECORD_STRIDE;
-        if (!r[VV1_OCCUPIED_OFFSET] || (*(const int *)(r + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) != male
-            || strncmp((const char *)(r + VV1_NAME_OFFSET), parent, VV1_NAME_CAPACITY) != 0) {
-            continue;
+    for (pass = 0; pass < 2 && found == 0; ++pass) {
+        if (pass == 1 && !(vv1_sex_log(slot, log, sizeof log) && vv_sex_log_names(log, parent))) {
+            break;
         }
-        ++found;
-        h = *(const int *)(r + VV1_HEAD_OFFSET);
-        b = *(const int *)(r + VV1_BODY_OFFSET);
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            const unsigned char *r = records + (size_t)i * VV1_RECORD_STRIDE;
+            if (!r[VV1_OCCUPIED_OFFSET]
+                || ((*(const int *)(r + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) != male) != (pass == 1)
+                || strncmp((const char *)(r + VV1_NAME_OFFSET), parent, VV1_NAME_CAPACITY) != 0) {
+                continue;
+            }
+            ++found;
+            h = *(const int *)(r + VV1_HEAD_OFFSET);
+            b = *(const int *)(r + VV1_BODY_OFFSET);
+        }
     }
     if (found == 1 && h >= 0 && b >= 0) {
         *head = h;
         *body = b;
     }
+}
+
+static void vv1_only_looks(const char *parent, int male, int *head, int *body) {
+    vv1_only_looks_in(vv1_records(), vv1_slot(), parent, male, head, body);
 }
 
 static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
@@ -2568,6 +2674,43 @@ __declspec(dllexport) int __stdcall Vv1ParentageBorn(void *child_pointer, void *
 
 /* Per frame, from the Origins companion.  Returns 1 when a village is on
    screen and the table corresponds to it, 0 when nothing is known. */
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live (the new sex), `before` as it was.  They
+   are the same villager: the roster's entry for their record takes the new sex (so the next look neither takes
+   them for a departure and a newcomer nor drops their parents), the frame watch's snapshot too (a rename in the
+   same frame is still a rename), and the file is written now.  1 when carried. */
+static int vv1_sex_changed(int slot, const unsigned char *records, const unsigned char *r,
+                           const unsigned char *before) {
+    vv1_occupant was;
+    static vv1_occupant now[VV1_RECORD_COUNT];
+    size_t offset;
+    int index;
+    if (records == NULL || r == NULL || before == NULL || r < records) {
+        return 0;
+    }
+    offset = (size_t)(r - records);
+    if (offset % VV1_RECORD_STRIDE != 0 || offset / VV1_RECORD_STRIDE >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    index = (int)(offset / VV1_RECORD_STRIDE);
+    vv1_take_roster(records, now);
+    was = now[index];
+    was.gender = (*(const int *)(before + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) ? 1 : 2;
+    if (g_have_prev && g_prev_occupied[index]) {
+        g_prev_gender[index] = *(const int *)(r + VV1_GENDER_OFFSET);
+    }
+    if (slot <= 0 || slot != g_loaded_slot || !vv1_same_occupant(&g_roster[index], &was)) {
+        return 0;
+    }
+    g_roster[index].gender = now[index].gender;
+    (void)vv1_parents_save(slot, records);
+    return 1;
+}
+
+__declspec(dllexport) int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    return game == 1 ? vv1_sex_changed(slot, vv1_records(), (const unsigned char *)record,
+                                       (const unsigned char *)before) : 0;
+}
+
 __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
     int slot = vv1_parents_sync();
     if (!slot) {

@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One More Bend in the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep06_more_bend_path",
+  "source": "draft_dep",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager walking a visitor to the edge of the village keeps going: turn back at the next rock, or walk one more bend.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor who has been staying in the village is going home today, and (name1) offered to walk them \"to the edge of the village.\" That was some time ago. They have passed the edge of the village. They have passed the big rock. They have passed the stream, the second stream, and a tree (name1) has never seen before. Neither of them has said anything about turning back.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Turn Back at the Next Rock",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Walk One More Bend",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'll turn back at that rock,\" says (name1). They reach the rock. They stand there. \"Well,\" says the visitor. \"Well,\" says (name1). Then they hug, and (name1) walks home alone, which takes a very long time, because it turns out (he/she) walked a very long way.",
+   "src": "L74"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) walks one more bend. Then one more. Eventually the visitor laughs and says, \"At this rate you're coming home with me.\" (name1) laughs too, and finally stops. (He/she) watches the visitor go until the trees close behind them. It is dark when (he/she) gets home, and (his/her) feet are very sore, and (he/she) doesn't mind at all.",
+   "src": "L77"
+  }
+ }
+}

@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clumsy Morel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn022_clumsy_morel",
+  "source": "companion",
+  "lines": [
+   2862,
+   2868
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2862",
+  "ledger": [
+   {
+    "src": "L2864",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2868",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2865",
+    "kind": "note",
+    "text": "MECHANICAL:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2865",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its effect"
+   },
+   {
+    "src": "L2866",
+    "kind": "note",
+    "text": "TEMPORARY:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2867",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "A peculiar mushroom seems to interfere with coordination."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A peculiar mushroom seems to interfere with coordination.",
+   "src": "L2863",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Parenting",
+      "Building",
+      "Farming",
+      "Healing",
+      "Research",
+      "Devotion"
+     ],
+     "min": -10,
+     "max": -5,
+     "src": "L2865"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager trips repeatedly.",
+   "src": "L2866"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They forget how to tie a simple knot.",
+   "src": "L2867"
+  }
+ }
+}

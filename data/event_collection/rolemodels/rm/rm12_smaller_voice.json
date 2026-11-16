@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smaller Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm12_smaller_voice",
+  "source": "rolemodels",
+  "lines": [
+   27,
+   27
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L27",
+  "ledger": [
+   {
+    "src": "L27",
+    "kind": "structural",
+    "text": "EVENT RM-12  -  THE SMALLER VOICE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "During a village discussion, a young teenager notices that an elderly villager with a soft voice cannot make themselves heard.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a village discussion, a young teenager notices that an elderly villager with a soft voice cannot make themselves heard.",
+   "src": "L27",
+   "choices": [
+    {
+     "label": "Ask the Group to Pause and Listen.",
+     "next": "a",
+     "src": "L27"
+    },
+    {
+     "label": "Move Closer and Offer to Repeat the Elder's Words.",
+     "next": "b",
+     "src": "L27"
+    },
+    {
+     "label": "Suggest Speaking One at a Time.",
+     "next": "c",
+     "src": "L27"
+    },
+    {
+     "label": "Speak with the Elder Afterward.",
+     "next": "d",
+     "src": "L27"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder shares a practical suggestion that changes the discussion.",
+   "src": "L27"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder declines to speak further but appreciates the consideration.",
+   "src": "L27"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "With permission, the teenager helps the group hear the suggestion accurately.",
+   "src": "L27"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder prefers to speak independently, and the teenager makes room instead.",
+   "src": "L27"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The conversation becomes calmer, allowing several people to participate.",
+   "src": "L27"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers continue interrupting, and the discussion leader must reinforce the arrangement.",
+   "src": "L27"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The teenager learns that the elder had an important concern left unaddressed.",
+   "src": "L27"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elder says they were content to listen but appreciates being noticed.",
+   "src": "L27"
+  }
+ }
+}

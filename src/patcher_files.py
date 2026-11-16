@@ -50,6 +50,13 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # by bare name (vv1_sort_by.c).
     "Images/vvfp_sort_band.png": _GAME_IMAGE,
     "Images/vvfp_sort_radio.png": _GAME_IMAGE,
+    # Scrolling Popups (A New Home, The Lost Children): The Secret City's
+    # scrollbar pictures, built through the game's frame-strip constructor by
+    # bare name (native/shared/scroll_popup.h, SP_BORROWED_ART).
+    "Images/vvfp_scroll_up.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_down.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_track.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_knob.png": _GAME_IMAGE,
     # The Super-Secret Golden Mushroom (A New Home, The Secret City, The Tree
     # of Life, New Believers): the game's sprite constructor is handed
     # "golden_mushroom.png" (vvfp_golden_mushroom.c).
@@ -145,8 +152,17 @@ PATCHER_READS: frozenset[str] = frozenset({
     )
 )
 
+# Folders of files only the companions read, whatever their names: everything in them goes in the patcher's folder.
+PATCHER_READ_FOLDERS: tuple[str, ...] = (
+    # The Isola Grand Event Collection: its events (.cieg), manifest.txt and credits, read by "VVFP Story
+    # Upgrades.dll" from "Island Event Collection\\" beside it (story_collection.inc;
+    # scripts/build_event_collection_features.py).
+    "Island Event Collection/",
+)
+
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
 _PATCHER_READS = {key.casefold() for key in PATCHER_READS}
+_PATCHER_READ_FOLDERS = tuple(folder.casefold() for folder in PATCHER_READ_FOLDERS)
 
 # The patch log. Its name is short and the same in every build (the owner,
 # 2026-11-09: "fix the path too long bug when trying to patch games"): the
@@ -159,6 +175,10 @@ PATCH_LOG_FILENAME = "VVFP Patch Log.json"
 PATCH_LOG_SUFFIX = ".patch-log.json"   # the older name's ending
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
 TRANSPARENCY_RELATIVE_PATH = PurePosixPath(PATCHER_FILES_FOLDER) / TRANSPARENCY_FILENAME
+# The ids of the patches installed in this game, one per line (v1.35.97): Custom Island Events' patch conditions read
+# it (native/vvfp_story_upgrades/story_graph.inc cg_installed_load). Written at every patch.
+INSTALLED_PATCHES_FILENAME = "VVFP Installed Patches.txt"
+INSTALLED_PATCHES_RELATIVE_PATH = PurePosixPath(PATCHER_FILES_FOLDER) / INSTALLED_PATCHES_FILENAME
 
 # Windows' classic path limit: a path of at most MAX_PATH - 1 characters. The
 # games are 32-bit programs that are not long-path aware, so Windows will not
@@ -236,7 +256,7 @@ def installed_relative_path(destination: str) -> PurePosixPath:
     key = text.casefold()
     if key in _IN_PLACE:
         return PurePosixPath(text)
-    if key.endswith(".dll") or key in _PATCHER_READS:
+    if key.endswith(".dll") or key in _PATCHER_READS or key.startswith(_PATCHER_READ_FOLDERS):
         return PurePosixPath(PATCHER_FILES_FOLDER) / text
     raise ValueError(
         f"Companion file {destination} is not classified: add it to "

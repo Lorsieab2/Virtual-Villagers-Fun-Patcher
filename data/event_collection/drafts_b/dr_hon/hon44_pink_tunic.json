@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pink Tunic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon44_pink_tunic",
+  "source": "draft_hon",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager washed a friend's pale tunic with a red cloth, and it is now pink: show them straight away, or try to wash it back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) offered to do (friend)'s washing along with (subject.his/her) own, and washed (friend)'s favorite pale tunic in the same water as a new red cloth. The tunic is now pink. Very pink. (subject) is holding it up to the sunlight, hoping it will look less pink. It doesn't.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Show (friend) Straight Away",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Try to Wash It Back",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) looks at it for a long time. \"It's pink.\" \"It's pink.\" \"...It's actually quite a nice pink.\" (friend) puts it on and wears it all week. Several villagers ask how (friend.he/she) got such a lovely color. Before long, three of them have asked (subject) to do their washing too.",
+   "src": "L530"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) washes it again. And again. With soap root. With sand. With sunshine. It goes from very pink to quite pink. When (subject.he/she) finally hands it back, (friend) holds it up and asks, \"Was this pinker before?\" \"Much.\" \"Then thank you for all the washing.\" (friend) isn't thrilled. (friend.He/she) does wear it, though.",
+   "src": "L533"
+  }
+ }
+}

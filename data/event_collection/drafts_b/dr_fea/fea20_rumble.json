@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rumble",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea20_rumble",
+  "source": "draft_fea",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "After a small tremor in the night, a villager is jumpy all day: talk about what might happen, or agree nobody knows.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night the ground shook, just slightly, and the water in the jars trembled. This morning everyone is talking about it. The elders say it's happened before and nothing came of it. (subject) has been jumpy all day anyway, listening for something (subject.he/she) can't quite hear. (friend) finds (subject.him/her) standing very still in the middle of the path.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Talk About What Might Happen",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Agree That Nobody Knows",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They talk it through: where people would go, what they'd carry, how they'd help the elders and the little ones. It doesn't make the rumble go away. But having a plan helps (subject) breathe. That night (subject.he/she) keeps a bundle by the door. The ground stays quiet. The bundle stays by the door for a long time.",
+   "src": "L242"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It might be nothing,\" says (friend). \"It might be something. Nobody knows.\" (subject) finds this oddly comforting: at least nobody is pretending. They go about the day, a little jumpy, both of them. The ground stays quiet. Nobody ever finds out what it was.",
+   "src": "L245"
+  }
+ }
+}

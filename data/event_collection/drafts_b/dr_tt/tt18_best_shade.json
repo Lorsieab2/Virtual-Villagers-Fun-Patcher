@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Best Shade in the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt18_best_shade",
+  "source": "draft_tt",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager generously mends nets every afternoon in the coolest shade in the village: keep it quiet, or invite a friend along.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has volunteered to mend the fishing nets every afternoon, and everyone thinks it's very generous of (subject.him/her). What nobody seems to have noticed is that the nets are mended in the one spot with the deepest, coolest shade in the village, right in the breeze off the water, under a tree that drops sweet little fruits into your lap.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Keep It Quiet",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Invite (friend) Along",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) mends nets every afternoon all season, in perfect comfort. The nets have never been better looked after. When people ask why (subject.he/she) loves the job so much, (subject) says, \"It's just very satisfying work.\" Which is perfectly true.",
+   "src": "L218"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to help. (friend) sits down, feels the breeze, catches a fruit in (friend.his/her) lap, and turns slowly to look at (subject). \"Oh,\" (friend.he/she) says. \"I see.\" Now two villagers mend nets every afternoon. The work gets done twice as fast, and they both have to pretend it takes just as long.",
+   "src": "L221"
+  }
+ }
+}

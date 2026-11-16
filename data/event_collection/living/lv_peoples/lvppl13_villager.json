@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Who Wanted to Leave",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl13_villager",
+  "source": "living",
+  "lines": [
+   21828,
+   21840
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21828",
+  "ledger": [
+   {
+    "src": "L21829",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21839",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21840",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager considers joining the neighboring community.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager considers joining the neighboring community.",
+   "src": "L21829",
+   "choices": [
+    {
+     "label": "Respect the choice.",
+     "next": "a",
+     "src": "L21830"
+    },
+    {
+     "label": "Ask what draws them there.",
+     "next": "b",
+     "src": "L21833"
+    },
+    {
+     "label": "Demand that they stay.",
+     "next": "c",
+     "src": "L21836"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villager leaves peacefully, promising to visit.",
+   "src": "L21831"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager decides to remain after reflecting on what matters most.",
+   "src": "L21832"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The conversation reveals a need for belonging the tribe had overlooked.",
+   "src": "L21834"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager appreciates being heard but still chooses to leave.",
+   "src": "L21835"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager grows resentful of the pressure.",
+   "src": "L21837"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The tribe later apologizes for treating belonging as an obligation.",
+   "src": "L21838"
+  }
+ }
+}

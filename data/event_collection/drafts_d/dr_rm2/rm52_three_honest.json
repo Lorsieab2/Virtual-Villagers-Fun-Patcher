@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Three Honest Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm52_three_honest",
+  "source": "draft_rm2",
+  "lines": [
+   174,
+   187
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L174",
+  "ledger": [
+   {
+    "src": "L175",
+    "kind": "sensitivity",
+    "before": "a young builder",
+    "after": "(name1), a young builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks a young builder why roofs on Isola slope the way they do, and the builder realizes they do not actually know.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks (name1), a young builder, why roofs on Isola slope the way they do, and the builder realizes they do not actually know.",
+   "src": "L175",
+   "choices": [
+    {
+     "label": "Say \"I Don't Know.\"",
+     "next": "a",
+     "src": "L176"
+    },
+    {
+     "label": "Find Out Together.",
+     "next": "b",
+     "src": "L179"
+    },
+    {
+     "label": "Make a Guess and Say It Is a Guess.",
+     "next": "c",
+     "src": "L182"
+    },
+    {
+     "label": "Build Two Small Roofs and Test Them.",
+     "next": "d",
+     "src": "L185"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child seems delighted that grown-ups do not know everything.",
+   "src": "L177"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child is a little disappointed but asks something else instead.",
+   "src": "L178"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder builder explains how rain runs off steep thatch, and both listen closely.",
+   "src": "L180"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder gives three different reasons, and the builder and child argue happily about which is right.",
+   "src": "L181"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The guess turns out to be close, and the child remembers it.",
+   "src": "L183"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The guess is wrong, and the builder learns the truth from the child a few days later.",
+   "src": "L184"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Water runs off the steep model and pools on the flat one, and the answer is plain to see.",
+   "src": "L186"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Both models collapse in the first shower, and the experiment becomes a fond joke.",
+   "src": "L187",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L187"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut That Knew Where to Land",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum16_coconut_knew",
+  "source": "draft_hum",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A coconut drops neatly into a villager's empty basket: stand still and wait for another, or tell everyone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is walking under the palms with an empty basket on (subject.his/her) hip when, with a soft thump, a coconut drops out of a tree and lands neatly in the basket. Not on (subject.his/her) head. Not on the ground. In the basket. (subject.He/she) stops. (subject.He/she) looks up. The tree looks innocent.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Stand Still and Wait for Another",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Tell Everyone",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands perfectly still under the tree with the basket held out. It's a long wait. A bird lands on the rim of the basket and looks at (subject.him/her). A second coconut falls, a long way off, nowhere near. By sunset (subject) has one coconut and a very stiff arm, and is still certain the tree did it on purpose.",
+   "src": "L194"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Nobody believes (subject.him/her). Even so, the next day half the village is strolling about under the palms with baskets held out hopefully. Nothing falls. Then, late in the afternoon, a coconut drops gently into (friend)'s lap while (friend.he/she) is sitting resting against a trunk. Now (friend) won't stop talking about it either.",
+   "src": "L197"
+  }
+ }
+}

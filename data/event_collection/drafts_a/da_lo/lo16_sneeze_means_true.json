@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sneeze That Means It's True",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo16_sneeze_means_true",
+  "source": "da_lo",
+  "lines": [
+   189,
+   198
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L189",
+  "ledger": [
+   {
+    "src": "L190",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A friend sneezes just as a villager promises to finish a new roof, and that means it must be true.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "\"I'll have the new roof finished by the next full moon,\" says (subject). At that exact moment, (friend) sneezes. In (friend)'s family, a sneeze right after someone says something means it's true. (friend) looks at (subject) seriously. \"Well, that settles it.\"",
+   "src": "L192",
+   "choices": [
+    {
+     "label": "Hold (subject.him/her) to It",
+     "next": "a",
+     "src": "L194"
+    },
+    {
+     "label": "Say It Was Just a Sneeze",
+     "next": "b",
+     "src": "L197"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"You heard the sneeze,\" says (friend), every time (friend.he/she) passes (subject)'s half-finished roof. (subject) works harder than (subject.he/she) has in months. The roof is finished one day before the full moon. (friend) is triumphant. (subject) privately suspects the sneeze was faked, but doesn't dare ask.",
+   "src": "L195"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It was just a sneeze,\" says (subject). \"Sneezes don't mean anything.\" (friend) shrugs. The roof is finished a few days after the full moon. \"See?\" says (subject). \"The sneeze was wrong.\" \"Or,\" says (friend), \"you didn't believe in it, so it didn't work.\" (subject) opens (subject.his/her) mouth, and then closes it. There's no winning that argument.",
+   "src": "L198"
+  }
+ }
+}

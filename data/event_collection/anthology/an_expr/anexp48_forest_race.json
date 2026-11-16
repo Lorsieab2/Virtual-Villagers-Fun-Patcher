@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp48_forest_race",
+  "source": "anthology",
+  "lines": [
+   32000,
+   32014
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32000",
+  "ledger": [
+   {
+    "src": "L32001",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L32010",
+    "kind": "sensitivity",
+    "before": "A villager with limited mobility helps",
+    "after": "(villager), a villager with limited mobility, helps",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32014",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A running contest through the forest raises concerns about fragile plants and hidden roots.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A running contest through the forest raises concerns about fragile plants and hidden roots.",
+   "src": "L32002",
+   "choices": [
+    {
+     "label": "Mark a Safe Route",
+     "next": "a",
+     "src": "L32003"
+    },
+    {
+     "label": "Change the Sport",
+     "next": "b",
+     "src": "L32006"
+    },
+    {
+     "label": "Invite Different Abilities",
+     "next": "c",
+     "src": "L32009"
+    },
+    {
+     "label": "Postpone After Rain",
+     "next": "d",
+     "src": "L32012"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Runners avoid sensitive areas.",
+   "src": "L32004"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The chosen route proves too difficult for beginners.",
+   "src": "L32005"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A walking challenge draws more participants.",
+   "src": "L32007"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some athletes miss the thrill of running.",
+   "src": "L32008"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager), a villager with limited mobility, helps design a fair challenge.",
+   "src": "L32010"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Teams invent cooperative scoring.",
+   "src": "L32011"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The runners accept slippery ground is unsafe.",
+   "src": "L32013"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen) proposes a better course for next time.",
+   "src": "L32014"
+  }
+ }
+}

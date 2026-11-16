@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smell of Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il059_smell_rain",
+  "source": "da_il03",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The smell of rain on dry ground brings back an elder's memories of a hut that no longer stands.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A storm is coming in off the sea, and the air fills with that heavy, earthy smell of rain on dry ground. For (subject) it brings back, all at once, a hut that no longer stands, a voice (subject.he/she) hasn't heard in many years, and a warm bowl of soup on a stormy night long ago.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Tell (friend) About It",
+     "next": "a",
+     "src": "L217"
+    },
+    {
+     "label": "Breathe It In",
+     "next": "b",
+     "src": "L220"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) describes the old hut, the soup, the voice. (friend) listens to every word. \"I wish I'd known them,\" (friend.he/she) says. \"So do I,\" says (subject). \"You'd have liked each other.\" They sit and watch the rain come in together.",
+   "src": "L218"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) stands in the doorway with (subject.his/her) eyes closed while the first drops fall. For a moment (subject.he/she) is very young and very old at the same time. Then the rain gets heavier, and (subject.he/she) goes inside to make soup.",
+   "src": "L221"
+  }
+ }
+}

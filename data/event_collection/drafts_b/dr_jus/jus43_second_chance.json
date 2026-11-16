@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Second Chance at the Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus43_second_chance",
+  "source": "draft_jus",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager who lost the night fire job asks the council for it back: give them a trial, or say not yet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last season (subject) lost the job of keeping the night fire, after letting it go out three times. (subject.He/she) has asked the council for the job back. (friend), who has kept the fire ever since, isn't sure that's a good idea.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Give (subject.him/her) a Trial",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Not Yet",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council gives (subject) one moon on trial, with (friend) checking at midnight. The first night, (subject) is so determined that the fire is enormous and keeps half the village awake. After that, it's just right. At the end of the moon, (friend) says (friend.he/she) doesn't need to check any more. (subject) thinks it's the best praise (subject.he/she) has ever had.",
+   "src": "L518"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The council says not yet; perhaps next season. (subject) is disappointed, and says so. (friend) offers to let (subject) sit up with (friend.him/her) on (friend.his/her) fire nights, if (subject.he/she) likes. (subject) does, most nights. By the next season, nobody needs to ask the council: (friend) just hands (subject) the fire stick one evening and goes to bed.",
+   "src": "L521"
+  }
+ }
+}

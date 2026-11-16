@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lost Over the Side",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo36_lost_over_side",
+  "source": "da_lo",
+  "lines": [
+   432,
+   441
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L432",
+  "ledger": [
+   {
+    "src": "L433",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager showing a friend a little lavastone in the canoe drops it over the side into deep water.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) are out in the canoe, and (subject) is showing (friend) the little lavastone (subject.he/she) always carries, glowing blue in the shade of (subject.his/her) hand. A wave lifts the canoe. (subject)'s hand jerks. The stone slips between (subject.his/her) fingers and drops over the side, down into the deep water, glowing all the way down until it's gone.",
+   "src": "L435",
+   "choices": [
+    {
+     "label": "Dive for It",
+     "next": "a",
+     "src": "L437"
+    },
+    {
+     "label": "Let It Sink",
+     "next": "b",
+     "src": "L440"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) dives, again and again, until (subject.he/she) is gasping. The water is too deep. (subject.He/She) can see a faint blue glow far, far below, getting smaller. Then it's gone. (friend) pulls (subject.him/her) back into the canoe. They sit in silence. \"Maybe it wanted to go home,\" says (friend), at last. (subject) doesn't know. (subject.He/She) misses it anyway.",
+   "src": "L438"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) leans over the side and watches it go, a little blue star falling into the dark. (subject.He/She) doesn't try to dive. It's gone. That night, fishers out beyond the reef say they saw the water glowing blue, deep down, just for a moment. Nobody knows what to make of that. (subject) decides it's a nice thing to think about.",
+   "src": "L441"
+  }
+ }
+}

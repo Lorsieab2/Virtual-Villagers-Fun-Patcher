@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hoofprints at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau14_hoofprints",
+  "source": "anthology",
+  "lines": [
+   32664,
+   32678
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32664",
+  "ledger": [
+   {
+    "src": "L32665",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32671",
+    "kind": "sensitivity",
+    "before": "An experienced tracker",
+    "after": "(tracker), an experienced tracker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32678",
+    "kind": "sensitivity",
+    "before": "A listener",
+    "after": "(listener), a listener,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Fresh hoofprints cross a muddy patch where no one expected a hoofed animal.",
+  "label_case": "title",
+  "cast_only": [
+   "tracker",
+   "listener"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "tracker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "listener": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fresh hoofprints cross a muddy patch where no one expected a hoofed animal.",
+   "src": "L32666",
+   "choices": [
+    {
+     "label": "Follow from Afar",
+     "next": "a",
+     "src": "L32667"
+    },
+    {
+     "label": "Compare Prints",
+     "next": "b",
+     "src": "L32670"
+    },
+    {
+     "label": "Check Nearby Gardens",
+     "next": "c",
+     "src": "L32673"
+    },
+    {
+     "label": "Share a Cautious Tale",
+     "next": "d",
+     "src": "L32676"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The tracks lead to a safe watering place.",
+   "src": "L32668"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The trail ends at rocky ground.",
+   "src": "L32669"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(tracker), an experienced tracker, identifies the gait.",
+   "src": "L32671"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Two observers disagree on the animal.",
+   "src": "L32672"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A damaged bed is repaired without retaliation.",
+   "src": "L32674"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The damage came from weather instead.",
+   "src": "L32675"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The tracks inspire a lively story.",
+   "src": "L32677"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(listener), a listener, mistakes speculation for fact.",
+   "src": "L32678"
+  }
+ }
+}

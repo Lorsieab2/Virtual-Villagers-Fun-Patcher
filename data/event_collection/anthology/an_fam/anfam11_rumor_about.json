@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rumor About a Breakup",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam11_rumor_about",
+  "source": "anthology",
+  "lines": [
+   28450,
+   28463
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28450",
+  "ledger": [
+   {
+    "src": "L28459",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28460",
+    "kind": "sensitivity",
+    "before": "the friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A private separation becomes the subject of village gossip.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A private separation becomes the subject of village gossip.",
+   "src": "L28451",
+   "choices": [
+    {
+     "label": "Ask Others to Respect Privacy",
+     "next": "a",
+     "src": "L28452"
+    },
+    {
+     "label": "Correct a False Detail with Permission",
+     "next": "b",
+     "src": "L28455"
+    },
+    {
+     "label": "Offer Quiet Companionship",
+     "next": "c",
+     "src": "L28458"
+    },
+    {
+     "label": "Allow the Former Partners to Speak for Themselves",
+     "next": "d",
+     "src": "L28461"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The gossip fades when villagers stop repeating it.",
+   "src": "L28453"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Curiosity persists, but friends protect the couple's boundaries.",
+   "src": "L28454"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The correction ends one rumor without exposing personal details.",
+   "src": "L28456"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The former partners prefer no public explanation at all.",
+   "src": "L28457"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) shares a meal without asking intrusive questions.",
+   "src": "L28459"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An offer of company is declined, and (friend) respects that.",
+   "src": "L28460"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The former partners clarify only what they choose.",
+   "src": "L28462"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They disagree about what to share and postpone any announcement.",
+   "src": "L28463"
+  }
+ }
+}

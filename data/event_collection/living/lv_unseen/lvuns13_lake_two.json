@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lake with Two Shadows",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns13_lake_two",
+  "source": "living",
+  "lines": [
+   22336,
+   22347
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22336",
+  "ledger": [
+   {
+    "src": "L22347",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Fishers claim that a long-necked animal swims beneath a secluded lake.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fishers claim that a long-necked animal swims beneath a secluded lake.",
+   "src": "L22337",
+   "choices": [
+    {
+     "label": "Observe quietly from shore.",
+     "next": "a",
+     "src": "L22338"
+    },
+    {
+     "label": "Send a small expedition.",
+     "next": "b",
+     "src": "L22341"
+    },
+    {
+     "label": "Declare the lake protected.",
+     "next": "c",
+     "src": "L22344"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Ripples reveal two swimming birds moving together.",
+   "src": "L22339"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A broad shadow crosses the water with no visible source.",
+   "src": "L22340"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The expedition returns with careful drawings but no proof.",
+   "src": "L22342"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A storm forces the explorers home before they can investigate.",
+   "src": "L22343"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Wildlife flourishes around the quiet water.",
+   "src": "L22345"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Villagers argue whether a legend should determine land use.",
+   "src": "L22346"
+  }
+ }
+}

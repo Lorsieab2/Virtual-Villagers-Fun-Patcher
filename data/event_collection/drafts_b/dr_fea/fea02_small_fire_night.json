@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Small Fire at Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea02_small_fire_night",
+  "source": "draft_fea",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who fears the dark keeps a small fire lit, and a hut guest asks to put it out: explain, or try without it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is a grown villager, and (subject.he/she) is afraid of the dark. Not a little. Properly. Every night (subject.he/she) keeps a tiny fire burning in a clay dish by the door, just a glow, until (subject.he/she) falls asleep. Tonight (friend), who shares the hut for a few nights, asks if (subject.he/she) could put it out. The light keeps (friend.him/her) awake.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Try Putting It Out",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I can't sleep without it,\" says (subject). \"The dark's too much for me.\" (friend) thinks about it and turns over to face the wall. \"Then keep it. I'll put something over my eyes.\" In the morning (friend) has tied a strip of cloth round (friend.his/her) head and slept like a log. Problem solved, more or less.",
+   "src": "L26"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) puts it out. The dark comes down like a blanket. (subject.He/she) lies awake for a long time with (subject.his/her) heart thumping. Eventually (subject.he/she) quietly gets up and relights it, as small as possible, behind a basket. (friend) never mentions it. In the morning (friend.he/she) says (friend.he/she) slept fine.",
+   "src": "L29"
+  }
+ }
+}

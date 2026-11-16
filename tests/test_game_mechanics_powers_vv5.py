@@ -79,6 +79,8 @@ class GodPowers(unittest.TestCase):
         data = ROOT / "data"
         for path in [data / "builds.json"] + sorted(data.glob("vv5_*_feature.json")):
             for row in strings(json.loads(path.read_text(encoding="utf-8"))):
+                if row.endswith(".cieg"):
+                    continue    # an island event file's name (sss043_spell_worked.cieg): a story, not a God Power
                 for word in words:
                     if word.lower() not in row.lower():
                         continue

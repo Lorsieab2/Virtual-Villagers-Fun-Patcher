@@ -1,0 +1,153 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People Who Cannot Stop Working",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz032_cannot_stop",
+  "source": "horizon",
+  "lines": [
+   413,
+   423
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L413",
+  "ledger": [],
+  "description": "A tired weaver asks whether distant societies give workers time to rest, or demand more labor than a person can bear.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tired weaver asks whether distant societies give workers time to rest, or demand more labor than a person can bear.",
+   "src": "L414",
+   "choices": [
+    {
+     "label": "Imagine Generous Rest.",
+     "next": "a",
+     "src": "L415"
+    },
+    {
+     "label": "Imagine Relentless Work.",
+     "next": "b",
+     "src": "L418"
+    },
+    {
+     "label": "Ask What Work Is For.",
+     "next": "c",
+     "src": "L421"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers design a hypothetical schedule with shared duties and predictable days off.",
+   "src": "L416"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A caregiver notes that unpaid responsibilities do not disappear when paid work ends.",
+   "src": "L417",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing or a duty disappears); nobody goes missing",
+     "src": "L417"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A laborer describes exhaustion, injury, and little time for family; the council examines its own workload.",
+   "src": "L419",
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "an injury imagined or discussed; nobody is hurt",
+     "src": "L419"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A trader wonders whether some workers might accept long hours to support people they love.",
+   "src": "L420"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group agrees that food and shelter matter, but so do purpose, dignity, and leisure.",
+   "src": "L422",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L422"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager says meaningful work can still be tiring; the group resists easy slogans.",
+   "src": "L423"
+  }
+ }
+}

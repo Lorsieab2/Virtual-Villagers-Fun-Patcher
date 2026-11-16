@@ -1,0 +1,178 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal That Would Not Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway14_animal_would",
+  "source": "living",
+  "lines": [
+   22912,
+   22926
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22912",
+  "ledger": [
+   {
+    "src": "L22926",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A trained pack animal refuses to pull a heavy cart.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trained pack animal refuses to pull a heavy cart.",
+   "src": "L22913",
+   "choices": [
+    {
+     "label": "Rest and examine the animal.",
+     "next": "a",
+     "src": "L22914"
+    },
+    {
+     "label": "Lighten the load and ask again.",
+     "next": "b",
+     "src": "L22917"
+    },
+    {
+     "label": "Pull the cart by hand.",
+     "next": "c",
+     "src": "L22920"
+    },
+    {
+     "label": "Use a levitation charm.",
+     "next": "d",
+     "src": "L22923",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A sore hoof is discovered, and the animal later recovers.",
+   "src": "L22915"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "No injury is found, and the cart remains unmoved.",
+   "src": "L22916",
+   "text_only": [
+    {
+     "what": "no injury",
+     "reason": "nobody is hurt: the animal is examined",
+     "src": "L22916"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The animal moves comfortably with less weight.",
+   "src": "L22918"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The animal still refuses, and the villagers stop.",
+   "src": "L22919"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers finish the journey together.",
+   "src": "L22921"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The work strains several tired laborers.",
+   "src": "L22922"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The cart crosses the hill without the animal.",
+   "src": "L22924"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The charm wavers, and the group must secure the load.",
+   "src": "L22925"
+  }
+ }
+}

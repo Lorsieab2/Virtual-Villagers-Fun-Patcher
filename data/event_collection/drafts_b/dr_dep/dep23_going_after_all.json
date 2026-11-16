@@ -1,0 +1,77 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Going After All",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep23_going_after_all",
+  "source": "draft_dep",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager finally sets off to live by the far lagoon, then sits down on the hilltop: unpack, or keep the bag packed by the door.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For years (name1) has said that one day (he/she) will go and live by the big lagoon on the other side of the island, where the water is calm and the fishing is easy. This morning (he/she) finally packed everything, said goodbye, and walked out of the village. (He/she) got as far as the top of the hill, sat down, and has been sitting there for some time.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Unpack",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Leave the Bag Packed by the Door",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) walks back down the hill and puts everything back where it was. A few people look surprised. Most just say hello. (name1) feels foolish for about an hour, and then, unexpectedly, relieved. (He/she) wanted the dream of the lagoon more than the lagoon. That turns out to be allowed.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) comes back but doesn't unpack. The bag sits by the door, ready. Some days (he/she) looks at it and thinks, tomorrow. Some days (he/she) forgets it's there. It's comforting to have it. (He/she) doesn't know yet whether (he/she) will ever pick it up, and for now that's fine.",
+   "src": "L281"
+  }
+ }
+}

@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Embarrassing Grandparent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs07_embarrassing",
+  "source": "anthology",
+  "lines": [
+   29530,
+   29543
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29530",
+  "ledger": [
+   {
+    "src": "L29531",
+    "kind": "sensitivity",
+    "before": "their eccentric grandparent begins",
+    "after": "their eccentric grandparent, (grandparent), begins",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29531",
+    "kind": "sensitivity",
+    "before": "A young adult",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29533",
+    "kind": "sensitivity",
+    "before": "The young adult",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29536",
+    "kind": "sensitivity",
+    "before": "The grandparent",
+    "after": "(grandparent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29539",
+    "kind": "sensitivity",
+    "before": "The grandparent",
+    "after": "(grandparent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29540",
+    "kind": "sensitivity",
+    "before": "The grandparent",
+    "after": "(grandparent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29542",
+    "kind": "sensitivity",
+    "before": "the young adult",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29543",
+    "kind": "sensitivity",
+    "before": "the young adult",
+    "after": "(young)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A young adult groans when their eccentric grandparent begins singing at a public gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "young",
+   "grandparent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "young": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "grandparent": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "grandparent_of": "young"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(young) groans when their eccentric grandparent, (grandparent), begins singing at a public gathering.",
+   "src": "L29531",
+   "choices": [
+    {
+     "label": "Join the Song",
+     "next": "a",
+     "src": "L29532"
+    },
+    {
+     "label": "Quietly Ask for a Different Time",
+     "next": "b",
+     "src": "L29535"
+    },
+    {
+     "label": "Ask Why the Song Matters",
+     "next": "c",
+     "src": "L29538"
+    },
+    {
+     "label": "Let the Moment Pass",
+     "next": "d",
+     "src": "L29541"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(young) surprises everyone with an excellent harmony.",
+   "src": "L29533"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They forget the words and both collapse into laughter.",
+   "src": "L29534",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a thing breaks or collapses in the story; no building is damaged -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29534"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(grandparent) agrees but feels briefly disappointed.",
+   "src": "L29536"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They find a private moment to sing together afterward.",
+   "src": "L29537"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(grandparent) explains it was sung at an old family reunion.",
+   "src": "L29539"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(grandparent) confesses they made it up that morning.",
+   "src": "L29540"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The crowd applauds and (young) blushes.",
+   "src": "L29542"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Nobody pays much attention, though (young) remains mortified.",
+   "src": "L29543"
+  }
+ }
+}

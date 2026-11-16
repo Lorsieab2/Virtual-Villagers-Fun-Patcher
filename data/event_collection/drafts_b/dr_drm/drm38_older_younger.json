@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Day Older, One Day Younger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm38_older_younger",
+  "source": "draft_drm",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-10 and an elder)"
+   }
+  ],
+  "description": "A child wishes to be grown up and an elder wishes to be young for a day: swap for an afternoon, or tell each other the best part.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wishes (subject.he/she) were grown up, so (subject.he/she) could stay up late and carry the big baskets. (friend), sitting next to (subject.him/her), says (friend.he/she) wishes (friend.he/she) were a child again for a day, so (friend.he/she) could run on the beach without (friend.his/her) knees complaining. They look at each other with the same idea at once.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Swap for an Afternoon",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Tell Each Other the Best Part",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "For an afternoon they swap, in pretend. (subject) sits in (friend)'s spot, nods wisely, and complains about (subject.his/her) knees. (friend) runs, slowly and very carefully, a short way down the beach and back, shrieking like a child. They both agree that the other one has it easier, and neither of them wants to swap for real.",
+   "src": "L458"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) the best part of being little: everything is still new. (friend) tells (subject) the best part of being old: nothing is in a hurry. They think about each other's answers for a while. \"I'll keep mine for now,\" says (subject). \"Me too,\" says (friend).",
+   "src": "L461"
+  }
+ }
+}

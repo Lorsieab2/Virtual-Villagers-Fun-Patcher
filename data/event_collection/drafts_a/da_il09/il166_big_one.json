@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Big One",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il166_big_one",
+  "source": "da_il09",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L74",
+    "kind": "casting",
+    "before": "One of the little ones says,",
+    "after": "One of the little ones, (little), says,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An older child minding the little ones has made them sit in a row, and has no idea what comes next.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 13
+  },
+  "little": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 9
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been asked to keep an eye on the little ones while the adults finish work. (subject.He/She) takes it very seriously. (subject.He/She) has made the little ones sit in a row. (subject.He/She) has told them the rules. The little ones are now staring at (subject.him/her), waiting for something to happen, and (subject) realizes (subject.he/she) has no idea what comes next.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Join Their Game",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Tell Them a Story",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "One of the little ones, (little), says, \"Can we play crabs?\" (subject) has no idea what crabs is. It turns out to involve walking sideways and pinching people. (subject) is very good at it. When the adults come back, they find (subject) on (subject.his/her) hands and knees in the sand, being chased by six screaming small crabs. Everyone is fine. Everyone is exhausted.",
+   "src": "L74"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sits down and tells them the turtle story (subject.he/she) used to love when (subject.he/she) was small. (subject.He/She) does all the voices. The little ones are spellbound. When the adults come back, nobody wants to leave until the turtle gets home. (subject) feels, for the first time, very grown up, and is not sure if (subject.he/she) likes it.",
+   "src": "L77"
+  }
+ }
+}

@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leg That Fits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div12_leg_fits",
+  "source": "draft_div",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a craftsperson or another adult; in the story (name1) has a carved wooden lower leg)"
+   }
+  ],
+  "description": "A villager's new carved leg rubs, and the carver thinks they will get used to it: show where it rubs, or give it a week.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) lost (subject.his/her) lower leg years ago, and has worn many wooden legs since. This new one, carved by (friend), is light and strong, with a cupped top padded with soft bark-cloth and a foot shaped for sand. But it rubs. It has rubbed for a week. (subject) has come to say so, and (friend) is sure the problem is that (subject) just isn't used to it yet.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Listen to Where It Rubs",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Give It Another Week",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) shows exactly where it rubs and how, and explains (subject.he/she) has worn wooden legs for longer than (friend) has been carving them. (friend) swallows (friend.his/her) pride, and they work on it together, shaving and padding, fitting and refitting. By the end of the day it fits. That night there's music at the fire, and (subject) dances on it until very late.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) agrees, reluctantly, to give it another week. It doesn't get better. (subject.He/she) ends up going back to (subject.his/her) old leg, which isn't as nice but doesn't hurt. When (friend) finds out, (friend.he/she) comes round, embarrassed. \"Show me where.\" (subject) shows (friend.him/her). The second version fits much better. (subject) doesn't say \"I told you so,\" exactly. (subject.He/she) just hums it.",
+   "src": "L149"
+  }
+ }
+}

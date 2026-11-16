@@ -22,6 +22,9 @@ New-Item -ItemType Directory -Path $work | Out-Null
 try {
     foreach ($game in $Games) {
         $out = Join-Path $work ("change_appearance_extras_harness_vv" + $game + ".exe")
+        # A New Home's companion grew past where the block could lie over its scratch at 0x480000..: its
+        # harness is linked lower (sex_change_dialog_harness's way).
+        $base = if ($game -eq 1) { "/BASE:0x200000" } else { "/BASE:0x400000" }
         $log = & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
             /nologo /O1 /MT `
             ("/DHARNESS_GAME=" + $game) `
@@ -37,7 +40,7 @@ try {
             ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
             ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
             user32.lib gdi32.lib shell32.lib advapi32.lib gdiplus.lib `
-            /BASE:0x400000 /FIXED /DYNAMICBASE:NO `
+            $base /FIXED /DYNAMICBASE:NO `
             ("/OUT:" + $out)
         if ($LASTEXITCODE -ne 0) {
             $log | Write-Output

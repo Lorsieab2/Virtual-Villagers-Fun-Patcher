@@ -121,14 +121,15 @@ def roster(folder: Path, game: int, slot: int) -> list:
     return people
 
 
-def _same(p, r, strict: bool) -> bool:
+def _same(p, r, strict: bool, sex_changed=frozenset()) -> bool:
     """Whether roster entry `r` is the villager `p` a record names.  `strict`: the very same likes and
     dislikes (to MOVE a record); otherwise also one list within the other, as an older roster that
-    printed only each villager's first word shows them (to rule a slot OUT, the safe direction)."""
+    printed only each villager's first word shows them (to rule a slot OUT, the safe direction).  Either
+    sex for a villager whose sex changed (`sex_changed`, vv_sex_changes)."""
     import vv_reconcile as rc
     if p.name != r.name or p.head != r.head or p.body != r.body:
         return False
-    if p.sex is not None and r.sex is not None and p.sex != r.sex:
+    if p.sex is not None and r.sex is not None and p.sex != r.sex and p.name not in sex_changed:
         return False
     if strict:
         return p.likes == r.likes and p.dislikes == r.dislikes
@@ -213,6 +214,8 @@ def plan(folder: Path, game: int, slot: int, rosters: dict | None = None) -> add
                 held.append((path, sub, stem, marker, lines, b))
     if not held:
         return kind
+    import vv_sex_changes
+    sex_changed = {s: vv_sex_changes.changed_names(folder, s) for s in layout.SLOTS}   # each save's own log
     if rosters is None:
         rosters = {s: roster(folder, game, s) for s in layout.SLOTS}
     targets: dict[tuple[int, str], tuple[Path, int, str]] = {}
@@ -223,8 +226,10 @@ def plan(folder: Path, game: int, slot: int, rosters: dict | None = None) -> add
         homes: set[int] = set()
         clear = True
         for _label, person in people:
-            loose = {s for s, found in rosters.items() if any(_same(person, r, False) for r in found)}
-            strict = {s for s, found in rosters.items() if any(_same(person, r, True) for r in found)}
+            loose = {s for s, found in rosters.items()
+                     if any(_same(person, r, False, sex_changed.get(s, ())) for r in found)}
+            strict = {s for s, found in rosters.items()
+                      if any(_same(person, r, True, sex_changed.get(s, ())) for r in found)}
             if len(loose) != 1 or loose != strict or slot in loose:
                 clear = False
                 if len(loose) > 1 and slot not in loose:
@@ -239,7 +244,8 @@ def plan(folder: Path, game: int, slot: int, rosters: dict | None = None) -> add
         # A Conception: no parent younger than when the other village first had them.
         for label, person in people:
             age = _age_at(b, label)
-            if age is not None and not any(_same(person, r, True) and (r.age is None or r.age <= age)
+            if age is not None and not any(_same(person, r, True, sex_changed.get(home, ()))
+                                           and (r.age is None or r.age <= age)
                                            for r in rosters[home]):
                 clear = False
         if not clear:

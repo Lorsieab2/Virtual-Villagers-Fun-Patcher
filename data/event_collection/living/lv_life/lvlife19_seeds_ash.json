@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seeds in the Ash",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife19_seeds_ash",
+  "source": "living",
+  "lines": [
+   20876,
+   20887
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20876",
+  "ledger": [
+   {
+    "src": "L20887",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "After a fire, unfamiliar seedlings appear among the blackened trees.",
+  "cast_only": [
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a fire, unfamiliar seedlings appear among the blackened trees.",
+   "src": "L20877",
+   "choices": [
+    {
+     "label": "Protect the seedlings.",
+     "next": "a",
+     "src": "L20878"
+    },
+    {
+     "label": "Clear them for crops.",
+     "next": "b",
+     "src": "L20881"
+    },
+    {
+     "label": "Map the recovering land.",
+     "next": "c",
+     "src": "L20884"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The young plants restore shade and attract insects.",
+   "src": "L20879"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some seedlings outcompete familiar food plants.",
+   "src": "L20880",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20880"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village gains planting space but loses new forest growth.",
+   "src": "L20882"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The cleared slope washes away in heavy rain.",
+   "src": "L20883"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The catalogue records which plants return first.",
+   "src": "L20885"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A novice confuses two seedlings, and the map requires correction.",
+   "src": "L20886"
+  }
+ }
+}

@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief Who Could Not Say Sorry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth07_chief_could",
+  "source": "living",
+  "lines": [
+   23427,
+   23441
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23427",
+  "ledger": [
+   {
+    "src": "L23441",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The leader's mistaken order has damaged the village's food stores.",
+  "cast_only": [
+   "storekeeper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "storekeeper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief}'s mistaken order has damaged the village's food stores.",
+   "src": "L23428",
+   "choices": [
+    {
+     "label": "Defend the decision publicly.",
+     "next": "a",
+     "src": "L23429"
+    },
+    {
+     "label": "Admit the mistake.",
+     "next": "b",
+     "src": "L23432"
+    },
+    {
+     "label": "Blame the storekeepers.",
+     "next": "c",
+     "src": "L23435"
+    },
+    {
+     "label": "Invite an independent review.",
+     "next": "d",
+     "src": "L23438"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the village's food stores",
+     "reason": "the premise: the damage is already done; nothing is lost now",
+     "src": "L23428"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} keeps order, but resentment quietly grows.",
+   "src": "L23430"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The {@chief} explains the difficult circumstances, and some understand.",
+   "src": "L23431"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Villagers appreciate the honesty and help repair the damage.",
+   "src": "L23433"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some lose confidence in the {@chief}'s judgment.",
+   "src": "L23434"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The accusation divides the village.",
+   "src": "L23436"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The storekeepers prove they followed orders, embarrassing the {@chief}.",
+   "src": "L23437"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The review reveals several causes and suggests improvements.",
+   "src": "L23439"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The inquiry becomes contentious and delays rebuilding.",
+   "src": "L23440"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader Who Could Not Say Sorry"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

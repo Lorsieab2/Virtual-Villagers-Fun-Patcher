@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tiger's Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat143_tiger_shadow",
+  "source": "companion",
+  "lines": [
+   8813,
+   8823
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8813",
+  "ledger": [
+   {
+    "src": "L8823",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "Large striped shapes glimpsed in the foliage convince a child that a tiger lives on Isola.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Large striped shapes are glimpsed through distant foliage. A child insists a tiger lives on Isola.",
+   "src": "L8814",
+   "choices": [
+    {
+     "label": "Study prints safely",
+     "next": "a",
+     "src": "L8815"
+    },
+    {
+     "label": "Improve village precautions",
+     "next": "b",
+     "src": "L8817"
+    },
+    {
+     "label": "Ask whether the sighting was mistaken",
+     "next": "c",
+     "src": "L8819"
+    },
+    {
+     "label": "Keep the story alive",
+     "next": "d",
+     "src": "L8821"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Tracks suggest an animal, but the size is disputed.",
+   "src": "L8816"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Paths are marked and children travel with companions.",
+   "src": "L8818"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Some accept an ordinary explanation; others remain unconvinced.",
+   "src": "L8820"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A festival mask appears, and future sightings become even harder to evaluate.",
+   "src": "L8822"
+  }
+ }
+}

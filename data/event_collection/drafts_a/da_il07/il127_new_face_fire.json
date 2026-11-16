@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Face at the Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il127_new_face_fire",
+  "source": "da_il07",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A shy villager sits by the fire next to someone they hardly know, both trying to think of something to say.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is shy. Joining a fire full of people is hard enough. Tonight the only free spot is next to (friend), who (subject) hardly knows. They sit side by side, staring at the flames, both clearly trying to think of something to say.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Say Something, Anything",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Just Sit Together",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"The fish is good tonight,\" says (subject). \"Very good,\" says (friend). Silence. Then (friend) says, \"I always think fish look a bit surprised, don't you?\" (subject) laughs before (subject.he/she) can stop (subject.him/her)self. They spend the rest of the evening agreeing about which animals look surprised. It's a start.",
+   "src": "L86"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Neither of them says much. But when the fire needs more wood, (friend) passes the wood, and when (subject)'s bowl is empty, (subject) passes it to be filled. At the end of the night (friend) says, \"Good sitting with you.\" (subject) thinks about that all the way home. It was good sitting with (friend.him/her), too.",
+   "src": "L89"
+  }
+ }
+}

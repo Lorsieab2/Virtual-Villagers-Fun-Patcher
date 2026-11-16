@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seed Loan",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm46_seed_loan",
+  "source": "draft_rm2",
+  "lines": [
+   84,
+   97
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L84",
+  "ledger": [],
+  "description": "A gardener's neighbor lost a whole bed of seedlings to a late storm, and planting season is nearly over.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gardener's neighbor lost a whole bed of seedlings to a late storm, and planting season is nearly over.",
+   "src": "L85",
+   "choices": [
+    {
+     "label": "Lend Seeds Without Conditions.",
+     "next": "a",
+     "src": "L86"
+    },
+    {
+     "label": "Share Some Seedlings Already Started.",
+     "next": "b",
+     "src": "L89"
+    },
+    {
+     "label": "Offer to Plant Together.",
+     "next": "c",
+     "src": "L92"
+    },
+    {
+     "label": "Suggest a Village Seed Store for Next Time.",
+     "next": "d",
+     "src": "L95"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The neighbor plants in time, and the garden recovers by the end of the season.",
+   "src": "L87"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The late planting grows poorly, but the neighbor is grateful the attempt was possible.",
+   "src": "L88"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The neighbor's garden catches up with everyone else's within a few weeks.",
+   "src": "L90"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some seedlings wilt in the new soil, and the two gardeners compare notes on why.",
+   "src": "L91"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The work goes quickly, and the gardeners discover they enjoy each other's company.",
+   "src": "L93"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They disagree about spacing the rows, and each plants half their own way.",
+   "src": "L94"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several households agree to keep spare seeds in one dry place.",
+   "src": "L96"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Nobody can agree on who should keep the store, and the idea waits for another meeting.",
+   "src": "L97"
+  }
+ }
+}

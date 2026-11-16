@@ -67,14 +67,18 @@ CAP_CHOICE = 0x04000000
 # question characters a line, question lines, result characters, result
 # lines, the result leads with the title, label characters.  The numbers are
 # the longest and tallest stock two-choice texts of each game (A New Home
-# and The Lost Children: less the two lines the villager's picture adds).
+# and The Lost Children: less the two lines the villager's picture adds); a
+# label is the 39 characters the companion keeps, as wide as the screen shows
+# whole (the owner, 2026-11-13: it may run off its button while readable).
 CHOICE_PANEL = {
-    "vv1": (49, 13, 49, 13, 1, 34),
-    "vv2": (46, 16, 46, 16, 1, 30),
-    "vv3": (48, 11, 48, 11, 0, 32),
-    "vv4": (48, 11, 48, 11, 0, 34),
-    "vv5": (48, 11, 48, 17, 0, 38),
+    "vv1": (49, 13, 49, 13, 1, 39),
+    "vv2": (46, 16, 46, 16, 1, 39),
+    "vv3": (48, 11, 48, 11, 0, 39),
+    "vv4": (48, 11, 48, 11, 0, 39),
+    "vv5": (48, 11, 48, 17, 0, 39),
 }
+# The widest label each screen shows whole, centred (data/cie_label_widths.json): 39 W's are 975 pixels.
+SCREEN_LABEL_PX = {"vv1": 768, "vv2": 768, "vv3": 768, "vv4": 768, "vv5": 992}
 
 
 def _story(game, **kw):
@@ -299,10 +303,17 @@ class ChoiceRefusalTests(unittest.TestCase):
             limit = max(n for n in range(1, Choice.BUTTON_BYTES)
                         if _refusal(story, _question(), _choice(story, labels=("x" * n, "No"))) is None)
             with self.subTest(game=game, limit=limit):
-                self.assertEqual(limit, CHOICE_PANEL[game][5], "the game's own label width")
-                why = _refusal(story, _question(), _choice(story, labels=("x" * (limit + 1), "No")))
-                self.assertIn(f"{limit} characters at most", why or "")
+                self.assertEqual(limit, CHOICE_PANEL[game][5], "the bytes the companion keeps")
                 self.assertIsNone(_refusal(story, _question(), _choice(story, labels=("No", "x" * limit))))
+                # Longer than any button, still on the screen: allowed; wider than the screen: refused.
+                self.assertIsNone(_refusal(story, _question(), _choice(story, labels=("W" * 30, "W" * 30))))
+                why = _refusal(story, _question(), _choice(story, labels=("W" * 39, "No")))
+                if SCREEN_LABEL_PX[game] < 975:
+                    self.assertIn("wider than the screen", why or "")
+                else:
+                    self.assertIsNone(why)
+                self.assertIsNone(_refusal(story, _question(),
+                                           _choice(story, labels=("Curses schmurses. I'm keeping them.", "No"))))
             for labels, words in (
                 (("", "No"), "First button: Give both buttons a label."),
                 (("Yes", "   "), "Second button: Give both buttons a label."),
@@ -440,6 +451,18 @@ class ChoiceArmingTests(unittest.TestCase):
 
 @emulated
 class QuestionTests(unittest.TestCase):
+    def test_long_labels_reach_the_question_whole(self):
+        """The owner (2026-11-13): a label may be wider than its button.  Labels of the full 39 characters the
+        companion keeps, wider than every game's button, are asked whole in every game, nothing cut or spilled."""
+        long = ("Curses schmurses. I'm keeping them all.", "Run towards the right path, quickly now")
+        self.assertEqual([len(x) for x in long], [39, 39])
+        for game, story in _stories():
+            _set(story, _question(title="The Long Night", text="Which way?"), _choice(story, labels=long))
+            ok, _text = _begin(story)
+            with self.subTest(game=game):
+                self.assertEqual(ok, 1)
+                self.assertEqual((_label(story, 0), _label(story, 1)), long)
+
     def test_the_question_text_and_labels(self):
         for game, story in _stories():
             width = CHOICE_PANEL[game][0]
