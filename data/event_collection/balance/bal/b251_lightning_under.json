@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lightning Under the Banyan",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b251_lightning_under",
+  "source": "balance",
+  "lines": [
+   11721,
+   11763
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11721",
+  "ledger": [
+   {
+    "src": "L11722",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11723",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11731",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11740",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11728",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11729",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11732",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11741",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11734",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11737",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11743",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11746",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11749-11763",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Neither of them will be the first to walk away.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been arguing for a week about whose turn it is to fetch water, and today they are arguing about it under the big banyan tree while a storm rolls in over the hills. Neither of them will be the first to walk away. The sky goes green. The first fat drops of rain hit the leaves.\nThen the lightning comes down through the banyan's hanging roots with a crack like the world splitting, and both of them are thrown flat on their backs.\nWhen they sit up, (subject) is looking at (subject.his/her) own face, and the face is looking very upset. Every root of the banyan is smoking. Should they go straight to the healers, or try to fix it themselves?",
+   "choices": [
+    {
+     "label": "Go Straight to the Healers",
+     "next": "c1",
+     "src": "L11728"
+    },
+    {
+     "label": "Fix It Themselves",
+     "next": "c2",
+     "src": "L11729"
+    }
+   ],
+   "src": "L11724-11726"
+  },
+  "c1o1": {
+   "text": "(healer) tries the pot, then a smoke, then a cold plunge in the river, then a hot one in a steam hut. Nothing works. By evening (healer) admits (subject.he/she) has never seen anything like it and doesn't expect to again. (subject) and (friend) walk home in each other's bodies. In the morning (subject), in (friend)'s body, fetches the water without a word.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L11735"
+  },
+  "c1o2": {
+   "text": "The pot holds something that smells like a burnt goat. (healer) makes them both breathe it in at the same time. They sneeze at the same moment, and when they open their eyes, they are back where they belong. Neither of them can smell anything for three days, and neither of them goes near the healers' hut again if they can help it.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "medicine"
+    }
+   ],
+   "src": "L11738"
+  },
+  "c1": {
+   "text": "They stagger to the healers' hut together, each of them tripping over the other's feet. (healer), the head healer, listens to the whole story, looks at them both for a long time, and reaches for a clay pot with a stopper in it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11732"
+  },
+  "c2o1": {
+   "text": "The storm moves out to sea without another strike. They wait until dark, soaked and shivering, and then trudge home. Living each other's lives turns out to be the only way to settle the argument. By the end of the month, each of them has carried the other's water jar up from the stream so many times that the fetching and carrying they both used to dread doesn't bother either of them any more. They stop arguing, and they never swap back.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "lifting",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "lifting"
+    }
+   ],
+   "src": "L11744"
+  },
+  "c2o2": {
+   "text": "The lightning comes back down through the banyan just as (subject) is about to give up. They both wake up in the mud, back in their own bodies, with ringing ears and singed eyebrows. The healers spend a week treating their burns. The water argument is never mentioned again by either of them.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L11747"
+  },
+  "c2": {
+   "text": "\"Lightning did it,\" says (friend), in (subject)'s voice, \"so lightning can undo it.\" They stand back under the smoking banyan as the storm grumbles around the hills, waiting for it to strike again...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11741"
+  }
+ }
+}

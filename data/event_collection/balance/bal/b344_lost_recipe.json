@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Recipe for the Shaking Sickness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b344_lost_recipe",
+  "source": "balance",
+  "lines": [
+   15884,
+   15926
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15884",
+  "ledger": [
+   {
+    "src": "L15885",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15886",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15893",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15902",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15890",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15891",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15894",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15903",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15896",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15899",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15908",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15911-15926",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old healers had a cure for it: a paste of three roots and a flower.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sick": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "oldest_healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(sick) has the shaking sickness, which comes every few years and makes the hands tremble and the legs weak. The old healers had a cure for it: a paste of three roots and a flower. But the scroll with the recipe was lost in a flood years ago, and nobody remembers the flower.\n(subject), the healer, thinks it might be the red ginger blossom. The oldest healer thinks it was the white trumpet flower, which is poisonous if too much is used. Should (subject) try the red ginger, or trust the old healer and use the trumpet flower?",
+   "choices": [
+    {
+     "label": "The Red Ginger",
+     "next": "c1",
+     "src": "L15890"
+    },
+    {
+     "label": "The White Trumpet Flower",
+     "next": "c2",
+     "src": "L15891"
+    }
+   ],
+   "src": "L15887-15888"
+  },
+  "c1o1": {
+   "text": "By the third day, the trembling has stopped. (sick) can hold a cup without spilling it, and walk without a stick. (subject) writes the recipe down three times, on three scrolls, and gives one to every healer in the village with a lesson in how to make it. The old healer harrumphs, and then asks for a copy.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L15897"
+  },
+  "c1o2": {
+   "text": "The paste smells wonderful and does nothing at all. By the time (subject) gives up on it, the sickness has gone too deep. It passes in the end, but it leaves (sick)'s hands with a tremor that never goes away, and (subject.his/her) patience with the healers is gone for good.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "sick",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15900"
+  },
+  "c1": {
+   "text": "(subject) grinds the three roots with the red ginger blossom into a sharp, sweet-smelling paste, and rubs it into (sick)'s hands and legs, morning and night...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15894"
+  },
+  "c2o1": {
+   "text": "It works. The trembling eases within a day and is gone within three. The oldest healer is so pleased to have remembered that (subject.he/she) sets to work recalling every other lost recipe, and over the next season remembers eleven more. (subject) writes them all down.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "oldest_healer",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L15906"
+  },
+  "c2o2": {
+   "text": "The trumpet flower cures the shaking, but one petal was too many: (sick) sleeps for two days and wakes up weak and confused, and it takes a month to get (subject.his/her) strength back. The old healer is mortified. The recipe gets written down, with a note in large letters: ONE PETAL LESS.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "role": "sick",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L15909"
+  },
+  "c2": {
+   "text": "The old healer measures out the trumpet flower with great care, one tiny petal at a time, and grinds it into the paste. (subject) watches nervously...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15903"
+  }
+ }
+}

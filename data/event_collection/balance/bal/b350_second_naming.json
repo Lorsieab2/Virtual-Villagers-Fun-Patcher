@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Naming",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b350_second_naming",
+  "source": "balance",
+  "lines": [
+   16156,
+   16197
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16156",
+  "ledger": [
+   {
+    "src": "L16157",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16158",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16165",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16174",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16162",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16163",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16166",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16175",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16168",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16177",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16180",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16183-16197",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The custom died out long ago.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the old days, the elders say, everyone on the island had two names: the one given at birth, and a second one, given when they had done something worth a name. The custom died out long ago. But this year, (elder) has decided to bring it back, and the first person (subject.he/she) chooses is (subject), who pulled two children out of the surf last month.\nThe whole village gathers at the fire. (elder) asks: will (subject) take a name chosen by the elders, or choose one (subject.himself/herself)?",
+   "choices": [
+    {
+     "label": "Let the Elders Choose",
+     "next": "c1",
+     "src": "L16162"
+    },
+    {
+     "label": "Choose (subject.His/Her) Own",
+     "next": "c2",
+     "src": "L16163"
+    }
+   ],
+   "src": "L16159-16160"
+  },
+  "c1o1": {
+   "text": "(elder) gives (subject) the name of the first people's best swimmer: \"Ponui\" for a man, \"Tonga\" for a woman. The children cheer. The name fits so well that within a week nobody uses the old one at all, and within a month (subject) has to think for a moment to remember it. The two children (subject.he/she) pulled out of the surf follow (subject.him/her) everywhere, shouting it.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L16169"
+  },
+  "c1o2": {
+   "text": "The elders give (subject) a fine old name, (made1), from the time of the first people, and (subject) takes it proudly. Then everyone else in the village wants one too. The naming ceremony goes on for three nights, with people shouting out what they've done to deserve a name. It's the best three nights the village has had in years.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L16172"
+  },
+  "c1": {
+   "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (subject.his/her) throat, and announces it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16166"
+  },
+  "c2o1": {
+   "text": "(subject) chooses the name of a grandparent who died long ago, (made1), who taught (subject.him/her) to swim. The oldest elders, who remember that grandparent, nod and smile. From then on, everyone calls (subject.him/her) by it, and it suits (subject.him/her) so well that the children who are born that year are told it was always (subject.his/her) name.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L16178"
+  },
+  "c2o2": {
+   "text": "(subject) thinks so long that the fire burns low. At last (subject.he/she) says, \"I'll keep the one I have. It's done all right by me.\" The elders laugh, and the children are disappointed, but (elder) says it's the wisest answer anyone's given in years, and the custom is brought back anyway.",
+   "src": "L16181"
+  },
+  "c2": {
+   "text": "(subject) stands by the fire, looking at all the faces looking at (subject.him/her), and thinks about what name (subject.he/she) would want to be called for the rest of (subject.his/her) life...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16175"
+  }
+ }
+}

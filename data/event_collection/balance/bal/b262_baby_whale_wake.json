@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby in the Whale's Wake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b262_baby_whale_wake",
+  "source": "balance",
+  "lines": [
+   12219,
+   12259
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12219",
+  "ledger": [
+   {
+    "src": "L12220",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12221",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12228",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12237",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12225",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12226",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12229",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12238",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12231",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12234",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12240",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12243",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12246-12259",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "When it finally turns out to sea, it leaves something behind on the sand: a bundle of kelp, tied neatly with a strip of bark.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A whale has been swimming slowly along the reef all morning, blowing great clouds of spray, and half the village has come down to watch. When it finally turns out to sea, it leaves something behind on the sand: a bundle of kelp, tied neatly with a strip of bark. (subject) gets to it first. Inside is a baby, fast asleep, smelling of salt.\nThe elders mutter about the old story of the whale who carries lost children home. Nobody on the beach has lost a child. Should (subject) take the baby in, or put it in the healers' care while everyone asks along the coast?",
+   "choices": [
+    {
+     "label": "Take the Baby In",
+     "next": "c1",
+     "src": "L12225"
+    },
+    {
+     "label": "Ask Along the Coast",
+     "next": "c2",
+     "src": "L12226"
+    }
+   ],
+   "src": "L12222-12223"
+  },
+  "c1o1": {
+   "text": "That settles it. (subject) takes the baby home and raises it. Every year, on the same day, the whale comes back along the reef and blows a great cloud of spray, and (subject) carries the baby down to the beach to wave. The baby always waves back.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12232"
+  },
+  "c1o2": {
+   "text": "(subject) brings the baby home and (friend), (subject.his/her) partner, takes one look at the kelp bundle and starts laughing. \"Only you,\" (subject.he/she) says, \"would come home from watching a whale with a baby.\" They raise it together, and (friend) insists on calling the baby's sleeping basket \"the whale.\"",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12235"
+  },
+  "c1": {
+   "text": "(subject) picks up the bundle. The baby opens its eyes, looks at (subject.him/her) very seriously, and grabs (subject.his/her) finger in a tiny fist...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12229"
+  },
+  "c2o1": {
+   "text": "At the third cove, (subject) finds a young couple searching the shallows, frantic. Their canoe tipped over in the swell that morning and the baby's bundle was swept away. When they reach the healers' hut and see the baby asleep in a basket, the (subject.man/woman) has to sit down on the floor. They never go back to their cove. \"The whale chose your beach,\" they say. \"So do we.\"",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L12241"
+  },
+  "c2o2": {
+   "text": "Nobody along the whole coast is missing a baby. (subject) comes back after three days, tired and sunburnt, and goes straight to the healers' hut. The baby is awake, and reaches out for (subject.him/her) as soon as (subject.he/she) walks in. The healers hand it over without a word. They had already guessed.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12244"
+  },
+  "c2": {
+   "text": "The healers take the baby in, and (subject) sets off along the coast in a canoe, stopping at every cove and fishing camp to ask...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12238"
+  }
+ }
+}

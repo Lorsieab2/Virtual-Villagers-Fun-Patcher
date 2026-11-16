@@ -16,8 +16,8 @@ def reward_words(game: int) -> str:
 
 
 # Every event's way in (collection_design.md C2): never a share of the stock draw.
-RARE = ("it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare "
-        "roll or Pick Island Event")
+RARE = ("it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat "
+        "Upgrades: 30-50% of the natural events) or through Pick Island Event")
 
 CAVE_DESCRIPTION = (
     " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
@@ -31,7 +31,7 @@ CAVE_DESCRIPTION = (
     + "), scaled as the Aspiring Adventurer's is.")
 CAVE_BEHAVIOUR = (
     "The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (never a share of the stock "
-    "draw: taken only while due, through Story / Cheat Upgrades' rare roll or Pick Island Event), only while The "
+    "draw: taken only while due, through Story / Cheat Upgrades' natural-event replacement or Pick Island Event), only while The "
     "Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those "
     "ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own "
     "text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% "
@@ -51,7 +51,7 @@ CLIMB_DESCRIPTION = (
     "may go is enough; it comes as one of the two-choice events, never taking a share of their draw.")
 CLIMB_BEHAVIOUR = (
     "The Climb (The Lost Children): its own number in family A's draw, 22 (The Aspiring Adventurer 21), taken only "
-    "while it is due (Story / Cheat Upgrades' rare roll or Pick Island Event: the draw's first answer then; the stock "
+    "while it is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event: the draw's first answer then; the stock "
     "rand(22) otherwise, untouched) and only while a villager who may go on The "
     "Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own \"Trainee\" "
     "level, 0x429C3D); the villager is drawn among them. \"Go with the plan\": 50% the fall (health 0: a body and a "
@@ -79,7 +79,7 @@ TROUBLING_BEHAVIOUR = (
     "Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the "
     "game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure "
     "and never takes a share of the draw: the loop-end stub adds no entry to the selector's list and puts the object "
-    "of the event that is due (Story / Cheat Upgrades' rare roll or Pick Island Event) in slot 0, which Story / Cheat "
+    "of the event that is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event) in slot 0, which Story / Cheat "
     "Upgrades' pick then presents in place of the stock event drawn. "
     "The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two "
     "(0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child "
@@ -339,28 +339,28 @@ SCALE = {
        "that patch scales the game's own events",
 }
 HOW = {
-    1: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it; it comes as one of the villager encounters, never the "
+    1: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it; it comes as one of the villager encounters, never the "
        "village's first island event",
-    2: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it; it comes as one of the two-choice island events, never "
+    2: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it; it comes as one of the two-choice island events, never "
        "the village's first island event",
-    3: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
-    4: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
-    5: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
+    3: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
+    4: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
+    5: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
 }
 
 
@@ -388,7 +388,7 @@ def description(game: int) -> str:
            if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "")
         + ceremony_description(game) + " Pick Island Event lists each of these events and picks one whenever its own "
         "requirements hold (otherwise it says what the event needs). " + classic
-        + " **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking "
+        + " **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking "
         "this ticks it.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."

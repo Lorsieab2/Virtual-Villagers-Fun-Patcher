@@ -914,6 +914,92 @@ parent lives. `birth_then_die` (section 23) always kills the parent, so this is 
   25), as `birth_then_die`.
 - Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).
 
+## 31. The content controls (the owner, 2026-11-15): up to 32 patch names; code 25 reserved
+
+`src/vv_event_content.py` writes the island events' content controls into every NEW event as it is compiled (the
+collection's builder and the Living Event Engine's mixer); the event files are never changed, each source's tags are
+in `data/event_collection/content_tags/<source>.json`.
+
+- **Patch names:** a graph may name up to **32** patches (the engine's `cg.patches` mask; before, 8). The content
+  filters are `island_event_filter_f01` .. `f28`, the content notes `island_event_content_notes`: the patcher writes
+  each ticked row in "VVFP Installed Patches.txt", which `cg_installed_has` reads.
+- **Dropped outcomes:** a weighted child (never a player's choice) whose own part of the graph carries a filter gets
+  `{"not": {"patch": "island_event_filter_fNN"}}` (several: `not any`).
+- **Skipped events:** the requirement gets `not (any group covered)` -- a filter still reachable with its edges
+  dropped, or every child of one node dropped. Strict casts (the rare roll, Pick Island Event) refuse it with "the
+  island event content filters to allow it"; a bought event is refused by these parts too ("is kept out by the island
+  event content filters"), never by the requirement's other parts.
+- **The content note:** the first text node(s) get variants "Content note: <labels>\n<text>", each with the
+  condition `island_event_content_notes` and which labels the ticked filters leave.
+- **Code 25 is reserved:** it was a rest period (`rest`); the owner took the rest periods out (2026-11-15), so nothing writes it and the engine refuses a file that holds it.
+
+## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
+
+- **`{"do": "trait", "role": r, "trait": "mute"}`** (a = the trait's bit, 1 "mute"; b 0; no string): made at its
+  place, it keeps the trait for the villager in the same per-villager file as the rest periods (`story_rest.inc`),
+  whatever is ticked; it follows them as every patcher sidecar does. "The Quiet Hands" (Inner Life 3, `il003_*`)
+  gives it to the villager it casts (`src/vv_event_content.py` TRAIT_EVENTS writes the effect on its start, or on
+  each answer's first node when the start is a question). Never a change, never a line, never logged.
+- **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
+  words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
+  `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+
+## 33. New villagers, pregnancy, nursing, clones, body swaps, names and ages (codes 27-34; the owner, 2026-11-15; numbered 31 in feat/97-food-tech)
+
+Collection effects, added only where an outcome's own text says it (`scripts/food_tech_additions.py`
+EFFECT_ADDITIONS; `docs/event-collection/food-tech-log.md`). `scripts/collection_check.py` validates them (check e);
+`src/vv_cie_graph.py` has their codes, so `normalize`, `_compile_v6` and `_decompile_v6` carry them (the round trip is
+exact). `new_villager`'s role byte is its `copy_of` role (0xFF none). (`graph_for_engine` would leave out any of these
+codes that a `vv_cie_graph` without them does not know.) The run-time side (story_graph.inc) is the engine's.
+
+| Code | do | role byte | flags | a | b | string |
+|---|---|---|---|---|---|---|
+| 27 | new_villager | `copy_of` role index, or 0xFF (a random new villager) | 0 | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | 0 | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 30 | clone | role index | 0 | count: 0 or 1 one copy, 2 two (`"count": 1\|2`, default 1) | 0 | NONE |
+| 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
+| 32 | lose_name | role index | 0 | 0 | 0 | NONE |
+| 33 | change_name | role index | 0 | 0 | 0 | the fixed name, or NONE / empty (a random default name) |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE |
+
+- **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
+  villager joins the tribe (a newcomer who stays, a castaway). With `copy_of`, the newcomer has the role's villager's
+  looks (head, body, sex) but its own likes, dislikes and skills, rolled from the game's lists (a lookalike, a double).
+  Never for visitors who leave.
+- **`{"do": "pregnant", "role": r}`** and **`{"do": "nursing", "role": r}`**, optionally `"partner": p` and
+  `"any_birth_sex": true`: the role's villager becomes pregnant, or has a nursing baby now. The carrier is cast born
+  female (any current sex), 18 or older, and never a villager already pregnant or nursing (the engine checks the
+  carrier when the effect applies; one that cannot carry is a refused change). The partner is `p` (the event's
+  recorded spouse or partner role) or, left out, an adult of the other birth sex. Parentage is recorded at conception
+  as usual. `any_birth_sex` (flags bit 0, value 1) lets a born-male villager carry: where the text involves magic (a
+  spell, a blessing, an enchanted spring, a spirit, a potion), or, for `nursing`, where the text has him caring for a
+  baby (his partner's, a single father, a deceased mother's child, a nursery or orphanage, an abandoned or rescued
+  infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
+  female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
+  Pregnancy).
+- **`{"do": "clone", "role": r}`**: an exact double of the role's villager joins the tribe (looks, likes, dislikes and
+  skills copied). A clone and a `copy_of` duplicate ALWAYS get a name different from the original's. Optionally
+  `"count": 2` (1 or 2, default 1; the owner, 2026-11-15): two clones; the record's `a` is 2 for two, 0 for one
+  (the engine, 3a670e469, reads 0 or 1 as one copy; b 0, string NONE).
+- **`{"do": "change_name", "role": r}`**: a real rename to a random default name from the game's own name lists
+  (either sex's), for "a villager wants to change their name". With **`"name": "Lani"`** (engine 00e56af2c) the
+  villager takes that name instead: the effect record's string (offset 12, the field a like's word uses). The name is
+  1-31 characters, starts with a letter and holds only letters, spaces, apostrophes, hyphens and full stops, with no
+  space at the end (`vv_cie_graph.CHANGE_NAME_RE`; the engine refuses the whole file otherwise). A one-word name keeps
+  the villager's last name; past the name's room the first name alone.
+- **`{"do": "change_age", "role": r, "to": "child" | "teen" | "18" | "adult" | "50" | "elder"}`**, or
+  **`"years": n | [a, b]`** (-120..120, not 0; negative is younger): "teen" is 14-17, "adult" 20-49, "elder" 55-75;
+  "years" rolls a..b once at its place in the walk.
+- **Authoring (the owner, 2026-11-15):** a death is `kill` (a skeleton and a grave); a disappearance is `vanish` (no
+  skeleton). A permanent disability the text states may be a health loss (`health_change`, 10-90), a dislike of
+  running, work or learning (or another fitting dislike from the game's list), or the old head look (`old_look`) for
+  stress. Anything a stock event of that game can already do is allowed; an outcome may stay flavor only.
+- **`{"do": "body_swap", "role": a, "with": b}`**: the two villagers swap heads and bodies (looks only; names, ages,
+  skills and likes stay).
+- **`{"do": "lose_name", "role": r}`**: the villager's name becomes "?", as the stock bump-on-the-head event does.
+- Not harmful (section 7) and no automatic line (section 25) until the engine side is built.
+
 ## 31. The gender presentation (`presentation`, code 23; the owner, 2026-11-15)
 
 JSON (v6): `{"do": "presentation", "role": r, "on": true}` (`on` defaults to true; a = 1 when on, 0 when off; b = 0,
@@ -954,14 +1040,17 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 
 | Code | do | role byte | flags | a | b | string |
 |---|---|---|---|---|---|---|
-| 27 | new_villager | `copy_of` role index, or 0xFF (a random new villager) | 0 | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | 0 | NONE |
-| 28 | pregnant | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
-| 29 | nursing | the carrier's role index | 1 any_birth_sex | the partner's role index, or 0xFF | 0 | NONE |
+| 27 | new_villager | `copy_of` role index (or 253 / 252), or 0xFF (a random new villager) | 1 a child of the two newest villagers | age: 0 any, 1 child, 2 teen, 3 adult, 4 elder | sex: 0 random, 1 male, 2 female | NONE |
+| 28 | pregnant | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
+| 29 | nursing | the carrier's role index | 1 any_birth_sex; 2 the game's multiple-birth roll, 4 twins, 6 triplets | the partner's role index (or 253 / 252), or 0xFF | 0 | NONE |
 | 30 | clone | role index | 0 | how many: 0 or 1 = one double, 2 = two | 0 | NONE |
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
 | 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
-| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
+| 35 | cure | role index (or 254) | 0 | 0 | 0 | NONE |
+| 36 | repair | 0xFF | 0 | 0 | 0 | the structures, comma separated, or `any` (as damage's) |
+| 37 | young_look | role index (or 254) | 0 | 0 | 0 | NONE |
 
 - **`{"do": "new_villager"}`**, optionally `"copy_of": r` and `"age": "child" | "teen" | "adult" | "elder"`: a new
   villager joins the tribe (a newcomer who stays, a castaway). With `copy_of`, the newcomer has the role's villager's
@@ -995,3 +1084,53 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   skills and likes stay).
 - **`{"do": "lose_name", "role": r}`**: the villager's name becomes "?", as the stock bump-on-the-head event does.
 - Not harmful (section 7) and no automatic line (section 25) until the engine side is built.
+
+**The engine's further layouts (feat/97-island-events-ui 3a3651283, 8ebafe54f; the effect record is `B code, B role,
+B flags, B byte 3, i a, i b, H string, H last`):**
+
+- **`{"do": "cure", "role": r}`** (35): the villager is cured; line "<R> is cured.". **`{"do": "repair", "structures":
+  "any" | [names]}`** (36): the damaged buildings are repaired; line "The damaged buildings are being repaired.".
+  **`{"do": "young_look", "role": r}`** (37): the villager's young head look (section 27's twin).
+- **Group targets:** `"target": {"all": true} | {"skill": "Healing"} | {"random": 3}` in place of a role, on health,
+  preference (a word, never random), skill and skill set, sick, action, mood, health_change, cure, young_look,
+  old_look and celebrate: role byte 254; byte 3 the selector (1 every villager, last H 0; 2 every villager with that
+  skill at 50 or more, last H the skill name's string; 3 N villagers at random, last H = N, 1..255). Byte 3 and the
+  last H are 0 on every other effect (change_age's cap aside). No automatic line from the compiler (the engine's).
+- **The best skill:** skill (9) and skill set (15) with `"best": true` in place of the skills: flags bit 32, the
+  string "best"; line "<R> gets better at what <P> does best.".
+- **The event's new villagers:** `"$newest"` (role byte 253) and `"$previous"` (252), the villagers this event's
+  new_villager or clone made, stand for a role in any villager effect, as a pregnant / nursing partner (a) and as
+  new_villager's `copy_of`; no role is declared for them. new_villager also takes `"sex": "male" | "female"` (b;
+  random when left out) and `"child_of_newest": true` (flags bit 0: a child of the two newest villagers).
+- **change_age's cap:** `"max_age": 75` (the last H): never past that age ("never past elder").
+- **The babies of pregnant / nursing:** `"babies": "roll" | 2 | 3` (left out: one): flags bit 1 the game's own
+  multiple-birth roll (7% more than one, a quarter of those triplets) without its technology gate; bit 2 twins; bits 1
+  and 2 triplets; any other bit is refused.
+
+## 33. Count tokens (engine 0853e8327)
+
+(Numbering: on the engine's branch section 32 is the story traits and this is 33; on this branch section 32 is the new
+villagers, pregnancy and the other new effects. The two are lined up when the branches merge.)
+
+`{#babies:A|B|C}` and `{#made:A|B|C}` stand in BODY text only (a page, a variant, a pool item), never in a button label
+or a title. They show A for a count of 1 (or 0, or unknown), B for 2, C for 3 or more (a missing option: the last one
+given): `#babies` counts the babies the event's pregnancy or nursing effect brought, `#made` the villagers its
+new_villager and clone effects made. One to three options, each 1-160 bytes: letters, digits, space,
+`, : - ' " ; / & %` and placeholders (engine 5ee2b3dc0) -- no braces, line breaks or `. ! ?`.
+
+The compiler keeps the token as written (it is never an inline pick; the engine shows the option). A page is measured
+by the token's widest option, its placeholders at their widest. `simulate` shows the count of 1 unless its facts give `count:babies:<n>` or
+`count:made:<n>`. `collection_check` reads a count token's options as the source's "(A/B/C)".
+
+**More text (engine 5ee2b3dc0):**
+
+- **`(made1)` / `(made2)`** (any capitals, `(Made1)`, `(MADE1)`; no role prefix): the name of the newest villager this
+  event made (new_villager, clone) and of the one before (the effects' `$newest` / `$previous`). Body text only, never
+  a button label or a title; measured as a full name.
+- **`(his/hers)`**, with capitals (`(His/Hers)`, `(HIS/HERS)`) and a role prefix (`(friend.his/hers)`): the possessive
+  that stands alone ("the choice was hers").
+- **appearance (17) takes a group target** (`"target"`, role byte 254) like the effects of section 32.
+- **`(renamed)`** (any capitals; engine a4f4f1d0b, section 33a on the engine's branch): the latest change_name's new
+  name (before any rename, the current name of the first change_name's villager). Body text and count options only,
+  never a label or a title; measured as a full name. `expand_v6` shows the binding `"$renamed"` when given, else the
+  graph's fixed change_name name, else "Renamed".

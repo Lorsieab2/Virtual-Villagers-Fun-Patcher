@@ -1,0 +1,241 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope Swing over the Gorge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b058_rope_swing_over",
+  "source": "balance",
+  "lines": [
+   2615,
+   2656
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2615",
+  "ledger": [
+   {
+    "src": "L2616",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2617",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2634",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2622",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2623",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2626",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2635",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2628",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2631",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2637",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2640",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2643-2656",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has done it ten times.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Some of the young people have tied a vine rope to a tree that leans out over the gorge, and swinging out over the drop has become the bravest thing anyone can do. (Name) has done it ten times. Today the vine looks frayed where it rubs the branch, and the others are shouting for (him/her) to go higher.\n(Name) is holding the rope, toes at the edge. The river is a long, long way down.\nShould (name) swing, or tell everyone the rope needs replacing first?",
+   "choices": [
+    {
+     "label": "Swing",
+     "next": "c1",
+     "src": "L2622"
+    },
+    {
+     "label": "Replace the Rope First",
+     "next": "c2",
+     "src": "L2623"
+    }
+   ],
+   "src": "L2618-2620"
+  },
+  "c1o1": {
+   "text": "The rope parts at the top of the swing. (Name)'s friends scramble down to the river, and it takes them until dusk to reach (him/her). They carry (him/her) home in silence. The village cuts the rope down the next morning, and the tree too, and nobody swings over the gorge again. The young people who were there that day stay close to each other for a long time.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L2629"
+  },
+  "c1o2": {
+   "text": "The rope holds, just, but on the swing back (name) misjudges it and hits the tree trunk head first. (He/She) drops onto the soft moss at the edge, out cold. When (he/she) wakes, (he/she) knows (his/her) friends and the gorge and the way home. Not (his/her) name. It never comes back. The village calls (him/her) \"?\", and (he/she) never goes near the swing again.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2632"
+  },
+  "c1": {
+   "text": "(Name) runs, and jumps, and the gorge opens up beneath (him/her), wide and green and roaring. At the top of the swing, (he/she) hears a soft creak from the branch...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2626"
+  },
+  "c2o1": {
+   "text": "(Name) climbs out along the branch to untie the old rope, and the branch, half rotten where the rope rubbed, cracks. (He/She) falls only a short way, onto a ledge, but lands badly, and (his/her) back is never the same again. (He/She) walks slowly afterwards, with a stick (his/her) friends carved for (him/her), and sits with the young people when they gather, telling them which branches to trust.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L2638"
+  },
+  "c2o2": {
+   "text": "They take the old rope down, and the builders come to look, and are horrified, and build a new swing properly: a thick plaited rope, a sound branch, and a soft landing place cleared at the edge. Soon everybody is swinging over the gorge, elders included, screaming with joy. The old rope is hung up in the meeting hut as a warning.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L2641"
+  },
+  "c2": {
+   "text": "\"The rope's going,\" (name) says, and lets go of it. The others groan and mock, and then one of them looks at the frayed part, and stops mocking...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2635"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

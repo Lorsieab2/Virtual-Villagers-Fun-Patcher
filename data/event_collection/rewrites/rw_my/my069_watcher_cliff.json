@@ -1,0 +1,302 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Watcher on the Cliff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my069_watcher_cliff",
+  "source": "rewrites",
+  "lines": [
+   13877,
+   13932
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13877",
+  "ledger": [
+   {
+    "src": "L13878",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13879",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13887",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13894",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13901",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13882",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13883",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13884",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13885",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13888",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13895",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13902",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13889",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13891",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13896",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13898",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13903",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13910",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13912",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13915-13932",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For seven nights in a row, a figure has stood on the black cliff above the village, holding a small lantern.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For seven nights in a row, a figure has stood on the black cliff above the village, holding a small lantern. The light is steady and never moves, not even when the wind howls off the sea hard enough to bend the palms. Every dawn, the figure and the lantern are gone, and nobody has ever seen either one arrive or leave.\nThe village is getting jumpy. The children refuse to go to bed, the elders mutter about omens, and (subject) has had just about enough of lying awake staring at that little light. Tonight, (subject.he/she) decides, someone is going to find out who is up there. But how?",
+   "choices": [
+    {
+     "label": "Climb to the Cliff",
+     "next": "c1",
+     "src": "L13882"
+    },
+    {
+     "label": "Signal with a Torch",
+     "next": "c2",
+     "src": "L13883"
+    },
+    {
+     "label": "Ask Who Keeps Watch",
+     "next": "c3",
+     "src": "L13884"
+    },
+    {
+     "label": "Leave a Lantern Below",
+     "next": "c4",
+     "src": "L13885"
+    }
+   ],
+   "src": "L13880-13881"
+  },
+  "c1o1": {
+   "text": "(subject) hauls (subject.himself/herself) over the top. The figure is gone, and so is the lantern, but there, tucked into a crack in the rock where the light had been, is a little shelter: a woven roof, a dry floor, a bundle of dried food, a full water skin and a coil of strong rope, all neatly arranged. It is a lookout post for stranded travelers, and someone has been keeping it stocked. (subject) adds a few things of (subject.his/her) own before climbing back down. The light still appears some nights, but no one minds it anymore.",
+   "src": "L13890",
+   "text_only": [
+    {
+     "src": "L13890",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Just below the top, the ledge under (subject)'s foot crumbles away. (subject.He/she) grabs for the rock, misses, and slides and tumbles down the face of the cliff in a shower of stones. (subject.He/she) lands hard on a ledge far below, badly hurt and unable to climb. (subject.He/she) lies there in the cold until dawn, when villagers hear (subject.his/her) shouts and lower a rope. They carry (subject.him/her) to the healers with a battered body and a badly swollen leg. Looking up from the litter, (subject) sees that the lantern is still burning on the cliff above. Then the sun rises, and it is gone.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L13892"
+  },
+  "c1": {
+   "text": "(subject) waits until the moon is high, then starts up the goat track toward the cliff top. The path is steep and crumbling, and the lantern above never flickers. The higher (subject.he/she) climbs, the colder the wind gets, until (subject.he/she) is pulling (subject.himself/herself) up the last stretch hand over hand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13888"
+  },
+  "c2o1": {
+   "text": "For a moment, nothing happens. Then, high on the cliff, the lantern blinks: once, twice, three times. (subject) nearly drops the torch. (subject.He/she) waves it again, and again the lantern answers. Soon half the village is on the beach waving torches, and the lantern blinks back patiently at every one of them. Nobody ever finds out who was up there. But from then on, every fisher coming home late looks for that little light, and every one of them makes it home.",
+   "src": "L13897"
+  },
+  "c2o2": {
+   "text": "The lantern does not answer. (subject) waves the torch until (subject.his/her) arms ache, and still the little light hangs motionless above the cliff. Then a cloud slides across the moon, the whole cliff goes black, and when the moon comes out again, the lantern is gone. It is never seen again. (subject) cannot decide whether (subject.he/she) frightened it away, or whether it simply got the answer it was waiting for.",
+   "src": "L13899"
+  },
+  "c2": {
+   "text": "(subject) lights a torch, walks out to the open beach where the figure can see (subject.him/her) clearly, and raises it high above (subject.his/her) head. (subject.He/she) waves it slowly: once, twice, three times...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13895"
+  },
+  "c3o1": {
+   "text": "(elder), the oldest elder in the village, takes a bun, chews it slowly, and looks up at the cliff. \"When I was small,\" (subject.he/she) says, \"there was a guardian who kept a lantern up there through every storm, so the canoes could find their way home. My grandmother said (subject.he/she) never missed a single night, not in forty years. When (subject.he/she) died, the light stopped.\" (elder) is quiet for a moment. \"I suppose someone thought it was time it started again.\" (subject.He/she) does not say who that someone might be.",
+   "src": "L13904"
+  },
+  "c3o2": {
+   "text": "After a whole afternoon of asking, (fisher), one of the quieter fishers, goes red to the ears and admits it is (subject.him/her). \"I go up there to watch the sea at night,\" (subject.he/she) mumbles. \"It's peaceful. Nobody talks to me.\" (subject.He/she) leaves before dawn because (subject.he/she) has nets to check. The mystery is solved, and (fisher) is mortified that the whole village has been losing sleep over (subject.his/her) quiet evenings. (subject) gives (subject.him/her) the rest of the buns as an apology.",
+   "src": "L13906"
+  },
+  "c3": {
+   "text": "(subject) decides that if anyone knows about the light, it will be the elders. (subject.He/she) sets out around the village with a basket of sweet buns as a bribe, asking everyone (subject.he/she) meets...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13902"
+  },
+  "c4o1": {
+   "text": "In the morning, (subject)'s lantern is gone. In its place lies a coil of rope, beautifully made from braided fibre that the weavers cannot identify, and stronger than anything the village has ever made. Knotted into one end is a small loop, exactly the right size for a lantern handle. (subject) hangs (subject.his/her) spare lantern on it and keeps it by the door. The light on the cliff is never seen again.",
+   "src": "L13911"
+  },
+  "c4o2": {
+   "text": "In the morning, (subject)'s lantern is still there at the foot of the path, its oil burned away to nothing. The light on the cliff has gone, as it always does at dawn. No one came down. No one took the offer. That night, and every night after, the little light returns to the cliff top, as steady as ever, and (subject) learns to sleep with it there.",
+   "src": "L13913"
+  },
+  "c4": {
+   "text": "(subject) fills a lantern with oil, lights it, and sets it carefully at the foot of the cliff path, where anyone coming down would find it. Then (subject.he/she) goes home and lies awake, watching the two lights through the doorway...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13909"
+  }
+ }
+}

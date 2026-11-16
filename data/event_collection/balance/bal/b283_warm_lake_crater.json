@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warm Lake in the Crater",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b283_warm_lake_crater",
+  "source": "balance",
+  "lines": [
+   13167,
+   13207
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13167",
+  "ledger": [
+   {
+    "src": "L13168",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13169",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13176",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13185",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13173",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13174",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13177",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13186",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13179",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13182",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13188",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13191",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13194-13207",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "High on the mountain, in the old crater, there is a lake that stays warm all year round and steams on cold mornings.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High on the mountain, in the old crater, there is a lake that stays warm all year round and steams on cold mornings. The elders say the mountain spirit bathes in it once a year, and leaves a little of her youth behind in the water, which is why the frogs up there live so long. (Name) has finally made the long climb to see it.\nThe water is blue-green and still. A very old frog is sitting on a rock, watching (him/her). Should (name) bathe in the lake, or just splash some water on (his/her) face?",
+   "choices": [
+    {
+     "label": "Bathe in the Lake",
+     "next": "c1",
+     "src": "L13173"
+    },
+    {
+     "label": "Just Splash (His/Her) Face",
+     "next": "c2",
+     "src": "L13174"
+    }
+   ],
+   "src": "L13170-13171"
+  },
+  "c1o1": {
+   "text": "When (name) climbs out, (he/she) feels light. (His/her) back is straight, (his/her) knees don't creak, and the face in the still water is ten years younger. (He/She) runs most of the way down the mountain, which (he/she) hasn't done in years, and arrives at the village so out of breath and so pleased that (he/she) can't explain anything for an hour.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13180"
+  },
+  "c1o2": {
+   "text": "The water does nothing much to (name)'s knees, but when (he/she) climbs out, the old frog hops onto (his/her) foot and stays there for a moment, as if it has made up its mind. (Name) walks home with a young, bright face and a strange calm. (He/She) has never liked deep water. The next day (he/she) wades into the lagoon up to (his/her) chin, and floats there, smiling, like a frog.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L13183"
+  },
+  "c1": {
+   "text": "(Name) slips into the warm water up to (his/her) chin. It fizzes faintly against (his/her) skin, like the sea after a storm...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13177"
+  },
+  "c2o1": {
+   "text": "The fizzing stops, and when (name) looks in the water, a much younger face looks back. Only the face, though: (his/her) knees ache all the way down the mountain exactly as they ached all the way up. At home, (his/her) family takes one look and asks whether (he/she) has been eating something (he/she) shouldn't. \"Frogs,\" says (name), mysteriously.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13189"
+  },
+  "c2o2": {
+   "text": "It is warm, and pleasant, and that is all. (Name) splashes again, and again, and nothing happens, while the old frog watches. In the end (name) laughs, sits down on the rock beside it, and they watch the steam rise together for an hour. It is, (name) decides on the way home, worth the climb anyway.",
+   "src": "L13192"
+  },
+  "c2": {
+   "text": "(Name) kneels at the edge, cups the warm water in (his/her) hands and splashes it on (his/her) face. It fizzes on (his/her) skin...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13186"
+  }
+ }
+}

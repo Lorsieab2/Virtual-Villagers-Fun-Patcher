@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Letter Never Sent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new136_letter_never",
+  "source": "rewrites",
+  "lines": [
+   6387,
+   6433
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6387",
+  "ledger": [
+   {
+    "src": "L6388",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6389",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6405",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6412",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6394",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6395",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6396",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6399",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6406",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6413",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6400",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6409",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6416",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6419-6433",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing out an old shelf, a villager finds a piece of bark tucked behind some pots.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing out an old shelf, (subject) finds a piece of bark tucked behind some pots. On it, in faded charcoal, is a letter.\n(subject.He/She) wrote it long ago, to a dear friend. They had argued about something, something so small (subject) can't even remember what, and (subject) wrote this to say sorry. (subject.He/She) meant to give it to (subject.his/her) friend the next morning. But (subject.his/her) friend fell ill that night, and died before it could be given.\nThe charcoal marks have faded almost to nothing. It doesn't matter. (subject) can still recite almost every word.\n(young) finds (subject.him/her) sitting on the floor, holding it. (young) doesn't know whether to leave (subject.him/her) alone or say something. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Ask What They Want to Do with It",
+     "next": "c1",
+     "src": "L6394"
+    },
+    {
+     "label": "Copy the Old Writing",
+     "next": "c2",
+     "src": "L6395"
+    },
+    {
+     "label": "Read It at the Friend's Grave",
+     "next": "c3",
+     "src": "L6396"
+    }
+   ],
+   "src": "L6390-6393"
+  },
+  "c1o1": {
+   "text": "(subject) chooses to read it alone, by the sea, at sunset. No one decides that for (subject.him/her), and no one follows. (subject.He/She) comes back after dark, eyes red, but somehow lighter, and sleeps better that night than (subject.he/she) has in a long while.",
+   "src": "L6401"
+  },
+  "c1o2": {
+   "text": "(subject) holds out the bark. \"Will you sit and read it with me?\" (subject.His/Her) relatives, who were sure (subject.he/she) would want to be alone, are surprised. (young) reads it aloud, slowly, and (subject) says the faded words along with (subject.him/her). When they finish, (subject) tells (subject.him/her) all about (subject.his/her) friend, for hours.",
+   "src": "L6403"
+  },
+  "c1": {
+   "text": "(young) sits down quietly on the floor beside (subject), and waits. After a while, (subject.he/she) asks gently what (subject) would like to do with the letter...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6399"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) the old way of writing on bark with charcoal and a coating of thin sap, so the words last for years instead of fading in a season. (young) is proud to learn it, and copies the letter carefully, word by word, as (subject) recites it. The new copy is clear and strong. (subject) keeps it under (subject.his/her) pillow.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6408"
+  },
+  "c2o2": {
+   "text": "Some of the words have faded too far, and when (subject) comes to them, (subject.he/she) realizes (subject.he/she) isn't sure anymore. Was it \"I'm sorry I said\" or \"I'm sorry I didn't say\"? (subject.He/She) asks others who knew (subject.his/her) friend to help remember. They gather around the bark, and as they puzzle over the words, they end up telling stories about the friend all evening.",
+   "src": "L6410"
+  },
+  "c2": {
+   "text": "(young) gently suggests copying the letter onto fresh bark, before it fades away completely. (subject) agrees, and fetches charcoal and a little pot of sap...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6406"
+  },
+  "c3o1": {
+   "text": "On the little bench beside the grave, (subject) reads the letter aloud, at last, to the friend it was always meant for. It takes a long time, because (subject.he/she) keeps stopping. When it's done, (subject.he/she) tucks the bark into the earth by the gravestone. (young) waits nearby, and walks (subject.him/her) home in silence.",
+   "src": "L6415"
+  },
+  "c3o2": {
+   "text": "At the grave, (subject) sits on the bench, holds the letter, and finds (subject.he/she) can't do it. Not today. \"It's too much,\" (subject.he/she) says quietly. (subject.He/She) puts the letter away for another time. (young) doesn't push, and they sit together in the sun for a while before walking home.",
+   "src": "L6417"
+  },
+  "c3": {
+   "text": "(young) offers to walk with (subject) to (subject.his/her) friend's grave, and builds a small bench there so (subject.he/she) can sit...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6413"
+  }
+ }
+}

@@ -1,0 +1,225 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Masks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b127_festival_masks",
+  "source": "balance",
+  "lines": [
+   5805,
+   5850
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5805",
+  "ledger": [
+   {
+    "src": "L5806",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5807",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5815",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5824",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5812",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5813",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5816",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5825",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5818",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5821",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5827",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5830",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5833-5850",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is a rule about them: each family wears only its own masks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "carver": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every year before the harvest dance, (carver), the mask-carver, sets out the old festival masks on a mat to be cleaned: wooden faces with shell eyes and grass hair, so old nobody knows who carved the first ones. There is a rule about them: each family wears only its own masks. Most of the village has forgotten why.\n(subject) and (friend) are supposed to be cleaning them. Instead they are trying them on, and they have each picked up the other family's mask. \"Just for a moment,\" says (friend). \"Just to see.\" The shell eyes catch the light.\n(carver) is coming back up the path. Should they put the masks back quickly, or keep them on and see what happens?",
+   "choices": [
+    {
+     "label": "Keep Them On",
+     "next": "c1",
+     "src": "L5812"
+    },
+    {
+     "label": "Put Them Back Quickly",
+     "next": "c2",
+     "src": "L5813"
+    }
+   ],
+   "src": "L5808-5810"
+  },
+  "c1o1": {
+   "text": "When they pull the masks off, each of them is holding the other's mask in the other's hands. (carver) arrives, takes one look, and sits down heavily. \"That's why,\" (subject.he/she) says. \"That's why the rule.\" The old carvings knew their families, and sent each of them home. Nobody knows how to undo it. (subject) and (friend) spend the harvest dance in each other's bodies, stepping on each other's feet, and in the end they stop trying to change back.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L5819"
+  },
+  "c1o2": {
+   "text": "They pull the masks off and find themselves looking out of each other's eyes. It is terrifying for about an hour. Then (subject) discovers that (friend)'s hands know things (subject)'s never did, and (friend) finds the same. Each of them is good at their own job and the other one's too. \"It's a better deal than I expected,\" says (friend) at last, in (subject)'s voice. (carver) puts a lock on the mask chest anyway.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5822"
+  },
+  "c1": {
+   "text": "The masks are warm, warmer than wood should be, and they smell of old smoke and coconut oil. (subject) looks across at (friend), and through the shell eyes, (friend) looks very strange, and very familiar...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5816"
+  },
+  "c2o1": {
+   "text": "\"You've had them on,\" says (carver). \"Don't lie. The paint's come off on you.\" It has. Both of them have bright stripes of old festival paint across their cheeks and noses, red and white, the colours of the other family. It will not wash off. (carver) says it'll fade in a year or two. Everyone at the harvest dance thinks it looks wonderful, and three people ask how to get the same.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    },
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L5828"
+  },
+  "c2o2": {
+   "text": "(carver) makes them sit down and hear the story of why the families have separate masks. It turns out to be an old quarrel about a pig, generations ago, and nobody can even remember whose pig it was. (subject) and (friend) laugh so hard at the pig that they forget to be scolded, and walk home feeling lighter. A few things they used to grumble about don't seem worth grumbling about any more.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L5831"
+  },
+  "c2": {
+   "text": "They snatch the masks off and throw them back onto the mat just as (carver) comes round the corner. Two masks land face up and two face down. (carver) looks at the mat, then at them, and raises one eyebrow very high...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5825"
+  }
+ }
+}

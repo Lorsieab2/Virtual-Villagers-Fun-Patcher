@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clay Copy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s074_clay_copy",
+  "source": "rewrites",
+  "lines": [
+   3486,
+   3528
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3486",
+  "ledger": [
+   {
+    "src": "L3487",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3505",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3493",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3494",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3506",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3502",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3508",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3511",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3514-3528",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a very good likeness.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been making a little clay figure of (himself/herself), just for fun. It's been a long project. It sits drying on the shelf by the window, at the end of a row of lopsided bowls and wonky cups from (his/her) earlier attempts at pottery. It's the first thing (he/she) has made that actually looks like what it's supposed to. (He/She) dug the clay from the riverbank below the old spirit tree, where the elders say the island's magic runs closest to the surface.\nIt's a very good likeness. Everyone says so. The nose is just right. So are the ears, and the little crease between the eyebrows.\nIt's too good, as it turns out. In the middle of the night, (name) wakes to a soft, dry, scraping sound. In the moonlight from the window, the clay figure has sat up on the shelf. It stretches its little arms above its head. And then it starts to grow. (Name) holds (his/her) breath. Is this a dream? Should (he/she) say something to it, or pretend it isn't happening?",
+   "choices": [
+    {
+     "label": "Say Hello",
+     "next": "c1",
+     "src": "L3493"
+    },
+    {
+     "label": "Pretend It's Not Happening",
+     "next": "c2",
+     "src": "L3494"
+    }
+   ],
+   "src": "L3489-3491"
+  },
+  "c1o1": {
+   "text": "\"Hello,\" it says, in a voice that's like (name)'s but a little lower and a little dustier. By morning the clay figure is a real person, as real as anyone, who looks exactly like (name) but likes completely different things. It wants fish for breakfast when (name) wants fruit. It thinks the river is too cold and the sea is just right. It laughs at different jokes. It picks the name (made1), and on the first day it goes straight to the potters and starts making bowls, and they're much better than (name)'s.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3500"
+  },
+  "c1o2": {
+   "text": "\"Hello,\" it says, very softly, and smiles (name)'s own crooked smile. Then it sits down on the floor, very carefully, and folds its hands in its lap, and the warmth goes out of it. It shrinks back down, slowly, like a sandcastle in a rising tide, until it's small again, and then it crumbles into a little heap of dry grey clay on the floor. (Name) sweeps it up in the morning and puts it in a bowl on the shelf. (He/She) doesn't make another figure.",
+   "src": "L3503"
+  },
+  "c1": {
+   "text": "By the time it climbs down off the shelf, it's as tall as (name), and its clay skin is turning soft and warm in the moonlight. (Name) sits up on (his/her) mat, swallows hard, and says, \"...Hello?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3497"
+  },
+  "c2o1": {
+   "text": "In the morning, (name) wakes up to the smell of breakfast. Somebody is cooking in (his/her) hut. It's the figure, full-size, real, humming to itself, stirring a pot of mash with exactly the right amount of honey. \"You're awake,\" it says. \"Sit down.\" It's quite good at breakfast. Much better than (name). It decides to be called (made1), and somehow, by the time the bowls are washed up, neither of them can think of a good reason why it shouldn't stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3509"
+  },
+  "c2o2": {
+   "text": "For a while there are soft scraping sounds, and a creak, and something like a sigh. Then nothing. In the morning, (name) peeks out from under the blanket. The figure is back on the shelf, small again, sitting in exactly the same place as before. But it isn't the same: now its eyes are closed, and its little clay face looks peaceful, as if it's sleeping, and it's hard as stone. It never moves again. (Name) never quite trusts it, all the same.",
+   "src": "L3512"
+  },
+  "c2": {
+   "text": "(Name) decides that this is a dream, and the best thing to do with a dream is to ignore it. (He/She) lies back down, pulls the blanket over (his/her) head, squeezes (his/her) eyes tight shut, and does not look...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3506"
+  }
+ }
+}

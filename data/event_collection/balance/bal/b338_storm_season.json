@@ -1,0 +1,260 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storm Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b338_storm_season",
+  "source": "balance",
+  "lines": [
+   15616,
+   15657
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15616",
+  "ledger": [
+   {
+    "src": "L15617",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15634",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15622",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15623",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15626",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15635",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15628",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15631",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15637",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15640",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15643-15657",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The builders are exhausted.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The storm season has been the worst in memory: four big storms in a month, and every hut in the village has lost some thatch, a post or a wall. The builders are exhausted. (chief) calls them together and asks (subject), the most stubborn of them, what to do.\nThere are two ideas. Fix every hut a little, quickly, so everyone is dry tonight. Or fix the worst huts properly, one at a time, and let the others make do. Which should (subject) choose?",
+   "choices": [
+    {
+     "label": "A Little Everywhere",
+     "next": "c1",
+     "src": "L15622"
+    },
+    {
+     "label": "The Worst Ones Properly",
+     "next": "c2",
+     "src": "L15623"
+    }
+   ],
+   "src": "L15619-15620"
+  },
+  "c1o1": {
+   "text": "By nightfall, every hut in the village is dry. The patches are rough, but they hold. The builders are so tired that they fall asleep at the cooking fire, and the whole village brings them blankets. Every builder learned to work faster that day than ever before.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L15629"
+  },
+  "c1o2": {
+   "text": "The fifth storm hits that night and tears off half the patches. The builders go out again in the morning, and again the day after. By the end of the month, every hut is mended for good, but (subject) has patched so many roofs in the rain that (subject.he/she) never wants to see a bundle of thatch again. \"Somebody else,\" (subject.he/she) says, \"can do it next year.\"",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L15632"
+  },
+  "c1": {
+   "text": "(subject) splits the builders into pairs and sends them to every hut in the village, patching and propping and tying...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15626"
+  },
+  "c2o1": {
+   "text": "It takes a month, but by the end every hut in the village is mended properly, worst first, and the new ones are so strong that the next storm doesn't move a single bundle of thatch. (subject) has never done such careful work, and it shows in everything (subject.he/she) builds after.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L15638"
+  },
+  "c2o2": {
+   "text": "With three families in some huts, the nights are cramped and noisy. But the crowding turns into something else: stories late into the night, children sleeping in heaps, neighbours who'd never had much to say to each other talking until dawn. When the huts are mended, people are almost sorry to go home.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L15641"
+  },
+  "c2": {
+   "text": "(subject) picks the six worst huts and the builders work on them one at a time, slowly, properly, while everyone else squeezes in with neighbours...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15635"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

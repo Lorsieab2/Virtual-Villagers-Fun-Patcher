@@ -1,0 +1,256 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Promotion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new183_unwanted",
+  "source": "rewrites",
+  "lines": [
+   8869,
+   8915
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8869",
+  "ledger": [
+   {
+    "src": "L8870",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8871",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8880",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8887",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8894",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8876",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8877",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8878",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8881",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8888",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8895",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8882",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8884",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8889",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8891",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8896",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8898",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8901-8915",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the most talented builder in the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is the most talented builder in the village. Everyone says so. (subject.His/Her) joints are perfect. (subject.His/Her) roofs never leak.\nSo naturally, the village has asked (subject.him/her) to lead the team building the new longhouse.\n(subject) would rather do almost anything else. Fishing, for instance. (subject) hates fishing. (subject.He/She) gets seasick in the shallows. But (subject.he/she) said, last night, in front of witnesses, \"I would rather go fishing,\" and meant it.\nThe longhouse posts are lying on the ground waiting. The team is waiting. (subject) is hiding behind the lumber pile. Why is (subject) so afraid of leading, and how can the village help?",
+   "choices": [
+    {
+     "label": "Ask Why It Feels Wrong",
+     "next": "c1",
+     "src": "L8876"
+    },
+    {
+     "label": "Split the Lead Between Two",
+     "next": "c2",
+     "src": "L8877"
+    },
+    {
+     "label": "Pair Them with a Seasoned Leader",
+     "next": "c3",
+     "src": "L8878"
+    }
+   ],
+   "src": "L8872-8875"
+  },
+  "c1o1": {
+   "text": "(subject) thinks about it, and slowly realizes the truth: (subject.he/she) has always done every hard joint (subject.himself/herself), never trusting anyone else with them. Leading means letting others do it. That's what frightens (subject.him/her). It's a practical lesson about how a building team really works, and when (subject) starts the longhouse the next day, (subject.he/she) hands the first hard joint to someone else. It's not perfect. It holds.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L8883"
+  },
+  "c1o2": {
+   "text": "(subject) explains that nobody ever said what \"leading\" would actually mean. Shouting? Planning? Doing all the work? (subject.He/She) wasn't dodging the job; (subject.he/she) just didn't know what the job was. Once it's explained \\(plan the work, check the joints, keep people fed\\), (subject) comes out from behind the lumber pile, looking thoughtful.",
+   "src": "L8885"
+  },
+  "c1": {
+   "text": "Someone finds (subject) behind the lumber pile and sits down next to (subject.him/her). \"Why does it feel so wrong?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8881"
+  },
+  "c2o1": {
+   "text": "Sharing the lead with (friend) lets the work go on at a pace (subject) can live with: (friend) handles the people, and (subject) handles the wood. The longhouse goes up steadily, and turns out to be the finest building in the village.",
+   "src": "L8890"
+  },
+  "c2o2": {
+   "text": "On the first day, (subject) and (friend) give the team two completely different sets of orders. Half the team digs post holes on one side, half on the other side. By noon there are holes everywhere. The team agrees to sort it out tomorrow, with only one person giving orders at a time.",
+   "src": "L8892"
+  },
+  "c2": {
+   "text": "(subject) suggests, desperately, that maybe (subject.he/she) and (friend) could lead together...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8888"
+  },
+  "c3o1": {
+   "text": "(mentor) teaches (subject) the secret: break one big build into lots of small jobs that anyone can follow. Not \"build a longhouse\": \"dig four holes,\" \"trim ten posts,\" \"lash this beam.\" (subject) draws the whole longhouse out as small jobs in the dirt, and the team works faster than ever. (subject) learns more about building in that one week than in the last year.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L8897"
+  },
+  "c3o2": {
+   "text": "(mentor) admits, with a sigh, that (subject.he/she) hated leading at first too. \"Still do, some days.\" (subject.He/She) leans back against the logs. \"This is my spot, you know. I still hide behind the lumber pile sometimes.\" (subject) laughs, and the two of them sit there together for a while before going back to work.",
+   "src": "L8899"
+  },
+  "c3": {
+   "text": "(mentor), who has led building teams for years, finds (subject) behind the lumber pile and sits down with (subject.him/her)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8895"
+  }
+ }
+}

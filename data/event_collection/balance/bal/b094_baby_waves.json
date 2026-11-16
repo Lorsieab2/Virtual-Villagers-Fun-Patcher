@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby from the Waves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b094_baby_waves",
+  "source": "balance",
+  "lines": [
+   4248,
+   4290
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4248",
+  "ledger": [
+   {
+    "src": "L4249",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4250",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4258",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4267",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4255",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4256",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4259",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4268",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4270",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4273",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4276-4290",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the rock, wrapped in woven seaweed, is a baby, perfectly dry, gurgling.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At dawn, at the lowest tide of the year, (subject) is walking the beach when (subject.he/she) sees a figure out in the waves, half hidden by spray: long hair, and something that might be a tail. It lifts a bundle out of the water, sets it gently on a flat rock at the tide line, looks at (subject) for a long moment, and is gone under the next wave.\nOn the rock, wrapped in woven seaweed, is a baby, perfectly dry, gurgling. The fishers' grandmothers told stories of children \"given by the sea,\" always at the lowest tide. Nobody ever knew why. The tide is turning, and the water will cover the rock soon.\nShould (subject) take the baby, or wait to see if the figure comes back?",
+   "choices": [
+    {
+     "label": "Take the Baby",
+     "next": "c1",
+     "src": "L4255"
+    },
+    {
+     "label": "Wait for the Figure",
+     "next": "c2",
+     "src": "L4256"
+    }
+   ],
+   "src": "L4251-4253"
+  },
+  "c1o1": {
+   "text": "Nobody comes. The village gathers round to see the baby given by the sea, and the elders say what the stories say: the sea chose who was on the beach. (subject) raises the child, and the child grows up loving the water more than anyone, and every year at the lowest tide, the two of them go down to the flat rock and leave a shell there.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4262"
+  },
+  "c1o2": {
+   "text": "(friend) meets them at the door, sees the seaweed wrapping, and goes very quiet, because (friend.his/her) grandmother told that story too. Then (friend.he/she) takes the baby's tiny hand. They raise the baby together. Every year at the lowest tide, the three of them leave a shell on the flat rock.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4265"
+  },
+  "c1": {
+   "text": "(subject) scoops the baby off the rock just as the first wave washes over it. The baby smells of salt, and grabs (subject.his/her) hair, and laughs...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4259"
+  },
+  "c2o1": {
+   "text": "The tide rises. Just before the water covers the rock, the figure surfaces, lifts the baby back into the waves, and is gone. (subject) is left alone on the beach with wet feet and a strange ache. The fishers say it was a test, and some of them say (subject.he/she) passed it, and some of them say (subject.he/she) didn't.",
+   "src": "L4271"
+  },
+  "c2o2": {
+   "text": "The figure doesn't come back. As the water reaches the baby's wrapping, (subject) snatches the little one up at last, and runs up the beach, heart pounding. The sea has made its choice, and so has (subject). (subject.He/She) raises the baby, and never waits for anything again when (subject.he/she) knows what to do.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4274"
+  },
+  "c2": {
+   "text": "(subject) stands on the beach, the water lapping round the rock, watching the waves for long hair and a tail. The baby gurgles happily...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4268"
+  }
+ }
+}

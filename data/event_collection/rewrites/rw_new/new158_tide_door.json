@@ -1,0 +1,318 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tide at the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new158_tide_door",
+  "source": "rewrites",
+  "lines": [
+   7623,
+   7678
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7623",
+  "ledger": [
+   {
+    "src": "L7624",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7634",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7641",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7648",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7655",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7629",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7630",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7631",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7632",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7635",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7642",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7649",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7656",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7636",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7643",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7645",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7650",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7657",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7659",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7662-7678",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager wakes up to the sound of water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An unusually high tide creeps up the beach in the night, further than anyone has ever seen it, right up to the row of huts nearest the shore.\n(Name) wakes up to the sound of water. Not distant waves: water, right there, lapping over (his/her) doorstep and swirling around the floor. Sandals are floating out to sea. A sleeping mat is drifting gently toward the door.\nIn the next hut, a family finds a crab sitting in their cooking pot, looking completely at home, as if it has been invited for dinner. The water is still coming in. What should (name) do first?",
+   "choices": [
+    {
+     "label": "Lift the Stores Up High",
+     "next": "c1",
+     "src": "L7629"
+    },
+    {
+     "label": "Check the Beach Huts",
+     "next": "c2",
+     "src": "L7630"
+    },
+    {
+     "label": "Mark the Water Line",
+     "next": "c3",
+     "src": "L7631"
+    },
+    {
+     "label": "Build Up the Sand Banks",
+     "next": "c4",
+     "src": "L7632"
+    }
+   ],
+   "src": "L7626-7628"
+  },
+  "c1o1": {
+   "text": "Quick hands lift the baskets out of the water's reach, and as the tide drains away, (name) finds fish stranded in the flooded hollows behind the huts, flapping in the puddles. They're scooped up and add a little food to the stores. The crab in the pot is released, with apologies.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7637"
+  },
+  "c1o2": {
+   "text": "One low basket in the corner is reached by the water before anyone can move it. The food inside is soaked in seawater and ruined. (Name) looks at it sadly. The crab, meanwhile, refuses to leave the pot.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7639"
+  },
+  "c1": {
+   "text": "(Name) splashes out and starts heaving baskets onto rafters and shelves, shouting for everyone else to do the same...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7635"
+  },
+  "c2o1": {
+   "text": "Everyone is safe. The beach families gather their belongings and sleep in higher huts up the hill until the water goes down, squeezed in with relatives and friends. By morning, the tide has gone back where it belongs, leaving seaweed on every doorstep.",
+   "src": "L7644"
+  },
+  "c2o2": {
+   "text": "Carrying an armful of belongings up to higher ground, (name) slips on the wet stones by the path and twists (his/her) ankle badly. It swells up like a melon. (He/She) needs looking after for some days, and can't walk on it at all.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7646"
+  },
+  "c2": {
+   "text": "(Name) wades from hut to hut along the shore, making sure everyone is awake and moving...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7642"
+  },
+  "c3o1": {
+   "text": "Comparing tonight with what the old fishers remember, (name) notices the highest tides always come with a full moon and a strong wind blowing onshore. It's a useful pattern for knowing when to move the stores up high, and the village never gets caught by surprise again.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7651"
+  },
+  "c3o2": {
+   "text": "The water marks on different huts disagree, some much higher than others, because some floors slope and some don't. The villagers decide to wait for the next high tide before drawing any conclusions.",
+   "src": "L7653"
+  },
+  "c3": {
+   "text": "Once everyone is safe, (name) goes along the huts marking exactly how high the water reached on every post...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7649"
+  },
+  "c4o1": {
+   "text": "Workers pile sand and stones into a low bank in front of the huts before nightfall. When the next high tide comes, it laps right up against the bank, and stops. The beach families cheer from their dry doorsteps.",
+   "src": "L7658"
+  },
+  "c4o2": {
+   "text": "The work runs so late that the evening meal has to be cooked from food that was meant for later in the week, leaving a little less in the stores. But the bank holds.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7660"
+  },
+  "c4": {
+   "text": "Before the next high tide, (name) gets everyone digging, piling sand and stones into a low wall in front of the beach huts...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7656"
+  }
+ }
+}

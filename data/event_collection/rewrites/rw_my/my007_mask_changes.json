@@ -1,0 +1,336 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask That Changes Faces",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my007_mask_changes",
+  "source": "rewrites",
+  "lines": [
+   10228,
+   10283
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10228",
+  "ledger": [
+   {
+    "src": "L10229",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10230",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10246",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10253",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10260",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10234",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10235",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10236",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10237",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10240",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10247",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10254",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10261",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10241",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10243",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10248",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10250",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10255",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10257",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10262",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10267-10283",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Its wood is the colour of dark honey, and moss has grown into the grooves around its eyes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing branches after a storm, (subject) lifts a fallen tree trunk and finds a carved wooden mask lying in the hollow underneath. Its wood is the colour of dark honey, and moss has grown into the grooves around its eyes. In the noon sun, the mask is grinning, a big cheerful grin that makes (subject) smile back without meaning to.\nThat evening, (subject) shows it to the others by the fire, and the whole circle goes quiet. In the firelight, the mask isn't grinning anymore. It's weeping. The festival is in two days, and (subject) has been wondering what to wear. What should (subject.he/she) do with it?",
+   "choices": [
+    {
+     "label": "Wear It at the Festival",
+     "next": "c1",
+     "src": "L10234"
+    },
+    {
+     "label": "Examine the Carving",
+     "next": "c2",
+     "src": "L10235"
+    },
+    {
+     "label": "Return It to the Forest",
+     "next": "c3",
+     "src": "L10236"
+    },
+    {
+     "label": "Ask Its Story",
+     "next": "c4",
+     "src": "L10237"
+    }
+   ],
+   "src": "L10231-10232"
+  },
+  "c1o1": {
+   "text": "The moment the drums start, (subject) dances like (subject.he/she) has never danced in (subject.his/her) life: leaping, spinning, stamping, laughing. The drummers have to play twice as fast to keep up, and by midnight half the village is dancing behind (subject.him/her) in a long, giddy line. (subject) has never been one for dancing before. Now (subject.he/she) can't stop. The mask goes on a peg by (subject.his/her) door, ready for the next celebration.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L10242",
+   "text_only": [
+    {
+     "src": "L10242",
+     "what": "\"celebration\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "Halfway through the first dance, (subject) stops dead in the middle of the crowd. When (subject.he/she) pulls the mask off, (subject.he/she) is shaking. \"They were all different,\" (subject.he/she) says. \"Different faces. Different huts. Like the village was... a long time ago.\" The others laugh it off as too much smoke from the festival fire. (subject) laughs too. But (subject.he/she) doesn't put the mask on again.",
+   "src": "L10244"
+  },
+  "c1": {
+   "text": "On festival night, (subject) ties the mask on with a strip of bark cloth. The drums start. The wood is warm against (subject.his/her) face, and the world looks a little different through those carved eyes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10240"
+  },
+  "c2o1": {
+   "text": "After a day of arguing, the carvers crack it. The mask has two expressions carved over each other: the deep grooves make a weeping face when light comes from below, like firelight, and the shallow ones make a grin when light comes from above, like the sun. \"Whoever made this was a genius,\" one of them says, already trying it on a scrap of wood. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10249"
+  },
+  "c2o2": {
+   "text": "The carvers come back puzzled. There are no tool marks on it anywhere, not a single scrape, as if the face had grown that way. And the wood doesn't match any tree on this part of the island. \"Maybe it's very, very old,\" someone suggests. Nobody has a better idea. The mask goes on a shelf in the research hut, where it smiles all day and weeps all night.",
+   "src": "L10251"
+  },
+  "c2": {
+   "text": "(subject) takes the mask to the researchers and the village carvers, who turn it over and over in the light, squinting at every groove...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10247"
+  },
+  "c3o1": {
+   "text": "When (subject) passes by the next day, the mask is gone. The mud around the hollow is soft and smooth, and there are no tracks leading away. Not human, not animal, nothing. (subject) stands there for a while, then walks home, half relieved and half sorry.",
+   "src": "L10256"
+  },
+  "c3o2": {
+   "text": "The next afternoon a child comes running into the village, holding something up. \"There's another one!\" It's a second mask, found a few steps from the first, carved from the same honey-coloured wood. This one is wide-eyed, with its mouth open in surprise, and when the two are set side by side, it seems to be looking straight at the first. Nobody quite knows what to do with either of them now.",
+   "src": "L10258"
+  },
+  "c3": {
+   "text": "\"It was under that tree for a reason,\" (subject) decides, and the next morning (subject.he/she) carries the mask back and lays it gently in the hollow where (subject.he/she) found it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10254"
+  },
+  "c4o1": {
+   "text": "(friend), one of the oldest villagers, takes it in both hands and smiles. \"Oh my. I haven't seen one of these since I was small. A traveling carver used to come through, long ago. He made masks for funerals that were also weddings, for times when people were happy and sad all at once. He said life is always both.\" (friend) hands it back gently. \"Keep it. It's meant to be worn when you don't know how to feel.\"",
+   "src": "L10263"
+  },
+  "c4o2": {
+   "text": "It turns out that every elder has an opinion, and none of them agree. One says it's older than their grandparents. Another says a cousin carved it ten years ago as a joke. A third says it's bad luck to even talk about it. The argument lasts all evening and grows rather loud. The mask, sitting in the middle of the circle, appears to be enjoying itself enormously.",
+   "src": "L10265"
+  },
+  "c4": {
+   "text": "(subject) carries the mask around to the oldest villagers one by one, asking each of them if they've ever seen it before...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10261"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "jumping",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

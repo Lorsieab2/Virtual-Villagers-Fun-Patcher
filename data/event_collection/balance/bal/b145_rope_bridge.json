@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope Bridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b145_rope_bridge",
+  "source": "balance",
+  "lines": [
+   6670,
+   6714
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6670",
+  "ledger": [
+   {
+    "src": "L6671",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6672",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6680",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6689",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6677",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6678",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6681",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6690",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6683",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6686",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6692",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6695",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6698-6714",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The rope bridge across the gorge is older than the oldest elder.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The rope bridge across the gorge is older than the oldest elder. Its planks are grey, its ropes are furry with moss, and in the middle it sags like a hammock. On the other side are the best fruit trees on the island. On this side, a long walk round that takes all day.\n(subject) is standing at the start of it, looking down. The river is so far below it looks like a piece of string. (builder) told everyone last week that the bridge needs new ropes before anyone crosses it again. (builder) also says that about everything, all the time.\nShould (subject) cross the bridge, or take the long way?",
+   "choices": [
+    {
+     "label": "Cross the Bridge",
+     "next": "c1",
+     "src": "L6677"
+    },
+    {
+     "label": "Take the Long Way",
+     "next": "c2",
+     "src": "L6678"
+    }
+   ],
+   "src": "L6673-6675"
+  },
+  "c1o1": {
+   "text": "The old rope gives way with a sound like a whip. The fruit pickers on the far side see it happen and can't do anything at all. The village brings (subject) home that evening and buries (subject.him/her) under the fruit trees by the gorge. (builder) builds a new bridge that month, with three ropes on each side and a rail, and never says \"I told you so\" to anyone, ever again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L6684"
+  },
+  "c1o2": {
+   "text": "One plank snaps, and (subject)'s leg goes straight through it, up to the hip. (subject.He/She) hangs there, wedged, until the pickers on the far side crawl out and pull (subject.him/her) free. The leg is badly broken. It heals, but stiff, and (subject) walks with a limp from then on and can't stand heights. (builder) mends the bridge, grimly, all by (subject.himself/herself).",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L6687"
+  },
+  "c1": {
+   "text": "(subject) puts one foot on the first plank. It creaks. (subject.He/She) puts the other foot on the second plank. It creaks louder. Halfway across, the whole bridge begins to swing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6681"
+  },
+  "c2o1": {
+   "text": "(builder) is glad of the help, and talks the whole time about knots, ropes, weight and wind. (subject) learns more in an afternoon than (subject.he/she) thought there was to know. The new bridge goes up the next week, with (subject) tying half the knots. It turns out that being careful, and knowing why, makes (subject.him/her) better at (subject.his/her) own work too.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6693"
+  },
+  "c2o2": {
+   "text": "By the time (subject) gets round to the fruit trees, the birds have eaten most of the fruit, and the pickers who crossed the bridge earlier have taken the rest. \"It held,\" one of them says, cheerfully. \"Creaked a lot.\" (subject) walks all the way home again with an empty basket, and decides being careful is overrated. It was very good advice, though, and (subject.he/she) knows it.",
+   "src": "L6696"
+  },
+  "c2": {
+   "text": "(subject) sighs and starts walking. The long way is long, hot and uphill, and full of biting flies. Halfway round, (subject.he/she) comes across (builder), cutting new rope in the forest...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6690"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,308 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child from the Raft",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new149_child_raft",
+  "source": "rewrites",
+  "lines": [
+   7099,
+   7154
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7099",
+  "ledger": [
+   {
+    "src": "L7100",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7101",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7110",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7117",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7131",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7105",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7106",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7107",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7108",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7111",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7118",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7125",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7132",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7112",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7114",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7119",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7121",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7126",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7128",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7133",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7138-7154",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the morning tide, a little raft of lashed bamboo drifts into the lagoon.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 10
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the morning tide, a little raft of lashed bamboo drifts into the lagoon. (Name) spots it first, and then spots the small shape clinging to it.\nIt's a child. Salt-crusted, sunburned and absolutely silent, gripping the bamboo so tightly that (name) has to pry (his/her) fingers loose one by one.\nTied to the raft's little pole are a gourd of water and a bundle wrapped carefully in leaves. The knots are neat and tight. Whoever sent this child off across the water did it with great care, and, (name) thinks with a lump in (his/her) throat, probably with great sorrow. The child needs looking after right away. But what should the village do about where the child came from?",
+   "choices": [
+    {
+     "label": "Wrap the Child in a Blanket",
+     "next": "c1",
+     "src": "L7105"
+    },
+    {
+     "label": "Ask Gently About the Raft",
+     "next": "c2",
+     "src": "L7106"
+    },
+    {
+     "label": "Let the Child Choose a Home",
+     "next": "c3",
+     "src": "L7107"
+    },
+    {
+     "label": "Give the Child Small Jobs",
+     "next": "c4",
+     "src": "L7108"
+    }
+   ],
+   "src": "L7102-7104"
+  },
+  "c1o1": {
+   "text": "The child is given a warm meal and a bed in the healer's hut, and sleeps for a full day and night without moving. When (he/she) finally wakes, the first thing (he/she) does is look for the raft. (Name) shows (him/her) it's safe on the beach, and the child relaxes, a little.",
+   "src": "L7113"
+  },
+  "c1o2": {
+   "text": "The child sits up, unwraps the leaf bundle, and finds dried fish packed inside, by someone who loved (him/her). (He/She) looks at it for a long time. Then, shyly, without a word, (he/she) offers to share it with (name). The stores gain a little food, and (name) has to leave the hut for a minute.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7115"
+  },
+  "c1": {
+   "text": "(Name) wraps the child in the first blanket (he/she) can find, and carries (him/her) straight up to the healers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7111"
+  },
+  "c2o1": {
+   "text": "Once the child can speak about it, (he/she) explains proudly how (his/her) family lashed the raft so it could never tip, with the bamboo crossed in a special pattern and tied double at every crossing. The builders are impressed, and learn something useful. The child seems pleased to have taught the grown-ups something.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7120"
+  },
+  "c2o2": {
+   "text": "The child talks about many things, birds and shells and the colour of the sea, but won't talk about how (he/she) came to be on the raft. Whenever (name) gets close to it, (he/she) goes silent again. No one presses.",
+   "src": "L7122"
+  },
+  "c2": {
+   "text": "Over the next few days, (name) sits with the child often, never pushing, just talking about small things. Slowly, the child begins to talk back...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7118"
+  },
+  "c3o1": {
+   "text": "The child chooses to stay, and is welcomed into a household as a new villager, with more aunts and uncles than (he/she) can count. (He/She) keeps the raft's little pole by (his/her) sleeping mat. Some nights, (he/she) still looks out at the sea, but (he/she) always comes back in to the fire.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L7127"
+  },
+  "c3o2": {
+   "text": "Days later, a canoe arrives with the child's relatives, frantic, who have been searching every island for (him/her). The reunion on the beach makes everyone cry. The child goes home with them, waving until they are out of sight.",
+   "src": "L7129"
+  },
+  "c3": {
+   "text": "After a week, the child has started following (name) everywhere, and the village begins to talk about what to do...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7125"
+  },
+  "c4o1": {
+   "text": "The child helps pick breadfruit, and somewhere around the third tree, starts chattering for the first time: about the fruit, the birds, the size of the leaves. The harvest adds a good amount of food to the stores, but what everyone remembers is the sound of that small voice in the trees.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L7134"
+  },
+  "c4o2": {
+   "text": "While the villagers mend the battered raft, the child, calmer now, points out over the water: \"Home is that way. Past the two rocks.\" Two fishers paddle (him/her) carefully back, and return to say the child's family wept with joy, and sent back a basket of shells in thanks.",
+   "src": "L7136"
+  },
+  "c4": {
+   "text": "(Name) notices the child is happiest when (his/her) hands are busy. (He/She) starts giving (him/her) little jobs...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7132"
+  }
+ }
+}

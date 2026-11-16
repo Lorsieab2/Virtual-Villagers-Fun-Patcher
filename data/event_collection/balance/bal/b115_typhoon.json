@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Typhoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b115_typhoon",
+  "source": "balance",
+  "lines": [
+   5197,
+   5238
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5197",
+  "ledger": [
+   {
+    "src": "L5198",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5199",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5207",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5216",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5204",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5205",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5208",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5217",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5210",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5213",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5219",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5225-5238",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L5223",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The worst storm in living memory has come.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The worst storm in living memory has come. The sky has been green all afternoon, and now the wind is screaming and the sea is coming over the beach in great grey walls. The elders have ordered everyone to the cave on the hill.\n(Name) is the last to leave the village. Through the rain (he/she) can hear the goats bleating in their pen by the shore, where the water is already rising. There's time to free them, maybe. Or (he/she) can run for the cave now.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Free the Goats",
+     "next": "c1",
+     "src": "L5204"
+    },
+    {
+     "label": "Run for the Cave",
+     "next": "c2",
+     "src": "L5205"
+    }
+   ],
+   "src": "L5200-5202"
+  },
+  "c1o1": {
+   "text": "The goats make it. (Name) doesn't. A wave bigger than the rest comes over the beach as (he/she) turns to follow them. The village finds (him/her) when the storm has passed, among the wreckage at the top of the beach. They bury (him/her) on the hill, beside the cave, and the goats, for years afterwards, always seem to graze near the grave.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L5211"
+  },
+  "c1o2": {
+   "text": "(Name) staggers into the cave last, soaked and bruised, with a goat under each arm. The storm rages all night. In the morning, half the village is flattened, but everyone, and every goat, is alive. They rebuild together over the next weeks, and the goats wander through the work getting in everyone's way.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L5214"
+  },
+  "c1": {
+   "text": "(Name) runs down to the shore, waist-deep in surging water, and wrestles the pen gate open. The goats explode out of it and run for the hill...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5208"
+  },
+  "c2o1": {
+   "text": "The storm rages all night. In the morning, the village is wrecked and the goat pen is gone. But everyone is alive. The whole village rebuilds together, every single person carrying, tying and thatching, and everyone learns something about building by the end of it. Two of the goats turn up a week later, on the far side of the island, looking smug.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5220"
+  },
+  "c2o2": {
+   "text": "In the morning, the goats are gone, and much of the food store with them. The huts can be rebuilt; the food can't be got back. It is a hungry season. (Name) feels bad about the goats for a long time, though everyone tells (him/her) not to.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L5223"
+  },
+  "c2": {
+   "text": "(Name) turns and runs uphill, the wind trying to lift (him/her) off (his/her) feet, the goats' bleating fading behind...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5217"
+  }
+ }
+}

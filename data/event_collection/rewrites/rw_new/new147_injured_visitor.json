@@ -1,0 +1,314 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Injured Visitor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new147_injured_visitor",
+  "source": "rewrites",
+  "lines": [
+   6982,
+   7037
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6982",
+  "ledger": [
+   {
+    "src": "L6983",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6984",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6993",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7000",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7007",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7014",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6988",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6989",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6990",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6991",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6994",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7001",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7008",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7015",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6995",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6997",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7002",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7004",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7011",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7016",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7021-7037",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveller limps into the village from the volcanic side of the island.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveller limps into the village from the volcanic side of the island. (His/Her) sandals are shredded to ribbons, and (his/her) feet are cut in a dozen places by the sharp black rock out there.\n(He/She) is grateful, embarrassed and very hungry, in roughly that order, and apologizes three times before (name) can even ask (his/her) name. \"I'm so sorry. I didn't mean to bleed on your path.\"\n(Name) looks down at the trail of small red footprints leading back toward the volcano, and winces. The traveller needs help, and fast. What should (name) do?",
+   "choices": [
+    {
+     "label": "Bring Them to the Healer's Mat",
+     "next": "c1",
+     "src": "L6988"
+    },
+    {
+     "label": "Ask How They Crossed the Black Rock",
+     "next": "c2",
+     "src": "L6989"
+    },
+    {
+     "label": "Let Them Heal Here for Good",
+     "next": "c3",
+     "src": "L6990"
+    },
+    {
+     "label": "Trade Rest for Light Work",
+     "next": "c4",
+     "src": "L6991"
+    }
+   ],
+   "src": "L6985-6987"
+  },
+  "c1o1": {
+   "text": "The traveller's feet are washed, salved and wrapped in clean leaves, and (he/she) rests on a soft mat for the first time in days. (He/She) apologizes twice more, then falls asleep mid-apology.",
+   "src": "L6996"
+  },
+  "c1o2": {
+   "text": "The traveller insists on sharing the sack of nuts (he/she) carried all the way across the lava, even though (he/she) can barely sit up. \"Please. I'll feel better.\" It adds a little food, and (he/she) does seem to feel better.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6998"
+  },
+  "c1": {
+   "text": "(Name) half-carries the traveller to the healers, who take one look at the feet and send for warm water...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6994"
+  },
+  "c2o1": {
+   "text": "The traveller explains how to tell which black rock is safe to step on and which will slice a foot open: the smooth, rope-like rock is safe, the jagged glassy kind is not, and the brittle crust over hollows is worst of all. It teaches the village something genuinely useful about avoiding injuries like (his/hers), and the healers ask (him/her) to repeat it to every child who goes near the volcano.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7003",
+   "text_only": [
+    {
+     "src": "L7003",
+     "what": "\"injuries\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "When (name) asks why (he/she) risked the crossing at all, the traveller looks away. (He/She) would rather not say, and nobody asks again.",
+   "src": "L7005"
+  },
+  "c2": {
+   "text": "Once (his/her) feet are wrapped, (name) asks how anyone crosses that rock at all...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7001"
+  },
+  "c3o1": {
+   "text": "Once (his/her) feet have healed, the traveller decides to join the village permanently as a new adult villager. (He/She) never goes near the volcano side again, and becomes the village's most passionate advocate for good sandals.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L7010"
+  },
+  "c3o2": {
+   "text": "As soon as (he/she) can walk without wincing, the traveller thanks the village, many times, and heads home. By the long way. Not across the rock.",
+   "src": "L7012"
+  },
+  "c3": {
+   "text": "As the days go by and the feet slowly heal, (name) notices the traveller looking around the village with something like longing...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7008"
+  },
+  "c4o1": {
+   "text": "Once healed, the traveller helps with the harvest to repay the kindness, working harder than anyone asked, and adds a good amount of food to the stores. (He/She) apologizes for not working faster. Nobody can make (him/her) stop apologizing.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L7017"
+  },
+  "c4o2": {
+   "text": "The villagers weave the traveller a sturdy new pair of sandals with thick bark soles, tough enough for any rock, and send (him/her) on (his/her) way. (He/She) is so moved (he/she) can't speak, which is the first time (he/she) hasn't apologized all week.",
+   "src": "L7019"
+  },
+  "c4": {
+   "text": "The traveller hates being waited on, so (name) finds (him/her) jobs that can be done sitting down, and later, once (he/she) can stand, a few more...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7015"
+  }
+ }
+}

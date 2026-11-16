@@ -1,0 +1,270 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Vine Swing Over the Gorge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b246_vine_swing_over",
+  "source": "balance",
+  "lines": [
+   11491,
+   11533
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11491",
+  "ledger": [
+   {
+    "src": "L11492",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11493",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11501",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11510",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11498",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11499",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11502",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11511",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11504",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11507",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11513",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11516",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11519-11533",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has watched them for a week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "teen": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The teenagers have tied a thick vine to a branch over the gorge, and they spend whole afternoons swinging out over the drop, shrieking, and back again. (subject) has watched them for a week. (subject.He/She) has never liked heights. Just looking down into the gorge makes (subject.his/her) stomach turn over.\nToday the teenagers hold the vine out to (subject.him/her). \"Your turn,\" they say. \"Unless you're scared.\" They are all grinning.\n(subject) is scared. (subject.He/She) is also very tired of being scared. Should (subject.he/she) grab the vine, or tell them no?",
+   "choices": [
+    {
+     "label": "Grab the Vine",
+     "next": "c1",
+     "src": "L11498"
+    },
+    {
+     "label": "Tell Them No",
+     "next": "c2",
+     "src": "L11499"
+    }
+   ],
+   "src": "L11494-11496"
+  },
+  "c1o1": {
+   "text": "The vine swings out, all the way across the gorge, and back. (subject) opens (subject.his/her) eyes at the far end and sees the river glittering far below, and the birds flying under (subject.his/her) feet, and something in (subject.him/her) just lets go. (subject.He/She) lands laughing and goes again straight away. The teenagers have to wait an hour for their turn.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L11505"
+  },
+  "c1o2": {
+   "text": "At the far end of the swing (subject) lets go a moment too soon. (subject.He/She) lands on the ledge, rolls, and cracks (subject.his/her) head on a rock. When (subject.he/she) comes round, (subject.he/she) knows the teenagers, the village, and the way home, but not (subject.his/her) own name. Not a syllable of it. The healers say it may come back. Until it does, the village calls (subject.him/her) \"?\", gently.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11508"
+  },
+  "c1": {
+   "text": "(subject) takes the vine in both hands, closes (subject.his/her) eyes, and runs off the edge. For one long moment (subject.he/she) is flying...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11502"
+  },
+  "c2o1": {
+   "text": "Halfway across, the vine snaps where it rubbed against the branch. (teen) drops into the bushes on the side of the gorge and doesn't get up. (subject) climbs down to (subject.him/her) faster than (subject.he/she) has ever moved in (subject.his/her) life, heights or no heights. (teen) lives, but (subject.his/her) hip never sets right, and (subject.he/she) walks with a limp after that. Nobody swings over the gorge again.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L11514"
+  },
+  "c2o2": {
+   "text": "The teenagers swing until dark and nothing happens to any of them. (subject) sits on a rock and watches, and doesn't feel bad about it at all. Being scared, (subject.he/she) decides, is just a sensible feeling with a bad reputation. (subject.He/She) goes home and has a very nice nap.",
+   "src": "L11517"
+  },
+  "c2": {
+   "text": "\"No,\" says (subject). \"Not today.\" The teenagers groan and start teasing (subject.him/her), and then one of them takes the vine and swings out to show (subject.him/her) how easy it is...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11511"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

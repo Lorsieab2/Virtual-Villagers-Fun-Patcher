@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twin Pools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b116_twin_pools",
+  "source": "balance",
+  "lines": [
+   5242,
+   5283
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5242",
+  "ledger": [
+   {
+    "src": "L5243",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5244",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5252",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5261",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5249",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5250",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5253",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5262",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5255",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5258",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5267",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5270-5283",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Which pool should a villager choose?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 28,
+   "max_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the hills there are two small pools side by side, one warm and one cold, and the elders say they were made by two sisters long ago: one who wanted to be young forever, and one who wanted to be wise. Bathing in the warm pool \"takes off years.\" Bathing in the cold one \"puts them on, with what they taught you.\"\n(Name) is standing between them. (He/She) has always wanted to try one.\nWhich pool should (name) choose?",
+   "choices": [
+    {
+     "label": "The Warm Pool",
+     "next": "c1",
+     "src": "L5249"
+    },
+    {
+     "label": "The Cold Pool",
+     "next": "c2",
+     "src": "L5250"
+    }
+   ],
+   "src": "L5245-5247"
+  },
+  "c1o1": {
+   "text": "(Name) climbs out ten years younger. (His/Her) knees bend without a sound. (His/Her) back is straight. (He/She) runs all the way home, just because (he/she) can, and arrives laughing. The village has a great deal to say about it.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5256"
+  },
+  "c1o2": {
+   "text": "(Name) climbs out with a younger face, smooth and bright. The aches come back by the time (he/she) reaches the village. \"The warm sister wanted to be young,\" says an elder. \"She didn't say anything about knees.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5259"
+  },
+  "c1": {
+   "text": "(Name) slides into the warm pool. It's like sinking into a bath of honey. (His/Her) aches melt away one by one...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5253"
+  },
+  "c2o1": {
+   "text": "(Name) climbs out ten years older, grey at the temples and lined round the eyes, and knowing things (he/she) didn't know before: what to do, how to do it, how to do it better. The cold sister kept her word. \"Ten years,\" (name) says, \"for ten years of learning. Fair.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5265"
+  },
+  "c2o2": {
+   "text": "(Name) climbs out blue with cold, and (his/her) face has aged, but nothing else. No wisdom. No skill. Just older. \"The cold sister,\" says the elder, \"must have been in a bad mood.\" (Name) sulks for a day and then decides the grey suits (him/her).",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L5268",
+   "text_only": [
+    {
+     "src": "L5268",
+     "what": "\"skill\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) steps into the cold pool and gasps. It's like ice. (He/She) sinks under, and for a moment hears voices, very far away, telling (him/her) things...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5262"
+  }
+ }
+}

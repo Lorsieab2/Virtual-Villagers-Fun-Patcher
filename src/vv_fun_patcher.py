@@ -364,6 +364,13 @@ MORE_ISLAND_EVENTS_FEATURE_PATHS = tuple(
 # Defaults; scripts/build_event_collection_features.py.
 EVENT_COLLECTION_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_isola_grand_event_collection_feature.json" for n in range(1, 6))
+# The island events' content controls (all five games; the owner, 2026-11-15): Content Notes for Island Events,
+# No Safeguards for Island Events (and Additional Events too) and the 28 content filters -- names in the installed patches' list only, which Story /
+# Cheat Upgrades reads (src/vv_event_content.py); scripts/build_island_event_content_features.py.
+ISLAND_EVENT_CONTENT_IDS = (("island_event_content_notes", "island_events_any_time")
+                            + tuple(f"island_event_filter_f{n:02d}" for n in range(1, 29)))
+ISLAND_EVENT_CONTENT_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_{ident}_feature.json" for n in range(1, 6) for ident in ISLAND_EVENT_CONTENT_IDS)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4235,7 +4242,7 @@ def _load_fun_patch_records(
                          + GENDER_PRESENTATION_FEATURE_PATHS
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
-                         + EVENT_COLLECTION_FEATURE_PATHS):
+                         + EVENT_COLLECTION_FEATURE_PATHS + ISLAND_EVENT_CONTENT_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -10996,7 +11003,24 @@ def _copy_companion_files(
                 if generated_temp is not None:
                     generated_temp.cleanup()
     _write_unicode_font_choice(output_folder, fun_patches)
+    _write_player_events(output_folder, fun_patches)
     return copied
+
+
+def _write_player_events(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    """Player Events (src/vv_player_events.py): with the game's Isola Grand Event Collection row installed, the
+    player's own event and piece files compiled into its "Island Event Collection" folder.  A bad file or line is
+    left out and reported (vv_player_events.LAST_REPORTS, the GUI's dialog); nothing here can fail the patch."""
+    import vv_player_events
+    for feature in fun_patches:
+        game = next((n for n in range(1, 6) if feature.id == f"vv{n}_isola_grand_event_collection"), None)
+        if game is None:
+            continue
+        try:
+            report = vv_player_events.install(game, output_folder)
+        except Exception as exc:                      # noqa: BLE001 -- never fail a patch over a player's file
+            report = vv_player_events.InstallReport(skipped=[f"Player Events were left out: {exc}"])
+        vv_player_events.LAST_REPORTS[game] = report
 
 
 # Use Unicode Font (overrides in-game fonts): the typeface the game draws its text in, written beside

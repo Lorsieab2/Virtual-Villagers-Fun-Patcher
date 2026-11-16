@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepwalker on the Cliffs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b290_sleepwalker",
+  "source": "balance",
+  "lines": [
+   13479,
+   13520
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13479",
+  "ledger": [
+   {
+    "src": "L13480",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13481",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13497",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13485",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13486",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13489",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13498",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13491",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13494",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13500",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13503",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13506-13520",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say there was once a singer who lived up there, and that her song still calls to light sleepers.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a week now, (friend) has been waking up to find (subject) gone from (subject.his/her) mat in the middle of the night. (friend) followed (subject.him/her) last night, and found (subject.him/her) walking along the edge of the sea cliffs with (subject.his/her) eyes wide open and empty, humming a song nobody in the village knows. The elders say there was once a singer who lived up there, and that her song still calls to light sleepers.\nTonight (subject) is getting up again. Should (friend) wake (subject.him/her), or follow quietly and make sure (subject.he/she) is safe?",
+   "choices": [
+    {
+     "label": "Wake (subject.Him/Her)",
+     "next": "c1",
+     "src": "L13485"
+    },
+    {
+     "label": "Follow Quietly",
+     "next": "c2",
+     "src": "L13486"
+    }
+   ],
+   "src": "L13482-13483"
+  },
+  "c1o1": {
+   "text": "Then (subject) blinks, shivers, and is (subject.himself/herself) again, very confused to find (subject.himself/herself) standing in the doorway. The humming stops. (subject.He/She) never sleepwalks again. (subject) has always slept badly and dreaded lying down at night, but something of the singer's song seems to have stayed with (subject.him/her). (subject.He/She) hums it softly at bedtime, and sleeps like a stone.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L13492"
+  },
+  "c1o2": {
+   "text": "(subject) wakes with a scream and stumbles backwards over the edge of the doorstep, onto the rocks below the hut. (subject.He/She) cracks (subject.his/her) hip badly. It never heals right, and (subject.he/she) walks with a hitch from then on. Worse, (subject.he/she) can't sleep without a light now, and lies awake listening for the song.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "resting",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13495"
+  },
+  "c1": {
+   "text": "(friend) grabs (subject)'s shoulders and shakes (subject.him/her), calling (subject.his/her) name. (subject)'s eyes stay empty for a long moment...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13489"
+  },
+  "c2o1": {
+   "text": "A sea mist rolls up over the edge of the cliff, and (subject) walks into it, still humming. (friend) runs after (subject.him/her) into the mist, and finds nothing. No footprints. No sound but the waves. (subject) is never seen again, though on misty nights, people in the huts nearest the cliffs say they can hear two voices humming the song now, not one.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L13501"
+  },
+  "c2o2": {
+   "text": "At the edge of the cliff, (subject) stops, turns around and walks straight back home, still asleep, and lies down on (subject.his/her) mat as if nothing has happened. (friend) follows every night for a month, and every night it's the same. Then one night (subject) simply doesn't get up. (friend) sleeps through the night for the first time in weeks, and wakes up still worried.",
+   "src": "L13504"
+  },
+  "c2": {
+   "text": "(friend) follows a few steps behind as (subject) walks out of the village, up the path and onto the cliffs, humming. The wind off the sea is cold. Far below, the waves crash on the rocks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13498"
+  }
+ }
+}

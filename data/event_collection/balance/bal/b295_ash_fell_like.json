@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ash That Fell Like Snow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b295_ash_fell_like",
+  "source": "balance",
+  "lines": [
+   13702,
+   13742
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13702",
+  "ledger": [
+   {
+    "src": "L13703",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13704",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13711",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13708",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13709",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13712",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13721",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13714",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13717",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13723",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13729-13742",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It settles on the roofs, the paths, the cooking pots and everybody's hair.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The fire mountain on the next island has been grumbling for a week, and this morning a soft grey ash begins to fall over the village, drifting down like feathers. It settles on the roofs, the paths, the cooking pots and everybody's hair. The elders say the mountain's ash carries time in it, and that people should cover their heads.\n(Name) is out on the reef, fishing, with nothing to cover (his/her) head but a fish basket. Should (he/she) paddle home through the ash at once, or put the basket on (his/her) head and keep fishing until it stops?",
+   "choices": [
+    {
+     "label": "Paddle Home at Once",
+     "next": "c1",
+     "src": "L13708"
+    },
+    {
+     "label": "Basket On, Keep Fishing",
+     "next": "c2",
+     "src": "L13709"
+    }
+   ],
+   "src": "L13705-13706"
+  },
+  "c1o1": {
+   "text": "By the time (name) reaches the beach, (his/her) hair is completely grey with ash. (He/She) washes and washes it, and the ash comes out, but the grey doesn't. The lines around (his/her) eyes are deeper too. \"The mountain's time,\" say the elders. (His/her) age hasn't changed at all, which (name) finds very little comfort.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13715"
+  },
+  "c1o2": {
+   "text": "(Name) steps out of the canoe onto the beach and (his/her) legs nearly give way. (His/her) back is bent, (his/her) hands are spotted, (his/her) hair is white. The ash has given (him/her) all the years at once. The healers can do nothing. (Name) sits down on the sand, looks at (his/her) old hands, and says, slowly, \"Well. I always did want the good sitting stone.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "elder",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13718"
+  },
+  "c1": {
+   "text": "(Name) paddles hard for the beach, the ash settling on (his/her) shoulders and in (his/her) hair, grey on everything...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13712"
+  },
+  "c2o1": {
+   "text": "The basket keeps off most of the ash, and the spray from the reef washes off the rest. When (name) finally comes home, (his/her) face looks younger than it has in years, scrubbed bright by salt water and somehow smoothed. \"The sea takes the mountain's time back,\" says one of the elders, who seems to know an old saying for everything.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13724"
+  },
+  "c2o2": {
+   "text": "The fish don't seem to mind the ash at all. In fact, they seem to like it: they rise to nibble at it on the surface, and (name) catches more than (he/she) has caught all month. (He/She) comes home with a grey basket on (his/her) head and a full one in (his/her) arms. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13727"
+  },
+  "c2": {
+   "text": "(Name) jams the fish basket over (his/her) head and carries on fishing, peering out through the weave. The ash piles up on top of the basket like a little grey hat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13721"
+  }
+ }
+}

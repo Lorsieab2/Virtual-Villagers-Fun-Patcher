@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ghost Crabs of the Night Beach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b335_ghost_crabs_night",
+  "source": "balance",
+  "lines": [
+   15483,
+   15523
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15483",
+  "ledger": [
+   {
+    "src": "L15484",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15485",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15492",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15501",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15489",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15490",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15493",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15502",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15495",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15504",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15507",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15510-15523",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should a villager grab it, or step carefully around it?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On moonless nights, the beach comes alive with ghost crabs: pale, see-through things that scuttle sideways and vanish down holes in the sand. The elders say each one carries something someone lost, a word, a memory, a name, and that whoever catches one gets back what it carries, or loses something new to it.\n(Name) is walking home along the beach in the dark, and the sand around (his/her) feet is crawling with them. One stops right in front of (him/her) and raises its claws. Should (name) grab it, or step carefully around it?",
+   "choices": [
+    {
+     "label": "Grab It",
+     "next": "c1",
+     "src": "L15489"
+    },
+    {
+     "label": "Step Around It",
+     "next": "c2",
+     "src": "L15490"
+    }
+   ],
+   "src": "L15486-15487",
+   "text_only": [
+    {
+     "src": "L15486",
+     "what": "\"vanish\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The nip goes cold all the way up (his/her) arm and into (his/her) head, and (name) drops the crab, which scuttles off into its hole. On the walk home, (name) realises (he/she) can't remember what (he/she) is called. The crab has taken it, down into the sand. The village calls (him/her) \"?\" and some of the children go out with buckets every moonless night after that, trying to catch it back.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15496"
+  },
+  "c1o2": {
+   "text": "The crab goes still in (name)'s hands, and then crumbles into pale sand that blows up into (his/her) face. (Name) sneezes three times. In the morning, (his/her) face is different: not younger, not older, just someone else's, a face someone on this island lost long ago. The elders look at (him/her) for a long time and one of them starts to cry, and won't say why.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L15499"
+  },
+  "c1": {
+   "text": "(Name) lunges and catches the crab in both hands. It's cold, colder than the night, and it nips (his/her) thumb hard...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15493"
+  },
+  "c2o1": {
+   "text": "(Name) picks (his/her) way all along the beach without touching a single crab, and gets home with every word, memory and name (he/she) left with. (He/She) lies awake for a while, wondering what the crab would have given back. In the morning, there is a small pale shell on (his/her) doorstep, and nothing inside it.",
+   "src": "L15505"
+  },
+  "c2o2": {
+   "text": "One crab follows (name) all the way home, clicking. It sits outside the door all night. In the morning it's gone, and so is (name)'s old name. A new one has been left in its place, as if the crab had been carrying it for someone, and decided (name) would do. Everyone calls (him/her) (made1), and nobody remembers ever calling (him/her) anything else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L15508"
+  },
+  "c2": {
+   "text": "(Name) steps carefully around the crab, and another, and another. The whole beach seems to shift around (him/her), clicking softly...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15502"
+  }
+ }
+}

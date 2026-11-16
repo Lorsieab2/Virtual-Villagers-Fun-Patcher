@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Shift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new189_night_shift",
+  "source": "rewrites",
+  "lines": [
+   9163,
+   9209
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9163",
+  "ledger": [
+   {
+    "src": "L9164",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9165",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9174",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9188",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9170",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9171",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9172",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9175",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9189",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9176",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9178",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9185",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9190",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9195-9209",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager volunteered to tend the village fires at night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) volunteered to tend the village fires at night. Someone had to, and (subject) has always liked the quiet hours, the stars, the crackle of the coals.\nWhat (subject) did not consider was sleeping during the day.\nChildren shriek. Pots clatter. Someone is always hammering something. And one particular bird, a small brown one with a voice like a squeaky door, sits directly outside (subject.his/her) hut and sings, at the top of its lungs, from noon until dusk. Every day. (subject) is fairly sure it's the same bird. (subject.He/She) is fairly sure it's doing it on purpose.\n(subject) has not slept properly in a week. (subject.He/She) has started glaring at birds. How can (subject) get some sleep?",
+   "choices": [
+    {
+     "label": "Look at the Sleeping Hut",
+     "next": "c1",
+     "src": "L9170"
+    },
+    {
+     "label": "Swap Every Other Night",
+     "next": "c2",
+     "src": "L9171"
+    },
+    {
+     "label": "Ask an Old Night Watcher",
+     "next": "c3",
+     "src": "L9172"
+    }
+   ],
+   "src": "L9166-9169"
+  },
+  "c1o1": {
+   "text": "Lying on (subject.his/her) mat and looking at the walls, (subject) sees it: daylight streaming in through dozens of little gaps in the weave, like stars. No wonder (subject.he/she) can't sleep. (subject.He/She) learns how to weave a tighter wall, packing the strips close and doubling them, a practical building lesson. The hut goes dark as night. The bird is still there, but it's muffled.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L9177"
+  },
+  "c1o2": {
+   "text": "(subject) explains, tiredly, that nobody warned (subject.him/her) how hard day sleeping would be. (subject.He/She) thought it would be easy. (subject.He/She) is struggling, not slacking, and (subject.he/she) would really appreciate it if people stopped asking why (subject.he/she) yawns so much. The village, a little guiltily, agrees to keep the noise down near (subject.his/her) hut.",
+   "src": "L9179"
+  },
+  "c1": {
+   "text": "Someone suggests the problem might be the hut itself, and (subject), bleary-eyed, takes a proper look at it, in the middle of the day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9175"
+  },
+  "c2o1": {
+   "text": "Sharing the night shift lets the work carry on at a pace both of them can manage. (subject) sleeps every other night like a normal person, and on the nights (subject.he/she) works, (subject.he/she) actually enjoys it again. The stars are still beautiful. The bird is still annoying, but only half the time.",
+   "src": "L9184"
+  },
+  "c2o2": {
+   "text": "The swap confuses everyone about who is meant to be awake. On the second night, both of them fall asleep by the fire. On the third, both of them stay up. Everyone agrees to fix it tomorrow, with a marker stone by the fire to show whose turn it is.",
+   "src": "L9186"
+  },
+  "c2": {
+   "text": "Another villager offers to share the night shift, so (subject) can sleep at night every other day...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9182"
+  },
+  "c3o1": {
+   "text": "(mentor) teaches (subject) how to build a woven sleeping screen: a thick, double-layered frame that stands around the sleeping mat, blocking out light and most of the noise. They build one together. That afternoon, (subject) sleeps for six hours straight, through children, pots, hammering, and the bird. (subject.He/She) wakes up feeling like a new person.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9191"
+  },
+  "c3o2": {
+   "text": "(mentor) laughs. \"Sleep? I never slept well in the day. Not once in twenty years. I just got used to being tired.\" This is not the answer (subject) was hoping for. But somehow, knowing it's not just (subject.him/her), makes it a little easier to bear.",
+   "src": "L9193"
+  },
+  "c3": {
+   "text": "(mentor) tended the night fires for twenty years. (subject) goes to ask how (subject.he/she) ever managed to sleep...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9189"
+  }
+ }
+}

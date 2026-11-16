@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Public Tools",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new113_lost_public",
+  "source": "rewrites",
+  "lines": [
+   5290,
+   5335
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5290",
+  "ledger": [
+   {
+    "src": "L5291",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5292",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5300",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5307",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5314",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5296",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5297",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5298",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5301",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5308",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5315",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5302",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5304",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5311",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5316",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5318",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5321-5335",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This was supposed to be the morning the storehouse roof repair finally began.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "This was supposed to be the morning the storehouse roof repair finally began. The builders have been planning it for weeks. They turn up at the tool shelter at first light, rolling up their sleeves...\nAnd the shelter is empty. The big stone adze, the long rope and both of the good digging sticks have vanished.\nThe builders stand around with empty hands. Somebody mentions that somebody else was \"acting strange\" last night. Somebody else mentions that the first somebody always acts strange. Fingers are starting to point, and (subject), the head builder, looks ready to chew through the roof beams with (subject.his/her) own teeth. What should (leader) do?",
+   "choices": [
+    {
+     "label": "Ask the Builders What It Costs Them",
+     "next": "c1",
+     "src": "L5296"
+    },
+    {
+     "label": "Follow the Drag Marks",
+     "next": "c2",
+     "src": "L5297"
+    },
+    {
+     "label": "Lend Tools by Tally Stick",
+     "next": "c3",
+     "src": "L5298"
+    }
+   ],
+   "src": "L5293-5295",
+   "text_only": [
+    {
+     "src": "L5294",
+     "what": "\"vanished\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) explains: without the adze and rope, the roof won't be finished before the rains, and the rains will soak every basket in the storehouse. Suddenly everyone understands why the builders are so upset, and half the village offers to help search. The tools turn up by evening, and nobody ever finds out who moved them. The builders decide they don't much care.",
+   "src": "L5303"
+  },
+  "c1o2": {
+   "text": "In the middle of the explanation, little (friend) tugs on (leader)'s arm. \"I saw the long rope! It's tying a canoe down at the lagoon!\" The whole search turns around and heads for the water, with (friend) marching proudly at the front. The rope is there. So, it turns out, is the adze, holding down the canoe's sail.",
+   "src": "L5305"
+  },
+  "c1": {
+   "text": "(leader) sits everyone down before the finger-pointing turns into shoving. \"Before we hunt for anyone, tell me why it matters so much.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5301"
+  },
+  "c2o1": {
+   "text": "The marks lead to a tidy little lean-to by the fields, where all the tools are neatly propped up. Standing there, (subject) realizes the tools are simply handier here, right next to where the work happens most. Nobody stole anything; somebody was being sensible. That practical detail changes where tools will be kept from now on, and the builders work out a smarter layout for every tool in the village.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5310"
+  },
+  "c2o2": {
+   "text": "The marks lead into the gardens, where (name3) is happily digging away with both of the good digging sticks. \"Oh!\" says (name3), seeing the crowd. \"Was someone using these?\" (subject.He/She) borrowed the tools at dawn and forgot to mention it. There was no theft, and no one is punished, though (name3) has to carry the adze all the way back.",
+   "src": "L5312"
+  },
+  "c2": {
+   "text": "(subject) spots two long scrapes in the dirt leading away from the shelter, the kind a heavy adze makes when someone drags it instead of carrying it. The builders set off following them like hunters on a trail...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5308"
+  },
+  "c3o1": {
+   "text": "It works well enough to keep. The tally sticks hang neatly where the tools should be, and the builders always know whose door to knock on. The storehouse roof is finished two days before the rains, and (subject) hangs a little tally stick of thanks on (leader)'s door.",
+   "src": "L5317"
+  },
+  "c3o2": {
+   "text": "The tally sticks go missing faster than the tools ever did. Children use them as swords. A goat eats two. Within a week, nobody knows where any tool or any stick is, and the scheme is dropped. The builders go back to shouting \"WHO HAS THE ADZE?\" across the village, which at least is traditional.",
+   "src": "L5319"
+  },
+  "c3": {
+   "text": "(leader) has an idea. From now on, anyone borrowing a shared tool must take a carved tally stick with their mark on it and hang it in the tool's place, so everyone can see who has what...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5315"
+  }
+ }
+}

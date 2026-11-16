@@ -1,0 +1,286 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mango Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b214_mango_tree",
+  "source": "balance",
+  "lines": [
+   9945,
+   9988
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9945",
+  "ledger": [
+   {
+    "src": "L9946",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9947",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9955",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9964",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9952",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9953",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9956",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9965",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9961",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9967",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9970",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9973-9988",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every year someone tries to get them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The best mango tree on the island grows on the edge of the cliff above the bay, leaning out over the water, and the best mangoes on it are on the very end of the longest branch, over the drop. Every year someone tries to get them. Every year the elders shout at them to stop.\nThis year the mangoes are ripe, golden and enormous. (subject) is in the tree, and has edged out along the branch further than anyone, with a basket on a string. The branch is bending. The ripest mango is one arm's length away.\nShould (subject) reach for it, or come back?",
+   "choices": [
+    {
+     "label": "Reach for It",
+     "next": "c1",
+     "src": "L9952"
+    },
+    {
+     "label": "Come Back",
+     "next": "c2",
+     "src": "L9953"
+    }
+   ],
+   "src": "L9948-9950"
+  },
+  "c1o1": {
+   "text": "The branch cracks. (subject) falls, not into the bay, but onto the rocks at the cliff's foot. The fishers bring (subject.him/her) home. The healers do everything they can. (subject)'s back heals, slowly, but (subject.he/she) walks bent from then on, and never climbs anything again. Someone brings (subject.him/her) a mango every year from then on, picked from a low branch.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L9959"
+  },
+  "c1o2": {
+   "text": "(subject) grabs the mango, the branch whips back, and (subject.his/her) head hits the trunk with a thud the whole village hears. (subject.He/She) climbs down very slowly, holding the mango, and sits on the grass. (subject.He/She) knows the mango. (subject.He/She) knows the tree. (subject.He/She) doesn't know (subject.his/her) own name, and it never comes back. The village calls (subject.him/her) \"?\". It was a very good mango.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L9962"
+  },
+  "c1": {
+   "text": "(subject) stretches out, fingers spread, the branch dipping under (subject.him/her). (subject.His/her) fingertips brush the mango's warm skin...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9956"
+  },
+  "c2o1": {
+   "text": "That afternoon a gust of wind shakes the whole tree, and the ripe mangoes on the end of the longest branch fall into the bay, and float. The children swim out and get every one. (subject) watches from the shore, very annoyed, and eats three. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9968"
+  },
+  "c2o2": {
+   "text": "As soon as (subject) is down, (friend), who was watching, climbs up and goes straight out along the branch, laughing at (subject) for giving up. The branch breaks. (friend) lives, but (friend.his/her) leg is never right again. The elders cut the long branch off the next day. Nobody laughs about the mango tree any more.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L9971"
+  },
+  "c2": {
+   "text": "(subject) looks down at the drop, and at the mango, and edges back along the branch, inch by inch, to the trunk. The elders on the ground let out a breath...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9965"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

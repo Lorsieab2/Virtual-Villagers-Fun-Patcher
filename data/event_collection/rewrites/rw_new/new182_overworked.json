@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Overworked Healer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new182_overworked",
+  "source": "rewrites",
+  "lines": [
+   8821,
+   8866
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8821",
+  "ledger": [
+   {
+    "src": "L8822",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8823",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8831",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8838",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8827",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8828",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8829",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8832",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8839",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8846",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8835",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8842",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8847",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8849",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8852-8866",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A fever is going around the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A fever is going around the village. Not a dangerous one, mostly, but everyone has it at once, and everyone needs (subject), the healer, at once.\n(subject) has not eaten a hot meal in four days. (subject.He/She) has not slept a full night in four days. (subject.He/She) walks from hut to hut with (subject.his/her) bag of herbs, from dawn until long after dark, and then gets woken up twice in the night.\nThis morning, while grinding herbs at (subject.his/her) table, (subject) fell asleep. Standing up. With the grinding stone still in (subject.his/her) hand. (subject.He/She) only woke when (subject.he/she) dropped it on (subject.his/her) foot. How can the village help (subject) before (subject.he/she) collapses?",
+   "choices": [
+    {
+     "label": "Ask the Healer What Is Draining Them",
+     "next": "c1",
+     "src": "L8827"
+    },
+    {
+     "label": "Share Out the Sick Calls",
+     "next": "c2",
+     "src": "L8828"
+    },
+    {
+     "label": "Bring a Builder to the Sick Hut",
+     "next": "c3",
+     "src": "L8829"
+    }
+   ],
+   "src": "L8824-8826",
+   "text_only": [
+    {
+     "src": "L8826",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Between spoonfuls, (subject) realizes that half the exhaustion isn't the healing at all. It's the walking: back and forth between sick huts scattered across the whole village, carrying everything. If the sickbeds were together under one roof, (subject.he/she) could see everyone at once. (subject) helps lash up a simple shelter for the sick that afternoon, learning a practical building lesson along the way, and that night, (subject.he/she) sleeps for six hours.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L8834"
+  },
+  "c1o2": {
+   "text": "(subject) explains that nobody told (subject.him/her) the herb gatherers were sick too. So (subject.he/she) has been gathering herbs at dawn, and healing all day, and grinding herbs all night. It was a missed message, not anyone shirking. Within an hour, two healthy villagers have volunteered to gather herbs until the gatherers recover.",
+   "src": "L8836"
+  },
+  "c1": {
+   "text": "Someone sits (subject) down, puts a bowl of hot stew in (subject.his/her) hands, and won't let (subject.him/her) get up until (subject.he/she) has eaten it and answered one question: what's the worst part?...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8832"
+  },
+  "c2o1": {
+   "text": "The trainees take the night calls, nervous but careful, and come to (subject) only for the truly worrying cases. The work carries on at a pace (subject) can survive. By the end of the week, the fever has passed, the trainees are much more confident, and (subject) has had three hot meals.",
+   "src": "L8841"
+  },
+  "c2o2": {
+   "text": "On the first night, the trainees mix up two patients, giving one the other's tea. Nobody is harmed: both teas were for fever, one just tasted worse. But everyone agrees to fix the arrangement in the morning, with a clear list of who gets what, written on a board by the door.",
+   "src": "L8843"
+  },
+  "c2": {
+   "text": "The village asks (subject)'s trainee healers to take over the night calls, so (subject) can sleep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8839"
+  },
+  "c3o1": {
+   "text": "(builder) teaches (subject) how to lash a raised sickbed: a wooden frame at waist height, with a woven top, so the healer doesn't have to kneel and bend over every patient. They build four together. (subject)'s back stops aching for the first time in years, and (subject.he/she) learns a lot about building in the process, enough to build more on (subject.his/her) own.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L8848"
+  },
+  "c3o2": {
+   "text": "(builder) admits, somewhat sheepishly, that (subject.he/she) fainted the one time (subject.he/she) tried to help a healer, at the sight of a cut. \"Went down like a felled tree.\" It shouldn't make (subject) feel better, but somehow it does, and (subject.he/she) laughs for the first time all week.",
+   "src": "L8850"
+  },
+  "c3": {
+   "text": "(builder) watches (subject) bending over a patient on a low floor mat, wincing, and has an idea...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8846"
+  }
+ }
+}

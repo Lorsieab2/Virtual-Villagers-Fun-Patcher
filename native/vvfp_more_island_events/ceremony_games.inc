@@ -430,7 +430,7 @@ static const cr_game *g_cr;              /* the installed game's, NULL when not 
 
    THE DUE EVENT.  These events never take a share of the chooser's draw (the owner's rule: stock island event
    chances never change): they come only when they are due -- picked with Pick Island Event, or drawn by Story /
-   Cheat Upgrades' separate rare roll (story_collection.inc; mie_pick.inc mp_due_cr).  Only then, for that one
+   Cheat Upgrades' natural-event replacement (story_collection.inc; mie_pick.inc mp_due_cr).  Only then, for that one
    constructor call, the chooser's draw (A New Home 0x4284DB, The Lost Children 0x434607 -- Story / Cheat Upgrades'
    sites too) is pointed here and put back before the constructor returns, chaining onto whatever it held (the
    game's rand, or Story's own roll): its first draw is the due event's case, past the stock cases, and any later

@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guest Who Ate No Food",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my079_guest_ate_food",
+  "source": "rewrites",
+  "lines": [
+   14455,
+   14510
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14455",
+  "ledger": [
+   {
+    "src": "L14456",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14457",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14465",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14472",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14479",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14486",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14460",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14461",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14462",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14463",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14466",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14473",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14480",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14487",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14467",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14469",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14474",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14476",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14481",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14483",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14488",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14490",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14493-14510",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has invited a traveler to the family supper, as is only polite.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has invited a traveler to the family supper, as is only polite. The guest is lean and grey-haired and sits very straight, and thanks everyone warmly for the meal. And then does not touch it. Not a bite. Instead, the guest just watches: the children squabbling over the last piece of fish, (name)'s family passing the bowls, someone laughing with their mouth full. The guest watches it all with an expression of such deep longing that (name) feels a lump rise in (his/her) throat.\nThe stew is getting cold. The children have noticed and are staring. Somebody has to say something. How should (name) respond?",
+   "choices": [
+    {
+     "label": "Ask If Something Is Wrong",
+     "next": "c1",
+     "src": "L14460"
+    },
+    {
+     "label": "Offer a Quiet Place",
+     "next": "c2",
+     "src": "L14461"
+    },
+    {
+     "label": "Invite Them to Tell a Story",
+     "next": "c3",
+     "src": "L14462"
+    },
+    {
+     "label": "Respect Their Silence",
+     "next": "c4",
+     "src": "L14463"
+    }
+   ],
+   "src": "L14458-14459"
+  },
+  "c1o1": {
+   "text": "\"The food is wonderful,\" the guest says quietly. \"It is the table. I had a son. He was lost at sea three seasons ago. Since then, my table has felt too big. I had forgotten what it sounds like, a family eating together.\" The table goes very quiet. Then the youngest child gets up, walks around, and climbs into the guest's lap without a word. The guest holds the child and weeps, and eventually, slowly, picks up the spoon. (He/she) stays for three more suppers.",
+   "src": "L14468",
+   "text_only": [
+    {
+     "src": "L14468",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "\"Nothing is wrong,\" the guest says softly. \"I remember meals like this. That is all.\" (He/she) will not explain any further, and something in (his/her) face tells (name) not to ask. The meal carries on, a little more quietly. Later, after the guest has gone, one of the children asks what (he/she) meant. Nobody knows. But (name) hugs every one of (his/her) family members a little longer than usual that night.",
+   "src": "L14470"
+  },
+  "c1": {
+   "text": "(Name) leans over and speaks gently, so the children will not hear. \"Forgive me. Is something wrong? Is the food not to your liking?\" The guest looks down at the full bowl as if only now noticing it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14466",
+   "text_only": [
+    {
+     "src": "L14466",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The guest lies down and sleeps almost at once, and does not stir until dawn. In the morning, (he/she) looks years younger, eats a whole bowl of cold stew with great enthusiasm, and clasps (name)'s hands in both of (his/her) own. \"Thank you,\" (he/she) says. \"I had not slept in a long time.\" Then (he/she) sets off down the road, waving until the path turns.",
+   "src": "L14475"
+  },
+  "c2o2": {
+   "text": "In the morning, the guest is gone. The mat is rolled up, the blanket folded neatly on top, and the bowl of stew sits beside it, untouched and stone cold. Nobody heard (him/her) leave. The dog, who barks at everything, did not bark. On the blanket lies a single small feather, grey as the guest's hair. (Name) keeps it, without quite knowing why.",
+   "src": "L14477"
+  },
+  "c2": {
+   "text": "Seeing how tired the guest looks, (name) does not press. Instead, (he/she) lays out a clean mat and a blanket in the quiet corner of the hut. \"Rest here tonight, if you like. Eat when you're ready, or not at all.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14473"
+  },
+  "c3o1": {
+   "text": "The guest smiles for the first time and tells an old tale about a family separated by a great storm, who spent years searching for one another across the islands, and found each other again at last on a beach at sunset. It is a beautiful story, and (he/she) tells it beautifully. By the end, even the grown-ups are wiping their eyes. Afterwards, the guest finally eats, slowly, savouring every bite as though it were a feast.",
+   "src": "L14482"
+  },
+  "c3o2": {
+   "text": "The guest tells a story about a family: a family who live in a hut by the big tree, whose grandmother sang a song about a red bird, whose eldest child broke an arm falling off the roof, whose... (name) puts down (his/her) spoon. Every detail is right. Every detail is about (name)'s own family, including things (name) has never told anyone outside it. When the story ends, the guest just smiles kindly, as if (he/she) has been visiting old friends. (He/she) is gone in the morning.",
+   "src": "L14484"
+  },
+  "c3": {
+   "text": "\"Perhaps you'd rather talk than eat,\" (name) says with a smile. \"Our children love stories. Would you tell us one?\" The children immediately stop squabbling and look up, hopeful...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14480"
+  },
+  "c4o1": {
+   "text": "Nobody pressures the guest, and slowly (he/she) seems to relax. (He/she) laughs softly at one of the children's jokes, and helps pass the bowls, and when the meal is over, (he/she) thanks (name)'s family with such sincerity that (name)'s whole family blushes. The guest never does eat. But (he/she) looks, as (he/she) leaves, as though (he/she) has been fed.",
+   "src": "L14489"
+  },
+  "c4o2": {
+   "text": "In the middle of the meal, one of the smallest children slides off the bench, runs outside, and comes back clutching a crumpled yellow hibiscus, which (he/she) solemnly presents to the guest. The guest stares at it. Then, for the first time all evening, (he/she) smiles, a real smile that lights up (his/her) whole face. (He/she) holds the flower in both hands all evening, and when (he/she) leaves, (he/she) takes it with (him/her).",
+   "src": "L14491"
+  },
+  "c4": {
+   "text": "(Name) catches (his/her) family's eyes and gives a tiny shake of the head. Nobody says anything. The meal simply goes on: the chatter, the squabbles, the passing of bowls, with the quiet guest sitting in the middle of it all...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14487"
+  }
+ }
+}

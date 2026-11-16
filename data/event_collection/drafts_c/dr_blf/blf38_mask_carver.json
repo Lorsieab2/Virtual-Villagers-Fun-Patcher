@@ -71,12 +71,23 @@
   "o1": {
    "name": "Outcome A",
    "text": "\"I believe in the wood,\" says (subject). \"And the people who'll wear them. I want them to have the best mask I can make.\" (friend) thinks about this. \"Does that bother the believers?\" \"Not that I know of,\" says (subject). \"They like the masks.\" (subject.He/she) goes back to carving. It's a beautiful mask. That seems to be what matters.",
-   "src": "L458"
+   "src": "L458",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "\"I believe in the wood,\" says (subject). \"And the people who'll wear them. I want them to have the best mask I can make.\" (friend) thinks about this. \"Does that bother the faithful?\" \"Not that I know of,\" says (subject). \"They like the masks.\" (subject.He/she) goes back to carving. It's a beautiful mask. That seems to be what matters."
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Do you have to believe in fish to catch them?\" asks (subject). (friend) laughs. \"That's different.\" \"Is it?\" says (subject). \"I love carving. I love that the masks matter to people. That's enough for me.\" (friend) isn't sure that's an answer. (subject) isn't sure either. The mask comes out beautifully anyway.",
    "src": "L461"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

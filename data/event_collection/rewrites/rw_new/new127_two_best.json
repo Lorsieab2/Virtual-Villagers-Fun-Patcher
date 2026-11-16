@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Best Friends",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new127_two_best",
+  "source": "rewrites",
+  "lines": [
+   5954,
+   6000
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5954",
+  "ledger": [
+   {
+    "src": "L5955",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5956",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5965",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5972",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5979",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5961",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5962",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5963",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5966",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5973",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5980",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5967",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5969",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5974",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5976",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5981",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5983",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5986-6000",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager are best friends.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are best friends. They have been best friends since before they could walk. They do everything together.\nToday they are building a bird feeder together, and it has become the most serious argument of their lives.\n(subject) insists the feeder must be ROUND, because birds are round and nests are round and the sun is round. (friend) insists it must be SQUARE, because squares are stronger and also (friend) has already cut four straight sticks. Neither will give in. There has been stomping. There has been a declaration that they are \"never speaking again,\" which lasted about as long as it took to say it.\n(adult) finds them sitting back to back in the dirt, arms folded, surrounded by sticks. How can (adult) get them talking again?",
+   "choices": [
+    {
+     "label": "Hear Each Friend Out",
+     "next": "c1",
+     "src": "L5961"
+    },
+    {
+     "label": "Help Without Picking a Side",
+     "next": "c2",
+     "src": "L5962"
+    },
+    {
+     "label": "Let the Birds Decide",
+     "next": "c3",
+     "src": "L5963"
+    }
+   ],
+   "src": "L5957-5960"
+  },
+  "c1o1": {
+   "text": "Each child explains their design in enormous detail, with a great deal of pointing. (adult) listens to both, nodding, asking questions, and taking each one completely seriously. Somehow, by the end, the two of them feel properly heard, and are sitting side by side again, arguing more quietly about where the perch should go.",
+   "src": "L5968"
+  },
+  "c1o2": {
+   "text": "Halfway through (friend)'s explanation of why squares are better, (friend) stops, looks at (subject)'s drawing, and says, \"Actually, round is nice.\" (subject) is so surprised (subject.he/she) says, \"Actually, square is nice.\" They stare at each other, then burst out laughing. Nobody makes a fuss.",
+   "src": "L5970"
+  },
+  "c1": {
+   "text": "(adult) sits down between them. \"All right. One at a time. Tell me about your feeder.\" (subject) goes first, with diagrams drawn in the dirt...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5966"
+  },
+  "c2o1": {
+   "text": "While they build, (adult) explains that birds need somewhere to land before they eat, and that their feet like to grip something thin, like a twig. (subject) gets very excited about this and learns a little about how birds land, perch and feed. Both feeders end up with long, thin perches, and (subject) explains why to (friend) at length.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L5975"
+  },
+  "c2o2": {
+   "text": "After a few minutes, both children ask if they can finish it themselves now. Together. (adult) agrees and watches from the garden wall as they work it out between them. The finished feeder is round on one side and square on the other. It is the strangest feeder anyone has ever seen.",
+   "src": "L5977"
+  },
+  "c2": {
+   "text": "(adult) suggests they build both, a round one and a square one, and offers to help with the tricky parts...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5973"
+  },
+  "c3o1": {
+   "text": "For three days they watch, and the result is clear: the birds always go to the one with a perch, whichever shape it is, and ignore the one without. The two friends proudly explain their discovery to the adults, who are interested enough to put perches on the bird-scarers in the fields, so the birds land there instead of on the crops.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5982"
+  },
+  "c3o2": {
+   "text": "No birds come to either feeder. Not one. Not round, not square. The two friends sit under the tree in silent disappointment. Then (friend) says, \"Want to try again tomorrow?\" and (subject) says, \"Together?\" and that seems to settle everything that mattered.",
+   "src": "L5984"
+  },
+  "c3": {
+   "text": "(adult) suggests a test. Build both, hang them side by side in the same tree, and see which one the birds choose. The two friends shake on it, very solemnly...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5980"
+  }
+ }
+}

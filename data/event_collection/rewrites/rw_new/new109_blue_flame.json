@@ -1,0 +1,255 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blue Flame",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new109_blue_flame",
+  "source": "rewrites",
+  "lines": [
+   5100,
+   5146
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5100",
+  "ledger": [
+   {
+    "src": "L5101",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5102",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5111",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5118",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5125",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5107",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5108",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5109",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5112",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5119",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5126",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5113",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5115",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5120",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5122",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5129",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5132-5146",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On a flat stone beside the volcano path, a little blue flame has been burning all day.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On a flat stone beside the volcano path, a little blue flame has been burning all day.\nThere is no wood under it. No oil, no moss, nothing. It just sits there on bare rock, flickering politely, the colour of the sky right before dark. The moss around it is not even singed. Stranger still, it is cool enough to hold a hand over.\nThree children have already tested this. Their parents found out. There was shouting.\n(subject) is supposed to be walking the children home. Instead (subject.he/she) has sat down on a log, staring at the flame, and has not moved for an hour. What should (subject) do about it?",
+   "choices": [
+    {
+     "label": "Sit Up with the Flame",
+     "next": "c1",
+     "src": "L5107"
+    },
+    {
+     "label": "Pass a Hand Through the Fire",
+     "next": "c2",
+     "src": "L5108"
+    },
+    {
+     "label": "Fetch the Fire Keeper",
+     "next": "c3",
+     "src": "L5109"
+    }
+   ],
+   "src": "L5103-5106"
+  },
+  "c1o1": {
+   "text": "All night (subject) watches. The flame leans away from the wind instead of with it. It brightens just before the rain comes and dims when the rain stops. There is a faint smell like rotten eggs whenever it flares. By morning (subject) has learned a good deal about the volcano's breath seeping through the rocks, and the researchers decide that the volcano path should not be a place for napping.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5114"
+  },
+  "c1o2": {
+   "text": "Around midnight, the flame gutters, shrinks to a blue speck, and goes out. (subject) waits and waits, holding (subject.his/her) breath, but it will not come back. In the morning (subject.he/she) walks home stiff, cold and empty-handed, and has to explain to (subject.his/her) family why (subject.he/she) spent the night talking to a rock.",
+   "src": "L5116"
+  },
+  "c1": {
+   "text": "(subject) sends the children home with someone else, wraps (subject.himself/herself) in a blanket, and settles in for the night beside the blue flame, scratching notes onto bark by its strange cold light...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5112"
+  },
+  "c2o1": {
+   "text": "Blue light runs up (subject.his/her) arm like water up a reed, over (subject.his/her) shoulder and across (subject.his/her) face. The crowd screams. (friend) does not; (subject.he/she) just stands there with (subject.his/her) mouth open. When the light fades, (subject.he/she) is completely unhurt, but (subject.his/her) look has changed for good: new hair, new features, same grin. \"That,\" (friend) announces, \"was AMAZING.\"",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L5121"
+  },
+  "c2o2": {
+   "text": "(friend)'s fingertips touch the edge of the flame, and it flares up tall and bright. (subject.He/She) yanks (subject.his/her) hand back with a yelp. It does not hurt. It just felt strange, like plunging into cold sea water. Nobody wants to test the \"cool\" fire any further after that, and the children are firmly walked home.",
+   "src": "L5123"
+  },
+  "c2": {
+   "text": "(friend) shoulders through the crowd. \"Children did it. How bad can it be?\" Before anyone can stop (subject.him/her), (subject.he/she) holds out a hand and passes it straight through the blue flame...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5119"
+  },
+  "c3o1": {
+   "text": "\"The volcano sometimes breathes blue,\" (elder) says. \"My father told me so. Or maybe he said it to keep us off this path.\" (subject.He/She) squints at the flame. \"Either way, keep off this path.\" The flame is gone by morning, and nobody is quite sure whether it was a wonder or a warning.",
+   "src": "L5128"
+  },
+  "c3o2": {
+   "text": "\"Blue, eh? Do you know what that means in a cooking fire?\" Nobody does. (elder) sits down and teaches (subject) how to judge a fire's heat by the colour of its flame: red is lazy, yellow is working, white is fierce, blue is hottest of all. It helps with cooking and firing pots, and (subject) never looks at a campfire the same way again.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5130"
+  },
+  "c3": {
+   "text": "(elder), who has kept the village fire burning for longer than most villagers have been alive, hobbles up the path, takes one look at the flame, and makes a noise like an annoyed pigeon...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5126"
+  }
+ }
+}

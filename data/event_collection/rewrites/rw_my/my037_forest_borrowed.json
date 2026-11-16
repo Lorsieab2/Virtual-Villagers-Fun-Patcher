@@ -1,0 +1,292 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest's Borrowed Voice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my037_forest_borrowed",
+  "source": "rewrites",
+  "lines": [
+   11998,
+   12053
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11998",
+  "ledger": [
+   {
+    "src": "L11999",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12000",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12009",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12016",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12023",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12030",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12004",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12005",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12006",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12007",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12010",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12017",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12024",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12031",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12011",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12013",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12020",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12025",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12027",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12032",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12034",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12037-12053",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager, over here! Just the way loved one always says it, with that same little lift at the end.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is gathering firewood at the edge of the deep forest when (subject.he/she) hears it: \\(loved one\\)'s voice, calling (subject.his/her) name from somewhere among the strangler figs. \"(subject)! (subject), over here!\" Just the way \\(loved one\\) always says it, with that same little lift at the end.\nBut \\(loved one\\) was weeding the gardens on the other side of the village when (subject) left, and hardly ever comes this far into the forest. The voice calls again, a little farther in this time. \"(subject)! Come quick!\" What should (subject) do?",
+   "choices": [
+    {
+     "label": "Follow the Voice",
+     "next": "c1",
+     "src": "L12004"
+    },
+    {
+     "label": "Call Back from the Path",
+     "next": "c2",
+     "src": "L12005"
+    },
+    {
+     "label": "Bring a Companion",
+     "next": "c3",
+     "src": "L12006"
+    },
+    {
+     "label": "Return Home",
+     "next": "c4",
+     "src": "L12007"
+    }
+   ],
+   "src": "L12001-12002"
+  },
+  "c1o1": {
+   "text": "Around a big mossy trunk, there's \\(loved one\\), crouched in a patch of ferns with a basket of herbs. \"Oh! There you are!\" \\(loved one\\) says cheerfully. \"I found a whole bed of fever-leaf and wanted you to see.\" (subject) is so relieved (subject.he/she) nearly cries, and gives \\(loved one\\) a long hug that leaves them both rather puzzled.",
+   "src": "L12012"
+  },
+  "c1o2": {
+   "text": "The voice leads (subject) on and on, always just ahead, always just out of sight, until the ground suddenly drops away beneath (subject.his/her) feet. (subject) tumbles down a muddy bank into a ravine and lands hard on the wet rocks, twisting (subject.his/her) leg badly. The voice stops. (subject) shouts for help until (subject.his/her) throat is raw, and at last some gatherers hear (subject.him/her) and carry (subject.him/her) back to the healers. \\(Loved one\\), it turns out, was in the gardens all day.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L12014"
+  },
+  "c1": {
+   "text": "(subject) drops the firewood and plunges into the trees, calling \\(loved one\\)'s name, following the voice deeper and deeper into the green...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12010"
+  },
+  "c2o1": {
+   "text": "The voice answers. It's \\(loved one\\)'s voice, no doubt about it. But the words are strange, things \\(loved one\\) has never said, would never say, in a rhythm that's all wrong. (subject) backs away slowly, then walks quickly home, and when (subject.he/she) finds \\(loved one\\) in the gardens, (subject.he/she) asks \\(loved one\\) to say something, anything. \\(Loved one\\) laughs and asks if (subject) has had too much sun.",
+   "src": "L12019"
+  },
+  "c2o2": {
+   "text": "A rustle in the branches above, and a grey-and-white bird with a long tail hops into view, cocks its head, and calls \"(subject)!\" in a perfect copy of \\(loved one\\)'s voice. Then it does it twice more, looking very pleased with itself. (subject) can't stop laughing, partly from relief. When (subject.he/she) tells \\(loved one\\), \\(loved one\\) is mortified that a bird has been practicing (subject.his/her) voice.",
+   "src": "L12021"
+  },
+  "c2": {
+   "text": "(subject) stays right where (subject.he/she) is, on the safe path, and cups (subject.his/her) hands around (subject.his/her) mouth. \"\\(Loved one\\)? Is that you? What's wrong?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12017"
+  },
+  "c3o1": {
+   "text": "They both hear it. \"(subject)!\" (subject) says. \"It's \\(loved one\\)!\" But (friend) has gone pale. \"No. That's my brother,\" (friend.he/she) whispers. \"That's exactly how my brother sounds.\" They stand there in the trees, each hearing someone different calling from the same place, until it stops. They go home without another word.",
+   "src": "L12026"
+  },
+  "c3o2": {
+   "text": "(friend) listens and listens. \"I don't hear anybody,\" (friend.he/she) says. \"Only the wind.\" And now that (friend) says it, (subject) can hear it too: wind moving through the hollow trees, whistling and moaning, rising and falling. A little like a voice. A little like a name. Maybe.",
+   "src": "L12028"
+  },
+  "c3": {
+   "text": "(subject) runs back to fetch (friend), and the two of them creep into the forest together, listening hard...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12024"
+  },
+  "c4o1": {
+   "text": "\\(Loved one\\) is sitting outside the hut, safe and sound, shelling beans. \"You're back early,\" \\(loved one\\) says. No, \\(loved one\\) hasn't been to the forest. No, \\(loved one\\) didn't call. (subject) sits down beside \\(loved one\\) and helps with the beans, and doesn't let \\(loved one\\) out of (subject.his/her) sight for the rest of the day.",
+   "src": "L12033"
+  },
+  "c4o2": {
+   "text": "On (subject)'s doorstep sits a little bundle of fresh forest herbs, the kind that grow only deep among the strangler figs, tied with a knot nobody in the village uses. \\(Loved one\\) didn't leave it. Nobody did. (subject) brings them inside anyway, and they make the whole hut smell of the forest for days.",
+   "src": "L12035"
+  },
+  "c4": {
+   "text": "Something about this isn't right, and (subject) knows it. (subject.He/She) picks up (subject.his/her) firewood and walks back to the village as fast as (subject.he/she) can without running...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12031"
+  }
+ }
+}

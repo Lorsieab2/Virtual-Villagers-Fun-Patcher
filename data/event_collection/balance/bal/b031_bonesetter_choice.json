@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bonesetter's Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b031_bonesetter_choice",
+  "source": "balance",
+  "lines": [
+   1389,
+   1431
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1389",
+  "ledger": [
+   {
+    "src": "L1390",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1391",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1399",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1396",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1397",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1400",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1402",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1405",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1417-1431",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The quick way is to pull the bone straight now, while a villager is still dazed, and splint it tight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) fell from a coconut palm this morning, and (subject.his/her) leg is broken badly, at an angle that makes the children turn away. (healer) has seen breaks like it before. (healer.He/She) knows two ways.\nThe quick way is to pull the bone straight now, while (subject) is still dazed, and splint it tight. It hurts terribly, but it's over fast. The slow way is to give (subject) the sleeping drink first, wait until it takes hold, and set it gently, but every hour of waiting lets the swelling grow.\n(subject) grips (healer)'s wrist. \"Just do it,\" (subject.he/she) says, through gritted teeth. \"Whatever's best.\" What's best?",
+   "choices": [
+    {
+     "label": "The Quick Way",
+     "next": "c1",
+     "src": "L1396"
+    },
+    {
+     "label": "The Slow Way",
+     "next": "c2",
+     "src": "L1397"
+    }
+   ],
+   "src": "L1392-1394"
+  },
+  "c1o1": {
+   "text": "The bone goes back, mostly. The leg heals, but not straight, and (subject) walks with a limp ever after. The builders make (subject.him/her) a crutch of polished wood, and later a better one, and (subject) learns to get about faster on it than most people walk. (subject.He/She) never climbs again. (subject.He/She) takes up net-mending in the shade of the very palm (subject.he/she) fell from, and says it's the best view in the village.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L1403"
+  },
+  "c1o2": {
+   "text": "There's a terrible noise, and then it's done, and (subject) has fainted, which is probably for the best. The splint goes on. Six weeks later, (subject) walks out of the healers' hut on two good legs. The young healers can't stop talking about how fast (healer)'s hands moved. (healer) spends the next month teaching them, and gets better at it every time.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L1406"
+  },
+  "c1": {
+   "text": "(healer) nods to two strong villagers to hold (subject) down, puts both hands on the leg, counts to three, and pulls on two...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1400"
+  },
+  "c2o1": {
+   "text": "The leg is set gently and well. But a fever follows, the kind that sometimes comes after bad breaks, and for three days (subject) burns and mumbles. The healers sit with (subject.him/her) through all of it, and on the fourth day it breaks. (subject) wakes up thin and weak and strangely calm. (subject) has never been able to lie still, but after the fever (subject.he/she) is content to rest. \"I don't mind lying down anymore,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L1412"
+  },
+  "c2o2": {
+   "text": "(subject) sleeps through the whole thing, and wakes up with a neat splint and no memory of how it got there. \"Is it done?\" (subject.he/she) asks. \"When are you going to do it?\" It heals slowly, and straight. (subject) spends six weeks on (subject.his/her) back, telling everyone who visits that falling out of a palm tree is \"nothing, really.\"",
+   "src": "L1415"
+  },
+  "c2": {
+   "text": "(healer) mixes the sleeping drink, and (subject) drinks it, and they wait. The swelling grows. (subject)'s eyes start to droop...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1409"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,16 +1,14 @@
-"""The Isola Grand Event Collection's separate rare roll (native/vvfp_story_upgrades/story_collection.inc).
+"""When the new island events come (native/vvfp_story_upgrades/story_collection.inc; the owner, 2026-11-15).
 
 EMULATED (unicorn, each game's executable as the patcher renders it, the TEST build of "VVFP Story Upgrades.dll";
 tests/story_emulator.py, the villagers laid out by tests/story_custom_fixtures.py):
 
-  * THE EDGE: a roll is made only when the Island Events Seen count went up while, in the frame before, nothing was
-    armed or on its way (the game's own natural event) -- never after a bought, picked or custom one, never during a
-    village's two opening events, never on the first frame of a village (nothing seen yet);
-  * THE ROLL: probability SC_P_PERCENT per game (A New Home 30, The Lost Children 25, the later three 20), at the
-    boundary of the game's own roll; the due time between now and the natural next event, 30% to 70% of the way;
-  * AT DUE: it waits while anything is armed, while the natural event is 60 seconds away or less, while New
-    Believers' God Power is armed; a natural event that comes first takes its place (cancelled); its natural time
-    passed cancels it; the trouble guard cancels it, never delays it;
+  * THE DECISION: once for each natural island event, 3 seconds (SC_WINDOW) or less before its island timer is due,
+    with nothing armed or on its way and no God Power armed: never during the village's two opening events, never
+    below 61 villagers, never in trouble; the game's own random routine passes 50 of 100 (SC_REPLACE_PERCENT) and a
+    new event is armed in the natural one's place;
+  * THE POPULATION the gate counts: the living villagers the game lists and the babies being carried (New Believers'
+    believers only);
   * THE TROUBLE GUARD in every game on the game's own records: the stock rescue predicate (both sexes' rules, the
     population with the babies carried below 3), food below 10 a villager or none, half the village sick, fewer than
     6 villagers of 14 or more -- and New Believers' heathens never count;
@@ -18,8 +16,8 @@ tests/story_emulator.py, the villagers laid out by tests/story_custom_fixtures.p
     the Companion Anthology, one manifest; the owner, 2026-11-14): one draw over all of them, each More Island Events
     event weight 1, each collection event its draw weight and a series one event's weight; a candidate that cannot
     be armed is left out and the draw made again; nothing armed when nothing can happen;
-  * THE SAVE'S FILE: the due roll is kept (in memory in the TEST build) and deleted once delivered or cancelled;
-  * ONE FRAME AT A TIME through VvfpStoryInstall's own call (The Tree of Life, its clock stood in for).
+  * ONE FRAME AT A TIME through VvfpStoryInstall's own call (The Tree of Life, its clock stood in for): the decision
+    arms an event and leaves the keeper's hand-over pending.
 
 The live game is NOT exercised here.
 """
@@ -38,8 +36,9 @@ import test_story_custom_island_event as sci  # noqa: E402
 NEEDS = unittest.skipUnless(sci.HAVE_EMULATOR and sci.TEST_DLL.is_file() and aa.HAVE_STOCK,
                             "needs unicorn, pefile, the stock executables and the Story TEST build")
 
-P_PERCENT = {1: 30, 2: 25, 3: 20, 4: 20, 5: 20}
-SC_NONE, SC_SAVE, SC_CANCEL, SC_ARM = 0, 1, 2, 3
+GAMES = (1, 2, 3, 4, 5)
+CHANCE_MIN, CHANCE_SPAN = 30, 21
+SC_NONE, SC_ARM = 0, 3
 HOUR = 3600
 
 
@@ -48,7 +47,7 @@ def s32(v: int) -> int:
 
 
 class Roll:
-    """The roll's state machine (VvfpStoryProbeCollectionStep) in one game's process."""
+    """The decision (VvfpStoryProbeCollectionStep) in one game's process."""
 
     def __init__(self, game: int):
         self.game = game
@@ -63,129 +62,85 @@ class Roll:
             self.p.put32(at + 4 * k, v)
         self.p.export("VvfpStoryProbeSetRolls", at, len(values))
 
-    def step(self, counter: int, now: int, natural: int, busy: int = 0, god: int = 0, trouble: int = 0) -> dict:
-        for k, v in enumerate((self.game, counter, busy, now, natural, god, trouble)):
+    def step(self, counter: int, now: int, natural: int, busy: int = 0, god: int = 0, trouble: int = 0,
+             population: int = 80, any_time: int = 0) -> dict:
+        for k, v in enumerate((self.game, counter, busy, now, natural, god, trouble, population)):
             self.p.put32(self.io + 4 * k, v & 0xFFFFFFFF)
+        self.p.put32(self.io + 4 * 13, any_time)
         self.p.export("VvfpStoryProbeCollectionStep", self.io)
         out = [s32(self.p.u32(self.io + 4 * k)) for k in range(8, 13)]
-        return dict(action=out[0], due_set=out[1], due=out[2] & 0xFFFFFFFF, natural=out[3] & 0xFFFFFFFF, seen=out[4])
-
-    def natural_event(self, counter: int, now: int, natural: int, **kw) -> dict:
-        """A frame before (count `counter - 1`, nothing armed), then the frame the count went up."""
-        self.step(counter - 1, now - 1, now, **{k: v for k, v in kw.items() if k in ("trouble",)})
-        return self.step(counter, now, natural, **kw)
+        return dict(action=out[0], decided=out[1], natural=out[2] & 0xFFFFFFFF, seen=out[4])
 
 
 @NEEDS
-class TheEdge(unittest.TestCase):
-    def test_a_natural_event_rolls_once(self) -> None:
+class TheDecision(unittest.TestCase):
+    def test_a_chance_in_30_to_50_percent_each_time(self) -> None:
+        for game in GAMES:
+            for chance_draw, roll, expected in ((0, 29, SC_ARM), (0, 30, SC_NONE), (20, 49, SC_ARM), (20, 50, SC_NONE)):
+                with self.subTest(game=game, chance=CHANCE_MIN + chance_draw, roll=roll):
+                    r = Roll(game)
+                    r.rolls(chance_draw, roll)
+                    self.assertEqual(r.step(5, 1000, 1003)["action"], expected)
+
+    def test_once_for_each_natural_time(self) -> None:
         r = Roll(4)
-        r.rolls(0, 0)                                          # under p; the due point's draw 0: 30% of the gap
-        out = r.natural_event(5, 1000, 1000 + 10 * HOUR)
-        self.assertEqual(out["action"], SC_SAVE)
-        self.assertEqual(out["due"], 1000 + 10 * HOUR * 300 // 1000)
-        self.assertEqual(out["natural"], 1000 + 10 * HOUR)
-        self.assertEqual(r.step(5, 1001, 1000 + 10 * HOUR)["action"], SC_NONE)   # the same count: no second roll
+        r.rolls(0, 0, 0, 0)
+        self.assertEqual(r.step(5, 1000, 1003)["action"], SC_ARM)
+        self.assertEqual(r.step(5, 1001, 1003)["action"], SC_NONE)       # decided already
+        self.assertEqual(r.step(6, 2000, 2002)["action"], SC_ARM)       # the next natural event
 
-    def test_never_after_an_armed_event(self) -> None:
+    def test_only_in_the_last_seconds(self) -> None:
         r = Roll(3)
         r.rolls(0, 0)
-        r.step(4, 999, 1000, busy=1)                           # a pick (or bought / custom event) on its way
-        out = r.step(5, 1000, 1000 + 10 * HOUR)
-        self.assertEqual(out["action"], SC_NONE)
-        self.assertEqual(out["due_set"], 0)
+        self.assertEqual(r.step(5, 1000, 1004)["action"], SC_NONE)
+        self.assertEqual(r.step(5, 1000, 1000 - 1)["action"], SC_NONE)  # passed already
+        self.assertEqual(r.step(5, 1001, 1004)["action"], SC_ARM)
 
-    def test_never_on_a_villages_first_frame(self) -> None:
-        r = Roll(3)
+    def test_never_while_anything_is_armed_or_a_god_power(self) -> None:
+        r = Roll(5)
         r.rolls(0, 0)
-        self.assertEqual(r.step(9, 1000, 1000 + 10 * HOUR)["action"], SC_NONE)   # nothing seen before
-        self.assertEqual(r.step(-1, 1001, 0)["seen"], -1)                         # no village: forgotten
+        self.assertEqual(r.step(5, 1000, 1002, busy=1)["action"], SC_NONE)
+        self.assertEqual(r.step(5, 1000, 1002, god=1)["action"], SC_NONE)
+        self.assertEqual(r.step(5, 1000, 1002)["action"], SC_ARM)
 
-    def test_never_during_the_opening_events(self) -> None:
-        for counter in (1, 2):
+    def test_never_an_opening_event(self) -> None:
+        for counter, expected in ((0, SC_NONE), (1, SC_NONE), (2, SC_ARM)):
             with self.subTest(counter=counter):
-                r = Roll(5)
+                r = Roll(1)
                 r.rolls(0, 0)
-                out = r.natural_event(counter, 1000, 1000 + 8 * HOUR)
-                self.assertEqual(out["action"], SC_SAVE if counter >= 2 else SC_NONE)
+                self.assertEqual(r.step(counter, 1000, 1002)["action"], expected)
 
-    def test_the_trouble_guard_means_no_roll(self) -> None:
+    def test_never_in_trouble(self) -> None:
         r = Roll(1)
         r.rolls(0, 0)
-        self.assertEqual(r.natural_event(5, 1000, 1000 + 12 * HOUR, trouble=1)["action"], SC_NONE)
+        self.assertEqual(r.step(5, 1000, 1002, trouble=1)["action"], SC_NONE)
+
+    def test_no_safeguards_lifts_the_opening_and_trouble_rules(self) -> None:
+        r = Roll(2)
+        r.rolls(0, 0)
+        self.assertEqual(r.step(0, 1000, 1002, trouble=1, any_time=1)["action"], SC_ARM)
+
+    def test_no_village_forgets(self) -> None:
+        r = Roll(3)
+        self.assertEqual(r.step(-1, 1001, 0)["seen"], -1)
 
 
 @NEEDS
-class TheRoll(unittest.TestCase):
-    def test_each_games_probability(self) -> None:
-        for game, p in P_PERCENT.items():
+class ThePopulation(unittest.TestCase):
+    def test_living_villagers_and_the_babies_carried(self) -> None:
+        for game in GAMES:
             with self.subTest(game=game):
-                r = Roll(game)
-                r.rolls(p - 1, 0)
-                self.assertEqual(r.natural_event(5, 1000, 1000 + 10 * HOUR)["action"], SC_SAVE)
-                r = Roll(game)
-                r.rolls(p, 0)
-                self.assertEqual(r.natural_event(5, 1000, 1000 + 10 * HOUR)["action"], SC_NONE)
+                st = sci.Story(f"vv{game}")
+                for i in range(6):
+                    st.village.put(i, sex="m" if i < 3 else "f", years=20 + i, name=f"V{i}")
+                st.proc.put32(st.village.record(4) + st.village.L["pregnant"], 1)
+                self.assertEqual(st.proc.export("VvfpStoryProbeCollectionPopulation", st.n, -1), 7)
 
-    def test_due_between_now_and_the_natural_event(self) -> None:
-        for frac_draw, expected in ((0, 300), (200, 500), (400, 700)):
-            with self.subTest(frac_draw=frac_draw):
-                r = Roll(2)
-                r.rolls(0, frac_draw)
-                out = r.natural_event(7, 50_000, 50_000 + 14 * HOUR)
-                self.assertEqual(out["due"], 50_000 + 14 * HOUR * expected // 1000)
-                self.assertLess(out["due"], out["natural"])
-
-
-@NEEDS
-class AtDue(unittest.TestCase):
-    def armed(self, game: int = 4) -> tuple[Roll, dict]:
-        r = Roll(game)
-        r.rolls(0, 200)                                        # due half way
-        out = r.natural_event(5, 0, 10 * HOUR)
-        self.assertEqual(out["action"], SC_SAVE)
-        return r, out
-
-    def test_not_before_due(self) -> None:
-        r, out = self.armed()
-        self.assertEqual(r.step(5, out["due"] - 1, out["natural"])["action"], SC_NONE)
-
-    def test_arms_when_clear(self) -> None:
-        r, out = self.armed()
-        self.assertEqual(r.step(5, out["due"], out["natural"])["action"], SC_ARM)
-
-    def test_waits_while_anything_is_armed(self) -> None:
-        r, out = self.armed()
-        self.assertEqual(r.step(5, out["due"], out["natural"], busy=1)["action"], SC_NONE)
-        self.assertEqual(r.step(5, out["due"] + 5, out["natural"])["action"], SC_ARM)
-
-    def test_never_within_60_seconds_of_a_natural_event(self) -> None:
-        r, out = self.armed()
-        now = out["due"]
-        self.assertEqual(r.step(5, now, now + 60)["action"], SC_NONE)      # the natural timer moved this close
-        self.assertEqual(r.step(5, now, now + 61)["action"], SC_ARM)
-
-    def test_waits_while_a_god_power_is_armed(self) -> None:
-        r, out = self.armed(5)
-        self.assertEqual(r.step(5, out["due"], out["natural"], god=1)["action"], SC_NONE)
-        self.assertEqual(r.step(5, out["due"], out["natural"])["action"], SC_ARM)
-
-    def test_trouble_cancels_never_delays(self) -> None:
-        r, out = self.armed()
-        got = r.step(5, out["due"], out["natural"], trouble=1)
-        self.assertEqual((got["action"], got["due_set"]), (SC_CANCEL, 0))
-        self.assertEqual(r.step(5, out["due"] + 100, out["natural"])["action"], SC_NONE)
-
-    def test_a_natural_event_first_takes_its_place(self) -> None:
-        r, out = self.armed()
-        r.rolls(99, 0)                                         # the new natural event's own roll: no new one
-        got = r.step(6, out["due"] - 10, out["due"] + 12 * HOUR)
-        self.assertEqual((got["action"], got["due_set"]), (SC_CANCEL, 0))
-
-    def test_its_natural_time_passed_cancels_it(self) -> None:
-        r, out = self.armed()
-        got = r.step(5, out["natural"], out["natural"] + 12 * HOUR)       # e.g. a Time Warp past both
-        self.assertEqual((got["action"], got["due_set"]), (SC_CANCEL, 0))
+    def test_new_believers_heathens_never_count(self) -> None:
+        st = sci.Story("vv5")
+        for i in range(6):
+            st.village.put(i, sex="m" if i < 3 else "f", years=30, name=f"V{i}", faction=1 if i >= 4 else 0)
+        self.assertEqual(st.proc.export("VvfpStoryProbeCollectionPopulation", st.n, -1), 4)
 
 
 @NEEDS
@@ -203,25 +158,25 @@ class TheTroubleGuard(unittest.TestCase):
         return st.proc.export("VvfpStoryProbeCollectionTrouble", st.n)
 
     def test_a_healthy_village_is_not_in_trouble(self) -> None:
-        for game in P_PERCENT:
+        for game in GAMES:
             with self.subTest(game=game):
                 self.assertEqual(self.trouble(self.story(game)), 0)
 
     def test_the_rescue_predicate(self) -> None:
-        for game in P_PERCENT:
+        for game in GAMES:
             for men, women, expected in ((5, 2, 1), (5, 3, 0), (2, 5, 1), (3, 5, 0), (4, 4, 0), (6, 1, 1)):
                 with self.subTest(game=game, men=men, women=women):
                     self.assertEqual(self.trouble(self.story(game, men, women)), expected)
 
     def test_low_food(self) -> None:
-        for game in P_PERCENT:
+        for game in GAMES:
             with self.subTest(game=game):
                 self.assertEqual(self.trouble(self.story(game, food=80)), 0)     # 8 villagers x 10
                 self.assertEqual(self.trouble(self.story(game, food=79)), 1)
                 self.assertEqual(self.trouble(self.story(game, food=0)), 1)
 
     def test_few_grown_villagers(self) -> None:
-        for game in P_PERCENT:
+        for game in GAMES:
             with self.subTest(game=game):
                 st = self.story(game, 3, 3)
                 self.assertEqual(self.trouble(st), 0)                         # 6 of 14 or more
@@ -230,7 +185,7 @@ class TheTroubleGuard(unittest.TestCase):
 
     def test_half_the_village_sick(self) -> None:
         sick = {1: (0x354, 4), 2: (0x53C, 4), 3: (0xE89, 1), 4: (0x1C48, 1), 5: (0x1C48, 1)}
-        for game in P_PERCENT:
+        for game in GAMES:
             with self.subTest(game=game):
                 st = self.story(game)
                 off, size = sick[game]
@@ -371,7 +326,7 @@ class TheChoice(unittest.TestCase):
 class OneFrameAtATime(unittest.TestCase):
     """The Tree of Life: its clock (0x403750) stood in for, its island timer world+0x170E0, the count 0x4D6E04."""
 
-    def test_roll_due_and_arm_through_the_frame_hook(self) -> None:
+    def test_a_natural_event_replaced_through_the_frame_hook(self) -> None:
         st = sci.Story("vv4")
         p = st.proc
         for i in range(8):
@@ -383,31 +338,25 @@ class OneFrameAtATime(unittest.TestCase):
         p.write(text, MANIFEST.encode() + b"\0")
         p.export("VvfpStoryProbeCollectionReset")
         p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b0001)
+        p.export("VvfpStoryProbeCollectionPopulation", 4, 61)  # 61 villagers for the gate
         world = st.village.world
         counter = sci.EVENT_COUNTER_GLOBAL["vv4"]
+        p.put32(counter, 5)
         p.put32(world + 0x170E0, clock[0] + 600)
-        p.export("VvfpStoryProbeCollectionTick", 4)            # the first frame: the count seen
-        p.put32(counter, p.u32(counter) + 1)                   # the game's own event came ...
-        p.put32(world + 0x170E0, clock[0] + 10 * HOUR)         # ... and its trigger wrote the next one
+        p.export("VvfpStoryProbeCollectionTick", 4)            # ten minutes before the natural event: nothing
+        state = p.alloc(7 * 4)
+        p.export("VvfpStoryProbeCollectionState", state)
+        self.assertEqual(p.u32(state), 0)
         at = p.alloc(8)
         p.put32(at, 0)
         p.put32(at + 4, 0)
-        p.export("VvfpStoryProbeSetRolls", at, 2)
-        p.export("VvfpStoryProbeCollectionTick", 4)
-        state = p.alloc(6 * 4)
-        p.export("VvfpStoryProbeCollectionState", state)
-        self.assertEqual(p.u32(state), 1)
-        due = p.u32(state + 4)
-        self.assertEqual(due, clock[0] + 10 * HOUR * 300 // 1000)
-        f = p.alloc(16)
-        self.assertEqual(p.export("VvfpStoryProbeCollectionFile", f), 1)
-        self.assertEqual(p.u32(f + 4), due)
-        clock[0] = due
-        p.export("VvfpStoryProbeSetRolls", at, 2)
+        p.export("VvfpStoryProbeSetRolls", at, 2)               # the chance 30%, the roll 0: a pass
+        clock[0] += 598                                        # two seconds before it
         p.export("VvfpStoryProbeCollectionTick", 4)
         p.export("VvfpStoryProbeCollectionState", state)
-        self.assertEqual(p.u32(state), 0)                      # spent
-        self.assertEqual(p.export("VvfpStoryProbeCollectionFile", f), 0)   # its file deleted
+        self.assertEqual(p.u32(state), 1)                      # decided
+        self.assertEqual(p.u32(state + 8), 10_000 + 600)       # for this natural time
+        p.export("VvfpStoryProbeCollectionPopulation", 4, -1)
 
 
 @NEEDS

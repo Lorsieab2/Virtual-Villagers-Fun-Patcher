@@ -1338,6 +1338,366 @@ Faded Breastplate Designs (Armor Flavor Moments, M01 to M35 source lines 631-633
 The Heirloom Gathering (Armor Flavor Moments, M01 to M35 source lines 635-637): OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)
 The Damaged Spear Shaft (Armor Flavor Moments, M01 to M35 source lines 639-641): OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)
 The Care of Heirlooms (Armor Flavor Moments, M01 to M35 source lines 643-645): OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)
+The Undertow (source lines 23-66): Written by Claude to Lorsieab2's style guide and direction.
+The Three-Day Fever (source lines 70-112): Written by Claude to Lorsieab2's style guide and direction.
+The Basket in the Mangroves (source lines 116-158): Written by Claude to Lorsieab2's style guide and direction.
+The Pool Under the Moon Rock (source lines 162-203): Written by Claude to Lorsieab2's style guide and direction.
+The Blessing Stones (source lines 207-249): Written by Claude to Lorsieab2's style guide and direction.
+The Struck Tree (source lines 253-295): Written by Claude to Lorsieab2's style guide and direction.
+The Night of the Big Wind (source lines 299-341): Written by Claude to Lorsieab2's style guide and direction.
+The Mirror Shell (source lines 345-386): Written by Claude to Lorsieab2's style guide and direction.
+The Cliff Path (source lines 390-431): Written by Claude to Lorsieab2's style guide and direction.
+The Cook Who Hated Cooking (source lines 435-477): Written by Claude to Lorsieab2's style guide and direction.
+The Fog from the Vents (source lines 481-522): Written by Claude to Lorsieab2's style guide and direction.
+The Canoe from the North (source lines 526-567): Written by Claude to Lorsieab2's style guide and direction.
+The Spotted Sickness (source lines 571-612): Written by Claude to Lorsieab2's style guide and direction.
+The Naming Stone (source lines 616-657): Written by Claude to Lorsieab2's style guide and direction.
+The Night Moths (source lines 661-702): Written by Claude to Lorsieab2's style guide and direction.
+The Grandchild's Spell (source lines 706-748): Written by Claude to Lorsieab2's style guide and direction.
+The Child Who Followed the Parrot (source lines 752-794): Written by Claude to Lorsieab2's style guide and direction.
+The Night the Whales Sang (source lines 798-839): Written by Claude to Lorsieab2's style guide and direction.
+The Mudslide (source lines 843-885): Written by Claude to Lorsieab2's style guide and direction.
+The Cave of Echoes (source lines 889-931): Written by Claude to Lorsieab2's style guide and direction.
+The Hundred-Year Lotus (source lines 934-976): Written by Claude to Lorsieab2's style guide and direction.
+The Old Fisher's Last Voyage (source lines 980-1021): Written by Claude to Lorsieab2's style guide and direction.
+The Rivals at the Spirit Rock (source lines 1025-1067): Written by Claude to Lorsieab2's style guide and direction.
+The Hot Spring in the Hills (source lines 1071-1112): Written by Claude to Lorsieab2's style guide and direction.
+The Fire in the Weaving Hut (source lines 1116-1157): Written by Claude to Lorsieab2's style guide and direction.
+The Sleepwalker (source lines 1161-1203): Written by Claude to Lorsieab2's style guide and direction.
+The Clay from the Old Kiln (source lines 1207-1248): Written by Claude to Lorsieab2's style guide and direction.
+The Wishing Tree (source lines 1252-1294): Written by Claude to Lorsieab2's style guide and direction.
+The Smoke on the Horizon (source lines 1298-1339): Written by Claude to Lorsieab2's style guide and direction.
+The Rival Builders (source lines 1343-1385): Written by Claude to Lorsieab2's style guide and direction.
+The Bonesetter's Choice (source lines 1389-1431): Written by Claude to Lorsieab2's style guide and direction.
+The Mask with Another Face (source lines 1435-1476): Written by Claude to Lorsieab2's style guide and direction.
+The Overturned Canoe (source lines 1480-1522): Written by Claude to Lorsieab2's style guide and direction.
+The Raft on the Morning Tide (source lines 1526-1568): Written by Claude to Lorsieab2's style guide and direction.
+The Lagoon That Keeps Time (source lines 1572-1613): Written by Claude to Lorsieab2's style guide and direction.
+The Festival of Lanterns (source lines 1617-1658): Written by Claude to Lorsieab2's style guide and direction.
+The Wind from the Bell Rocks (source lines 1662-1703): Written by Claude to Lorsieab2's style guide and direction.
+The Elder's Last Winter (source lines 1707-1749): Written by Claude to Lorsieab2's style guide and direction.
+The Shadow Net (source lines 1753-1794): Written by Claude to Lorsieab2's style guide and direction.
+The Teaching Day (source lines 1798-1840): Written by Claude to Lorsieab2's style guide and direction.
+The Dance of Shared Hearts (source lines 1843-1885): Written by Claude to Lorsieab2's style guide and direction.
+The Coconut Season (source lines 1889-1930): Written by Claude to Lorsieab2's style guide and direction.
+The Baby at the Healers' Door (source lines 1934-1976): Written by Claude to Lorsieab2's style guide and direction.
+The Fruit with Two Stones (source lines 1980-2021): Written by Claude to Lorsieab2's style guide and direction.
+The Pearl Bed (source lines 2025-2066): Written by Claude to Lorsieab2's style guide and direction.
+The Old Couple's Wish (source lines 2070-2112): Written by Claude to Lorsieab2's style guide and direction.
+The Turtle's Nest (source lines 2116-2158): Written by Claude to Lorsieab2's style guide and direction.
+The Granary Floor (source lines 2162-2204): Written by Claude to Lorsieab2's style guide and direction.
+The Mist Canoe (source lines 2208-2249): Written by Claude to Lorsieab2's style guide and direction.
+The Healers' Garden (source lines 2253-2294): Written by Claude to Lorsieab2's style guide and direction.
+The Forgetting Fruit (source lines 2298-2339): Written by Claude to Lorsieab2's style guide and direction.
+The Wave That Gives Back (source lines 2343-2384): Written by Claude to Lorsieab2's style guide and direction.
+The Wrestling Match (source lines 2388-2430): Written by Claude to Lorsieab2's style guide and direction.
+Two of the Same Name (source lines 2434-2476): Written by Claude to Lorsieab2's style guide and direction.
+The Termites (source lines 2480-2521): Written by Claude to Lorsieab2's style guide and direction.
+The Old Woman of the Tide Pools (source lines 2525-2566): Written by Claude to Lorsieab2's style guide and direction.
+The Sick Canoe (source lines 2570-2611): Written by Claude to Lorsieab2's style guide and direction.
+The Rope Swing over the Gorge (source lines 2615-2656): Written by Claude to Lorsieab2's style guide and direction.
+The Paired Gourds (source lines 2660-2702): Written by Claude to Lorsieab2's style guide and direction.
+The Gourd Cradle on the River (source lines 2706-2748): Written by Claude to Lorsieab2's style guide and direction.
+The Banyan's Bark (source lines 2751-2792): Written by Claude to Lorsieab2's style guide and direction.
+The Torch Fishers (source lines 2796-2837): Written by Claude to Lorsieab2's style guide and direction.
+The Wedding Night Feast (source lines 2841-2883): Written by Claude to Lorsieab2's style guide and direction.
+The Floating Chest (source lines 2887-2929): Written by Claude to Lorsieab2's style guide and direction.
+The Twin Stars (source lines 2933-2974): Written by Claude to Lorsieab2's style guide and direction.
+The Wild Boar (source lines 2978-3019): Written by Claude to Lorsieab2's style guide and direction.
+The Shaking Ground (source lines 3023-3065): Written by Claude to Lorsieab2's style guide and direction.
+The Day the Sun Went Dark (source lines 3069-3111): Written by Claude to Lorsieab2's style guide and direction.
+The Sea-Glass Window (source lines 3115-3156): Written by Claude to Lorsieab2's style guide and direction.
+The Waterfall Curtain (source lines 3160-3201): Written by Claude to Lorsieab2's style guide and direction.
+The Ancestor Masks (source lines 3205-3246): Written by Claude to Lorsieab2's style guide and direction.
+The Canoe That Didn't Come Back (source lines 3250-3293): Written by Claude to Lorsieab2's style guide and direction.
+The Scholar's Mixture (source lines 3297-3338): Written by Claude to Lorsieab2's style guide and direction.
+The Remedy from the Deep (source lines 3342-3382): Written by Claude to Lorsieab2's style guide and direction.
+The Moon Charm (source lines 3386-3427): Written by Claude to Lorsieab2's style guide and direction.
+The Giant Eel (source lines 3431-3472): Written by Claude to Lorsieab2's style guide and direction.
+The Rope Bridge (source lines 3476-3518): Written by Claude to Lorsieab2's style guide and direction.
+The Coral That Grows Twice (source lines 3522-3563): Written by Claude to Lorsieab2's style guide and direction.
+The Garden Raft (source lines 3567-3608): Written by Claude to Lorsieab2's style guide and direction.
+The Elder in the Hills (source lines 3612-3654): Written by Claude to Lorsieab2's style guide and direction.
+The Walker in the Fog (source lines 3657-3698): Written by Claude to Lorsieab2's style guide and direction.
+The Baby in the Hollow Log (source lines 3702-3744): Written by Claude to Lorsieab2's style guide and direction.
+The Lightning Stone (source lines 3748-3789): Written by Claude to Lorsieab2's style guide and direction.
+The Name Day (source lines 3793-3834): Written by Claude to Lorsieab2's style guide and direction.
+The Hailstones (source lines 3838-3880): Written by Claude to Lorsieab2's style guide and direction.
+The Pond of Two Moons (source lines 3884-3926): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Morning (source lines 3930-3971): Written by Claude to Lorsieab2's style guide and direction.
+The Wet Rocks at the Falls (source lines 3975-4016): Written by Claude to Lorsieab2's style guide and direction.
+The Singing on the Reef (source lines 4020-4061): Written by Claude to Lorsieab2's style guide and direction.
+The Old Healer Steps Down (source lines 4065-4107): Written by Claude to Lorsieab2's style guide and direction.
+The Double Rainbow (source lines 4111-4152): Written by Claude to Lorsieab2's style guide and direction.
+The Shell Swap (source lines 4156-4198): Written by Claude to Lorsieab2's style guide and direction.
+The Leaking Roofs (source lines 4202-4244): Written by Claude to Lorsieab2's style guide and direction.
+The Baby from the Waves (source lines 4248-4290): Written by Claude to Lorsieab2's style guide and direction.
+The Hourglass Shell (source lines 4294-4334): Written by Claude to Lorsieab2's style guide and direction.
+The Storm at the Lookout (source lines 4338-4379): Written by Claude to Lorsieab2's style guide and direction.
+The Bark Boat Race (source lines 4383-4424): Written by Claude to Lorsieab2's style guide and direction.
+The Flood (source lines 4428-4469): Written by Claude to Lorsieab2's style guide and direction.
+The Moon Tree (source lines 4473-4514): Written by Claude to Lorsieab2's style guide and direction.
+The Elder Who Wants to Stop (source lines 4518-4559): Written by Claude to Lorsieab2's style guide and direction.
+The Carved Cradle (source lines 4562-4604): Written by Claude to Lorsieab2's style guide and direction.
+The Great Bird's Egg (source lines 4608-4650): Written by Claude to Lorsieab2's style guide and direction.
+The Cracking Cliff (source lines 4654-4696): Written by Claude to Lorsieab2's style guide and direction.
+The Race to the Far Reef (source lines 4700-4741): Written by Claude to Lorsieab2's style guide and direction.
+The Second Shadow (source lines 4745-4785): Written by Claude to Lorsieab2's style guide and direction.
+The Sleeping Sickness (source lines 4789-4831): Written by Claude to Lorsieab2's style guide and direction.
+The Festival Masks (source lines 4835-4877): Written by Claude to Lorsieab2's style guide and direction.
+The Fire at the Children's Hut (source lines 4881-4922): Written by Claude to Lorsieab2's style guide and direction.
+The Washing Stones (source lines 4926-4967): Written by Claude to Lorsieab2's style guide and direction.
+The Spring of First Light (source lines 4971-5012): Written by Claude to Lorsieab2's style guide and direction.
+The Lagoon Mirror (source lines 5016-5057): Written by Claude to Lorsieab2's style guide and direction.
+The Contest of Hands (source lines 5061-5101): Written by Claude to Lorsieab2's style guide and direction.
+The Night Fishers' Lamp (source lines 5105-5147): Written by Claude to Lorsieab2's style guide and direction.
+The Grandmother's Memory Charm (source lines 5151-5193): Written by Claude to Lorsieab2's style guide and direction.
+The Typhoon (source lines 5197-5238): Written by Claude to Lorsieab2's style guide and direction.
+The Twin Pools (source lines 5242-5283): Written by Claude to Lorsieab2's style guide and direction.
+The Leaping Contest (source lines 5287-5328): Written by Claude to Lorsieab2's style guide and direction.
+The Sunken Statue (source lines 5332-5372): Written by Claude to Lorsieab2's style guide and direction.
+The Coughing Season (source lines 5376-5416): Written by Claude to Lorsieab2's style guide and direction.
+The Last Night of the Year (source lines 5420-5461): Written by Claude to Lorsieab2's style guide and direction.
+The Fever Tea (source lines 5519-5564): Written by Claude to Lorsieab2's style guide and direction.
+The Night the Roofs Flew (source lines 5568-5612): Written by Claude to Lorsieab2's style guide and direction.
+The Still Pool Above the Falls (source lines 5616-5659): Written by Claude to Lorsieab2's style guide and direction.
+The Name Stone (source lines 5663-5706): Written by Claude to Lorsieab2's style guide and direction.
+The Blessing Shell (source lines 5710-5754): Written by Claude to Lorsieab2's style guide and direction.
+The Hollow Log (source lines 5758-5801): Written by Claude to Lorsieab2's style guide and direction.
+The Festival Masks (source lines 5805-5850): Written by Claude to Lorsieab2's style guide and direction.
+The Goat Path (source lines 5854-5897): Written by Claude to Lorsieab2's style guide and direction.
+The Weaver's Last Mat (source lines 5901-5944): Written by Claude to Lorsieab2's style guide and direction.
+The Raft at Dawn (source lines 5948-5992): Written by Claude to Lorsieab2's style guide and direction.
+The Knock After Midnight (source lines 5996-6041): Written by Claude to Lorsieab2's style guide and direction.
+The Builders' Wager (source lines 6045-6089): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Mist (source lines 6093-6137): Written by Claude to Lorsieab2's style guide and direction.
+The Kite Hill Wish (source lines 6141-6185): Written by Claude to Lorsieab2's style guide and direction.
+The Healers' Moon (source lines 6189-6233): Written by Claude to Lorsieab2's style guide and direction.
+The Mimic Bird (source lines 6237-6280): Written by Claude to Lorsieab2's style guide and direction.
+The Red Fish Supper (source lines 6284-6328): Written by Claude to Lorsieab2's style guide and direction.
+The Old Fisher's Last Trip (source lines 6332-6376): Written by Claude to Lorsieab2's style guide and direction.
+The Bitter Berry Week (source lines 6380-6425): Written by Claude to Lorsieab2's style guide and direction.
+The Two Canoes (source lines 6429-6473): Written by Claude to Lorsieab2's style guide and direction.
+The Lightning Tree (source lines 6477-6521): Written by Claude to Lorsieab2's style guide and direction.
+The Fig That Fruits Once (source lines 6525-6570): Written by Claude to Lorsieab2's style guide and direction.
+Too Many Babies (source lines 6574-6618): Written by Claude to Lorsieab2's style guide and direction.
+The Painter's Pot (source lines 6622-6666): Written by Claude to Lorsieab2's style guide and direction.
+The Rope Bridge (source lines 6670-6714): Written by Claude to Lorsieab2's style guide and direction.
+The Cave That Keeps Names (source lines 6718-6760): Written by Claude to Lorsieab2's style guide and direction.
+The Children's Spring (source lines 6764-6808): Written by Claude to Lorsieab2's style guide and direction.
+The Termite Year (source lines 6812-6856): Written by Claude to Lorsieab2's style guide and direction.
+The Spirit Feast (source lines 6860-6903): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Clay (source lines 6907-6951): Written by Claude to Lorsieab2's style guide and direction.
+The Two Round Stones (source lines 6955-6999): Written by Claude to Lorsieab2's style guide and direction.
+The Shadow That Stayed (source lines 7003-7045): Written by Claude to Lorsieab2's style guide and direction.
+The Love Charm Mix-Up (source lines 7049-7094): Written by Claude to Lorsieab2's style guide and direction.
+The Memory Moths (source lines 7098-7141): Written by Claude to Lorsieab2's style guide and direction.
+Grandmother's Comb (source lines 7145-7188): Written by Claude to Lorsieab2's style guide and direction.
+The Old Well (source lines 7192-7237): Written by Claude to Lorsieab2's style guide and direction.
+The Brother Who Came Back (source lines 7241-7283): Written by Claude to Lorsieab2's style guide and direction.
+The Shrine Basket (source lines 7287-7331): Written by Claude to Lorsieab2's style guide and direction.
+The Teaching Turtle (source lines 7335-7378): Written by Claude to Lorsieab2's style guide and direction.
+The Path That Wasn't There (source lines 7382-7426): Written by Claude to Lorsieab2's style guide and direction.
+The Double Fruit (source lines 7430-7474): Written by Claude to Lorsieab2's style guide and direction.
+The Mirror Shell (source lines 7478-7522): Written by Claude to Lorsieab2's style guide and direction.
+The Dreaming Hammock (source lines 7526-7570): Written by Claude to Lorsieab2's style guide and direction.
+The Coconut Shy (source lines 7574-7617): Written by Claude to Lorsieab2's style guide and direction.
+The Salve in the Clay Jar (source lines 7621-7666): Written by Claude to Lorsieab2's style guide and direction.
+After the Big Wave (source lines 7670-7714): Written by Claude to Lorsieab2's style guide and direction.
+The Elders' Dance (source lines 7718-7762): Written by Claude to Lorsieab2's style guide and direction.
+The Race to the Reef (source lines 7766-7811): Written by Claude to Lorsieab2's style guide and direction.
+The Chore Spirit (source lines 7815-7860): Written by Claude to Lorsieab2's style guide and direction.
+The Naming Feast (source lines 7864-7907): Written by Claude to Lorsieab2's style guide and direction.
+The Lantern Night (source lines 7911-7954): Written by Claude to Lorsieab2's style guide and direction.
+The Trader's Baby (source lines 7958-8001): Written by Claude to Lorsieab2's style guide and direction.
+The Hammerhead Shallows (source lines 8005-8049): Written by Claude to Lorsieab2's style guide and direction.
+The Falling Star (source lines 8053-8098): Written by Claude to Lorsieab2's style guide and direction.
+The Feather Cloak (source lines 8102-8145): Written by Claude to Lorsieab2's style guide and direction.
+The Sunken Canoe (source lines 8149-8193): Written by Claude to Lorsieab2's style guide and direction.
+The Shared Gourd (source lines 8197-8241): Written by Claude to Lorsieab2's style guide and direction.
+The Copycat (source lines 8245-8287): Written by Claude to Lorsieab2's style guide and direction.
+The Fern That Remembers (source lines 8291-8335): Written by Claude to Lorsieab2's style guide and direction.
+The Family in the Storm (source lines 8339-8382): Written by Claude to Lorsieab2's style guide and direction.
+The Hole in the Garden (source lines 8386-8429): Written by Claude to Lorsieab2's style guide and direction.
+The Hot Spring in the Rocks (source lines 8433-8477): Written by Claude to Lorsieab2's style guide and direction.
+The Weed Year (source lines 8481-8525): Written by Claude to Lorsieab2's style guide and direction.
+The Mask of No Face (source lines 8529-8573): Written by Claude to Lorsieab2's style guide and direction.
+The Clay Figures (source lines 8577-8619): Written by Claude to Lorsieab2's style guide and direction.
+The Dolphin Who Waits (source lines 8623-8667): Written by Claude to Lorsieab2's style guide and direction.
+The Elder's Hat (source lines 8671-8714): Written by Claude to Lorsieab2's style guide and direction.
+The Thatcher's Ladder (source lines 8718-8761): Written by Claude to Lorsieab2's style guide and direction.
+The Coughing Season (source lines 8765-8809): Written by Claude to Lorsieab2's style guide and direction.
+The Crab Moon (source lines 8813-8856): Written by Claude to Lorsieab2's style guide and direction.
+The Big Canoe (source lines 8860-8903): Written by Claude to Lorsieab2's style guide and direction.
+The Burning Fever (source lines 8907-8950): Written by Claude to Lorsieab2's style guide and direction.
+The Night-Blooming Flower (source lines 8954-8997): Written by Claude to Lorsieab2's style guide and direction.
+The Canoe Shed Baby (source lines 9001-9045): Written by Claude to Lorsieab2's style guide and direction.
+The Bitter Honey (source lines 9049-9093): Written by Claude to Lorsieab2's style guide and direction.
+The Second Tide (source lines 9097-9139): Written by Claude to Lorsieab2's style guide and direction.
+The Moth of Many Summers (source lines 9143-9186): Written by Claude to Lorsieab2's style guide and direction.
+The Jumping Rock (source lines 9190-9233): Written by Claude to Lorsieab2's style guide and direction.
+The Chief's Bad Day (source lines 9237-9281): Written by Claude to Lorsieab2's style guide and direction.
+The Spirit of Old Age (source lines 9285-9328): Written by Claude to Lorsieab2's style guide and direction.
+The Rain Drinker (source lines 9332-9375): Written by Claude to Lorsieab2's style guide and direction.
+The Tag Champion (source lines 9379-9422): Written by Claude to Lorsieab2's style guide and direction.
+The Sleepy Spell (source lines 9426-9469): Written by Claude to Lorsieab2's style guide and direction.
+The Scroll That Bit (source lines 9473-9517): Written by Claude to Lorsieab2's style guide and direction.
+The Fastest Feet (source lines 9521-9565): Written by Claude to Lorsieab2's style guide and direction.
+The Washing Stones (source lines 9569-9612): Written by Claude to Lorsieab2's style guide and direction.
+The Night Swim (source lines 9616-9659): Written by Claude to Lorsieab2's style guide and direction.
+The Eel Under the Rock (source lines 9663-9706): Written by Claude to Lorsieab2's style guide and direction.
+The Twin Pond (source lines 9710-9753): Written by Claude to Lorsieab2's style guide and direction.
+The Grandchild's Wish (source lines 9757-9800): Written by Claude to Lorsieab2's style guide and direction.
+The Frog Dance (source lines 9804-9847): Written by Claude to Lorsieab2's style guide and direction.
+The Last Canoe (source lines 9851-9894): Written by Claude to Lorsieab2's style guide and direction.
+The Seed of the Copy Tree (source lines 9898-9941): Written by Claude to Lorsieab2's style guide and direction.
+The Mango Tree (source lines 9945-9988): Written by Claude to Lorsieab2's style guide and direction.
+The Wind Spirit's Visit (source lines 9992-10035): Written by Claude to Lorsieab2's style guide and direction.
+The Apprentice's First Patient (source lines 10039-10083): Written by Claude to Lorsieab2's style guide and direction.
+The Swapping Shells (source lines 10087-10130): Written by Claude to Lorsieab2's style guide and direction.
+The Lost Little Ones (source lines 10134-10177): Written by Claude to Lorsieab2's style guide and direction.
+The Sleepwalker (source lines 10181-10224): Written by Claude to Lorsieab2's style guide and direction.
+The Feather Crown (source lines 10228-10271): Written by Claude to Lorsieab2's style guide and direction.
+The Stone That Teaches (source lines 10275-10318): Written by Claude to Lorsieab2's style guide and direction.
+The Singing Boat (source lines 10322-10365): Written by Claude to Lorsieab2's style guide and direction.
+The Rain of Copies (source lines 10369-10412): Written by Claude to Lorsieab2's style guide and direction.
+The Wrong Jar (source lines 10416-10460): Written by Claude to Lorsieab2's style guide and direction.
+The Fishing Contest (source lines 10464-10507): Written by Claude to Lorsieab2's style guide and direction.
+The Flood (source lines 10511-10555): Written by Claude to Lorsieab2's style guide and direction.
+The Turtle Beach (source lines 10559-10602): Written by Claude to Lorsieab2's style guide and direction.
+The Talking Pig (source lines 10606-10648): Written by Claude to Lorsieab2's style guide and direction.
+The Mask of Years (source lines 10652-10695): Written by Claude to Lorsieab2's style guide and direction.
+The Brave Child (source lines 10699-10742): Written by Claude to Lorsieab2's style guide and direction.
+The Moon in the Bowl (source lines 10746-10789): Written by Claude to Lorsieab2's style guide and direction.
+The Healing Rain (source lines 10793-10837): Written by Claude to Lorsieab2's style guide and direction.
+The Hut-Raising Song (source lines 10841-10885): Written by Claude to Lorsieab2's style guide and direction.
+The Ghost Canoe (source lines 10889-10931): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Gull (source lines 10935-10977): Written by Claude to Lorsieab2's style guide and direction.
+The Doubling Pool (source lines 10981-11023): Written by Claude to Lorsieab2's style guide and direction.
+The Mud Bath (source lines 11027-11070): Written by Claude to Lorsieab2's style guide and direction.
+The Island Wedding (source lines 11074-11118): Written by Claude to Lorsieab2's style guide and direction.
+The Long Night Fire (source lines 11122-11166): Written by Claude to Lorsieab2's style guide and direction.
+The Seed Traders (source lines 11170-11212): Written by Claude to Lorsieab2's style guide and direction.
+The Night the Roofs Flew (source lines 11263-11305): Written by Claude to Lorsieab2's style guide and direction.
+The Canoe Beyond the Reef (source lines 11309-11350): Written by Claude to Lorsieab2's style guide and direction.
+The Fever and the Bitter Root (source lines 11354-11396): Written by Claude to Lorsieab2's style guide and direction.
+The Old Fisher's Last Tide (source lines 11400-11442): Written by Claude to Lorsieab2's style guide and direction.
+The Glass Pool in the Cave (source lines 11446-11487): Written by Claude to Lorsieab2's style guide and direction.
+The Vine Swing Over the Gorge (source lines 11491-11533): Written by Claude to Lorsieab2's style guide and direction.
+The Red Moon and the Midwife (source lines 11537-11580): Written by Claude to Lorsieab2's style guide and direction.
+The Feast Nobody Planned (source lines 11584-11626): Written by Claude to Lorsieab2's style guide and direction.
+The Grandchild's First Spell (source lines 11630-11672): Written by Claude to Lorsieab2's style guide and direction.
+The Contest of Best Hands (source lines 11676-11718): Written by Claude to Lorsieab2's style guide and direction.
+The Lightning Under the Banyan (source lines 11721-11763): Written by Claude to Lorsieab2's style guide and direction.
+The Basket in the Mangroves (source lines 11767-11807): Written by Claude to Lorsieab2's style guide and direction.
+The Ring of White Stones (source lines 11811-11852): Written by Claude to Lorsieab2's style guide and direction.
+The Last Bundle of Thatch (source lines 11856-11897): Written by Claude to Lorsieab2's style guide and direction.
+The Coughing Season (source lines 11901-11943): Written by Claude to Lorsieab2's style guide and direction.
+The Traveller Who Collects Names (source lines 11947-11989): Written by Claude to Lorsieab2's style guide and direction.
+The Wishing Well's Old Coin (source lines 11993-12033): Written by Claude to Lorsieab2's style guide and direction.
+The Game That Went Too Far (source lines 12037-12078): Written by Claude to Lorsieab2's style guide and direction.
+The Elder Who Wandered Off (source lines 12082-12123): Written by Claude to Lorsieab2's style guide and direction.
+The Warm Stone of the Mothers (source lines 12127-12168): Written by Claude to Lorsieab2's style guide and direction.
+The Dream-Sharing Tea (source lines 12171-12215): Written by Claude to Lorsieab2's style guide and direction.
+The Baby in the Whale's Wake (source lines 12219-12259): Written by Claude to Lorsieab2's style guide and direction.
+The Echo Conch (source lines 12263-12305): Written by Claude to Lorsieab2's style guide and direction.
+The Termites in the Rafters (source lines 12309-12350): Written by Claude to Lorsieab2's style guide and direction.
+The Old Healer's Last Season (source lines 12354-12395): Written by Claude to Lorsieab2's style guide and direction.
+The Statue Under the Lagoon (source lines 12399-12439): Written by Claude to Lorsieab2's style guide and direction.
+The Night the Hill Moved (source lines 12443-12485): Written by Claude to Lorsieab2's style guide and direction.
+The Mask Carver's New Faces (source lines 12489-12531): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Shark in the Shallows (source lines 12535-12576): Written by Claude to Lorsieab2's style guide and direction.
+The Festival of Floating Lanterns (source lines 12580-12622): Written by Claude to Lorsieab2's style guide and direction.
+The Polished Shell Mirror (source lines 12625-12667): Written by Claude to Lorsieab2's style guide and direction.
+The Coconut Climb (source lines 12671-12711): Written by Claude to Lorsieab2's style guide and direction.
+The Elders' Anniversary Wish (source lines 12715-12757): Written by Claude to Lorsieab2's style guide and direction.
+The Hammock Built for Two (source lines 12761-12802): Written by Claude to Lorsieab2's style guide and direction.
+The Lights on the Reef (source lines 12806-12848): Written by Claude to Lorsieab2's style guide and direction.
+The Swamp Fever (source lines 12852-12894): Written by Claude to Lorsieab2's style guide and direction.
+The Name Carved in the Banyan (source lines 12898-12938): Written by Claude to Lorsieab2's style guide and direction.
+The Cook Who Lost (His/Her) Taste (source lines 12942-12983): Written by Claude to Lorsieab2's style guide and direction.
+The Hermit's Children (source lines 12987-13029): Written by Claude to Lorsieab2's style guide and direction.
+The Two Carved Totems (source lines 13033-13074): Written by Claude to Lorsieab2's style guide and direction.
+The Lotus That Opened at Dawn (source lines 13077-13119): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Fog Off the Mountain (source lines 13123-13163): Written by Claude to Lorsieab2's style guide and direction.
+The Warm Lake in the Crater (source lines 13167-13207): Written by Claude to Lorsieab2's style guide and direction.
+The Shadow That Stood Up (source lines 13211-13252): Written by Claude to Lorsieab2's style guide and direction.
+The Masks of the Harvest Dance (source lines 13256-13297): Written by Claude to Lorsieab2's style guide and direction.
+The Rockfall at the Quarry (source lines 13301-13341): Written by Claude to Lorsieab2's style guide and direction.
+The Fever That Burns Away Names (source lines 13345-13386): Written by Claude to Lorsieab2's style guide and direction.
+The Laziest Summer (source lines 13390-13430): Written by Claude to Lorsieab2's style guide and direction.
+The Huts on Stilts (source lines 13434-13475): Written by Claude to Lorsieab2's style guide and direction.
+The Sleepwalker on the Cliffs (source lines 13479-13520): Written by Claude to Lorsieab2's style guide and direction.
+The Night of Two Sunrises (source lines 13523-13564): Written by Claude to Lorsieab2's style guide and direction.
+The Smoke From the Next Island (source lines 13568-13608): Written by Claude to Lorsieab2's style guide and direction.
+The Potter's Clay Figures (source lines 13612-13653): Written by Claude to Lorsieab2's style guide and direction.
+The Eel of the Twin Pools (source lines 13657-13698): Written by Claude to Lorsieab2's style guide and direction.
+The Ash That Fell Like Snow (source lines 13702-13742): Written by Claude to Lorsieab2's style guide and direction.
+The Spirit Who Wanted a Name (source lines 13746-13787): Written by Claude to Lorsieab2's style guide and direction.
+The Wedding Nobody Expected (source lines 13791-13832): Written by Claude to Lorsieab2's style guide and direction.
+The Crocodile in the River Mouth (source lines 13836-13876): Written by Claude to Lorsieab2's style guide and direction.
+The Oldest Hut Falls Down (source lines 13880-13921): Written by Claude to Lorsieab2's style guide and direction.
+The Stranger With (Name)'s Face (source lines 13925-13966): Written by Claude to Lorsieab2's style guide and direction.
+The Wrong Jar (source lines 13969-14010): Written by Claude to Lorsieab2's style guide and direction.
+The Bird That Steals Words (source lines 14014-14054): Written by Claude to Lorsieab2's style guide and direction.
+The Echo Valley (source lines 14058-14098): Written by Claude to Lorsieab2's style guide and direction.
+The Waterfall of Two Rivers (source lines 14102-14143): Written by Claude to Lorsieab2's style guide and direction.
+The Coconut That Cried (source lines 14147-14187): Written by Claude to Lorsieab2's style guide and direction.
+The Pale Blossoms of the Ridge (source lines 14191-14233): Written by Claude to Lorsieab2's style guide and direction.
+The Burial Cave (source lines 14237-14278): Written by Claude to Lorsieab2's style guide and direction.
+The Moon-Shell Necklace (source lines 14282-14324): Written by Claude to Lorsieab2's style guide and direction.
+The Rope Bridge Over the Ravine (source lines 14328-14368): Written by Claude to Lorsieab2's style guide and direction.
+The Carver's Masks of the Ancestors (source lines 14372-14413): Written by Claude to Lorsieab2's style guide and direction.
+The Raft at the River Mouth (source lines 14416-14456): Written by Claude to Lorsieab2's style guide and direction.
+The Apprentice's First Roof (source lines 14460-14501): Written by Claude to Lorsieab2's style guide and direction.
+The Day of Small Kindnesses (source lines 14505-14546): Written by Claude to Lorsieab2's style guide and direction.
+The Flood in the Scroll Hut (source lines 14550-14591): Written by Claude to Lorsieab2's style guide and direction.
+The Storm Gourd (source lines 14595-14636): Written by Claude to Lorsieab2's style guide and direction.
+The Grandmother Tree (source lines 14640-14680): Written by Claude to Lorsieab2's style guide and direction.
+The Visitor at the Door at Night (source lines 14684-14724): Written by Claude to Lorsieab2's style guide and direction.
+The Twin Statues on the Headland (source lines 14728-14768): Written by Claude to Lorsieab2's style guide and direction.
+The Slippery Rocks by the Waterfall (source lines 14772-14812): Written by Claude to Lorsieab2's style guide and direction.
+The Little Sister of the Hills (source lines 14816-14857): Written by Claude to Lorsieab2's style guide and direction.
+The Healers' Week of Lessons (source lines 14860-14901): Written by Claude to Lorsieab2's style guide and direction.
+The Sky Lantern That Came Down (source lines 14905-14945): Written by Claude to Lorsieab2's style guide and direction.
+The Cousins From Across the Sea (source lines 14949-14989): Written by Claude to Lorsieab2's style guide and direction.
+The Hollow-Log Drum (source lines 14993-15035): Written by Claude to Lorsieab2's style guide and direction.
+The Old Woman of the Reef (source lines 15039-15079): Written by Claude to Lorsieab2's style guide and direction.
+The Double Banana (source lines 15083-15124): Written by Claude to Lorsieab2's style guide and direction.
+The Fall From the Festival Tower (source lines 15128-15168): Written by Claude to Lorsieab2's style guide and direction.
+The Naming Stone at the Spring (source lines 15172-15212): Written by Claude to Lorsieab2's style guide and direction.
+The Elder's Last Story (source lines 15216-15257): Written by Claude to Lorsieab2's style guide and direction.
+The Tunnel Under the Headland (source lines 15261-15301): Written by Claude to Lorsieab2's style guide and direction.
+The Basket on the Turtle's Back (source lines 15304-15344): Written by Claude to Lorsieab2's style guide and direction.
+The Silver Web at Dawn (source lines 15348-15388): Written by Claude to Lorsieab2's style guide and direction.
+The Two Who Looked Alike (source lines 15392-15434): Written by Claude to Lorsieab2's style guide and direction.
+The Fever Ward (source lines 15438-15479): Written by Claude to Lorsieab2's style guide and direction.
+The Ghost Crabs of the Night Beach (source lines 15483-15523): Written by Claude to Lorsieab2's style guide and direction.
+The Lazy River (source lines 15527-15568): Written by Claude to Lorsieab2's style guide and direction.
+The Hut in the Deep Jungle (source lines 15572-15612): Written by Claude to Lorsieab2's style guide and direction.
+The Storm Season (source lines 15616-15657): Written by Claude to Lorsieab2's style guide and direction.
+The Grey Heron at the Pool (source lines 15661-15701): Written by Claude to Lorsieab2's style guide and direction.
+The Shell That Doubles (source lines 15705-15747): Written by Claude to Lorsieab2's style guide and direction.
+The Octopus in the Fish Trap (source lines 15750-15791): Written by Claude to Lorsieab2's style guide and direction.
+The Golden Moths (source lines 15795-15835): Written by Claude to Lorsieab2's style guide and direction.
+The Rainbow Over the Waterfall (source lines 15839-15880): Written by Claude to Lorsieab2's style guide and direction.
+The Lost Recipe for the Shaking Sickness (source lines 15884-15926): Written by Claude to Lorsieab2's style guide and direction.
+The Games With the Hill Village (source lines 15930-15973): Written by Claude to Lorsieab2's style guide and direction.
+The Dolphin Who Wouldn't Leave (source lines 15977-16017): Written by Claude to Lorsieab2's style guide and direction.
+The Smoked Fish Contest (source lines 16021-16062): Written by Claude to Lorsieab2's style guide and direction.
+The Map of Wrinkles (source lines 16066-16107): Written by Claude to Lorsieab2's style guide and direction.
+The Teenagers in the Cave (source lines 16111-16152): Written by Claude to Lorsieab2's style guide and direction.
+The Second Naming (source lines 16156-16197): Written by Claude to Lorsieab2's style guide and direction.
+The Bundle in the Breadfruit Tree (source lines 16200-16240): Written by Claude to Lorsieab2's style guide and direction.
+The Moon Bath (source lines 16244-16284): Written by Claude to Lorsieab2's style guide and direction.
+The Morning After the Tremor (source lines 16288-16328): Written by Claude to Lorsieab2's style guide and direction.
+The Sweet Spring and the Sour Spring (source lines 16332-16372): Written by Claude to Lorsieab2's style guide and direction.
+The Mist That Takes Names (source lines 16376-16417): Written by Claude to Lorsieab2's style guide and direction.
+The Harvest Moon Dance (source lines 16421-16462): Written by Claude to Lorsieab2's style guide and direction.
+The Shell of Turning Years (source lines 16466-16506): Written by Claude to Lorsieab2's style guide and direction.
+The Canoe That Came Back Twice (source lines 16510-16550): Written by Claude to Lorsieab2's style guide and direction.
+The Healer's Sweet Tonic (source lines 16554-16595): Written by Claude to Lorsieab2's style guide and direction.
+The Ghost in the Empty Hut (source lines 16599-16639): Written by Claude to Lorsieab2's style guide and direction.
 Good Morning, Sun (Belief and Identity source lines 8-17): NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15) Religious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 Not Joining In (Belief and Identity source lines 20-29): NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15) Religious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 Are Spirits Real? (Belief and Identity source lines 32-41): NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15) Religious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
@@ -3301,6 +3661,121 @@ The Cost of a Miracle (living source lines 23248-23262): ISOLA — ALL-IN-ONE GR
 The Young Scientist and the Sacred Pool (living source lines 23264-23278): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
 The Bell That Divided the Village (living source lines 23280-23294): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
 The Last Word of the Elder (living source lines 23296-23310): ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES Original creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).
+The Person Beyond the Torchlight (source lines 9872-9928): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Beggar at the Door (source lines 9932-9988): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Second Footprint (source lines 9992-10047): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Crate with No Owner (source lines 10051-10106): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Bottle of Blue Light (source lines 10110-10165): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Woman No One Else Hears (source lines 10169-10224): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mask That Changes Faces (source lines 10228-10283): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Three Sealed Jars (source lines 10287-10342): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger at the Crossroads (source lines 10346-10401): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beggar's Empty Bowl (source lines 10405-10460): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Door That Was Not There (source lines 10464-10519): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mirror of Another Age (source lines 10523-10578): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Guest Who Knew Tomorrow (source lines 10582-10637): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Cask of Forgotten Names (source lines 10641-10696): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Figure in the Tidal Pool (source lines 10700-10755): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Potion with Two Labels (source lines 10759-10814): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Woman at the Last House (source lines 10818-10873): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sealed Box of Winds (source lines 10877-10932): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Three Gifts of the Wanderer (source lines 10936-10991): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Bridge Keeper's Question (source lines 10995-11050): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Song That Opens the Cave (source lines 11054-11109): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fisherman's Impossible Catch (source lines 11113-11168): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Visitor Who Cast No Shadow (source lines 11172-11227): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lantern on the Empty Boat (source lines 11231-11286): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beggar and the Broken Cup (source lines 11290-11345): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The House That Dreamed (source lines 11349-11404): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The River's Returned Gift (source lines 11408-11463): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Orchard of One Night (source lines 11467-11522): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Name Spoken from the Well (source lines 11526-11581): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Gift That Could Not Be Given (source lines 11585-11640): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shoreline Procession (source lines 11644-11699): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger's Unfinished Story (source lines 11703-11758): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stone That Remembered (source lines 11762-11817): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Two Identical Travelers (source lines 11821-11876): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Merchant's Impossible Price (source lines 11880-11935): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Empty Seat at the Feast (source lines 11939-11994): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Forest's Borrowed Voice (source lines 11998-12053): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sea's Three Warnings (source lines 12057-12112): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Clay Figure in the Garden (source lines 12116-12171): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Night Visitor's Secret (source lines 12175-12230): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Woman's Three Questions (source lines 12234-12289): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Broken Seal (source lines 12293-12348): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Road of Returning Steps (source lines 12352-12407): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Guest Who Left No Name (source lines 12411-12466): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Promise Beneath the Tree (source lines 12470-12525): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Boatman Who Asked for a Memory (source lines 12529-12584): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Shrine's Strange Guest (source lines 12588-12643): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wishing Vessel (source lines 12647-12702): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hollow Tree's Visitor (source lines 12706-12761): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sea Chest of Two Brothers (source lines 12765-12820): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Visitor at the Cradle (source lines 12824-12879): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Box of Winter in Summer (source lines 12883-12938): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Voice at the Old Boundary (source lines 12942-12997): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Three Knocks at Midnight (source lines 13001-13056): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Silent Market Stall (source lines 13060-13115): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Person in the Rain (source lines 13119-13174): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Gourd That Would Not Empty (source lines 13178-13233): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Beggar's Last Request (source lines 13237-13292): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mist That Called a Name (source lines 13295-13352): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Crown of Driftwood (source lines 13355-13410): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sleeper Beneath the Hill (source lines 13413-13468): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Flower That Bloomed for the Dead (source lines 13471-13526): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Bargain of the Hidden Garden (source lines 13529-13584): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Threshold Test (source lines 13587-13642): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lost Page of the World (source lines 13645-13700): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Night of the Open Doors (source lines 13703-13758): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hidden Companion (source lines 13761-13816): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Box of the Last Word (source lines 13819-13874): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Watcher on the Cliff (source lines 13877-13932): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beggar Who Returned as a King (source lines 13935-13989): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Visitor's Final Footstep (source lines 13992-14047): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Jar of Two Sunrises (source lines 14050-14104): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Dreamer's Stranger (source lines 14107-14162): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Man at the Storm Gate (source lines 14165-14220): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stone Boat (source lines 14223-14278): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Voice Behind the Curtain (source lines 14281-14336): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Gift from the Unseen Fisher (source lines 14339-14394): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Forest's Unclaimed Box (source lines 14397-14452): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Guest Who Ate No Food (source lines 14455-14510): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Silver Thread (source lines 14513-14567): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Cave of Returned Words (source lines 14570-14625): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Traveler's Lost Star (source lines 14628-14683): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beggar with the Golden Seed (source lines 14686-14741): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Unseen Guide (source lines 14744-14799): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Box of Little Storms (source lines 14802-14857): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Last Lamp in the Ruins (source lines 14860-14915): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Woman Who Asked for Nothing (source lines 14918-14973): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hidden Name of the Mountain (source lines 14976-15031): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger Who Counted the Stars (source lines 15034-15089): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hungry Stranger's Blessing (source lines 15092-15147): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Unfinished Statue (source lines 15150-15205): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Silent Stranger at the Well (source lines 15208-15263): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Ancient Bottle's Warning (source lines 15266-15321): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shore's Unseen Companion (source lines 15324-15379): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Basket of Unknown Fruit (source lines 15382-15437): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Traveler's Shadow (source lines 15440-15495): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Book That Wrote Back (source lines 15498-15553): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger at the Funeral Path (source lines 15556-15611): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hidden Cup of Rain (source lines 15614-15669): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger's Two Faces (source lines 15672-15727): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Traveler Who Never Arrived (source lines 15730-15785): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Little God of the Garden (source lines 15788-15843): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Jar of Silent Thunder (source lines 15846-15901): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Ferryman's Empty Boat (source lines 15904-15959): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Woman's Empty Hands (source lines 15962-16017): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Circle of Unseen Dancers (source lines 16020-16075): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wanderer's Three Doors (source lines 16078-16133): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beggar and the Stolen Sunlight (source lines 16136-16191): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger Who Spoke to the Tree (source lines 16194-16249): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Returned Lost Child (source lines 16252-16307): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wandering Herbalist's Box (source lines 16310-16365): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Guest with the Old Song (source lines 16368-16423): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Garden of the Vanished (source lines 16426-16481): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger Who Offered a Choice (source lines 16484-16539): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Last Stranger of the Season (source lines 16542-16597): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Crab in the Blue Cup (Nature, Ecology and Animals source lines 8-17): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Bird in the Line (Nature, Ecology and Animals source lines 20-29): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 What the Storm Left Behind (Nature, Ecology and Animals source lines 32-41): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
@@ -3351,6 +3826,106 @@ Counting the Nests (Nature, Ecology and Animals source lines 548-557): NEW EVENT
 Bees in the Wall (Nature, Ecology and Animals source lines 560-569): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 Jellyfish Season (Nature, Ecology and Animals source lines 572-581): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Fish Were Bigger Then (Nature, Ecology and Animals source lines 584-593): NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15) Isola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
+The Spring That Reflected Tomorrow (source lines 4712-4757): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Second Shadow (source lines 4759-4814): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Twin in the Mist (source lines 4816-4861): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Charm That Forgot (source lines 4863-4908): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Night of Exchanged Voices (source lines 4910-4956): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Blessing of the Old Tree (source lines 4958-5004): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mirror of Other Years (source lines 5006-5051): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Spirit's Unfinished Song (source lines 5053-5098): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Blue Flame (source lines 5100-5146): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Dream of Two Selves (source lines 5148-5194): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fishing Line Dispute (source lines 5196-5241): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Watch at Night (source lines 5243-5288): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lost Public Tools (source lines 5290-5335): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Council's Empty Seat (source lines 5337-5383): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Water Jar Rule (source lines 5385-5430): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Refused Duty (source lines 5432-5477): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Storehouse Key (source lines 5479-5524): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger's Complaint (source lines 5526-5571): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Broken Promise (source lines 5573-5619): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Vote That Tied (source lines 5621-5668): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Little Scientist (source lines 5670-5715): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Secret Fort (source lines 5717-5762): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The First Fish (source lines 5764-5809): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Teacher Who Listened (source lines 5811-5857): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Broken Toy Boat (source lines 5859-5904): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Child Who Feared Thunder (source lines 5906-5952): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Two Best Friends (source lines 5954-6000): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lost Shell Collection (source lines 6002-6047): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Very Serious Play (source lines 6049-6095): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Young Helper (source lines 6097-6142): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Elder's Last Garden (source lines 6145-6191): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Forgotten Path (source lines 6194-6239): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Fisher's Hands (source lines 6242-6287): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Birthday No One Counted (source lines 6290-6336): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Teacher Who Retired (source lines 6339-6384): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Letter Never Sent (source lines 6387-6433): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Last Dance (source lines 6436-6482): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Grandparent's Story (source lines 6485-6532): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Scar (source lines 6535-6581): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Bench in the Sun (source lines 6584-6631): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Trader with No Goods (source lines 6634-6689): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sailor Who Stayed (source lines 6692-6747): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Letter Across the Sea (source lines 6750-6805): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Farmhand from the West (source lines 6808-6863): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Returning Exile (source lines 6866-6921): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mapmaker's Apprentice (source lines 6924-6979): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Injured Visitor (source lines 6982-7037): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger at the Well (source lines 7040-7096): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Child from the Raft (source lines 7099-7154): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Visitor's Farewell (source lines 7157-7212): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The First Rain After Drought (source lines 7215-7271): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fog That Held (source lines 7274-7329): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wind in the Granary (source lines 7332-7387): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Heat in the Classroom (source lines 7390-7445): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Flooded Path (source lines 7448-7503): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lightning-Struck Tree (source lines 7506-7562): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sudden Cold (source lines 7565-7620): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Tide at the Door (source lines 7623-7678): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Dusty Season (source lines 7681-7736): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Calm Before the Storm (source lines 7739-7794): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Second Courtship (source lines 7797-7843): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Farmer's Shy Admirer (source lines 7846-7892): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Unexpected Proposal (source lines 7895-7941): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Love Letter Lost (source lines 7944-7990): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Couple Who Chose to Wait (source lines 7993-8039): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wedding Without a Feast (source lines 8042-8088): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Partners at Work (source lines 8091-8137): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Friendship After No (source lines 8140-8185): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Couple's Walk (source lines 8188-8232): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Newcomer's Choice (source lines 8235-8280): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Record Washed Away (source lines 8283-8328): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wrong Name (source lines 8331-8377): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Name Lost to Magic (source lines 8380-8426): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Family Recipe (source lines 8429-8475): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Child's First Word (source lines 8478-8524): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Unfinished Portrait (source lines 8527-8572): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Two Histories (source lines 8575-8621): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Hidden Diary (source lines 8624-8671): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Songbook (source lines 8674-8720): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stone of Names (source lines 8723-8768): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Apprentice's First Failure (source lines 8771-8818): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Overworked Healer (source lines 8821-8866): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Unwanted Promotion (source lines 8869-8915): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fisher Who Wanted to Farm (source lines 8918-8964): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Day Without Tasks (source lines 8967-9013): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Misunderstood Apprentice (source lines 9016-9062): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shared Harvest (source lines 9065-9111): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Long Way Home (source lines 9114-9160): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Night Shift (source lines 9163-9209): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Worker Who Said No (source lines 9212-9259): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Water That Tasted Different (source lines 9262-9318): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Plant That Grew Sideways (source lines 9321-9377): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shells with Holes (source lines 9380-9435): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Ant Trail Experiment (source lines 9438-9494): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Two Kinds of Ash (source lines 9497-9553): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Tide Clock (source lines 9556-9612): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sick Plant Puzzle (source lines 9615-9671): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stone That Floats (source lines 9674-9730): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Breadfruit Question (source lines 9733-9789): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Echo in the Cave (source lines 9792-9850): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Fair Share (Role Models source lines 5-5): 🌴 Role Models and Good Examples — 40 New Isola Events Forty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.
 The Broken Water Jar (Role Models source lines 7-7): 🌴 Role Models and Good Examples — 40 New Isola Events Forty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.
 A Promise Before Sunset (Role Models source lines 9-9): 🌴 Role Models and Good Examples — 40 New Isola Events Forty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.
@@ -3441,6 +4016,104 @@ The Last Day at the Kiln (Role Models and Good Examples, RM-41 to RM-90 source l
 The Sandcastle (Role Models and Good Examples, RM-41 to RM-90 source lines 715-728): NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15) Fifty more events continuing your "Role Models and Good Examples — 40 Events". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.
 The Name Said Right (Role Models and Good Examples, RM-41 to RM-90 source lines 730-743): NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15) Fifty more events continuing your "Role Models and Good Examples — 40 Events". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.
 The Example Passed On (Role Models and Good Examples, RM-41 to RM-90 source lines 745-758): NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15) Fifty more events continuing your "Role Models and Good Examples — 40 Events". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.
+The Spring That Talks Back (source lines 2-47): Written by Lorsieab2.
+A Face in the Tide Pool (source lines 51-95): Written by Lorsieab2.
+The Very Long Nap (source lines 99-143): Written by Lorsieab2.
+Two Hammocks, One Storm (source lines 147-192): Written by Lorsieab2.
+The Wind That Took a Name (source lines 196-240): Written by Lorsieab2.
+The Basket on the Beach (source lines 244-289): Written by Lorsieab2.
+The Granary Gets Wet (source lines 293-337): Written by Lorsieab2.
+The Coconut Bonanza (source lines 341-384): Written by Lorsieab2.
+The Elder Who Forgot to Get Old (source lines 388-434): Written by Lorsieab2.
+The Bee Hat (source lines 438-482): Written by Lorsieab2.
+The Second (Name) (source lines 486-531): Written by Lorsieab2.
+The Biggest Fish in the Bay (source lines 535-579): Written by Lorsieab2.
+The Researchers' Bonfire (source lines 583-626): Written by Lorsieab2.
+The Fog Walker (source lines 630-674): Written by Lorsieab2.
+The Visitor with the Enormous Hat (source lines 678-721): Written by Lorsieab2.
+The Fertility Stone (source lines 725-769): Written by Lorsieab2.
+The Name Nobody Can Say (source lines 773-816): Written by Lorsieab2.
+The Pig Who Knew Better (source lines 820-863): Written by Lorsieab2.
+The Glowing Berries (source lines 867-912): Written by Lorsieab2.
+The Grumpy Morning (source lines 916-960): Written by Lorsieab2.
+The Spring of Small Years (source lines 964-1008): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Echo Cave (source lines 1012-1056): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Lightning on the Research Hut (source lines 1060-1105): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sleepwalkers (source lines 1109-1154): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+A Quiet Afternoon (source lines 1158-1202): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Chief's Bad Idea (source lines 1206-1251): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Tree Remembers (source lines 1305-1349): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wrong Step at the Falls (source lines 1353-1397): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Fisher's Last Tide (source lines 1401-1446): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mould That Made a Friend (source lines 1450-1494): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shipwrecked Family (source lines 1498-1543): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Monkey Raid (source lines 1547-1591): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Something Has Been Eating the Scrolls (source lines 1595-1638): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+A Gift from the Smoking Mountain (source lines 1642-1686): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Weaver's New Pattern (source lines 1690-1736): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Coughing Season (source lines 1740-1784): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Prank Mirror (source lines 1788-1831): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sacred Pool (source lines 1835-1880): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Forgetful Morning (source lines 1884-1929): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Naming Shell (source lines 1933-1977): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Midwife's Dream (source lines 1981-2027): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Raft of Strangers (source lines 2031-2074): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Bitter Leaf (source lines 2078-2122): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Master Builder's Last Lesson (source lines 2126-2172): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Shortcut over the Ridge (source lines 2176-2220): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Night of Falling Stars (source lines 2224-2269): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Elder on the Wet Rocks (source lines 2273-2317): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Barnacle Beard (source lines 2321-2365): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Grey Overnight (source lines 2369-2413): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Parrot with Opinions (source lines 2417-2461): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Old Wanderer (source lines 2465-2508): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Child from the Forest (source lines 2512-2555): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Moon's Mirror (source lines 2559-2603): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fire Spirit's Joke (source lines 2607-2651): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Blank Morning (source lines 2655-2699): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Elder's Gift of Years (source lines 2703-2748): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Old Friends Again (source lines 2752-2796): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Magic Seed (source lines 2800-2845): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Swarm (source lines 2849-2893): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Soft Yams (source lines 2896-2939): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Flood (source lines 2942-2984): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Library in the Wreck (source lines 2987-3029): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+A Stranger's Recipe (source lines 3032-3074): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Coral Reef Dive (source lines 3077-3119): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sinking Sand (source lines 3122-3164): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Whispering Cave (source lines 3167-3209): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Long Illness (source lines 3212-3255): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Snake in the Basket (source lines 3258-3300): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Robe That Shrank (source lines 3351-3393): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Tree Blossoms Early (source lines 3396-3438): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Sculptor (source lines 3441-3483): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Clay Copy (source lines 3486-3528): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Too Many Cooks (source lines 3531-3575): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Goat That Followed (Name) Home (source lines 3578-3620): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mask Seller (source lines 3623-3665): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Second Name Day (source lines 3668-3711): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Mirror Twins (source lines 3714-3756): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Child Who Grew Up Overnight (source lines 3759-3801): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Feast for the Elders (source lines 3804-3847): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Healer's Mistake (source lines 3850-3893): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Rock Slide (source lines 3896-3938): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Riptide (source lines 3941-3983): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Elder from the Sea (source lines 3986-4029): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Two (Name)s Problem (source lines 4032-4075): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Swapping Mango (source lines 4078-4121): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Stranger Who Took a Name (source lines 4124-4167): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Beach Wedding (source lines 4170-4213): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Baby in the Ferns (source lines 4216-4259): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Fever Dream (source lines 4262-4304): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Big Wind (source lines 4307-4350): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Wise Old Tortoise (source lines 4353-4395): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Spilled Dye (source lines 4398-4440): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Lucky Harvest (source lines 4443-4485): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Peaceful Passing (source lines 4488-4530): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Ghost Light (source lines 4533-4575): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Grand Copy (source lines 4578-4620): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+Back to Childhood (source lines 4623-4665): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
+The Last Sunset of the Year (source lines 4668-4710): Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.
 The Cartographer Who Cannot See (companion source lines 6069-6081): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)
 The Drum Heard Through the Floor (companion source lines 6083-6091): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)
 The Missing Hand, the Steady Eye (companion source lines 6093-6101): Creative direction, original concepts and user-authored material: Lorsieab2. Additional expansion and event prose: ChatGPT (OpenAI). Creative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)

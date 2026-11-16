@@ -1,0 +1,29 @@
+{
+  "id": "vv5_island_event_filter_f02",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Content Filter: Pregnancy loss, stillbirth and death in childbirth",
+  "description": "Keeps \"pregnancy loss, stillbirth and death in childbirth\" out of the new island events. Applied before the rare roll picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**",
+  "output_tag": "Content Filter: Pregnancy loss, stillbirth and death in childbirth",
+  "dependencies": [],
+  "needs_on": [
+    {
+      "id": "vv5_isola_grand_event_collection",
+      "for": "the new island events it acts on"
+    }
+  ],
+  "conflicts": [],
+  "behavior_changes": [
+    "Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte, game file or save is changed: the row is only a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades reads.",
+    "The game's own island events, their text and their chances are never changed: it acts on the added events only."
+  ],
+  "evidence_status": "the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [],
+  "runtime_detours": []
+}

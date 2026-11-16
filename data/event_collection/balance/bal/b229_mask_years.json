@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask of Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b229_mask_years",
+  "source": "balance",
+  "lines": [
+   10652,
+   10695
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10652",
+  "ledger": [
+   {
+    "src": "L10653",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10654",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10662",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10671",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10659",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10660",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10663",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10672",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10665",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10668",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10674",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10677",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10680-10695",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "This year another villager, the oldest elder, has a bad back and can't hold up its weight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the Remembering festival, the oldest elder always wears the Mask of Years: a face carved with deep wrinkles, white hair of coconut fibre, and eyes that seem to look at everyone at once. This year (friend), the oldest elder, has a bad back and can't hold up its weight. (friend) has asked (subject) to wear it instead.\nThe mask is said to \"share the years\" between the wearer and the elder it belongs to, for one night. (subject) is holding it. It is heavier than it looks, and warm. (friend) is watching from (friend.his/her) seat, hopefully.\nShould (subject) wear the mask for the whole festival, or only for the opening dance?",
+   "choices": [
+    {
+     "label": "The Whole Festival",
+     "next": "c1",
+     "src": "L10659"
+    },
+    {
+     "label": "Only the Opening Dance",
+     "next": "c2",
+     "src": "L10660"
+    }
+   ],
+   "src": "L10655-10657"
+  },
+  "c1o1": {
+   "text": "In the morning, (subject) takes the mask off, and the face underneath has aged: grey hair, deep lines, the look of someone who has remembered a great deal. Across the fire, (friend)'s face has gone smooth and young. They look at each other and burst out laughing. \"One night, it said,\" says (friend). \"I think it meant one night to do it.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L10666"
+  },
+  "c1o2": {
+   "text": "In the morning (subject) takes the mask off and finds (subject.he/she) is sitting in (friend)'s seat, in (friend)'s body, with (friend)'s bad back. And (friend) is standing by the fire, holding the mask, in (subject)'s young body, looking astonished. The mask, it seems, shared everything. (friend) is delighted. (subject) is going to need a cushion.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L10669"
+  },
+  "c1": {
+   "text": "(subject) ties on the mask and dances, and sings, and leads the Remembering all night, while (friend) watches from (friend.his/her) seat. As the night goes on, (friend) sits up straighter...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10663"
+  },
+  "c2o1": {
+   "text": "Even one dance is enough for the mask to share something. (subject)'s hair is grey at the temples by morning, and (subject.his/her) face has an older, gentler look. (friend) says it suits (subject.him/her). The younger villagers start coming to (subject) for advice, which (subject.he/she) finds very strange.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10675"
+  },
+  "c2o2": {
+   "text": "The mask does nothing at all, for one dance. But (friend) spends the whole night telling (subject) the stories behind the Remembering, the names and the reasons, and in the morning (subject) knows more about the village's past than anyone of (subject.his/her) age.",
+   "src": "L10678"
+  },
+  "c2": {
+   "text": "(subject) wears the mask for the opening dance only, stamping slowly round the fire, then takes it off and gives it back to (friend), who holds it on (friend.his/her) knees all night...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10672"
+  }
+ }
+}

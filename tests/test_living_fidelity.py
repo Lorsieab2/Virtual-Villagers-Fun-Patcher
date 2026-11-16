@@ -144,7 +144,8 @@ class MixAnchor(unittest.TestCase):
                 self.assertIsNotNone(m)
                 pers = {"first": [m["pa"]], "second": [m["pb"]]}
                 ra, rb = m["ra"], m["rb"]
-                labels = [mx.plain(lines[n + 3 * i].strip())[3:] for i in range(4)]
+                # the owner (2026-11-15): every new event's choice labels in title case (collection_lib)
+                labels = [lc.lib.title_case_label(mx.plain(lines[n + 3 * i].strip())[3:]) for i in range(4)]
                 outs = [[[mx.plain(lines[n + 3 * i + j].strip())[4:]] for j in (1, 2)] for i in range(4)]
                 drop = {"first": False, "second": False}
                 for c in self.changes:

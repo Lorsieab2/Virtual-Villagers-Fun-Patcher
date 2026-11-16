@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Singing on the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b089_singing_reef",
+  "source": "balance",
+  "lines": [
+   4020,
+   4061
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4020",
+  "ledger": [
+   {
+    "src": "L4021",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4022",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4030",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4039",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4027",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4028",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4031",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4040",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4033",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4036",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4042",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4048-4061",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For three nights, someone has been singing on the reef.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three nights, someone has been singing on the reef. The song is wordless and beautiful, and it carries over the water right into the huts. On the third night, (name) goes down to the beach and sees, far out on the rocks in the moonlight, a figure with long hair and what looks like a fish's tail curled in the water beside it.\nThe fishers' grandmothers had stories about a singer on the reef who \"gives back years to those who listen, and takes those who answer.\" Nobody knows if it's true.\nThe singing is calling to (name). Should (he/she) answer it, or just listen?",
+   "choices": [
+    {
+     "label": "Answer It",
+     "next": "c1",
+     "src": "L4027"
+    },
+    {
+     "label": "Just Listen",
+     "next": "c2",
+     "src": "L4028"
+    }
+   ],
+   "src": "L4023-4025"
+  },
+  "c1o1": {
+   "text": "The next morning, (name)'s footprints lead into the water and don't come out. The fishers search the reef. They find nothing, only, wedged in the coral where the figure sat, a comb carved from white shell. The singing never comes again. On calm nights, the old fishers say they can still hear two voices, very far away.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4034"
+  },
+  "c1o2": {
+   "text": "The figure listens to (name)'s whole song. Then it laughs, a sound like water running over stones, and slides off the rocks and is gone. When (name) walks back up the beach, (his/her) face in the moonlit shallows is years younger. The song stops after that night. (Name) hums it for the rest of (his/her) life.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4037"
+  },
+  "c1": {
+   "text": "(Name) wades into the shallows and sings back, the first song that comes into (his/her) head. Out on the reef the figure goes still, and turns, and holds out a hand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4031"
+  },
+  "c2o1": {
+   "text": "(Name) listens until the singing stops at dawn. When (he/she) stands up, stiff and cold, (his/her) back doesn't ache the way it did, and the faces in the village are all staring: (his/her) face is years younger. \"Gives back years to those who listen,\" says the oldest fisher, and goes very quiet.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4043"
+  },
+  "c2o2": {
+   "text": "(Name) listens until dawn, and comes home quiet, and says nothing all day. That night (he/she) goes down to the beach again, and the next night too. On the fourth night, (he/she) doesn't come back. (His/Her) friends find (his/her) wrap folded neatly on the sand. Nobody hears the singing again.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L4046"
+  },
+  "c2": {
+   "text": "(Name) sits down on the sand and listens, hugging (his/her) knees, while the song rolls over the water. It's so beautiful it hurts...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4040"
+  }
+ }
+}

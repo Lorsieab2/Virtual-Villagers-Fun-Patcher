@@ -2,7 +2,7 @@
 
    BOTH EVENTS share the sites below through adv_flow (adv_core.inc).  They never take a share of the game's own
    draw (the owner's rule: stock island event chances never change): they come only when they are due -- picked with
-   Pick Island Event, or drawn by Story / Cheat Upgrades' separate rare roll (story_collection.inc) -- and the
+   Pick Island Event, or drawn by Story / Cheat Upgrades' natural-event replacement (story_collection.inc) -- and the
    encounter the stock roller would have drawn is then theirs instead.  The Cave Explorers asks up to three questions
    in the same dialog: after an answer that leads to another question, the two answer buttons get that question's
    words (the constructor's own text setter 0x4015A0, then centred again with the button's own size and move, as the

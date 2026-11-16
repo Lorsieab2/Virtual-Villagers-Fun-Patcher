@@ -1,0 +1,258 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever Ward",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b334_fever_ward",
+  "source": "balance",
+  "lines": [
+   15438,
+   15479
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15438",
+  "ledger": [
+   {
+    "src": "L15439",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15447",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15456",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15444",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15445",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15448",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15457",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15450",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15453",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15462",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15465-15479",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the youngest healer, and has been up for two days straight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sick": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A fever has gone through the village and the healers' hut is full: every mat taken, people lying in the doorway, the healers working day and night and barely sleeping. (subject) is the youngest healer, and has been up for two days straight. The head healer has just fallen asleep sitting up.\nA traveller passing through says that on the big islands, they move the sick out of the hot hut into the shade of the trees, where the breeze blows the fever away. The elders say a sick person should never be moved. Should (subject) move the patients outside, or keep them where they are?",
+   "choices": [
+    {
+     "label": "Move Them Outside",
+     "next": "c1",
+     "src": "L15444"
+    },
+    {
+     "label": "Keep Them Inside",
+     "next": "c2",
+     "src": "L15445"
+    }
+   ],
+   "src": "L15441-15442"
+  },
+  "c1o1": {
+   "text": "The breeze is cool and steady, and by the second night, the fevers start to break, one after another. Within a week, every patient is back on their feet. The healers write down the traveller's way and put it next to the elders' old ways. Every healer in the village learned more in that week than in the year before it.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L15451"
+  },
+  "c1o2": {
+   "text": "On the second night it rains, hard and cold, and the healers have to carry everyone back inside in the dark, soaked. The fevers break anyway, in the end, but (subject), who carried more patients through that rain than anyone, comes to hate the sound of it on a roof, and stops whatever (subject.he/she) is doing to get out of it for the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L15454"
+  },
+  "c1": {
+   "text": "(subject) wakes the other healers and, one by one, they carry the sick out on their mats into the shade of the big trees behind the hut, where the sea breeze blows...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15448"
+  },
+  "c2o1": {
+   "text": "It takes a long week, and (subject) barely sleeps, but one by one the fevers break. By the end, (subject) knows the healers' hut and everyone in it better than (subject.he/she) ever thought possible. The head healer, waking up properly at last, looks around at the empty mats and gives (subject) a nod that means more than any words.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L15460"
+  },
+  "c2o2": {
+   "text": "Everyone recovers, except (sick), who was the sickest from the start and never got better. The healers sit with (subject.him/her) on the last night. The village buries (subject.him/her) on the hill. The next time a fever comes, the healers move the sick out into the shade, just to try, and nobody says anything about the elders being wrong.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "kill",
+     "role": "sick",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L15463"
+  },
+  "c2": {
+   "text": "(subject) decides the elders are right, and keeps working, bringing water and cool cloths from mat to mat in the heat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15457"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

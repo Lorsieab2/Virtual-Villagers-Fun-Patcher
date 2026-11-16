@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spring of Small Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s021_spring_years",
+  "source": "rewrites",
+  "lines": [
+   964,
+   1008
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L964",
+  "ledger": [
+   {
+    "src": "L965",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L966",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L974",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L983",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L971",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L972",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L975",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L984",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L977",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L980",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L986",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L989",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L992-1008",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "But the children whisper that a very old water spirit lives at the bottom and keeps the years that people spend.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 20,
+   "max_age": 45
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High in the hills there is a spring that, the elders say, \"gives back what you spent.\" Nobody quite knows what that means, and the elders won't say any more. But the children whisper that a very old water spirit lives at the bottom and keeps the years that people spend. The water is the blue of a kingfisher's wing, and nothing grows on its banks but soft white moss.\n(Name) has been cutting wood up there all morning and is hot, sticky and sore. Without thinking about any of the stories, (he/she) strips off and wades in. The water is wonderfully cool. And as (he/she) scrubs (his/her) arms, the years start to wash off (his/her) skin like grey silt, clouding the blue water around (him/her) in soft swirls.\n(Name) climbs out feeling very light. Rather too light. (His/her) clothes, when (he/she) pulls them back on, are suddenly far too big. Should (he/she) run home before it gets any worse, or climb back in to see what else the spring will give back?",
+   "choices": [
+    {
+     "label": "Run Home",
+     "next": "c1",
+     "src": "L971"
+    },
+    {
+     "label": "Climb Back In",
+     "next": "c2",
+     "src": "L972"
+    }
+   ],
+   "src": "L967-969"
+  },
+  "c1o1": {
+   "text": "(He/She) bursts into the village all elbows and knees, voice cracking halfway through \"HELP.\" (Name) is a teenager again. Sixteen, by the look of (him/her): gangly, spotty, and full of big feelings that (he/she) had completely forgotten about. (His/her) family stare. Then they start laughing, and then (name) does too, and then (he/she) bursts into tears for no reason at all, which (he/she) also forgot about. (Name) has to learn all over again how to be sixteen, which turns out to be much harder the second time, because now (he/she) knows how it ends.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "teen",
+     "role": "subject"
+    }
+   ],
+   "src": "L978"
+  },
+  "c1o2": {
+   "text": "(Name) reaches the village and checks (his/her) reflection in a water jar. (He/She) is eighteen. Just eighteen, fresh-faced and bright-eyed, every grey hair gone. For one glorious afternoon (he/she) is delighted. (He/She) runs everywhere. (He/She) climbs things. Then, at dinner, (he/she) suddenly remembers how embarrassing being eighteen actually was: the awkwardness, the bad decisions, the haircut. (He/She) goes quite pale. \"Well,\" (he/she) says. \"This time I'll do it properly.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "18",
+     "role": "subject"
+    }
+   ],
+   "src": "L981"
+  },
+  "c1": {
+   "text": "(Name) grabs (his/her) things, holds (his/her) trousers up with one hand, and pelts down the hill towards the village as fast as (his/her) new, springy legs will carry (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L975"
+  },
+  "c2o1": {
+   "text": "The second dip washes off even more grey silt, great clouds of it, until the water around (him/her) is the colour of a rain puddle. (Name) climbs out a child. About ten years old, swamped in (his/her) clothes, with an adult's memories rattling around in a small head and a child's enormous appetite. (He/She) walks back into the village holding (his/her) grown-up shirt up like a dress, and everyone stops what they're doing. The elders look at each other and say \"the spring,\" in exactly the same tired voice. The children are delighted to have (him/her). The adults have a great many questions.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "child",
+     "role": "subject"
+    }
+   ],
+   "src": "L987"
+  },
+  "c2o2": {
+   "text": "This time, the water stays perfectly clear. No silt. No swirls. (Name) stands there up to (his/her) chin and nothing happens at all, except that (he/she) gets cold. Downstream, (he/she) can just see the first grey cloud drifting away over the stones, carrying the few years that came off on the first dip. They've gone for good. (Name) climbs out, wrings out (his/her) hair, and walks home looking about five years younger than (he/she) did this morning, which (he/she) decides is plenty.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L990"
+  },
+  "c2": {
+   "text": "(Name) looks down at (his/her) smooth hands, then back at the cool blue water. If one dip did all this, what could another do? (He/She) takes a deep breath and wades back in, all the way up to (his/her) chin...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L984"
+  }
+ }
+}

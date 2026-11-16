@@ -274,6 +274,25 @@ Nothing else is fixed.
 | draft_his L533 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
 | draft_lif L470 | `(his/hers)` | `(his/her) own` | LIF-40 | no his/hers placeholder (twice on the line) |
 
+### Likes and dislikes that match the games (the owner, 2026-11-16)
+
+The owner asked that every like or dislike an event gives match what it does in each game, and that the outcome name the thing liked or disliked (never a job), with minimal edits (docs/event-collection/likes-dislikes-fix.md).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| companion L2678 | `enjoy it.` | `enjoy the work.` | `c5dn002_wrong` e2 | like work (works more: VV2-VV5); the outcome names the work, not the trade |
+| companion L2696 | `medicinal botany.` | `medicinal herbs.` | `c5dn004_reluctant` e2 | like herbs (no behaviour in any game, so the text names the herbs themselves) |
+| companion L4535 | `enjoy leisure` | `enjoy resting` | `lbl056_retirement` e2 | like resting (no behaviour in any game, so the text names resting itself) |
+| living L20687 | `use the arm well.` | `use the arm well, though heavy lifting stays hard.` | `lvlife04_crooked_arm` b1 | dislike lifting (no rubble or debris work: VV3, VV4); the outcome names the lifting |
+| living L20274 | `adjustment to daily life.` | `adjustment to daily life without running.` | `lvmed05_limb_might` a1 | dislike running (every game); the outcome names the running |
+| living L20281 | `in a new craft.` | `in a new craft, though running is now hard.` | `lvmed05_limb_might` c2 | dislike running (every game); the outcome names the running |
+
+### Owner-approved label edits (2026-11-16)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| living L20497 | `Seek the donor's prior consent and study anatomy without operating.` | `Seek the donor's prior consent.` | `lvmed22_dream_kidney` (The Dream of a New Kidney), choice B | The owner approved shortening it (to "Seek the Donor's Prior Consent" or "Study Anatomy Without Operating") so it fits in title case; outcome B2 is the donor's family declining consent, so the consent half is kept. The file's label_case "source" exception goes: its labels show in title case like the rest |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.
@@ -386,3 +405,20 @@ smallest fix that reads the same is listed here.
 
 The six MC headings (Living L25161 and the five after it) use `&`, which no game's title can show. The event
 title writes it `and`: "ISLAND BUSINESSES & MARKETS" is shown "Island Businesses and Markets".
+
+### The GO files (rewritten and balance events)
+
+<!-- GO grammar fixes: written by scripts/go_events/gen_go.py -->
+The owner's GO files (rewrites, balance; 2026-11-16): fixed automatically by scripts/go_events/gen_go.py (a doubled word, "a" before a vowel sound, a count token's options without . ! ?, a word the engine has no placeholder for).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| rewrites L10760 | `Choices A and` | `Choices An and` | The Potion with Two Labels | "A and": "an" before a vowel sound |
+| balance L224 | `{#babies:One. Just the one. I was sure there were more|Two. You'll want a bigger sleeping mat|Three. You'll want a much bigger sleeping mat}` | `{#babies:One, just the one, i was sure there were more|Two, you'll want a bigger sleeping mat|Three, you'll want a much bigger sleeping mat}` | The Blessing Stones | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L2858 | `{#babies:"Just one. A strong one."|"Two heartbeats."|"Three heartbeats."}` | `{#babies:"Just one, a strong one"|"Two heartbeats"|"Three heartbeats"}` | The Wedding Night Feast | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L4579 | `{#babies:"Just the one, and the cradle is just right."|"Two. You'll need a wider cradle."|"Three. You'll need a much wider cradle."}` | `{#babies:"Just the one, and the cradle is just right"|"Two, you'll need a wider cradle"|"Three, you'll need a much wider cradle"}` | The Carved Cradle | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L6969 | `{#babies:One. The stones are stingy|Two. The stones are fair|Three. The stones are generous}` | `{#babies:One, the stones are stingy|Two, the stones are fair|Three, the stones are generous}` | The Two Round Stones | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L7928 | `{#babies:One lantern of ours, and only one baby. Fair|The lantern took a friend|The lantern took two friends}` | `{#babies:One lantern of ours, and only one baby, fair|The lantern took a friend|The lantern took two friends}` | The Lantern Night | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L8968 | `{#babies:One. Must have been the scary stories|Two. They liked the funny ones|Three. They liked all of them}` | `{#babies:One, must have been the scary stories|Two, they liked the funny ones|Three, they liked all of them}` | The Night-Blooming Flower | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
+| balance L9774 | `(Grandfather/Grandmother)` | `Grand(father/mother)` | The Grandchild's Wish | the engine has no (Grandfather/Grandmother) word: Grand(father/mother) reads the same |
+<!-- end of GO grammar fixes -->

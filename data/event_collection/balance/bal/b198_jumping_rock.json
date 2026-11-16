@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jumping Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b198_jumping_rock",
+  "source": "balance",
+  "lines": [
+   9190,
+   9233
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9190",
+  "ledger": [
+   {
+    "src": "L9191",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9192",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9200",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9209",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9197",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9198",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9201",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9210",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9203",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9212",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9218-9233",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They're all standing on it now, looking down, and nobody wants to go first.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Above the deep pool at the river mouth there is a rock the young people jump from, higher every year, as each new group tries to beat the last. This year (subject)'s friends have found a ledge higher than anyone has ever jumped from: so high the pool below looks like a coin.\nThey're all standing on it now, looking down, and nobody wants to go first. (subject)'s friends are looking at (subject.him/her). The pool is deep in the middle, everyone knows that. But it's small from up here, and there are rocks at the edges.\nShould (subject) jump?",
+   "choices": [
+    {
+     "label": "Jump",
+     "next": "c1",
+     "src": "L9197"
+    },
+    {
+     "label": "Climb Back Down",
+     "next": "c2",
+     "src": "L9198"
+    }
+   ],
+   "src": "L9193-9195"
+  },
+  "c1o1": {
+   "text": "(subject) doesn't jump far enough out. (subject.His/her) friends hear (subject.him/her) hit the rocks at the edge of the pool. They climb down screaming for help. The village carries (subject) home, and buries (subject.him/her) above the river. The elders mark the high ledge with a cairn of stones, and nobody jumps from it again.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L9204"
+  },
+  "c1o2": {
+   "text": "(subject) hits the water hard and bangs (subject.his/her) head on the bottom. (subject.His/her) friends haul (subject.him/her) out, dazed and spluttering, with a lump on (subject.his/her) head like an egg. (subject.He/She) knows everyone, and the river, and the way home. What (subject.he/she) doesn't know is (subject.his/her) own name. It never comes back. The village calls (subject.him/her) \"?\", and the children call it the \"?\" ledge from then on.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L9207"
+  },
+  "c1": {
+   "text": "(subject) takes three steps back, runs, and leaps off the ledge into the air. For a long moment (subject.he/she) is flying, the wind screaming past (subject.his/her) ears, the pool getting bigger and bigger...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9201"
+  },
+  "c2o1": {
+   "text": "One by one, the others climb down after (subject.him/her), all looking relieved. They jump from the old ledge instead, all afternoon, until they are exhausted and laughing. Nobody ever jumps from the high ledge. (subject)'s parents never find out how close it was, and the whole village is in a good mood that evening for reasons it doesn't quite know.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9213"
+  },
+  "c2o2": {
+   "text": "(friend) laughs at (subject.him/her) and jumps. (friend) lands badly, half in the shallows. The healers save (friend), but (friend.his/her) back is never right again, and (friend.he/she) walks bent and slow. (subject) visits every day. Neither of them ever goes near the jumping rock again.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9216"
+  },
+  "c2": {
+   "text": "(subject) looks down at the pool, and the rocks, and then at (subject.his/her) friends. \"No,\" (subject.he/she) says. \"That's too high.\" (subject.He/She) starts to climb down. Behind (subject.him/her), the others go quiet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9210"
+  }
+ }
+}

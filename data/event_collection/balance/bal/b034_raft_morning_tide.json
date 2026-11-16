@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raft on the Morning Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b034_raft_morning_tide",
+  "source": "balance",
+  "lines": [
+   1526,
+   1568
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1526",
+  "ledger": [
+   {
+    "src": "L1527",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1533",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1534",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1554-1568",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The traveller's lips are cracked and their eyes are barely open.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At first light (subject) finds a raft washed up on the beach: a few logs lashed together, a torn sail, and lying on it, an exhausted traveller with a baby tied tight against their chest. The traveller's lips are cracked and their eyes are barely open. \"Please,\" the traveller whispers, and holds the baby up.\nThe baby is hungry and crying. The traveller is very weak. (subject) can only carry one of them up the beach at a time.\nWho should (subject) carry up first?",
+   "choices": [
+    {
+     "label": "Carry the Baby First",
+     "next": "c1",
+     "src": "L1533"
+    },
+    {
+     "label": "Help the Traveller Up First",
+     "next": "c2",
+     "src": "L1534"
+    }
+   ],
+   "src": "L1529-1531"
+  },
+  "c1o1": {
+   "text": "The healers go down to the raft at once, but the traveller has been at sea too long. The traveller holds on just long enough to hear that the baby is safe and fed, and then is gone. The village buries the traveller above the beach with the torn sail. (subject) never puts the baby down. \"I'll tell this little one all about you,\" (subject.he/she) promises the grave. \"Every year.\" And (subject.he/she) does.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L1540"
+  },
+  "c1o2": {
+   "text": "The healers bring the traveller up on a stretcher, and after three days of water, broth and sleep, the traveller can sit up, but is still too weak to care for a baby alone, so (subject) does the night feeds, and then the day ones, and somehow, by the time the traveller is strong again, the baby has two parents instead of one. They decide to stay.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L1543"
+  },
+  "c1": {
+   "text": "(subject) takes the baby and runs, shouting for the healers. Behind (subject.him/her), the traveller sinks back onto the raft with a look of enormous relief...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1537"
+  },
+  "c2o1": {
+   "text": "The traveller is sick for a long time. While the traveller recovers in the healers' hut, (subject) and (friend) take the baby home and look after the little one, and by the time the traveller is up and walking, the baby screams whenever anyone else tries to hold it. \"It's all right,\" the traveller says, laughing for the first time. \"We'll share.\" They decide to stay.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L1549"
+  },
+  "c2o2": {
+   "text": "That afternoon, a second raft comes ashore further down the beach, carrying the traveller's partner, who has been searching the sea for them for two days. The reunion on the sand makes half the village cry. Once they've rested, the family decides that they've had quite enough of the sea. They decide to stay.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L1552"
+  },
+  "c2": {
+   "text": "(subject) gets an arm under the traveller and half carries, half drags the traveller up the sand, the baby screaming between them...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1546"
+  }
+ }
+}

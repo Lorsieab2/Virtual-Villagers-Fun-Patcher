@@ -1,0 +1,320 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Echo in the Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new200_echo_cave",
+  "source": "rewrites",
+  "lines": [
+   9792,
+   9850
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9792",
+  "ledger": [
+   {
+    "src": "L9793",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9794",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9806",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9813",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9820",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9827",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9801",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9802",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9803",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9804",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9807",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9814",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9821",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9828",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9808",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9810",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9815",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9817",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9822",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9824",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9829",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9834-9850",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager are exploring the cliffs when they find a cave mouth they've never noticed before.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are exploring the cliffs when they find a cave mouth they've never noticed before. Naturally, (subject) leans in and shouts \"HELLO!\"\n\"HELLO!\" comes back, quickly, from the left wall.\nThen nothing. They wait.\nThen, much later, from somewhere deep on the right: \"...hello.\"\nIt's the same shout. It must be. But it came back twice, at two different times, from two different directions. And the second one sounds, (friend) insists, slightly offended. As if it was interrupted.\n(subject) and (friend) look at each other. Then at the cave. Neither of them is sure whether to shout again. What is making that second voice?",
+   "choices": [
+    {
+     "label": "Clap and Count Each Echo",
+     "next": "c1",
+     "src": "L9801"
+    },
+    {
+     "label": "Test Distance Against Tunnels",
+     "next": "c2",
+     "src": "L9802"
+    },
+    {
+     "label": "Ask Whether It Is Really an Echo",
+     "next": "c3",
+     "src": "L9803"
+    },
+    {
+     "label": "Teach the Echo Count",
+     "next": "c4",
+     "src": "L9804"
+    }
+   ],
+   "src": "L9795-9800"
+  },
+  "c1o1": {
+   "text": "(subject) claps and counts, over and over, and the gap is always the same: two heartbeats for the left echo, eleven for the right. Every time. It's a repeatable pattern that adds to village knowledge, and the researchers start using echoes to guess how deep caves go, without having to walk into them.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9809"
+  },
+  "c1o2": {
+   "text": "The counts change every time someone shifts their feet, or turns their head, or breathes too loudly. (subject) records the uncertainty honestly. (friend) keeps whispering \"it's offended\" every time the second echo comes back.",
+   "src": "L9811"
+  },
+  "c1": {
+   "text": "(subject) decides to treat it scientifically. (subject.He/She) claps once, sharply, and counts heartbeats until each echo comes back...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9807"
+  },
+  "c2o1": {
+   "text": "Pacing the cave by torchlight, they find the right wall is no farther away than the left. But in its corner, low down, there's a narrow tunnel, curving off into the dark. The sound goes down the tunnel, bounces around somewhere deep inside, and comes back late. A hidden tunnel bending the sound explains it far better than distance. The researchers learn a great deal about how sound travels through rock, and nobody goes down the tunnel. Yet.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9816"
+  },
+  "c2o2": {
+   "text": "The cave turns out to be strangely shaped, and both explanations still fit: the right wall IS farther, and there MIGHT be a tunnel, behind some rocks. More shouting is needed. (subject) and (friend) do a lot more shouting.",
+   "src": "L9818"
+  },
+  "c2": {
+   "text": "(subject) thinks the right wall must just be much farther away. (friend) thinks there must be a hidden tunnel. They light a torch and go in to find out...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9814"
+  },
+  "c3o1": {
+   "text": "Someone asks, very quietly, whether the second voice is an echo at all. Everyone goes still. They had all assumed it was. It's a hidden assumption in the whole echo investigation. So the next day, a group goes back and checks, very carefully, with claps instead of words. Claps come back. It's only an echo. Probably. The village learns to always check its assumptions, and nobody goes into that cave alone.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9823"
+  },
+  "c3o2": {
+   "text": "The explorers argue about how loud to shout for a fair test. Quietly? Normally? As loud as possible? They finally agree on \"very.\" The next day, (subject) shouts \"very\" loudly into the cave. \"VERY,\" says the left wall. A long pause. \"...very,\" says the right.",
+   "src": "L9825"
+  },
+  "c3": {
+   "text": "Back in the village, (subject) and (friend) tell the story at the fire, and ask what everyone else thinks...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9821"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the clap-and-count test at the cave mouth: stand on the same rock, clap the same way, count the same heartbeats, write it down. (novice) learns a great deal about measuring things nobody can see, and gets the same numbers as (subject), the very first time.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9830"
+  },
+  "c4o2": {
+   "text": "(novice) notices that during one count the tide was in, filling the bottom of the cave with water, and during the other it was out. Water changes how sound bounces. The group revises its notes, and starts recording the tide alongside every clap.",
+   "src": "L9832"
+  },
+  "c4": {
+   "text": "(subject) decides (novice) should learn the clap-and-count method, so the echo can be studied properly...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9828"
+  }
+ }
+}

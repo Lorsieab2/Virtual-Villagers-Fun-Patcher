@@ -182,6 +182,20 @@ ANTHOLOGY_SECTIONS = {   # section: the volume's name (one series each)
     "an_fauna": "Animals of Fur, Feathers, Scales, Claws and Hooves",
 }
 SOURCES[ANTHOLOGY_ID] = (ANTHOLOGY, ANTHOLOGY_HASH_FILE, ANTHOLOGY_LINES)
+
+# The owner's GO (2026-11-16): the rewritten events S001-S100, NEW-001..NEW-100 and MY-001..MY-115, and the balance
+# events B001-B360, in the owner's own layout (src/vv_owner_layout.py), each a frozen source (byte for byte, SHA-256
+# in data/event_collection/REWRITES.sha256 / BALANCE.sha256): data/event_collection/<source>/<section>/<id>.json,
+# built by scripts/go_events/gen_go.py.  Each section is one series.
+GO_SOURCES = {   # source id: (file name, line count, {code prefix: (section, topic)})
+    "rewrites": ("Isola Rewritten Events S001-MY115.txt", 16597,
+                 {"S": ("rw_s", "Rewritten Events S001-S100"), "NEW-": ("rw_new", "Rewritten Events NEW-001 to NEW-100"),
+                  "MY-": ("rw_my", "Rewritten Mystery and Myth Events MY-001 to MY-115")}),
+    "balance": ("Isola Balance Events B001-B360.txt", 16669, {"B": ("bal", "Balance Events B001-B360")}),
+}
+for _sid, (_name, _n, _secs) in GO_SOURCES.items():
+    SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
+GO_SECTIONS = {sec: (sid, topic) for sid, v in GO_SOURCES.items() for sec, topic in v[2].values()}
 _ACTIVE = [SOURCE_ID]
 
 

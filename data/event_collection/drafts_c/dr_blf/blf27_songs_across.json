@@ -33,6 +33,14 @@
   "label_case": "title",
   "cast_only": [
    "subject"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Gathering in the forest, a tribe member hears an Isolan singing by a stream: ask about the song, or listen from a distance."
+   }
   ]
  },
  "requirement": {
@@ -79,5 +87,8 @@
    "text": "(subject) steps back and sits a little way off. After a moment, (friend) starts singing again, a little more quietly. (subject) listens until the end. Then (subject.he/she) gets up and goes home without a word. Over the next weeks, (subject.he/she) hums the tune without meaning to. It isn't a village song, and (subject.he/she) never sings it aloud. (subject.He/she) hums it very quietly, only to (subject.him/her)self.",
    "src": "L329"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

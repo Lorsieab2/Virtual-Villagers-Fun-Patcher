@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pearl Bed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b045_pearl_bed",
+  "source": "balance",
+  "lines": [
+   2025,
+   2066
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2025",
+  "ledger": [
+   {
+    "src": "L2026",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2027",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2035",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2044",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2032",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2033",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2036",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2045",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2038",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2041",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2047",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2050",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2053-2066",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The divers have found a pearl bed in the deep channel, deeper than anyone has dived in years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The divers have found a pearl bed in the deep channel, deeper than anyone has dived in years. (Name) is the best diver in the village, and on the third dive, (he/she) comes up gasping with news: there's a giant clam down there, as big as a sleeping mat, with a pearl inside the size of a fist.\n(Name) has dived three times already. (His/Her) ears are aching and (his/her) chest is tight. The other divers say to leave it until tomorrow. The clam might close by then.\nShould (name) dive once more, or wait?",
+   "choices": [
+    {
+     "label": "Dive Once More",
+     "next": "c1",
+     "src": "L2032"
+    },
+    {
+     "label": "Wait for Tomorrow",
+     "next": "c2",
+     "src": "L2033"
+    }
+   ],
+   "src": "L2028-2030"
+  },
+  "c1o1": {
+   "text": "The other divers count. They count far past where (name) should have come up. Two of them dive together and find (him/her) near the bottom, beside the clam. They bring (him/her) up between them, and paddle home in silence. The village buries (name) by the sea, and nobody dives in the deep channel for a long time. When they do, they leave the clam alone.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L2039"
+  },
+  "c1o2": {
+   "text": "(Name) comes up with the pearl in (his/her) fist, grinning so wide (he/she) nearly swallows the sea. It's as big as an egg and shines like the moon. The scholars spend a month studying how it grew, and (name) is a better diver than ever, sure of (his/her) breath and (his/her) body. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2042"
+  },
+  "c1": {
+   "text": "(Name) takes three long breaths and goes down, into the cold, down past where the light turns green, then grey...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2036"
+  },
+  "c2o1": {
+   "text": "The three deep dives have done their damage already. The ringing fades, and so does most of (name)'s hearing with it. (He/She) learns to watch people's faces and hands, and the village starts using the fishers' hand signs at meals so (he/she) can follow along, and some of the children get very good at them. (He/She) never dives again. (He/She) teaches diving from the canoe instead, by signs, and (his/her) students are the best in a generation.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2048"
+  },
+  "c2o2": {
+   "text": "By morning the ringing has gone, and (name) dives again, rested. The clam has closed. The pearl is still in there, presumably, and will be for another hundred years. (Name) comes up laughing anyway. \"It'll keep,\" (he/she) says.",
+   "src": "L2051"
+  },
+  "c2": {
+   "text": "(Name) hauls (himself/herself) into the canoe. (His/Her) ears are ringing, and they're still ringing that evening, and the next morning...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2045"
+  }
+ }
+}

@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The House That Dreamed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my026_house_dreamed",
+  "source": "rewrites",
+  "lines": [
+   11349,
+   11404
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11349",
+  "ledger": [
+   {
+    "src": "L11350",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11351",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11360",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11367",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11374",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11381",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11355",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11356",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11357",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11358",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11361",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11368",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11375",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11382",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11362",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11364",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11371",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11376",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11378",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11383",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11385",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11388-11404",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The whole fire goes quiet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At breakfast, (subject) mentions a strange dream: an unfamiliar house with a red door, a table set for one more, and the smell of baking bread drifting from somewhere inside, while an unseen host invites (subject.him/her) to sit down.\nThe whole fire goes quiet. \"I had that dream,\" someone says slowly. \"So did I,\" says another. Before long, half a dozen villagers have admitted it: the same house, the same table, the same empty seat, the same voice. Some are excited. Some are nervous. All of them are looking at (subject), because (subject.he/she) said it first. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Draw the House",
+     "next": "c1",
+     "src": "L11355"
+    },
+    {
+     "label": "Visit the Ruins",
+     "next": "c2",
+     "src": "L11356"
+    },
+    {
+     "label": "Accept the Dream Invitation",
+     "next": "c3",
+     "src": "L11357"
+    },
+    {
+     "label": "Stop Discussing the Dreams",
+     "next": "c4",
+     "src": "L11358"
+    }
+   ],
+   "src": "L11352-11353"
+  },
+  "c1o1": {
+   "text": "When the drawings are laid out side by side, everyone gasps. They match. The same crooked roof, the same window by the door, the same knot in the beam above it. Everything matches, except the door. Half the drawings show a red door. Half show a blue one. The argument about the door goes on for days, and gets surprisingly heated, and is never settled.",
+   "src": "L11363"
+  },
+  "c1o2": {
+   "text": "A traveler passing through stops to look at the drawings and frowns. \"I know that place,\" (subject.he/she) says. \"There's an old ruined shelter beyond the hills. Roof's half gone now, but that's the one. Nobody's lived there in years.\" The traveler draws a map in the dirt. The dreamers look at each other, and at the map, for a long time.",
+   "src": "L11365"
+  },
+  "c1": {
+   "text": "(subject) gathers all the dreamers together and asks each of them to draw the house, separately, without peeking at anyone else's...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11361"
+  },
+  "c2o1": {
+   "text": "It's the house. Smaller, sadder, the roof caved in, but the house. Where the table would have stood, (subject) notices a loose floorboard. Under it is a big sealed jar, packed with dry grain, perfectly preserved. \"A seat for one more,\" one of the dreamers whispers. They carry the jar home, and the bread they bake from it smells exactly like the dream. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11370"
+  },
+  "c2o2": {
+   "text": "Inside, they find a broken chair lying on its side, exactly where the empty seat would have been. And in the dust on the floor are fresh footprints, bare and small, leading from the chair to the back wall. They stop there. There's no door in the back wall. The group walks home very quickly and nobody sleeps much that night.",
+   "src": "L11372"
+  },
+  "c2": {
+   "text": "(subject) leads a little group of the bravest dreamers out past the hills, to where an old ruined shelter sits half swallowed by vines...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11368"
+  },
+  "c3o1": {
+   "text": "The host steps out of the shadows: an old, old ancestor with (subject)'s nose and (subject)'s stubborn chin. They talk all night, about a difficult choice (subject) has been putting off for months. In the morning, (subject) wakes up knowing exactly what to do, and for the first time in a long while, (subject.he/she) feels completely sure of (subject.himself/herself).",
+   "src": "L11377"
+  },
+  "c3o2": {
+   "text": "The host never appears. Instead, a door opens behind the table, and another behind that, and another, rooms upon rooms upon rooms, and (subject) wanders through them all night, looking for a way back. (subject.He/She) wakes exhausted, as if (subject.he/she) had walked a hundred miles, with aching legs and dusty feet. (subject.He/She) does not accept any more dream invitations.",
+   "src": "L11379"
+  },
+  "c3": {
+   "text": "That night, (subject) goes to sleep determined. When the dream comes, and the voice invites (subject.him/her) to sit, (subject.he/she) says yes, and pulls out the empty chair...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11375"
+  },
+  "c4o1": {
+   "text": "And it works. Over the next week, the dreams grow fainter and fainter, the house blurrier, the voice quieter, until one morning nobody remembers dreaming at all. Life goes on. Now and then someone smells baking bread when nobody is baking, and changes the subject quickly.",
+   "src": "L11384"
+  },
+  "c4o2": {
+   "text": "The dreams fade for everyone but (child), the youngest dreamer, who keeps visiting the house every night. And (child) isn't scared at all. \"It's nice there,\" (child) says happily. \"There's always a cup of warm coconut milk waiting on the table, and someone hums.\" (Child)'s parents decide, after much worried discussion, that maybe that's all right.",
+   "src": "L11386"
+  },
+  "c4": {
+   "text": "\"It's just a dream,\" (subject) says firmly. \"Let's stop talking about it, and maybe it'll stop.\" The others reluctantly agree...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11382"
+  }
+ }
+}

@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Fisher's Last Tide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b244_fisher_tide",
+  "source": "balance",
+  "lines": [
+   11400,
+   11442
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11400",
+  "ledger": [
+   {
+    "src": "L11401",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11402",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11410",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11419",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11407",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11408",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11411",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11420",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11413",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11416",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11422",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11425",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11428-11442",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has fished these waters for longer than anyone can remember.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has fished these waters for longer than anyone can remember. (subject.His/her) hands are knotted like old rope and (subject.his/her) eyes are not what they were, but every morning (subject.he/she) still carries (subject.his/her) canoe down to the water. This morning (young) is waiting at the shoreline.\n\"Take me with you,\" (young) says. \"Show me where the big ones are. Nobody else knows.\"\n(subject) looks at the sea for a long time. There is a heavy swell coming in, the kind that makes the canoe climb and drop. (subject.He/She) could go out alone as always, or take the young one along and teach (subject.him/her) what (subject.he/she) knows.",
+   "choices": [
+    {
+     "label": "Go Out Alone",
+     "next": "c1",
+     "src": "L11407"
+    },
+    {
+     "label": "Take (Young) Along",
+     "next": "c2",
+     "src": "L11408"
+    }
+   ],
+   "src": "L11403-11405"
+  },
+  "c1o1": {
+   "text": "By evening the canoe drifts back on its own, with (subject)'s paddle still inside. The fishers find (subject.him/her) the next morning on the sand at the far end of the beach, peaceful, as if (subject.he/she) had lain down to rest. The village buries (subject) facing the sea. (young) takes the old canoe down to the water the next morning, and the morning after that.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L11414"
+  },
+  "c1o2": {
+   "text": "The canoe never comes back. The fishers search the coast for three days and find nothing, not a paddle, not a splinter. Some people say the swell took (subject.him/her). The elders say (subject) knew exactly where (subject.he/she) was going, and that a fisher that old has earned the right to choose. (young) carves (subject.his/her) name into the post where the canoe used to be tied.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L11417"
+  },
+  "c1": {
+   "text": "\"Not today,\" says (subject), and pushes off. (young) watches the little canoe climb the swells, drop, climb again, until it rounds the point...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11411"
+  },
+  "c2o1": {
+   "text": "(subject) shows (subject.him/her) the dark water off the point where the big fish wait, how to read the birds, how to feel a bite through the line before it happens. (young) doesn't talk once, which surprises them both. They come back at dusk with the canoe so heavy it barely floats. \"Well,\" says (subject). \"You'll do.\" Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "role": "young",
+     "min": 10,
+     "max": 10,
+     "best": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11423"
+  },
+  "c2o2": {
+   "text": "The swell turns them back before they reach the point. Instead they sit on the beach, and (subject) tells (young) every fishing story (subject.he/she) knows, all afternoon. Other people drift over to listen, and then more. By evening half the village is sitting in the sand, laughing at the story of the shark that stole (subject)'s hat. Nobody catches a single fish.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L11426"
+  },
+  "c2": {
+   "text": "(subject) jerks (subject.his/her) head at the canoe. \"In. Sit still. Don't talk.\" (young) scrambles in, and they paddle out together into the swell...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11420"
+  }
+ }
+}

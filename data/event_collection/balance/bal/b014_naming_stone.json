@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Naming Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b014_naming_stone",
+  "source": "balance",
+  "lines": [
+   616,
+   657
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L616",
+  "ledger": [
+   {
+    "src": "L617",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L626",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L635",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L623",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L624",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L627",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L636",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L629",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L632",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L641",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L644-657",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At the edge of the village is a flat grey stone covered in names, carved by every generation since the first huts were built.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the edge of the village is a flat grey stone covered in names, carved by every generation since the first huts were built. Once a year, at the full moon, anyone who wants to may scratch out their name and carve a new one. Most people never do. Some do it once in a lifetime.\n(Name) has been staring at (his/her) carved name for an hour. (He/She) has never really liked it. It was (his/her) great-uncle's name, and (his/her) great-uncle was by all accounts a very loud man who fell out of trees.\nThe carving knife is in (his/her) hand. What should (name) do?",
+   "choices": [
+    {
+     "label": "Carve a New Name",
+     "next": "c1",
+     "src": "L623"
+    },
+    {
+     "label": "Keep the Old One",
+     "next": "c2",
+     "src": "L624"
+    }
+   ],
+   "src": "L619-621"
+  },
+  "c1o1": {
+   "text": "\"(renamed),\" says a small voice behind (him/her). It's one of the children, who has been watching the whole time. \"Like the brave one in the old stories.\" (Name) thinks about it, and finds (he/she) likes it very much. (He/She) carves it in big, clear letters. The village gets it wrong for a month, and then never again.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L630"
+  },
+  "c1o2": {
+   "text": "In the end, (name) just carves the first name that comes into (his/her) head, and steps back, and looks at it. It's an ordinary sort of name. It's nobody's great-uncle's. \"That'll do,\" (he/she) says, and goes home feeling lighter than (he/she) has in years. (He/She) answers to it from the first day, as if it had always been waiting.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L633"
+  },
+  "c1": {
+   "text": "(Name) scratches out the old name with three careful strokes. Then (he/she) stands there with the knife over the empty stone, and realises (he/she) has no idea what to carve...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L627"
+  },
+  "c2o1": {
+   "text": "Sitting there, (name) remembers that (he/she), too, has always loved climbing trees, and has fallen out of quite a few. For the first time (he/she) wonders whether (he/she) took up climbing just because of the name. By the end of the night (he/she) has decided (he/she) doesn't need to be anything like (his/her) great-uncle. (He/She) keeps the name, and gives up climbing, and (his/her) knees thank (him/her).",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L639"
+  },
+  "c2o2": {
+   "text": "An elder sits down beside (him/her). \"Your great-uncle,\" says the elder, \"was loud because he was always laughing. He fell out of trees because he climbed up to fetch the children's lost balls. He was the kindest man I ever knew.\" (Name) looks at the carving for a long time. Then (he/she) picks up the knife and carves it deeper.",
+   "src": "L642"
+  },
+  "c2": {
+   "text": "(Name) puts the knife down. (He/She) runs (his/her) fingers over the old carving, worn smooth at the edges, and sits by the stone until the moon is high...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L636"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

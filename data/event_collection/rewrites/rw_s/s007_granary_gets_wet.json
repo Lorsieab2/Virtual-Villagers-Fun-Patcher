@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Granary Gets Wet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s007_granary_gets_wet",
+  "source": "rewrites",
+  "lines": [
+   293,
+   337
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L293",
+  "ledger": [
+   {
+    "src": "L294",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L295",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L303",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L312",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L300",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L301",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L304",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L313",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L306",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L315",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L318",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L321-337",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L307",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L310",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L316",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L319",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The roof of the food store has been leaking for weeks.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The roof of the food store has been leaking for weeks. It started as one drip. Then a brown stain appeared on the inside wall, and grew, slowly, day after day, until it turned into a large mushy mess. Several people pointed it out to each other. Everyone thought someone had told the builders.\nNobody did.\nLast night it rained harder than it has rained all year, and the rain found every hole. This morning the store is ankle-deep in water, the baskets are sagging and dripping, and most of the food is waterlogged.",
+   "choices": [
+    {
+     "label": "Dry What's Left",
+     "next": "c1",
+     "src": "L300"
+    },
+    {
+     "label": "Blame Someone",
+     "next": "c2",
+     "src": "L301"
+    }
+   ],
+   "src": "L296-298",
+   "text_only": [
+    {
+     "src": "L296",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L298",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The sun takes its time. By noon the village smells like a wet dog that has rolled in fruit. Some of the food dries well enough to keep, and is carried back in, wrinkled and sad-looking. Most of it does not, and by evening it is just a smell, and then a pile, and then the pigs' problem. The builders finally go up on the roof and find eleven holes. \"Eleven,\" they keep saying, to anyone who'll listen. \"You should have said something when there was one.\"",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L307"
+  },
+  "c1o2": {
+   "text": "Just as the last basket comes out, the clouds tear open and the sun blazes down like it's trying to make up for last night. Steam rises off every rock in the village. By afternoon almost everything is dry and only a little is spoiled. The roof is mended by lunchtime the next day, mostly out of embarrassment, and somebody patches over the mushy parts.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L310"
+  },
+  "c1": {
+   "text": "The whole village forms a chain, passing dripping baskets hand to hand out of the store and into the open air. Every flat rock, every roof and every mat is covered with soggy food spread out in hopes the sun will dry it out...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L304",
+   "text_only": [
+    {
+     "src": "L304",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The argument goes on for most of the day. The builders say nobody told them. The farmers say they told the builders, sort of, once, in passing. Someone brings up something that happened at a festival two years ago, and that starts a whole new argument. Nobody wins. While they argue, a great flock of birds settles on the soaked baskets left outside the door and eats until they can barely fly.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L316"
+  },
+  "c2o2": {
+   "text": "Everyone blames everyone. Voices are raised. Someone stomps off. And then, slowly, everyone starts to feel a bit bad, because they all knew about the mess. One by one, people start climbing onto the roof with armfuls of thatch, still muttering. By evening the roof is mended, the food is drying in the sun, and somehow it has all ended with a picnic on the grass. The villagers end up eating up the food that wouldn't keep anyway.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L319"
+  },
+  "c2": {
+   "text": "\"Who was supposed to fix it?\" someone asks, and the whole village turns to look at someone else. Within moments everyone is pointing, and everyone is pointing at a different person...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L313"
+  }
+ }
+}

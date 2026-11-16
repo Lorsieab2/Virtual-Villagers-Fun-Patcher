@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Contest of Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b112_contest_hands",
+  "source": "balance",
+  "lines": [
+   5061,
+   5101
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5061",
+  "ledger": [
+   {
+    "src": "L5062",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5063",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5070",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5067",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5068",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5071",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5080",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5073",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5076",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5085",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5088-5101",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a slow season, and everyone is getting bored and snappish.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's a slow season, and everyone is getting bored and snappish. (Name) has an idea: a contest of hands, where everyone shows off whatever they do best: weaving, carving, cooking, fishing, healing, the lot. The elders like it. The cooks want to know who's going to judge cooking, because it won't be fair.\nShould the contest have judges and prizes, or should everyone just show what they can do and teach it to anyone who wants to learn?",
+   "choices": [
+    {
+     "label": "Judges and Prizes",
+     "next": "c1",
+     "src": "L5067"
+    },
+    {
+     "label": "Show and Teach",
+     "next": "c2",
+     "src": "L5068"
+    }
+   ],
+   "src": "L5064-5065"
+  },
+  "c1o1": {
+   "text": "The competition is fierce, and loud, and only slightly unfair. Everyone has practised so hard that the whole village is better at its work by the end of the week, prizes or not. The cooks still say the cooking judge was wrong. The cooking judge says the cooks should practise more.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 5,
+     "max": 5,
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5074"
+  },
+  "c1o2": {
+   "text": "It goes well until the prizes. Then the losing cooks sulk, and the losing carvers sulk, and the losing fishers say the winning fish was \"lucky.\" By evening half the village isn't speaking to the other half. It takes a week of shared meals to fix, and nobody suggests a contest again for a long time.",
+   "src": "L5077"
+  },
+  "c1": {
+   "text": "The elders appoint judges. Everyone practises for a week. On the day, the clearing is full of stalls and shouting and smoke from a dozen cooking fires...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5071"
+  },
+  "c2o1": {
+   "text": "It turns into the best week of the season. People learn things they never thought to ask about. Three of them, in particular, find teachers who change everything for them, and go home much better at what they do than they were. The cooks still argue, but now they argue about recipes.",
+   "effects": [
+    {
+     "do": "skill",
+     "best": true,
+     "min": 10,
+     "max": 20,
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L5083"
+  },
+  "c2o2": {
+   "text": "Nobody learns all that much, because everybody spends most of the time talking. But the boredom is gone, and the snappishness too, and by the end of the week the whole village is in a better mood than it's been all season.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5086"
+  },
+  "c2": {
+   "text": "No judges. No prizes. Everyone sets up in the clearing and shows what they do, and anyone who wants to can sit down and learn...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5080"
+  }
+ }
+}

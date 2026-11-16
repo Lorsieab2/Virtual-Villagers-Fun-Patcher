@@ -876,8 +876,48 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
                 out += mc_variants(bank, sit, mc_k)
     for v in out:
         v.mood = mood_of(bank, v)
+        guardians_bank(v.graph)
         title_case_labels(v.graph)
     return out
+
+
+# New Believers with Guardians of Isola Rewrite (the owner, 2026-11-16; docs/event-collection/guardians-wording.md,
+# "Believers"): a bank line that says believer(s) shows its Guardians form with the patch.
+GUARDIANS_BANK = (("Two believers disagree", "Two villagers of faith disagree"),
+                  ("a skeptic and a believer", "a skeptic and a villager of faith"))
+GUARDIANS_IF = {"patch": "guardians_of_isola"}
+
+
+def guardians_form(text: str) -> str:
+    for before, after in GUARDIANS_BANK:
+        text = text.replace(before, after)
+    return text
+
+
+def guardians_bank(graph: dict) -> None:
+    """A page's Guardians form as its first variant; a label's as a twin choice shown only with the patch (the
+    label itself then only without it)."""
+    if 5 not in graph.get("games", []):
+        return
+    touched = False
+    for n in graph["nodes"].values():
+        text = n.get("text") or ""
+        if guardians_form(text) != text:
+            n["variants"] = [{"if": dict(GUARDIANS_IF), "text": guardians_form(text)}] + (n.get("variants") or [])
+            touched = True
+        choices = []
+        for c in n.get("choices") or []:
+            label = c["label"]
+            if guardians_form(label) != label and not c.get("if"):
+                choices.append(dict(c, **{"if": {"not": dict(GUARDIANS_IF)}}))
+                choices.append(dict(c, label=guardians_form(label), **{"if": dict(GUARDIANS_IF)}))
+                touched = True
+            else:
+                choices.append(c)
+        if n.get("choices"):
+            n["choices"] = choices
+    if touched and "guardians_of_isola" not in graph.get("patches", []):
+        graph["patches"] = graph.get("patches", []) + ["guardians_of_isola"]
 
 
 def title_case_labels(graph: dict) -> dict:
@@ -946,9 +986,35 @@ def validate_variant(v: Variant) -> dict:
     return g
 
 
-def compile_all(variants: list[Variant]) -> None:
+def variant_tags(v: Variant, g: dict, bank: Bank | None = None) -> dict[str, list[str]]:
+    """A variant's node tags for the content controls (src/vv_event_content.py): its words and effects, and each
+    ending's archetype's filters (outcome_categories)."""
+    import vv_event_content as content
+    tags = {n: set(t) for n, t in content.tag_graph(g).items()}
+    by_index = _arc_filters(bank)
+    for name, _grp, arc in v.outcomes:
+        if name in g["nodes"]:
+            tags.setdefault(name, set()).update(by_index.get(arc, ()))
+    return {n: sorted(t) for n, t in tags.items() if t}
+
+
+_ARC_FILTERS: dict[int, list[str]] | None = None
+
+
+def _arc_filters(bank: Bank | None = None) -> dict[int, list[str]]:
+    global _ARC_FILTERS
+    if _ARC_FILTERS is None:
+        _ARC_FILTERS = {c["index"]: c["filters"] for c in outcome_categories(bank).values()}
+    return _ARC_FILTERS
+
+
+def compile_all(variants: list[Variant], bank: Bank | None = None) -> None:
+    import vv_event_content as content
     for v in variants:
         g = validate_variant(v)
+        g, _plan = content.inject(g, variant_tags(v, g, bank), {"speaks": content.speaking_roles(g)})
+        # A new event (the Story DLL's cg_is_collection_event: a "collection" block in the header).
+        g = dict(g, collection={"id": v.manifest_id, "source": "living_engine", "k": v.k})
         v.cieg = cg.compile_graph(g)
         order = list(g["nodes"])
         v.outcomes = [(name, grp, arc) for name, grp, arc in v.outcomes]
@@ -1187,6 +1253,8 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
                     text = text.replace("{@" + name + "}", vals["3" if game == 3 else "*"])
             r = rows[v.manifest_id] = {"id": v.manifest_id, "title": v.graph["title"], "games": set(),
                                        "weight": 1, "series": v.series, "credit": bank.credit, "description": text}
+            if game == 5 and guardians_form(text) != text:
+                r["guardians_description"] = guardians_form(text)     # the Guardians description column
         r["games"] |= set(v.games)
     for r in rows.values():
         r["games"] = sorted(r["games"])
@@ -1199,7 +1267,7 @@ def build(bank: Bank | None = None, k_total: int = K, extra: list[Variant] | Non
     already compiled (the static events' versions, scripts/living_from_static.py), packed in their own groups."""
     bank = bank or Bank()
     variants = generate(bank, k_total)
-    compile_all(variants)
+    compile_all(variants, bank)
     variants += extra or []
     return variants, {game: packs(game, variants, bank) for game in GAMES}
 

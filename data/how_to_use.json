@@ -256,6 +256,33 @@
       ]
     },
     {
+      "ids": ["vv1_island_event_content_notes", "vv2_island_event_content_notes", "vv3_island_event_content_notes", "vv4_island_event_content_notes", "vv5_island_event_content_notes"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it. In each game's Island Events section.",
+        "A new island event that may touch a sensitive subject starts with a short note, such as \"Content note: Bereavement\".",
+        "The note never says which outcome will come; a subject a ticked content filter removed is left out of it.",
+        "New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
+      "guide": [
+        "Off everywhere, Owner's Defaults and Select All too. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
+        "All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events.",
+        "No population limit or trouble guard applies: anyone can be picked and any event can happen at any time, except when a pick makes no sense in the event (a child's role needs a child, a pregnancy needs a villager who can carry) or the event names someone the village does not have. It applies to whichever island events are on in the game.",
+        "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_event_filter_f01", "vv1_island_event_filter_f02", "vv1_island_event_filter_f03", "vv1_island_event_filter_f04", "vv1_island_event_filter_f05", "vv1_island_event_filter_f06", "vv1_island_event_filter_f07", "vv1_island_event_filter_f08", "vv1_island_event_filter_f09", "vv1_island_event_filter_f10", "vv1_island_event_filter_f11", "vv1_island_event_filter_f12", "vv1_island_event_filter_f13", "vv1_island_event_filter_f14", "vv1_island_event_filter_f15", "vv1_island_event_filter_f16", "vv1_island_event_filter_f17", "vv1_island_event_filter_f18", "vv1_island_event_filter_f19", "vv1_island_event_filter_f20", "vv1_island_event_filter_f21", "vv1_island_event_filter_f22", "vv1_island_event_filter_f23", "vv1_island_event_filter_f24", "vv1_island_event_filter_f25", "vv1_island_event_filter_f26", "vv1_island_event_filter_f27", "vv1_island_event_filter_f28", "vv2_island_event_filter_f01", "vv2_island_event_filter_f02", "vv2_island_event_filter_f03", "vv2_island_event_filter_f04", "vv2_island_event_filter_f05", "vv2_island_event_filter_f06", "vv2_island_event_filter_f07", "vv2_island_event_filter_f08", "vv2_island_event_filter_f09", "vv2_island_event_filter_f10", "vv2_island_event_filter_f11", "vv2_island_event_filter_f12", "vv2_island_event_filter_f13", "vv2_island_event_filter_f14", "vv2_island_event_filter_f15", "vv2_island_event_filter_f16", "vv2_island_event_filter_f17", "vv2_island_event_filter_f18", "vv2_island_event_filter_f19", "vv2_island_event_filter_f20", "vv2_island_event_filter_f21", "vv2_island_event_filter_f22", "vv2_island_event_filter_f23", "vv2_island_event_filter_f24", "vv2_island_event_filter_f25", "vv2_island_event_filter_f26", "vv2_island_event_filter_f27", "vv2_island_event_filter_f28", "vv3_island_event_filter_f01", "vv3_island_event_filter_f02", "vv3_island_event_filter_f03", "vv3_island_event_filter_f04", "vv3_island_event_filter_f05", "vv3_island_event_filter_f06", "vv3_island_event_filter_f07", "vv3_island_event_filter_f08", "vv3_island_event_filter_f09", "vv3_island_event_filter_f10", "vv3_island_event_filter_f11", "vv3_island_event_filter_f12", "vv3_island_event_filter_f13", "vv3_island_event_filter_f14", "vv3_island_event_filter_f15", "vv3_island_event_filter_f16", "vv3_island_event_filter_f17", "vv3_island_event_filter_f18", "vv3_island_event_filter_f19", "vv3_island_event_filter_f20", "vv3_island_event_filter_f21", "vv3_island_event_filter_f22", "vv3_island_event_filter_f23", "vv3_island_event_filter_f24", "vv3_island_event_filter_f25", "vv3_island_event_filter_f26", "vv3_island_event_filter_f27", "vv3_island_event_filter_f28", "vv4_island_event_filter_f01", "vv4_island_event_filter_f02", "vv4_island_event_filter_f03", "vv4_island_event_filter_f04", "vv4_island_event_filter_f05", "vv4_island_event_filter_f06", "vv4_island_event_filter_f07", "vv4_island_event_filter_f08", "vv4_island_event_filter_f09", "vv4_island_event_filter_f10", "vv4_island_event_filter_f11", "vv4_island_event_filter_f12", "vv4_island_event_filter_f13", "vv4_island_event_filter_f14", "vv4_island_event_filter_f15", "vv4_island_event_filter_f16", "vv4_island_event_filter_f17", "vv4_island_event_filter_f18", "vv4_island_event_filter_f19", "vv4_island_event_filter_f20", "vv4_island_event_filter_f21", "vv4_island_event_filter_f22", "vv4_island_event_filter_f23", "vv4_island_event_filter_f24", "vv4_island_event_filter_f25", "vv4_island_event_filter_f26", "vv4_island_event_filter_f27", "vv4_island_event_filter_f28", "vv5_island_event_filter_f01", "vv5_island_event_filter_f02", "vv5_island_event_filter_f03", "vv5_island_event_filter_f04", "vv5_island_event_filter_f05", "vv5_island_event_filter_f06", "vv5_island_event_filter_f07", "vv5_island_event_filter_f08", "vv5_island_event_filter_f09", "vv5_island_event_filter_f10", "vv5_island_event_filter_f11", "vv5_island_event_filter_f12", "vv5_island_event_filter_f13", "vv5_island_event_filter_f14", "vv5_island_event_filter_f15", "vv5_island_event_filter_f16", "vv5_island_event_filter_f17", "vv5_island_event_filter_f18", "vv5_island_event_filter_f19", "vv5_island_event_filter_f20", "vv5_island_event_filter_f21", "vv5_island_event_filter_f22", "vv5_island_event_filter_f23", "vv5_island_event_filter_f24", "vv5_island_event_filter_f25", "vv5_island_event_filter_f26", "vv5_island_event_filter_f27", "vv5_island_event_filter_f28"],
+      "guide": [
+        "Off everywhere, Owner's Defaults and Select All too: tick only the ones you want. In each game's Island Events section.",
+        "A ticked filter keeps its content out of the new island events, before the random draw picks one.",
+        "An outcome with that content is dropped where the event still makes sense; otherwise the event is skipped.",
+        "Filters never hide a kind of person. The game's own events are unchanged. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv5_respecting_the_legacy_of_isola"],
       "guide": [
         "Off by default; Owner's Defaults and Select All tick it. Its title is green. It ticks these five:",
@@ -1223,6 +1250,14 @@
     ]
   },
   "controls": {
+    "island_event_content_filters": {
+      "title": "Content Filters",
+      "guide": [
+        "Each ticked filter keeps its content out of the new island events (added events only).",
+        "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense,",
+        "otherwise the event is skipped. Off everywhere, Owner's Defaults too. Filters never hide a kind of person."
+      ]
+    },
     "select_all": {
       "title": "Select All Patches",
       "guide": [

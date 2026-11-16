@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b099_moon_tree",
+  "source": "balance",
+  "lines": [
+   4473,
+   4514
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4473",
+  "ledger": [
+   {
+    "src": "L4474",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4475",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4483",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4492",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4480",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4481",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4484",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4493",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4486",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4489",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4495",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4498",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4501-4514",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should a villager climb up to look, or lie still and pretend to sleep?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's a pale-barked tree on the headland that the children call the moon tree, because on full-moon nights it glows faintly, like a lamp turned low. The elders say a wise-woman planted it long ago, and that it \"dreams of whoever sleeps under it,\" and that sometimes its dreams climb down out of the branches in the morning.\n(Name) has fallen asleep under it after a long day of gathering, and wakes in the middle of the night to find the tree glowing above (him/her), and a soft voice, (his/her) own voice, humming in the branches.\nShould (name) climb up to look, or lie still and pretend to sleep?",
+   "choices": [
+    {
+     "label": "Climb Up to Look",
+     "next": "c1",
+     "src": "L4480"
+    },
+    {
+     "label": "Lie Still and Pretend to Sleep",
+     "next": "c2",
+     "src": "L4481"
+    }
+   ],
+   "src": "L4476-4478"
+  },
+  "c1o1": {
+   "text": "It has (name)'s face, and it's delighted to see (him/her). But it's the tree's dream of (name), not (name): it likes different things, is good at different things, and laughs much more. It climbs down with (name) at dawn and walks into the village as if it has always lived there. It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L4487"
+  },
+  "c1o2": {
+   "text": "The figure on the bough is (name) as a child, humming the song (his/her) mother used to sing. It smiles, and reaches out, and touches (name)'s face, and is gone. In the morning (name)'s face is younger, smoother, closer to the child's. (He/She) hums that song all day without noticing.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4490"
+  },
+  "c1": {
+   "text": "(Name) climbs into the glowing branches. Near the top, sitting on a bough with (his/her) back to the trunk, humming, is someone who turns round...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4484"
+  },
+  "c2o1": {
+   "text": "In the morning, (name) wakes up with company: {#made:one more (name)|two more (name)s|three more (name)s}, curled up in the grass, exactly like (him/her) in every way. The tree dreamed (him/her) so well that the dream came out whole. \"It does that,\" says the elder, unhelpfully. {#made:The newcomer gets a name of its own, (made1)|The newcomers become (made1) and (made1)|The newcomers each get a name of their own}.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L4496"
+  },
+  "c2o2": {
+   "text": "(Name) falls asleep for real, and in the morning there's nobody there, only a hollow in the grass beside (him/her), as if someone lay there and got up early. The tree is just a pale tree in the sunlight. (Name) goes back to the village and decides not to think about the hollow.",
+   "src": "L4499"
+  },
+  "c2": {
+   "text": "(Name) closes (his/her) eyes and breathes slowly. The humming comes closer, down the trunk, and (name) feels someone lie down in the grass beside (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4493"
+  }
+ }
+}

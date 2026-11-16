@@ -1,0 +1,358 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cook Who Lost (His/Her) Taste",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b278_cook_lost_taste",
+  "source": "balance",
+  "lines": [
+   12942,
+   12983
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12942",
+  "ledger": [
+   {
+    "src": "L12943",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12951",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12960",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12948",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12949",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12952",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12961",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12954",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12957",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12963",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12966",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12969-12983",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L12967",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Since then, the food has been terrible.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(cook), the head cook, burned (subject.his/her) tongue on a pot of boiling stew a week ago and still can't taste a thing. Since then, the food has been terrible. Too much salt one day, no salt the next, and yesterday a stew with so much chilli in it that two fishers had to lie down.\nToday (cook) asks (subject) to taste everything for (subject.him/her). (subject) loves food. (subject.He/She) also saw what happened to the fishers. Should (subject) agree to be the taster, or offer to do the cooking instead?",
+   "choices": [
+    {
+     "label": "Be the Taster",
+     "next": "c1",
+     "src": "L12948"
+    },
+    {
+     "label": "Do the Cooking Instead",
+     "next": "c2",
+     "src": "L12949"
+    }
+   ],
+   "src": "L12945-12946",
+   "text_only": [
+    {
+     "src": "L12945",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L12946",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "By the end of the week (subject) has tasted so much half-cooked, over-salted, under-spiced food that (subject.he/she) can't face a meal. (cook)'s tongue heals, and the food goes back to being delicious, but (subject) has lost all interest in it. \"I've eaten enough,\" (subject.he/she) says, \"for the rest of my life.\"",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L12955",
+   "text_only": [
+    {
+     "src": "L12955",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "On the third day (cook) adds a whole handful of red chillies to a pot without telling anyone, and (subject) tastes it first. (subject.He/She) turns red, then purple, then runs to the river and lies in it for an hour. After that (subject) won't eat anything (subject.he/she) hasn't seen cooked with (subject.his/her) own eyes, and doesn't enjoy that either.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L12958"
+  },
+  "c1": {
+   "text": "(subject) stands beside (cook) at the fire all day, tasting every pot, every sauce, every half-cooked yam, and saying \"more salt\" or \"less chilli\" or \"what is this?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12952"
+  },
+  "c2o1": {
+   "text": "(subject) cooks badly, but (cook), watching from the log, can see every mistake, and shouts about it. \"Not that pot! Stir it! STIR IT!\" By the time (cook)'s tongue heals, (subject) is quite a decent cook, and (cook) has got even better at it just by explaining it out loud. (subject) has never been able to stand the heat and smoke of the cooking fire. After a week in front of it, (subject.he/she) hardly notices them.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "cook",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c2"
+    }
+   ],
+   "src": "L12964"
+  },
+  "c2o2": {
+   "text": "(subject) burns the yams, overcooks the fish and drops a whole pot of stew in the fire. (cook) watches all of it in silence, which is worse than shouting. In the end the village eats raw fruit for a week, until (cook) can taste again.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L12967"
+  },
+  "c2": {
+   "text": "\"Sit down,\" says (subject). \"I'll cook. You can watch.\" (cook) sits on a log beside the fire, arms folded, looking deeply suspicious...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12961"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "cooking",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "fire",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g2",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_c1"
+    }
+   ]
+  }
+ }
+}

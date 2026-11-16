@@ -31,8 +31,7 @@
   "description": "An apprentice studying animals wonders whether a failing body part could be replaced by one from a recently deceased donor.",
   "cast_only": [
    "patient"
-  ],
-  "label_case": "source"
+  ]
  },
  "requirement": {
   "min_eligible": 2
@@ -67,7 +66,7 @@
      "src": "L20494"
     },
     {
-     "label": "Seek the donor's prior consent and study anatomy without operating.",
+     "label": "Seek the donor's prior consent.",
      "next": "b",
      "src": "L20497"
     },
@@ -156,5 +155,12 @@
    "text": "The research does not save this patient but helps protect others.",
    "src": "L20502"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L20497",
+   "before": "Seek the donor's prior consent and study anatomy without operating.",
+   "after": "Seek the donor's prior consent."
+  }
+ ]
 }

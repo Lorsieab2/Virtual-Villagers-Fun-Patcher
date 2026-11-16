@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire at the Children's Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b108_fire_children_hut",
+  "source": "balance",
+  "lines": [
+   4881,
+   4922
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4881",
+  "ledger": [
+   {
+    "src": "L4882",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4883",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4900",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4888",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4889",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4892",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4901",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4894",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4897",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4903",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4906",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4909-4922",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A cooking fire has caught the thatch of the hut where the youngest children nap in the afternoon.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A cooking fire has caught the thatch of the hut where the youngest children nap in the afternoon. (Name) is the first to see the smoke. Inside, the children are still asleep. The bucket chain is forming, but it will take time.\n(Name) can go straight in through the smoke and carry the children out, or tear a hole in the back wall where the fire hasn't reached, which is slower but safer.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Go In Through the Smoke",
+     "next": "c1",
+     "src": "L4888"
+    },
+    {
+     "label": "Tear Open the Back Wall",
+     "next": "c2",
+     "src": "L4889"
+    }
+   ],
+   "src": "L4884-4886"
+  },
+  "c1o1": {
+   "text": "(Name) carries out every child, two at a time, and goes back for the last one as the roof comes down. All the children are safe. (Name)'s arms and back are badly burned. The burns heal into deep scars, and (his/her) breathing is never quite right again, and (he/she) won't sit near a fire. The children, as they grow, never forget whose arms carried them out.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L4895"
+  },
+  "c1o2": {
+   "text": "(Name) gets every child out, coughing, singed, unhurt. The bucket chain stops the fire at the walls. The next week, the whole village rebuilds the children's hut, further from the cooking fires, with a wide door at each end. The children help, mostly by carrying things the wrong way.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4898"
+  },
+  "c1": {
+   "text": "(Name) pulls (his/her) wrap over (his/her) face and plunges into the smoke, feeling along the floor for small warm bodies...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4892"
+  },
+  "c2o1": {
+   "text": "The wall gives, and the children come tumbling out through the hole, sleepy and confused, one after another, into (name)'s arms. Every one is safe. The hut is lost, but by the end of the week it's rebuilt, with a back door, and everyone calls it \"(name)'s door.\"",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L4904"
+  },
+  "c2o2": {
+   "text": "The children get out through the back, every one. (Name)'s hands are torn and bleeding from the wall, and the healers bind them for a month. When the bindings come off, the hands are fine. The children's parents bring (name) so much food that (he/she) can't eat it all, and gives most of it away.",
+   "src": "L4907",
+   "text_only": [
+    {
+     "src": "L4907",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) runs round the back and rips at the woven wall with (his/her) bare hands, pulling it open strip by strip...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4901"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fire",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

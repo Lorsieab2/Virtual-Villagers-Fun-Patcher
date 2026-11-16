@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wind That Took a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s005_wind_took_name",
+  "source": "rewrites",
+  "lines": [
+   196,
+   240
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L196",
+  "ledger": [
+   {
+    "src": "L197",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L198",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L206",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L215",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L203",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L204",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L207",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L216",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L209",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L212",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L218",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L221",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L224-240",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A warm wind comes through the village one morning, from no direction in particular.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A warm wind comes through the village one morning, from no direction in particular. It picks up leaves, feathers and loose bits of string, and smells faintly of cinnamon bark. All the chickens turn to face the same way as it passes, which chickens never do.\nJust then, (name) steps out of (his/her) hut and calls good morning to a neighbour. The gust snatches the words right out of (his/her) mouth, name and all, and blows them into a dry seed pod rolling past. The pod rattles away down the path.\n(Name) opens (his/her) mouth to say something else, and realises (he/she) can't remember what (he/she) is called. The neighbour scratches their head. Neither can they. Neither, it turns out, can anyone.",
+   "choices": [
+    {
+     "label": "Chase the Wind",
+     "next": "c1",
+     "src": "L203"
+    },
+    {
+     "label": "Pick a New One",
+     "next": "c2",
+     "src": "L204"
+    }
+   ],
+   "src": "L199-201"
+  },
+  "c1o1": {
+   "text": "At the cliff edge, the wind finally runs out of island and lets go of everything it took. A feather, somebody's hat, a long tangle of string and the little seed pod come tumbling down at (name)'s feet. (He/She) snatches up the pod and cracks it open, and very faintly, in (his/her) own voice, hears (his/her) name whispered inside. It comes back at once, like remembering a word that was on the tip of (his/her) tongue. (Name) walks home saying it out loud to everyone (he/she) passes, just to be sure. (He/She) also returns the hat.",
+   "src": "L210"
+  },
+  "c1o2": {
+   "text": "The wind is faster. It swings the pod up over the trees and away out to sea, and that is the last anyone sees of it. (Name) comes home out of breath, with burrs in (his/her) feet and nothing to show for it. The villagers try every name they can think of, but none of them is right, and none of them sticks. In the end they call (him/her) \"?\" for now. (He/She) answers to it cheerfully enough. Sometimes, on windy days, (he/she) stands at the cliff edge for a while and listens.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L213"
+  },
+  "c1": {
+   "text": "(Name) takes off after the seed pod, barefoot, past the huts, through the gardens, scattering chickens in every direction. The pod bounces ahead along the path towards the cliffs, never quite close enough to grab...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L207"
+  },
+  "c2o1": {
+   "text": "The village holds a little naming ceremony right there in the middle of the path. Everyone shouts suggestions at once. Some are lovely. Some are rude. One is the name of a fish. The elders bang the drum and tell everyone to shout louder, and at last one name rises above all the others, and (name) hears it and thinks, \"Yes. That one.\" The name that sticks is (renamed). There's a small cheer, the chickens turn back to face their normal directions, and everyone goes back to work.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L219"
+  },
+  "c2o2": {
+   "text": "Nobody can agree. Every name gets shouted down. One family insists on a name that another family thinks is unlucky. The children want something that rhymes with \"pudding.\" And every time the village finally settles on one, the warm wind gusts back through the ring, smelling of cinnamon bark, and snatches that one away too, until nobody can remember any of the names they tried. By evening the wind has gone, and so has every name, and (name) is left with none at all: just \"?\". It never comes back. Years later, (name) is still \"?\", and quite likes it, and the argument still flares up every so often at festivals.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L222"
+  },
+  "c2": {
+   "text": "\"Well, there's no use running after the wind,\" says one of the elders. \"Nobody's ever caught it yet. Somebody fetch the drum.\" In no time at all, half the village has gathered around (name) in a ring...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L216"
+  }
+ }
+}

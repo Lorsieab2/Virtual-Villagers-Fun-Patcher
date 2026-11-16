@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandchild's Spell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b016_grandchild_spell",
+  "source": "balance",
+  "lines": [
+   706,
+   748
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L706",
+  "ledger": [
+   {
+    "src": "L707",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L708",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L716",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L725",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L713",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L714",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L717",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L726",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L719",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L722",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L734-748",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's mostly for sore backs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 20
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(young) has been learning charms from the village's old wise-woman, and has been practising all season on lizards, leaves and one very patient goat. Today (young.he/she) wants to try something bigger, and (young.he/she) wants to try it on (subject), (young.his/her) grandparent.\n\"It's a charm for feeling young,\" (young) says, holding up a bundle of herbs tied with red thread. \"It's mostly for sore backs. I think. I'm nearly sure.\"\n(subject) does have a sore back. (subject.He/She) also remembers what happened to the goat. Should (subject) let (young) try the charm?",
+   "choices": [
+    {
+     "label": "Let (Young) Try",
+     "next": "c1",
+     "src": "L713"
+    },
+    {
+     "label": "Tell (Young) to Practise on the Goat Again",
+     "next": "c2",
+     "src": "L714"
+    }
+   ],
+   "src": "L709-711"
+  },
+  "c1o1": {
+   "text": "The smoke clears, and (subject) is standing up straight for the first time in years. Too straight. The grey has gone from (subject.his/her) hair, the lines from (subject.his/her) face, and (subject.his/her) knees don't make any noise at all. (young) stares. \"That's... more than I meant,\" (young.he/she) whispers. (subject) takes a long look at (subject.his/her) hands, and then laughs so loud the goat runs away. The wise-woman has a long talk with (young) that evening. (subject) goes swimming.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -20,
+      -20
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L720"
+  },
+  "c1o2": {
+   "text": "The smoke clears, and (subject)'s back still hurts exactly as much as it did before. But (subject.his/her) friends gasp when they see (subject.him/her), and someone fetches a water bowl. The charm has given (subject.him/her) the face (subject.he/she) had at twenty-five, and nothing else. \"Well,\" (subject) says, poking at (subject.his/her) smooth cheek. \"My back still hurts. But at least now I'm handsome while it does.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L723"
+  },
+  "c1": {
+   "text": "(young) waves the bundle over (subject)'s head three times, mutters the words, gets one of them wrong, says \"Sorry, sorry,\" and starts again. The herbs start to smoke without being lit...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L717"
+  },
+  "c2o1": {
+   "text": "The goat, wisely, has eaten the herb bundle. Whatever was in it doesn't agree with it, and the goat sneezes a great cloud of red smoke straight at (subject), who is coming round the corner to see. When the smoke clears, the goat looks exactly the same. (subject)'s face, though, has aged ten years in a moment, though (subject.he/she) feels no different. \"Next time,\" (subject) says, \"you practise on a leaf.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L729"
+  },
+  "c2o2": {
+   "text": "The goat comes trotting back, looking delighted with itself, and leaps onto a hut roof that it couldn't have reached for years. (young) beams with pride. (subject) looks at the goat. Then at the herbs. Then at (subject.his/her) aching back. \"Tomorrow,\" (subject.he/she) says. \"Maybe.\" The goat lives on the roof for a week.",
+   "src": "L732"
+  },
+  "c2": {
+   "text": "\"Goat first,\" (subject) says firmly. (young) sighs and goes to find the goat. A few minutes later there is a strange popping noise from behind the huts, and a startled bleat...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L726"
+  }
+ }
+}

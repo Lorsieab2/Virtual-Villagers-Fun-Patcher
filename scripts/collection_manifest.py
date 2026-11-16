@@ -1173,6 +1173,82 @@ def _drafts_d_rows() -> None:
 _drafts_d_rows()
 
 
+# ---- The owner's GO files (collection_lib.GO_SOURCES; the owner's own layout, src/vv_owner_layout.py) --------------
+#
+# "S001. Title   [VV1, ...]", WHO:, EVENT TEXT, the story, "Choice A: Label" lines, then per choice "CHOICE A: LABEL",
+# "First popup: ...", "Ending A1 -- NAME. Chance 50%. EFFECT: ..." with its text, then "MIXER SEED <code>" (the mixer's
+# pieces, built by scripts/go_events/gen_go.py).  An event's row runs from its heading to its seed's last flavour line;
+# the file's other lines (headings, the writers' count tables) are notes rows.  Each section is one series.
+GO_CREDITS = {   # credit key: the owner's words for the events (Credits.txt and each event's credit)
+    "go_rw": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+    "go_rw_own": "Written by Lorsieab2.",
+    "go_bal": "Written by Claude to Lorsieab2's style guide and direction.",
+}
+GO_HEADING = re.compile(r"^([A-Z]+-?)(\d+)\.\s+(.+?)\s+\[([^\]]*)\]\s*$")
+GO_OWN = 20          # S001-S020: the owner's own (the example events, "written by Lorsieab2")
+
+
+def _go_rows() -> None:
+    for sid, (_name, _n, secs) in lib.GO_SOURCES.items():
+        with lib.use_source(sid):
+            n_all = lib.n_lines()
+            heads = [n for n in range(1, n_all + 1) if GO_HEADING.match(lib.line(n).strip())]
+            taken: set[int] = set()
+            for i, h in enumerate(heads):
+                stop = heads[i + 1] if i + 1 < len(heads) else n_all + 1
+                e, flav = h, False
+                for n in range(h, stop):
+                    s = lib.line(n)
+                    if s.startswith("#") or (lib.is_separator(s) and n > h):
+                        break
+                    if s.strip().startswith(("Flavour lines:", "Flavor lines:")):
+                        flav = True
+                    elif flav and not s.strip().startswith("-"):
+                        if s.strip():
+                            break
+                        if e > h and lib.line(e).strip().startswith("-"):
+                            break
+                        continue
+                    if s.strip():
+                        e = n
+                pre, num, title, games = GO_HEADING.match(lib.line(h).strip()).groups()
+                sec, _topic = secs[pre]
+                code = f"{pre.rstrip('-').lower()}{num}"
+                gs = sorted({int(g) for g in re.findall(r"VV\s*([1-5])", games)}) or ALL
+                if re.search(r"\b[Aa]ll\b", games):
+                    gs = ALL
+                credit = "go_bal" if sid == "balance" else "go_rw_own" if pre == "S" and int(num) <= GO_OWN \
+                    else "go_rw"
+                nc = sum(1 for n in range(h, e + 1) if re.match(r"^Choice [A-Z]\s*:", lib.line(n)))
+                R(f"{code}_{companion_slug(title, VV1_ID_MAX - len(code) - 1)}", lib.normalize_source_text(title).strip(),
+                  gs, h, e, "event", sec, credit, nc, series=sec, source=sid, choice_re=r"^Choice [A-Z]\s*:")
+                taken.update(range(h, e + 1))
+            # the rest: notes rows (runs of lines outside the events, cut at blank lines before a heading)
+            k, sec0 = 0, next(iter(secs.values()))[0]
+            n = 1
+            while n <= n_all:
+                if n in taken or lib.is_blank_or_separator(n):
+                    n += 1
+                    continue
+                a = n
+                while n + 1 <= n_all and n + 1 not in taken and not (
+                        lib.is_blank_or_separator(n + 1) and (n + 2 > n_all or n + 2 in taken
+                                                             or lib.is_blank_or_separator(n + 2))):
+                    n += 1
+                b = n
+                while lib.is_blank_or_separator(b):
+                    b -= 1
+                k += 1
+                N(f"{sec0}_notes{k}", f"{lib.GO_SECTIONS[sec0][1]}: the writers' notes", a, b, sec0, "go_bal"
+                  if sid == "balance" else "go_rw", source=sid)
+                n += 1
+
+
+for _k in GO_CREDITS:
+    CREDITS[_k] = ("mixed", [(1, 1)], "balance" if _k == "go_bal" else "rewrites")
+_go_rows()
+
+
 # ---- The owner's all-in-one Animals anthology, its newest volumes (collection_lib.ANTHOLOGY; its own line numbers) ----
 #
 # The owner's newest all-in-one file (2026-11-15) is the Living Event Engine file with the GLOBAL EDITORIAL OVERRIDE
@@ -1468,7 +1544,7 @@ OWNER_CREDITS = {
 def credit_text(key: str) -> dict:
     who, ranges, *src = CREDITS[key]
     with lib.use_source(src[0] if src else lib.SOURCE_ID):
-        text = OWNER_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
+        text = OWNER_CREDITS.get(key) or GO_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
         return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges], "text": text}
 
 
@@ -1614,6 +1690,9 @@ def build() -> dict:
         **{sid: whole_file(sid, lib.SOURCES[sid][0], (DRAFTS_D_SERIES[sid],)) for sid in lib.DRAFTS_D},
         # The Animals anthology's newest volumes (collection_lib.ANTHOLOGY): rows with "source" "anthology"
         "anthology": anthology,
+        # The owner's GO files (collection_lib.GO_SOURCES): rows with "source" "rewrites" / "balance"
+        **{sid: whole_file(sid, lib.SOURCES[sid][0], tuple(sec for sec, _t in v[2].values()))
+           for sid, v in lib.GO_SOURCES.items()},
         "rows": rows,
     }
 
@@ -1641,7 +1720,8 @@ def main(argv=None) -> int:
     print(f"companion: {c['counts']}, uncovered {c['uncovered_lines']}, overlaps {c['overlaps']}")
     lv = data["living"]
     print(f"living: {lv['counts']}, uncovered {lv['uncovered_lines']}, overlaps {lv['overlaps']}")
-    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology"):
+    for key in ("horizon", "rolemodels", *lib.DRAFTS_B, *lib.DRAFTS_C, *lib.DRAFTS_D, "anthology",
+                *lib.GO_SOURCES):
         s = data[key]
         print(f"{key}: {s['counts']}, uncovered {s['uncovered_lines']}, overlaps {s['overlaps']}")
     for key, s in data["drafts_a"].items():

@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coral That Grows Twice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b078_coral_grows_twice",
+  "source": "balance",
+  "lines": [
+   3522,
+   3563
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3522",
+  "ledger": [
+   {
+    "src": "L3523",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3524",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3532",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3541",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3529",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3530",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3533",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3542",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3535",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3544",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3550-3563",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old divers say a careless diver once fell asleep on it and woke up with company.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In a hidden lagoon, there's a bed of pale pink coral that the divers call \"the twice coral,\" because whatever is left resting on it grows a second one overnight: two shells where there was one, two fish in a bowl. The old divers say a careless diver once fell asleep on it and woke up with company.\n(Name) has dived down to see it, and is floating just above the pink branches, which are swaying gently, as if breathing. (His/Her) foot is touching the coral.\n(Name) is running out of breath. Should (he/she) push off from the coral to get up faster, or swim up slowly so as not to touch it any more?",
+   "choices": [
+    {
+     "label": "Push Off from the Coral",
+     "next": "c1",
+     "src": "L3529"
+    },
+    {
+     "label": "Swim Up Slowly",
+     "next": "c2",
+     "src": "L3530"
+    }
+   ],
+   "src": "L3525-3527"
+  },
+  "c1o1": {
+   "text": "(Name) breaks the surface gasping, and {#made:another head pops up|two more heads pop up|three more heads pop up} beside (him/her), gasping just as hard. {#made:It is|They are|They are} (name) exactly, down to the way (he/she) wipes water from (his/her) eyes. \"Twice coral,\" says one, and they all say \"Oh no\" at once. The village, when they paddle in, takes this rather well, and gives {#made:the newcomer a name|them names|them names} of {#made:its|their|their} own.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L3536"
+  },
+  "c1o2": {
+   "text": "(Name) surfaces, and so does someone else: same face, same hair, and that's where it ends. The coral copied only what it touched, which was the outside. The newcomer can't swim very well, and loves sitting in the sun, and laughs at all the wrong moments. It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L3539"
+  },
+  "c1": {
+   "text": "(Name) plants both feet on the coral and kicks hard for the surface. The pink branches flex, and glow, and something follows (him/her) up through the water...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3533"
+  },
+  "c2o1": {
+   "text": "(Name) breaks the surface, gasping, alone. Nothing followed. (He/She) floats on (his/her) back for a long time, breathing, and decides the twice coral is better left to the stories. The divers who were watching from the canoe are a little disappointed.",
+   "src": "L3545"
+  },
+  "c2o2": {
+   "text": "Nothing follows (him/her) up. But that night, (name)'s face itches, and in the morning it's different, as if the coral, given only a moment, grew a second face over the first. Not worse. New. (Name) is half annoyed and half delighted, and the divers are all very jealous.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L3548"
+  },
+  "c2": {
+   "text": "(Name) lifts (his/her) foot away gently and swims up, lungs burning, careful not to brush the coral again. Below, the pink branches stop swaying...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3542"
+  }
+ }
+}

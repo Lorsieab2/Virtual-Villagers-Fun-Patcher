@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lagoon That Keeps Time",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b035_lagoon_keeps_time",
+  "source": "balance",
+  "lines": [
+   1572,
+   1613
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1572",
+  "ledger": [
+   {
+    "src": "L1573",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1574",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1582",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1591",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1579",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1580",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1583",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1592",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1585",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1588",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1594",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1597",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1600-1613",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There's a small, round lagoon on the east side of the island where the water is perfectly still, even in a storm.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 28,
+   "max_age": 50
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's a small, round lagoon on the east side of the island where the water is perfectly still, even in a storm. The fishers won't fish in it. They say the lagoon \"keeps time,\" and that anyone who swims across it might be given some back, or have some taken.\n(Name) has lost a bet, and the price is swimming across. (His/Her) friends are waiting on the far side, grinning. The water is so clear that (he/she) can see the white sand at the bottom, and something like a slow, glittering current going round in a circle.\nShould (name) swim with the current or against it?",
+   "choices": [
+    {
+     "label": "Swim with the Current",
+     "next": "c1",
+     "src": "L1579"
+    },
+    {
+     "label": "Swim Against the Current",
+     "next": "c2",
+     "src": "L1580"
+    }
+   ],
+   "src": "L1575-1577"
+  },
+  "c1o1": {
+   "text": "(Name) climbs out on the far side and (his/her) friends stop grinning. (He/She) is ten years younger: the lines gone, the old aches gone, the knee that clicks has stopped clicking. \"It gave me some back,\" (name) says, amazed. (His/Her) friends are already arguing about whose turn it is next. The elders put a stop to that by the afternoon.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -10,
+      -10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1586"
+  },
+  "c1o2": {
+   "text": "The current carries (him/her) round and round, and the swim takes much longer than it should. When (name) finally drags (himself/herself) out, (his/her) hair is grey at the temples and there are lines round (his/her) eyes that weren't there an hour ago. The lagoon has taken ten years for itself. \"Well,\" says (name), after a long silence, \"I won the bet back, at least.\" (He/She) didn't. Nobody has the heart to say so.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1589"
+  },
+  "c1": {
+   "text": "(Name) slips in and lets the slow circle carry (him/her). It's warm, and easy, like being rocked. The far shore comes closer, then further, then closer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1583"
+  },
+  "c2o1": {
+   "text": "(Name) arrives exhausted, and lies on the sand gasping, and when (his/her) friends help (him/her) up, they keep staring at (his/her) face. Younger. Not (his/her) body, which aches as much as ever, just (his/her) face. \"It took the time back from my face,\" (name) says, feeling (his/her) cheeks, \"and put it all in my legs.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1595"
+  },
+  "c2o2": {
+   "text": "(Name) fights across, and drags (himself/herself) out, and nothing has changed at all, except that (he/she) is very tired and very wet. \"It didn't want my time,\" (he/she) says, sounding almost offended. (His/Her) friends pay for the next bet out of embarrassment for (him/her).",
+   "src": "L1598"
+  },
+  "c2": {
+   "text": "(Name) kicks hard against the slow circle. It's like swimming through honey. Every stroke feels like an hour...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1592"
+  }
+ }
+}

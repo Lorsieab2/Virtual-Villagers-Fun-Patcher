@@ -92,7 +92,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "Some believers question the villager's motives.",
-   "src": "L23751"
+   "src": "L23751",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "Some of the faithful question the villager's motives."
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -167,5 +175,8 @@
    "text": "The discussion reveals divisions that remain unresolved.",
    "src": "L23760"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

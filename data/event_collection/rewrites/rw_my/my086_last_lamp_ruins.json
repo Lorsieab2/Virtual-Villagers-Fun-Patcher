@@ -1,0 +1,300 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Lamp in the Ruins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my086_last_lamp_ruins",
+  "source": "rewrites",
+  "lines": [
+   14860,
+   14915
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14860",
+  "ledger": [
+   {
+    "src": "L14861",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14870",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14877",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14884",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14865",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14866",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14867",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14868",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14871",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14878",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14885",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14892",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14872",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14874",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14879",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14881",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14886",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14888",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14893",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14895",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14898-14915",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The roof is half fallen, the walls are green with moss, and nobody has lived here for a very long time.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Exploring the ruins of an old abandoned settlement far up the coast, (name) pushes through a curtain of vines into what was once someone's home. The roof is half fallen, the walls are green with moss, and nobody has lived here for a very long time.\nAnd yet, on a stone shelf, a lamp is burning, a small, steady flame. Beside it sits a bowl of rice. The rice is still steaming. (Name) stands absolutely still and listens. There is no sound in the ruins at all except (his/her) own breathing, and (his/her) stomach, which has noticed the rice. Who could still be living here? Should (name) touch anything?",
+   "choices": [
+    {
+     "label": "Examine the Lamp",
+     "next": "c1",
+     "src": "L14865"
+    },
+    {
+     "label": "Eat the Food",
+     "next": "c2",
+     "src": "L14866"
+    },
+    {
+     "label": "Wait for the Owner",
+     "next": "c3",
+     "src": "L14867"
+    },
+    {
+     "label": "Leave an Offering",
+     "next": "c4",
+     "src": "L14868"
+    }
+   ],
+   "src": "L14863-14864"
+  },
+  "c1o1": {
+   "text": "Under the lamp is a clay chamber, cleverly built into the stone shelf, holding enough oil to feed the flame for a whole month, drip by drip through a tiny channel. Whoever lived here was a brilliant builder. (Name) sketches the whole thing and brings it home, and the researchers are delighted. Soon every hut in the village has a slow-burning lamp of the same design. Nobody can explain the steaming rice. The researchers decide it is not their department.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14873"
+  },
+  "c1o2": {
+   "text": "There is no oil. The lamp is completely dry inside, dusty even. And yet the flame burns on, steady and bright, without anything to burn. (Name) sets it down very carefully. (He/she) stays in the ruins all night, too fascinated to leave, watching the little flame. At the first light of dawn, it gutters once and goes out, and a thin curl of smoke rises from the dry wick. The rice is cold.",
+   "src": "L14875"
+  },
+  "c1": {
+   "text": "(Name) creeps closer and lifts the lamp carefully. It is heavier than it looks. (He/she) turns it over, peering at it from every angle...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14871"
+  },
+  "c2o1": {
+   "text": "The rice is delicious: soft, fragrant, perfectly cooked, with a little fish and ginger mixed in. (Name) eats every grain, and feels better than (he/she) has felt in days. When (he/she) looks back at the shelf, there is another full, steaming bowl beside the lamp. (Name) fills (his/her) carrying pouch with it, and the next, and the next, and carries a whole bundle of rice back to the village. Strangely, (he/she) never manages to find those ruins again.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14880"
+  },
+  "c2o2": {
+   "text": "The first mouthful tastes strange. The second tastes worse. By the third, (name) realizes the rice is not steaming because it is hot, but because it is spoiled and rotting. (He/she) spits it out, but too late. By nightfall, (name) is doubled over with stomach cramps on the long walk home, and the healers keep (him/her) in bed for several days on nothing but water and broth. When (he/she) is better, (he/she) cannot stand the smell of rice for a month.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L14882"
+  },
+  "c2": {
+   "text": "(Name) is very hungry, and the rice smells very good. \"Sorry,\" (he/she) says to nobody, and picks up the bowl...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14878"
+  },
+  "c3o1": {
+   "text": "After an hour, someone pushes through the vines and lets out a shriek. It is a traveler, middle-aged and muddy, clutching a bundle of firewood. \"What are you doing in my house?\" (he/she) demands. It turns out (he/she) has been living in the ruins for a season, quite happily, alone. Once they both stop being frightened, the traveler shares the rice, and they talk until the lamp burns low. (He/she) has a great many opinions about the ruins, and about the weather, and about the noisy birds.",
+   "src": "L14887"
+  },
+  "c3o2": {
+   "text": "Nobody comes. (Name) waits and waits, and finally, in the middle of the night, falls asleep where (he/she) sits. When (he/she) wakes, the lamp has moved. It is no longer on the shelf. It is on the floor, right beside (name), burning steadily. The bowl of rice sits next to it. (Name) leaves at once, and runs most of the way home.",
+   "src": "L14889"
+  },
+  "c3": {
+   "text": "It seems rude to touch someone's dinner. (Name) sits down on the floor across from the lamp, and waits for whoever lives here to come home...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14885"
+  },
+  "c4o1": {
+   "text": "In the morning, (name) peeks back inside. The lamp has burned out. The rice is cold. The dried fruit sits exactly where (he/she) left it, untouched. (Name) is not sure whether to be disappointed or relieved. (He/she) leaves it there anyway, and heads home. For the rest of (his/her) life, (he/she) wonders who the rice was for.",
+   "src": "L14894"
+  },
+  "c4o2": {
+   "text": "In the morning, the dried fruit is gone. The bowl of rice is empty, scraped clean. The lamp has burned out. In the soft dust of the floor, there are (name)'s own footprints, coming in and going out. There are no others. Not one. (Name) stands in the doorway for a long time, and then bows, deeply, to the empty room before leaving.",
+   "src": "L14896"
+  },
+  "c4": {
+   "text": "Whoever this belongs to, they deserve respect. (Name) takes a little packet of dried fruit from (his/her) bag and sets it on the shelf beside the bowl. Then (he/she) leaves the house, and sleeps in the shelter of the ruined wall outside...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14892"
+  }
+ }
+}

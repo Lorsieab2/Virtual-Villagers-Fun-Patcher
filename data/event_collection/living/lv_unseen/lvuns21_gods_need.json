@@ -87,7 +87,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "A believer finds the idea lonely and unconvincing.",
-   "src": "L22444"
+   "src": "L22444",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager of faith finds the idea lonely and unconvincing."
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -141,5 +149,8 @@
    "text": "A spiritual elder reminds them that practical care and prayer can coexist.",
    "src": "L22450"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

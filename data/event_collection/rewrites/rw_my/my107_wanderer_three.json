@@ -1,0 +1,307 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wanderer's Three Doors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my107_wanderer_three",
+  "source": "rewrites",
+  "lines": [
+   16078,
+   16133
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16078",
+  "ledger": [
+   {
+    "src": "L16079",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16080",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16088",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16095",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16102",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16109",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16083",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16084",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16085",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16086",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16089",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16096",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16103",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16110",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16092",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16097",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16099",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16104",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16106",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16111",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16113",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16116-16133",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A wandering traveler sits by the fire, poking the embers with a stick, and tells a villager about the forest.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A wandering traveler sits by the fire, poking the embers with a stick, and tells (name) about the forest. \"There are three doors hidden in it,\" (he/she) says. \"Old doors, standing in the trees, with no walls. One leads to food. One leads to knowledge.\" (He/she) pauses. \"And one leads to something I won't name.\"\n(He/she) draws them in the dirt with the stick: a door marked with a fish, a door marked with an eye, and a third door marked with nothing at all. Then (he/she) looks at (name) expectantly. \"Well? Which one would you look for?\" (Name) is tempted by all three. But the third door, the one with nothing on it, worries (him/her).",
+   "choices": [
+    {
+     "label": "Seek the Door of Food",
+     "next": "c1",
+     "src": "L16083"
+    },
+    {
+     "label": "Seek the Door of Knowledge",
+     "next": "c2",
+     "src": "L16084"
+    },
+    {
+     "label": "Seek the Unnamed Door",
+     "next": "c3",
+     "src": "L16085"
+    },
+    {
+     "label": "Refuse the Search",
+     "next": "c4",
+     "src": "L16086"
+    }
+   ],
+   "src": "L16081-16082",
+   "text_only": [
+    {
+     "src": "L16081",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Through the door, impossibly, is a room: an old storehouse built into the hillside behind the trees, so overgrown that (name) would never have noticed it from any other side. Inside are rows of sealed jars packed with grain, dry and golden, as though it had been stored just last season. There is enough to feed the village for weeks. It takes a dozen villagers three trips to carry it all home. Nobody can say who built the storehouse, or who filled it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true
+    }
+   ],
+   "src": "L16091"
+  },
+  "c1o2": {
+   "text": "Through the door is an empty hut, its roof fallen in, its shelves bare. Not a grain, not a crumb. (Name) is bitterly disappointed. But on the walk home, (he/she) notices something (he/she) was too busy searching to see on the way there: the path to the door is lined with wild yams, edible mushrooms and berry bushes nobody in the village knew about. (He/she) fills (his/her) basket on the way back. Perhaps, (he/she) thinks, the door was never the point.",
+   "src": "L16093"
+  },
+  "c1": {
+   "text": "Following the traveler's directions, (name) searches the forest for a day and a half, until (he/she) finds it: an old wooden door standing alone among the trees, carved with a fish, with nothing but forest on either side. (He/she) takes a breath, and pulls it open...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16089"
+  },
+  "c2o1": {
+   "text": "Beyond the doorway is a small stone room, and on its walls, carved in careful pictures, are instructions: how to carve wood without splitting it, how to shape a bowl from a single block, how to fit a joint so tightly it needs no binding. It is a whole forgotten craft, preserved on the walls. (Name) spends two days copying it all onto bark. Back home, the village builders and carvers fall on it with delight, and their work improves enormously.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L16098"
+  },
+  "c2o2": {
+   "text": "Beyond the doorway is a room full of tablets: dozens and dozens of smooth stone tablets, stacked on shelves, every one perfectly blank. Not a mark on them. (Name) turns them over, one after another, looking for anything, and finds nothing. Disappointed, (he/she) heads home and tells the traveler. The traveler grins. \"Knowledge,\" (he/she) says, \"has to be written by someone first. Those are waiting for you.\"",
+   "src": "L16100"
+  },
+  "c2": {
+   "text": "(Name) wants to know things more than (he/she) wants to eat them. (He/she) follows the traveler's directions deep into the forest, until (he/she) finds an old stone doorway standing alone among the trees, carved with an eye...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16096"
+  },
+  "c3o1": {
+   "text": "Behind the door is a small, quiet chamber, cool and dim, and in it a memorial: a ring of stones, each carved with a little figure of a person, dozens of them. There are no names. Just the figures, lovingly made, and dried flowers laid among them, years old. Whoever these people were, someone loved them, and wanted them remembered, even if no one remembered who they were. (Name) lays a fresh flower among them before (he/she) leaves, and goes home very quietly.",
+   "src": "L16105"
+  },
+  "c3o2": {
+   "text": "(Name) opens the door and steps through. That is the last anyone sees of (him/her). When (he/she) does not come home, a search party follows (his/her) trail into the forest, and finds the grey door standing open among the trees. Beyond it there is nothing but more forest, ordinary and green. (Name)'s footprints lead up to the doorway. None lead away from it, on either side. The searchers call (his/her) name until dark. The traveler, when they come back, is gone too.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L16107"
+  },
+  "c3": {
+   "text": "(Name) cannot stop thinking about the door with nothing on it. Against the traveler's quiet warning, (he/she) goes looking for it, and after a long, strange day of walking, finds it: a plain grey door standing alone among the trees, with no marks at all...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16103"
+  },
+  "c4o1": {
+   "text": "...and then smiles broadly. \"Good answer,\" (he/she) says. \"Most people go running off into the trees.\" (He/she) rubs out the drawing with (his/her) foot, and the two of them sit by the fire and share a meal instead, and the traveler tells stories of all the strange places (he/she) has seen until late in the night. In the morning, (he/she) leaves, and (name) never does find out whether the doors were real.",
+   "src": "L16112"
+  },
+  "c4o2": {
+   "text": "...and then nods, slowly, as though (name) has said something very wise. \"Then you've already found the fourth door,\" (he/she) says. \"The one you've already walked through.\" (He/she) taps the ground beside the three drawings, where there is nothing drawn at all, and will not explain. (Name) thinks about it for days. Eventually (he/she) decides it means the door of the hut (he/she) lives in, with (his/her) people inside it. (He/she) is fairly sure that is right.",
+   "src": "L16114"
+  },
+  "c4": {
+   "text": "(Name) looks at the three doors drawn in the dirt for a long time, and then shakes (his/her) head. \"No thanks,\" (he/she) says. \"I'd rather stay here.\" The traveler looks up, surprised...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16110"
+  }
+ }
+}

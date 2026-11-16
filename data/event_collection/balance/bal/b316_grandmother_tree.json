@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandmother Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b316_grandmother_tree",
+  "source": "balance",
+  "lines": [
+   14640,
+   14680
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14640",
+  "ledger": [
+   {
+    "src": "L14641",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14642",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14649",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14658",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14646",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14647",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14650",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14659",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14655",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14661",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14664",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14667-14680",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders say it was a woman once, the first healer, who loved the island so much she put down roots.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 23
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The Grandmother Tree is the oldest tree on the island, a huge twisted fig in a clearing that nobody cuts, nobody climbs and everybody greets when they pass. The elders say it was a woman once, the first healer, who loved the island so much she put down roots. Anyone who sleeps in her shade, they say, wakes up with some of her years, or some of her youth, depending on her mood.\n(Name) is very tired and the shade is very cool. Should (name) lie down and rest, or greet the tree politely and keep walking?",
+   "choices": [
+    {
+     "label": "Lie Down and Rest",
+     "next": "c1",
+     "src": "L14646"
+    },
+    {
+     "label": "Greet Her and Keep Walking",
+     "next": "c2",
+     "src": "L14647"
+    }
+   ],
+   "src": "L14643-14644"
+  },
+  "c1o1": {
+   "text": "(Name) wakes feeling wonderful: lighter, quicker, straighter. When (he/she) catches sight of (his/her) reflection in the stream on the way home, (he/she) is five years younger, and (his/her) face looks brighter than it has in a long time. The Grandmother Tree was in a good mood. (Name) leaves a flower at her roots every morning after that.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14653"
+  },
+  "c1o2": {
+   "text": "(Name) wakes with a stiff neck and a heavy feeling, and when (he/she) gets home, (his/her) family stares: there's grey in (his/her) hair, and deep lines on (his/her) face, like bark. (His/her) age is the same. Only the face is older. \"She must have been in a mood,\" say the elders. (Name) tries apologising to the tree. It doesn't help.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14656"
+  },
+  "c1": {
+   "text": "(Name) lies down among the roots. The bark creaks above (him/her) like an old woman settling into a chair. (He/She) falls asleep at once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14650"
+  },
+  "c2o1": {
+   "text": "That night, (name) dreams of an old woman with leaves in her hair who pats (his/her) cheek and says (he/she) has good manners. In the morning (his/her) face is young again: not (his/her) body, just the face, smooth and bright. People keep asking (him/her) what (he/she) has been eating. \"Good manners,\" (name) says.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14662"
+  },
+  "c2o2": {
+   "text": "Nothing happens. The breeze dies away and the clearing is still again. (Name) walks home feeling slightly foolish for talking to a tree, and then, at the edge of the clearing, turns and waves anyway. Some habits, (he/she) decides, are worth keeping.",
+   "src": "L14665",
+   "text_only": [
+    {
+     "src": "L14665",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) stops, bows a little, and says good afternoon to the Grandmother Tree. A breeze stirs the leaves, though the rest of the clearing is still...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14659"
+  }
+ }
+}

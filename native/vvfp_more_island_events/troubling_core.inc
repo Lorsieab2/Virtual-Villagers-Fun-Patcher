@@ -108,7 +108,7 @@ static int ts_possible(const ts_game *t) {
         return 0;
     }
     chief = t->chief();
-    return chief >= 0 && t->population() >= TS_POPULATION_MIN && t->tribe(tribe, sizeof tribe)
+    return chief >= 0 && (t->population() >= TS_POPULATION_MIN || adv_no_safeguards(t->g->game)) && t->tribe(tribe, sizeof tribe)
         && ts_candidates(t, chief, list, TS_MAX_RECORDS) >= TS_PICKS;
 }
 

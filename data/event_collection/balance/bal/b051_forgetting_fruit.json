@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgetting Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b051_forgetting_fruit",
+  "source": "balance",
+  "lines": [
+   2298,
+   2339
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2298",
+  "ledger": [
+   {
+    "src": "L2299",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2300",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2308",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2317",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2305",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2306",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2309",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2318",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2311",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2314",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2320",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2323",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2326-2339",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It also made them forget other things.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the forest grows a shrub with small blue fruits that the old healers used to give to people in great pain, because it made them forget it. It also made them forget other things. The healers stopped using it long ago, and the shrub was left to grow wild.\n(Name) is out gathering and has eaten a handful before (he/she) notices the colour. The taste is like cold water and mint. Already (his/her) head feels light and empty, like a hut swept clean.\nShould (name) try to bring it all back up, or sit down and wait for it to pass?",
+   "choices": [
+    {
+     "label": "Try to Bring It Back Up",
+     "next": "c1",
+     "src": "L2305"
+    },
+    {
+     "label": "Sit Down and Wait",
+     "next": "c2",
+     "src": "L2306"
+    }
+   ],
+   "src": "L2301-2303"
+  },
+  "c1o1": {
+   "text": "(Name) finds (his/her) way home, but some of the fruit had already done its work. When (his/her) friends greet (him/her), (he/she) knows every one of them, but not the name they're calling. The healers recognise the blue stain on (his/her) lips at once, and sigh. The name never comes back. The village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2312"
+  },
+  "c1o2": {
+   "text": "(Name) gets most of it up, and gets home, and seems fine. It's only later that week that (he/she) realises something is missing: (he/she) has been afraid of the dark all (his/her) life, and now (he/she) can't remember why. The healers say that's the fruit, and that it could have been much worse.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "the dark",
+     "role": "subject"
+    }
+   ],
+   "src": "L2315"
+  },
+  "c1": {
+   "text": "(Name) sticks a finger down (his/her) throat and is very sick in the bushes. (He/She) sits back, shaky and sweating, and tries to remember (his/her) way home...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2309"
+  },
+  "c2o1": {
+   "text": "When the light-headedness passes, (name) walks home, and everything is where it should be. Except one thing: learning, which (he/she) has always loved more than anything, feels like nothing at all. The fruit let it float away with the other leaves. (He/She) does it anyway, sometimes, out of habit, and waits for the feeling to come back.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L2321"
+  },
+  "c2o2": {
+   "text": "The light-headedness passes, and (name) checks everything: name, friends, likes, dislikes, the way home. All there. (He/She) goes home and tells the healers, who go out the next day and dig up the shrub, and plant it again inside the healers' garden, behind a fence, where nobody can eat it by accident.",
+   "src": "L2324",
+   "text_only": [
+    {
+     "src": "L2324",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) sits down against a tree and waits. The forest seems very bright and very quiet. Thoughts drift through (his/her) head and float away like leaves on a stream...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2318"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,293 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Identical Travelers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my034_two_identical",
+  "source": "rewrites",
+  "lines": [
+   11821,
+   11876
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11821",
+  "ledger": [
+   {
+    "src": "L11822",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11823",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11832",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11839",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11846",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11853",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11827",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11828",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11829",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11830",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11833",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11840",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11847",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11854",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11834",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11836",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11841",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11843",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11848",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11850",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11855",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11860-11876",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Two strangers walk into the village on the same morning, one from the east path and one from the west.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two strangers walk into the village on the same morning, one from the east path and one from the west. Both wear a blue wrap with a frayed hem. Both carry a walking stick with a notch near the top. Both have the very same face, right down to the little scar on the chin.\nThey stop in the middle of the village and stare at each other. \"Who are you?\" they both say at once. Each insists they have never met the other in their lives. Both tilt their heads the very same way when puzzled. The whole village is watching, and somehow (subject) has ended up standing right between them. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Invite Both to Stay",
+     "next": "c1",
+     "src": "L11827"
+    },
+    {
+     "label": "Ask About Their Histories",
+     "next": "c2",
+     "src": "L11828"
+    },
+    {
+     "label": "Let Them Meet Privately",
+     "next": "c3",
+     "src": "L11829"
+    },
+    {
+     "label": "Consult a Storyteller",
+     "next": "c4",
+     "src": "L11830"
+    }
+   ],
+   "src": "L11824-11825"
+  },
+  "c1o1": {
+   "text": "{#made:Only one stays; the other camps nearby|They both stay}. They choose different names. One takes up net-making, the other gardening, and they live at opposite ends of the village. They never quite become friends, but every morning they wave to each other across the village, the very same wave, at the very same moment. After a while, everyone stops finding it strange. Mostly.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L11835"
+  },
+  "c1o2": {
+   "text": "In the morning, one of them is gone. No goodbye, no footprints, just an empty sleeping mat. The other one is pale and shaken. \"I dreamed I was walking away,\" the one who stayed whispers. \"I dreamed I was walking away from myself.\" The remaining traveler leaves before noon, heading the opposite way.",
+   "src": "L11837"
+  },
+  "c1": {
+   "text": "\"Well,\" (subject) says, after a long pause, \"you both look like you could use a meal. And a place to sleep. Stay with us, both of you, and you can sort this out at your leisure.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11833"
+  },
+  "c2o1": {
+   "text": "Their stories are different in every detail: different villages, different families, different lives. Nothing matches. Until (subject) asks, on a whim, what song their mothers sang to them. Both of them start humming the very same lullaby, at the very same time, then stop and stare at each other in horror. Neither of them sleeps that night.",
+   "src": "L11842"
+  },
+  "c2o2": {
+   "text": "They both tell the story of a great storm when they were small, a storm that tore their villages apart. One saw it from the eastern shore of a far island. The other saw it from the western shore. Same storm, same night, same terror, opposite sides. \"Maybe you were twins,\" someone suggests. \"Separated by the storm.\" Both travelers look at each other for a long, long time.",
+   "src": "L11844"
+  },
+  "c2": {
+   "text": "(subject) sits them down at opposite sides of the fire and asks each of them to tell their story, from the very beginning...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11840"
+  },
+  "c3o1": {
+   "text": "For a long time, there's silence. Then laughter. Loud, helpless, wheezing laughter, from both of them. When they finally come out, wiping their eyes, they refuse to explain anything at all. \"You wouldn't believe us,\" they say, and set off together down the north path, arm in arm, still giggling.",
+   "src": "L11849"
+  },
+  "c3o2": {
+   "text": "After an hour, the door opens, and only one of them comes out. \"The other one took the western path,\" the traveler says calmly. There's no back door to the hut. The western path is muddy after last night's rain, and only one set of footprints leads away along it. The traveler who remains thanks everyone and leaves by the east path, and no one stops (subject.him/her).",
+   "src": "L11851"
+  },
+  "c3": {
+   "text": "\"This is between the two of you,\" (subject) says, and shoos everyone else away. The two travelers step into an empty hut together, and the door closes...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11847"
+  },
+  "c4o1": {
+   "text": "\"There's an old tale like this,\" (friend) says. \"A man walks so far from home that he meets himself coming back. One of them is who he was. One is who he will be.\" The travelers both shiver. That night, one sleeps in the east hut and one in the west, and in the morning both are gone, walking in opposite directions.",
+   "src": "L11856"
+  },
+  "c4o2": {
+   "text": "\"Resemblance is not proof of magic,\" (friend) says briskly. \"I've seen cousins who look more alike than these two.\" The travelers seem relieved, and so does the village. Still, after they leave, nobody can explain the scar, or the notch in the stick, or that tilt of the head. The mystery remains, quietly, in everyone's mind.",
+   "src": "L11858"
+  },
+  "c4": {
+   "text": "(subject) fetches (friend), the village's best storyteller, who looks from one traveler to the other with great interest...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11854"
+  }
+ }
+}

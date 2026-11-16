@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storm Gourd",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b315_storm_gourd",
+  "source": "balance",
+  "lines": [
+   14595,
+   14636
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14595",
+  "ledger": [
+   {
+    "src": "L14596",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14604",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14613",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14601",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14602",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14605",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14614",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14607",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14610",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14616",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14619",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14622-14636",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A trader has left behind a strange gourd, sealed with wax, that crackles faintly when shaken.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader has left behind a strange gourd, sealed with wax, that crackles faintly when shaken. The trader said it held a bottled thunderstorm from the far islands, for luck, and must never be opened indoors. (subject) and (friend) found it in the corner of the meeting hut while sweeping, and they're both holding it, arguing about whose turn it is to take it home.\nThe wax is starting to crack in the heat. Should they take it outside and open it together, or put it down very carefully and go and get the elders?",
+   "choices": [
+    {
+     "label": "Open It Outside Together",
+     "next": "c1",
+     "src": "L14601"
+    },
+    {
+     "label": "Put It Down and Get the Elders",
+     "next": "c2",
+     "src": "L14602"
+    }
+   ],
+   "src": "L14598-14599"
+  },
+  "c1o1": {
+   "text": "A tiny storm cloud, no bigger than a basket, puffs out of the gourd and hangs over their heads, rumbling. Then a little bolt of lightning cracks down between their four hands. When they can see again, each of them is holding the gourd with the other's hands. The cloud drifts off out to sea, rumbling contentedly, and does not come back to undo its work.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14608"
+  },
+  "c1o2": {
+   "text": "A storm cloud billows out of the gourd, bigger and bigger, until it covers the whole village. It rains for an hour, a warm, gentle, perfect rain. The gardens drink it up, the dust is washed off every roof, and the builders, who have been waiting for wet clay to mend the walls with, finally have some, and use it. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L14611"
+  },
+  "c1": {
+   "text": "They carry it out onto the beach, both holding it, and (subject) picks the last of the wax off with a fingernail. The gourd hums...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14605"
+  },
+  "c2o1": {
+   "text": "The gourd has burst on its own. A tiny storm is raging inside the meeting hut, and a bolt from it leaps out of the doorway and strikes the ground between them. They wake up in the dust, each in the other's body. The elders, arriving at a run, look at the scorched doorway, and then at them. \"Indoors,\" says the eldest. \"He said not indoors.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L14617"
+  },
+  "c2o2": {
+   "text": "The gourd has burst, and a rain cloud is pouring buckets of water onto the meeting-hut floor. By the time it rains itself out, the floor is a pond and the mats are floating. It takes a week to dry everything. (subject) and (friend) are given the job, together, and stop arguing over whose turn it is for anything at all.",
+   "src": "L14620"
+  },
+  "c2": {
+   "text": "They set it down on the floor of the meeting hut, very gently, and back away. They're halfway to the elders' hut when they hear a muffled crack behind them...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14614"
+  }
+ }
+}

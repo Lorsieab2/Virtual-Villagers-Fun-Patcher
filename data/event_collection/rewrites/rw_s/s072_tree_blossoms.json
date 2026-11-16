@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree Blossoms Early",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "s072_tree_blossoms",
+  "source": "rewrites",
+  "lines": [
+   3396,
+   3438
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3396",
+  "ledger": [
+   {
+    "src": "L3397",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3406",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3415",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3403",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3404",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3407",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3416",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3409",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3412",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3418",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3421",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3424-3438",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "One morning, the whole village wakes up to a smell so sweet and strong it's like walking into a wall of honey.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "One morning, the whole village wakes up to a smell so sweet and strong it's like walking into a wall of honey. Outside, the air is full of petals.\nThe Tree of Life has burst into blossom, a whole season early. The researchers blame the unusually warm rains; the elders say the Tree only does this when it is pleased with the village. Every branch, from the lowest to the very top, is covered in flowers the colour of sunrise: pink and gold and orange, so thick the leaves can't be seen. The petals drift down onto every roof, into every soup pot, into everyone's hair. The children are running about trying to catch them.\nAnd bees are coming. From all over the island, it seems, in a great humming golden cloud, to the Tree. Should the village gather the blossoms, or leave them on the Tree?",
+   "choices": [
+    {
+     "label": "Gather the Blossoms",
+     "next": "c1",
+     "src": "L3403"
+    },
+    {
+     "label": "Leave Them on the Tree",
+     "next": "c2",
+     "src": "L3404"
+    }
+   ],
+   "src": "L3399-3401"
+  },
+  "c1o1": {
+   "text": "Somebody drops a handful of the blossoms into hot water, just to see, and the water turns the colour of a sunrise, and smells like the morning the Tree flowered. It tastes wonderful: sweet and soft and a little bit like honey. Everyone loves it. The cooks dry baskets and baskets of the blossoms in the sun, and there's sunrise tea at every meal for the whole season, and a sweet blossom bread that the children would fight over if they were allowed. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3410"
+  },
+  "c1o2": {
+   "text": "The blossoms are too delicate. As soon as they're picked, they start to wilt, turning brown and limp in the baskets, losing their colour and their smell in minutes. By lunchtime the baskets are full of nothing but soggy brown petals. The villagers look up guiltily at the Tree. The Tree, still covered in flowers, doesn't seem to mind. The cooks tip the baskets out under it, and the petals sink into the roots.",
+   "src": "L3413"
+  },
+  "c1": {
+   "text": "Out come the baskets and the long poles. The villagers spread cloths under the Tree and shake the lower branches, very gently, and the blossoms come tumbling down like warm snow, while the bees grumble overhead...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3407"
+  },
+  "c2o1": {
+   "text": "The blossoms stay on the Tree for a week, humming with bees. Then, slowly, they fall, and where every blossom was, there's a tiny green bud of fruit. The fruit swells, and ripens, much earlier than it ever has before, and much more of it. By the time the ordinary fruiting season should be starting, the Tree has already given the village a whole harvest, heavy and sweet. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3419"
+  },
+  "c2o2": {
+   "text": "The researchers set up a little camp under the Tree and watch the blossoms every hour of the day and night for a week. They count the bees. They measure the petals. They notice that the blossoms open at sunrise and close at sunset, all at once, every single one, as if someone had told them to. They notice that the Tree is warm to the touch all week. They learn something new about the Tree of Life, something nobody knew before, and write it all down in a very long and very excited scroll. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3422"
+  },
+  "c2": {
+   "text": "The elders say that something this rare should be left alone. So nobody picks a single blossom. They let them be. The village just stops and looks at them, every morning and every evening, for as long as they last...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3416"
+  }
+ }
+}
