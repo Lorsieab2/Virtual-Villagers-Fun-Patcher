@@ -37,9 +37,18 @@
    or fewer than 6 villagers of 14 or more.  A rescue can only come at a natural trigger, and that trigger is never
    replaced while the rescue predicate holds.
 
-   CHOICE (unchanged).  The candidates are More Island Events' entries that can happen now (when that row is
-   installed) and the collection's files for this game (when its row is installed) whose STRICT cast and requirement
-   hold now.  EVERY EVENT IS EQUALLY LIKELY, whichever source it comes from (the owner, 2026-11-14): one draw over all
+   MANY SMALL FILES (the owner, 2026-11-15: "an unlimited amount of files, the game picks randomly from one of them
+   every time it chooses an island event"): the collection's events are listed in many small manifests,
+   "Island Event Collection\manifest-<group>.txt" (the same line format; a living group's variants in
+   "living-<group>.pak" beside it); an older install's single "manifest.txt" (with "living.pak") is read only when no
+   split file exists.  A small index (sc_index: each file's name and draw weight -- its events' weights, a series
+   counting once) is all that is kept of them; the draw loads one file at a time.
+
+   CHOICE.  The candidates are More Island Events' entries that can happen now (when that row is installed) and the
+   collection's files for this game (when its row is installed) whose STRICT cast and requirement hold now.  The draw
+   picks among More Island Events' events (weight 1 each) and the files (each by its weight); a file picked is loaded
+   and drawn in (sc_draw_group); when nothing in it can happen now, another file not tried yet is picked, as many as
+   needed, until an event is armed or every file has been tried (then the game's own event comes).  EVERY EVENT IS EQUALLY LIKELY, whichever source it comes from (the owner, 2026-11-14): one draw over all
    of them, each More Island Events event weight 1, each collection event its draw weight (manifest, default 1), and a
    series (the V14, V17, V18 and V20 series, the Living Catalogue's templates) counts as ONE event, its members
    equally likely (collection_decisions.md Q7).  A candidate that cannot be cast is left out and the draw made again
@@ -90,6 +99,23 @@ typedef struct {
 
 static sc_state sc;
 static int sc_game;
+
+/* The collection's small manifests (sc_index): each file's group name ("" for an older install's single
+   "manifest.txt") and its draw weight. */
+#define SC_GROUP_BYTES 32
+#define SC_GROUP_FILE_MAX 0x00100000u      /* a group's manifest: 1 MB (a sanity limit; past it the file is skipped) */
+#define SC_GROUP_ROWS_MAX 4096
+typedef struct {
+    char name[SC_GROUP_BYTES];
+    int weight;
+} sc_group;
+static sc_group *sc_groups;
+static int sc_group_count, sc_group_cap;
+static int sc_cur_group = -1;                    /* the group sc_list holds */
+static char lv_want_group[SC_GROUP_BYTES];       /* story_living.inc: the pack the loaded group's living rows use */
+/* Pick Island Event's rows: each list row's group and its row in that group's manifest (sc_pick_fill). */
+static int *sc_ref_group, *sc_ref_row;
+static int sc_ref_count, sc_ref_cap;
 static unsigned int sc_replace_natural;  /* the natural time a new event is taking the place of */
 static story_village sc_village;
 
@@ -419,7 +445,7 @@ static unsigned int sc_manifest_cap;
 /* The manifest at `path` read whole into sc_manifest (allocated to its size, NUL-ended); past SC_MANIFEST_BYTES
    only that much is read, cut at its last whole line, and the problem logged (sc_problem): the rows after it are
    left out loudly, never silently.  1 when something was read. */
-static int sc_read_manifest(const wchar_t *path, unsigned int *size) {
+static int sc_read_manifest(const wchar_t *path, unsigned int *size, unsigned int limit) {
     HANDLE h = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     DWORD high = 0, length, got = 0;
     unsigned int want;
@@ -431,7 +457,12 @@ static int sc_read_manifest(const wchar_t *path, unsigned int *size) {
         CloseHandle(h);
         return 0;
     }
-    want = high != 0 || length > SC_MANIFEST_BYTES ? SC_MANIFEST_BYTES : length;
+    if ((high != 0 || length > limit) && limit < SC_MANIFEST_BYTES) {
+        CloseHandle(h);
+        sc_problem("A collection manifest is larger than its 1 MB limit: it was skipped.");
+        return 0;
+    }
+    want = high != 0 || length > limit ? limit : length;
     if (want + 1u > sc_manifest_cap) {
         unsigned char *grown = sc_manifest == NULL
             ? (unsigned char *)HeapAlloc(GetProcessHeap(), 0, want + 1u)
@@ -498,11 +529,16 @@ static void sc_field_end(const char *p, const char *end, int n, char *out, int c
    "<id>.cieg" beside it.  The last two (New Believers only; empty = the same) are the event's title and sentence
    with Guardians of Isola's rewrite on: its title variant's (cie-v6-binary.md 18), as the event shows it.  The
    count. */
-static int sc_scan(int game) {
+static int sc_scan_group(int game, int g) {
     const char *text = NULL, *p, *end;
     unsigned int size = 0;
     wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
     sc_count = 0;
+    sc_cur_group = -1;
+    if (g < 0 || g >= sc_group_count) {
+        return 0;
+    }
+    lstrcpynA(lv_want_group, sc_groups[g].name, SC_GROUP_BYTES);
 #ifdef VVFP_TEST
     if (sc_test_manifest != NULL) {
         text = sc_test_manifest;
@@ -510,20 +546,28 @@ static int sc_scan(int game) {
     }
 #endif
     if (text == NULL) {
-        if (!sc_collection_on(game) || sc_path(path, "manifest.txt") == 0 || !sc_read_manifest(path, &size)) {
+        char leaf[SC_GROUP_BYTES + 16];
+        if (sc_groups[g].name[0] != '\0') {
+            wsprintfA(leaf, "manifest-%s.txt", sc_groups[g].name);
+        } else {
+            lstrcpyA(leaf, "manifest.txt");
+        }
+        if (!sc_collection_on(game) || sc_path(path, leaf) == 0
+            || !sc_read_manifest(path, &size, sc_groups[g].name[0] != '\0' ? SC_GROUP_FILE_MAX : SC_MANIFEST_BYTES)) {
             return 0;
         }
         text = (const char *)sc_manifest;
     }
+    sc_cur_group = g;
     {
         /* The tables to the manifest's lines (a sanity limit of SC_MAX entries, the rest left out loudly). */
         int lines = 1;
         for (p = text; *p != '\0'; ++p) {
             lines += *p == '\n';
         }
-        if (lines > SC_MAX) {
-            sc_problem("manifest.txt has more events than the 65,536 a game can list: the rest were left out.");
-            lines = SC_MAX;
+        if (lines > SC_MAX || (sc_groups[g].name[0] != '\0' && lines > SC_GROUP_ROWS_MAX + 2)) {
+            sc_problem("A collection manifest has more events than its limit: the rest were left out.");
+            lines = sc_groups[g].name[0] != '\0' ? SC_GROUP_ROWS_MAX + 2 : SC_MAX;
         }
         if (!sc_reserve(lines)) {
             sc_problem("The collection's list could not be made: not enough memory. Some events were left out.");
@@ -570,6 +614,96 @@ static int sc_scan(int game) {
         ++sc_count;
     }
     return sc_count;
+}
+
+/* The draw weight of the group sc_list holds: its events' weights, each series once. */
+static int sc_list_weight(void) {
+    int i, k, w = 0;
+    for (i = 0; i < sc_count; ++i) {
+        if (sc_list[i].series[0] == '\0') {
+            w += sc_list[i].weight;
+            continue;
+        }
+        for (k = 0; k < i && lstrcmpA(sc_list[k].series, sc_list[i].series) != 0; ++k) {
+        }
+        w += k == i;                   /* the series' first member counts it once */
+    }
+    return w;
+}
+
+static int sc_add_group(const char *name) {
+    sc_group *row;
+    if (!story_grow((void **)&sc_groups, &sc_group_cap, sc_group_count + 1, sizeof(sc_group))) {
+        sc_problem("The collection's index could not grow: not enough memory. Some files were left out.");
+        return 0;
+    }
+    row = &sc_groups[sc_group_count++];
+    lstrcpynA(row->name, name, SC_GROUP_BYTES);
+    row->weight = 0;
+    return 1;
+}
+
+/* The collection's index for `game`: every "manifest-<group>.txt" (a name of [a-z0-9_], at most 24 characters), or
+   -- none -- an older install's "manifest.txt" as the group "", each with its draw weight (the file read once, its
+   rows forgotten).  The count of groups. */
+static int sc_index(int game) {
+    int g;
+    sc_group_count = 0;
+    sc_cur_group = -1;
+    if (!sc_collection_on(game)) {
+        return 0;
+    }
+#ifdef VVFP_TEST
+    if (sc_test_manifest != NULL) {
+        (void)sc_add_group("");
+        goto weigh;
+    }
+#endif
+    {
+        wchar_t pattern[VVFP_PATCHER_FILES_PATH_CAP];
+        WIN32_FIND_DATAW found;
+        HANDLE find;
+        if (sc_path(pattern, "manifest-*.txt") != 0
+            && (find = FindFirstFileW(pattern, &found)) != INVALID_HANDLE_VALUE) {
+            do {
+                char name[SC_GROUP_BYTES];
+                int n = 0, ok = 1, k;
+                const wchar_t *w = found.cFileName + 9;          /* past "manifest-" */
+                for (k = 0; w[k] != L'\0' && !(w[k] == L'.' && lstrcmpiW(w + k, L".txt") == 0); ++k) {
+                    wchar_t c = w[k];
+                    if (n + 1 >= 25 || !((c >= L'a' && c <= L'z') || (c >= L'0' && c <= L'9') || c == L'_')) {
+                        ok = 0;
+                        break;
+                    }
+                    name[n++] = (char)c;
+                }
+                name[n] = '\0';
+                if (!ok || n == 0 || (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                    sc_problem("A collection manifest's name is not manifest-<letters, digits or _>.txt: skipped.");
+                    continue;
+                }
+                if (!sc_add_group(name)) {
+                    break;
+                }
+            } while (FindNextFileW(find, &found));
+            FindClose(find);
+        }
+        if (sc_group_count == 0) {
+            wchar_t legacy[VVFP_PATCHER_FILES_PATH_CAP];
+            if (sc_path(legacy, "manifest.txt") != 0 && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
+                (void)sc_add_group("");          /* an older install: its single manifest */
+            }
+        }
+    }
+#ifdef VVFP_TEST
+weigh:
+#endif
+    for (g = 0; g < sc_group_count; ++g) {
+        sc_groups[g].weight = sc_scan_group(game, g) > 0 ? sc_list_weight() : 0;
+    }
+    sc_count = 0;
+    sc_cur_group = -1;
+    return sc_group_count;
 }
 
 /* Entry `i`'s compiled event into sc_bytes; 0 when it cannot be read. */
@@ -665,37 +799,14 @@ static int sc_arm_collection(int game, int i) {
            && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
-/* The draw (see the header): 1 when an event was armed.  One draw over every candidate at once -- each More Island
-   Events event weight 1, each collection event its weight (1 unless its manifest says otherwise), each series 1 with
-   its members equally likely -- so every event is as likely as any other, whichever source it comes from.  A
-   candidate that cannot be armed is left out and the draw made again.  Linear in the candidates per draw: a series
-   is found by its first member (head), counted once while any member is left. */
-static int sc_choose_and_arm(int game) {
-    static int *more;
-    static int more_cap;
+/* The draw inside the group sc_scan_group loaded (`n_coll` entries): every event as likely as any other, a series
+   one event with its members equally likely, the Living Event Engine's recency and moods; a candidate that cannot be
+   armed is left out and the draw made again.  1 when an event was armed. */
+static int sc_draw_group(int game, int n_coll) {
     unsigned char *left = sc_left;
     short *head = sc_head;             /* the first entry of the same series (itself when none) */
     short *members_left = sc_members_left;   /* at a series' head: its members still left */
-    int n_more = 0, n_coll = 0, i, k;
-    if (sc_more_on(game)) {
-        sm_fill_more(game);
-        if (!story_grow((void **)&more, &more_cap, sm_list.count > 0 ? sm_list.count : 1, sizeof(int))) {
-            return 0;
-        }
-        for (i = 0; i < sm_list.count; ++i) {
-            int k_more = sm_list.k[i];
-            if (sm_list.possible[i] == 1
-                && !(sc_gate && k_more >= 0 && k_more < (int)sizeof SC_MORE_DEADLY && SC_MORE_DEADLY[k_more])) {
-                more[n_more++] = k_more;
-            }
-        }
-    }
-    if (sc_collection_on(game)) {
-        n_coll = sc_scan(game);
-        left = sc_left;                /* sc_scan may have grown them */
-        head = sc_head;
-        members_left = sc_members_left;
-    }
+    int i, k;
     for (i = 0; i < n_coll; ++i) {
         left[i] = 1;
         head[i] = (short)i;
@@ -710,38 +821,28 @@ static int sc_choose_and_arm(int game) {
         }
         ++members_left[head[i]];
     }
-    if (n_coll > 0) {
-        n_coll -= lv_draw_prepare(game, left);   /* the Living Event Engine's recency and moods (story_living.inc) */
-        for (i = 0; i < sc_count; ++i) {
-            members_left[i] = 0;                 /* a series counts only the members the living draw left in */
-        }
-        for (i = 0; i < sc_count; ++i) {
-            if (left[i]) {
-                ++members_left[head[i]];
-            }
+    n_coll -= lv_draw_prepare(game, left);   /* the Living Event Engine's recency and moods (story_living.inc) */
+    for (i = 0; i < sc_count; ++i) {
+        members_left[i] = 0;                 /* a series counts only the members the living draw left in */
+    }
+    for (i = 0; i < sc_count; ++i) {
+        if (left[i]) {
+            ++members_left[head[i]];
         }
     }
-    while (n_more > 0 || n_coll > 0) {
-        int coll_total = 0, pick, chosen = -1;
-        for (i = 0; i < sc_count && n_coll > 0; ++i) {
+    while (n_coll > 0) {
+        int total = 0, pick, chosen = -1;
+        for (i = 0; i < sc_count; ++i) {
             if (sc_list[i].series[0] != '\0') {
-                coll_total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
+                total += head[i] == i && members_left[i] > 0 ? lv_series_weight(i) : 0;
             } else if (left[i]) {
-                coll_total += sc_list[i].weight;
+                total += sc_list[i].weight;
             }
         }
-        if (n_more + coll_total <= 0) {
+        if (total <= 0) {
             return 0;
         }
-        pick = sc_rand(game, n_more + coll_total);
-        if (pick < n_more) {
-            if (sc_arm_more(game, more[pick])) {
-                return 1;
-            }
-            more[pick] = more[--n_more];
-            continue;
-        }
-        pick -= n_more;
+        pick = sc_rand(game, total);
         for (i = 0; i < sc_count && chosen < 0; ++i) {
             int w;
             if (sc_list[i].series[0] != '\0') {
@@ -774,6 +875,75 @@ static int sc_choose_and_arm(int game) {
         --n_coll;
     }
     return 0;
+}
+
+/* The draw (see the header): 1 when an event was armed.  More Island Events' events (weight 1 each) and the
+   collection's files (each by its weight from the index) in one draw, so every event stays as likely as any other;
+   a file picked is loaded and drawn in, and when nothing in it can happen now another file not tried yet is picked,
+   as many as needed, until one arms an event or every file has been tried. */
+static int sc_choose_and_arm(int game) {
+    static int *more;
+    static int more_cap;
+    static unsigned char *tried;
+    static int tried_cap;
+    int n_more = 0, groups = 0, i, g;
+    if (sc_more_on(game)) {
+        sm_fill_more(game);
+        if (!story_grow((void **)&more, &more_cap, sm_list.count > 0 ? sm_list.count : 1, sizeof(int))) {
+            return 0;
+        }
+        for (i = 0; i < sm_list.count; ++i) {
+            int k_more = sm_list.k[i];
+            if (sm_list.possible[i] == 1
+                && !(sc_gate && k_more >= 0 && k_more < (int)sizeof SC_MORE_DEADLY && SC_MORE_DEADLY[k_more])) {
+                more[n_more++] = k_more;
+            }
+        }
+    }
+    if (sc_collection_on(game)) {
+        groups = sc_index(game);
+        if (groups > 0 && !story_grow((void **)&tried, &tried_cap, groups, 1)) {
+            groups = 0;
+        }
+        for (g = 0; g < groups; ++g) {
+            tried[g] = sc_groups[g].weight <= 0;
+        }
+    }
+    for (;;) {
+        int total = n_more, pick, n;
+        for (g = 0; g < groups; ++g) {
+            total += tried[g] ? 0 : sc_groups[g].weight;
+        }
+        if (total <= 0) {
+            return 0;
+        }
+        pick = sc_rand(game, total);
+        if (pick < n_more) {
+            if (sc_arm_more(game, more[pick])) {
+                return 1;
+            }
+            more[pick] = more[--n_more];
+            continue;
+        }
+        pick -= n_more;
+        for (g = 0; g < groups; ++g) {
+            if (tried[g]) {
+                continue;
+            }
+            if (pick < sc_groups[g].weight) {
+                break;
+            }
+            pick -= sc_groups[g].weight;
+        }
+        if (g >= groups) {
+            return 0;
+        }
+        tried[g] = 1;
+        n = sc_scan_group(game, g);
+        if (n > 0 && sc_draw_group(game, n)) {
+            return 1;
+        }
+    }
 }
 
 /* ---- Every frame --------------------------------------------------------------------------------------------- */
@@ -884,21 +1054,32 @@ static const char *sc_check(int game, int i, char *why, int cap) {
 
 /* Appends the collection's events for `game` to the Pick Island Event list (sm_list).  The count added. */
 static int sc_pick_fill(int game) {
-    int i, added = 0;
-    if (!sc_collection_on(game) || sc_scan(game) == 0) {
+    int i, added = 0, g, groups;
+    if (!sc_collection_on(game) || (groups = sc_index(game)) == 0) {
         return 0;
+    }
+    sc_ref_count = 0;
+    for (g = 0; g < groups; ++g) {
+    if (sc_scan_group(game, g) == 0) {
+        continue;
     }
     (void)lv_map_entries(game);
     if (!sm_reserve(sm_list.count + sc_count)) {
         sc_problem("The Pick Island Event list could not hold every event: not enough memory.");
     }
     for (i = 0; i < sc_count && sm_list.count < sm_list.cap; ++i) {
-        int m = sm_list.count;
+        int m = sm_list.count, c1 = sc_ref_cap;
+        if (!story_grow((void **)&sc_ref_group, &sc_ref_cap, sc_ref_count + 1, sizeof(int))
+            || !story_grow((void **)&sc_ref_row, &c1, sc_ref_count + 1, sizeof(int))) {
+            break;
+        }
+        sc_ref_group[sc_ref_count] = g;
+        sc_ref_row[sc_ref_count] = i;
         lstrcpynA(sm_list.title[m], sc_list[i].title, SM_TEXT);
         lstrcpynA(sm_list.description[m], sc_list[i].description[0] != '\0' ? sc_list[i].description
                   : vvfp_tr("vvfp.story/story_collection.sc_pick_fill.s0", "An event of the Isola Grand Event Collection.",
                             200), SM_TEXT);
-        sm_list.k[m] = SM_COLL_BASE + i;
+        sm_list.k[m] = SM_COLL_BASE + sc_ref_count++;   /* the list row: its group and row in sc_ref_* */
         sm_list.possible[m] = sc_check(game, i, sm_list.needs[m], SM_TEXT) == NULL;
         if (sm_list.possible[m]) {
             sm_list.needs[m][0] = '\0';
@@ -906,14 +1087,22 @@ static int sc_pick_fill(int game) {
         ++sm_list.count;
         ++added;
     }
+    }
     return added;
 }
 
 /* Collection entry `i` bought with Pick Island Event: confirmed, checked again and queued (strict cast, origin
    Pick Island Event).  1 when it is on its way. */
-static int sc_pick_buy(int game, HWND owner, int i) {
+static int sc_pick_buy(int game, HWND owner, int ref) {
     char message[1800], why[SM_TEXT];
     unsigned int size = 0;
+    int i;
+    /* The list row's group, loaded again, and its row in it. */
+    if (ref < 0 || ref >= sc_ref_count || sc_scan_group(game, sc_ref_group[ref]) == 0) {
+        return 0;
+    }
+    (void)lv_map_entries(game);
+    i = sc_ref_row[ref];
     if (i < 0 || i >= sc_count) {
         return 0;
     }
@@ -952,9 +1141,13 @@ static int sc_pick_buy(int game, HWND owner, int i) {
    there, an event is cast as every library purchase is (CG_CAST_PREFER: a requirement nobody meets is dropped; the
    protected villagers' safety never). */
 static void sc_library_add(int game) {
-    int i;
-    if (!sc_collection_on(game) || sc_scan(game) == 0) {
+    int i, g, groups;
+    if (!sc_collection_on(game) || (groups = sc_index(game)) == 0) {
         return;
+    }
+    for (g = 0; g < groups; ++g) {
+    if (sc_scan_group(game, g) == 0) {
+        continue;
     }
     (void)lv_map_entries(game);
     for (i = 0; i < sc_count && cg_lib_room(); ++i) {
@@ -988,6 +1181,7 @@ static void sc_library_add(int game) {
                   vvfp_tr("vvfp.story/story_collection.sc_library_add.s0", "Isola Grand Event Collection: %s", 100),
                   sc_list[i].title);
         ++cg_lib.count;
+    }
     }
 }
 
