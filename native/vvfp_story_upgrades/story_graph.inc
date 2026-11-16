@@ -9050,6 +9050,16 @@ static int cg_queue_origin(int game, const unsigned char *file, unsigned size, i
 #ifdef VVFP_TEST
 /* ---- Test build only --------------------------------------------------------------------------------------- */
 
+/* "A man may carry the baby by chance": the percent the installed patches' list gives (-1 in the high half of
+   nothing), and one draw of cg_partner_carries with the rolls VvfpStoryProbeSetRolls gives: percent | carries << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbePartnerCarries(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return -1;
+    }
+    return cg_partner_carry_percent() | (cg_partner_carries(a) << 8);
+}
+
 /* Queue the .cieg `data` (`size` bytes) in `game` as the library's purchase does, without any dialog: NULL when
    queued, else the refusal.  `due` 1 makes the island event due (ce_arm_with), 0 only arms it. */
 __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, const unsigned char *data,

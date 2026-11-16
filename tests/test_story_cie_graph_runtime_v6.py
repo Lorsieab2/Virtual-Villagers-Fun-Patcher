@@ -263,6 +263,34 @@ def installed(r, patches) -> None:
 
 
 @emulated
+class PartnerMayCarry(unittest.TestCase):
+    """The owner (2026-11-16): in a couple's pregnancy that allows it, the partner carries instead as often as the
+    player's setting says ("# partner_carry_percent=N" in the installed patches' list; 10 when none)."""
+
+    def carries(self, game: str, line: str | None, rolls: list[int]) -> tuple[int, int]:
+        r = V6(game, TWO)
+        text = f"vv{r.n}\n" + (line + "\n" if line is not None else "")
+        buf = r.p.alloc(len(text) + 1)
+        r.p.write(buf, text.encode("ascii") + b"\0")
+        r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+        r.rolls(rolls)
+        got = r.p.export("VvfpStoryProbePartnerCarries", r.n)
+        return got & 0xFF, (got >> 8) & 1
+
+    def test_the_setting_decides(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                self.assertEqual(self.carries(game, None, [5]), (10, 1))            # 10% unless moved: roll 5 < 10
+                self.assertEqual(self.carries(game, None, [10]), (10, 0))
+                self.assertEqual(self.carries(game, "# partner_carry_percent=0", [0]), (0, 0))      # never
+                self.assertEqual(self.carries(game, "# partner_carry_percent=100", [99]), (100, 1))  # always
+                self.assertEqual(self.carries(game, "# partner_carry_percent=55", [54]), (55, 1))
+                self.assertEqual(self.carries(game, "# partner_carry_percent=55", [55]), (55, 0))
+
+
+@emulated
 class SharedVectors(unittest.TestCase):
     """The engine's walk is the patcher's walk: path, effect rolls, picks, aliases and the words read."""
 
