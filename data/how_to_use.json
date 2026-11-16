@@ -1132,6 +1132,7 @@
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
+        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
         "Nothing to click. On by default."
       ]
     },
