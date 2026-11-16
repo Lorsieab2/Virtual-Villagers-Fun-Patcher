@@ -20,6 +20,7 @@
 #define SM_ROW 0x10000                  /* a list entry's data: SM_ROW + the registry index */
 #define SM_MAX STORY_TABLE_LIMIT                     /* list entries: the registry's, then the collection's (cie-v6-binary.md 26) */
 #define SM_COLL_BASE 0x4000             /* a list entry's k for collection entry i: SM_COLL_BASE + i */
+#define SM_PROC_BASE 0x40000000         /* ... for a procedural event's row r (story_procedural.inc): SM_PROC_BASE + r */
 #define SM_INDEX 0x3E                   /* A New Home / The Lost Children: the family's index of a More pick */
 #define SM_QUEUE_BASE (-1000)           /* the queue file's pick_index of a More pick: SM_QUEUE_BASE - k */
 #define SM_TEXT 400
@@ -112,6 +113,7 @@ static void sm_fill_more(int game) {
 static void sm_fill(int game) {
     sm_fill_more(game);
     (void)sc_pick_fill(game);
+    (void)pc_pick_fill(game);          /* the procedural events: each setup one row, "<title> (varies)" */
 }
 
 /* "<title> needs <what it needs>." */
@@ -228,6 +230,9 @@ __declspec(dllexport) void __stdcall VvfpStoryMoreEventDone(int game, int delive
 static int sm_buy(int game, HWND owner, int k) {
     char message[1800];
     int state;
+    if (k >= SM_PROC_BASE) {
+        return pc_pick_buy(game, owner, k - SM_PROC_BASE);   /* a procedural event (story_procedural.inc) */
+    }
     if (k >= SM_COLL_BASE) {
         return sc_pick_buy(game, owner, k - SM_COLL_BASE);   /* an Isola Grand Event Collection event */
     }

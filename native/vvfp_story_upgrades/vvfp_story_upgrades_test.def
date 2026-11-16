@@ -156,6 +156,8 @@ EXPORTS
     VvfpStoryProbeCollectionChoose=_VvfpStoryProbeCollectionChoose@12
     VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
     VvfpStoryProbeCollectionPopulation=_VvfpStoryProbeCollectionPopulation@8
+    VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
+    VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8

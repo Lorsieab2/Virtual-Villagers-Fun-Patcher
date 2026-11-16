@@ -70263,6 +70263,36 @@
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s0",
+   "english": "A new island event, put together each time from the Isola Grand Event Collection's pieces.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_procedural.pc_pick_fill.s1",
+   "english": "%s (varies)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = an island event's title",
+   "route": "key"
   }
  ]
 }

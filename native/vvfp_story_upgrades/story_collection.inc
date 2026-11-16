@@ -884,9 +884,9 @@ static int sc_draw_group(int game, int n_coll) {
 static int sc_choose_and_arm(int game) {
     static int *more;
     static int more_cap;
-    static unsigned char *tried;
-    static int tried_cap;
-    int n_more = 0, groups = 0, i, g;
+    static unsigned char *tried, *pc_tried;
+    static int tried_cap, pc_tried_cap;
+    int n_more = 0, groups = 0, pieces = 0, i, g;
     if (sc_more_on(game)) {
         sm_fill_more(game);
         if (!story_grow((void **)&more, &more_cap, sm_list.count > 0 ? sm_list.count : 1, sizeof(int))) {
@@ -908,11 +908,22 @@ static int sc_choose_and_arm(int game) {
         for (g = 0; g < groups; ++g) {
             tried[g] = sc_groups[g].weight <= 0;
         }
+        /* procedural-pieces.md 4: each pieces file weighed by its usable setups (sc_gate already set) */
+        pieces = pc_index(game);
+        if (pieces > 0 && !story_grow((void **)&pc_tried, &pc_tried_cap, pieces, 1)) {
+            pieces = 0;
+        }
+        for (g = 0; g < pieces; ++g) {
+            pc_tried[g] = pc_weight(g) <= 0;
+        }
     }
     for (;;) {
         int total = n_more, pick, n;
         for (g = 0; g < groups; ++g) {
             total += tried[g] ? 0 : sc_groups[g].weight;
+        }
+        for (g = 0; g < pieces; ++g) {
+            total += pc_tried[g] ? 0 : pc_weight(g);
         }
         if (total <= 0) {
             return 0;
@@ -936,7 +947,24 @@ static int sc_choose_and_arm(int game) {
             pick -= sc_groups[g].weight;
         }
         if (g >= groups) {
-            return 0;
+            /* a procedural file (after the collection's files, in the index's order) */
+            for (g = 0; g < pieces; ++g) {
+                if (pc_tried[g]) {
+                    continue;
+                }
+                if (pick < pc_weight(g)) {
+                    break;
+                }
+                pick -= pc_weight(g);
+            }
+            if (g >= pieces) {
+                return 0;
+            }
+            pc_tried[g] = 1;
+            if (pc_draw_group(game, g)) {
+                return 1;
+            }
+            continue;
         }
         tried[g] = 1;
         n = sc_scan_group(game, g);
@@ -1183,6 +1211,7 @@ static void sc_library_add(int game) {
         ++cg_lib.count;
     }
     }
+    pc_library_add(game);              /* the procedural events (story_procedural.inc) */
 }
 
 #ifdef VVFP_TEST

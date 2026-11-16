@@ -7704,7 +7704,14 @@ static int cg_library_purchase(int game, HWND owner) {
     if (cg_lib.game != game || cg_lib.chosen < 0 || cg_lib.chosen >= cg_lib.count) {
         return 0;
     }
-    if (lv_library_path(cg_lib.path[cg_lib.chosen])) {
+    if (pc_library_path(cg_lib.path[cg_lib.chosen])) {
+        /* A procedural event: composed now, left in cg_bytes (story_procedural.inc). */
+        if (!pc_library_load(game, cg_lib.path[cg_lib.chosen])) {
+            wsprintfA(prompt, "That event can not happen right now: %s. Nothing has been queued.", cg_why);
+            ui_message(owner, prompt);
+            return 0;
+        }
+    } else if (lv_library_path(cg_lib.path[cg_lib.chosen])) {
         /* A Living Event Engine seed: the variant the library's cast can cast, in cg_bytes (story_living.inc). */
         if (!lv_library_load(game, cg_lib.path[cg_lib.chosen])) {
             wsprintfA(prompt, "That event can not happen right now: %s. Nothing has been queued.", cg_why);

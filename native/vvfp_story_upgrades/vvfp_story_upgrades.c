@@ -254,6 +254,15 @@ static void sc_tick(int game);
 static int sc_pick_fill(int game);
 static int sc_pick_buy(int game, HWND owner, int i);
 static void sc_library_add(int game);
+/* The procedural events (story_procedural.inc), called by the collection's draw, Pick Island Event and the library. */
+static int pc_index(int game);
+static int pc_weight(int g);
+static int pc_draw_group(int game, int g);
+static int pc_pick_fill(int game);
+static int pc_pick_buy(int game, HWND owner, int ref);
+static void pc_library_add(int game);
+static int pc_library_path(const char *path);
+static int pc_library_load(int game, const char *path);
 static void cg_village_seen(int game, int slot, const unsigned int *roster);
 static void cg_flush_file(int game, int slot, const unsigned int *roster);
 static void cg_village_reset(int game, int slot);
@@ -1409,6 +1418,7 @@ static int lv_test_has_pack(void);
 #include "story_collection.inc" /* when the new island events come: in a natural one's place (v1.35.97) */
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
 #include "story_traits.inc"     /* the new island events' story traits (v1.35.97) */
+#include "story_procedural.inc" /* procedural island events composed from pieces-<group>.pcb (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
