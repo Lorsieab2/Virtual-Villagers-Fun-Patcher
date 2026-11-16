@@ -1120,7 +1120,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_BODY_SWAP:
                 ok = a >= 0 && a < g->n_role && a != (int)e[1] && b == 0 && str == CG_NONE;
                 break;
-            case CGE_CLONE: case CGE_LOSE_NAME:
+            case CGE_CLONE:
+                ok = a >= 0 && a <= 2 && b == 0 && str == CG_NONE;   /* a: how many copies (0 = 1) */
+                break;
+            case CGE_LOSE_NAME:
                 ok = a == 0 && b == 0 && str == CG_NONE;
                 break;
             case CGE_CHANGE_NAME:
@@ -4986,21 +4989,32 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         return;
     }
     case CGE_CLONE: {
-        int copy;
+        /* The first value: how many copies, 1 or 2 (0 = 1; the owner, 2026-11-15: "up to TWO clones", as the stock
+           events make), each by the same routine with its own room check; only one fits: one. */
+        int copy, made, want = (int)cg_u32(e + 4) == 2 ? 2 : 1, first_copy = -1;
         if (game == 5 && cg_heathen(game, record)) {
             return;                    /* New Believers' Heathens are never copied */
         }
-        copy = cg_copy_villager(a, game, index);
-        if (copy < 0) {
-            return;                    /* no room: nothing */
+        for (made = 0; made < want; ++made) {
+            int tries;
+            copy = cg_copy_villager(a, game, index);
+            if (copy < 0) {
+                return;                /* no room: nothing more */
+            }
+            /* The copy routine rolls the game's own new name (A New Home 0x43B950, The Lost Children 0x44B710, the
+               later games their name rolls); the owner: always a name of its own -- not the villager's, not the
+               other copy's -- so one that came out the same is drawn again from the game's own list. */
+            for (tries = 0; tries < 8; ++tries) {
+                const char *name = (const char *)a->record(copy) + a->off_name;
+                if (lstrcmpiA(name, (const char *)a->record(index) + a->off_name) != 0   /* read again after the copy */
+                    && (first_copy < 0 || lstrcmpiA(name, (const char *)a->record(first_copy) + a->off_name) != 0)) {
+                    break;
+                }
+                cg_rename_from_list(a, game, a->record(copy), 0);
+            }
+            ce_tell_arrival(game, copy, NULL);
+            first_copy = copy;
         }
-        /* The copy routine rolls the game's own new name (A New Home 0x43B950, The Lost Children 0x44B710, the later
-           games their name rolls); the owner: always a name of its own, so one that came out the same is drawn
-           again from the game's own list. */
-        if (lstrcmpiA((const char *)a->record(copy) + a->off_name, (const char *)record + a->off_name) == 0) {
-            cg_rename_from_list(a, game, a->record(copy), 0);
-        }
-        ce_tell_arrival(game, copy, NULL);
         return;
     }
     case CGE_BODY_SWAP: {
