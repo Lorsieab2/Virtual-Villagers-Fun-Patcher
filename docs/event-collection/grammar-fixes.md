@@ -287,6 +287,12 @@ The owner asked that every like or dislike an event gives match what it does in 
 | living L20274 | `adjustment to daily life.` | `adjustment to daily life without running.` | `lvmed05_limb_might` a1 | dislike running (every game); the outcome names the running |
 | living L20281 | `in a new craft.` | `in a new craft, though running is now hard.` | `lvmed05_limb_might` c2 | dislike running (every game); the outcome names the running |
 
+### Owner-approved label edits (2026-11-16)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| living L20497 | `Seek the donor's prior consent and study anatomy without operating.` | `Seek the donor's prior consent.` | `lvmed22_dream_kidney` (The Dream of a New Kidney), choice B | The owner approved shortening it (to "Seek the Donor's Prior Consent" or "Study Anatomy Without Operating") so it fits in title case; outcome B2 is the donor's family declining consent, so the consent half is kept. The file's label_case "source" exception goes: its labels show in title case like the rest |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

@@ -33,6 +33,14 @@
   "cast_only": [
    "subject",
    "friend"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager of faith asks to bless the canoe of someone who does not believe in blessings: let them bless it, or politely decline."
+   }
   ]
  },
  "requirement": {
@@ -66,6 +74,14 @@
      "next": "o2",
      "src": "L88"
     }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) has built a fine new canoe. (friend), a villager of faith, has asked if (friend.he/she) may bless it before it goes into the water: a few words, a sprinkle of seawater, a flower tucked into the bow. (subject) doesn't believe blessings do anything. (subject.He/she) also knows (friend) has blessed every canoe in the village for years."
+    }
    ]
   },
   "o1": {
@@ -78,5 +94,8 @@
    "text": "\"Thank you,\" says (subject). \"I'd rather not. It isn't for me.\" (friend) nods, a little disappointed but not offended. \"It's your canoe.\" (subject) launches it without the blessing. It's a good canoe. It never sinks. When (friend) sees it out on the water, (friend.he/she) says a quiet blessing for it anyway, under (friend.his/her) breath, from the beach. (subject) never knows. It doesn't matter either way.",
    "src": "L89"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

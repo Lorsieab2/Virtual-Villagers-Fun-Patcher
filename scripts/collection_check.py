@@ -91,7 +91,7 @@ DESCRIPTION_RE = re.compile(r"[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]")
 # j GUARDIANS (the owner, 2026-11-14): with Guardians of Isola Rewrite, New Believers says neither of these.
 GUARDIANS_PATCH = "guardians_of_isola"
 GUARDIANS_IF = {"patch": GUARDIANS_PATCH}
-GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
+GUARDIANS_WORDS = re.compile(r"heathen|convert|(?<!new )\bbelievers?\b", re.I)   # believers: the owner, 2026-11-16
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
