@@ -25,8 +25,11 @@
 
 #define LV_PREFIX "living_"
 #define LV_PACK_LEAF "living.pak"
-#define LV_PACK_MAX 0x01000000u          /* 16 MB (the owner, 2026-11-15: three mixer versions per static event) */
-#define LV_HEADER 64u
+#define LV_PACK_MAX 0x10000000u          /* 256 MB: a sanity limit -- the pack is read into memory of its own size
+                                             (a pack is about 23 MB; the owner, 2026-11-15) */
+#define LV_HEADER 64u                     /* VLEP v1 */
+#define LV_HEADER_V2 72u                  /* VLEP v2: 32-bit seed, variant, string and outcome fields */
+#define LV_MAX_SEED_VARIANTS 4096         /* one seed's variants, v2 (v1: 255) */
 #define LV_RING 64
 #define LV_TRIES 12
 #define LV_WEIGHT 1000
@@ -49,6 +52,8 @@ typedef struct {
     unsigned int size;
     unsigned int crc;
     int game;
+    int version;                       /* 1 or 2 */
+    unsigned int seed_bytes, var_bytes;  /* a seed's and a variant's record: v1 16 / 24, v2 24 / 32 */
     int seeds, variants, outcomes;
     unsigned int o_seed, o_var, o_out, o_str, n_str, o_blob, n_blob;
     int roles, arcs, lenses;
@@ -73,11 +78,11 @@ static lv_pack lv_p;                  /* the loaded pack (lv_p.d != NULL) */
 /* The pack read from its file: reserved once, at the first living draw (VirtualAlloc; a static buffer would push
    the DLL's image past the room a companion has). */
 static unsigned char *lv_buf;
+static unsigned int lv_buf_cap;           /* the bytes lv_buf holds (the pack's own size) */
 #endif
 static FILETIME lv_buf_time;
 static unsigned int lv_buf_size;
 static lv_history lv_h;
-static short lv_entry_seed[SC_MAX];   /* each sc_list entry's pack seed, -1 when it is not a living row */
 static int lv_mood_w[LV_MOODS] = { 1, 1, 1 };
 static int lv_pending_seed = -1;      /* the library's chosen variant, recorded once it is queued */
 static int lv_pending_variant = -1;
@@ -123,12 +128,41 @@ static const char *lv_string(const lv_pack *p, unsigned int off) {
     return NULL;
 }
 
+/* THE RECORDS, v1 and v2 (living-pack.md 2; v2 widens what outgrew 16 bits at three mixer versions per static
+   event: ~3,500 seeds, string offsets past 64 KB):
+     seed     v1 16 bytes: H id, H series, H first variant, H count, B bank, B category, H index, B mood, 3 x 0
+              v2 24 bytes: I id, I series, I first variant, I count, B bank, B category, H index, B mood, 3 x 0
+     variant  v1 24 bytes: I blob, I size, H seed, B k, B flags, H role a, H role b, B lens, B family, H games,
+                           H first outcome, H outcomes
+              v2 32 bytes: I blob, I size, I seed, H role a, H role b, B lens, B family, B k, B flags,
+                           I first outcome, I outcomes, H games, H 0
+   The role pair, lens and family sit at the same places in both (+12 .. +17). */
 static const unsigned char *lv_seed_rec(int s) {
-    return lv_p.d + lv_p.o_seed + 16u * (unsigned int)s;
+    return lv_p.d + lv_p.o_seed + lv_p.seed_bytes * (unsigned int)s;
 }
 
 static const unsigned char *lv_var_rec(int v) {
-    return lv_p.d + lv_p.o_var + 24u * (unsigned int)v;
+    return lv_p.d + lv_p.o_var + lv_p.var_bytes * (unsigned int)v;
+}
+
+static unsigned int lv_seed_field(const lv_pack *p, const unsigned char *rec, int k) {
+    return p->version >= 2 ? lv_u32(rec + 4u * (unsigned int)k) : lv_u16(rec + 2u * (unsigned int)k);
+}
+static unsigned int lv_seed_id(const lv_pack *p, const unsigned char *rec) { return lv_seed_field(p, rec, 0); }
+static unsigned int lv_seed_series(const lv_pack *p, const unsigned char *rec) { return lv_seed_field(p, rec, 1); }
+static unsigned int lv_seed_first(const lv_pack *p, const unsigned char *rec) { return lv_seed_field(p, rec, 2); }
+static unsigned int lv_seed_count(const lv_pack *p, const unsigned char *rec) { return lv_seed_field(p, rec, 3); }
+static unsigned int lv_seed_mood(const lv_pack *p, const unsigned char *rec) {
+    return rec[p->version >= 2 ? 20 : 12];
+}
+static unsigned int lv_var_seed(const lv_pack *p, const unsigned char *rec) {
+    return p->version >= 2 ? lv_u32(rec + 8) : lv_u16(rec + 8);
+}
+static unsigned int lv_var_out_first(const lv_pack *p, const unsigned char *rec) {
+    return p->version >= 2 ? lv_u32(rec + 20) : lv_u16(rec + 20);
+}
+static unsigned int lv_var_out_count(const lv_pack *p, const unsigned char *rec) {
+    return p->version >= 2 ? lv_u32(rec + 24) : lv_u16(rec + 22);
 }
 
 /* The pack `d` (`size` bytes) checked for `game` (living-pack.md 2.1: magic, version, sizes, crc, every offset and
@@ -136,9 +170,15 @@ static const unsigned char *lv_var_rec(int v) {
 static int lv_check(const unsigned char *d, unsigned int size, int game, lv_pack *out) {
     lv_pack p;
     int i;
+    unsigned int version;
     memset(&p, 0, sizeof p);
-    if (d == NULL || size < LV_HEADER || memcmp(d, "VLEP", 4) != 0 || lv_u16(d + 4) != 1u
-        || lv_u16(d + 6) != LV_HEADER || lv_u32(d + 8) != size || d[16] != (unsigned char)game
+    if (d == NULL || size < LV_HEADER || memcmp(d, "VLEP", 4) != 0) {
+        return 0;
+    }
+    version = lv_u16(d + 4);
+    /* v1 and v2 are read; any other version is refused whole (never partly used). */
+    if ((version != 1u && version != 2u) || lv_u16(d + 6) != (version == 2u ? LV_HEADER_V2 : LV_HEADER)
+        || size < lv_u16(d + 6) || lv_u32(d + 8) != size || d[16] != (unsigned char)game
         || cg_crc32(d, size, 12) != lv_u32(d + 12)) {
         return 0;
     }
@@ -146,42 +186,70 @@ static int lv_check(const unsigned char *d, unsigned int size, int game, lv_pack
     p.size = size;
     p.crc = lv_u32(d + 12);
     p.game = game;
-    p.seeds = (int)lv_u16(d + 18);
-    p.variants = (int)lv_u16(d + 20);
-    p.o_seed = lv_u32(d + 24);
-    p.o_var = lv_u32(d + 28);
-    p.o_out = lv_u32(d + 32);
-    p.outcomes = (int)lv_u32(d + 36);
-    p.o_str = lv_u32(d + 40);
-    p.n_str = lv_u32(d + 44);
-    p.o_blob = lv_u32(d + 48);
-    p.n_blob = lv_u32(d + 52);
-    p.roles = (int)lv_u16(d + 56);
-    p.arcs = (int)lv_u16(d + 58);
-    p.lenses = (int)lv_u16(d + 60);
-    if (p.seeds < 1 || p.seeds > SC_MAX || p.variants < 1 || p.outcomes < 0 || p.outcomes > 0xFFFF
+    p.version = (int)version;
+    if (version == 2u) {
+        /* v2 header (72 bytes): 4s VLEP, H 2, H 72, I size, I crc, B game, B 0, H 0, I seeds, I variants,
+           I seeds at, I variants at, I outcomes at, I outcomes, I strings at, I strings, I blobs at, I blobs,
+           H roles, H archetypes, H lenses, H 0, I 0. */
+        p.seed_bytes = 24u;
+        p.var_bytes = 32u;
+        p.seeds = (int)lv_u32(d + 20);
+        p.variants = (int)lv_u32(d + 24);
+        p.o_seed = lv_u32(d + 28);
+        p.o_var = lv_u32(d + 32);
+        p.o_out = lv_u32(d + 36);
+        p.outcomes = (int)lv_u32(d + 40);
+        p.o_str = lv_u32(d + 44);
+        p.n_str = lv_u32(d + 48);
+        p.o_blob = lv_u32(d + 52);
+        p.n_blob = lv_u32(d + 56);
+        p.roles = (int)lv_u16(d + 60);
+        p.arcs = (int)lv_u16(d + 62);
+        p.lenses = (int)lv_u16(d + 64);
+    } else {
+        p.seed_bytes = 16u;
+        p.var_bytes = 24u;
+        p.seeds = (int)lv_u16(d + 18);
+        p.variants = (int)lv_u16(d + 20);
+        p.o_seed = lv_u32(d + 24);
+        p.o_var = lv_u32(d + 28);
+        p.o_out = lv_u32(d + 32);
+        p.outcomes = (int)lv_u32(d + 36);
+        p.o_str = lv_u32(d + 40);
+        p.n_str = lv_u32(d + 44);
+        p.o_blob = lv_u32(d + 48);
+        p.n_blob = lv_u32(d + 52);
+        p.roles = (int)lv_u16(d + 56);
+        p.arcs = (int)lv_u16(d + 58);
+        p.lenses = (int)lv_u16(d + 60);
+    }
+    if (p.seeds < 1 || p.seeds > SC_MAX || p.variants < 1 || p.outcomes < 0
+        || (version == 1u && p.outcomes > 0xFFFF) || p.outcomes > 0x00FFFFFF
         || p.variants > LV_MAX_VARIANTS || p.roles > LV_MAX_ROLES || p.arcs > LV_MAX_KIND || p.lenses > LV_MAX_KIND
-        || p.o_seed > size || 16u * (unsigned int)p.seeds > size - p.o_seed
-        || p.o_var > size || 24u * (unsigned int)p.variants > size - p.o_var
+        || p.o_seed > size || p.seed_bytes * (unsigned int)p.seeds > size - p.o_seed
+        || p.o_var > size || p.var_bytes * (unsigned int)p.variants > size - p.o_var
         || p.o_out > size || 4u * (unsigned int)p.outcomes > size - p.o_out
         || p.o_str > size || p.n_str > size - p.o_str
         || p.o_blob > size || p.n_blob > size - p.o_blob || (p.o_blob & 3u) != 0u) {
         return 0;
     }
     for (i = 0; i < p.seeds; ++i) {
-        const unsigned char *s = d + p.o_seed + 16u * (unsigned int)i;
-        unsigned int first = lv_u16(s + 4), count = lv_u16(s + 6);
-        if (count < 1u || count > 255u || first + count > (unsigned int)p.variants || lv_string(&p, lv_u16(s)) == NULL
-            || lv_string(&p, lv_u16(s + 2)) == NULL || s[12] >= LV_MOODS) {
+        const unsigned char *s = d + p.o_seed + p.seed_bytes * (unsigned int)i;
+        unsigned int first = lv_seed_first(&p, s), count = lv_seed_count(&p, s);
+        if (count < 1u || count > (version == 2u ? (unsigned int)LV_MAX_SEED_VARIANTS : 255u)
+            || first > (unsigned int)p.variants || count > (unsigned int)p.variants - first
+            || lv_string(&p, lv_seed_id(&p, s)) == NULL || lv_string(&p, lv_seed_series(&p, s)) == NULL
+            || lv_seed_mood(&p, s) >= LV_MOODS) {
             return 0;
         }
     }
     for (i = 0; i < p.variants; ++i) {
-        const unsigned char *v = d + p.o_var + 24u * (unsigned int)i;
+        const unsigned char *v = d + p.o_var + p.var_bytes * (unsigned int)i;
         unsigned int at = lv_u32(v), bytes = lv_u32(v + 4);
+        unsigned int of = lv_var_out_first(&p, v), oc = lv_var_out_count(&p, v);
         if (at > p.n_blob || bytes == 0u || bytes > CG_MAX_FILE || bytes > p.n_blob - at
-            || lv_u16(v + 8) >= (unsigned int)p.seeds
-            || lv_u16(v + 20) + lv_u16(v + 22) > (unsigned int)p.outcomes) {
+            || lv_var_seed(&p, v) >= (unsigned int)p.seeds
+            || of > (unsigned int)p.outcomes || oc > (unsigned int)p.outcomes - of) {
             return 0;
         }
     }
@@ -216,13 +284,20 @@ static int lv_pack_for(int game) {
         return 1;
     }
     lv_p.d = NULL;
-    if (lv_buf == NULL) {
-        lv_buf = (unsigned char *)VirtualAlloc(NULL, LV_PACK_MAX, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (lv_buf == NULL || lv_buf_cap < info.nFileSizeLow) {
+        /* Memory of the pack's own size (one allocation; a bigger pack later gets a bigger one). */
+        if (lv_buf != NULL) {
+            VirtualFree(lv_buf, 0, MEM_RELEASE);
+            lv_p.d = NULL;
+        }
+        lv_buf_cap = info.nFileSizeLow;
+        lv_buf = (unsigned char *)VirtualAlloc(NULL, lv_buf_cap, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
         if (lv_buf == NULL) {
+            lv_buf_cap = 0;
             return 0;
         }
     }
-    if (!sc_read_w(path, lv_buf, LV_PACK_MAX, &size) || size != info.nFileSizeLow
+    if (!sc_read_w(path, lv_buf, lv_buf_cap, &size) || size != info.nFileSizeLow
         || !lv_check(lv_buf, size, game, &lv_p)) {
         lv_p.d = NULL;
         return 0;
@@ -237,7 +312,7 @@ static int lv_pack_for(int game) {
 static int lv_seed_of(const char *id) {
     int s;
     for (s = 0; s < lv_p.seeds; ++s) {
-        const char *sid = lv_string(&lv_p, lv_u16(lv_seed_rec(s)));
+        const char *sid = lv_string(&lv_p, lv_seed_id(&lv_p, lv_seed_rec(s)));
         if (sid != NULL && lstrcmpA(sid, id) == 0) {
             return s;
         }
@@ -563,7 +638,7 @@ static int lv_excluded(int game, int s, int v) {
    tried, into `order` (at most LV_TRIES).  The count. */
 static int lv_order(int game, int s, int *order) {
     const unsigned char *rec = lv_seed_rec(s);
-    int first = (int)lv_u16(rec + 4), count = (int)lv_u16(rec + 6);
+    int first = (int)lv_seed_first(&lv_p, rec), count = (int)lv_seed_count(&lv_p, rec);
     int left[255], weight[255], n = 0, k = 0, j;
     for (j = 0; j < count && j < 255; ++j) {
         unsigned int w = (unsigned int)LV_WEIGHT / (1u + lv_uses(first + j));
@@ -683,7 +758,7 @@ static int lv_draw_prepare(int game, unsigned char *left) {
     for (k = 0; k < lv_h.ring_used; ++k) {
         unsigned int s = lv_ring_back(k);
         if (s < (unsigned int)lv_p.seeds) {
-            ++count[lv_seed_rec((int)s)[12]];
+            ++count[lv_seed_mood(&lv_p, lv_seed_rec((int)s))];
         }
     }
     low = high = count[0];
@@ -702,7 +777,7 @@ static int lv_series_weight(int i) {
     if (i < 0 || i >= sc_count || lv_entry_seed[i] < 0 || lv_p.d == NULL) {
         return 1;
     }
-    return lv_mood_w[lv_seed_rec(lv_entry_seed[i])[12]];
+    return lv_mood_w[lv_seed_mood(&lv_p, lv_seed_rec(lv_entry_seed[i]))];
 }
 
 /* Collection entry `i` (a living row) queued: 1 when one of its variants is on its way. */
@@ -723,8 +798,8 @@ static const char *lv_check_entry(int game, int i) {
         return "its file can not be read: install the patch again";
     }
     rec = lv_seed_rec(lv_entry_seed[i]);
-    first = (int)lv_u16(rec + 4);
-    count = (int)lv_u16(rec + 6);
+    first = (int)lv_seed_first(&lv_p, rec);
+    count = (int)lv_seed_count(&lv_p, rec);
     for (v = first; v < first + count; ++v) {
         const char *refusal;
         if (lv_excluded(game, lv_entry_seed[i], v)) {
@@ -823,8 +898,8 @@ static void lv_on_finish(int game) {
             continue;
         }
         r = lv_var_rec(v);
-        first = lv_u16(r + 20);
-        count = lv_u16(r + 22);
+        first = lv_var_out_first(&lv_p, r);
+        count = lv_var_out_count(&lv_p, r);
         for (o = first; o < first + count; ++o) {
             const unsigned char *out = lv_p.d + lv_p.o_out + 4u * o;
             if ((int)lv_u16(out) == last) {
@@ -924,9 +999,10 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeLivingArm(int game, const char
    signature this village would write, [4..6] the moods' draw weights after lv_draw_prepare on the scanned list,
    [7] the count left out by it.  -1 without a pack or a history. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeLivingState(int game, int *out) {
-    static unsigned char left[SC_MAX];
+    unsigned char *left;
     int i;
     (void)sc_scan(game);               /* the manifest the test gave (VvfpStoryProbeCollectionManifest) */
+    left = sc_left;
     if (!lv_pack_for(game) || !lv_bind(game)) {
         return -1;
     }

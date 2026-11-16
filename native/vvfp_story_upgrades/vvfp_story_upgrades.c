@@ -186,6 +186,37 @@ static unsigned int choice_resolve_target(int game, unsigned int va, unsigned in
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* The big tables (the collection's entries, the Pick Island Event list, the library) are allocated to what they
+   hold, from the process heap, and never shrink (the owner, 2026-11-15: "it is 2026. 8 MB is nothing"); every one
+   has a sanity limit far above need (STORY_TABLE_LIMIT).  *p grows to hold `need` elements of `size` bytes (new
+   ones zeroed); 1 when it holds them, 0 when they could not be had (the table keeps what it had). */
+#define STORY_TABLE_LIMIT 65536
+static int story_grow(void **p, int *cap, int need, size_t size) {
+    void *grown;
+    int want;
+    if (need <= *cap) {
+        return 1;
+    }
+    if (need > STORY_TABLE_LIMIT) {
+        return 0;
+    }
+    want = *cap > 0 ? *cap : 256;
+    while (want < need) {
+        want *= 2;
+    }
+    if (want > STORY_TABLE_LIMIT) {
+        want = STORY_TABLE_LIMIT;
+    }
+    grown = *p == NULL ? HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (SIZE_T)want * size)
+                       : HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *p, (SIZE_T)want * size);
+    if (grown == NULL) {
+        return 0;
+    }
+    *p = grown;
+    *cap = want;
+    return 1;
+}
+
 /* story_collection.inc: the game whose armed new event is taking a natural one's place, until the island timer's
    keeper has its arm (0 none). */
 static int sc_replace_pending;

@@ -49,7 +49,8 @@
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
 #define SC_FOLDER "Island Event Collection"
-#define SC_MAX 8192                                      /* collection entries of one game (about 4,800 expected) */
+#define SC_MAX STORY_TABLE_LIMIT                          /* collection entries of one game: a sanity limit (the
+                                                            tables are allocated to the manifest's rows) */
 #define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
 #define SC_REPLACE_PERCENT_MIN 30                        /* a natural event replaced by a new one: a chance */
 #define SC_REPLACE_PERCENT_SPAN 21                       /* ... rolled in 30..50 percent each time */
@@ -58,7 +59,7 @@
 /* The game's own spacing of its natural island events, in hours (its trigger's write; island_timer_keep.h): the
    next natural time after a replaced one is drawn the same way. */
 static const int SC_NEXT_HOURS[6][2] = { { 0, 0 }, { 12, 23 }, { 10, 19 }, { 8, 15 }, { 8, 15 }, { 8, 15 } };
-#define SC_MANIFEST_BYTES 1048576
+#define SC_MANIFEST_BYTES 0x04000000u                     /* 64 MB: a sanity limit; read to its real size */
 
 enum { SC_NONE = 0, SC_ARM = 3 };
 
@@ -92,8 +93,58 @@ static int sc_game;
 static unsigned int sc_replace_natural;  /* the natural time a new event is taking the place of */
 static story_village sc_village;
 
-static sc_entry sc_list[SC_MAX];
-static int sc_count;
+static sc_entry *sc_list;              /* sc_cap entries (sc_reserve), sc_count of them used */
+static int sc_count, sc_cap;
+static short *lv_entry_seed;           /* story_living.inc: each sc_list entry's pack seed, -1 when not a living row */
+static unsigned char *sc_left;         /* the draw's working arrays (sc_choose_and_arm), one per entry */
+static short *sc_head, *sc_members_left;
+
+/* The entry tables grown to `need` entries (together); 1 when they hold them. */
+static int sc_reserve(int need) {
+    int cap = sc_cap, c1 = sc_cap, c2 = sc_cap, c3 = sc_cap, c4 = sc_cap;
+    if (need <= sc_cap) {
+        return 1;
+    }
+    if (!story_grow((void **)&sc_list, &cap, need, sizeof(sc_entry))
+        || !story_grow((void **)&lv_entry_seed, &c1, need, sizeof(short))
+        || !story_grow((void **)&sc_left, &c2, need, 1)
+        || !story_grow((void **)&sc_head, &c3, need, sizeof(short))
+        || !story_grow((void **)&sc_members_left, &c4, need, sizeof(short))) {
+        return 0;
+    }
+    sc_cap = cap;
+    return 1;
+}
+
+/* A problem the player should be able to find (a manifest past its sanity limit, a table that could not grow): one
+   line, once per session each, appended to "Virtual Villagers Fun Patcher Files\Island Event Collection\
+   Problems.txt" beside the collection (never the save). */
+static void sc_problem(const char *line) {
+    static char said[8][160];
+    static int said_count;
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    HANDLE h;
+    DWORD wrote = 0;
+    int k;
+    for (k = 0; k < said_count; ++k) {
+        if (lstrcmpA(said[k], line) == 0) {
+            return;
+        }
+    }
+    if (said_count < 8) {
+        lstrcpynA(said[said_count++], line, (int)sizeof said[0]);
+    }
+    if (vvfp_patcher_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, SC_FOLDER "\\Problems.txt") == 0) {
+        return;
+    }
+    h = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    WriteFile(h, line, (DWORD)lstrlenA(line), &wrote, NULL);
+    WriteFile(h, "\r\n", 2, &wrote, NULL);
+    CloseHandle(h);
+}
 
 #ifdef VVFP_TEST
 static int sc_test_trouble = -1;       /* -1: the village's own; else forced */
@@ -362,7 +413,52 @@ static int sc_read_w(const wchar_t *path, unsigned char *buf, unsigned int cap, 
     return ok;
 }
 
-static unsigned char sc_manifest[SC_MANIFEST_BYTES];
+static unsigned char *sc_manifest;     /* the manifest, read to its real size (sc_read_manifest) */
+static unsigned int sc_manifest_cap;
+
+/* The manifest at `path` read whole into sc_manifest (allocated to its size, NUL-ended); past SC_MANIFEST_BYTES
+   only that much is read, cut at its last whole line, and the problem logged (sc_problem): the rows after it are
+   left out loudly, never silently.  1 when something was read. */
+static int sc_read_manifest(const wchar_t *path, unsigned int *size) {
+    HANDLE h = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD high = 0, length, got = 0;
+    unsigned int want;
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    length = GetFileSize(h, &high);
+    if (length == INVALID_FILE_SIZE) {
+        CloseHandle(h);
+        return 0;
+    }
+    want = high != 0 || length > SC_MANIFEST_BYTES ? SC_MANIFEST_BYTES : length;
+    if (want + 1u > sc_manifest_cap) {
+        unsigned char *grown = sc_manifest == NULL
+            ? (unsigned char *)HeapAlloc(GetProcessHeap(), 0, want + 1u)
+            : (unsigned char *)HeapReAlloc(GetProcessHeap(), 0, sc_manifest, want + 1u);
+        if (grown == NULL) {
+            CloseHandle(h);
+            sc_problem("manifest.txt could not be read: not enough memory. No collection event can come.");
+            return 0;
+        }
+        sc_manifest = grown;
+        sc_manifest_cap = want + 1u;
+    }
+    if (!ReadFile(h, sc_manifest, want, &got, NULL) || got != want) {
+        CloseHandle(h);
+        return 0;
+    }
+    CloseHandle(h);
+    if (want < length || high != 0) {
+        while (got > 0 && sc_manifest[got - 1] != '\n') {
+            --got;                     /* the last whole line */
+        }
+        sc_problem("manifest.txt is larger than its 64 MB limit: the events after that point were left out.");
+    }
+    sc_manifest[got] = '\0';
+    *size = got;
+    return 1;
+}
 static unsigned char sc_bytes[CG_MAX_FILE];
 
 /* Field `n` (0-based, tab-separated) of the line [p, end) into `out`. */
@@ -414,14 +510,26 @@ static int sc_scan(int game) {
     }
 #endif
     if (text == NULL) {
-        if (!sc_collection_on(game) || sc_path(path, "manifest.txt") == 0
-            || !sc_read_w(path, sc_manifest, SC_MANIFEST_BYTES - 1, &size)) {
+        if (!sc_collection_on(game) || sc_path(path, "manifest.txt") == 0 || !sc_read_manifest(path, &size)) {
             return 0;
         }
-        sc_manifest[size] = '\0';
         text = (const char *)sc_manifest;
     }
-    for (p = text; *p != '\0' && sc_count < SC_MAX; p = *end != '\0' ? end + 1 : end) {
+    {
+        /* The tables to the manifest's lines (a sanity limit of SC_MAX entries, the rest left out loudly). */
+        int lines = 1;
+        for (p = text; *p != '\0'; ++p) {
+            lines += *p == '\n';
+        }
+        if (lines > SC_MAX) {
+            sc_problem("manifest.txt has more events than the 65,536 a game can list: the rest were left out.");
+            lines = SC_MAX;
+        }
+        if (!sc_reserve(lines)) {
+            sc_problem("The collection's list could not be made: not enough memory. Some events were left out.");
+        }
+    }
+    for (p = text; *p != '\0' && sc_count < sc_cap; p = *end != '\0' ? end + 1 : end) {
         char games[32], weight[16];
         sc_entry *e = &sc_list[sc_count];
         for (end = p; *end != '\0' && *end != '\n'; ++end) {
@@ -563,13 +671,17 @@ static int sc_arm_collection(int game, int i) {
    candidate that cannot be armed is left out and the draw made again.  Linear in the candidates per draw: a series
    is found by its first member (head), counted once while any member is left. */
 static int sc_choose_and_arm(int game) {
-    static int more[SM_MAX];
-    static unsigned char left[SC_MAX];
-    static short head[SC_MAX];         /* the first entry of the same series (itself when none) */
-    static short members_left[SC_MAX]; /* at a series' head: its members still left */
+    static int *more;
+    static int more_cap;
+    unsigned char *left = sc_left;
+    short *head = sc_head;             /* the first entry of the same series (itself when none) */
+    short *members_left = sc_members_left;   /* at a series' head: its members still left */
     int n_more = 0, n_coll = 0, i, k;
     if (sc_more_on(game)) {
         sm_fill_more(game);
+        if (!story_grow((void **)&more, &more_cap, sm_list.count > 0 ? sm_list.count : 1, sizeof(int))) {
+            return 0;
+        }
         for (i = 0; i < sm_list.count; ++i) {
             int k_more = sm_list.k[i];
             if (sm_list.possible[i] == 1
@@ -580,6 +692,9 @@ static int sc_choose_and_arm(int game) {
     }
     if (sc_collection_on(game)) {
         n_coll = sc_scan(game);
+        left = sc_left;                /* sc_scan may have grown them */
+        head = sc_head;
+        members_left = sc_members_left;
     }
     for (i = 0; i < n_coll; ++i) {
         left[i] = 1;
@@ -774,7 +889,10 @@ static int sc_pick_fill(int game) {
         return 0;
     }
     (void)lv_map_entries(game);
-    for (i = 0; i < sc_count && sm_list.count < SM_MAX; ++i) {
+    if (!sm_reserve(sm_list.count + sc_count)) {
+        sc_problem("The Pick Island Event list could not hold every event: not enough memory.");
+    }
+    for (i = 0; i < sc_count && sm_list.count < sm_list.cap; ++i) {
         int m = sm_list.count;
         lstrcpynA(sm_list.title[m], sc_list[i].title, SM_TEXT);
         lstrcpynA(sm_list.description[m], sc_list[i].description[0] != '\0' ? sc_list[i].description
@@ -839,7 +957,7 @@ static void sc_library_add(int game) {
         return;
     }
     (void)lv_map_entries(game);
-    for (i = 0; i < sc_count && cg_lib.count < CG_LIBRARY_MAX; ++i) {
+    for (i = 0; i < sc_count && cg_lib_room(); ++i) {
         char leaf[80];
         wchar_t wide[VVFP_PATCHER_FILES_PATH_CAP];
         BOOL lossy = FALSE;

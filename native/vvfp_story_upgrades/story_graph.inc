@@ -7521,7 +7521,7 @@ static void cg_village_reset(int game, int slot) {
 
 /* ---- The library (the in-game "From the library..." picker) ----------------------------------------------- */
 
-#define CG_LIBRARY_MAX 8192             /* the player's library and the Isola Grand Event Collection's group (its events and
+#define CG_LIBRARY_MAX STORY_TABLE_LIMIT             /* the player's library and the Isola Grand Event Collection's group (its events and
                                            its Living Event Engine rows: about 380 in a game) */
 enum { IDD_CE_LIBRARY = 312, IDC_LB_LIST = 3801, IDC_LB_NOTE = 3802 };
 
@@ -7529,10 +7529,25 @@ static struct {
     int game;
     int count;
     int chosen;
-    char path[CG_LIBRARY_MAX][MAX_PATH];
-    char label[CG_LIBRARY_MAX][320];    /* a living row's label carries its sentence */
+    int cap;                            /* entries the two arrays hold (cg_lib_room) */
+    char (*path)[MAX_PATH];
+    char (*label)[320];                 /* a living row's label carries its sentence */
     char problems[1600];
 } cg_lib;
+
+/* Room for one more library entry (the arrays grown as needed, up to CG_LIBRARY_MAX); 1 when there is. */
+static int cg_lib_room(void) {
+    int cap = cg_lib.cap, c1 = cg_lib.cap;
+    if (cg_lib.count < cg_lib.cap) {
+        return 1;
+    }
+    if (!story_grow((void **)&cg_lib.path, &cap, cg_lib.count + 1, MAX_PATH)
+        || !story_grow((void **)&cg_lib.label, &c1, cg_lib.count + 1, 320)) {
+        return 0;
+    }
+    cg_lib.cap = cap;
+    return 1;
+}
 
 static cg_graph cg_lib_graph;
 static unsigned char cg_lib_bytes[CG_MAX_FILE];
@@ -7617,7 +7632,7 @@ static void cg_library_scan(int game) {
         if (!(cg_lib_graph.games & (1u << (game - 1)))) {
             continue;                  /* made for other games */
         }
-        if (cg_lib.count < CG_LIBRARY_MAX) {
+        if (cg_lib_room()) {
             lstrcpyA(cg_lib.path[cg_lib.count], path);
             wsprintfA(cg_lib.label[cg_lib.count], "%s   (%s)", cg_readable(&cg_lib_graph),
                       found.cFileName);
