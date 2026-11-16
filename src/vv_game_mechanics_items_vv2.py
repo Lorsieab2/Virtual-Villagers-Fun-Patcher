@@ -260,7 +260,8 @@ PUZZLE_ENTRIES = (
          "refuses). The first understanding of each plant gives that villager 5 Healing.", C),
         ("Reward: every cure also gives 10 to 29 health (each amount 1 in 20), up to 100.", E),
         ("With the patcher (Easier Healing Mastery, on by default): healers with no patient study plants on their "
-         "own, catch-up included (14% for a villager not checked on Healing). With Healers Study Plants Regardless "
+         "own, catch-up included (75% of those times for a villager checked on Healing, 14% for one not checked "
+         "on Healing). With Healers Study Plants Regardless "
          "of Food (on by default): a studying villager carries on at 300 food or more, 50% of the time.", C),
     )),
     Entry(PUZZLE, "The Sewing Hut", (

@@ -357,7 +357,8 @@ PUZZLE_ENTRIES = (
         # 0x43CF5B: every cure then adds 10 + rand(20) health, up to 100.
         ("Reward: every cure also restores 10 to 29 health (each amount 1 in 20), up to 100.", C),
         ("With the patcher (Easier Healing Mastery, on by default): healers with no patient study the medical cactus "
-         "on their own, including during catch-up (a villager not checked on Healing only 14% of the time).", C),
+         "on their own, including during catch-up: 75% of those times for a villager checked on Healing, so they "
+         "still do other things; 14% for one not checked on Healing.", C),
         ("With the patcher (Healers Study Plants Regardless of Food, on by default): a villager studying the cactus "
          "carries on at 400 food or more as below it, 50% of the time each choice (14% for one not checked on "
          "Healing).", C),
