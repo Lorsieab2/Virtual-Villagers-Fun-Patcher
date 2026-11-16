@@ -268,9 +268,10 @@
       "ids": ["vv1_island_event_rest_periods", "vv2_island_event_rest_periods", "vv3_island_event_rest_periods", "vv4_island_event_rest_periods", "vv5_island_event_rest_periods"],
       "guide": [
         "Off by default; Owner's Defaults ticks it. Select All does not tick it. In each game's Island Events section.",
-        "After a new event seriously injures, takes away or bereaves a villager, they and their immediate family get 30 in-game days without serious new-event outcomes.",
-        "After a death or a pregnancy loss, the surviving immediate family get 60 days.",
-        "The times are kept in the patcher's own file beside the save and follow each villager. Not yet tested in play."
+        "After a new event seriously injures, takes away or bereaves a villager, they and their immediate family get 30 real days without serious new-event outcomes.",
+        "After a death or a pregnancy loss, the surviving immediate family get 60 real days.",
+        "Only the rare roll waits: Pick Island Event and Custom Island Events always come, and a Custom Island Event never starts a rest.",
+        "The dates are kept in the patcher's own file beside the save and follow each villager. Not yet tested in play."
       ]
     },
     {

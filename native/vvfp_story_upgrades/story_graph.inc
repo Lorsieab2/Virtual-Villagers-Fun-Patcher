@@ -1535,6 +1535,12 @@ static int cg_sex_change_role(int role) {
 #define CG_NURSING_MIN_AGE (18 * 20)
 
 /* Whether record `index` may be role `role` (any binding aside). */
+/* The origin of the cast being made: the one being queued while nothing runs, else the running event's. */
+static int cg_origin_now_get(void);
+static int cg_casting_origin(void) {
+    return cg.phase == CG_IDLE || cg.phase == CG_DONE ? cg_origin_now_get() : cg.origin;
+}
+
 /* story_rest.inc: the rest periods of the island events' content controls. */
 static int rs_resting(int game, const unsigned char *record);
 static void rs_rest_role(const ce_adapter *a, int game, int index, int days);
@@ -1602,8 +1608,10 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
         return 0;                      /* never harmed, even with protected "allow" */
     }
-    if ((cg_serious_roles() >> role) & 1u && rs_resting(game, r)) {
-        return 0;                      /* resting after a serious new-event outcome (Rest Periods for Island Events) */
+    if ((cg_serious_roles() >> role) & 1u && cg_casting_origin() == CG_ORIGIN_NATURAL && rs_resting(game, r)) {
+        /* Resting after a serious new-event outcome (Rest Periods for Island Events): only the rare roll waits;
+           Pick Island Event and a Custom Island Event always come (the owner, 2026-11-15). */
+        return 0;
     }
     if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
         return 0;                      /* a story-mute villager never takes a role whose words have them speak */
@@ -4608,7 +4616,8 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     case CGE_REST:
         /* 31: the villager (and their immediate family) rest from serious new-event outcomes (story_rest.inc). */
         role = cg_resolve_role(e[1]);
-        if (role >= 0 && cg_villager(a, role) != NULL) {
+        if (cg.origin != CG_ORIGIN_PURCHASE && role >= 0 && cg_villager(a, role) != NULL) {
+            /* A Custom Island Event (bought through the library) never starts a rest (the owner, 2026-11-15). */
             rs_rest_role(a, game, cg.record[role], (int)cg_u32(e + 4));
         }
         return;
@@ -6675,6 +6684,10 @@ static const char *cg_risk(int game) {
 }
 
 static int cg_origin_now = CG_ORIGIN_PURCHASE;   /* the next cg_queue's origin */
+
+static int cg_origin_now_get(void) {
+    return cg_origin_now;
+}
 
 /* Queue the loaded event in `game` (the checks made: cg_refusal), its first display made due as the purchase does.
    1 on success. */

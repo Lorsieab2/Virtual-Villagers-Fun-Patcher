@@ -73,15 +73,18 @@ def rest_row(game: int) -> dict:
     return row(game, content.REST_PATCH, "Rest Periods for Island Events",
                "After a new island event seriously injures a villager, makes one disappear or leaves one bereaved, "
                "that villager and their recorded immediate family (spouse, parents, children, brothers and sisters) "
-               "are kept out of further serious outcomes of new events for 30 in-game days; after a death or a "
-               "pregnancy loss, the surviving immediate family for 60 days. They still take part in every other "
-               "event. The times are kept in the patcher's own file beside the save (never in the save itself) and "
-               "follow each villager. New events only. "
+               "are kept out of further serious outcomes of new events for 30 real days; after a death or a "
+               "pregnancy loss, the surviving immediate family for 60 real days. They still take part in every "
+               "other event. Only the rare roll waits: an event chosen with Pick Island Event or a Custom Island "
+               "Event always comes, and a Custom Island Event never starts a rest. The dates are kept in the "
+               "patcher's own file beside the save (never in the save itself) and follow each villager. New events "
+               "only. "
                f"Off by default; Owner's Defaults ticks it. {UNVERIFIED}",
-               ["A rest effect beside each serious outcome of a new event keeps \"rested until\" for the villager "
-                "and their immediate family in \"Virtual Villagers Fun Patcher\\Save S\\Data\\Island Events\\Island "
-                "Event Rest - Save S.dat\"; while it holds, Story / Cheat Upgrades never casts them in a role of a new "
-                "event that a serious outcome can reach."])
+               ["A rest effect beside each serious outcome of a new event keeps \"rested until\" (a real date) for "
+                "the villager and their immediate family in \"Virtual Villagers Fun Patcher\\Save S\\Data\\Island "
+                "Events\\Island Event Rest - Save S.dat\"; while it holds, the rare roll never casts them in a role of "
+                "a new event that a serious outcome can reach (Pick Island Event and Custom Island Events are not "
+                "held back, and a Custom Island Event never starts a rest)."])
 
 
 def filter_row(game: int, fid: str) -> dict:

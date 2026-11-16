@@ -922,9 +922,11 @@ in `data/event_collection/content_tags/<source>.json`.
   condition `island_event_content_notes` and which labels the ticked filters leave.
 - **`{"do": "rest", "role": r, "days": n}`** (n 1..3650; b 0; no string): made at its place like every effect, before
   the serious outcome it stands beside, it keeps the villager and their recorded immediate family (spouse, parents,
-  children, siblings) resting `n` in-game days (86,400 game-clock seconds each) when Rest Periods for Island Events is
-  installed (`story_rest.inc`, its own per-save file following each villager). While a villager rests, every role a
-  rest effect names (an alias: its members) refuses them (`cg_eligible`). Never a change, never a line, never logged.
+  children, siblings) resting `n` REAL days (a UTC date; the games' clock is real time anyway) when Rest Periods for
+  Island Events is installed (`story_rest.inc`, its own per-save file following each villager). While a villager
+  rests, the rare roll's cast refuses them for every role a rest effect names (an alias: its members); Pick Island
+  Event and a Custom Island Event cast them as always (the owner, 2026-11-15), and a Custom Island Event's rest
+  effects are never made (it never starts a rest). Never a change, never a line, never logged.
 
 ## 32. Story traits (`trait`, code 26) and speaking roles (the owner, 2026-11-15)
 

@@ -190,6 +190,13 @@ except Exception:                              # noqa: BLE001 -- no emulator: th
     rt = None
 
 
+def _natural(run, data: bytes, origin: int) -> bool:
+    """Queued as the rare roll (origin 2) or Pick Island Event (1) queue it: the strict cast."""
+    run.p.write(rt.CIEG_BUF, data)
+    return run.p.export("VvfpStoryProbeGraphQueueOrigin", run.n, rt.CIEG_BUF, len(data), origin, 0,
+                        rt.SCRATCH + 0xE00) == 1
+
+
 def _mask(out: dict, *ids: str) -> int:
     return sum(1 << out["patches"].index(i) for i in ids)
 
@@ -239,7 +246,7 @@ if rt is not None:
                     self.assertIsNotNone(why)
                     self.assertIn("content filters", why)
 
-        def test_a_rest_effect_rests_the_villager_and_keeps_them_out(self):
+        def test_a_rest_effect_rests_the_villager_for_real_days(self):
             g = graph(TWO_ENDINGS)
             out, _plan = content.inject(g, content.tag_graph(g))
             data = cg.compile_graph(out)
@@ -252,18 +259,15 @@ if rt is not None:
                     run.rolls([1] + [0] * 40)
                     run.force(["dies"], graph=out)
                     run.p.export("VvfpStoryProbeRest", 1, run.n, 0, buf)
-                    self.assertIsNone(run.queue(data))
+                    self.assertTrue(_natural(run, data, 2), "the rare roll's origin")
                     run.play()
-                    run.p.export("VvfpStoryProbeRest", 1, run.n, 0, buf)
-                    until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertGreater(now, 0, "the game clock")
                     # Bea died; nobody of hers is recorded in this village, so only her own record was kept.
                     run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf)
                     until, now = struct.unpack("<2I", run.p.read(buf, 8))
-                    self.assertEqual(until - now >= 60 * 86400 - 600, True, (until, now))
+                    self.assertEqual(until - now, 60 * 86400, "60 real days after a death")
                     run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
 
-        def test_a_resting_villager_is_kept_out_of_a_serious_role(self):
+        def test_a_resting_villager_waits_only_for_the_rare_roll(self):
             hurt = graph({"s": {"text": "(Name) is badly injured in the fall.", "children": []}})
             hurt, _plan = content.inject(hurt, content.tag_graph(hurt))
             walk = graph(TWO_ENDINGS)
@@ -275,18 +279,31 @@ if rt is not None:
                 with self.subTest(game=game):
                     run = rt.Run(game)
                     run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf)
+                    # A Custom Island Event (bought) never starts a rest.
                     run.rolls([1] + [0] * 40)
                     run.force([], graph=hurt)
                     self.assertIsNone(run.queue(cg.compile_graph(hurt)))
                     run.play()
                     self.assertEqual(run.state()["records"][0], 1, "Bea was hurt")
+                    self.assertEqual(run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf), 0, "bought: no rest")
+                    # Pick Island Event starts one: 30 real days after a serious injury.
+                    run.rolls([1] + [0] * 40)
+                    self.assertTrue(_natural(run, cg.compile_graph(hurt), 1))
+                    run.play()
                     self.assertEqual(run.p.export("VvfpStoryProbeRest", 1, run.n, 1, buf), 1)
                     until, now = struct.unpack("<2I", run.p.read(buf, 8))
                     self.assertEqual(until - now, 30 * 86400)
+                    # The rare roll never casts her in a serious role while she rests...
                     run.rolls([1] + [0] * 40)
                     run.force([], graph=walk)
-                    self.assertIsNone(run.queue(cg.compile_graph(walk)))
+                    self.assertTrue(_natural(run, cg.compile_graph(walk), 2))
                     self.assertNotEqual(run.state()["records"][0], 1, "Bea rests: never the subject of the walk")
+                    run.play()
+                    # ...Pick Island Event and a Custom Island Event still may.
+                    run.rolls([1] + [0] * 40)
+                    self.assertTrue(_natural(run, cg.compile_graph(walk), 1))
+                    self.assertEqual(run.state()["records"][0], 1, "Pick Island Event overrides the rest")
+                    run.play()
                     run.p.export("VvfpStoryProbeRest", -1, run.n, 0, 0)
 
 

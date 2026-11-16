@@ -4,12 +4,15 @@
    Rest Periods for Island Events (island_event_rest_periods, in "VVFP Installed Patches.txt"): after a serious
    outcome of a NEW island event (the Isola Grand Event Collection's and the Living Event Engine's), the villager and
    their recorded immediate family -- spouse, parents, children, siblings (story_graph.inc cg_kin) -- are kept out of
-   further serious new-event outcomes for a while: 30 in-game days after a serious injury, a disappearance or a
-   bereavement, 60 days after a death or a pregnancy loss (for the surviving family).  The build writes a "rest"
+   further serious new-event outcomes for a while: 30 real days after a serious injury, a disappearance or a
+   bereavement, 60 real days after a death or a pregnancy loss (for the surviving family).  The build writes a "rest"
    effect (code 25, its days in the effect's first value) beside each such outcome (src/vv_event_content.py); when it
-   is made, rs_rest_role keeps "rested until <now + days>" for those villagers.  While a villager rests they are
-   never cast in a role of a new event that a rest effect names -- a role that can take a serious outcome
-   (cg_eligible).  An in-game day is 86,400 seconds of the game's own clock (the island events' clock, sc_clock).
+   is made, rs_rest_role keeps "rested until <now + days>" for those villagers, as a real date (the UTC second; the
+   games' clock is real time, running on while the game is closed).  While a villager rests the rare roll never
+   casts them in a role of a new event that a rest effect names -- a role that can take a serious outcome
+   (cg_eligible).  THE OWNER'S OVERRIDES (2026-11-15): Pick Island Event and a Custom Island Event always come, rest
+   or not (their casts ignore it); a serious outcome Pick Island Event brings starts a rest, a Custom Island Event's
+   (bought through the library) never does (its rest effects are not made).
 
    THE FILE follows each villager as "VVFP Head Look.dll"'s does (native/vvfp_head_look/head_look_store.inc, the
    same rules: native/shared/mask_follow.h, foreign_sidecar.h, villager_rekey.h, sex_change.h): the save's own
@@ -19,7 +22,7 @@
        u32 roster[count]   the identity of the LIVING villager in each record when it was written (0 = nobody)
        u32 id[count]       the identity each entry was kept for (0 = none)
        u8  handle[count]   0 none, else the entry's row in the table below (1..255)
-       u32 until[255]      row k-1: the game-clock second the rest ends (0 = none)
+       u32 until[255]      row k-1: the UTC second (since 1970) the rest ends (0 = none)
        u32 traits[255]     row k-1: the story traits (bit 0 "mute": The Quiet Hands; cie-v6-binary.md 32)
    exactly 12 + count * 9 + 255 * 8 bytes.  The handles follow the villagers (vv_mask_follow), the rows stay where
    they are.  The test build keeps the table in memory only. */
@@ -32,7 +35,7 @@
 #define RS_FILE_MAX RS_FILE_BYTES(RS_MAX)
 #define RS_SYNC_MS 250u
 #define RS_KIND "Island Events"
-#define RS_DAY 86400u
+#define RS_DAY 86400u                   /* a real day, in seconds */
 #define RS_PATCH "island_event_rest_periods"
 
 /* The record fields the entries are kept by: the head looks' identity (name, sex, the parents' names; A New Home
@@ -370,17 +373,23 @@ static int rs_row_of(int i) {
 }
 
 #ifdef VVFP_TEST
-static unsigned int rs_test_now;                 /* the test's game clock (0: the game's own) */
+static unsigned int rs_test_now;                 /* the test's UTC second (0: the computer's own) */
 #endif
 
+/* The UTC second now, since 1970 (`game` unused: a real date, the same for every game). */
 static unsigned int rs_now(int game) {
-    unsigned int now = 0, *timer = NULL;
+    FILETIME ft;
+    ULARGE_INTEGER t;
+    (void)game;
 #ifdef VVFP_TEST
     if (rs_test_now != 0) {
         return rs_test_now;
     }
 #endif
-    return sc_clock(game, &now, &timer) ? now : 0u;
+    GetSystemTimeAsFileTime(&ft);
+    t.LowPart = ft.dwLowDateTime;
+    t.HighPart = ft.dwHighDateTime;
+    return (unsigned int)(t.QuadPart / 10000000ull - 11644473600ull);
 }
 
 static int rs_on(int game) {
@@ -407,7 +416,9 @@ static int rs_resting(int game, const unsigned char *record) {
         return 0;
     }
     now = rs_now(game);
-    return rs_until[rs_handle[i] - 1] != 0 && now != 0 && now < rs_until[rs_handle[i] - 1];
+    /* A rest that ends further away than the longest one (a clock set back) has ended. */
+    return rs_until[rs_handle[i] - 1] != 0 && now != 0 && now < rs_until[rs_handle[i] - 1]
+           && rs_until[rs_handle[i] - 1] - now <= 3650u * RS_DAY;
 }
 
 /* A rest effect made for the villager in record `index`: they and their recorded immediate family rest `days`
@@ -477,12 +488,12 @@ static void rs_set_trait(int game, int index, unsigned int trait) {
 /* ---- Test build only ---------------------------------------------------------------------------------------- */
 
 /* Rest Periods forced on (1) / off (0) / as installed (-1); then whether record `index` of `game` rests now, and
-   (out, when not NULL) the second its rest ends (0 none) and the game clock now. */
+   (out, when not NULL) the second its rest ends (0 none) and the second now. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeRest(int on, int game, int index, unsigned int *out) {
     const ce_adapter *a = ce_adapter_for(game);
     const unsigned char *r = a != NULL && index >= 0 && index < a->record_count ? a->record(index) : NULL;
     rs_test_on = on;
-    rs_test_now = on >= 0 ? 5000000u : 0u;      /* a game clock of its own: the emulator runs no game clock */
+    rs_test_now = on >= 0 ? 1800000000u : 0u;   /* a fixed date: the test sees exact days */
     rs_sync_tick = GetTickCount() - RS_SYNC_MS;
     if (out != NULL) {
         out[0] = 0;

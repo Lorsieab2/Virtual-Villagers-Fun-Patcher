@@ -22,9 +22,10 @@ WHAT THE BUILD WRITES INTO EACH COMPILED EVENT (inject), so the game needs nothi
     gets a variant that starts with "Content note: <labels>" -- the labels of what the event may contain, never
     which outcome comes -- each label left out while the ticked filters drop all of its content;
   * a "rest" effect (code 25) beside every serious outcome: a death, a pregnancy loss or a child's death in childbirth
-    (60 days for the surviving immediate family), a disappearance, a serious injury or a bereavement (30 days for the
-    villager and their immediate family).  With Rest Periods for Island Events on, the companion keeps those villagers
-    out of every role of a new event that can take a serious outcome until then (story_rest.inc);
+    (60 real days for the surviving immediate family), a disappearance, a serious injury or a bereavement (30 real days
+    for the villager and their immediate family).  With Rest Periods for Island Events on, the rare roll keeps those
+    villagers out of every role of a new event that can take a serious outcome until then (story_rest.inc); Pick
+    Island Event and Custom Island Events always come, and a Custom Island Event never starts a rest;
   * STORY TRAITS (the owner, 2026-11-15): "The Quiet Hands" (Inner Life 3, il003_*) gives the villager it casts the
     story trait "mute" (a "trait" effect, code 26, kept in the same per-villager file); every role whose words have
     them speak (a "speaks" role: speaking_roles) never takes a story-mute villager.
