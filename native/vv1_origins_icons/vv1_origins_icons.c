@@ -1,4 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <shlobj.h>   /* SHGetFolderPathA / CSIDL_PERSONAL (mask sidecar path) */
 #include <string.h>   /* strrchr / memcpy for the sidecar */
@@ -3040,7 +3042,8 @@ static int appearance_extra(HWND window, unsigned int command) {
         if (!vvfp_ax_change_sex(window, 1, appearance_state.villager, vv1_mask_index(appearance_state.villager))) {
             return 1;
         }
-        appearance_state.male = *(int *)(appearance_state.villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
+        /* the drawn sex: the Golden Child stays a boy (option 1, gender_presentation.h vvfp_gp_window_sex) */
+        appearance_state.male = vvfp_gp_window_sex(&appearance_gp, 1, appearance_state.villager) == VV_GENDER_MALE;
     } else {
         return 0;
     }
@@ -3225,7 +3228,7 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.original_mask = vv1_mask_get(villager);
-    appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
+    appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE || VV_IS_GOLDEN_CHILD(villager);
     /* 20 for both sexes: the head/body sheets are 20 rows and index 19 is the
        GOLDEN CHILD's head (pale, hairless) and body (gold) -- the last frame of
        male_heads/bodies (user-confirmed). Villager-creation RNG only rolls

@@ -1,0 +1,442 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_hz2",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "hz081_do_they_see_same": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F25"
+    ]
+   }
+  },
+  "hz082_game_watched": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz083_clothes_colder": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz084_what_would_they": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ]
+   }
+  },
+  "hz085_word_we_dont": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz086_round_face": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz087_do_their_elders": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz088_land_shore": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hz089_boat_big_village": {
+   "filters": [
+    "F04",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a2": [
+     "F25"
+    ],
+    "b1": [
+     "F25"
+    ],
+    "c2": [
+     "F04"
+    ]
+   }
+  },
+  "hz090_garden_animals": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz091_fire_flowers_sky": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz092_do_they_sing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz093_sweetness_never": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz094_people_cannot": {
+   "filters": [
+    "F22",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F22",
+     "F25"
+    ],
+    "c1": [
+     "F25"
+    ],
+    "c2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hz095_trees_drop_every": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz096_counting": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F19"
+    ]
+   }
+  },
+  "hz097_do_they_know": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz098_many_tongues": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz099_bottle_crossed": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F25"
+    ],
+    "c1": [
+     "F25"
+    ]
+   }
+  },
+  "hz100_people_wear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz101_shoe_never": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz102_do_their": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz103_meal_eaten": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz104_cold_box": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F21"
+    ]
+   }
+  },
+  "hz105_do_they_gossip": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F07"
+    ]
+   }
+  },
+  "hz106_feast_whole_city": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz107_gift_given": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz108_would_they": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz109_path_stars": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz110_weather_readers": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "c1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hz111_house_moves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz112_toy_moves_itself": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz113_people_live": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hz114_wedding_thousand": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz115_do_they_love_sea": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F25"
+    ],
+    "b2": [
+     "F25"
+    ]
+   }
+  },
+  "hz116_land_sand": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F25"
+    ]
+   }
+  },
+  "hz117_mountain_where": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz118_do_their_healers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz119_room_loud_city": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz120_distant_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz121_picture_caught": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz122_games_chance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz123_do_they_tell": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ]
+   }
+  },
+  "hz124_garden_roof": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz125_fishers_take": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "a2": [
+     "F25"
+    ],
+    "b1": [
+     "F25"
+    ],
+    "c1": [
+     "F25"
+    ],
+    "c2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "hz126_message_one": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz127_day_they_rest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hz128_people_dance": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F08"
+    ]
+   }
+  },
+  "hz129_islands_might": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F25"
+    ]
+   }
+  },
+  "hz130_entry_horizon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

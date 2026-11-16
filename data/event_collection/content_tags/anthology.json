@@ -1,0 +1,3090 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "anthology",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "anage01_tiny_gap": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anage02_secret_doll": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anage03_swing_squeaks": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "c2": [
+     "F04"
+    ]
+   }
+  },
+  "anage04_nursery": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage05_painted_pebble": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage06_crabs_know": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage07_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "mentor"
+   ]
+  },
+  "anage08_hammock_debate": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anage09_friend_left": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "teen"
+   ]
+  },
+  "anage10_public": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage11_unpopular": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teen",
+    "elder"
+   ]
+  },
+  "anage12_festival": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teen"
+   ]
+  },
+  "anage13_unseen_work": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage14_choice_lead": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage15_marriage_needs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage16_missing_trade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage17_adult_needs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anage18_disagreement": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anage19_feeding_corner": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage20_interrupted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "mother"
+   ]
+  },
+  "anage21_unwanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "helper"
+   ]
+  },
+  "anage22_festival": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F13"
+    ]
+   }
+  },
+  "anage23_return": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage24_parent_more": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage25_elder_sees": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anage26_forgotten": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage27_slowest_walker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anage28_embarrassing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "villager"
+   ]
+  },
+  "anage29_elder_wants": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anage30_word_always": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anage31_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "scholar"
+   ]
+  },
+  "anage32_gets_decide": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage33_island_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage34_hammock_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage35_nursery": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anage36_youngest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "teen"
+   ]
+  },
+  "anchd01_shell_someone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anchd02_two_children": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anchd03_playground": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "adult"
+   ]
+  },
+  "anchd04_unreturned": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "other",
+    "adult"
+   ]
+  },
+  "anchd05_where_do": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd06_why_do_people": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a2": [
+     "F03"
+    ],
+    "b1": [
+     "F03"
+    ],
+    "c1": [
+     "F03"
+    ],
+    "d2": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "child",
+    "adult",
+    "elder"
+   ]
+  },
+  "anchd07_why_sky_blue": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "scholar",
+    "adult",
+    "child"
+   ]
+  },
+  "anchd08_why_does_toy": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anchd09_why_do_stuffed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd10_question_wrong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd11_child_feared": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "adult",
+    "child"
+   ]
+  },
+  "anchd12_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anchd13_why_does_rain": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder",
+    "adult"
+   ]
+  },
+  "anchd14_where_does": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anchd15_why_do_shadows": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "child"
+   ]
+  },
+  "anchd16_why_do_stars": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder",
+    "adult"
+   ]
+  },
+  "anchd17_why_does_bread": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "cook"
+   ]
+  },
+  "anchd18_why_do_fish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anchd19_why_do_leaves": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anchd20_why_does_hair": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd21_why_does": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "neighbor"
+   ]
+  },
+  "anchd22_why_do_some": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult",
+    "villager"
+   ]
+  },
+  "anchd23_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd24_why_does_moon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "elder",
+    "child"
+   ]
+  },
+  "anchd25_why_does_sea": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd26_why_do_we": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd27_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "anchd28_why_do_we_get": {
+   "filters": [
+    "F09"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F09"
+    ]
+   },
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd29_why_does": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "elder"
+   ]
+  },
+  "anchd30_why_do_animals": {
+   "filters": [
+    "F16",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F16"
+    ],
+    "b1": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "anchd31_why_tide_today": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "adult",
+    "child",
+    "elder"
+   ]
+  },
+  "anchd32_why_do_some": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "elder"
+   ]
+  },
+  "anchd33_why_does_metal": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd34_why_do_we_have": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd35_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd36_why_does_fire": {
+   "filters": [
+    "F23"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F23"
+    ]
+   },
+   "speaks": [
+    "child",
+    "cook",
+    "elder"
+   ]
+  },
+  "anchd37_why_do_we": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teacher",
+    "elder"
+   ]
+  },
+  "anchd38_why_do_we_have": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anchd39_why_does": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anchd40_why_do_some": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "c1": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd41_question_about": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd42_why_did_friend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anchd43_why_person": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "carer",
+    "loner"
+   ]
+  },
+  "anchd44_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "artist",
+    "elder"
+   ]
+  },
+  "anchd45_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd46_why_ocean_so": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anchd47_child_asked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "child"
+   ]
+  },
+  "anexp01_fingerprints": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anexp02_painted_stones": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp03_unsteady_cairn": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "builder"
+   ]
+  },
+  "anexp04_flowers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp05_stick_figure": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anexp06_palm_leaf": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "crafter"
+   ]
+  },
+  "anexp07_village_games": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F16"
+    ]
+   }
+  },
+  "anexp08_long_paddle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp09_rope_swing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp10_hammock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp11_playground": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp12_nursery_song": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "singer"
+   ]
+  },
+  "anexp13_dress_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "helper"
+   ]
+  },
+  "anexp14_fashion_walk": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp15_piercing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "practitioner"
+   ]
+  },
+  "anexp16_mark_meaning": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F27"
+    ]
+   },
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anexp17_face_paint": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp18_basket_work": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp19_driftwood": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp20_unfinished": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anexp21_festival_mask": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anexp22_creature_reeds": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp23_chief_cousin": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp24_council_seat": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp25_disputed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anexp26_loudest_voice": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "setup": [
+     "F04"
+    ]
+   }
+  },
+  "anexp27_rule_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp28_visitor_accent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "newcomer"
+   ]
+  },
+  "anexp29_ancestral": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "child"
+   ]
+  },
+  "anexp30_change_seasons": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp31_shoreline": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b1": [
+     "F04"
+    ]
+   }
+  },
+  "anexp32_sleepless": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "helper"
+   ]
+  },
+  "anexp33_overwhelmed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "mentor"
+   ]
+  },
+  "anexp34_angry_thought": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager",
+    "adult"
+   ]
+  },
+  "anexp35_war_song": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "d2": [
+     "F05"
+    ]
+   }
+  },
+  "anexp36_boundary_feast": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp37_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anexp38_man_weaves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp39_elder_refuses": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anexp40_baby_meeting": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp41_painted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "critic"
+   ]
+  },
+  "anexp42_noble_family": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp43_stone_two": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp44_solo": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anexp45_unwelcome_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "giver"
+   ]
+  },
+  "anexp46_doll_two_faces": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp47_sculptor": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "sculptor",
+    "relative"
+   ]
+  },
+  "anexp48_forest_race": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp49_council_secret": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp50_river_things": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp51_chief_clothes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp52_legend_every": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "child"
+   ]
+  },
+  "anexp53_quiet_parade": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "musician"
+   ]
+  },
+  "anexp54_unclaimed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anexp55_difficult": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "hurt"
+   ]
+  },
+  "anexp56_strange_dream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp57_unfair_match": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "rival"
+   ]
+  },
+  "anexp58_scars_we_do": {
+   "filters": [
+    "F07",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F07"
+    ],
+    "d1": [
+     "F25"
+    ],
+    "setup": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anexp59_difficult": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "caregiver"
+   ]
+  },
+  "anexp60_traveling": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp61_market_repairs": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp62_question_mercy": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp63_sky_smoke": {
+   "filters": [
+    "F11",
+    "F21",
+    "F23"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "setup": [
+     "F11",
+     "F21",
+     "F23"
+    ]
+   }
+  },
+  "anexp64_costume_hero": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anexp65_unfashionable": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder",
+    "child"
+   ]
+  },
+  "anexp66_flower_map": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp67_argument_over": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anexp68_moonlit_tale": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp69_village_vote": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anexp70_unspoken_rule": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teen",
+    "elder",
+    "family"
+   ]
+  },
+  "anexp71_hidden_garden": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "anexp72_costume_crown": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anexp73_silent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "musician"
+   ]
+  },
+  "anexp74_grandparent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam01_unfinished": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfam02_unwanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "cook"
+   ]
+  },
+  "anfam03_sibling_broken": {
+   "filters": [
+    "F05",
+    "F11"
+   ],
+   "notes": [
+    "Bereavement",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "b2": [
+     "F05"
+    ],
+    "setup": [
+     "F11"
+    ]
+   },
+   "speaks": [
+    "sibling"
+   ]
+  },
+  "anfam04_words_table": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "sibling"
+   ]
+  },
+  "anfam05_parent_sharp": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "parent",
+    "child"
+   ]
+  },
+  "anfam06_forgotten": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "anfam07_best_friend": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F19"
+    ]
+   }
+  },
+  "anfam08_couple_grew": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam09_elder": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam10_cousins": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam11_rumor_about": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam12_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "apprentice",
+    "master"
+   ]
+  },
+  "anfam13_unwelcome_joke": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "anfam14_child_said": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfam15_late_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam16_disputed": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "d1": [
+     "F05"
+    ],
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "anfam17_neighbor_loud": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "neighbor"
+   ]
+  },
+  "anfam18_missed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anfam19_parent_changed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfam20_reconciliation": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam21_child_took": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfam22_sibling_wanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfam23_relative": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "relative"
+   ]
+  },
+  "anfam24_apology_needed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfau01_lizard_warm": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F26"
+    ]
+   }
+  },
+  "anfau02_shed_skin": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anfau03_turtle_wrong": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau04_gecko_nursery": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F26"
+    ]
+   }
+  },
+  "anfau05_snake_rumor": {
+   "filters": [
+    "F04",
+    "F11",
+    "F26"
+   ],
+   "notes": [
+    "Disappearance",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F04",
+     "F26"
+    ],
+    "c1": [
+     "F26"
+    ],
+    "d1": [
+     "F26"
+    ],
+    "setup": [
+     "F11",
+     "F26"
+    ]
+   }
+  },
+  "anfau06_feather": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau07_injured": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau08_nest_above": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anfau09_crow_remembers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau10_night_chorus": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau11_furry_thief": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b2": [
+     "F04"
+    ]
+   }
+  },
+  "anfau12_animal_wants": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau13_burrow_beneath": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau14_hoofprints": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau15_stubborn": {
+   "filters": [
+    "F11"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a1": [
+     "F11"
+    ]
+   }
+  },
+  "anfau16_claw_marks": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau17_crab_temper": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau18_scale_feather": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau19_animal_symbol": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau20_broken_wing": {
+   "filters": [
+    "F05",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "a2": [
+     "F27"
+    ],
+    "d2": [
+     "F05"
+    ]
+   }
+  },
+  "anfau21_old_companion": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau22_vanishing": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "anfau23_stranger_beast": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anfau24_child_protects": {
+   "filters": [
+    "F19"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F19"
+    ]
+   }
+  },
+  "anhs01_hammock": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs02_swing_above": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs03_play_clearing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs04_nursery_full": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs05_woven_doll": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs06_elder_counts": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F25"
+    ],
+    "c2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anhs07_embarrassing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "grandparent"
+   ]
+  },
+  "anhs08_invention": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anhs09_which_totem": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs10_totem_everyone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anhs11_chief_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "worker"
+   ]
+  },
+  "anhs12_whose_word_law": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "young"
+   ]
+  },
+  "anhs13_child_said": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs14_what_order": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs15_rule_reason": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs16_ways_knowing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "young"
+   ]
+  },
+  "anhs17_what_makes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs18_why_do_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs19_stranger_feels": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs20_pride_after": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs21_friendship": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs22_jealous": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs23_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs24_small_cut_work": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "healer"
+   ]
+  },
+  "anhs25_bruised_knees": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "d1": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs26_twisted_ankle": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "b1": [
+     "F06"
+    ]
+   }
+  },
+  "anhs27_broken_arm_long": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "setup": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs28_hand_changed": {
+   "filters": [
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "setup": [
+     "F05",
+     "F06"
+    ]
+   },
+   "speaks": [
+    "craftsperson"
+   ]
+  },
+  "anhs29_life_after": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "anhs30_missing_leg": {
+   "filters": [
+    "F06",
+    "F25"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a1": [
+     "F25"
+    ],
+    "setup": [
+     "F06"
+    ]
+   }
+  },
+  "anhs31_scar_invites": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F07"
+    ],
+    "d2": [
+     "F07"
+    ],
+    "setup": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "anhs32_bodies_shared": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs33_wrong_guess": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs34_name_another": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "d1": [
+     "F16"
+    ],
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anhs35_story_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs36_without_lesson": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs37_child_questions": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anhs38_argument_over": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs39_elder_might": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anhs40_gets_tell_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anhs41_hard_clear": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anhs42_unfair": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy01_newborn": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy02_first_word": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "toddler"
+   ]
+  },
+  "anjoy03_child_big_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjoy04_two_tribe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy05_unplanned": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy06_elder_birthday": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anjoy07_waterfall": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy08_hilltop": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy09_cave_echo": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anjoy10_forest_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy11_friendly_games": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy12_shared_garden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy13_dance_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy14_friendship": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy15_skill_mastery": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "apprentice"
+   ]
+  },
+  "anjoy16_return_hills": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy17_two_families": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy18_remarriage": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy19_blended_family": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy20_friendly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy21_child_second": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjoy22_anniversary": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "partner1"
+   ]
+  },
+  "anjoy23_memorial": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjoy24_ancestor_loved": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anjoy25_empty_seat": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "anjoy26_lost_village": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy27_ancestor_chair": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F25"
+    ]
+   }
+  },
+  "anjoy28_ancient_game": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy29_ancestor_bad": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "c1": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "cook"
+   ]
+  },
+  "anjoy30_tattoo_artist": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F27"
+    ]
+   }
+  },
+  "anjoy31_memorial_mark": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F27"
+    ]
+   }
+  },
+  "anjoy32_visiting": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy33_elder_without": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F27"
+    ]
+   },
+   "speaks": [
+    "elder",
+    "young"
+   ]
+  },
+  "anjoy34_festival_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy35_moonlit_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anjoy36_garden_reunion": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a2": [
+     "F04"
+    ]
+   }
+  },
+  "anjoy37_hillside_music": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjoy38_peaceful_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus01_teasing_circle": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjus02_popular_bully": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F16"
+    ],
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anjus03_stolen_woven": {
+   "filters": [
+    "F04",
+    "F20"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "d1": [
+     "F20"
+    ],
+    "setup": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "owner"
+   ]
+  },
+  "anjus04_broken_swing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjus05_when_chief": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus06_punishment": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjus07_angry_apology": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus08_wounded_pride": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "b1": [
+     "F16"
+    ],
+    "d2": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "apprentice",
+    "crafts"
+   ]
+  },
+  "anjus09_elder_cannot": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F13"
+    ]
+   }
+  },
+  "anjus10_scar_nobody": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F07"
+    ],
+    "setup": [
+     "F07"
+    ]
+   }
+  },
+  "anjus11_cut_shore": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "d1": [
+     "F08"
+    ]
+   }
+  },
+  "anjus12_fracture": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus13_lost_hand": {
+   "filters": [
+    "F05",
+    "F06"
+   ],
+   "notes": [
+    "Bereavement",
+    "Serious injury"
+   ],
+   "nodes": {
+    "c2": [
+     "F05"
+    ],
+    "setup": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anjus14_after_shaking": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F21"
+    ],
+    "setup": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "child"
+   ]
+  },
+  "anjus15_smoke_beyond": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F21"
+    ],
+    "setup": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anjus16_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "traveler",
+    "teen"
+   ]
+  },
+  "anjus17_child_worked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "teen"
+   ]
+  },
+  "anjus18_unspoken_loss": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "c2": [
+     "F05"
+    ],
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "anjus19_empty_place": {
+   "filters": [
+    "F01",
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Child death",
+    "Bereavement"
+   ],
+   "nodes": {
+    "b1": [
+     "F03"
+    ],
+    "setup": [
+     "F01",
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "adult",
+    "child"
+   ]
+  },
+  "anjus20_missing_scout": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus21_memory_war": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder1",
+    "teen"
+   ]
+  },
+  "anjus22_boundary_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus23_joke_funny": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "speaker",
+    "elder"
+   ]
+  },
+  "anjus24_quiet_warning": {
+   "filters": [
+    "F14"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F14"
+    ]
+   }
+  },
+  "anjus25_sleepless": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus26_dangerous_edge": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anjus27_child_asked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anjus28_rule_hurt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anjus29_refused": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anjus30_when_someone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus31_courage_defend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anjus32_what_we_carry": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "child",
+    "elder"
+   ]
+  },
+  "anmom01_wrong_wave": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "anmom02_same_soup": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anmom03_afternoon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anmom04_child_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child",
+    "adult"
+   ]
+  },
+  "anmom05_unfinished": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anmom06_changed_hair": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F27"
+    ],
+    "a2": [
+     "F27"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "anmom07_empty_place": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anmom08_applause": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "apprentice"
+   ]
+  },
+  "anrel01_shared_walk": {
+   "filters": [
+    "F28"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F28"
+    ]
+   },
+   "speaks": [
+    "teen2"
+   ]
+  },
+  "anrel02_crush": {
+   "filters": [
+    "F28"
+   ],
+   "notes": [],
+   "nodes": {
+    "d2": [
+     "F28"
+    ]
+   },
+   "speaks": [
+    "other"
+   ]
+  },
+  "anrel03_elderly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel04_same_sex_crush": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "relative"
+   ]
+  },
+  "anrel05_couple_chose": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel06_proposal_could": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel07_widow_loved": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel08_friendly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel09_name_fits": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel10_name_ancestor": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel11_private_truth": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "anrel12_unspoken": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager",
+    "mentor"
+   ]
+  },
+  "anrel13_clothes_across": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel14_weaver_loved": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "weaver"
+   ]
+  },
+  "anrel15_person_they": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel16_beginning": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "adult"
+   ]
+  },
+  "anrel17_elder_changed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anrel18_elder_form": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anrel19_couple_name": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "partner1",
+    "partner2"
+   ]
+  },
+  "anrel20_partners": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel21_friend_needed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "villager"
+   ]
+  },
+  "anrel22_parent_wanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "child"
+   ]
+  },
+  "anrel23_shy_couple": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel24_courtship": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel25_matchmaker": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel26_two_elders": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel27_festival": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "villager"
+   ]
+  },
+  "anrel28_apprentice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel29_villager": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel30_changing_hair": {
+   "filters": [
+    "F27"
+   ],
+   "notes": [],
+   "nodes": {
+    "a1": [
+     "F27"
+    ],
+    "b1": [
+     "F27"
+    ],
+    "c1": [
+     "F27"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "anrel31_newcomer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "newcomer"
+   ]
+  },
+  "anrel32_young_friends": {
+   "filters": [
+    "F28"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F28"
+    ]
+   }
+  },
+  "anrel33_ceremony_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anrel34_grandparent": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "anrel35_friendship": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "anrel36_clothing_felt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

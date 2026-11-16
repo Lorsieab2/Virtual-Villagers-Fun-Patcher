@@ -258,22 +258,24 @@ class TheChoice(unittest.TestCase):
         return bool(got & 0x100), [r.p.u32(trace + 4 * k) for k in range(got & 0xFF)]
 
     def test_the_collection_alone_by_weight_and_series(self) -> None:
-        # The Tree of Life's entries: a_solo 1, b_heavy 3, the series 1 (c_s1, d_s2): total 5.
+        # The Tree of Life's entries: a_solo 1, b_heavy 3, the series 1 (c_s1, d_s2): total 5.  The split-file draw
+        # (story_collection.inc sc_choose_and_arm): first the file (the test's one manifest, weight 5), then the
+        # event inside it.
         for draw, expected in ((0, 0), (1, 1), (3, 1), (4, 2)):
             with self.subTest(draw=draw):
                 r = self.roll(coll_ok=0xF)
-                r.rolls(draw, 0)
+                r.rolls(0, draw, 0)
                 armed, trace = self.choose(r)
                 self.assertTrue(armed)
                 self.assertEqual(trace, [0x10000 | expected])
         r = self.roll(coll_ok=0xF)
-        r.rolls(4, 1)                                          # the series, then its second member
+        r.rolls(0, 4, 1)                                       # the file, the series, then its second member
         self.assertEqual(self.choose(r), (True, [0x10000 | 3]))
 
     def test_other_games_entries_never_offered(self) -> None:
         r = self.roll(coll_ok=0xFF)
         for draw in range(5):
-            r.rolls(draw, 0)
+            r.rolls(0, draw, 0)
             armed, trace = self.choose(r)
             self.assertTrue(all((t & 0xFFFF) < 4 for t in trace))
 
@@ -292,14 +294,15 @@ class TheChoice(unittest.TestCase):
         self.assertEqual(sorted(t & 0xFFFF for t in trace), [0, 1, 2, 3])   # every event tried once
 
     def test_every_event_equally_likely_across_the_sources(self) -> None:
-        # More Island Events' possible entries 0 and 2 (weight 1 each) and the collection's a_solo 1, b_heavy 3, the
-        # series 1: one draw over 2 + 5 = 7.  Draws 0-1 are More Island Events' (each refused here, as the emulated
-        # registry cannot arm: then 1 + 5, then the collection's 5), 2-6 the collection's.
+        # More Island Events' possible entries 0 and 2 (weight 1 each) and the collection's file (a_solo 1, b_heavy 3,
+        # the series 1: weight 5): one draw over 2 + 5 = 7.  Draws 0-1 are More Island Events' (each refused here, as
+        # the emulated registry cannot arm: then 1 + 5, then the file's 5), 2-6 the file's; inside the file a second
+        # draw picks the event (the split-file draw), here the same place: draw - 2.
         for draw, expected in ((0, [0, 2, 0x10000 | 0]), (1, [2, 0, 0x10000 | 0]), (2, [0x10000 | 0]),
                                (3, [0x10000 | 1]), (5, [0x10000 | 1]), (6, [0x10000 | 2])):
             with self.subTest(draw=draw):
                 r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
-                r.rolls(draw, 0, 0)
+                r.rolls(*((draw, 0, 0, 0, 0) if draw < 2 else (draw, draw - 2, 0)))
                 armed, trace = self.choose(r)
                 self.assertTrue(armed)
                 self.assertEqual(trace, expected)
@@ -310,7 +313,7 @@ class TheChoice(unittest.TestCase):
         self.assertTrue(armed)
         self.assertEqual(trace, [2, 0x10000 | 0])
         r = self.roll(more=[1, 0, 1], more_ok=0, coll_ok=0xF)
-        r.rolls(6, 1)                                          # the series, then its second member
+        r.rolls(6, 4, 1)                                       # the file, the series, then its second member
         self.assertEqual(self.choose(r), (True, [0x10000 | 3]))
 
     def test_more_island_events_alone(self) -> None:
@@ -347,10 +350,11 @@ class OneFrameAtATime(unittest.TestCase):
         state = p.alloc(7 * 4)
         p.export("VvfpStoryProbeCollectionState", state)
         self.assertEqual(p.u32(state), 0)
-        at = p.alloc(8)
-        p.put32(at, 0)
-        p.put32(at + 4, 0)
-        p.export("VvfpStoryProbeSetRolls", at, 2)               # the chance 30%, the roll 0: a pass
+        at = p.alloc(16)
+        for k in range(4):
+            p.put32(at + 4 * k, 0)
+        # the chance 30%, the roll 0: a pass; then the draw's file and its event (the split-file draw)
+        p.export("VvfpStoryProbeSetRolls", at, 4)
         clock[0] += 598                                        # two seconds before it
         p.export("VvfpStoryProbeCollectionTick", 4)
         p.export("VvfpStoryProbeCollectionState", state)
@@ -377,14 +381,14 @@ class LivingRows(unittest.TestCase):
         import test_living_runtime as lr
         run = lr.Living("vv4")
         run.manifest()
-        run.rolls([4, 1] + [0] * 62)
+        run.rolls([0, 4, 1] + [0] * 61)                        # the file (the split-file draw), then as before
         armed, trace = run.choose()
         self.assertTrue(armed)
         self.assertEqual(trace, [5])                          # living_mc_tra_13
         run.idle()
         # Now a serious row was armed: warm and social weigh 2 (per, cel, art, odd), the TRA series 1 (its row
         # left): 9 in all, and roll 5 is Art.
-        run.rolls([5] + [0] * 63)
+        run.rolls([0, 5] + [0] * 62)
         armed, trace = run.choose()
         self.assertEqual(trace[0], 2)
 
@@ -393,7 +397,7 @@ class LivingRows(unittest.TestCase):
         import test_living_runtime as lr
         run = lr.Living("vv4")
         run.manifest()
-        run.rolls([2, 0] + [0] * 62)
+        run.rolls([0, 2, 0] + [0] * 61)
         armed, trace = run.choose()
         self.assertTrue(armed)
         self.assertEqual(trace[:2], [2, 0])

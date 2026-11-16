@@ -126,7 +126,12 @@ static void vvfp_gp_window_open(vvfp_gp_window *w, int game, const unsigned char
 static void vvfp_gp_window_show(HWND window, const vvfp_gp_window *w, int game, const unsigned char *record) {
     HWND sex = GetDlgItem(window, 3506), box = GetDlgItem(window, VVFP_AX_PRESENTATION);
     if (sex != NULL) {
+#ifdef VV_SEX_GC_OPTION1
+        ShowWindow(sex, w->api.there && record != NULL
+                            && (!vv_sex_golden_child(game, record) || vv_sex_gc_draws_follow(game)) ? SW_SHOW : SW_HIDE);
+#else
         ShowWindow(sex, w->api.there && record != NULL && !vv_sex_golden_child(game, record) ? SW_SHOW : SW_HIDE);
+#endif
     }
     if (box != NULL) {
         ShowWindow(box, w->offered ? SW_SHOW : SW_HIDE);
@@ -161,6 +166,11 @@ static int vvfp_gp_window_toggle(HWND window, vvfp_gp_window *w, int game, const
 
 /* The sex value the preview draws villager `record` with. */
 static int vvfp_gp_window_sex(const vvfp_gp_window *w, int game, const unsigned char *record) {
+#ifdef VV_SEX_GC_OPTION1
+    if (vv_sex_golden_child(game, record)) {
+        return VV_SEX_LAYOUT[game].male;   /* the Golden Child is drawn a boy whatever the field (option 1) */
+    }
+#endif
     return vvfp_gp_drawn_sex(game, *(const int *)(record + VV_SEX_LAYOUT[game].sex), w->on);
 }
 
