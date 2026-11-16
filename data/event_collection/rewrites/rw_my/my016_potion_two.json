@@ -296,12 +296,5 @@
    ],
    "src": "L10792"
   }
- },
- "grammar_fixes": [
-  {
-   "src": "L10760",
-   "before": "Choices A and",
-   "after": "Choices An and"
-  }
- ]
+ }
 }

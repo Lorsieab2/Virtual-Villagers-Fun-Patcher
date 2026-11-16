@@ -582,16 +582,18 @@ def mask() -> Ev:
     gone = [vanish(f"volunteer{k}") for k in range(1, 6)]
     e.page("f_end", [679, 680, 681], e.text([679, 680, 681], [], nm), append=True, paragraph=True,
            effects=copy.deepcopy(gone))
-    # After a walk, lost and rescued, the one text (the click to the end) is 1990 bytes in the later games at most:
-    # the owner's whole text there is about 50 bytes longer with the longest names, so that path leaves out the
-    # last sentence of L681 (an APPROXIMATION for the owner).
+    # After a walk, lost and rescued, the one text (the click to the end) is about 50 bytes over The Tree of Life's
+    # 1990 at most with the longest names.  A popup of its own does not help: with Scrolling Popups every page from
+    # an answer to the next question or the end is ONE text (cie-v6-binary.md 19; tried 2026-11-16, still refused),
+    # and only a question starts a new one.  So that path leaves out the last sentence of L681 (an OWNER QUESTION).
     last = " The other villagers rally behind them, and hope for an end to the madness."
     e.page("f_end_short", [679, 680, 681], e.text([679, 680, 681], [], nm).replace(last, ""), append=True,
            paragraph=True, effects=copy.deepcopy(gone), src_cut=[{"src": "L681", "text": last.strip()}])
     e.approx += [
         "OWNER QUESTION: walk -> lost -> rescued -> the elders is about 50 bytes over the 1990-byte popup of The "
         "Tree of Life with the longest names; that path leaves out the last sentence (\"The other villagers rally "
-        "behind them, and hope for an end to the madness.\"); every other path shows it",
+        "behind them, and hope for an end to the madness.\"); every other path shows it.  A popup of its own does not "
+        "help (with Scrolling Popups everything from the click to the end is one text); only a question would",
         "the group is two children always and a third and fourth when the village has them (optional roles); the "
         "owner's 'preferably 3-4' is the engine's casting: an optional role is filled whenever someone fits",
         "the five volunteers are five adults the event casts (any adult, family ties don't matter)",

@@ -189,6 +189,9 @@ def grammar_fixes(n: int) -> list[tuple[str, str, str]]:
             continue
         if s[max(0, m.start() - 1):m.start()] in ("-", "."):
             continue
+        before_a = s[:m.start()].rstrip()
+        if art == "A" and before_a and before_a[-1] not in '.!?"\'(':
+            continue      # a capital "A" inside a sentence is a label ("Choice A", "Choices A and B"), not "a"
         before = s[max(0, m.start() - 8):m.end()]
         if s.count(before) != 1:
             continue

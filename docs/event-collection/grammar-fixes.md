@@ -413,7 +413,6 @@ The owner's GO files (rewrites, balance; 2026-11-16): fixed automatically by scr
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
-| rewrites L10760 | `Choices A and` | `Choices An and` | The Potion with Two Labels | "A and": "an" before a vowel sound |
 | balance L224 | `{#babies:One. Just the one. I was sure there were more|Two. You'll want a bigger sleeping mat|Three. You'll want a much bigger sleeping mat}` | `{#babies:One, just the one, i was sure there were more|Two, you'll want a bigger sleeping mat|Three, you'll want a much bigger sleeping mat}` | The Blessing Stones | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
 | balance L2858 | `{#babies:"Just one. A strong one."|"Two heartbeats."|"Three heartbeats."}` | `{#babies:"Just one, a strong one"|"Two heartbeats"|"Three heartbeats"}` | The Wedding Night Feast | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
 | balance L4579 | `{#babies:"Just the one, and the cradle is just right."|"Two. You'll need a wider cradle."|"Three. You'll need a much wider cradle."}` | `{#babies:"Just the one, and the cradle is just right"|"Two, you'll need a wider cradle"|"Three, you'll need a much wider cradle"}` | The Carved Cradle | a count token's options hold no . ! ? (the engine's rule): a comma instead, the closing mark dropped |
