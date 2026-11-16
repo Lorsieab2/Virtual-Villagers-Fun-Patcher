@@ -24,6 +24,7 @@ test class below.
 """
 from __future__ import annotations
 
+import base64
 import struct
 import sys
 import unittest
@@ -149,6 +150,15 @@ def _vv1():
 def _render(mode: str, ids) -> bytes:
     rendered, _ = render_patched_bytes(STOCK, _vv1(), mode, list(ids))
     return bytes(rendered)
+
+
+def _patch_length(patch: dict) -> int:
+    """The bytes a manifest patch writes ("after" hex, or "length" / "after_base64")."""
+    if "after" in patch:
+        return len(patch["after"]) // 2
+    if "length" in patch:
+        return int(patch["length"])
+    return len(base64.b64decode(patch["after_base64"]))
 
 
 def _other_public_vv1_ids() -> list[str]:
@@ -507,7 +517,7 @@ class LikingWorkTests(unittest.TestCase):
             if p.game_id != "vv1" or p.id == FEATURE_ID:
                 continue
             for patch in p.raw.get("patches", []):
-                o, n = int(patch["offset"], 16), len(patch["after"]) // 2
+                o, n = int(patch["offset"], 16), _patch_length(patch)
                 for lo, size in ((0x55491, 15), (0x554B2, 14), (0x39AF8, 8)):
                     self.assertFalse(o < lo + size and lo < o + n, (p.id, hex(o)))
 
@@ -663,7 +673,7 @@ class KeepAssignedJobTests(unittest.TestCase):
             if p.game_id != "vv1" or p.id == FEATURE_ID:
                 continue
             for patch in p.raw.get("patches", []):
-                o, n = int(patch["offset"], 16), len(patch["after"]) // 2
+                o, n = int(patch["offset"], 16), _patch_length(patch)
                 for lo, size in pieces + [(0x47CFF, 7)]:
                     self.assertFalse(o < lo + size and lo < o + n, (p.id, hex(o)))
 

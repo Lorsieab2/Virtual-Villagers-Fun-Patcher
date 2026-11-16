@@ -1,3 +1,5 @@
 # Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
 # id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
 living_st_a95f3c	The Aspiring Adventurer	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	A villager spots something glinting off the jungle path: go and investigate, or stay on the safe path.		
+living_st_3d962a	The Remembrance Ceremony	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	The villagers gather for the Day of Remembrance, to honor those who came before them.		
+living_st_b86363	The Rumblings	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	A violent shaking damages some of the village's buildings, and the builders have work to do.		

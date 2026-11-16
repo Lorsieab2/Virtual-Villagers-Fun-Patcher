@@ -3,3 +3,5 @@
 living_st_a95f3c	The Aspiring Adventurer	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	A villager spots something glinting off the jungle path: go and investigate, or stay on the safe path.		
 living_st_df1250	The Playful Dolphins	4	1	living_st_mie	Written by Lorsieab2.	A villager sees dolphins playing just offshore: swim towards them, or hang back.		
 living_st_5f1436	The Mysterious Mask	4	1	living_st_mie	Written by Lorsieab2.	Children playing at the forest's edge find a strange carved mask: wait, cry for help, or walk.		
+living_st_3d962a	The Remembrance Ceremony	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	The villagers gather for the Day of Remembrance, to honor those who came before them.		
+living_st_b86363	The Rumblings	1,2,3,4,5	1	living_st_mie	Written by Lorsieab2.	A violent shaking damages some of the village's buildings, and the builders have work to do.		
