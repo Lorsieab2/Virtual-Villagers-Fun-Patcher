@@ -25,7 +25,7 @@
    {
     "src": "L15014",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'new look (the young head look) for (eldest name), the eldest villager'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the young head look for (eldest name)"
    },
    {
     "src": "L14994",
@@ -184,16 +184,13 @@
   },
   "c2o1": {
    "text": "The eldest villager in the village, (eldest), who has also never danced, gets up slowly and says (subject.he/she) supposes it's (subject.his/her) turn. (subject.He/She) dances one slow, careful circle around the drum. Everyone cries. In the firelight, (subject.his/her) face looks years younger, and in the morning, it still does. The drum sounds wonderful ever after.",
+   "src": "L15015",
    "effects": [
     {
-     "do": "mood",
-     "mood": "good",
-     "target": {
-      "all": true
-     }
+     "do": "young_look",
+     "role": "eldest"
     }
-   ],
-   "src": "L15015"
+   ]
   },
   "c2o2": {
    "text": "Nobody else will do it. The drum is played anyway, and it sounds flat and dull, like hitting a wet log. (drummer) tries for weeks to make it sing, and fails, and by the end of the season has lost (subject.his/her) love of drumming altogether. The great drum ends up as a water trough for the pigs.",

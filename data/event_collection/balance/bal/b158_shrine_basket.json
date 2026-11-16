@@ -25,7 +25,7 @@
    {
     "src": "L7300",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: '(ANY BIRTH SEX) (name) becomes NURSING one of the shrine babies (single parent)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a nursing baby (any birth sex)"
    },
    {
     "src": "L7288",
@@ -138,14 +138,14 @@
   },
   "c1o1": {
    "text": "(subject) and (friend) raise one baby each, in huts across the path from each other. The babies cry if they can't see each other, so the doors are always open. The village gets used to the two of them yelling across the path at night, and to (subject) and (friend) yelling at each other to see to them. The fine cloth is kept, folded, in case anyone ever comes.",
+   "src": "L7301",
    "effects": [
     {
      "do": "nursing",
-     "role": "friend",
+     "role": "subject",
      "any_birth_sex": true
     }
-   ],
-   "src": "L7301"
+   ]
   },
   "c1o2": {
    "text": "The babies will not be separated. Every time (subject) and (friend) go to their own huts, both babies scream until they're back together. On the third night (friend) gives up and moves into (subject)'s hut with (friend.his/her) mat. \"Just until they're bigger,\" (friend.he/she) says. They raise the twins together, and the village stops pretending to be surprised.",

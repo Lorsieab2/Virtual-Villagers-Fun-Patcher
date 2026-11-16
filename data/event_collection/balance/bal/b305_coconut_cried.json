@@ -25,7 +25,7 @@
    {
     "src": "L14159",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: '(ANY BIRTH SEX) (healer name), the head healer, becomes NURSING a foundling baby (single parent)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a nursing baby for the healer (any birth sex)"
    },
    {
     "src": "L14148",
@@ -137,7 +137,14 @@
   },
   "c1o1": {
    "text": "The baby warms up and stops crying, and then won't let go of the head healer's finger. (healer) has delivered half the village's children and never had one of (subject.his/her) own. \"Well,\" (subject.he/she) says, looking down at the tiny hand. \"I suppose I'd better.\" The coconut cradle hangs over the healers' doorway after that.",
-   "src": "L14160"
+   "src": "L14160",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "healer",
+     "any_birth_sex": true
+    }
+   ]
   },
   "c1o2": {
    "text": "The healers warm the baby up and then hand it straight back to (subject). \"You found it,\" says the head healer. \"It's been looking at you the whole time.\" (subject) has never looked after a baby in (subject.his/her) life. (subject.He/She) takes it home in its coconut cradle and learns fast. Within a month, the baby can be soothed by nobody else.",

@@ -25,7 +25,7 @@
    {
     "src": "L14117",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: \"(name1) and (name2) both gain 10 in each other's best skill\""
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): 10 in a best skill for each (the engine's best skill is the villager's own)"
    },
    {
     "src": "L14103",
@@ -145,7 +145,23 @@
   },
   "c1o2": {
    "text": "They see the world through each other's eyes for one dizzy moment, and then the water lets them go. It was long enough. Each of them came out of it knowing a little of what the other knows: how (subject) reads the weather, how (friend) ties a knot. They walk home quietly, grinning, and from then on each of them is better at the other's best work.",
-   "src": "L14118"
+   "src": "L14118",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "best": true,
+     "min": 10,
+     "max": 10
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "best": true,
+     "min": 10,
+     "max": 10
+    }
+   ]
   },
   "c1": {
    "text": "They wade in, holding hands, and step under the falling water. It hits them like a slap, warm on one side and cold on the other...",

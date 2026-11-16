@@ -25,7 +25,7 @@
    {
     "src": "L747",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'PREGNANT, with (name2) as the other parent: twins (50%) or triplets (50%), if the game allows them (otherwise as many as it allows)'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): twins or triplets, 50:50"
    },
    {
     "src": "L750",
@@ -171,7 +171,15 @@
   },
   "c2o1": {
    "text": "Two flowers seem to do the trick, and then some. A few weeks later (subject) is pregnant. A few weeks after that, the healers press their ears to (subject.his/her) belly, look at each other, and say they think they can hear {#babies:one strong heartbeat|two heartbeats|two heartbeats, maybe even three}. (friend) has to sit down. (subject) laughs until (subject.he/she) cries. The whole village hears about it by nightfall, and the next morning the stone is buried in flowers.",
-   "src": "L748"
+   "src": "L748",
+   "children": [
+    {
+     "next": "c2o1_r1"
+    },
+    {
+     "next": "c2o1_r2"
+    }
+   ]
   },
   "c2o2": {
    "text": "The stone is unmoved. Nothing happens. But (subject) and (friend) have a lovely, slow, wandering walk home, holding hands, talking about everything, stopping to look at birds, and they agree that this was probably the point. From then on, each of them starts helping with the other's favourite job, just to spend more time together, and both of them find that they've come to like it.",
@@ -190,6 +198,28 @@
     }
    ],
    "src": "L745"
+  },
+  "c2o1_r1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 2
+    }
+   ]
+  },
+  "c2o1_r2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "babies": 3
+    }
+   ]
   }
  }
 }

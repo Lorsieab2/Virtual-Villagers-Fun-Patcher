@@ -25,12 +25,12 @@
    {
     "src": "L10150",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'the girl (NEW VILLAGER, a child) and her baby brother (NEW VILLAGER, a baby, nursed by their mother) stay with them'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): two adults (the second the mother, born female, nursing the baby), then the girl"
    },
    {
     "src": "L10156",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'the girl (NEW VILLAGER, a child) and her baby brother (NEW VILLAGER, a baby, nursed by their mother) stay with them'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): two adults (the second the mother, born female, nursing the baby), the teen, then the girl"
    },
    {
     "src": "L10135",
@@ -155,6 +155,7 @@
   },
   "c1o2": {
    "text": "A week later a man and a woman come stumbling along the beach, calling the children's names. The reunion is so loud the whole village comes out. The parents won't let go of the children for a day. Then they decide they have had enough of travelling, and the four of them stay, and the girl still follows (subject) everywhere.",
+   "src": "L10151",
    "effects": [
     {
      "do": "new_villager",
@@ -162,10 +163,19 @@
     },
     {
      "do": "new_villager",
-     "age": "adult"
+     "age": "adult",
+     "sex": "female"
+    },
+    {
+     "do": "nursing",
+     "role": "$newest"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "sex": "female"
     }
-   ],
-   "src": "L10151"
+   ]
   },
   "c1": {
    "text": "(subject) takes the baby, who is heavy and asleep, and takes the girl's hand, and walks them both to (subject.his/her) hut. The girl eats three bowls of stew without stopping...",
@@ -183,6 +193,7 @@
   },
   "c2o1": {
    "text": "On the second day, they find the family on a sandbank in the river mouth, cold, hungry and frantic: a mother, a father and an older son with a broken arm. The canoes bring them home. When the girl sees them, she screams so loudly the birds go up off the whole island. They stay.",
+   "src": "L10157",
    "effects": [
     {
      "do": "new_villager",
@@ -190,14 +201,23 @@
     },
     {
      "do": "new_villager",
-     "age": "adult"
+     "age": "adult",
+     "sex": "female"
+    },
+    {
+     "do": "nursing",
+     "role": "$newest"
     },
     {
      "do": "new_villager",
      "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "sex": "female"
     }
-   ],
-   "src": "L10157"
+   ]
   },
   "c2o2": {
    "text": "They find only the empty camp, washed out by the river, and nobody in it. The girl doesn't cry when (subject) tells her. She just nods, as if she knew. She stays in the village, and (healer), who has milk to spare, takes the baby. The girl visits her brother every day.",

@@ -25,7 +25,7 @@
    {
     "src": "L7980",
     "kind": "instruction",
-    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'NEW VILLAGER (a baby) joins the village, nursed by (name2), a villager who has long wanted a child'"
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the baby is a nursing baby of (name2) (any birth sex)"
    },
    {
     "src": "L7959",
@@ -178,7 +178,14 @@
   },
   "c2o1": {
    "text": "(subject) brings back (friend), who has wanted a child for longer than anyone. (friend) takes one look at the baby and sits down in the sand. The trader puts the baby in (friend)'s lap. Nobody says anything for a while. The trader leaves the next morning with an empty canoe and a full heart.",
-   "src": "L7981"
+   "src": "L7981",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "friend",
+     "any_birth_sex": true
+    }
+   ]
   },
   "c2o2": {
    "text": "(subject) brings back three different people who would make good parents, one after another. The baby screams at every one of them, and reaches for (subject). By the third one, everyone is laughing, except the third one. \"I think (subject.he/she)'s decided,\" says (trader).",
