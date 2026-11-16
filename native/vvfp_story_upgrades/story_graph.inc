@@ -1614,6 +1614,23 @@ static int cg_ns_cast(int game) {
 static void rs_set_trait(int game, int index, unsigned int trait);
 static int rs_has_trait(int game, const unsigned char *record, unsigned int trait);
 
+/* The roles a conversion names (a Heathen becomes a believer: a status effect with value 0, the faith change the
+   data side defines), an alias's members with it.  With No Safeguards on, only these may take a Heathen. */
+static unsigned int cg_conversion_roles(void) {
+    unsigned int mask = 0;
+    int i;
+    for (i = 0; cg_g.d != NULL && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_STATUS && cg_u32(e + 4) == 0u && e[1] < (unsigned int)cg_g.n_role) {
+            mask |= 1u << e[1];
+            if (cg_role_at(&cg_g, e[1])[0] >= CG_ROLE_ALIAS) {
+                mask |= cg_u16(cg_role_at(&cg_g, e[1]) + 14);
+            }
+        }
+    }
+    return mask;
+}
+
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     const unsigned char *r = a->record(index);
@@ -1636,6 +1653,11 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (game == 1 && ce_role(a, r, NULL) == STORY_KIND_GOLDEN_CHILD && cg_sex_change_role(role)) {
         return 0;                      /* the Golden Child is never cast for a sex change */
+    }
+    if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
+        /* No Safeguards (the owner, 2026-11-15): a Heathen is cast only in a role whose purpose is a conversion;
+           Guardians of Isola's rules and words stay as they are. */
+        return 0;
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
         return 0;
