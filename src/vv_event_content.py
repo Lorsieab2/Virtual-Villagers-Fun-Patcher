@@ -352,7 +352,7 @@ def carried(g: dict, tags: dict[str, list[str]]) -> dict[tuple[str, int], frozen
     """Each droppable child edge's filters: those of the nodes that cannot be reached without it."""
     every = _reach(g)
     out = {}
-    for nid in every:
+    for nid in sorted(every):                        # sorted: the build's output is the same on every run
         node = g["nodes"][nid]
         if len(node.get("children", [])) < 2:
             continue                                 # one way on: nothing to choose between
@@ -517,7 +517,7 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
     for (nid, i), fs in p["edges"].items():
         child = g["nodes"][nid]["children"][i]
         child["if"] = _all(child.get("if"), _none_on(fs))
-        for f in fs:
+        for f in sorted(fs):                         # a frozenset: sorted, so the patch order never varies
             need(filter_patch(f))
     skip = _skip_cond(p["groups"])
     if skip is not None:
@@ -525,7 +525,7 @@ def inject(g: dict, tags: dict[str, list[str]], extras: dict | None = None) -> t
         req["if"] = _all(req.get("if"), skip)
         for grp in p["groups"]:
             for fs in grp:
-                for f in fs:
+                for f in sorted(fs):
                     need(filter_patch(f))
     if p["labels"]:
         need(NOTES_PATCH)
