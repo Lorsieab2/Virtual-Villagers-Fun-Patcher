@@ -337,8 +337,8 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
                               # folder, makes the same companion refill 111 every 30 age units instead of to full.
                               ROOT / "data" / "vv4_yellow_fruit_refills_partially_feature.json")
 # Louder Wind Flutes (The Tree of Life; on by default): the three wind flute sounds N times louder (the slider, 2 to
-# 100, 5 unless moved; a limiter keeps them under clipping) as the game loads them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
-# scripts/build_vv4_louder_wind_flutes_feature.py.
+# 100, 5 unless moved; a limiter keeps them under clipping) as the game loads them; companion only, "VVFP VV4 Louder
+# Flutes.dll", started by VVFP Startup.dll from its second word; scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
 # Children Play Tag and Build Sandcastles (all five games; on by default): one roll of the game's own rand(15) in
 # each child's pastime pick for tag and for sandcastles; companion only, "VVFP Children Play.dll", started by
@@ -12905,7 +12905,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "VVFP Heathens Keep Masks.dll",
-    # Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made louder (the slider, 2 to 100 times) as they load.
+    # Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made louder (the slider) as they load.
     "VVFP VV4 Louder Flutes.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): island-event food and tech amounts scaled.

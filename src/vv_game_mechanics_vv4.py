@@ -560,9 +560,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
-                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
+                                        "take 2 to 100 times the food (the slider; at most 64 times); food never goes below 0"))
     if village.has(CLASSIC) is not False:
-        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-100x "
                                          "Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in "
                                          "VV4 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
 

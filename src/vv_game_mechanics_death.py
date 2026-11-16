@@ -693,7 +693,7 @@ def facts(village: gm.Village, **kw) -> list[gm.Fact]:
 
 
 def sickness_multiplier_in_game(village: gm.Village) -> int | None:
-    """2-10x Sickness's multiplier in the game's executable: N when each of the roll's moduli holds round(stock / N)
+    """2-100x Sickness's multiplier in the game's executable: N when each of the roll's moduli holds round(stock / N)
     at the sites its build has (scripts/build_sickness_features.py); None when it cannot be read."""
     import json
     import struct
@@ -708,13 +708,15 @@ def sickness_multiplier_in_game(village: gm.Village) -> int | None:
     except (OSError, ValueError):
         return None
     for rows in record["sickness_multiplier"]["sites"].values():
-        found = set()
+        # The N that gives every one of the rolls' moduli (from 2 to 100 two neighbours can round alike: then
+        # the number is not told).
+        found = set(range(2, 101))
         for row in rows:
             at, stock = int(row["offset"], 16), int(row["modulus"])
             if data[at - 1:at] != b"h":
                 break
             value = struct.unpack_from("<I", data, at)[0]
-            found.update(n for n in range(2, 11) if value == (2 * stock + n) // (2 * n))
+            found &= {n for n in range(2, 101) if value == (2 * stock + n) // (2 * n)}
         else:
             if len(found) == 1:
                 return found.pop()
@@ -730,7 +732,7 @@ def sickness_patch_facts(village: gm.Village) -> list[gm.Fact]:
         n = sickness_multiplier_in_game(village) if village.has(slider) is True else None
         out.append(gm.Fact(DEATH, gm.patch_words(village, slider, (
             f"every natural chance of falling sick is "
-            f"{f'{n} times as large' if n else '2 to 10 times as large (the number set on its slider)'}: each "
+            f"{f'{n} times as large' if n else '2 to 100 times as large (the number set on its slider)'}: each "
             "Medicine level's roll and the old villagers' extra roll, at every difficulty"
             # (Only The Tree of Life and New Believers have "Sickness works like VV1-3".)
             + (f", and the rolls of \"{gm.feature_name(f'vv{game}_sickness_like_vv3')}\" when the game has that too"

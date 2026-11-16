@@ -298,7 +298,7 @@ FILES = [
     "data/vv3_push_overview_clouds_feature.json",
     # Heathens Keep Their Masks When Converted (New Believers).
     "data/vv5_heathens_keep_masks_feature.json",
-    # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
+    # 2-100x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
     "data/vv3_tech_cost_multiplier_feature.json",
