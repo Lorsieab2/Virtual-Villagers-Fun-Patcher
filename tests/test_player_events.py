@@ -455,6 +455,54 @@ class Pieces(unittest.TestCase):
         self.assertIn("romance", child.piece["never"])
 
 
+class PieceEffectRecords(unittest.TestCase):
+    """A mixer piece's effect record holds what vv_cie_graph's compiler writes for the same effect (Codex, #774)."""
+
+    TEXT = ("Piece: x\nKind: Approach\nFamily: f\nLabel: Wave\nRole a: villager\nText: (A) waves at a boat.\n\n"
+            "Piece: newc\nKind: Outcome\nFamily: f\nAnswers: x\nLabel: Welcome Her\nRole a: villager\n"
+            "Text: (A) greets a stranger.\nEffect: NEW VILLAGER (adult woman)\nEffect: OTHER PRESENTATION (A)\n"
+            "Effect: OWN PRESENTATION (A)\n")
+
+    def records(self) -> list[tuple]:
+        items = pe.parse_text(self.TEXT, "p.txt")
+        data, probs = pe.compile_pieces(items, 1)
+        self.assertFalse([str(p) for p in probs])
+        effects_at, n_fx = struct.unpack_from("<II", data, 36)
+        return [struct.unpack_from("<BBBBiiI", data, effects_at + 16 * k) for k in range(n_fx)]
+
+    def test_a_new_villager_keeps_its_sex_and_copies_nobody(self):
+        code, role, flags, _sel, a, b, _st = self.records()[0]
+        self.assertEqual(code, cie.EFFECT_CODES["new_villager"])
+        self.assertEqual((a, b), (cie.NEW_VILLAGER_AGES["adult"], cie.NEW_VILLAGER_SEX["female"]))
+        self.assertEqual(role, 0xFF, "no copy_of: a new villager, not a lookalike of the piece's villager")
+        self.assertEqual(flags, 0)
+        man = pe._effect_record({"do": "new_villager", "age": "child", "sex": "male", "child_of_newest": True}, {}, 1)
+        self.assertEqual(man[:4], (cie.EFFECT_CODES["new_villager"], cie.CHILD_OF_NEWEST_FLAG,
+                                   cie.NEW_VILLAGER_AGES["child"], cie.NEW_VILLAGER_SEX["male"]))
+
+    def test_other_presentation_is_on_and_own_is_off(self):
+        other, own = self.records()[1:3]
+        self.assertEqual((other[0], other[4]), (cie.EFFECT_CODES["presentation"], 1))
+        self.assertEqual((own[0], own[4]), (cie.EFFECT_CODES["presentation"], 0))
+
+    def test_every_effect_kind_has_a_layout_and_an_unknown_one_is_refused(self):
+        for do in cie.EFFECT_CODES:
+            if do == "skill_set":
+                continue                         # the code of "skill" with "set", never a kind of its own
+            with self.subTest(do=do):
+                *_, bad = pe._effect_record({"do": do}, {}, 1)
+                self.assertNotIn("not supported", bad)
+        saved = dict(cie.EFFECT_CODES)
+        try:
+            cie.EFFECT_CODES["mystery_effect"] = 99
+            record = pe._effect_record({"do": "mystery_effect", "role": "a"}, {"a": 0}, 1)
+        finally:
+            cie.EFFECT_CODES.clear()
+            cie.EFFECT_CODES.update(saved)
+        self.assertEqual(record[:5], (0, 0, 0, 0, ""))
+        self.assertIn("not supported in mixer pieces", record[5])
+
+
 class InstallAndRules(unittest.TestCase):
     def test_install_writes_only_its_own_files_and_reports_bad_items(self):
         with tempfile.TemporaryDirectory() as tmp:

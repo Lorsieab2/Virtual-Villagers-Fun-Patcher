@@ -2475,9 +2475,13 @@ def compile_pieces(items: list[Item], game: int, multiplier: dict[str, int] | No
                 problems.append(Problem(it.file, ln, bad))
                 continue
             deadly |= e["do"] in DEADLY
-            effects_b += struct.pack("<BBBBiiI", code, local.get(e.get("role", "subject"), 0xFF)
-                                     if e["do"] not in ("food", "tech", "pay_award", "damage", "celebrate") else 0xFF,
-                                     flags, 0, a, b, s(st))
+            if e["do"] == "new_villager":
+                role_byte = local.get(e["copy_of"], 0xFF) if e.get("copy_of") else 0xFF   # its copy_of role, or none
+            elif e["do"] in ("food", "tech", "pay_award", "damage", "repair", "celebrate"):
+                role_byte = 0xFF
+            else:
+                role_byte = local.get(e.get("role", "subject"), 0xFF)
+            effects_b += struct.pack("<BBBBiiI", code, role_byte, flags, 0, a, b, s(st))
             n_fx += 1
         for aid, w in p["links"]:
             if aid not in ids:
@@ -2564,7 +2568,7 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             else:
                 lo, hi = cie.SKILL_SIZES[e.get("size", "small")] if "size" in e else (e["min"], e["max"])
                 a, b = (-hi, -lo) if e.get("loss") else (lo, hi)
-            st = ",".join(e["skills"])
+            st = "best" if e.get("best") else ",".join(e["skills"])
         elif do == "preference":
             word = e.get("like", e.get("dislike", e.get("preference")))
             flags = (4 if "dislike" in e or e.get("list") == "dislikes" else 0) | \
@@ -2589,9 +2593,12 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             a = cie.LOOK_KEEP if e.get("head") is None else cie.LOOK_RANDOM if e["head"] == "random" else e["head"]
             b = cie.LOOK_KEEP if e.get("body") is None else cie.LOOK_RANDOM if e["body"] == "random" else e["body"]
         elif do == "new_villager":
+            # As vv_cie_graph's compiler: a the age, b the sex (0 random), flags bit 0 a child of the two newest.
             a = cie.NEW_VILLAGER_AGES[e.get("age", "any")]
+            b = cie.NEW_VILLAGER_SEX[e.get("sex", "random")]
+            flags = cie.CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
         elif do in ("pregnant", "nursing"):
-            flags = cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0
+            flags = (cie.ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | cie.BABIES_FLAGS.get(e.get("babies"), 0)
             a = local[e["partner"]] if e.get("partner") else 0xFF
         elif do == "body_swap":
             a = local[e["with"]]
@@ -2608,9 +2615,31 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             a = cie.STATUS_CODES[e["status"]]
         elif do == "trait":
             a = cie.TRAIT_CODES[e["trait"]]
+        elif do == "presentation":
+            a = 1 if e.get("on", True) else 0      # 1 the other sex's look, 0 the villager's own again
+        elif do == "repair":
+            st = e["structures"] if isinstance(e["structures"], str) else ",".join(e["structures"])
+        elif do == "deliver_early":
+            a, b = (e["min"], e["max"]) if "min" in e else (0, 0)
+        elif do not in _EFFECTS_WITHOUT_VALUES:
+            raise _NoPieceLayout(do)
+        if do == "skill" and e.get("best"):
+            flags |= cie.SKILL_BEST_FLAG
+    except _NoPieceLayout:
+        # A kind this encoder has no layout for is never written as zeros (zeros can mean the opposite).
+        return 0, 0, 0, 0, "", f"{do} is not supported in mixer pieces yet (write it in an event)"
     except (KeyError, TypeError) as exc:
         return 0, 0, 0, 0, "", f"{do}: {exc} is missing or unknown"
     return code, flags, a, b, st, ""
+
+
+class _NoPieceLayout(Exception):
+    """An effect kind _effect_record has no layout for."""
+
+
+# The effects whose record carries nothing but the code and the role (vv_cie_graph's compiler writes no value for them).
+_EFFECTS_WITHOUT_VALUES = frozenset({"pay_award", "vanish", "sick", "celebrate", "baby_lost", "old_look", "sex_change",
+                                     "lose_name", "cure", "young_look"})
 
 
 def _filter_id(f: str) -> str | None:
