@@ -1029,9 +1029,18 @@ villagers, pregnancy and the other new effects. The two are lined up when the br
 `{#babies:A|B|C}` and `{#made:A|B|C}` stand in BODY text only (a page, a variant, a pool item), never in a button label
 or a title. They show A for a count of 1 (or 0, or unknown), B for 2, C for 3 or more (a missing option: the last one
 given): `#babies` counts the babies the event's pregnancy or nursing effect brought, `#made` the villagers its
-new_villager and clone effects made. One to three options, each 1-40 bytes of plain text: letters, digits, space and
-`, : - ' " ; / & %` -- no placeholders, braces, line breaks or `. ! ?`.
+new_villager and clone effects made. One to three options, each 1-160 bytes: letters, digits, space,
+`, : - ' " ; / & %` and placeholders (engine 5ee2b3dc0) -- no braces, line breaks or `. ! ?`.
 
 The compiler keeps the token as written (it is never an inline pick; the engine shows the option). A page is measured
-by the token's longest option. `simulate` shows the count of 1 unless its facts give `count:babies:<n>` or
+by the token's widest option, its placeholders at their widest. `simulate` shows the count of 1 unless its facts give `count:babies:<n>` or
 `count:made:<n>`. `collection_check` reads a count token's options as the source's "(A/B/C)".
+
+**More text (engine 5ee2b3dc0):**
+
+- **`(made1)` / `(made2)`** (any capitals, `(Made1)`, `(MADE1)`; no role prefix): the name of the newest villager this
+  event made (new_villager, clone) and of the one before (the effects' `$newest` / `$previous`). Body text only, never
+  a button label or a title; measured as a full name.
+- **`(his/hers)`**, with capitals (`(His/Hers)`, `(HIS/HERS)`) and a role prefix (`(friend.his/hers)`): the possessive
+  that stands alone ("the choice was hers").
+- **appearance (17) takes a group target** (`"target"`, role byte 254) like the effects of section 32.

@@ -223,7 +223,7 @@ NEW_VILLAGER_AGES = ("child", "teen", "adult", "elder")
 # does (an effect's role, a partner, a copy, a swap); no declared role is needed.
 NEW_ROLES = ("$newest", "$previous")
 TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
-                  "old_look", "celebrate")      # role byte 254: {"all": true} | {"skill": name} | {"random": n}
+                  "old_look", "celebrate", "appearance")   # role byte 254: {"all": true} | {"skill": name} | {"random": n}
 CARRIER_MIN_AGE = 18          # the carrier of a pregnancy or a nursing baby: born female, 18 or older
 
 

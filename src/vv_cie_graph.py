@@ -401,7 +401,7 @@ CLONE_COUNTS = (1, 2)         # code 30: how many doubles (value a; 0 or 1 = one
 # Group targets (engine 3a3651283): role byte 254, the selector in byte 3, its value in the last H.
 TARGET_ROLE = 254
 TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
-                  "old_look", "celebrate")          # skill covers skill_set
+                  "old_look", "celebrate", "appearance")          # skill covers skill_set; appearance: 5ee2b3dc0
 TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
 # The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
 NEW_ROLES = {"$newest": 253, "$previous": 252}
@@ -486,7 +486,11 @@ DAMAGE_ANY = "any"
 POOL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_]{0,31}$")    # an author's pool name ("_" and "@" are the compiler's)
 COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
 KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
+# Engine 5ee2b3dc0: (made1) / (made2), the newest / the one before of the villagers the event made (new_villager,
+# clone), body text only (never a label or a title); measured as a full name.
+MADE_PLACEHOLDERS = {"made1": "$newest", "made2": "$previous"}
 PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
+               "his/hers": ("his", "hers"),            # engine 5ee2b3dc0: the possessive that stands alone
                "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
                "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter"),
                # Role-sex words (male word, female word), as the pronouns (cie-v6-binary.md 5).
@@ -1642,16 +1646,21 @@ _POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
 # Count tokens (engine 0853e8327, cie-v6-binary.md 33): {#babies:A|B|C} / {#made:A|B|C} in body text only; A for a
 # count of 1 (or 0 / unknown), B for 2, C for 3 or more; 1-3 options of 1-40 bytes of plain text.
 COUNT_KINDS = ("babies", "made")
-COUNT_OPTION_RE = re.compile(r"[A-Za-z0-9 ,:\-'\";/&%]{1,40}")
+COUNT_OPTION_RE = re.compile(r"[A-Za-z0-9 ,:\-'\";/&%]*")    # the option's text outside its placeholders
+COUNT_OPTION_MAX = 160                                          # bytes (engine 5ee2b3dc0)
 
 
 def parse_count(inner: str) -> tuple:
     """'#babies:a baby|twins|triplets' -> ("count", "babies", [options]); ("bad", why) when malformed."""
     kind, _, rest = inner[1:].partition(":")
     opts = rest.split("|") if rest else []
-    if kind not in COUNT_KINDS or not 1 <= len(opts) <= 3 or not all(COUNT_OPTION_RE.fullmatch(o) for o in opts):
-        return ("bad", "a count is {#babies:A|B|C} or {#made:A|B|C}: 1-3 options of 1-40 letters, digits, spaces "
-                       "and , : - ' \" ; / & % (no placeholders, braces, line breaks or . ! ?)")
+    def ok(o: str) -> bool:
+        outside = re.sub(r"\([^()\n]*\)", "", o)
+        return 1 <= len(o.encode("utf-8")) <= COUNT_OPTION_MAX and bool(COUNT_OPTION_RE.fullmatch(outside))
+    if kind not in COUNT_KINDS or not 1 <= len(opts) <= 3 or not all(ok(o) for o in opts):
+        return ("bad", f"a count is {{#babies:A|B|C}} or {{#made:A|B|C}}: 1-3 options of 1-{COUNT_OPTION_MAX} "
+                       "bytes of letters, digits, spaces, , : - ' \" ; / & % and placeholders (no braces, line "
+                       "breaks or . ! ?)")
     return ("count", kind, opts)
 
 
@@ -2175,6 +2184,8 @@ def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
         role = next((r for r in roles if r.lower() == role.lower()), role)
     if low in ("award", "award_unit"):
         return None if role else Placeholder(None, low, False, upper)
+    if low in MADE_PLACEHOLDERS:
+        return None if role else Placeholder(None, low, word[0].isupper(), upper)
     if low in _NAME_ALIASES:
         target = _NAME_ALIASES[low]
         return None if role or target not in roles else Placeholder(target, "name", word[0].isupper(), upper)
@@ -2231,6 +2242,11 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 unit = UNITS[award[0]] if award else ""
                 out.append(unit.upper() if p.upper else unit)
                 continue
+            if p.what in MADE_PLACEHOLDERS:
+                made = bindings.get(MADE_PLACEHOLDERS[p.what])
+                word = made.name if made else "Newcomer"
+                out.append(word.upper() if p.upper else word)
+                continue
             b = bindings[aliases.get(p.role, p.role)]
             if p.what == "name" and pronoun_names:      # section 15: a label too wide shows pronouns
                 word = PRONOUNS_V6[p.hint or HINT_DEFAULT][0 if b.sex == "m" else 1]
@@ -2240,7 +2256,8 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
-                out.append(count_option(tok[2], (counts or {}).get(tok[1], 1)))
+                out.append(expand_v6(count_option(tok[2], (counts or {}).get(tok[1], 1)), g, bindings, picks, award,
+                                     game, True, aliases, _depth + 1, tribe, label=label, counts=counts))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
@@ -2287,6 +2304,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             elif p.what == "award_unit":
                 unit = UNITS[award[0]] if award else UNITS["tech"]
                 out.append(unit.upper() if p.upper else unit)
+            elif p.what in MADE_PLACEHOLDERS:
+                out.append("W" * game.name_room)            # 5ee2b3dc0: measured as a full name
             elif p.what == "name" and pronoun_names:      # section 15: the label's pronoun fallback
                 word = max(PRONOUNS_V6[p.hint or HINT_DEFAULT], key=len)
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
@@ -2301,7 +2320,9 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
-                out.append(max(tok[2], key=len))                     # 33: measured by its longest option
+                # 33: measured by its widest option, placeholders at their widest (5ee2b3dc0)
+                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label) for o in tok[2]),
+                               key=len))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
@@ -2350,6 +2371,9 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
             tok = parse_brace(raw[1:-1])
             if tok[0] == "inline":
                 for _w, alt in tok[1]:
+                    out.extend(placeholders_v6(alt, roles))
+            elif tok[0] == "count":
+                for alt in tok[2]:
                     out.extend(placeholders_v6(alt, roles))
     return out
 
@@ -3110,7 +3134,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         say(f"node {nid}: {raw}: a stranger has no name")
                     elif p.role not in ctx.roles:
                         say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
-                elif award is None:
+                elif p.what not in MADE_PLACEHOLDERS and award is None:
                     say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
         villager_fx = VILLAGER_EFFECTS_V6 + ("celebrate",) if v6 else VILLAGER_EFFECTS
         if any(e["do"] in villager_fx for e in node["effects"]) and popups and node["type"] != "question":
@@ -3208,7 +3232,7 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                     say(f"node {nid}: {raw}: a stranger has no name")
                 elif p.role not in ctx.roles:
                     say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
-            elif award is None:
+            elif p.what not in MADE_PLACEHOLDERS and award is None:
                 say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
         for name, _inst in pool_refs(t):
             pool = lg["pools"].get(name)
@@ -3355,6 +3379,8 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
     for where, text in titles:
         if "{#" in text:
             problems.append(f"{where}: a count token stands only in body text, not a title")
+        if any(p and p.what in MADE_PLACEHOLDERS for _r, p in placeholders_v6(text, g["roles"])):
+            problems.append(f"{where}: (made1) / (made2) stand only in body text, not a title")
     for nid, n in g["nodes"].items():
         if n["type"] != "branch":
             _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)
@@ -3730,7 +3756,8 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
                 problems.append(f"node {nid}: a label is one line")
             phs = placeholders_v6(c["label"], g["roles"]) if v6 else placeholders(c["label"])
             for raw, p in phs:
-                if p is None or p.what in ("award", "award_unit") or (p.role and p.role not in g["roles"]):
+                if p is None or p.what in ("award", "award_unit") or p.what in MADE_PLACEHOLDERS or \
+                        (p.role and p.role not in g["roles"]):
                     problems.append(f"node {nid}: the label's {raw} is not a placeholder a label can show")
                 elif g["roles"][p.role].get("optional"):
                     problems.append(f"node {nid}: the label's {raw} names {p.role}, who may not be bound")
