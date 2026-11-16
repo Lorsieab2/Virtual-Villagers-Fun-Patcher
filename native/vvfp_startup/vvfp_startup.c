@@ -73,10 +73,10 @@ static const char *const ORIGINS[VVFP_STARTUP_GAMES + 1] = {
 };
 
 /* The Golden Mushroom companion installs through the export whose ordinal
-   is the game number; The Lost Children has none (its own sheet holds the
-   art, and ordinal 2 is an empty export slot). */
+   is the game number, in all five games (The Lost Children's, ordinal 2,
+   installs only the finds record: its own sheet holds the art).  An older
+   companion without ordinal 2 answers NULL there and nothing is called. */
 static const char GOLDEN_MUSHROOM[] = "VVFP Golden Mushroom.dll";
-#define GOLDEN_MUSHROOM_GAME_WITHOUT 2
 
 typedef void (__stdcall *vvfp_startup_fn)(int game, unsigned int shipped);
 typedef int (__stdcall *vvfp_golden_install_fn)(void);
@@ -99,9 +99,6 @@ static void start(int game, unsigned int shipped, const char *name) {
         return;
     }
     if (strcmp(name, GOLDEN_MUSHROOM) == 0) {
-        if (game == GOLDEN_MUSHROOM_GAME_WITHOUT) {
-            return;
-        }
         install = (vvfp_golden_install_fn)GetProcAddress(module, MAKEINTRESOURCEA(game));
         if (install != NULL) {
             __try {
