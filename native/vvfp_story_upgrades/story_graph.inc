@@ -7521,7 +7521,7 @@ static void cg_village_reset(int game, int slot) {
 
 /* ---- The library (the in-game "From the library..." picker) ----------------------------------------------- */
 
-#define CG_LIBRARY_MAX 1024             /* the player's library and the Isola Grand Event Collection's group (its events and
+#define CG_LIBRARY_MAX 8192             /* the player's library and the Isola Grand Event Collection's group (its events and
                                            its Living Event Engine rows: about 380 in a game) */
 enum { IDD_CE_LIBRARY = 312, IDC_LB_LIST = 3801, IDC_LB_NOTE = 3802 };
 

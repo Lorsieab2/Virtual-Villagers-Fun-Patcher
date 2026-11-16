@@ -49,7 +49,7 @@
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
 #define SC_FOLDER "Island Event Collection"
-#define SC_MAX 2048                                      /* collection entries of one game */
+#define SC_MAX 8192                                      /* collection entries of one game (about 4,800 expected) */
 #define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
 #define SC_REPLACE_PERCENT_MIN 30                        /* a natural event replaced by a new one: a chance */
 #define SC_REPLACE_PERCENT_SPAN 21                       /* ... rolled in 30..50 percent each time */

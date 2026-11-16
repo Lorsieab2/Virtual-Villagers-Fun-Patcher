@@ -25,7 +25,7 @@
 
 #define LV_PREFIX "living_"
 #define LV_PACK_LEAF "living.pak"
-#define LV_PACK_MAX 0x00800000u          /* 8 MB: a pack is about 3.5 MB */
+#define LV_PACK_MAX 0x01000000u          /* 16 MB (the owner, 2026-11-15: three mixer versions per static event) */
 #define LV_HEADER 64u
 #define LV_RING 64
 #define LV_TRIES 12
@@ -39,7 +39,7 @@
 #define LV_FILE_COUNTS (LV_FILE_HEAD + 2u * LV_RING)
 #define LV_MAX_KIND 255                   /* archetypes, lenses: at most 255 each */
 #define LV_MAX_ROLES 64                   /* the bank has 30 */
-#define LV_MAX_VARIANTS 16384             /* a pack has about 1,250 */
+#define LV_MAX_VARIANTS 32768             /* the pack header and records hold up to 65,535 */
 #define LV_MAX_COUNTS (LV_MAX_ROLES * LV_MAX_ROLES + LV_MAX_KIND + LV_FAMILIES + LV_MAX_KIND + LV_MAX_VARIANTS)
 #define LV_MAX_FILE (LV_FILE_COUNTS + 2u * LV_MAX_COUNTS)
 #define LV_WHAT "Living Events"
