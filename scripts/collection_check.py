@@ -1081,7 +1081,12 @@ def check_effects(doc: dict, rep: Report) -> None:
             elif do in ("clone", "lose_name", "body_swap", "change_name", "change_age"):
                 roles = doc.get("roles", {})
                 keys = {"do", "role", "src"} | ({"with"} if do == "body_swap" else set()) | \
-                    ({"to", "years"} if do == "change_age" else set())
+                    ({"to", "years"} if do == "change_age" else set()) | ({"name"} if do == "change_name" else set())
+                if do == "change_name" and "name" in e and not (
+                        isinstance(e["name"], str) and re.fullmatch(r"[A-Za-z](?:[A-Za-z '.-]{0,29}[A-Za-z'.-])?",
+                                                                    e["name"])):
+                    rep.add("e EFFECTS", f"{where}: change_name name is 1-31 characters, a letter first, then "
+                                         "letters, spaces, apostrophes, hyphens or full stops, no trailing space")
                 if do == "change_age" and ("to" in e) == ("years" in e):
                     rep.add("e EFFECTS", f"{where}: change_age gives to or years, one of them")
                 if set(e) - keys:

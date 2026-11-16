@@ -393,6 +393,8 @@ ANY_BIRTH_SEX_FLAG = 1        # 32: flags bit 0 of a pregnant / nursing effect
 CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
 CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
+CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
+CHANGE_NAME_RE = re.compile(r"^[A-Za-z](?:[A-Za-z '.\-]{0,29}[A-Za-z'.\-])?$")
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
@@ -926,6 +928,14 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             if not isinstance(e.get("with"), str) or e.get("with") == out["role"]:
                 problems.append(f"{where}: body_swap with names another villager role")
             out["with"] = e.get("with")
+        elif do == "change_name" and "name" in e:
+            # Code 33: a fixed name (the effect's string; story_graph.inc refuses any other); left out: a random one.
+            known.add("name")
+            name = e["name"]
+            if not isinstance(name, str) or not CHANGE_NAME_RE.match(name):
+                problems.append(f"{where}: change_name name is 1..{CHANGE_NAME_MAX} letters, spaces, apostrophes, "
+                                "hyphens or full stops, starting with a letter, no space at the end")
+            out["name"] = name
         if do == "action":
             known.add("action")
             act = e.get("action")
@@ -3786,6 +3796,8 @@ def _compile_v6(g: dict) -> bytes:
                 a = ridx[e["partner"]] if e.get("partner") else 0xFF
             elif do == "body_swap":
                 a = ridx[e["with"]]
+            elif do == "change_name" and e.get("name"):
+                st = s(e["name"])
             elif do == "change_age":
                 if "to" in e:
                     flags = CHANGE_AGE_TO[e["to"]]
@@ -4030,6 +4042,8 @@ def _decompile_v6(data: bytes) -> dict:
                         e["any_birth_sex"] = True
                 elif do == "body_swap":
                     e["with"] = role_ids[a]
+                elif do == "change_name" and st != NONE and s(st):
+                    e["name"] = s(st)
                 elif do == "change_age":
                     if flags == CHANGE_AGE_ADD:
                         e["years"] = [a, b]

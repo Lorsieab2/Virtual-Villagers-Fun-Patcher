@@ -955,24 +955,28 @@ def compile_all(variants: list[Variant]) -> None:
         v.plan["node_index"] = {name: order.index(name) for name, _g, _a in v.outcomes}
 
 
-# ---- The pack (VLEP v1, v2) -----------------------------------------------------------------------------------------
+# ---- The pack (VLEP v2: living-pack.md 2; one pack per series group, "living-<group>.pak") ------------------------
 
-_HEADER = struct.Struct("<4sHHIIBBHHHIIIIIIIIHHHH")
-# v2 (2026-11-15): byte 13 / 14 of a seed record are the high bytes of its id / series string offsets (24 bits), so
-# the string table may pass 64 KB.  Written only when it does; a v1 pack has them 0, so a v2 reader reads both.
-_SEED = struct.Struct("<HHHHBBHBBBB")
-PACK_VERSION = 2                 # v2: the seed count at +18 / +22 and the string offsets' high bytes (living-pack.md)
-PACK_MAX = 32 * 1024 * 1024      # the engine's LV_PACK_MAX (asked of the engine agent, 2026-11-15)
-PACK_MAX_SEEDS = 8192
-PACK_MAX_VARIANTS = 32768
-STRINGS_MAX = 1 << 24
-_VARIANT = struct.Struct("<IIHBBHHBBHHH")
+# v2 (the engine agent's layout, feat/97-island-events-ui 70df06497): a 72-byte header, 24-byte seeds, 32-byte
+# variants with 32-bit fields; outcomes unchanged.  Role, archetype and lens numbers are the bank's, in every pack.
+_HEADER = struct.Struct("<4sHHIIBBHIIIIIIIIIIHHHHI")
+_SEED = struct.Struct("<IIIIBBHB3s")
+_VARIANT = struct.Struct("<IIIHHBBBBIIHH")
 _OUTCOME = struct.Struct("<HBB")
-assert _HEADER.size == 64 and _SEED.size == 16 and _VARIANT.size == 24 and _OUTCOME.size == 4
+assert _HEADER.size == 72 and _SEED.size == 24 and _VARIANT.size == 32 and _OUTCOME.size == 4
+PACK_VERSION = 2
+PACK_MAX = 64 * 1024 * 1024      # a living-<group>.pak (the engine's limit)
+SEED_VARIANTS_MAX = 4096
+
+
+def group_of(v: Variant) -> str:
+    """The pack / manifest group of a variant: its series (living_le_per, living_mc_isl, living_st_<source>)."""
+    return v.series
 
 
 def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
-    """The game's living.pak: every compiled variant valid in `game`, grouped by seed in the given order."""
+    """A living pack for `game`: every compiled variant of `variants` valid in it, grouped by seed in the given order
+    (seeds and variants are local to the pack)."""
     bank = bank or Bank()
     mine = [v for v in variants if game in v.games]
     seeds: list[str] = []
@@ -989,8 +993,6 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
         if text not in sidx:
             sidx[text] = len(strings)
             strings.extend(text.encode("ascii") + b"\0")
-        if sidx[text] >= STRINGS_MAX:
-            raise ValueError("the pack's strings outgrow 16 MB")
         return sidx[text]
 
     seed_recs = bytearray()
@@ -1000,10 +1002,11 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     vi = oi = 0
     for si, sid in enumerate(seeds):
         vs = by_seed[sid]
+        if len(vs) > SEED_VARIANTS_MAX:
+            raise ValueError(f"{sid}: more than {SEED_VARIANTS_MAX} variants")
         first = vs[0]
-        o_id, o_ser = s(sid), s(first.series)
-        seed_recs += _SEED.pack(o_id & 0xFFFF, o_ser & 0xFFFF, vi, len(vs), first.bank, first.cat_index,
-                                first.seed_index, first.mood, o_id >> 16, o_ser >> 16, 0)
+        seed_recs += _SEED.pack(s(sid), s(first.series), vi, len(vs), first.bank, first.cat_index, first.seed_index,
+                                first.mood, b"\0\0\0")
         for v in vs:
             if not v.cieg:
                 raise ValueError(f"{sid} k={v.k} is not compiled")
@@ -1011,15 +1014,13 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
                 blobs.append(0)
             mask = sum(1 << (g - 1) for g in v.games)
             outs = sorted(v.outcomes, key=lambda o: v.plan["node_index"][o[0]])
-            var_recs += _VARIANT.pack(len(blobs), len(v.cieg), si, v.k, v.flags, v.role_a, v.role_b, v.lens, v.family,
-                                      mask, oi, len(outs))
+            var_recs += _VARIANT.pack(len(blobs), len(v.cieg), si, v.role_a, v.role_b, v.lens, v.family, v.k,
+                                      v.flags, oi, len(outs), mask, 0)
             for name, grp, arc in outs:
                 out_recs += _OUTCOME.pack(v.plan["node_index"][name], grp, arc)
                 oi += 1
             blobs += v.cieg
             vi += 1
-    if len(seeds) > PACK_MAX_SEEDS or vi > PACK_MAX_VARIANTS or oi > 0xFFFF:
-        raise ValueError("the pack outgrows its counts")
     off_seeds = _HEADER.size
     off_vars = off_seeds + len(seed_recs)
     off_outs = off_vars + len(var_recs)
@@ -1027,28 +1028,37 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     off_blobs = off_str + len(strings)
     off_blobs += (-off_blobs) % 4
     total = off_blobs + len(blobs)
+    if total > PACK_MAX:
+        raise ValueError(f"a living pack of {total} bytes passes {PACK_MAX}")
     body = bytes(seed_recs + var_recs + out_recs + strings) + bytes(off_blobs - off_str - len(strings)) + bytes(blobs)
 
     def header(crc: int) -> bytes:
-        # v2: the seed count is 32 bits, its low half at +18 and its high half at +22 (0 in v1)
-        return _HEADER.pack(b"VLEP", PACK_VERSION, _HEADER.size, total, crc, game, 0, len(seeds) & 0xFFFF, vi,
-                            len(seeds) >> 16, off_seeds, off_vars,
-                            off_outs, oi, off_str, len(strings), off_blobs, len(blobs), len(bank.roles),
-                            len(bank.archetypes), len(bank.lenses), 0)
+        return _HEADER.pack(b"VLEP", PACK_VERSION, _HEADER.size, total, crc, game, 0, 0, len(seeds), vi, off_seeds,
+                            off_vars, off_outs, oi, off_str, len(strings), off_blobs, len(blobs), len(bank.roles),
+                            len(bank.archetypes), len(bank.lenses), 0, 0)
     crc = zlib.crc32(header(0) + body) & 0xFFFFFFFF
     data = header(crc) + body
     assert len(data) == total
     return data
 
 
+def packs(game: int, variants: list[Variant], bank: Bank | None = None) -> dict[str, bytes]:
+    """The game's living packs, one per group (series), in first-seen order: {group: pack bytes}."""
+    bank = bank or Bank()
+    groups: dict[str, list[Variant]] = {}
+    for v in variants:
+        if game in v.games:
+            groups.setdefault(group_of(v), []).append(v)
+    return {grp: pack(game, vs, bank) for grp, vs in groups.items()}
+
+
 def read_pack(data: bytes) -> dict:
     """The pack's tables (the engine's reading, for the tests and the native fixture)."""
     h = _HEADER.unpack_from(data, 0)
-    (magic, version, hbytes, total, crc, game, _z, n_seeds, n_vars, _z2, off_seeds, off_vars, off_outs, n_outs, off_str,
-     n_str, off_blobs, n_blobs, n_roles, n_arcs, n_lenses, _z3) = h
-    if magic != b"VLEP" or version not in (1, 2) or hbytes != 64 or total != len(data):
-        raise ValueError("not a VLEP v1 / v2 pack")
-    n_seeds |= _z2 << 16 if version >= 2 else 0
+    (magic, version, hbytes, total, crc, game, _z, _z2, n_seeds, n_vars, off_seeds, off_vars, off_outs, n_outs, off_str,
+     n_str, off_blobs, n_blobs, n_roles, n_arcs, n_lenses, _z3, _z4) = h
+    if magic != b"VLEP" or version != PACK_VERSION or hbytes != _HEADER.size or total != len(data):
+        raise ValueError("not a VLEP v2 pack")
     if zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF != crc:
         raise ValueError("crc")
 
@@ -1057,12 +1067,13 @@ def read_pack(data: bytes) -> dict:
         return data[off_str + off:end].decode("ascii")
     seeds = []
     for i in range(n_seeds):
-        sid, ser, first, count, bank, cat, index, mood, sid_hi, ser_hi, _ = _SEED.unpack_from(data, off_seeds + 16 * i)
-        seeds.append({"id": string(sid | sid_hi << 16), "series": string(ser | ser_hi << 16), "first": first,
-                      "count": count, "bank": bank, "category": cat, "index": index, "mood": mood})
+        sid, ser, first, count, bank, cat, index, mood, _pad = _SEED.unpack_from(data, off_seeds + _SEED.size * i)
+        seeds.append({"id": string(sid), "series": string(ser), "first": first, "count": count, "bank": bank,
+                      "category": cat, "index": index, "mood": mood})
     variants = []
     for i in range(n_vars):
-        boff, bsize, si, k, flags, ra, rb, lens, fam, mask, of, oc = _VARIANT.unpack_from(data, off_vars + 24 * i)
+        (boff, bsize, si, ra, rb, lens, fam, k, flags, of, oc, mask, _z) = _VARIANT.unpack_from(
+            data, off_vars + _VARIANT.size * i)
         outs = [_OUTCOME.unpack_from(data, off_outs + 4 * j) for j in range(of, of + oc)]
         variants.append({"blob": data[off_blobs + boff:off_blobs + boff + bsize], "seed": si, "k": k, "flags": flags,
                          "role_a": ra, "role_b": rb, "lens": lens, "family": fam, "games": mask, "outcomes": outs})
@@ -1161,7 +1172,7 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
     bank = bank or Bank()
     rows: dict[str, dict] = {}
     for v in variants:
-        if game not in v.games:
+        if game not in v.games or v.bank not in (0, 1):     # bank 2 (a static event's versions): its own row
             continue
         r = rows.get(v.manifest_id)
         if r is None:
@@ -1182,12 +1193,15 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
     return list(rows.values())
 
 
-def build(bank: Bank | None = None, k_total: int = K) -> tuple[list[Variant], dict[int, bytes]]:
-    """Generate, validate, compile and pack: (the variants, {game: living.pak})."""
+def build(bank: Bank | None = None, k_total: int = K, extra: list[Variant] | None = None
+          ) -> tuple[list[Variant], dict[int, dict[str, bytes]]]:
+    """Generate, validate, compile and pack: (the variants, {game: {group: living-<group>.pak}}).  `extra`: variants
+    already compiled (the static events' versions, scripts/living_from_static.py), packed in their own groups."""
     bank = bank or Bank()
     variants = generate(bank, k_total)
     compile_all(variants)
-    return variants, {game: pack(game, variants, bank) for game in GAMES}
+    variants += extra or []
+    return variants, {game: packs(game, variants, bank) for game in GAMES}
 
 
 # ---- The owner packet's table and the native agent's fixture --------------------------------------------------------
@@ -1254,9 +1268,10 @@ def main(argv: list[str] | None = None) -> None:
     le = sum(1 for v in variants if v.bank == 0)
     mc = sum(1 for v in variants if v.bank == 1)
     print(f"variants: LE {le}, MC {mc}, MIX changes {len(MIX_CHANGES)}")
-    for game, data in packs.items():
-        p = read_pack(data)
-        print(f"vv{game}: {len(p['seeds'])} seeds, {len(p['variants'])} variants, {len(data):,} bytes")
+    for game, groups in packs.items():
+        for grp, data in groups.items():
+            p = read_pack(data)
+            print(f"vv{game} {grp}: {len(p['seeds'])} seeds, {len(p['variants'])} variants, {len(data):,} bytes")
     if "--write-docs" in argv:
         write_docs()
         print(f"wrote {DOC.relative_to(ROOT)}")

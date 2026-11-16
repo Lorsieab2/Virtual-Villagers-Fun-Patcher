@@ -1,0 +1,4 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+vv3_tale_telling_elder	The Tale-Telling Elder	3	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	An elder tells the village a story from the past, so those who were not there will remember.		
+vv3_unfortunate_portrait	The Unfortunate Portrait	3	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	A portrait of the Chief turns out badly, and the village decides what to do about it.		
