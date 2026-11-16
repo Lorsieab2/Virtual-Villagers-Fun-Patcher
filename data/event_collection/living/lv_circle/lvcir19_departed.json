@@ -94,7 +94,15 @@
   "a2": {
    "name": "Outcome A2",
    "text": "The first harvest becomes a quiet occasion for remembrance.",
-   "src": "L21482"
+   "src": "L21482",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21482"
+    }
+   ]
   },
   "b": {
    "type": "branch",

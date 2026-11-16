@@ -274,6 +274,25 @@ Nothing else is fixed.
 | draft_his L533 | `(his/hers)` | `(his/her) own` | HIS-44 | no his/hers placeholder (twice on the line) |
 | draft_lif L470 | `(his/hers)` | `(his/her) own` | LIF-40 | no his/hers placeholder (twice on the line) |
 
+### Likes and dislikes that match the games (the owner, 2026-11-16)
+
+The owner asked that every like or dislike an event gives match what it does in each game, and that the outcome name the thing liked or disliked (never a job), with minimal edits (docs/event-collection/likes-dislikes-fix.md).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| companion L2678 | `enjoy it.` | `enjoy the work.` | `c5dn002_wrong` e2 | like work (works more: VV2-VV5); the outcome names the work, not the trade |
+| companion L2696 | `medicinal botany.` | `medicinal herbs.` | `c5dn004_reluctant` e2 | like herbs (no behaviour in any game, so the text names the herbs themselves) |
+| companion L4535 | `enjoy leisure` | `enjoy resting` | `lbl056_retirement` e2 | like resting (no behaviour in any game, so the text names resting itself) |
+| living L20687 | `use the arm well.` | `use the arm well, though heavy lifting stays hard.` | `lvlife04_crooked_arm` b1 | dislike lifting (no rubble or debris work: VV3, VV4); the outcome names the lifting |
+| living L20274 | `adjustment to daily life.` | `adjustment to daily life without running.` | `lvmed05_limb_might` a1 | dislike running (every game); the outcome names the running |
+| living L20281 | `in a new craft.` | `in a new craft, though running is now hard.` | `lvmed05_limb_might` c2 | dislike running (every game); the outcome names the running |
+
+### Owner-approved label edits (2026-11-16)
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| living L20497 | `Seek the donor's prior consent and study anatomy without operating.` | `Seek the donor's prior consent.` | `lvmed22_dream_kidney` (The Dream of a New Kidney), choice B | The owner approved shortening it (to "Seek the Donor's Prior Consent" or "Study Anatomy Without Operating") so it fits in title case; outcome B2 is the donor's family declining consent, so the consent half is kept. The file's label_case "source" exception goes: its labels show in title case like the rest |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

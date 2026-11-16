@@ -70,7 +70,16 @@
    "popup": "append",
    "join": "paragraph",
    "text": "The villager names it and enjoys the encounters without capturing it.",
-   "src": "L10740"
+   "src": "L10740",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "swimmer",
+     "list": "likes",
+     "preference": "fish",
+     "src": "L10740"
+    }
+   ]
   },
   "b": {
    "name": "Outcome B",

@@ -429,7 +429,15 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L2984-2985",
-   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives."
+   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2984-2985"
+    }
+   ]
   },
   "e3": {
    "popup": "append",

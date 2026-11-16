@@ -70,7 +70,15 @@
    "popup": "append",
    "join": "paragraph",
    "text": "Discover a rare plant structure.",
-   "src": "L2901"
+   "src": "L2901",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2901"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",

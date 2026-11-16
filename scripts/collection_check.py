@@ -91,7 +91,7 @@ DESCRIPTION_RE = re.compile(r"[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]")
 # j GUARDIANS (the owner, 2026-11-14): with Guardians of Isola Rewrite, New Believers says neither of these.
 GUARDIANS_PATCH = "guardians_of_isola"
 GUARDIANS_IF = {"patch": GUARDIANS_PATCH}
-GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
+GUARDIANS_WORDS = re.compile(r"heathen|convert|(?<!new )\bbelievers?\b", re.I)   # believers: the owner, 2026-11-16
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -151,9 +151,100 @@ def engine():
     return cg if 6 in getattr(cg, "VERSIONS", ()) else None
 
 
+# The owner, 2026-11-15: in the new events the villager who dies or disappears can be anyone, of any age or status,
+# children under 14 included (always, not only with No Safeguards).  A role a kill / birth_then_die / vanish /
+# die_unrecovered effect lands on is cast with protected "allow" and no age minimum, except the roles below, whose
+# own text needs their age (the role keeps its file's min_age; max_age, sex, skill and kinship always stay).
+DEATH_EFFECTS = ("kill", "birth_then_die", "vanish", "die_unrecovered")
+DEATH_ROLE_KEEPS_AGE = {
+    ("lvauth20_elder_lesson", "elder"): "the elder (55+)",
+    ("lvmed09_heart_falters", "elder"): "the elder (55+)",
+    ("all_v27_25_crossing", "elder"): "the elder (55+)",
+    ("lvmed01_borrowed_organ", "patient"): "\"a gravely ill adult\" (18+)",
+    ("lvmed15_last_treatment", "patient"): "\"A gravely ill adult\" (18+)",
+    ("all_v27_24_explorer", "explorer"): "\"An adult explorer leaves alone\" (18-54)",
+    ("all_v20_d1_two_lives", "parent"): "the mother of the birth (nursing parent, 18+)",
+    ("all_v27_10_supper", "child"): "a child (3-13) who walks off after a stranger",
+    ("lbl026_midnight_raft", "teen2"): "a teenager (14-17) on a midnight raft",
+    ("all_v27_13_raft", "teen1"): "a teenager (14-17) on a raft",
+    ("all_v27_14_proof", "teen"): "a teenager (14-17) proving a dare",
+    ("fwk046_lost_apprentice", "apprentice"): "an apprentice with a mentor (14+, the collection's apprentice age)",
+    ("lvuns16_scientist", "scientist"): "a young scientist with Research (14-25)",
+    ("lvuns32_watcher", "explorer"): "\"A solitary explorer\" who investigates alone (14+)",
+    ("all_v27_55_deep_pool", "diver"): "a villager who \"wants to dive alone\" (14+)",
+    ("all_v27_56_empty_boat", "crew1"): "a canoe's crew at sea (14+)",
+    ("all_v27_56_empty_boat", "crew2"): "a canoe's crew at sea (14+)",
+    ("sss018_silver_seam", "worker"): "a miner at the rock face (14+)",
+}
+
+
+# The owner, 2026-11-15: "LEADERS ARE NOT THE SAME AS THE CHIEF. THE LEADER CAN BE ANYONE."  A leader / council role
+# is cast from any villager: no age, sex or protection limit, never the Tribal Chief requirement (only a role that is
+# explicitly VV3's Chief keeps "special": "tribal_chief").
+LEADER_ROLE = re.compile(r"^(?:leader|leaders|village_leader|councilor|councillor|council\w*)$")
+
+
+def open_leader_roles(g: dict) -> None:
+    for rid, r in (g.get("roles") or {}).items():
+        if isinstance(r, dict) and r.get("kind") == "villager" and LEADER_ROLE.match(rid) \
+                and r.get("special") != "tribal_chief":
+            for k in ("max_age", "sex", "exclude_nursing", "exclude_special"):
+                r.pop(k, None)
+            r["min_age"] = 0
+            r["protected"] = "allow"
+
+
+def open_death_roles(g: dict) -> None:
+    """The owner's rule above, on an engine graph (in place)."""
+    eid = (g.get("collection") or {}).get("id")
+    roles = g.get("roles") or {}
+    hit = set()
+    for n in (g.get("nodes") or {}).values():
+        for e in n.get("effects", []) or []:
+            if isinstance(e, dict) and e.get("do") in DEATH_EFFECTS and e.get("role") in roles:
+                r = roles[e["role"]]
+                hit.update(r.get("of", []) if r.get("kind") == "alias" else [e["role"]])
+    for rid in hit:
+        r = roles.get(rid)
+        if not isinstance(r, dict) or r.get("kind") != "villager":
+            continue
+        r.pop("exclude_nursing", None)
+        r.pop("exclude_special", None)
+        r["protected"] = "allow"
+        if (eid, rid) not in DEATH_ROLE_KEEPS_AGE:
+            r["min_age"] = 0
+
+
+# cie-v6-binary.md 32 (the owner, 2026-11-15): a new villager (code 27), a pregnancy (28), a nursing baby (29).
+PENDING_EFFECTS = {"new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31, "lose_name": 32,
+                   "change_name": 33, "change_age": 34}
+NEW_VILLAGER_AGES = ("child", "teen", "adult", "elder")
+# The villagers this event made (engine 3a3651283): "$newest" / "$previous" stand for a role anywhere a villager role
+# does (an effect's role, a partner, a copy, a swap); no declared role is needed.
+NEW_ROLES = ("$newest", "$previous")
+TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
+                  "old_look", "celebrate", "appearance")   # role byte 254: {"all": true} | {"skill": name} | {"random": n}
+CARRIER_MIN_AGE = 18          # the carrier of a pregnancy or a nursing baby: born female, 18 or older
+
+
+def _engine_knows(do: str) -> bool:
+    try:
+        import vv_cie_graph as cg
+    except ImportError:
+        return False
+    return do in getattr(cg, "EFFECT_CODES", {})
+
+
 def graph_for_engine(doc: dict) -> dict:
     """The collection file without its authoring-only keys: what vv_cie_graph (v6) reads."""
     g = copy.deepcopy(doc)
+    open_death_roles(g)
+    open_leader_roles(g)
+    # "heathen_ok": true (VV5, the owner 2026-11-16: a real Isolan villager cast as vanilla does): until the engine's
+    # own role flag is in vv_cie_graph, the engine graph says it as believers_only false.
+    for r in (g.get("roles") or {}).values():
+        if isinstance(r, dict) and r.pop("heathen_ok", None) is True:
+            r["believers_only"] = False
 
     def scrub(x):
         if isinstance(x, dict):
@@ -165,6 +256,16 @@ def graph_for_engine(doc: dict) -> dict:
             for v in x:
                 scrub(v)
     for n in g.get("nodes", {}).values():
+        # The owner, 2026-11-15 ("ignore weights"): every random outcome of a random node is equally likely in the
+        # game.  The files keep their rarity words and weights (check h still reads them); the engine never sees them.
+        for c in n.get("children") or []:
+            if isinstance(c, dict):
+                c.pop("weight", None)
+        # Effects the engine does not know yet (new_villager 27, pregnant 28, nursing 29: cie-v6-binary.md 32) are
+        # checked here (check_effects) and reach the engine once src/vv_cie_graph.py has their codes.
+        if n.get("effects"):
+            n["effects"] = [e for e in n["effects"]
+                            if not (isinstance(e, dict) and e.get("do") in PENDING_EFFECTS and not _engine_knows(e["do"]))]
         n.pop("text_only", None)
         n.pop("set", None)
         n.pop("src_pick", None)
@@ -318,6 +419,9 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
                 bare = r"\s*/\s*".join(re.escape(i) for i in items)
                 parts.append(f"(?:{PH_RE}|{bare})" if len(items) > 1 else PH_RE)
             else:
+                if s.startswith("#"):
+                    # a count token {#babies:A|B|C} (cie-v6-binary.md 33): its options are the source's "(A/B/C)"
+                    s = s.partition(":")[2]
                 alts = [text_regex(a, words, False, pools) for a in split_alts(s)]
                 parts.append(r"\(?" + r"\s*/\s*".join(alts) + r"\)?")
     rx = "".join(parts)
@@ -784,7 +888,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
                 rep.add("d TOKENS", f"words {w}: {v3!r} and {v!r} differ in number (verb agreement)")
     for n in doc.get("nodes", {}).values():
         for e in n.get("effects", []) or []:
-            if e.get("role") and e["role"] not in roles:
+            if e.get("role") and e["role"] not in roles and e["role"] not in NEW_ROLES:
                 rep.add("d TOKENS", f"effect role {e['role']!r} is not declared")
             elif e.get("role"):
                 used_roles.add(e["role"])
@@ -942,12 +1046,32 @@ def check_effects(doc: dict, rep: Report) -> None:
         for i, e in enumerate(effs):
             where = f"node {nid} effect {i + 1}"
             do = e.get("do")
+            if (doc.get("roles") or {}).get(e.get("role"), {}).get("heathen_ok") and not (
+                    do in ("action", "sick", "faith", "join") or
+                    (do == "health_change" and -30 <= e.get("min", 0) and e.get("max", 0) <= -5)):
+                rep.add("e EFFECTS", f"{where}: a heathen_ok role takes only faith, join, actions and minor harm "
+                                     "(health -5..-30, sick)")
+            tg = e.get("target")
+            if tg is not None:
+                ok = isinstance(tg, dict) and len(tg) == 1 and (
+                    tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
+                    or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
+                        and 1 <= tg["random"] <= 255))
+                if do not in TARGET_EFFECTS:
+                    rep.add("e EFFECTS", f"{where}: {do} takes no group target")
+                elif not ok:
+                    rep.add("e EFFECTS", f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or "
+                                         "{\"random\": 1..255}")
+                elif "role" in e:
+                    rep.add("e EFFECTS", f"{where}: a group target names no role")
             if do in ("food", "tech"):
                 if e.get("size") not in SIZES or "amount" in e or "per_game" in e:
                     rep.add("e EFFECTS", f"{where}: food / tech give a size word ({', '.join(SIZES)}), never "
                                          "an amount (design A3)")
                 if e.get("scaled") is not True:
                     rep.add("e EFFECTS", f"{where}: food / tech are scaled (design A3)")
+            elif do == "skill" and e.get("best") is True:
+                pass                      # the villager's best skill (flags 32): no skill named
             elif do == "skill":
                 names = e.get("skills") or []
                 if not names:
@@ -965,6 +1089,62 @@ def check_effects(doc: dict, rep: Report) -> None:
                             (sign and not e.get("max", 0) < 0):
                         rep.add("e EFFECTS", f"{where}: skill +-{pair} is not a size of the skill table "
                                              f"{SKILL_SIZES}")
+            elif do == "new_villager":
+                roles = doc.get("roles", {})
+                if set(e) - {"do", "copy_of", "age", "sex", "child_of_newest", "src"}:
+                    rep.add("e EFFECTS", f"{where}: new_villager takes copy_of, age, sex and child_of_newest only")
+                if e.get("sex", "random") not in ("random", "male", "female"):
+                    rep.add("e EFFECTS", f"{where}: new_villager sex is random, male or female")
+                if e.get("child_of_newest", False) not in (True, False):
+                    rep.add("e EFFECTS", f"{where}: child_of_newest is true or false")
+                if "copy_of" in e and not (e["copy_of"] in NEW_ROLES or roles.get(e["copy_of"], {}).get("kind") == "villager"):
+                    rep.add("e EFFECTS", f"{where}: new_villager copy_of names a villager role")
+                if "age" in e and e["age"] not in NEW_VILLAGER_AGES:
+                    rep.add("e EFFECTS", f"{where}: new_villager age is one of {', '.join(NEW_VILLAGER_AGES)}")
+            elif do in ("pregnant", "nursing"):
+                roles = doc.get("roles", {})
+                r = roles.get(e.get("role"), {}) if e.get("role") not in NEW_ROLES else {"kind": "villager"}
+                if set(e) - {"do", "role", "partner", "any_birth_sex", "babies", "src"}:
+                    rep.add("e EFFECTS", f"{where}: {do} takes role, partner, any_birth_sex and babies only")
+                if "babies" in e and (e["babies"] not in ("roll", 2, 3) or isinstance(e["babies"], bool)):
+                    rep.add("e EFFECTS", f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
+                if "any_birth_sex" in e and e["any_birth_sex"] is not True:
+                    rep.add("e EFFECTS", f"{where}: any_birth_sex is true or left out")
+                if r.get("kind") != "villager":
+                    rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
+                elif r.get("max_age") is not None and r["max_age"] < CARRIER_MIN_AGE:
+                    rep.add("e EFFECTS", f"{where}: {do}'s carrier is {CARRIER_MIN_AGE} or older (born female)")
+                if "partner" in e and (e["partner"] == e.get("role") or not (e["partner"] in NEW_ROLES or roles.get(e["partner"], {}).get("kind") == "villager")):
+                    rep.add("e EFFECTS", f"{where}: {do} partner names another villager role")
+            elif do in ("clone", "lose_name", "body_swap", "change_name", "change_age"):
+                roles = doc.get("roles", {})
+                keys = {"do", "role", "src"} | ({"with"} if do == "body_swap" else set()) | \
+                    ({"to", "years", "max_age"} if do == "change_age" else set()) | \
+                    ({"name"} if do == "change_name" else set()) | \
+                    ({"count"} if do == "clone" else set())
+                if do == "clone" and "count" in e and (e["count"] not in (1, 2) or isinstance(e["count"], bool)):
+                    rep.add("e EFFECTS", f"{where}: clone count is 1 or 2")
+                if do == "change_name" and "name" in e and not (
+                        isinstance(e["name"], str) and re.fullmatch(r"[A-Za-z](?:[A-Za-z '.-]{0,29}[A-Za-z'.-])?",
+                                                                    e["name"])):
+                    rep.add("e EFFECTS", f"{where}: change_name name is 1-31 characters, a letter first, then "
+                                         "letters, spaces, apostrophes, hyphens or full stops, no trailing space")
+                if do == "change_age" and "max_age" in e and not (
+                        isinstance(e["max_age"], int) and not isinstance(e["max_age"], bool) and 1 <= e["max_age"] <= 120):
+                    rep.add("e EFFECTS", f"{where}: change_age max_age is 1..120 years")
+                if do == "change_age" and ("to" in e) == ("years" in e):
+                    rep.add("e EFFECTS", f"{where}: change_age gives to or years, one of them")
+                if set(e) - keys:
+                    rep.add("e EFFECTS", f"{where}: {do} takes {', '.join(sorted(keys - {'do', 'src'}))} only")
+                if not (e.get("role") in NEW_ROLES or roles.get(e.get("role"), {}).get("kind") == "villager"):
+                    rep.add("e EFFECTS", f"{where}: {do} acts on a villager role")
+                if do == "body_swap" and (e.get("with") == e.get("role") or not (e.get("with") in NEW_ROLES or roles.get(e.get("with"), {}).get("kind") == "villager")):
+                    rep.add("e EFFECTS", f"{where}: body_swap with names another villager role")
+            elif do in ("cure", "young_look") and not (e.get("role") in NEW_ROLES or roles.get(e.get("role"), {}).get("kind") == "villager") and not e.get("target"):
+                rep.add("e EFFECTS", f"{where}: {do} acts on a villager role or a group target")
+            elif do == "repair" and e.get("structures", "any") != "any" and not (
+                    isinstance(e["structures"], list) and e["structures"]):
+                rep.add("e EFFECTS", f"{where}: repair structures is \"any\" or a list")
             elif do == "kill" and not e.get("cause"):
                 rep.add("e EFFECTS", f"{where}: a kill names its cause")
             elif do == "die_unrecovered" and e.get("cause", "unknown") != "unknown":
@@ -983,7 +1163,7 @@ def harmful(e: dict) -> bool:
         return True
     if do == "health_change" and e.get("min", 0) < 0:
         return True
-    if do == "preference" and (e.get("list") == "dislikes" or "dislike" in e):   # 24: "dislike": w | "random"
+    if do == "preference" and (e.get("list") == "dislikes" or "dislike" in e) != bool(e.get("remove")):   # 24: "dislike": w | "random"
         return True
     if do == "skill" and "set" not in e and (e.get("min", 0) < 0 or e.get("max", 0) < 0):
         return True

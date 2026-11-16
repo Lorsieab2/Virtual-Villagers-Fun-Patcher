@@ -1,6 +1,6 @@
 ISOLA GRAND EVENT COLLECTION - CREDITS
 
-Source: Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt (SHA-256 319712596BCCD325F47DF13B10DC895071F0306F7105B17CC8F3ED73BAE44C3E). The texts below are copied from it verbatim.
+Source: Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt (SHA-256 319712596BCCD325F47DF13B10DC895071F0306F7105B17CC8F3ED73BAE44C3E). The texts below are copied from it verbatim, except that the three handwritten events (L22-28) are credited to the owner alone (the owner, 2026-11-15).
 
 THE CREDIT LEDGER (source lines 1-91)
 
@@ -25,13 +25,9 @@ CREDIT POLICY
 * Uncertain provenance is not silently attributed to either contributor.
 
 USER-ORIGINATED EVENT TEXT — Lorsieab2
-* The Cooking Contest (VV2): original premise, original event manuscript,
-  randomized cook-off framework and extensive outcome banks by Lorsieab2.
-  Later additional branches, repairs and expansion text: ChatGPT.
-* The Child of Legend (VV1): original premise and original event manuscript
-  by Lorsieab2. Later editing and/or expansion where present: ChatGPT.
-* The Meaning of Faith (VV5): original premise and original event manuscript
-  by Lorsieab2. Later editing and/or expansion where present: ChatGPT.
+* The Cooking Contest (VV2): written by Lorsieab2.
+* The Child of Legend (VV1): written by Lorsieab2.
+* The Meaning of "Faith" (VV5): written by Lorsieab2.
 * The Aspiring Adventurer (VV1–VV5): original event and revised event text
   supplied by Lorsieab2; the separately supplied revised version is the
   source of record. Do not reassign its writing to ChatGPT.
@@ -3767,7 +3763,7 @@ Best of Three, Best of Five (Tall Tales and Self-Interest source lines 560-569):
 The Row of Baskets (Tall Tales and Self-Interest source lines 572-581): NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15) Boasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Glowing Fish Only (name1) Saw (Tall Tales and Self-Interest source lines 584-593): NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15) Boasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
 The Very Clever Way to Avoid a Short Walk (Tall Tales and Self-Interest source lines 596-605): NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15) Boasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson. Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
-The Child of Legend (source lines 728-791): * The Child of Legend (VV1): original premise and original event manuscript by Lorsieab2. Later editing and/or expansion where present: ChatGPT.
+The Child of Legend (source lines 728-791): * The Child of Legend (VV1): written by Lorsieab2.
 The Elder's Favorite Stone (source lines 2824-2863): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
 The Last Song Before Sunset (source lines 3761-3804): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
 The Master's Small Apprentice (source lines 3687-3759): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
@@ -3806,7 +3802,7 @@ The Seed and Soil Trial (source lines 8150-8153): CREDITS: Lorsieab2 proposed ma
 The Stone Table of Questions (source lines 8131-8135): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
 The Face of the Southern Shore (source lines 8137-8141): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
 The Words We Brought With Us (source lines 8143-8148): CREDITS: Lorsieab2 proposed making the full competition suite available in VV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and specifically proposed VV5 Heathen/Isolan competitors and judges with political tensions. The original VV2 Cooking Contest's premise, mechanics and text are by Lorsieab2. The game-specific adaptations, fresh dialogue, branching, political plots and integration notes below are written by ChatGPT. Existing universal competitions and their previous credits remain intact.
-The Cooking Contest (source lines 100-626): * The Cooking Contest (VV2): original premise, original event manuscript, randomized cook-off framework and extensive outcome banks by Lorsieab2. Later additional branches, repairs and expansion text: ChatGPT.
+The Cooking Contest (source lines 100-626): * The Cooking Contest (VV2): written by Lorsieab2.
 The Experimental Remedy (source lines 4733-4794): * V9 "Age of Terrible Ideas": event prose, material applications, trial and consequence branches by ChatGPT. Core requests for intense conflict, fights, false guilt, courts, imprisonment, reconciliation, and the sixteen specific bizarre materials by Lorsieab2.
 The Most Difficult Patient (source lines 7857-7866): Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3). New event concepts, dialogue, and outcome writing: ChatGPT.
 The Hut-Sharing Negotiation (source lines 2920-2994): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
@@ -3866,7 +3862,7 @@ The Great Laundry Mishap (source lines 2489-2567): CHATGPT-WRITTEN EVENTS — WI
 The Great Woodworking Competition (source lines 2101-2396): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * VV5 woodworking showcase, potluck dispute, laundry misunderstanding, neighborly games, keeper of little things and festival events: event prose/branches by ChatGPT; overarching VV5 two-community setup, Guardians of Harmony naming and gameplay constraints by Lorsieab2.
 The Keeper of Little Things (source lines 3293-3354): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
 The Little Things They Remember (source lines 4276-4329): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
-The Meaning of "Faith" (source lines 795-862): * The Meaning of Faith (VV5): original premise and original event manuscript by Lorsieab2. Later editing and/or expansion where present: ChatGPT.
+The Meaning of "Faith" (source lines 795-862): * The Meaning of "Faith" (VV5): written by Lorsieab2.
 The Multicultural Festival (source lines 3356-3494): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.
 The Old Belief and the New Question (source lines 7997-8006): Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3). New event concepts, dialogue, and outcome writing: ChatGPT.
 The Potluck Dispute (source lines 2398-2487): CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * VV5 woodworking showcase, potluck dispute, laundry misunderstanding, neighborly games, keeper of little things and festival events: event prose/branches by ChatGPT; overarching VV5 two-community setup, Guardians of Harmony naming and gameplay constraints by Lorsieab2.
@@ -3935,4 +3931,4 @@ THE LIVING EVENT ENGINE (source: Isola_ALL_IN_ONE_Modular_Living_Event_Engine.tx
 
 CREDITS: Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).
 
-Its situation seeds, roles, personalities, approaches and outcomes (the Living Engine bank, lines 23812-25133) and its authored situations and outcomes (MC, lines 25134-26616) are combined by the patcher into the events in living.pak; the same credit covers both.
+Its situation seeds, roles, personalities, approaches and outcomes (the Living Engine bank, lines 23812-25133) and its authored situations and outcomes (MC, lines 25134-26616) are combined by the patcher into the events in living-*.pak; the same credit covers both.

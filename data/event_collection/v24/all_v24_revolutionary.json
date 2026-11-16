@@ -750,6 +750,12 @@
      "min": 10,
      "max": 20,
      "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
     }
    ],
    "children": [
@@ -777,6 +783,12 @@
      "min": 10,
      "max": 20,
      "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
     }
    ],
    "children": [
@@ -804,6 +816,12 @@
      "min": 10,
      "max": 20,
      "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
     }
    ],
    "children": [
@@ -830,6 +848,12 @@
      "min": 10,
      "max": 20,
      "src": "L10296"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
     }
    ],
    "children": [
@@ -846,6 +870,12 @@
      "do": "celebrate",
      "who": "all",
      "src": "L10295"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10294-10296"
     }
    ],
    "text_only": [
@@ -948,6 +978,12 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
     }
    ],
    "children": [
@@ -970,6 +1006,12 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
     }
    ],
    "children": [
@@ -992,6 +1034,12 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
     }
    ],
    "children": [
@@ -1013,6 +1061,12 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
     }
    ],
    "children": [
@@ -1034,6 +1088,14 @@
    "children": [
     {
      "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10301-10302"
     }
    ]
   },
@@ -1248,7 +1310,16 @@
   },
   "c3": {
    "text": "A rare fictional experimental mishap produces a startling bang and destroys the demonstration apparatus. Nearby villagers retreat; damaged equipment must be replaced.",
-   "src": "L10327-10329"
+   "src": "L10327-10329",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L10327-10329"
+    }
+   ]
   },
   "c4": {
    "text": "The object or phenomenon vanishes before the scholars can document it. Nobody believes the witnesses.",
@@ -1501,6 +1572,15 @@
      "what": "vanishes",
      "reason": "narrative: the object or the idea vanishes, not a villager"
     }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L10346-10347"
+    }
    ]
   },
   "d5": {
@@ -1545,6 +1625,14 @@
    "children": [
     {
      "next": "react"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10354-10355"
     }
    ]
   },

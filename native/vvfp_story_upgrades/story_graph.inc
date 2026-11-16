@@ -5011,6 +5011,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "health", "<R>'s health changes." },
     { "like", "<R> now likes <W>." },
     { "dislike", "<R> now dislikes <W>." },
+    { "unlike", "<R> no longer likes <W>." },
+    { "undislike", "<R> no longer dislikes <W>." },
     { "skill+", "<R> learns more about <S>." },
     { "skill-", "<R> feels less sure of <P> <S>." },
     { "sick", "<R> falls sick." },
@@ -5030,6 +5032,10 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "baby_lost", "<R>'s baby is lost." },
     { "old_look", "<R> looks older and more worn." },
     { "sex_change", "<R>'s sex changes." },
+    { "cure", "<R> is cured." },
+    { "young_look", "<R> looks younger." },
+    { "repair", "The damaged buildings are being repaired." },
+    { "skill_best", "<R> gets better at what <P> does best." },
     { "presentation", "<R>'s look changes." },
 };
 

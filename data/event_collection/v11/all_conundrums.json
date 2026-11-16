@@ -370,6 +370,12 @@
      "min": 10,
      "max": 20,
      "src": "L6721"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6716-6720"
     }
    ]
   },
@@ -478,6 +484,12 @@
      "min": 5,
      "max": 10,
      "src": "L6776"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6772-6775"
     }
    ]
   },
@@ -518,6 +530,12 @@
      "min": 10,
      "max": 20,
      "src": "L6801"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6796-6800"
     }
    ]
   },

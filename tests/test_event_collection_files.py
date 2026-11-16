@@ -427,7 +427,11 @@ class Manifest(unittest.TestCase):
     def test_ids_unique_and_credit_verbatim(self):
         ids = [r["id"] for r in self.data["rows"]]
         self.assertEqual(len(ids), len(set(ids)))
+        owner = set(cm.OWNER_CREDITS.values())     # the owner's three handwritten events (the owner, 2026-11-16)
         for r in self.data["rows"]:
+            if r["credit"]["text"] in owner:
+                self.assertEqual(r["credit"]["who"], "lorsieab2_original", r["id"])
+                continue
             with lib.use_source(r["source"]):
                 text = "\n".join(lib.line(n) for spec in r["credit"]["lines"] for n in lib.src_lines(spec))
             self.assertEqual(r["credit"]["text"], text, r["id"])

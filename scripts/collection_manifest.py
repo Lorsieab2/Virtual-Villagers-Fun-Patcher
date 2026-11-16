@@ -1457,11 +1457,19 @@ def verify(row: dict) -> tuple[dict, list[str]]:
     return checks, disagreements
 
 
+# The owner, 2026-11-15: the three handwritten events are credited to the owner alone (in place of the ledger's lines).
+OWNER_CREDITS = {
+    "cooking": "* The Cooking Contest (VV2): written by Lorsieab2.",
+    "child": "* The Child of Legend (VV1): written by Lorsieab2.",
+    "faith": "* The Meaning of \"Faith\" (VV5): written by Lorsieab2.",
+}
+
+
 def credit_text(key: str) -> dict:
     who, ranges, *src = CREDITS[key]
     with lib.use_source(src[0] if src else lib.SOURCE_ID):
-        return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges],
-                "text": "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))}
+        text = OWNER_CREDITS.get(key) or "\n".join(lib.line(n) for x, y in ranges for n in range(x, y + 1))
+        return {"who": who, "lines": [lib.fmt_src(x, y) for x, y in ranges], "text": text}
 
 
 def uncovered(rows: list[dict]) -> list[str]:

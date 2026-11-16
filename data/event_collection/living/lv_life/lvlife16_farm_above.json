@@ -137,7 +137,15 @@
   "c2": {
    "name": "Outcome C2",
    "text": "The harvest succeeds, but fishers worry about damage below.",
-   "src": "L20847"
+   "src": "L20847",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L20847"
+    }
+   ]
   }
  }
 }

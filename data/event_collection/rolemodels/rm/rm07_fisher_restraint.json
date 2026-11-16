@@ -103,6 +103,14 @@
      "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
      "src": "L17"
     }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L17"
+    }
    ]
   },
   "a2": {
