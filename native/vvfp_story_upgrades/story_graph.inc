@@ -637,6 +637,73 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
 /* Every character allowed (ce_text_char_ok; line breaks when `lines`), parentheses only around placeholders (no
    award in a label: `label`).  Version 6: also ; / & %, the escaped \( \), and pool tokens ({@word} only in a
    label). */
+/* A count token at `s` ('{'), cie-v6-binary.md 33: "{#babies:a baby|twins|triplets}" or "{#made:one|two|three}" --
+   the babies / the villagers the page's effects actually made (or, with none on this page, the last page's that made
+   any), the first option for 1 (or none known), the second for 2, the third for 3 or more (fewer options: the last).
+   Its bytes, the count kind in *which (0 babies, 1 made), its options in *opts (`*olen` bytes); 0 when it is not
+   one.  Options: 1 to 3, each 1 to 40 bytes of the plain text set, no placeholder, brace, line break or . ! ?. */
+static int cg_count_token(const char *s, int *which, const char **opts, int *olen) {
+    static const char *const NAMES[2] = { "babies", "made" };
+    const char *p;
+    int k, count = 1, run = 0;
+    if (s[0] != '{' || s[1] != '#') {
+        return 0;
+    }
+    for (k = 0; k < 2; ++k) {
+        int n = lstrlenA(NAMES[k]);
+        if (memcmp(s + 2, NAMES[k], (size_t)n) == 0 && s[2 + n] == ':') {
+            break;
+        }
+    }
+    if (k == 2) {
+        return 0;
+    }
+    *which = k;
+    *opts = s + 3 + lstrlenA(NAMES[k]);
+    for (p = *opts; *p != '}'; ++p) {
+        if (*p == '|') {
+            if (run == 0 || ++count > 3) {
+                return 0;
+            }
+            run = 0;
+            continue;
+        }
+        if (*p == '\0' || *p == '{' || *p == '(' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
+            || !ce_text_char_ok(*p) || ++run > 40) {
+            return 0;
+        }
+    }
+    if (run == 0) {
+        return 0;
+    }
+    *olen = (int)(p - *opts);
+    return (int)(p - s) + 1;
+}
+
+/* The option of a count token for `n` (the longest with n < 0: the worst case), into out (`cap` bytes); its
+   length. */
+static int cg_count_option(const char *opts, int olen, int n, char *out, int cap) {
+    int k = 0, want = n <= 1 ? 0 : n == 2 ? 1 : 2, start = 0, i, best = -1, best_len = -1, best_start = 0;
+    for (i = 0; i <= olen; ++i) {
+        if (i == olen || opts[i] == '|') {
+            int len = i - start;
+            if (n < 0 ? len > best_len : k <= want) {
+                best = k;
+                best_len = len;
+                best_start = start;
+            }
+            ++k;
+            start = i + 1;
+        }
+    }
+    if (best < 0 || best_len >= cap) {
+        return 0;
+    }
+    memcpy(out, opts + best_start, (size_t)best_len);
+    out[best_len] = '\0';
+    return best_len;
+}
+
 static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
     for (; *s != '\0'; ++s) {
         if (g->version >= 6) {
@@ -645,6 +712,15 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
                     return 0;
                 }
                 ++s;
+                continue;
+            }
+            if (*s == '{' && s[1] == '#') {
+                const char *opts;
+                int which, olen, n = cg_count_token(s, &which, &opts, &olen);
+                if (n == 0 || label) {
+                    return 0;          /* 33: a count token, in body text only */
+                }
+                s += n - 1;
                 continue;
             }
             if (*s == '{') {
@@ -3909,6 +3985,24 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             s += 2;
             continue;
         }
+        if (cg_g.version >= 6 && *s == '{' && s[1] == '#') {
+            /* 33: a count token -- the worst case its longest option; else kept for the page's pass after its
+               effects are made (cg_display) */
+            const char *opts;
+            int which, olen, n = cg_count_token(s, &which, &opts, &olen);
+            if (n > 0) {
+                if (mode == CG_EXPAND_WORST) {
+                    o += cg_count_option(opts, olen, -1, out + o, cap - o);
+                } else {
+                    int c;
+                    for (c = 0; c < n && o < cap - 1; ++c) {
+                        out[o++] = s[c];
+                    }
+                }
+                s += n;
+                continue;
+            }
+        }
         if (cg_g.version >= 6 && *s == '{') {
             int pool, instance, n = cg_parse_brace(&cg_g, s, &pool, &instance);
             if (n > 0 && pool < 0) {
@@ -4301,8 +4395,46 @@ static int cg_add_display(const char *text, int kind, int villager) {
     return k;
 }
 
+/* 33: what the effects made -- this page's, and the last page's that made any (-1 none known; memory only: after a
+   quit and a restore the first option is shown). */
+static int cg_count_last[2] = { -1, -1 };
+static int cg_count_page[2];
+static int cg_count_page_any[2];
+
+static void cg_count_add(int which, int n) {
+    if (which >= 0 && which < 2) {
+        cg_count_page[which] += n > 0 ? n : 0;
+        cg_count_page_any[which] = 1;
+    }
+}
+
+/* `text` with its count tokens filled (cie-v6-binary.md 33), in a buffer of its own; `text` itself when it has
+   none. */
+static const char *cg_count_fill(const char *text) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int o = 0;
+    for (s = text; *s != '\0' && !(s[0] == '{' && s[1] == '#'); ++s) {
+    }
+    if (*s == '\0') {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        const char *opts;
+        int which, olen, n = s[0] == '{' && s[1] == '#' ? cg_count_token(s, &which, &opts, &olen) : 0;
+        if (n > 0) {
+            o += cg_count_option(opts, olen, cg_count_last[which], out + o, (int)sizeof out - o);
+            s += n;
+            continue;
+        }
+        out[o++] = *s++;
+    }
+    out[o] = '\0';
+    return out;
+}
+
 static const char *cg_display(int k) {
-    return k >= 0 && k < cg.display_count ? cg.displays + cg.display_off[k] : "";
+    return k >= 0 && k < cg.display_count ? cg_count_fill(cg.displays + cg.display_off[k]) : "";
 }
 
 /* ---- Per-node popup titles (docs/event-collection/cie-v6-binary.md 14) ------------------------------------- */
@@ -4788,6 +4920,7 @@ static unsigned int cg_newest_id[2];
 
 static void cg_newest_reset(void) {
     cg_newest[0] = cg_newest[1] = -1;
+    cg_count_last[0] = cg_count_last[1] = -1;
 }
 
 static void cg_newest_push(const ce_adapter *a, int index) {
@@ -4908,6 +5041,7 @@ static void cg_new_villager(const ce_adapter *a, int game, const unsigned char *
     }
     s.age = cg_new_villager_age(a, (int)cg_u32(e + 4));
     index = a->spawn(&s);
+    cg_count_add(1, index >= 0);       /* 33: the villagers actually made */
     if (index < 0) {
         return;                        /* no room: skipped, no error */
     }
@@ -5155,8 +5289,12 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
                 litter = ce_random_below(a, 100) < 25 ? 3 : 2;   /* the stock rolls, the tech gate left out */
             }
         }
-        if (a->conceive(index, litter, partner, r) <= 0) {
-            return;                    /* no room (the game's own predicate): nothing */
+        {
+            int babies = a->conceive(index, litter, partner, r);
+            cg_count_add(0, babies);   /* 33: the babies actually on their way */
+            if (babies <= 0) {
+                return;                /* no room (the game's own predicate): nothing */
+            }
         }
         if (e[0] == CGE_NURSING && a->deliver != NULL && *(const int *)(record + a->off_pregnant) != 0) {
             (void)a->deliver(index, &early);   /* born at once: nursing a newborn (the deliver_early path) */
@@ -5173,6 +5311,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         for (made = 0; made < want; ++made) {
             int tries;
             copy = cg_copy_villager(a, game, index);
+            cg_count_add(1, copy >= 0);   /* 33: the copies actually made */
             if (copy < 0) {
                 return;                /* no room: nothing more */
             }
@@ -6366,6 +6505,8 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     const cg_history *h = &cg.path;
     int j;
     memset(r, 0, sizeof *r);
+    cg_count_page[0] = cg_count_page[1] = 0;
+    cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     for (j = 0; j < cg.job_count[k]; ++j) {
@@ -6381,6 +6522,11 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();
+    }
+    for (j = 0; j < 2; ++j) {
+        if (cg_count_page_any[j]) {
+            cg_count_last[j] = cg_count_page[j];   /* 33: this page's count, for this page and the next */
+        }
     }
 }
 

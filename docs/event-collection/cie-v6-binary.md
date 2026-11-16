@@ -932,3 +932,27 @@ in `data/event_collection/content_tags/<source>.json`.
 - **A speaking role:** byte 13 of a villager role (the skill pick, 0 or 1) carries bit 7 (`0x80`) when the event's
   words have that role speak (a quoted line attributed to them: `speaking_roles`, kept in the source's tag table as
   `"speaks"`). Such a role never takes a villager with the trait "mute" (`cg_eligible`).
+
+## 33. Count tokens: text that fits what the effects made (the owner, 2026-11-15)
+
+Twins and triplets (pregnant / nursing flags bits 1-2), up to two clones (clone a = 2) and several new villagers come
+only as far as the game's room allows, so the text says how many actually came:
+
+- **`{#babies:A|B|C}`**: the babies the page's `pregnant` / `nursing` effects actually put on their way (each
+  game's own conception, its room check included).
+- **`{#made:A|B|C}`**: the villagers the page's `new_villager` and `clone` effects actually made.
+- **The option:** A for 1 (and for 0 or nothing known), B for 2, C for 3 or more; with fewer options the last one
+  is used for anything past it. Examples: `{#babies:a baby|twins|triplets}`, `{#babies:it|them}`,
+  `{#babies:is|are}`, `{#made:one|two|three}`, `{#made:a newcomer|two newcomers|three newcomers}`.
+- **Which count:** the page's own count once its effects are made (the engine fills the tokens after it makes
+  them, before the page is shown); a page that makes no such effect uses the last earlier page's count of the same
+  event ("the following page"). Nothing made yet on the event: A. The counts are memory only: after a quit and a
+  restore between pages, A.
+- **Syntax:** `{#`, the count's name (`babies` or `made`), `:`, then 1 to 3 options separated by `|`, then `}`.
+  Each option is 1 to 40 bytes of the plain text set (letters, digits, space, `, : - ' "` and `; / & %`): no
+  placeholder, pool, brace, line break or `.` `!` `?` (so a page break never falls inside one). Body text only, never
+  a button label or a title. Any other `{#...}` is refused by the loader.
+- **Fit:** the worst case is the longest option (CG_EXPAND_WORST; Python `worst_v6` the same), so the pages are laid
+  out for it.
+- **Python (the compiler, the importer):** accept the token in text, measure it as its longest option, `simulate`
+  with a count of 1 unless the facts give `count:babies:<n>` / `count:made:<n>`; `normalize` keeps it as written.
