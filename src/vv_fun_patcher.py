@@ -11251,6 +11251,9 @@ def _remove_unselected_companions(
             candidates.setdefault(destination.as_posix().casefold(), item)
     startup = _safe_companion_destination(STARTUP_LOADER_DLL)
     candidates.setdefault(startup.as_posix().casefold(), STARTUP_LOADER_COMPANION)
+    # No Safeguards' companion is shipped by the patcher with its row (_attach_no_safeguards), never by a record.
+    no_safeguards = _safe_companion_destination(NO_SAFEGUARDS_DLL)
+    candidates.setdefault(no_safeguards.as_posix().casefold(), _no_safeguards_companion())
     removed: list[dict[str, str]] = []
     long_staging = patcher_files.long_path(staging_folder)
 
@@ -12999,6 +13002,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Gender Presentation.dll",
     # More Frequent Island Events (all five games): the game's own island events N times as often.
     "VVFP Island Frequency.dll",
+    # No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
+    # without their conditions; shipped with that row (_attach_no_safeguards).
+    "VVFP No Safeguards.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
@@ -13158,13 +13164,47 @@ def _attach_startup_loader(
     return [Record(raw) if feature is carrier else feature for feature in fun_patches]
 
 
+# No Safeguards for Island Events (and Additional Events too) (island_events_any_time, all five games; the owner,
+# 2026-11-15): the row itself is the Story / Cheat Upgrades' (its new events); the game's OWN island events are the
+# work of "VVFP No Safeguards.dll" (native/vvfp_no_safeguards), which the patcher ships with that row on its own --
+# the row's record is not changed -- and which writes its sites only when the installed-patches list names the row.
+# Its record (source, destination, SHA-256) is written by scripts/build_no_safeguards_feature.py.
+NO_SAFEGUARDS_ROW_SUFFIX = "_island_events_any_time"
+NO_SAFEGUARDS_DLL = "VVFP No Safeguards.dll"
+NO_SAFEGUARDS_RECORD = ROOT / "data" / "no_safeguards_companion.json"
+
+
+def _no_safeguards_companion() -> dict[str, str]:
+    """The DLL's companion record (data/no_safeguards_companion.json)."""
+    return dict(json.loads(NO_SAFEGUARDS_RECORD.read_text(encoding="utf-8")))
+
+
+def _attach_no_safeguards(build_id: str, fun_patches: list[FunPatch]) -> list[FunPatch]:
+    """Ship "VVFP No Safeguards.dll" with the game's No Safeguards row, once; nothing without the row.  The
+    carrier is a copy marked `_no_safeguards_carrier`; no catalog record changes."""
+    fun_patches = list(fun_patches)
+    carrier = next((feature for feature in fun_patches
+                    if feature.id == f"{build_id}{NO_SAFEGUARDS_ROW_SUFFIX}"), None)
+    if carrier is None or any(
+        str(item.get("destination", "")).casefold() == NO_SAFEGUARDS_DLL.casefold()
+        for feature in fun_patches
+        for item in feature.raw.get("companion_files", [])
+    ):
+        return fun_patches
+    raw = dict(carrier.raw)
+    raw["companion_files"] = [*raw.get("companion_files", []), _no_safeguards_companion()]
+    raw["_no_safeguards_carrier"] = True
+    return [Record(raw) if feature is carrier else feature for feature in fun_patches]
+
+
 def _attach_automatic_companions(
     build_id: str, fun_patches: list[FunPatch]
 ) -> list[FunPatch]:
     """The companions the patcher adds on its own: the Start Over reset
-    (with its hooks) and the game-start loader."""
+    (with its hooks), No Safeguards' companion (with its row) and the
+    game-start loader."""
     return _attach_startup_loader(
-        build_id, _attach_start_over_reset(build_id, fun_patches)
+        build_id, _attach_no_safeguards(build_id, _attach_start_over_reset(build_id, fun_patches))
     )
 
 

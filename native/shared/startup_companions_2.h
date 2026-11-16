@@ -80,6 +80,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* More Frequent Island Events (all five games): the game's own island events N times as often (the patcher
        window's slider, read from "VVFP Island Frequency.txt" beside it). */
     "VVFP Island Frequency.dll",
+    /* No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
+       without their conditions, except what an event needs (its villagers, its puzzle) and what keeps it safe. */
+    "VVFP No Safeguards.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

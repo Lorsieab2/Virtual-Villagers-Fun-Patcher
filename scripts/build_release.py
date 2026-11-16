@@ -143,6 +143,8 @@ FILES = [
     "assets/gender_presentation/VVFP Gender Presentation.dll",
     # More Frequent Island Events (all five games): the game's own island events N times as often.
     "assets/island_frequency/VVFP Island Frequency.dll",
+    # No Safeguards for Island Events (and Additional Events too) (all five games): the game's own events' companion.
+    "assets/no_safeguards/VVFP No Safeguards.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -343,6 +345,7 @@ FILES = [
     "data/vv3_more_frequent_island_events_feature.json",
     "data/vv4_more_frequent_island_events_feature.json",
     "data/vv5_more_frequent_island_events_feature.json",
+    "data/no_safeguards_companion.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
@@ -572,6 +575,7 @@ FILES = [
     "src/vv_the_rumblings.py",
     "src/vv_game_mechanics_ceremony.py",
     "src/vv_game_mechanics_children_play.py",
+    "src/vv_game_mechanics_no_safeguards.py",
     # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
     "src/vv_game_mechanics_collection.py",
     "data/event_collection_index.json",
