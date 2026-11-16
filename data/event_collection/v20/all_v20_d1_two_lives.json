@@ -144,13 +144,6 @@
    {
     "src": "L8986",
     "kind": "sensitivity",
-    "before": "the baby is stillborn",
-    "after": "the baby is born without signs of life",
-    "why": "the owner's Q09 wording (2026-11-15): stillbirth is said \"born without signs of life\" and miscarriage \"loss\" (Q02 lists both words as hint only)"
-   },
-   {
-    "src": "L8986",
-    "kind": "sensitivity",
     "before": "mother",
     "after": "(parent.mother/father)",
     "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
@@ -266,13 +259,6 @@
     "before": "her",
     "after": "(parent.his/her)",
     "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
-   },
-   {
-    "src": "L9001",
-    "kind": "sensitivity",
-    "before": "the baby is stillborn",
-    "after": "the baby is born without signs of life",
-    "why": "the owner's Q09 wording (2026-11-15): stillbirth is said \"born without signs of life\" and miscarriage \"loss\" (Q02 lists both words as hint only)"
    },
    {
     "src": "L9001",
@@ -434,13 +420,6 @@
     "before": "her.",
     "after": "(parent.him/her).",
     "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
-   },
-   {
-    "src": "L9013",
-    "kind": "sensitivity",
-    "before": "ends in miscarriage",
-    "after": "ends in loss",
-    "why": "the owner's Q09 wording (2026-11-15): stillbirth is said \"born without signs of life\" and miscarriage \"loss\" (Q02 lists both words as hint only)"
    },
    {
     "src": "L9013",
@@ -1163,7 +1142,7 @@
    ]
   },
   "b9": {
-   "text": "The (parent.mother/father) survives, but the baby is born without signs of life; the family gathers to grieve.",
+   "text": "The (parent.mother/father) survives, but the baby is stillborn; the family gathers to grieve.",
    "src": "L8986",
    "effects": [
     {
@@ -1386,7 +1365,7 @@
    ]
   },
   "c8": {
-   "text": "(parent.He/She) chooses intervention; the baby is born without signs of life, but (parent.he/she) survives.",
+   "text": "(parent.He/She) chooses intervention; the baby is stillborn, but (parent.he/she) survives.",
    "src": "L9001",
    "effects": [
     {
@@ -1516,7 +1495,7 @@
    ]
   },
   "c20": {
-   "text": "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in loss, and the family grieves.",
+   "text": "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in miscarriage, and the family grieves.",
    "src": "L9013",
    "effects": [
     {

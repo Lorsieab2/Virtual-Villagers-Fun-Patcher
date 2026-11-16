@@ -26,6 +26,9 @@ sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cg  # noqa: E402
 import vv_living_mixer as mx  # noqa: E402
 
+sys.path.insert(0, str(ROOT / "scripts"))
+import collection_lib as lib  # noqa: E402  (the labels: every new event's in title case)
+
 ASSETS = ROOT / "assets" / "event_collection"
 LIVING_SOURCE = ROOT / "docs" / "more-island-events" / "Isola_ALL_IN_ONE_Modular_Living_Event_Engine.txt"
 COUNTS = {"seeds": 120, "roles": 30, "personalities": 24, "approaches": 34, "archetypes": 38, "mix": 60,
@@ -145,7 +148,7 @@ def check_le(bank: mx.Bank, idx: Index, seed: dict, v: dict, d: dict, game: int,
         label = expand_words(c["label"], words, game)
         hit = None
         for text, ident in idx.choice.items():
-            if chief_form(text, game) == label:
+            if lib.title_case_label(chief_form(text, game)) == label:
                 hit = ident
         if hit is None:
             out.append(f"{where}: label {label!r} is not a bank choice")
@@ -185,7 +188,7 @@ def check_mc(bank: mx.Bank, sit: dict, v: dict, d: dict, game: int, out: list[st
     if expand_words(start["text"], words, game) != chief_form(mx.plain(sit["text"]), game):
         out.append(f"{where}: setup {start['text']!r}")
     labels = [expand_words(c["label"], words, game) for c in start["choices"]]
-    want = [chief_form(mx.plain(ap["text"]), game) for ap in sit["approaches"]]
+    want = [lib.title_case_label(chief_form(mx.plain(ap["text"]), game)) for ap in sit["approaches"]]
     if sorted(labels) != sorted(want) or len(labels) != 4:
         out.append(f"{where}: labels {labels}")
         return

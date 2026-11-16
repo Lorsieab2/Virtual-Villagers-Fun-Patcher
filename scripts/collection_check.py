@@ -176,6 +176,10 @@ def graph_for_engine(doc: dict) -> dict:
     for k in AUTHORING_TOP:
         g.get("collection", {}).pop(k, None)
     scrub(g)
+    # every new event's choice labels in title case (collection_lib), unless the file keeps the owner's case
+    # (collection.label_case "source": a label whose title case would not fit the screen)
+    if (doc.get("collection") or {}).get("label_case") != "source":
+        lib.title_case_graph_labels(g)
     return g
 
 

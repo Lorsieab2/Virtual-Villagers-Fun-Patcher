@@ -373,11 +373,13 @@ def strip_structural(text: str) -> str:
 
 # ---- Title-case choice labels (the owner, 2026-11-15: titles and choice options are always title case) -------------
 #
-# A file whose collection.label_case is "title" shows each choice label in title case: every word's first letter a
-# capital (each part of a hyphenated word too), except these small words when neither first nor last; a word that
-# already has capitals keeps them.  Used by the 2026-11-15 sources (Beyond the Horizon, Role Models); the older
-# sources switch after the merge.  The fidelity check compares such a label with the source words case-blind and
-# then requires exactly this form of them.
+# Every new event's choice labels are shown in title case: every word's first letter a capital (each part of a
+# hyphenated word too), except these small words when neither first nor last; a word that already has capitals keeps
+# them.  A file whose collection.label_case is "title" (the 2026-11-15 sources: Beyond the Horizon, Role Models and
+# later) is written that way, and the fidelity check compares such a label with the source words case-blind and then
+# requires exactly this form of them.  Every other source keeps the owner's words as written in its file, and
+# title_case_graph_labels -- the one switch, applied as each event is compiled (collection_check.graph_for_engine,
+# the Living mixer's variants) -- shows them in title case.  Stock events are never touched.
 
 LABEL_SMALL_WORDS = {"a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into", "nor", "of", "on", "or",
                      "the", "to", "with"}
@@ -394,6 +396,80 @@ def title_case_label(text: str) -> str:
             continue
         out.append("-".join(p[:1].upper() + p[1:] for p in w.split("-")))
     return " ".join(out)
+
+
+def _title_case_inner(text: str, first: bool) -> str:
+    """Words that sit inside a label (a game word's text): first-word rules only when they open the label."""
+    return title_case_label(text) if first else title_case_label("x " + text)[2:]
+
+
+def title_case_graph_label(label: str, graph: dict) -> str:
+    """One choice label of an engine graph in title case (title_case_label), its tokens kept working: a label all in
+    capitals is lowered first; a pronoun placeholder takes its capital form ((x.he/she) -> (x.He/She)), a name in
+    capitals too ((NAME1) -> (Name1)); a game word {@w} whose words change takes a word of its own, w_tc (w_tc1 when
+    it opens the label), added to the graph's words; pools, picks and escapes are kept as they are."""
+    import vv_cie_graph as cie   # src/ (on the path wherever a graph is compiled)
+    parts: list[tuple[str, str]] = []
+    pos = 0
+    for m in cie._TOKEN_V6.finditer(label):
+        if m.start() > pos:
+            parts.append(("lit", label[pos:m.start()]))
+        parts.append(("tok", m.group(0)))
+        pos = m.end()
+    if pos < len(label):
+        parts.append(("lit", label[pos:]))
+    lits = "".join(t for k, t in parts if k == "lit")
+    capitals = sum(c.isalpha() for c in lits) >= 2 and not any(c.islower() for c in lits)
+    if capitals:
+        parts = [(k, t.lower() if k == "lit" else t) for k, t in parts]
+    toks = [t for k, t in parts if k == "tok"]
+    # A token stands in the words as a mark and a letter, so a label's first or last word may be a token.
+    masked = "".join(t if k == "lit" else chr(0xE000 + toks.index(t)) + "Q" for k, t in parts)
+    cased = title_case_label(masked)
+    roles = graph.get("roles") or {}
+    words = graph.get("words") or {}
+    out = []
+    i = 0
+    while i < len(cased):
+        ch = cased[i]
+        if not 0xE000 <= ord(ch) < 0xE000 + len(toks):
+            out.append(ch)
+            i += 1
+            continue
+        tok = toks[ord(ch) - 0xE000]
+        i += 2                                  # the mark and its letter
+        first = not re.search(r"[A-Za-z]", "".join(out))
+        if tok.startswith("(") and tok.endswith(")"):
+            p = cie.parse_placeholder_v6(tok[1:-1], roles)
+            role, dot, word = tok[1:-1].rpartition(".")
+            new = None
+            if p is not None and p.what == "name" and p.upper:
+                new = "(" + word.lower().capitalize() + ")"                       # (NAME1) -> (Name1)
+            elif p is not None and p.what not in ("name", "award", "award_unit") and (p.upper or not p.capital):
+                new = "(" + (p.role + dot if dot else "") + "/".join(a[:1].upper() + a[1:].lower()
+                                                                    for a in word.split("/")) + ")"
+            if new is not None:
+                q = cie.parse_placeholder_v6(new[1:-1], roles)
+                if q is not None and q.what == p.what and q.role == p.role and q.capital and not q.upper:
+                    tok = new
+        elif tok.startswith("{@") and tok[2:-1] in words:
+            key = tok[2:-1]
+            new = {g: _title_case_inner(v, first) if isinstance(v, str) else v for g, v in words[key].items()}
+            if new != words[key]:
+                key2 = key + ("_tc1" if first else "_tc")
+                graph.setdefault("words", words)[key2] = new
+                tok = "{@" + key2 + "}"
+        out.append(tok)
+    return "".join(out)
+
+
+def title_case_graph_labels(graph: dict) -> dict:
+    """Every choice label of an engine graph in title case (title_case_graph_label); the graph, changed in place."""
+    for node in (graph.get("nodes") or {}).values():
+        for ch in node.get("choices") or []:
+            if isinstance(ch, dict) and isinstance(ch.get("label"), str):
+                ch["label"] = title_case_graph_label(ch["label"], graph)
+    return graph
 
 
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z'\-]*[A-Za-z]|[A-Za-z]")

@@ -866,7 +866,18 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
                 out += mc_variants(bank, sit, mc_k)
     for v in out:
         v.mood = mood_of(bank, v)
+        title_case_labels(v.graph)
     return out
+
+
+def title_case_labels(graph: dict) -> dict:
+    """The owner (2026-11-15): every new event's choice labels in title case -- scripts/collection_lib's one switch,
+    which the collection's own events take too (collection_check.graph_for_engine)."""
+    scripts = str(ROOT / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import collection_lib
+    return collection_lib.title_case_graph_labels(graph)
 
 
 # The content filters (lead's list F01-F27, 2026-11-15): which outcomes each would drop before selection.  A Living

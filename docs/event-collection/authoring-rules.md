@@ -297,6 +297,15 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
 
 - Labels drop their structural prefix and keep the owner's words and case (`"FOLLOW THE ESTABLISHED RULE"`). A label
   may overflow its button (Q16).
+- The game shows every new event's labels in title case (the owner, 2026-11-15; never a stock event's):
+  `collection_lib.title_case_graph_labels`, applied as each event is compiled (`collection_check.graph_for_engine`,
+  the Living mixer's variants). A label all in capitals is lowered first ("Follow the Established Rule"); small words
+  stay lower case unless first or last; a pronoun placeholder takes its capital form (`(friend.He/She)`), a name in
+  capitals its capital one (`(Name1)`); a game word whose words change gets a word of its own (`{@chief_tc}`). The file
+  keeps the owner's words as written; a `label_case: "title"` file is written in title case already. A file with
+  `label_case: "source"` keeps the owner's case: only `lvmed22_dream_kidney`, whose "Seek the donor's prior consent
+  and study anatomy without operating." would run 3 pixels off A New Home's and The Lost Children's screens in title
+  case.
 - 5-7 choices go on one page (Q12). A choice limited to some games gets `"if": {"game": [3, 4, 5]}` (Between Life and
   Death B and C). At least two choices remain in every game.
 - With 4 or more buttons, put the event's long text on a popup before the question and keep the question page short.

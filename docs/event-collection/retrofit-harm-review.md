@@ -65,8 +65,8 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
   "father" for a man (sex-aware role words `(parent.mother/father)`, `(parent.he/she)`, `(parent.his/her)`,
   `(parent.son/daughter)`; each change is a `sensitivity` ledger entry, the owner's sentences otherwise unchanged), and
   children are never cast as a carrying parent.
-- **Wording (Q09):** "the baby is stillborn" (B9, C8) is shown as "the baby is born without signs of life", and "the
-  pregnancy ends in miscarriage" (C20) as "the pregnancy ends in loss" (Q02 lists both words as hint only).
+- **Wording:** the owner's own words are shown (the owner, 2026-11-15): "the baby is stillborn" (B9, C8) and "the
+  pregnancy ends in miscarriage" (C20), no sensitivity edit.
 - **Effects:** a premature birth where both live is the new `deliver_early` (cie-v6-binary.md 30: the game's own birth
   now, the baby younger and weaker the earlier it is, the parent lives); a frail newborn ("very frail", "significant /
   lasting / serious health challenges", "fragile health", "born frail") loses -30..-10 health more, "dangerously low"
@@ -98,7 +98,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | B6 | "The (parent.mother/father) survives, but the pregnancy ends unexpectedly in loss; the family mourns the child they had hoped to meet." | `baby_lost` | rare: 5 of 126 in choice B |
 | B7 | "Both survive, though the baby is born frail and struggles to regain strength." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
 | B8 | "The baby is born prematurely and survives, but the (parent.mother/father) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 126 in choice B |
-| B9 | "The (parent.mother/father) survives, but the baby is born without signs of life; the family gathers to grieve." | `baby_lost` | rare: 5 of 126 in choice B |
+| B9 | "The (parent.mother/father) survives, but the baby is stillborn; the family gathers to grieve." | `baby_lost` | rare: 5 of 126 in choice B |
 | B10 | "Both survive, and the baby is born healthy despite the healers' fears." | none (told) | 20 of 126 in choice B |
 | B11 | "The premature baby survives the birth but dies soon afterward; the (parent.mother/father) and family mourn." | `baby_lost` | very rare: 2 of 126 in choice B |
 | B12 | "The (parent.mother/father) survives, and the baby is born with lasting health challenges; the family embraces their newest member." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 126 in choice B |
@@ -108,7 +108,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | C5 | "(parent.He/She) chooses gentler care; the baby arrives early and frail but survives." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C6 | "(parent.He/She) chooses intervention; the baby survives, but (parent.he/she) dies after the birth." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
 | C7 | "(parent.He/She) chooses gentler care; the pregnancy ends in loss, and the family honors (parent.his/her) decision." | `baby_lost` | rare: 5 of 289 in choice C |
-| C8 | "(parent.He/She) chooses intervention; the baby is born without signs of life, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
+| C8 | "(parent.He/She) chooses intervention; the baby is stillborn, but (parent.he/she) survives." | `baby_lost` | rare: 5 of 289 in choice C |
 | C9 | "(parent.He/She) chooses gentler care; both survive, and the baby is born healthy." | none (told) | 20 of 289 in choice C |
 | C10 | "(parent.He/She) chooses intervention; (parent.his/her) baby survives with serious health challenges and is welcomed with love." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C11 | "(parent.He/She) chooses gentler care; the premature baby survives briefly before dying, leaving the family grieving." | `baby_lost` | very rare: 2 of 289 in choice C |
@@ -120,7 +120,7 @@ that file (its V28 lines are the notes row `notes_v20_d1_v28`); every source lin
 | C17 | "(parent.He/She) refuses to end the pregnancy despite the danger; the healers respect (parent.his/her) wishes, and both survive." | none (told) | 20 of 289 in choice C |
 | C18 | "(parent.He/She) refuses the procedure, but (parent.his/her) condition worsens; the baby survives a premature birth, while the (parent.mother/father) dies." | `birth_then_die`, cause Unknown causes | very rare: 2 of 289 in choice C |
 | C19 | "(parent.He/She) accepts the procedure after learning that (parent.his/her) life is in danger; (parent.he/she) survives, though the loss weighs heavily upon (parent.him/her)." | `baby_lost` | rare: 5 of 289 in choice C |
-| C20 | "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in loss, and the family grieves." | `baby_lost` | rare: 5 of 289 in choice C |
+| C20 | "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in miscarriage, and the family grieves." | `baby_lost` | rare: 5 of 289 in choice C |
 | C21 | "(parent.He/She) accepts the procedure with (parent.his/her) family's support; (parent.his/her) recovery is gradual, and (parent.he/she) mourns the pregnancy (parent.he/she) had hoped to continue." | `baby_lost`; `health_change` -30..-10 | rare: 5 of 289 in choice C |
 | C22 | "(parent.He/She) refuses the procedure despite the healers' concerns; both survive, though the baby is born prematurely and frail." | `deliver_early` (newborn -30..-10 health more) | rare: 5 of 289 in choice C |
 | C23 | "(parent.He/She) asks for more time before deciding; the healers continue caring for (parent.him/her) while (parent.he/she) considers (parent.his/her) options." | none (told) | 20 of 289 in choice C |
