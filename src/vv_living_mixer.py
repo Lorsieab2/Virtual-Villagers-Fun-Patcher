@@ -876,8 +876,48 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
                 out += mc_variants(bank, sit, mc_k)
     for v in out:
         v.mood = mood_of(bank, v)
+        guardians_bank(v.graph)
         title_case_labels(v.graph)
     return out
+
+
+# New Believers with Guardians of Isola Rewrite (the owner, 2026-11-16; docs/event-collection/guardians-wording.md,
+# "Believers"): a bank line that says believer(s) shows its Guardians form with the patch.
+GUARDIANS_BANK = (("Two believers disagree", "Two villagers of faith disagree"),
+                  ("a skeptic and a believer", "a skeptic and a villager of faith"))
+GUARDIANS_IF = {"patch": "guardians_of_isola"}
+
+
+def guardians_form(text: str) -> str:
+    for before, after in GUARDIANS_BANK:
+        text = text.replace(before, after)
+    return text
+
+
+def guardians_bank(graph: dict) -> None:
+    """A page's Guardians form as its first variant; a label's as a twin choice shown only with the patch (the
+    label itself then only without it)."""
+    if 5 not in graph.get("games", []):
+        return
+    touched = False
+    for n in graph["nodes"].values():
+        text = n.get("text") or ""
+        if guardians_form(text) != text:
+            n["variants"] = [{"if": dict(GUARDIANS_IF), "text": guardians_form(text)}] + (n.get("variants") or [])
+            touched = True
+        choices = []
+        for c in n.get("choices") or []:
+            label = c["label"]
+            if guardians_form(label) != label and not c.get("if"):
+                choices.append(dict(c, **{"if": {"not": dict(GUARDIANS_IF)}}))
+                choices.append(dict(c, label=guardians_form(label), **{"if": dict(GUARDIANS_IF)}))
+                touched = True
+            else:
+                choices.append(c)
+        if n.get("choices"):
+            n["choices"] = choices
+    if touched and "guardians_of_isola" not in graph.get("patches", []):
+        graph["patches"] = graph.get("patches", []) + ["guardians_of_isola"]
 
 
 def title_case_labels(graph: dict) -> dict:
@@ -1213,6 +1253,8 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
                     text = text.replace("{@" + name + "}", vals["3" if game == 3 else "*"])
             r = rows[v.manifest_id] = {"id": v.manifest_id, "title": v.graph["title"], "games": set(),
                                        "weight": 1, "series": v.series, "credit": bank.credit, "description": text}
+            if game == 5 and guardians_form(text) != text:
+                r["guardians_description"] = guardians_form(text)     # the Guardians description column
         r["games"] |= set(v.games)
     for r in rows.values():
         r["games"] = sorted(r["games"])

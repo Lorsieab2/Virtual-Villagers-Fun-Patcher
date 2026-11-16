@@ -33,6 +33,14 @@
   "label_case": "title",
   "cast_only": [
    "subject"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "At the feast for the Guardians, a tribe member sees an Isolan from outside the village watching: invite them, or leave them be."
+   }
   ]
  },
  "requirement": {
@@ -93,5 +101,8 @@
    "text": "(subject) nods to (friend) across the firelight and goes back to the feast. (friend) watches for a while, then turns and goes back into the trees. The next morning, there's a small carved bird left on a rock at the edge of the village, facing the feasting ground. Nobody knows exactly what it means. (subject) leaves a bowl of fruit beside it.",
    "src": "L317"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

@@ -32,6 +32,14 @@
   "cast_only": [
    "believer",
    "scientist"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A devastating storm passes despite many prayers, and a villager of faith asks why no god prevented it."
+   }
   ]
  },
  "requirement": {
@@ -76,6 +84,14 @@
      "next": "c",
      "src": "L22474"
     }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A devastating storm passes despite many prayers, and a villager of faith asks why no god prevented it."
+    }
    ]
   },
   "a": {
@@ -93,7 +109,15 @@
   "a1": {
    "name": "Outcome A1",
    "text": "The believer finds comfort in a story of endurance.",
-   "src": "L22469"
+   "src": "L22469",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The villager of faith finds comfort in a story of endurance."
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -120,7 +144,15 @@
   "b2": {
    "name": "Outcome B2",
    "text": "The believer asks why understanding weather does not ease grief.",
-   "src": "L22473"
+   "src": "L22473",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The villager of faith asks why understanding weather does not ease grief."
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -144,5 +176,8 @@
    "text": "The unanswered question returns at the next gathering.",
    "src": "L22476"
   }
- }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
 }

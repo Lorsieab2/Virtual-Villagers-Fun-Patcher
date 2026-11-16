@@ -355,7 +355,8 @@ def manifest_line(game: int, e: dict) -> str:
 def living_line(r: dict) -> str:
     """A Living Event Engine seed's row: its event is in living.pak (the id's living_ prefix says so)."""
     return "\t".join([r["id"], r["title"], ",".join(str(n) for n in r["games"]), str(r["weight"]), r["series"],
-                      one_line(r["credit"]), one_line(r["description"]), "", ""])
+                      one_line(r["credit"]), one_line(r["description"]), "",
+                      one_line(r.get("guardians_description", ""))])
 
 
 def manifest_text(game: int, events: list[dict], living_rows: list[dict] | None = None) -> str:

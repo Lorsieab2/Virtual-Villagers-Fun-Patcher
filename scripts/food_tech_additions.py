@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -298,6 +299,14 @@ TEXT_EDITS: list[tuple[str, str, str, str, str, str]] = [
     ("lvmed05_limb_might", "c2", "L20281", "in a new craft.", "in a new craft, though running is now hard.",
      "dislike running (every game); the outcome names the running"),
 ]
+# Owner-approved label edits (event id, choice src, before, after, why); a file with one shows its labels in title case
+# (its collection.label_case "source" exception goes).
+LABEL_EDITS: list[tuple[str, str, str, str, str]] = [
+    ("lvmed22_dream_kidney", "L20497", "Seek the donor's prior consent and study anatomy without operating.",
+     "Seek the donor's prior consent.",
+     "owner-approved shortening (2026-11-16) so the label fits in title case; outcome B2 is the donor's family "
+     "declining consent"),
+]
 # (event id, node, the word taken out, text_only entry or None, why)
 EFFECT_REMOVALS: list[tuple[str, str, str, dict | None, str]] = [
     ("c5dn001_trial_week", "e2", "work",
@@ -309,9 +318,62 @@ EFFECT_REMOVALS: list[tuple[str, str, str, dict | None, str]] = [
 ]
 
 
+GUARDIANS_IF = {"patch": "guardians_of_isola"}
+BELIEVER = re.compile(r"(?<!new )\bbelievers?\b", re.I)
+
+
+def apply_guardians(doc: dict) -> None:
+    """New Believers with Guardians of Isola Rewrite (docs/event-collection/guardians-wording.md, its "Believers"
+    rows, the owner 2026-11-16): each page and Pick Island Event description that says believer(s) gets its Guardians
+    form (the event's rows' pairs made) as its first variant, and the event names the patch."""
+    if 5 not in (doc.get("games") or []):
+        return
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib as lib
+    col = doc.get("collection") or {}
+    pairs = lib.guardians_pairs().get(col.get("id"), [])
+    if not pairs:
+        return
+
+    def form(text: str) -> str:
+        for _w, before, after in pairs:
+            text = text.replace(before, after)
+        return text
+    touched = False
+    for n in (doc.get("nodes") or {}).values():
+        text = n.get("text") or ""
+        if not BELIEVER.search(text):
+            continue
+        good = form(text)
+        if good == text:
+            continue
+        vs = [v for v in n.get("variants") or [] if v.get("if") != GUARDIANS_IF]
+        n["variants"] = [{"if": dict(GUARDIANS_IF), "text": good}] + vs
+        touched = True
+    desc = col.get("description") or ""
+    if BELIEVER.search(desc) and form(desc) != desc:
+        dvs = [v for v in col.get("description_variants") or [] if v.get("if") != GUARDIANS_IF]
+        col["description_variants"] = [{"if": dict(GUARDIANS_IF), "description": form(desc)}] + dvs
+        touched = True
+    if touched and "guardians_of_isola" not in (doc.get("patches") or []):
+        doc["patches"] = (doc.get("patches") or []) + ["guardians_of_isola"]
+
+
 def apply_likes_fix(doc: dict) -> None:
     eid = (doc.get("collection") or {}).get("id")
     nodes = doc.get("nodes", {})
+    apply_guardians(doc)
+    for e_id, src, before, after, _ in LABEL_EDITS:
+        if e_id != eid:
+            continue
+        for n in nodes.values():
+            for c in n.get("choices") or []:
+                if c.get("src") == src and c["label"] == before:
+                    c["label"] = after
+        fix = {"src": src, "before": before, "after": after}
+        if fix not in doc.setdefault("grammar_fixes", []):
+            doc["grammar_fixes"].append(fix)
+        doc["collection"].pop("label_case", None)
     for e_id, node, src, before, after, _ in TEXT_EDITS:
         if e_id != eid:
             continue
@@ -475,7 +537,10 @@ def main(argv=None) -> int:
             if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
                 print(f"{eid}: node {node} already has a {add['do']} effect on that role")
                 bad += 1
-    for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS}):
+    import collection_lib as lib
+    believer_rows = {eid for eid, rows_ in lib.guardians_pairs().items() if any(BELIEVER.search(b) for _w, b, _a in rows_)}
+    for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS} | {r[0] for r in LABEL_EDITS}
+                      | believer_rows):
         if eid not in files:
             print(f"{eid}: no collection file")
             bad += 1
