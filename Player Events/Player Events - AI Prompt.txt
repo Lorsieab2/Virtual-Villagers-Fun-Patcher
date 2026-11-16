@@ -7,10 +7,12 @@ Pay particular attention to my events such as The Aspiring Adventurer, The Cave 
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
 Also follow my style guide, "Isola Island Event Style Guide.txt" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
+My example events, "Example Events - Lorsieab2 (S001-S019).txt" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
+THE KEY: my handwritten events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and my 19 example events ("Example Events - Lorsieab2 (S001-S019).txt") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
 2. Create an Interesting Story
 Write ONE completely original Island Event.
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
-Possible themes include:
+Use the themes in my themes list, "Island Event Themes - All Added Events.txt" (I provide it too): pick from it, or from the player's own themes below when there are any. Possible themes include:
 
 * Everyday village life, relationships, friendships, celebrations, and leisure.
 * Exploration, scientific discoveries, inventions, experiments, and accidents.
@@ -81,6 +83,7 @@ Depending on the story, outcomes may include:
 * Changes in appearance or other supported attributes.
 * No mechanical effect, if the narrative itself is sufficient.
 
+Use the kinds of outcome in my outcomes list, "Island Event Outcomes - Every Kind.txt" (I provide it too), balancing them: over many events every kind should come up about equally, not only food and tech. A kind that list marks as still being added cannot be used yet.
 Use gameplay effects only when the story supports them, and only the effects listed in section 9.
 Don't artificially balance every choice with one good outcome and one bad outcome.
 Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.

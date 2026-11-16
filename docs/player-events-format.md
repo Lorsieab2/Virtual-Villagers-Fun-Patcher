@@ -19,8 +19,13 @@ of the built-in events.
   DEFAULT source for event tone; "Choose Reference File..." swaps in your own, Cancel goes back to the owner's), and
   `Isola Island Event Style Guide.txt` (the owner's style guide, from Lorsieab2's own edits: every added event follows
   it, except the owner's handwritten ones; "Copy Style Guide" / "Show Style Guide"; the prompt tells the AI to follow
-  it). All three, byte for byte (the prompt with your rules), are also installed in each patched game's
-  `Virtual Villagers Fun Patcher Files\Player Events`.
+  it), and the owner's default lists: `Island Event Themes - All Added Events.txt` (every theme of the added events;
+  the "favour these themes" picker offers them after your own) and `Island Event Outcomes - Every Kind.txt` (every
+  kind of outcome; the prompt tells the AI to use those themes and outcome kinds, balancing the outcomes), and
+  `Example Events - Lorsieab2 (S001-S019).txt` (the owner's 19 rewritten events: the format and style example the
+  prompt names; reference only, never compiled or installed as playable events); each with Copy / Show buttons. The
+  owner's five files ship byte for byte (also in docs/more-island-events); all six (the prompt with your rules) are
+  also installed in each patched game's `Virtual Villagers Fun Patcher Files\Player Events`.
 - **At patch time** (only with the game's Isola Grand Event Collection row ticked, and "Install my player events
   when patching" on), in the patched game's `Virtual Villagers Fun Patcher Files`:
   - `Island Event Collection\manifest-pl_<x>.txt`, one per file (the collection's own split-file manifests,
@@ -247,8 +252,9 @@ Effect: TECH GAIN (small)
 - **Rules the patcher enforces** (ticks): no deaths, no disappearances, no pregnancy or births, no lasting changes
   to a villager, no food or tech losses, no new villagers. An event or piece that breaks a ticked rule is left out
   (and listed).
-- **Favour these themes** (ticks, from your rules' Themes line and your files' `Themes:` lines): a player event or
-  piece with a favoured theme weighs 3 times as much in the draw. **Only my themes:** player events and pieces
+- **Favour these themes** (a list to choose several from: your rules' Themes line and your files' `Themes:` lines
+  first, then every theme of the owner's themes list): a player event or piece with a favoured theme (the same words,
+  or one inside the other: "sea" meets "dolphins and the sea") weighs 3 times as much in the draw. **Only my themes:** player events and pieces
   without a favoured theme are left out. The built-in events are never changed.
 - **Events the prompt asks for:** the number box (1..50).
 

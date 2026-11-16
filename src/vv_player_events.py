@@ -40,18 +40,80 @@ import vv_event_content as content
 
 ROOT = Path(__file__).resolve().parents[1]
 PLAYER_FOLDER = ROOT / "Player Events"                     # the patcher's own folder for them
+# Every shipped default file (the AI prompt, the tone reference, the style guide, the themes and outcomes lists) sits
+# in "Player Events", in the patcher and in each patched game.
+DEFAULTS_FOLDER = PLAYER_FOLDER
+OWNER_DOCS = ROOT / "docs" / "more-island-events"
 PROMPT_NAME = "Player Events - AI Prompt.txt"
 TONE_NAME = "Island Event Tone Reference - Lorsieab2's Handwritten Events.txt"
-TONE_SOURCE = ROOT / "docs" / "more-island-events" / TONE_NAME
+TONE_SOURCE = OWNER_DOCS / TONE_NAME
 # The owner's style guide (from Lorsieab2's own edits): every added event follows it, except the owner's handwritten
 # ones; shipped byte for byte beside the prompt and the tone reference.
 STYLE_NAME = "Isola Island Event Style Guide.txt"
-STYLE_SOURCE = ROOT / "docs" / "more-island-events" / STYLE_NAME
+STYLE_SOURCE = OWNER_DOCS / STYLE_NAME
+# The owner's default lists (2026-11-15: "ship these outcome files and themes files in the patcher as default"), byte
+# for byte: every theme of the added events (the "favour these themes" picker offers them) and every kind of outcome.
+THEMES_NAME = "Island Event Themes - All Added Events.txt"
+OUTCOMES_NAME = "Island Event Outcomes - Every Kind.txt"
+# The owner's 19 rewritten events (S001-S019): the format and style example the AI prompt names.  Reference only:
+# never compiled or installed as playable events.
+EXAMPLE_NAME = "Example Events - Lorsieab2 (S001-S019).txt"
+OWNER_FILES = (TONE_NAME, STYLE_NAME, THEMES_NAME, OUTCOMES_NAME, EXAMPLE_NAME)   # byte for byte (docs/more-island-events)
+
+
+def shipped_file(name: str) -> Path:
+    """One of the owner's shipped files: the "Player Events" copy, else docs/more-island-events."""
+    shipped = DEFAULTS_FOLDER / name
+    return shipped if shipped.is_file() else OWNER_DOCS / name
 
 
 def style_guide() -> Path:
-    shipped = PLAYER_FOLDER / STYLE_NAME
-    return shipped if shipped.is_file() else STYLE_SOURCE
+    return shipped_file(STYLE_NAME)
+
+
+def default_themes(path: Path | None = None) -> list[str]:
+    """The themes of the owner's themes file, as short phrases for the picker: each list line split at its commas,
+    semicolons and colons, without the event names in brackets; the drafts still waiting for the owner's GO are left
+    out."""
+    try:
+        text = (path or shipped_file(THEMES_NAME)).read_text(encoding="utf-8-sig")
+    except OSError:
+        return []
+    out: list[str] = []
+    waiting = False
+    for line in text.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s == s.upper() and not s.startswith("-"):
+            waiting = s.startswith("WAITING")
+            continue
+        if waiting:
+            continue
+        if s.startswith("- "):
+            s = s[2:]
+        elif not line.startswith("  "):
+            continue
+        s = re.sub(r"\([^)]*\)", "", s)
+        for part in re.split(r"[,;:]", s):
+            p = re.sub(r"\s+", " ", part).strip(" .-").lower()
+            p = re.sub(r"^(and|the) ", "", p)
+            if 2 < len(p) <= 48 and not re.search(r"\d", p) and p not in out:
+                out.append(p)
+    return out
+
+
+def theme_hit(themes: Iterable[str], favour: Iterable[str]) -> bool:
+    """An item's themes meet a favoured theme: the same words, or one inside the other ("sea" and "dolphins and the
+    sea")."""
+    fav = [f.lower().strip() for f in favour if f.strip()]
+    for t in (t.lower().strip() for t in themes):
+        if t and any(t == f or re.search(r"\b" + re.escape(t) + r"\b", f) or re.search(r"\b" + re.escape(f) + r"\b", t)
+                     for f in fav):
+            return True
+    return False
+
+
 RULES_NAME = "Your Rules and Themes.txt"
 SETTINGS_NAME = "Player Events Settings.json"
 FORMAT_DOC = ROOT / "docs" / "player-events-format.md"
@@ -2134,7 +2196,7 @@ def rule_problem(it: Item, rules: dict[str, bool]) -> str | None:
 def themes_ok(themes: Iterable[str], settings: Settings) -> tuple[bool, int]:
     """(kept, weight multiplier) for an item's themes under the favoured themes and "Only my themes"."""
     fav = {t.lower() for t in settings.favour}
-    hit = bool(fav & {t.lower() for t in themes})
+    hit = theme_hit(themes, fav)
     if settings.only_my_themes and fav and not hit:
         return False, 1
     return True, THEME_FAVOUR if hit else 1
@@ -2191,7 +2253,7 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
     used_ids: set[str] = set()
     cap = VV1_ID_MAX if game == 1 else ID_MAX
     for path in sorted(folder.glob("*.txt"), key=lambda p: p.name.lower()):
-        if path.name in (RULES_NAME, PROMPT_NAME, TONE_NAME, STYLE_NAME):
+        if path.name in (RULES_NAME, PROMPT_NAME) + OWNER_FILES:
             continue
         items, file_problems = parse_file(path)
         report.skipped += [str(p) for p in file_problems]
@@ -2303,24 +2365,23 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
 
 
 def install_references(game: int, files_dir: Path, settings: Settings, root: Path | None = None) -> Path:
-    """The AI prompt, the owner's tone reference (and the player's own, when chosen) and the owner's style guide,
-    byte for byte, in "<game folder>\\Virtual Villagers Fun Patcher Files\\Player Events"."""
+    """The AI prompt, the player's own tone reference (when chosen) and the owner's files (the tone reference, the
+    style guide, the themes and outcomes lists), byte for byte, in "<game folder>\\Virtual Villagers Fun Patcher
+    Files\\Player Events"."""
     shown = files_dir / INSTALLED_FOLDER
     shown.mkdir(parents=True, exist_ok=True)
     (shown / PROMPT_NAME).write_text(ai_prompt(game, settings, read_rules(game, root)), encoding="utf-8")
     ref = reference_file(settings)
-    if ref.is_file():
-        shutil.copyfile(ref, shown / (TONE_NAME if ref == default_reference() else ref.name))
-    if TONE_SOURCE.is_file() and ref != default_reference():
-        shutil.copyfile(TONE_SOURCE, shown / TONE_NAME)
-    if style_guide().is_file():
-        shutil.copyfile(style_guide(), shown / STYLE_NAME)
+    if ref.is_file() and ref != default_reference() and ref.name not in OWNER_FILES:
+        shutil.copyfile(ref, shown / ref.name)
+    for name in OWNER_FILES:
+        if shipped_file(name).is_file():
+            shutil.copyfile(shipped_file(name), shown / name)
     return shown
 
 
 def default_reference() -> Path:
-    shipped = PLAYER_FOLDER / TONE_NAME
-    return shipped if shipped.is_file() else TONE_SOURCE
+    return shipped_file(TONE_NAME)
 
 
 def reference_file(settings: Settings) -> Path:
@@ -2474,10 +2535,12 @@ Pay particular attention to my events such as The Aspiring Adventurer, The Cave 
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
 Also follow my style guide, "{style}" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
+My example events, "{example}" (I provide them too), are rewritten in my own hand: they are the format and style example, showing how an event is built (the opening, the choices, a first popup for a choice, the endings with their chances and effects) and how much story each popup and ending carries. Write yours with the same parts, laid out in the format of section 9 (my patcher reads that layout; my example's headings are for my notes). They are examples only: do not copy them.
+THE KEY: my handwritten events ("{reference}") and my 19 example events ("{example}") are the key to my style guide and your primary references; the guide is drawn from them. Study both before you write anything, and when in doubt, write like them.
 2. Create an Interesting Story
 Write {count_words} completely original Island Event{plural}.{distinct}
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
-Possible themes include:
+Use the themes in my themes list, "{themes}" (I provide it too): pick from it, or from the player's own themes below when there are any. Possible themes include:
 
 * Everyday village life, relationships, friendships, celebrations, and leisure.
 * Exploration, scientific discoveries, inventions, experiments, and accidents.
@@ -2548,6 +2611,7 @@ Depending on the story, outcomes may include:
 * Changes in appearance or other supported attributes.
 * No mechanical effect, if the narrative itself is sufficient.
 
+Use the kinds of outcome in my outcomes list, "{outcomes}" (I provide it too), balancing them: over many events every kind should come up about equally, not only food and tech. A kind that list marks as still being added cannot be used yet.
 Use gameplay effects only when the story supports them, and only the effects listed in section 9.
 Don't artificially balance every choice with one good outcome and one bad outcome.
 Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.
@@ -2606,6 +2670,7 @@ def ai_prompt(game: int | None = None, settings: Settings | None = None, rules_t
         distinct="" if n == 1 else " Each event must be distinct from the others: a different premise, different "
                                    "villagers and different kinds of choices.",
         reference=TONE_NAME if not settings.reference else Path(settings.reference).name, style=STYLE_NAME,
+        themes=THEMES_NAME, outcomes=OUTCOMES_NAME, example=EXAMPLE_NAME,
         rules=rules, format=FORMAT_SECTION,
         collection_note=", not a collection" if n == 1 else "")
 

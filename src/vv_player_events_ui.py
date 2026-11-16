@@ -133,9 +133,19 @@ class PlayerEventsSection:
             ttk.Button(row2, text=words, command=command).pack(side="left", padx=(0, 4))
         row3 = ttk.Frame(self.frame)
         row3.pack(fill="x", pady=(0, 4))
-        for words, command in (("Copy Style Guide", self.copy_style), ("Show Style Guide", self.show_style)):
-            ttk.Button(row3, text=words, command=command).pack(side="left", padx=(0, 4))
-        ttk.Label(row3, text="(the owner's style guide: every added event follows it)").pack(side="left")
+        row4 = ttk.Frame(self.frame)
+        row4.pack(fill="x", pady=(0, 4))
+        for words, name in (("Style Guide", pe.STYLE_NAME), ("Themes List", pe.THEMES_NAME),
+                            ("Outcomes List", pe.OUTCOMES_NAME), ("Example Events", pe.EXAMPLE_NAME)):
+            ttk.Button(row3, text=f"Copy {words}", command=lambda n=name: self.copy_owner(n)).pack(
+                side="left", padx=(0, 4))
+            ttk.Button(row4, text=f"Show {words}", command=lambda n=name: self.show_owner(n)).pack(
+                side="left", padx=(0, 4))
+        ttk.Label(self.frame, text="The key: Lorsieab2's handwritten events (Copy Reference Events) + 19 example "
+                                   "events (Copy Example Events); the style guide is drawn from them. With the themes "
+                                   "and outcomes lists they are the defaults the AI prompt names: give them to the AI "
+                                   "with it. The example events are reference only, never installed as events.",
+                  wraplength=640, justify="left").pack(anchor="w")
         self.reference_label = ttk.Label(self.frame, text="", wraplength=640, justify="left")
         self.reference_label.pack(anchor="w")
         count_row = ttk.Frame(self.frame)
@@ -172,7 +182,8 @@ class PlayerEventsSection:
         self.theme_frame = ttk.Frame(self.frame)
         self.theme_frame.pack(fill="x", pady=(4, 0))
         self.only_mine = tk.BooleanVar(master=self.frame, value=self.settings.only_my_themes)
-        self.theme_vars: dict[str, tk.BooleanVar] = {}
+        self.theme_names: list[str] = []
+        self.theme_list: tk.Listbox | None = None
         self.show_themes()
         ttk.Label(self.frame, text="The AI prompt (select and copy, or use Copy AI Prompt):").pack(anchor="w",
                                                                                                 pady=(6, 0))
@@ -197,7 +208,8 @@ class PlayerEventsSection:
             self.settings.count = 1
         self.settings.enabled = bool(self.enabled.get())
         self.settings.rules = {k: bool(v.get()) for k, v in self.rule_vars.items()}
-        self.settings.favour = [t for t, v in self.theme_vars.items() if v.get()]
+        if self.theme_list is not None:
+            self.settings.favour = [self.theme_names[i] for i in self.theme_list.curselection()]
         self.settings.only_my_themes = bool(self.only_mine.get())
         try:
             pe.save_settings(self.game, self.settings, self.root)
@@ -236,25 +248,32 @@ class PlayerEventsSection:
         return list(dict.fromkeys(t.lower() for t in themes if t))
 
     def show_themes(self) -> None:
+        """The "favour these themes" picker: your own themes (your rules' Themes line, your files' Themes lines), then
+        every theme of the owner's themes list -- a short list that scrolls, several may be chosen."""
+        chosen = set(self.settings.favour) if self.theme_list is None else \
+            {self.theme_names[i] for i in self.theme_list.curselection()}
         for w in self.theme_frame.winfo_children():
             w.destroy()
-        themes = self.themes_found()
-        if not themes:
-            ttk.Label(self.theme_frame, text="Themes: none yet (add a \"Themes:\" line to your rules or your "
-                                             "events).", wraplength=640).pack(anchor="w")
-            return
-        ttk.Label(self.theme_frame, text=f"Favour these themes (their events and pieces come {pe.THEME_FAVOUR} times "
-                                         "as often):", wraplength=640).grid(row=0, column=0, columnspan=4, sticky="w")
-        old = {t: v.get() for t, v in self.theme_vars.items()}
-        self.theme_vars = {}
-        for k, t in enumerate(themes[:24]):
-            var = tk.BooleanVar(master=self.frame, value=old.get(t, t in self.settings.favour))
-            self.theme_vars[t] = var
-            ttk.Checkbutton(self.theme_frame, text=t, variable=var, command=self.save).grid(
-                row=1 + k // 4, column=k % 4, sticky="w", padx=(0, 10))
+        self.theme_list = None
+        mine = self.themes_found()
+        self.theme_names = list(dict.fromkeys(mine + pe.default_themes() + sorted(chosen)))
+        ttk.Label(self.theme_frame, text=f"Favour these themes (click to choose several; their player events and "
+                                         f"pieces come {pe.THEME_FAVOUR} times as often). Yours first, then the "
+                                         "owner's themes list:", wraplength=640, justify="left").pack(anchor="w")
+        box = ttk.Frame(self.theme_frame)
+        box.pack(fill="x")
+        self.theme_list = tk.Listbox(box, selectmode="multiple", height=5, exportselection=False, width=60)
+        bar = ttk.Scrollbar(box, orient="vertical", command=self.theme_list.yview)
+        self.theme_list.configure(yscrollcommand=bar.set)
+        bar.pack(side="right", fill="y")
+        self.theme_list.pack(side="left", fill="x", expand=True)
+        for k, t in enumerate(self.theme_names):
+            self.theme_list.insert("end", t)
+            if t in chosen:
+                self.theme_list.selection_set(k)
+        self.theme_list.bind("<<ListboxSelect>>", lambda _e: self.save())
         ttk.Checkbutton(self.theme_frame, text="Only my themes (leave out my other player events and pieces)",
-                        variable=self.only_mine, command=self.save).grid(
-            row=2 + (len(themes[:24]) - 1) // 4, column=0, columnspan=4, sticky="w")
+                        variable=self.only_mine, command=self.save).pack(anchor="w")
 
     def refresh(self) -> None:
         files = [p.name for p in sorted(self.folder.glob("*.txt")) if p.name != pe.RULES_NAME]
@@ -359,24 +378,25 @@ class PlayerEventsSection:
     def open_reference(self) -> None:
         _open(pe.reference_file(self.settings).parent)
 
-    def _style_text(self) -> str | None:
+    def _owner_text(self, name: str) -> str | None:
         try:
-            return pe.style_guide().read_text(encoding="utf-8-sig")
+            return pe.shipped_file(name).read_text(encoding="utf-8-sig")
         except OSError as exc:
-            SHOW_ERROR("Player Events", f"The style guide could not be read: {exc}", parent=self.frame)
+            SHOW_ERROR("Player Events", f"{name} could not be read: {exc}", parent=self.frame)
             return None
 
-    def copy_style(self) -> None:
-        text = self._style_text()
+    def copy_owner(self, name: str) -> None:
+        """The owner's style guide, themes list or outcomes list on the clipboard."""
+        text = self._owner_text(name)
         if text is not None:
             _copy(self.frame, text)
-            SHOW_INFO("Player Events", f"{pe.STYLE_NAME} is on the clipboard: give it to the AI with the prompt.",
+            SHOW_INFO("Player Events", f"{name} is on the clipboard: give it to the AI with the prompt.",
                       parent=self.frame)
 
-    def show_style(self) -> None:
-        text = self._style_text()
+    def show_owner(self, name: str) -> None:
+        text = self._owner_text(name)
         if text is not None:
-            report_window(self.frame, pe.STYLE_NAME, text)
+            report_window(self.frame, name, text)
 
     def choose_reference(self) -> None:
         raw = ASK_FILE(parent=self.frame, title="Choose your own tone reference (Cancel: the owner's events)",

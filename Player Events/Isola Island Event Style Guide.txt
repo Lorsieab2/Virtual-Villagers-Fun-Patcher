@@ -1,6 +1,11 @@
 ISOLA ISLAND EVENT STYLE GUIDE
 (from Lorsieab2's own edits; applies to every added island event except Lorsieab2's handwritten ones)
 
+THE KEY TO THIS GUIDE
+Lorsieab2's handwritten island events ("Island Event Tone Reference - Lorsieab2's Handwritten Events.txt") and
+Lorsieab2's 19 rewritten example events ("Example Events - Lorsieab2 (S001-S019).txt") are the key behind every
+rule below. When in doubt, read them and write like them.
+
 1. POSE THE DILEMMA PLAINLY
    End the setup with the choice the player faces, often as the villager's own thought or a direct question:
    "Should (name) try to salvage them, or is it too late to save them?"

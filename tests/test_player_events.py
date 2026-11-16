@@ -327,9 +327,37 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
         a = (pe.PLAYER_FOLDER / pe.STYLE_NAME).read_bytes()
         self.assertEqual(a, pe.STYLE_SOURCE.read_bytes())
         self.assertTrue(a.startswith(b"ISOLA ISLAND EVENT STYLE GUIDE"))
+        self.assertIn(b"THE KEY TO THIS GUIDE", a)
         text = pe.ai_prompt()
         self.assertIn(f'follow my style guide, "{pe.STYLE_NAME}"', text)
         self.assertIn("does not apply to my own handwritten events", text)
+        self.assertIn(f'THE KEY: my handwritten events ("{pe.TONE_NAME}") and my 19 example events '
+                      f'("{pe.EXAMPLE_NAME}") are the key to my style guide', text)
+        self.assertIn("Study both before you write", text)
+
+    def test_the_owner_files_ship_byte_for_byte_and_the_prompt_names_them(self):
+        for name in pe.OWNER_FILES:
+            with self.subTest(name=name):
+                self.assertEqual((pe.PLAYER_FOLDER / name).read_bytes(), (pe.OWNER_DOCS / name).read_bytes())
+                self.assertIn(f'"{name}"', pe.ai_prompt())
+        text = pe.ai_prompt()
+        self.assertIn("balancing them", text)
+        themes = pe.default_themes()
+        self.assertIn("caves and exploring", themes)
+        self.assertGreater(len(themes), 60)
+        self.assertFalse([t for t in themes if "outcome showcase" in t])      # the drafts waiting for a GO left out
+        self.assertTrue(pe.theme_hit(["sea"], ["dolphins and the sea"]))
+        self.assertFalse(pe.theme_hit(["seaweed"], ["dolphins and the sea"]))
+
+    def test_the_example_events_are_never_installed_as_events(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "Player Events"
+            src = pe.ensure_game_folder(1, root)
+            (src / pe.EXAMPLE_NAME).write_bytes((pe.PLAYER_FOLDER / pe.EXAMPLE_NAME).read_bytes())
+            (src / "mine.txt").write_text(SIMPLE, encoding="utf-8")
+            out, report = pe.compile_folder(1, src, pe.Settings())
+            self.assertEqual(report.installed, ["mine.txt: The Coconut That Would Not Open"])
+            self.assertEqual([n for n in out if n.startswith("manifest-")], ["manifest-pl_mine.txt"])
 
     def test_the_tone_reference_ships_byte_for_byte(self):
         a = (pe.PLAYER_FOLDER / pe.TONE_NAME).read_bytes()
@@ -418,7 +446,9 @@ class InstallAndRules(unittest.TestCase):
             shown = game / pe.PATCHER_FILES / pe.INSTALLED_FOLDER
             self.assertTrue((shown / pe.PROMPT_NAME).is_file())
             self.assertTrue((shown / pe.TONE_NAME).is_file())
-            self.assertEqual((shown / pe.STYLE_NAME).read_bytes(), pe.STYLE_SOURCE.read_bytes())
+            for name in pe.OWNER_FILES:
+                self.assertEqual((shown / name).read_bytes(), (pe.OWNER_DOCS / name).read_bytes(), name)
+            self.assertFalse([p for p in coll.iterdir() if "example" in p.name.lower()])
             # Favoured themes weigh three times; Only my themes leaves the others out; ticked rules are enforced.
             pe.install(1, game, src, pe.Settings(favour=["comedy"]), root)
             row = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()

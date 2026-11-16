@@ -1,0 +1,70 @@
+ISLAND EVENT THEMES - ALL ADDED EVENTS SO FAR (v1.35.97, 2026-11-15)
+Every theme in the patcher's added island events (about 3,250 built), plus the drafts waiting for your GO.
+Use it to pick themes for new events, or tell me what to write next.
+
+YOUR OWN EVENTS (handwritten)
+- Adventure and treasure in the jungle (The Aspiring Adventurer)
+- Caves and exploring (The Cave Explorers), climbing (The Climb), diving for treasure
+- Omens and signs (The Troubling Signs), the island rumbling (The Rumblings)
+- Masks and mysterious objects (The Mysterious Mask), dolphins and the sea (The Playful Dolphins)
+- Remembering the dead (The Remembrance Ceremony)
+- Legends and a special child (The Child of Legend), cooking contests (The Cooking Contest), faith (The Meaning of "Faith")
+
+ISOLA GRAND EVENT COLLECTION (V6-V28)
+- Contests and trials: the Grand Isolan Decathlon, strength, potions, the crafty inspector, cook-offs, crafts fairs
+- Science and invention: experiments, inexplicable ideas, physics-defying things, inventions, the secret of life
+- Medicine and healing: cures, last doses, physicians, difficult patients, pregnancy and birth (Two Lives, One Decision)
+- Mysteries and relics: strange statues, relic trials, ancient things, the Isola legends
+- Stories and art: poets, storytelling, verses that changed things, drawing contests
+- Warriors and duels (ceremonial), martial arts, games and sports (ball, stick game, hoop)
+- Everyday life (V27): babies, children, teens, adults, elders, pets, relationships
+
+COMPANION ANTHOLOGY (749)
+- Companion Volume 5 (parts 1-5): village life, dilemmas, discoveries
+- The Lives Between Legends: ordinary people, small dramas, misunderstandings
+- The Four Ways of Knowing: science, belief, tradition, intuition
+- Stone, Spirit, Strangers & Mind and Belonging: visitors, spirits, belonging, the mind
+- The Living Catalogue: Isola's fish, plants and creatures as species to study
+
+ANTHOLOGY VOLUMES (361)
+- Age and agency (what each age can do), childhood curiosity and first crushes
+- Art, sport, ecology, governance and belief (Expression)
+- Family friction, families changing
+- Animals, reptiles, birds and creatures (Fauna)
+- The human spectrum: comforts, authority, injury
+- Celebrations, leisure, remembrance, ancestral mysteries, body art (Joy)
+- Justice: bullying, trauma, recovery, defending others
+- Little everyday moments (MOM)
+- Romance by choice, coming out, names and presentation (REL)
+
+LIVING EVENT VOLUMES (251)
+- Authority and leadership, the Circle (community), Life stages, Medicine
+- Peoples (other tribes and Isolans), the Unseen (spirits and the uncanny), Ways of Knowing
+
+LIVING EVENT ENGINE (mixer categories)
+- Personal Expression, Family, Celebration, Art, Animals, Belief, Governance, Others and outsiders,
+  Food, Emotions, Rest and health, Oddities
+- Island Businesses and Markets, Disasters, Aftermath and recovery, Loss and memory, Trade, Belonging
+
+BEYOND THE HORIZON (80)
+- The World We Imagine: what lies beyond the sea, outsiders, speculation
+- Volume II: constructs, cities, the common fire
+
+ROLE MODELS (40 + 50) and FATHERS (30)
+- Good examples, mentors, apprentices, kindness, fairness; fatherhood, pregnancy, parenthood and humanity
+
+THE DRAFT VOLUMES YOU APPROVED (1,535)
+- Inner Life I-X: imaginary friends, talking to oneself, being mute, inner thoughts
+- Luck, Omens and Lavastones; What's That Doing Here?
+- Good, Bad and Ordinary Days; Departures and Exile; Dreams and Ambitions; Fears and Doubts
+- Honesty and Accountability; Humor and Absurdity; Justice and Consequences; Tall Tales and Self-Interest
+- Advice and Decisions; Belief and Identity; Disability and Diversity; Relationships, Singlehood and Family
+- Healing, Psychology and Medicine; History and Collective Memory; Pondering How Life Has Gone
+- Nature, Ecology and Animals; Armor, Weapons and Heirlooms; Fathers; Beyond the Horizon 3
+- Role Models 41-90; Tiny Island Moments (500 + 50)
+
+WAITING FOR YOUR GO (not in the patcher)
+- 100 Outcome Showcase events: springs that talk, reflections, mirrors, storms, magic, newcomers, clones, swaps
+- 200 New Isola events (101-200): visitors, weather, science, leaders' rules, romance, records and names
+- 115 Mystery and Myth: visitors, artifacts, folktales, the unexplained
+- About 360 balance events being written so every outcome comes up about equally
