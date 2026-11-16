@@ -45,7 +45,8 @@ PAIRS = (
     (5, "Death and graves",
      "In the game's code a Heathen can be marked sick: The Missing Kids", gm.CODE,
      "Heathens never age, eat or fall sick (the game runs none of that for them)", gm.OWNER),
-    # A New Home: the dislike of running is read only under 14 (0x43CCF0) vs the owner's "works for adults too".
+    # A New Home: the dislike of running is read only in a child's walk (0x43CCF0) vs the owner's live word
+    # (2026-11-16) that it slows every villager, adults too.
     (1, "Hidden villager stats",
      "In the game's code the dislike of running is read in one place only", gm.CODE,
      "Running, liked: a villager of 14 or more runs", gm.OWNER),

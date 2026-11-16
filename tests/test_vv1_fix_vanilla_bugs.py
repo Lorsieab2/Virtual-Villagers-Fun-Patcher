@@ -100,6 +100,21 @@ FIXES = FIXES + name_identity_fixes("vv1")
 from test_catch_up_healing_practice import healing_practice_fixes  # noqa: E402
 
 FIXES = FIXES + healing_practice_fixes("vv1")
+# Liking work works as in VV2-VV5 (LikingWorkTests below).
+LIKE_WORK_FIXES = (
+    (0x39AF8, bytes.fromhex("5E5D33C05BC20800"), bytes.fromhex("E994B90100909090")),
+    (0x55491, b"\xCC" * 15, bytes.fromhex("6A2AFF7424148BCBE8721EFEFFEB12")),
+    (0x554B2, b"\xCC" * 14, bytes.fromhex("84C00F854646FEFF57E96246FEFF")),
+)
+# ...and keeping a job the player assigned follows The Lost Children's rule (KeepAssignedJobTests below).
+KEEP_JOB_CAVE = bytes.fromhex(
+    "506A2A558BCEE80505FEFF84C0753E6A64E8FAC0FAFF83C40483F8147C396A64E8EBC0FAFF83C40483F8287D208B8610E00300"
+    "81B8ECA20000A00F00007D186A2A558BCEE89704FEFF84C0750A588BCEFF2485A880440058E99E11FFFF")
+KEEP_JOB_FIXES = (
+    (0x47CFF, bytes.fromhex("FF2485A8804400"), bytes.fromhex("E9FCF000009090")),
+    (0x56E00, b"\0" * len(KEEP_JOB_CAVE), KEEP_JOB_CAVE),
+)
+FIXES = FIXES + LIKE_WORK_FIXES + KEEP_JOB_FIXES
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial
@@ -363,6 +378,273 @@ class BlueVialLitterTests(unittest.TestCase):
                 record, _registers, calls, _pool = _drink(exe, 50, 7, 1028, 2)
                 self.assertEqual((_field(record, AGE), _field(record, PREGNANT), _field(record, LITTER)), (1028, 1028, 2))
                 self.assertIn(0x443FA0, calls)
+
+
+# ---- Liking work ---------------------------------------------------------------------------------------------
+# The owner (2026-11-16): "liking or disliking 'work' now works like VV2-VV5".  The Lost Children (0x449C6E..0x449C8B),
+# The Secret City (0x45973A), The Tree of Life (0x461CCC) and New Believers (0x46A3CC) make the job chooser's blank
+# roll -- rand(100) < 15 -> no job -- only for a villager who does not like work, and then refuse 70 in 100 for one
+# who dislikes it.  A New Home's chooser 0x439AE0 makes the blank roll for everyone (0x439AEB..0x439AFD) and has the
+# 70 in 100 dislike roll (0x439B05..0x439B28, word 42 = work).  Fix Vanilla Bugs asks the like test 0x437310
+# (index, 42) first.  The chooser is shared by live play (0x448347, 0x448374) and catch-up (0x42E7DB), so this is
+# every mode; it is RUN here from the chooser's entry, the game's rand(100) scripted, the like and dislike tests real.
+CHOOSER, CHOSEN_ON = 0x439AE0, 0x439B2B      # CHOSEN_ON: past both gates, the skills are weighed
+VILLAGE, INDEX, HALT = 0x20000000, 7, 0x0BAD0000
+LIKES, DISLIKES, WORK = 0x398, 0x3A8, 42
+
+
+def _choose(exe: bytes, *, blank: int, likes=(), dislikes=(), dislike_roll: int = 99):
+    """Run the chooser for villager INDEX: the first rand(100) answers `blank`, the dislike roll `dislike_roll`.
+    ("choice", None) when it goes on to weigh the skills (0x439B2B), else ("none", eax) when it returns, with
+    its stack and saved registers checked."""
+    image = pefile.PE(data=exe, fast_load=True).get_memory_mapped_image()
+    mu = Uc(UC_ARCH_X86, UC_MODE_32)
+    mu.mem_map(0x400000, (len(image) + 0xFFFF) & ~0xFFFF)
+    mu.mem_write(0x400000, image)
+    mu.mem_map(VILLAGE, 0x100000)
+    mu.mem_map(STACK - 0x10000, 0x20000)
+    mu.mem_map(HALT, 0x1000)
+    rec = VILLAGE + INDEX * STRIDE
+    for i in range(4):
+        mu.mem_write(rec + LIKES + 4 * i, struct.pack("<i", likes[i] if i < len(likes) else -1))
+        mu.mem_write(rec + DISLIKES + 4 * i, struct.pack("<i", dislikes[i] if i < len(dislikes) else -1))
+    rolls = [blank, dislike_roll]
+
+    def hook(uc, address, size, _):
+        if address == RAND:
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            ret, = struct.unpack("<I", uc.mem_read(esp, 4))
+            uc.reg_write(UC_X86_REG_EAX, rolls.pop(0) if rolls else 99)
+            uc.reg_write(UC_X86_REG_ECX, 0xC0C0C0C0)
+            uc.reg_write(UC_X86_REG_EDX, 0xD0D0D0D0)
+            uc.reg_write(UC_X86_REG_ESP, esp + 4)
+            uc.reg_write(UC_X86_REG_EIP, ret)
+        elif address in (CHOSEN_ON, HALT):
+            uc.emu_stop()
+
+    mu.hook_add(UC_HOOK_CODE, hook)
+    esp = STACK - 0x100
+    mu.mem_write(esp, struct.pack("<III", HALT, INDEX, 0))
+    mu.reg_write(UC_X86_REG_ESP, esp)
+    mu.reg_write(UC_X86_REG_ECX, VILLAGE)
+    saved = ((UC_X86_REG_EBX, 0xB0B0B0B0), (UC_X86_REG_ESI, 0x51515151), (UC_X86_REG_EDI, 0xD1D1D1D1),
+             (UC_X86_REG_EBP, 0xB9B9B9B9))
+    for reg, value in saved:
+        mu.reg_write(reg, value)
+    mu.emu_start(CHOOSER, 0xFFFFFFFF, count=20000)
+    eip = mu.reg_read(UC_X86_REG_EIP)
+    if eip == CHOSEN_ON:
+        return "choice", None
+    assert eip == HALT, hex(eip)
+    assert mu.reg_read(UC_X86_REG_ESP) == esp + 12, "ret 8"
+    assert [mu.reg_read(r) for r, _ in saved] == [v for _, v in saved], "the saved registers"
+    return "none", mu.reg_read(UC_X86_REG_EAX)
+
+
+class LikingWorkTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.stock = STOCK.read_bytes()
+        cls.fixed = {mode: _render(mode, [FEATURE_ID]) for mode in MODES}
+
+    def test_stock_blanks_a_villager_who_likes_work(self) -> None:
+        for blank in (0, 14):
+            self.assertEqual(_choose(self.stock, blank=blank, likes=(WORK,)), ("none", 0))
+        self.assertEqual(_choose(self.stock, blank=15, likes=(WORK,))[0], "choice")
+
+    def test_fixed_a_villager_who_likes_work_is_never_blanked(self) -> None:
+        for mode, exe in self.fixed.items():
+            for blank in (0, 14, 15, 99):
+                with self.subTest(mode=mode, blank=blank):
+                    self.assertEqual(_choose(exe, blank=blank, likes=(1, WORK))[0], "choice")
+
+    def test_fixed_anyone_else_is_blanked_as_before(self) -> None:
+        for mode, exe in self.fixed.items():
+            for likes in ((), (1,), (38, 3, 4, 5)):
+                for blank, want in ((0, "none"), (14, "none"), (15, "choice")):
+                    with self.subTest(mode=mode, likes=likes, blank=blank):
+                        got = _choose(exe, blank=blank, likes=likes)
+                        self.assertEqual(got, _choose(self.stock, blank=blank, likes=likes))
+                        self.assertEqual(got[0], want)
+
+    def test_disliking_work_still_refuses_70_in_100(self) -> None:
+        for exe in (self.stock, self.fixed["stock"]):
+            for roll, want in ((0, "none"), (69, "none"), (70, "choice")):
+                with self.subTest(roll=roll, fixed=exe is not self.stock):
+                    self.assertEqual(_choose(exe, blank=50, dislikes=(WORK,), dislike_roll=roll)[0], want)
+
+    def test_every_blank_roll_matches_the_later_games(self) -> None:
+        # Over every blank roll: one who likes work is blanked 0 in 100 (stock: 15); anyone else 15, as before.
+        for likes, fixed_none, stock_none in (((WORK,), 0, 15), ((), 15, 15)):
+            with self.subTest(likes=likes):
+                fixed = sum(_choose(self.fixed["stock"], blank=b, likes=likes)[0] == "none" for b in range(100))
+                stock = sum(_choose(self.stock, blank=b, likes=likes)[0] == "none" for b in range(100))
+                self.assertEqual((fixed, stock), (fixed_none, stock_none))
+
+    def test_the_caves_are_unused_padding_no_code_or_row_reaches(self) -> None:
+        for offset, before, _ in LIKE_WORK_FIXES[1:]:
+            self.assertEqual(self.stock[offset:offset + len(before)], before)
+        pe = pefile.PE(data=self.stock, fast_load=True)
+        text = pe.sections[0]
+        code = self.stock[text.PointerToRawData:text.PointerToRawData + text.SizeOfRawData]
+        targets = set()
+        for insn in Cs(CS_ARCH_X86, CS_MODE_32).disasm(code, 0x400000 + text.VirtualAddress):
+            if insn.mnemonic.startswith("j") or insn.mnemonic == "call":
+                try:
+                    targets.add(int(insn.op_str, 16))
+                except ValueError:
+                    pass
+        for lo, n in ((0x455491, 15), (0x4554B2, 14)):
+            self.assertFalse(any(lo <= t < lo + n for t in targets), hex(lo))
+        for p in load_fun_patches():
+            if p.game_id != "vv1" or p.id == FEATURE_ID:
+                continue
+            for patch in p.raw.get("patches", []):
+                o, n = int(patch["offset"], 16), len(patch["after"]) // 2
+                for lo, size in ((0x55491, 15), (0x554B2, 14), (0x39AF8, 8)):
+                    self.assertFalse(o < lo + size and lo < o + n, (p.id, hex(o)))
+
+
+# ---- Keeping a job the player assigned ---------------------------------------------------------------------------
+# The owner (2026-11-16): "add part 2 like VV2".  The Lost Children's 0x461580, before a villager goes back to the job
+# a player assigned: likes work (0x445510, word 43) -> keep; else rand(100) < 20 -> nothing that turn (0x46159E);
+# else rand(100) >= 40 -> keep (0x4615B1); else food (+0x2EAA4) >= 4,000 (0x4615BC) or dislikes work (0x4615CD) ->
+# nothing; else keep.  A New Home's work-spot routine 0x447CD0 reads no like at all; Fix Vanilla Bugs puts the same
+# rule before its spot jump (0x447CFF -> 0x456E00).  Live play calls 0x447CD0 (0x448362, 0x4483AB); catch-up never
+# does.  RUN from the routine's entry: the game's rand(100) scripted, the like and dislike tests real, and the run
+# stopped at the spot's own case (the jump table 0x4480A8) or at the routine's return.
+SPOT_ROUTINE, SPOT_TABLE, SPOT_FIELD, FOOD = 0x447CD0, 0x4480A8, 0x3B8, 0xA2EC
+STATE = 0x30000000
+
+
+def _spot(exe: bytes, *, spot: int = 2, likes=(), dislikes=(), food: int = 1000, rolls=(99, 99)):
+    """("spot", case address) when it goes to the spot's case, or ("none", eax) when it returns."""
+    image = pefile.PE(data=exe, fast_load=True).get_memory_mapped_image()
+    table = [struct.unpack_from("<I", image, SPOT_TABLE - 0x400000 + 4 * i)[0] for i in range(14)]
+    mu = Uc(UC_ARCH_X86, UC_MODE_32)
+    mu.mem_map(0x400000, (len(image) + 0xFFFF) & ~0xFFFF)
+    mu.mem_write(0x400000, image)
+    mu.mem_map(VILLAGE, 0x100000)
+    mu.mem_map(STATE, 0x100000)
+    mu.mem_map(STACK - 0x10000, 0x20000)
+    mu.mem_map(HALT, 0x1000)
+    mu.mem_write(VILLAGE + 0x3E010, struct.pack("<I", STATE))
+    mu.mem_write(STATE + FOOD, struct.pack("<i", food))
+    rec = VILLAGE + INDEX * STRIDE
+    mu.mem_write(rec + SPOT_FIELD, struct.pack("<i", spot))
+    for i in range(4):
+        mu.mem_write(rec + LIKES + 4 * i, struct.pack("<i", likes[i] if i < len(likes) else -1))
+        mu.mem_write(rec + DISLIKES + 4 * i, struct.pack("<i", dislikes[i] if i < len(dislikes) else -1))
+    queue = list(rolls)
+    drawn = []
+    cases = set(table)
+
+    def hook(uc, address, size, _):
+        if address == RAND:
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            ret, = struct.unpack("<I", uc.mem_read(esp, 4))
+            value = queue.pop(0) if queue else 99
+            drawn.append(value)
+            uc.reg_write(UC_X86_REG_EAX, value)
+            uc.reg_write(UC_X86_REG_ECX, 0xC0C0C0C0)
+            uc.reg_write(UC_X86_REG_EDX, 0xD0D0D0D0)
+            uc.reg_write(UC_X86_REG_ESP, esp + 4)
+            uc.reg_write(UC_X86_REG_EIP, ret)
+        elif address in cases or address == HALT:
+            uc.emu_stop()
+
+    mu.hook_add(UC_HOOK_CODE, hook)
+    esp = STACK - 0x100
+    mu.mem_write(esp, struct.pack("<III", HALT, INDEX, 60))
+    mu.reg_write(UC_X86_REG_ESP, esp)
+    mu.reg_write(UC_X86_REG_ECX, VILLAGE)
+    saved = ((UC_X86_REG_EBX, 0xB0B0B0B0), (UC_X86_REG_ESI, 0x51515151), (UC_X86_REG_EDI, 0xD1D1D1D1),
+             (UC_X86_REG_EBP, 0xB9B9B9B9))
+    for reg, value in saved:
+        mu.reg_write(reg, value)
+    mu.emu_start(SPOT_ROUTINE, 0xFFFFFFFF, count=20000)
+    eip = mu.reg_read(UC_X86_REG_EIP)
+    if eip in cases and eip != HALT:
+        assert eip == table[spot - 1], hex(eip)
+        assert mu.reg_read(UC_X86_REG_ECX) == VILLAGE, "ECX as at the site"
+        assert mu.reg_read(UC_X86_REG_ESP) == esp - 16, "the routine's own four saves, nothing more"
+        return ("spot", eip), drawn
+    assert eip == HALT, hex(eip)
+    assert mu.reg_read(UC_X86_REG_ESP) == esp + 12, "ret 8"
+    assert [mu.reg_read(r) for r, _ in saved] == [v for _, v in saved], "the saved registers"
+    return ("none", mu.reg_read(UC_X86_REG_EAX)), drawn
+
+
+class KeepAssignedJobTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.stock = STOCK.read_bytes()
+        cls.fixed = {mode: _render(mode, [FEATURE_ID]) for mode in MODES}
+
+    def test_stock_always_goes_to_the_spot(self) -> None:
+        for likes, dislikes, food in (((), (), 0), ((), (WORK,), 9000), ((WORK,), (), 9000)):
+            for rolls in ((0, 0), (19, 39), (99, 99)):
+                with self.subTest(likes=likes, dislikes=dislikes, food=food, rolls=rolls):
+                    got, drawn = _spot(self.stock, likes=likes, dislikes=dislikes, food=food, rolls=rolls)
+                    self.assertEqual(got[0], "spot")
+                    self.assertEqual(drawn, [], "no roll in the base game")
+
+    def test_likes_work_always_keeps_it(self) -> None:
+        for mode, exe in self.fixed.items():
+            for food in (0, 4000, 9000):
+                with self.subTest(mode=mode, food=food):
+                    got, drawn = _spot(exe, likes=(3, WORK), food=food, rolls=(0, 0))
+                    self.assertEqual(got[0], "spot")
+                    self.assertEqual(drawn, [], "no roll for one who likes work")
+
+    def test_the_lost_childrens_rule(self) -> None:
+        cases = (  # (dislikes, food, first roll, second roll) -> kept
+            ((), 1000, 19, None, False), ((), 1000, 20, 39, True), ((), 1000, 20, 40, True),
+            ((), 3999, 50, 0, True), ((), 4000, 50, 39, False), ((), 9000, 50, 40, True),
+            ((WORK,), 1000, 50, 39, False), ((WORK,), 1000, 50, 40, True), ((WORK,), 1000, 0, None, False),
+        )
+        for mode, exe in self.fixed.items():
+            for dislikes, food, first, second, kept in cases:
+                with self.subTest(mode=mode, dislikes=dislikes, food=food, first=first, second=second):
+                    rolls = (first,) if second is None else (first, second)
+                    got, drawn = _spot(exe, dislikes=dislikes, food=food, rolls=rolls)
+                    self.assertEqual(got[0], "spot" if kept else "none")
+                    if not kept:
+                        self.assertEqual(got[1], 0, "nothing started: the scheduler goes on to its next choice")
+                    self.assertEqual(drawn, list(rolls))
+
+    def test_shares(self) -> None:
+        # Over every pair of rolls: 80 in 100 kept at low food; 48 in 100 at 4,000 food or for one who dislikes work.
+        exe = self.fixed["stock"]
+        for dislikes, food, kept_in_10000 in (((), 1000, 8000), ((), 4000, 4800), ((WORK,), 0, 4800)):
+            with self.subTest(dislikes=dislikes, food=food):
+                kept = 0
+                for first in range(100):
+                    if first < 20:
+                        continue                        # skipped; no second roll is drawn
+                    for second in range(100):
+                        kept += _spot(exe, dislikes=dislikes, food=food, rolls=(first, second))[0][0] == "spot"
+                self.assertEqual(kept, kept_in_10000)
+
+    def test_every_spot_case_is_reached_as_before(self) -> None:
+        for spot in range(1, 15):
+            with self.subTest(spot=spot):
+                stock = _spot(self.stock, spot=spot)[0]
+                fixed = _spot(self.fixed["stock"], spot=spot, likes=(WORK,))[0]
+                self.assertEqual(fixed, stock)
+
+    def test_the_cave_is_unused_space_no_code_or_row_reaches(self) -> None:
+        pe = pefile.PE(data=self.stock, fast_load=True)
+        text = pe.sections[0]
+        self.assertGreaterEqual(text.PointerToRawData + text.SizeOfRawData, 0x56E00 + len(KEEP_JOB_CAVE))
+        self.assertTrue(text.Characteristics & 0x20000000, "executable")
+        for p in load_fun_patches():
+            if p.game_id != "vv1" or p.id == FEATURE_ID:
+                continue
+            for patch in p.raw.get("patches", []):
+                o, n = int(patch["offset"], 16), len(patch["after"]) // 2
+                for lo, size in ((0x56E00, len(KEEP_JOB_CAVE)), (0x47CFF, 7)):
+                    self.assertFalse(o < lo + size and lo < o + n, (p.id, hex(o)))
 
 
 if __name__ == "__main__":
