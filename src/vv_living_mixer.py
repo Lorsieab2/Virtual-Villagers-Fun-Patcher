@@ -648,7 +648,9 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
             node["effects"] = effects
             node["auto_text"] = True
             for e in effects:
-                if harmful(e) and e.get("role") in allow and bank.arc[arc]["protection"] == "allow":
+                # A death or disappearance can land on anyone, of any status (owner, 2026-11-15)
+                if harmful(e) and e.get("role") in allow and (bank.arc[arc]["protection"] == "allow"
+                                                             or e["do"] in ("kill", "vanish", "die_unrecovered")):
                     allow[e["role"]] = True
         nodes["o_" + arc[7:]] = node
     graph = {

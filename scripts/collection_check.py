@@ -146,9 +146,58 @@ def engine():
     return cg if 6 in getattr(cg, "VERSIONS", ()) else None
 
 
+# The owner, 2026-11-15: in the new events the villager who dies or disappears can be anyone, of any age or status,
+# children under 14 included (always, not only with No Safeguards).  A role a kill / birth_then_die / vanish /
+# die_unrecovered effect lands on is cast with protected "allow" and no age minimum, except the roles below, whose
+# own text needs their age (the role keeps its file's min_age; max_age, sex, skill and kinship always stay).
+DEATH_EFFECTS = ("kill", "birth_then_die", "vanish", "die_unrecovered")
+DEATH_ROLE_KEEPS_AGE = {
+    ("lvauth20_elder_lesson", "elder"): "the elder (55+)",
+    ("lvmed09_heart_falters", "elder"): "the elder (55+)",
+    ("all_v27_25_crossing", "elder"): "the elder (55+)",
+    ("lvmed01_borrowed_organ", "patient"): "\"a gravely ill adult\" (18+)",
+    ("lvmed15_last_treatment", "patient"): "\"A gravely ill adult\" (18+)",
+    ("all_v27_24_explorer", "explorer"): "\"An adult explorer leaves alone\" (18-54)",
+    ("all_v20_d1_two_lives", "parent"): "the mother of the birth (nursing parent, 18+)",
+    ("all_v27_10_supper", "child"): "a child (3-13) who walks off after a stranger",
+    ("lbl026_midnight_raft", "teen2"): "a teenager (14-17) on a midnight raft",
+    ("all_v27_13_raft", "teen1"): "a teenager (14-17) on a raft",
+    ("all_v27_14_proof", "teen"): "a teenager (14-17) proving a dare",
+    ("fwk046_lost_apprentice", "apprentice"): "an apprentice with a mentor (14+, the collection's apprentice age)",
+    ("lvuns16_scientist", "scientist"): "a young scientist with Research (14-25)",
+    ("lvuns32_watcher", "explorer"): "\"A solitary explorer\" who investigates alone (14+)",
+    ("all_v27_55_deep_pool", "diver"): "a villager who \"wants to dive alone\" (14+)",
+    ("all_v27_56_empty_boat", "crew1"): "a canoe's crew at sea (14+)",
+    ("all_v27_56_empty_boat", "crew2"): "a canoe's crew at sea (14+)",
+    ("sss018_silver_seam", "worker"): "a miner at the rock face (14+)",
+}
+
+
+def open_death_roles(g: dict) -> None:
+    """The owner's rule above, on an engine graph (in place)."""
+    eid = (g.get("collection") or {}).get("id")
+    roles = g.get("roles") or {}
+    hit = set()
+    for n in (g.get("nodes") or {}).values():
+        for e in n.get("effects", []) or []:
+            if isinstance(e, dict) and e.get("do") in DEATH_EFFECTS and e.get("role") in roles:
+                r = roles[e["role"]]
+                hit.update(r.get("of", []) if r.get("kind") == "alias" else [e["role"]])
+    for rid in hit:
+        r = roles.get(rid)
+        if not isinstance(r, dict) or r.get("kind") != "villager":
+            continue
+        r.pop("exclude_nursing", None)
+        r.pop("exclude_special", None)
+        r["protected"] = "allow"
+        if (eid, rid) not in DEATH_ROLE_KEEPS_AGE:
+            r["min_age"] = 0
+
+
 def graph_for_engine(doc: dict) -> dict:
     """The collection file without its authoring-only keys: what vv_cie_graph (v6) reads."""
     g = copy.deepcopy(doc)
+    open_death_roles(g)
 
     def scrub(x):
         if isinstance(x, dict):
