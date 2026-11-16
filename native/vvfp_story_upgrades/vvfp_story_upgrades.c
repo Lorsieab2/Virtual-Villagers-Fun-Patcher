@@ -1374,6 +1374,10 @@ static int lv_test_has_pack(void);
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
 #include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
+#ifdef VVFP_TEST
+static int rs_test_on = -1;     /* Rest Periods for Island Events forced on (1) or off (0); -1 the installed list */
+#endif
+#include "story_rest.inc"       /* the island events' rest periods (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

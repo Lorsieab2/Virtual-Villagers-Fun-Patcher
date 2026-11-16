@@ -1,0 +1,29 @@
+{
+  "id": "vv5_island_event_rest_periods",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Rest Periods for Island Events",
+  "description": "After a new island event seriously injures a villager, makes one disappear or leaves one bereaved, that villager and their recorded immediate family (spouse, parents, children, brothers and sisters) are kept out of further serious outcomes of new events for 30 in-game days; after a death or a pregnancy loss, the surviving immediate family for 60 days. They still take part in every other event. The times are kept in the patcher's own file beside the save (never in the save itself) and follow each villager. New events only. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+  "output_tag": "Rest Periods for Island Events",
+  "dependencies": [],
+  "needs_on": [
+    {
+      "id": "vv5_isola_grand_event_collection",
+      "for": "the new island events it acts on"
+    }
+  ],
+  "conflicts": [],
+  "behavior_changes": [
+    "A rest effect beside each serious outcome of a new event keeps \"rested until\" for the villager and their immediate family in \"Virtual Villagers Fun Patcher\\Save S\\Data\\Island Events\\Island Event Rest - Save S.dat\"; while it holds, Story / Cheat Upgrades never casts them in a role of a new event that a serious outcome can reach."
+  ],
+  "explicit_non_changes": [
+    "No executable byte, game file or save is changed: the row is only a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades reads.",
+    "The game's own island events, their text and their chances are never changed: it acts on the added events only."
+  ],
+  "evidence_status": "the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [],
+  "runtime_detours": []
+}

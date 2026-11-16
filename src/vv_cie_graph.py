@@ -375,17 +375,22 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early")                                               # ... 30
+REST_EFFECT_CODE = 25         # cie-v6-binary.md 31
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29 (23 is kept for a cross-sex body look)
-                     "deliver_early": 24})  # 30
+                     "deliver_early": 24,  # 30
+                     # 31: a rest period (src/vv_event_content.py writes it beside a new event's serious outcome; the
+                     # companion keeps the villager and their immediate family out of serious outcomes for `days`)
+                     "rest": REST_EFFECT_CODE})
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
-                    "deliver_early": CAP_CANCEL})   # 30: the nursing parent's pregnancy (the adapter's deliver)
+                    "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
+                    "rest": 0})                     # 31: never a change to the villager
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
                                           "deliver_early")
@@ -3658,7 +3663,7 @@ def _compile_v6(g: dict) -> bytes:
         for e in n["effects"]:
             do = e["do"]
             code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
-            r = effect_role(e)
+            r = e["role"] if do == "rest" else effect_role(e)
             role = ridx[r] if r is not None else 0xFF
             flags, a, b, st = 0, 0, 0, NONE
             if do in ("food", "tech"):
@@ -3693,6 +3698,8 @@ def _compile_v6(g: dict) -> bytes:
                 st = s(e["cause"])
             elif do == "deliver_early" and "min" in e:
                 a, b = e["min"], e["max"]
+            elif do == "rest":
+                a = e["days"]
             effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
@@ -3913,6 +3920,8 @@ def _decompile_v6(data: bytes) -> dict:
                             e[part] = "random" if v == LOOK_RANDOM else v
                 elif do in ("die_unrecovered", "birth_then_die"):
                     e["cause"] = s(st)
+                elif do == "rest":
+                    e["days"] = a
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
             effects.append(e)

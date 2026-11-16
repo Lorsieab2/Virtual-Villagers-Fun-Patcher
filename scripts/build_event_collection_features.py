@@ -38,6 +38,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import vv_cie_graph as cie  # noqa: E402
 import vv_living_mixer as living  # noqa: E402
+import vv_event_content as content  # noqa: E402  (the content notes, filters and rest periods)
 
 sys.path.insert(0, str(ROOT / "scripts"))
 from collection_check import graph_for_engine  # noqa: E402  (drops the authoring-only keys)
@@ -197,7 +198,8 @@ def compile_events(src: Path = DATA) -> list[dict]:
             "description_variants": meta.get("description_variants") or [],
             "lines": meta.get("lines"),
             "source": meta.get("source", "v28"),
-            "cieg": cie.compile_graph(g),
+            # The content controls written in (src/vv_event_content.py): the source's tag table's node tags.
+            "cieg": cie.compile_graph(content.inject(g, content.node_tags_for(meta.get("source", "v28"), ident, g))[0]),
         })
     return sorted(out, key=lambda e: e["id"])
 

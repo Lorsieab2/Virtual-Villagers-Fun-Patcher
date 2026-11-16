@@ -153,6 +153,63 @@ TITLE_COLOURS = {
        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
+# The island events' content controls (the owner, 2026-11-15; scripts/build_island_event_content_features.py):
+# Content Notes and Rest Periods are on in Owner's Defaults and off everywhere else; the 28 content filters are off
+# everywhere, Owner's Defaults too.
+ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in range(1, 6)]
+ISLAND_EVENT_REST_IDS = ["vv%d_island_event_rest_periods" % game for game in range(1, 6)]
+ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
+# Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
+# them; the main list leaves them out.
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
+                             "island_event_rest_periods")
+ISLAND_EVENT_FILTER_PREFIX = "island_event_filter_"
+
+
+def island_event_section_kind(patch_id: str) -> str | None:
+    """"row" for a row of the Island Events section, "filter" for a content filter, None for the main list."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    if tail.startswith(ISLAND_EVENT_FILTER_PREFIX):
+        return "filter"
+    return "row" if tail in ISLAND_EVENT_SECTION_ROWS else None
+
+
+# The red content advisories of the island-event rows (the owner, 2026-11-15, word for word), by the id after
+# "vvN_", and the information note shown after them (not red).  Custom Island Events live in Story / Cheat Upgrades.
+ISLAND_EVENT_ADVISORY_COLLECTION = (
+    "CONTENT ADVISORY: These events include occasional illness, injury, grief, death, pregnancy loss and other "
+    "difficult situations. Serious outcomes are rare and described without graphic detail. Some events involve "
+    "difficult choices, uncertainty or lasting consequences. Ordinary village life, kindness and community remain "
+    "central.")
+ISLAND_EVENT_ADVISORY_MORE = (
+    "Content advisory: Some events involve danger, disasters or difficult choices; outcomes are non-graphic.")
+ISLAND_EVENT_ADVISORY_CUSTOM = (
+    "Player-created events may contain sensitive subjects. Their content and outcomes depend on the creator; review "
+    "custom events before enabling them.")
+ISLAND_EVENT_INFO_NOTE = (
+    "Original game events and their appearance rates remain unchanged. New events use separate, rare selection rolls. "
+    "Includes original and expanded Isola stories; credits are retained where applicable. Optional content controls "
+    "affect added events only.")
+ISLAND_EVENT_ADVISORIES = {
+    "isola_grand_event_collection": (ISLAND_EVENT_ADVISORY_COLLECTION, True),
+    "more_island_events": (ISLAND_EVENT_ADVISORY_MORE, True),
+    "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM, False),
+}
+ADVISORY_COLOUR = "#c00000"
+# The filters never hide a kind of person (the owner, 2026-11-15).
+ISLAND_EVENT_FILTERS_NOTE = (
+    "Applied before the rare roll picks an event: a filtered outcome is dropped where the event still makes sense, "
+    "otherwise the event is skipped. Added events only; off everywhere, Owner's Defaults too. Filters never hide a "
+    "kind of person (diversity, disability, identity, sex or gender changes, same-sex relationships, religion, "
+    "romance in general, family forms, singlehood).")
+
+
+def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
+    """A row's red advisory and whether the information note follows it, or None."""
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_ADVISORIES.get(tail)
+
+
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -244,6 +301,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
     # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # The island events' content controls (the owner, 2026-11-15): Content Notes and Rest Periods on in Owner's
+    # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -297,6 +357,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
     # Owner's Defaults; Island Events Scale With Population (like The Lost Children) is ticked there instead.
     + ["vv%d_island_events_scale_with_stored_amounts" % game for game in (1, 4, 5)]
+    # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too.
+    + ISLAND_EVENT_FILTER_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -310,6 +372,9 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
     # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
+    # The island events' content controls (the owner, 2026-11-15): notes and rest periods on in Owner's Defaults
+    # only, the filters off everywhere.
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -1679,6 +1744,7 @@ class App(tk.Tk):
                 font=("Segoe UI", 10, "bold"),
             ).pack(anchor="w", pady=(0, 2))
             rows = []
+            island_rows, island_filters = [], []
             for patch in patches:
                 label = patch.name if shared else f"{patch.name} ({game_name})"
                 # Each row's "?" key is registered and its guide checked now,
@@ -1687,7 +1753,13 @@ class App(tk.Tk):
                 key = vv_how_to_use.patch_key(patch.id)
                 vv_how_to_use.guide(key, label)
                 self.help_keys.add(key)
-                rows.append((patch, label, key))
+                kind = None if shared else island_event_section_kind(patch.id)
+                if kind == "filter":
+                    island_filters.append(patch)
+                elif kind == "row":
+                    island_rows.append((patch, label, key))
+                else:
+                    rows.append((patch, label, key))
             # The owner: "add a search bar per-game for each patch (name only)".
             search_row = ttk.Frame(page)
             search_row.pack(fill="x", pady=(0, 4))
@@ -1701,6 +1773,8 @@ class App(tk.Tk):
             )
             listing.pack(fill="x")
             self.patch_searches[game_name] = (search_var, listing, rows)
+            if island_rows or island_filters:
+                self._build_island_events_section(page, game_name, island_rows, island_filters, styles)
             search_var.trace_add(
                 "write",
                 lambda *_args, name=game_name: self._filter_patch_page(name),
@@ -1757,6 +1831,45 @@ class App(tk.Tk):
             side="right", anchor="e", padx=(0, 4), pady=(8, 0)
         )
 
+    def _build_island_events_section(self, page, game_name: str, island_rows: list, filters: list,
+                                     styles) -> None:
+        """The game's Island Events section (the owner, 2026-11-15): the island-event rows (More Island Events, the
+        Isola Grand Event Collection, Content Notes, Rest Periods) in a list of their own, then the content filters
+        as a grid of ticks.  Its rows are the same rows as everywhere: the same variables, guides and rules."""
+        requirement_font, description_font, background = styles
+        box = ttk.LabelFrame(page, text=f"Island Events ({game_name})", padding=(8, 4, 8, 6))
+        box.pack(fill="x", pady=(8, 0))
+        order = {tail: k for k, tail in enumerate(ISLAND_EVENT_SECTION_ROWS)}
+        island_rows = sorted(island_rows, key=lambda r: order.get(r[0].id.split("_", 1)[1], len(order)))
+        if island_rows:
+            listing = VirtualList(
+                box, island_rows,
+                lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
+            )
+            listing.pack(fill="x")
+        if not filters:
+            return
+        head = ttk.Frame(box)
+        head.pack(fill="x", pady=(8, 2))
+        ttk.Label(head, text="Content filters (added events only)", font=requirement_font).pack(side="left")
+        self._help_button(head, "island_event_content_filters").pack(side="left", padx=(4, 0))
+        ttk.Label(box, text=ISLAND_EVENT_FILTERS_NOTE, wraplength=640, justify="left").pack(anchor="w", pady=(0, 4))
+        grid = ttk.Frame(box)
+        grid.pack(fill="x")
+        filters = sorted(filters, key=lambda p: p.id)
+        half = (len(filters) + 1) // 2
+        for k, patch in enumerate(filters):
+            # A tick and its words beside it, wrapped to the column (a long name never runs off the page); a click
+            # on the words ticks it too.
+            cell = ttk.Frame(grid)
+            cell.grid(row=k % half, column=k // half, sticky="nw", padx=(0, 12), pady=1)
+            variable = self.fun_patch_vars[patch.id]
+            ttk.Checkbutton(cell, variable=variable, command=self._fun_patch_changed).pack(side="left", anchor="n")
+            words = ttk.Label(cell, text=patch.name.removeprefix("Content Filter: "), wraplength=270,
+                              justify="left")
+            words.pack(side="left", anchor="n")
+            words.bind("<Button-1>", lambda _e, v=variable: (v.set(not v.get()), self._fun_patch_changed()))
+
     def _build_patch_row(self, frame, row, styles) -> None:
         """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
         the requirement line.  The checkbox reads the patch's variable, so a row drawn later shows
@@ -1778,20 +1891,31 @@ class App(tk.Tk):
             button.configure(style=title_style)
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        line = 1
+        # The island-event rows' content advisory, in red (the owner, 2026-11-15), and the note outside the red.
+        advisory = island_event_advisory(patch.id)
+        if advisory is not None:
+            ttk.Label(frame, text=advisory[0], wraplength=620, justify="left",
+                      foreground=ADVISORY_COLOUR).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
+            if advisory[1]:
+                ttk.Label(frame, text=ISLAND_EVENT_INFO_NOTE, wraplength=620,
+                          justify="left").grid(row=line, column=0, sticky="w", pady=(0, 2))
+                line += 1
         RichDescription(frame, row_description(patch), 620, requirement_font,
-                        description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
+                        description_font, background).grid(row=line, column=0, sticky="w", pady=(0, 3))
         ttk.Label(
             frame,
             text=patch_requirement_text(patch, self.fun_patches),
             wraplength=620,
             font=requirement_font,
-        ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+        ).grid(row=line + 1, column=0, sticky="w", pady=(0, 6))
         # A patch that can never be built with another: greyed, with the reason, while the
         # other is ticked (refresh_conflict_rows).
         if any(conflict_ids(other) and (other.id == patch.id or patch.id in conflict_ids(other))
                for other in self.fun_patches):
             reason = ttk.Label(frame, text="", wraplength=620, font=styles[0], foreground="#9a3412")
-            reason.grid(row=3, column=0, sticky="w", pady=(0, 6))
+            reason.grid(row=line + 2, column=0, sticky="w", pady=(0, 6))
             self._conflict_rows[patch.id] = (button, reason)
             refresh_conflict_rows(self)
 

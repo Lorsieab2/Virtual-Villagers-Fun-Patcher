@@ -363,6 +363,48 @@ static void sc_restore(int game) {
     sc.natural = f.natural;
 }
 
+/* ---- The content filters (src/vv_event_content.py) ---------------------------------------------------------- */
+
+/* The island events' content filters ticked in `game` (island_event_filter_f01 .. f28 in the installed patches'
+   list): bit n-1 for Fnn.  The collection's events carry their own (each compiled event's conditions and
+   requirement); More Island Events' events are kept out whole by the table below. */
+static unsigned int sc_filters_on(int game) {
+    unsigned int on = 0;
+    int n;
+    char id[32];
+    cg_installed_load();
+    if (cg_installed_state != 1) {
+        return 0;
+    }
+    for (n = 1; n <= 28; ++n) {
+        wsprintfA(id, "island_event_filter_f%02d", n);
+        if (cg_installed_has(game, id)) {
+            on |= 1u << (n - 1);
+        }
+    }
+    return on;
+}
+
+#define SC_F(n) (1u << ((n) - 1))
+/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) and
+   the content filters each one's outcomes touch: The Aspiring Adventurer (a death, a disappearance), The Cave
+   Explorers (a death, the eerie cave), The Climb, The Troubling Signs (a death, a disaster, animals), Diving for
+   Treasure (a death, deep water), The Playful Dolphins (deep water), The Mysterious Mask, The Remembrance Ceremony
+   (twice: grief), The Rumblings (a disaster). */
+static const unsigned int SC_MORE_FILTERS[] = {
+    SC_F(3) | SC_F(4) | SC_F(5), SC_F(3) | SC_F(5) | SC_F(13), 0, SC_F(3) | SC_F(21) | SC_F(24),
+    SC_F(3) | SC_F(5) | SC_F(22), SC_F(22), 0, SC_F(5), SC_F(5), SC_F(21),
+};
+
+/* Whether a ticked content filter keeps More Island Events' entry `k` out (before the draw, and in Pick Island
+   Event's list). */
+static int sc_more_filtered(int game, int k) {
+    if (k < 0 || k >= (int)(sizeof SC_MORE_FILTERS / sizeof SC_MORE_FILTERS[0]) || SC_MORE_FILTERS[k] == 0) {
+        return 0;
+    }
+    return (sc_filters_on(game) & SC_MORE_FILTERS[k]) != 0;
+}
+
 /* ---- The candidates ------------------------------------------------------------------------------------------ */
 
 static int sc_more_on(int game) {

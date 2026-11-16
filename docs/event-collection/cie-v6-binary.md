@@ -902,3 +902,26 @@ parent lives. `birth_then_die` (section 23) always kills the parent, so this is 
 - **The log:** "<name>'s baby was born early." ("babies were"; "was born" at full term). No automatic line (section
   25), as `birth_then_die`.
 - Not offered in the Custom Island Event library's Add menu (a collection effect for now; an owner question).
+
+## 31. The content controls (the owner, 2026-11-15): a rest period (`rest`, code 25) and up to 32 patch names
+
+`src/vv_event_content.py` writes the island events' content controls into every NEW event as it is compiled (the
+collection's builder and the Living Event Engine's mixer); the event files are never changed, each source's tags are
+in `data/event_collection/content_tags/<source>.json`.
+
+- **Patch names:** a graph may name up to **32** patches (the engine's `cg.patches` mask; before, 8). The content
+  filters are `island_event_filter_f01` .. `f28`, the content notes `island_event_content_notes`: the patcher writes
+  each ticked row in "VVFP Installed Patches.txt", which `cg_installed_has` reads.
+- **Dropped outcomes:** a weighted child (never a player's choice) whose own part of the graph carries a filter gets
+  `{"not": {"patch": "island_event_filter_fNN"}}` (several: `not any`).
+- **Skipped events:** the requirement gets `not (any group covered)` -- a filter still reachable with its edges
+  dropped, or every child of one node dropped. Strict casts (the rare roll, Pick Island Event) refuse it with "the
+  island event content filters to allow it"; a bought event is refused by these parts too ("is kept out by the island
+  event content filters"), never by the requirement's other parts.
+- **The content note:** the first text node(s) get variants "Content note: <labels>\n<text>", each with the
+  condition `island_event_content_notes` and which labels the ticked filters leave.
+- **`{"do": "rest", "role": r, "days": n}`** (n 1..3650; b 0; no string): made at its place like every effect, before
+  the serious outcome it stands beside, it keeps the villager and their recorded immediate family (spouse, parents,
+  children, siblings) resting `n` in-game days (86,400 game-clock seconds each) when Rest Periods for Island Events is
+  installed (`story_rest.inc`, its own per-save file following each villager). While a villager rests, every role a
+  rest effect names (an alias: its members) refuses them (`cg_eligible`). Never a change, never a line, never logged.

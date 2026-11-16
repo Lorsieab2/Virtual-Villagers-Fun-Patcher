@@ -62,6 +62,8 @@ static int sm_info(int game, int k, char *title, char *description, char *needs)
     return info(k, title, description, needs, SM_TEXT);
 }
 
+static int sc_more_filtered(int game, int k);   /* story_collection.inc: a ticked content filter keeps it out */
+
 /* The More entries of `game` (none without More Island Events). */
 static void sm_fill_more(int game) {
     sm_count_fn count = (sm_count_fn)(void *)sm_proc("VvfpMoreIslandEventsPickCount");
@@ -75,6 +77,11 @@ static void sm_fill_more(int game) {
         }
         sm_list.k[i] = k;
         sm_list.possible[i] = state;
+        if (sc_more_filtered(game, k)) {
+            sm_list.possible[i] = 0;
+            lstrcpynA(sm_list.needs[i], vvfp_tr("vvfp.story/story_more_events.sm_fill_more.s0",
+                                                "the island event content filters to allow it", 200), SM_TEXT);
+        }
         ++sm_list.count;
     }
 }

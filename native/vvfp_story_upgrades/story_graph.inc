@@ -170,7 +170,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        /* cie-v6-binary.md 29 (23 is kept for a cross-sex body look) */
        CGE_SEX_CHANGE = 22,
        /* cie-v6-binary.md 30 */
-       CGE_DELIVER_EARLY = 24 };
+       CGE_DELIVER_EARLY = 24,
+       /* cie-v6-binary.md 31: a rest period (src/vv_event_content.py), never a change to anyone */
+       CGE_REST = 25 };
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -848,7 +850,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         }
     }
     if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
-        || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
+        || g->n_node > CG_MAX_NODES || g->n_patch > 32 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
         || g->n_cond >= 0xFFFF || g->n_variant >= 0xFFFF || g->n_string >= 0xFFFF
         || !cg_section(g, g->o_role, g->n_role, g->role_bytes) || !cg_section(g, g->o_node, g->n_node, 28)
         || !cg_section(g, g->o_child, g->n_child, 12) || !cg_section(g, g->o_effect, g->n_effect, 16)
@@ -1026,9 +1028,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         int villager = (e[0] >= CGE_KILL && e[0] <= CGE_SICK) || (e[0] >= CGE_ACTION && e[0] <= CGE_SKILL_SET)
                        || (e[0] == CGE_CELEBRATE && e[1] != CG_ROLE_ALIAS_ALL)
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
-                       || e[0] == CGE_DELIVER_EARLY;
+                       || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
-                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY));
+                 || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_REST));
         if (ok && villager) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
@@ -1071,6 +1073,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 /* 30: the newborn's extra health loss, a range -99..-1, or none (0, 0). */
                 ok = str == CG_NONE && ((a == 0 && b == 0) || (a >= -99 && a <= b && b <= -1));
                 break;
+            case CGE_REST: ok = a >= 1 && a <= 3650 && b == 0 && str == CG_NONE; break;   /* 31: days */
             case CGE_STATUS: ok = a == 1; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
@@ -1526,6 +1529,39 @@ static int cg_sex_change_role(int role) {
 #define CG_NURSING_MIN_AGE (18 * 20)
 
 /* Whether record `index` may be role `role` (any binding aside). */
+/* story_rest.inc: the rest periods of the island events' content controls. */
+static int rs_resting(int game, const unsigned char *record);
+static void rs_rest_role(const ce_adapter *a, int game, int index, int days);
+
+/* The roles a rest effect names (31): the roles a serious outcome can reach.  An alias names its members. */
+static unsigned int cg_serious_roles(void) {
+    static unsigned int crc_seen, mask_seen;
+    static const unsigned char *d_seen;
+    unsigned int mask = 0, crc;
+    int i;
+    if (cg_g.d == NULL || cg_g.version < 6) {
+        return 0;
+    }
+    crc = cg_u32(cg_g.d + 12);
+    if (cg_g.d == d_seen && crc == crc_seen) {
+        return mask_seen;
+    }
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (e[0] == CGE_REST && e[1] < (unsigned int)cg_g.n_role) {
+            const unsigned char *r = cg_role_at(&cg_g, e[1]);
+            mask |= 1u << e[1];
+            if (r[0] >= CG_ROLE_ALIAS) {
+                mask |= cg_u16(r + 14);
+            }
+        }
+    }
+    d_seen = cg_g.d;
+    crc_seen = crc;
+    mask_seen = mask;
+    return mask;
+}
+
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     const unsigned char *r = a->record(index);
@@ -1557,6 +1593,9 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
         return 0;                      /* never harmed, even with protected "allow" */
+    }
+    if ((cg_serious_roles() >> role) & 1u && rs_resting(game, r)) {
+        return 0;                      /* resting after a serious new-event outcome (Rest Periods for Island Events) */
     }
     /* The requirements (version 6: dropped for a role nobody meets when the cast prefers them). */
     if (cg_relax_mask & (1u << role)) {
@@ -4555,6 +4594,13 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     case CGE_DAMAGE:
         cg_damage(a, game, e, va);
         return;
+    case CGE_REST:
+        /* 31: the villager (and their immediate family) rest from serious new-event outcomes (story_rest.inc). */
+        role = cg_resolve_role(e[1]);
+        if (role >= 0 && cg_villager(a, role) != NULL) {
+            rs_rest_role(a, game, cg.record[role], (int)cg_u32(e + 4));
+        }
+        return;
     case CGE_CELEBRATE:
         if (e[1] == CG_ROLE_ALIAS_ALL) {
             cg_celebrate_all(a, game, r);
@@ -6253,6 +6299,56 @@ static int cg_requirement_holds(int game, unsigned int needed) {
 
 static void cg_role_words(int game, int r, char *out, int size);
 
+/* Whether condition `i` names a content filter (island_event_filter_*: src/vv_event_content.py) anywhere in it. */
+static int cg_cond_names_filter(int i, int depth) {
+    const unsigned char *c;
+    unsigned int a;
+    int k;
+    if (i < 0 || i >= cg_g.n_cond || depth > 8) {
+        return 0;
+    }
+    c = cg_cond_at(&cg_g, i);
+    a = cg_u16(c + 2);
+    switch (c[0]) {
+    case CGC_PATCH: {
+        const char *id = cg_s(&cg_g, cg_u16(cg_g.d + cg_g.o_patch + 2u * a));
+        return lstrlenA(id) > 20 && memcmp(id, "island_event_filter_", 20) == 0;
+    }
+    case CGC_NOT:
+        return cg_cond_names_filter((int)a, depth + 1);
+    case CGC_ALL: case CGC_ANY:
+        for (k = 0; k < c[1]; ++k) {
+            if (cg_cond_names_filter((int)a + k, depth + 1)) {
+                return 1;
+            }
+        }
+        return 0;
+    default:
+        return 0;
+    }
+}
+
+/* Whether the parts of the event's requirement that name a content filter (the skip src/vv_event_content.py writes)
+   hold with the patches on now: a bought event is never kept out by its other requirements, but always by these. */
+static int cg_filters_allow(int game) {
+    const unsigned char *all;
+    unsigned int keep = cg.patches;
+    int k, holds = 1;
+    if (cg_g.req_cond == (int)CG_NONE) {
+        return 1;
+    }
+    all = cg_cond_at(&cg_g, cg_g.req_cond);
+    cg.patches = cg_patches_on(game);
+    for (k = 0; k < all[1] && holds; ++k) {
+        int c = (int)cg_u16(all + 2) + k;
+        if (cg_cond_names_filter(c, 0)) {
+            holds = cg_holds_cond(c, game, 0);
+        }
+    }
+    cg.patches = keep;
+    return holds;
+}
+
 /* What requirement condition `i` asks for, in plain words, into `out` (after "it needs "): the first part that does
    not hold now.  0 when it holds.  (A requirement never holds a villager fact: src/vv_cie_graph.py refuses it; never a
    role's id, a code label the player does not see.) */
@@ -6316,6 +6412,8 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
         } else if (n[0] == CGC_SPECIAL_PRESENT) {
             lstrcpynA(part, na == 1u ? "no Golden Child in the village" : "no Tribal Chief in the village",
                       sizeof part);
+        } else if (cg_cond_names_filter((int)a, 0)) {
+            lstrcpynA(part, "the island event content filters to allow it", sizeof part);
         } else if (n[0] == CGC_PATCH) {
             lstrcpynA(part, "a patch installed in this game to be taken off", sizeof part);
         } else if (n[0] == CGC_PUZZLE) {
@@ -6474,6 +6572,12 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         static char why[360];
         cg_requirement_words(game, needed, why);
         wsprintfA(reason, "%s Nothing has been queued.", why);
+        return reason;
+    }
+    if (cg_g.version >= 6 && cg_cast_now != CG_CAST_STRICT && !cg_filters_allow(game)) {
+        /* Bought too: the island event content filters the player ticked keep it out (src/vv_event_content.py). */
+        wsprintfA(reason, "\"%s\" is kept out by the island event content filters. Nothing has been queued.",
+                  cg_readable(&cg_g));
         return reason;
     }
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_PREFER) {
