@@ -239,6 +239,78 @@ static void sd_damage(int game, int k, int loss, unsigned char *(*record)(int in
     }
 }
 
+/* Structure `k` (not finished: damaged) left one step of building work from done, in the state a damage leaves
+   (the same writes as sd_damage with that much work kept), so the game's own construction finishes it with its own
+   completion -- the population room, the pictures, the trophies -- the next time a builder works on it (the
+   "repair" effect, story_graph.inc; the owner, 2026-11-15).  UNCONFIRMED live: a builder is needed to finish it. */
+static void sd_repair(int game, int k) {
+    if (k < 0 || k >= sd_structures(game) || sd_finished(game, k)) {
+        return;
+    }
+    switch (game) {
+    case 1: {
+        unsigned char *world = SD_V1_WORLD();
+        unsigned char *array = SD_V1_ARRAY();
+        void *nav, *scene;
+        *(int *)(world + SD_V1_FLAG[k] - 4) = SD_V1_DONE_AT[k] - 1;
+        nav = *(void **)(array + 0x3E014);
+        scene = *(void **)(array + 0x3E024);
+        if (nav != NULL) {
+            SD_TC0(0x414590u, nav);
+        }
+        if (scene != NULL) {
+            SD_TC0(0x416380u, scene);
+        }
+        break;
+    }
+    case 2: {
+        unsigned char *world = SD_V2_WORLD();
+        unsigned char *pool = SD_V2_POOL();
+        void *scene, *map;
+        *(int *)(world + SD_V2_FLAG[k] - 4) = SD_V2_DONE_AT[k] - 1;
+        scene = *(void **)(pool + 0xE574D8);
+        map = *(void **)(pool + 0xE574E8);
+        if (scene != NULL) {
+            SD_TC0(0x418660u, scene);
+        }
+        if (map != NULL) {
+            SD_TC0(0x41C1D0u, map);
+        }
+        break;
+    }
+    case 3: {
+        unsigned char *hut = (unsigned char *)(uintptr_t)(SD_V3_HUTS + 4u + 0x14u * (unsigned int)k);
+        int id = sd_v3_id(k);
+        int left = *(const int *)(uintptr_t)(0x49D0E0u + 4u * (unsigned int)SD_V3_STATE[k]);
+        int handle = *(int *)(hut + 0xC);
+        if (handle != -1) {
+            SD_TC1(0x429B00u, 0x58C338u, handle);
+            *(int *)(hut + 0xC) = -1;
+        }
+        *(int *)(hut + 4) = SD_V3_STATE[k];
+        SD_TC2(0x435970u, SD_V3_PROJECTS, id, 1);
+        hut[0] = 1;
+        *(int *)(hut + 8) = left;
+        break;
+    }
+    default: {
+        const sd_late *l = &SD_LATE[game == 4 ? 0 : 1];
+        const sd_building *b = &l->buildings[k];
+        unsigned char *o = (unsigned char *)(uintptr_t)b->object;
+        void **vtable = *(void ***)o;
+        int handle = *(int *)(o + 0x3C);
+        if (handle != -1) {
+            SD_TC1(l->release, l->pool, handle);
+            *(int *)(o + 0x3C) = -1;
+        }
+        ((sd_tc1)vtable[l->set_state_slot / 4])(o, NULL, 3);
+        SD_TC2(l->setter, l->projects, b->id, 1);
+        o[0x30] = 1;
+        break;
+    }
+    }
+}
+
 /* The structure whose words are `words` (case-insensitive, "the " optional), -1 none. */
 static int sd_find(int game, const char *words) {
     int k;

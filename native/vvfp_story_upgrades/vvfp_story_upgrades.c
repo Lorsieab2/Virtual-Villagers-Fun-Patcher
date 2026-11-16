@@ -251,6 +251,7 @@ static int cg_busy(int game);
 static void cg_tick(int game);
 /* Defined with the Isola Grand Event Collection's rare roll (story_collection.inc), used earlier. */
 static void sc_tick(int game);
+static void st_tick(int game);   /* story_structures.inc: the structures a village has finished (the repair effect) */
 static int sc_pick_fill(int game);
 static int sc_pick_buy(int game, HWND owner, int i);
 static void sc_library_add(int game);
@@ -1135,6 +1136,8 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     cg_tick(game);
     /* The new island events in a natural one's place (story_collection.inc): half of them, from 61 villagers. */
     sc_tick(game);
+    /* The structures this village has finished, for the "repair" effect (story_structures.inc). */
+    st_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1419,6 +1422,7 @@ static int lv_test_has_pack(void);
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
 #include "story_traits.inc"     /* the new island events' story traits (v1.35.97) */
 #include "story_procedural.inc" /* procedural island events composed from pieces-<group>.pcb (v1.35.97) */
+#include "story_structures.inc" /* the structures a village has finished, for the repair effect (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
