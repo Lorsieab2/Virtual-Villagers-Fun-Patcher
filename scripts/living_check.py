@@ -141,11 +141,13 @@ def check_le(bank: mx.Bank, idx: Index, seed: dict, v: dict, d: dict, game: int,
         cast = bank.role[rid]["cast"]
         if role["kind"] != cast["kind"]:
             out.append(f"{where}: {spec_key} is not cast as the bank says")
-        elif cast["kind"] == "villager":
+        elif cast["kind"] == "villager" and rid not in mx.LEADER_ROLES:   # a leader can be anyone (owner, 2026-11-16)
             if role["min_age"] < cast.get("min_age", 14) or (cast.get("max_age") and role["max_age"] != cast["max_age"]) \
                     or role.get("special") != cast.get("special"):
                 out.append(f"{where}: {spec_key}'s cast differs from the bank's")
     for c in start["choices"]:
+        if c.get("if") == mx.GUARDIANS_IF:
+            continue            # the Guardians of Isola twin of the choice before it (vv_living_mixer.guardians_bank)
         label = expand_words(c["label"], words, game)
         hit = None
         for text, ident in idx.choice.items():
