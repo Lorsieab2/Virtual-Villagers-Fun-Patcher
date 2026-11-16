@@ -1512,7 +1512,7 @@ class FormatGaps(unittest.TestCase):
         import collection_check as cc
         shared = {"pools": cc.shared_pools()}
         files = sorted(p for p in (ROOT / "data" / "event_collection").rglob("*.json")
-                       if p.name not in ("manifest.json", "shared_pools.json"))
+                       if p.name not in ("manifest.json", "shared_pools.json") and "content_tags" not in p.parts)
         self.assertGreaterEqual(len(files), 10)
         for p in files:
             g = cc.graph_for_engine(read(p))
@@ -1650,12 +1650,34 @@ class NodeTitles(unittest.TestCase):
         next(iter(old["nodes"].values()))["title"] = "Older"
         self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
 
+    def test_simulate_titles_follow_the_choice_picked(self):
+        """Codex P2 (PR #771): two choices leading to the same node -- the title is the label of the one picked."""
+        g = copy.deepcopy(TITLES)
+        g["nodes"]["q"]["choices"] = [{"label": "Leave", "next": "n"}, {"label": "Keep", "next": "n"}]
+        del g["nodes"]["y"], g["nodes"]["y2"]
+        g = cg.load(g)
+        for answer, label in ((0, "Leave"), (1, "Keep")):
+            r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [answer])
+            self.assertEqual(r["titles"][-1], label)
+
+    def test_a_requirement_fact_still_checks_the_graph(self):
+        """Codex P2 (PR #771): a requirement on a run-time fact (min_population) keeps its contexts, so a branch with
+        no child that applies there is still found."""
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Check", "games": [3],
+             "roles": {"subject": {"kind": "villager"}}, "start": "b",
+             "requirement": {"min_eligible": 1, "if": {"min_population": 3}},
+             "nodes": {"b": {"type": "branch", "children": [{"next": "x", "if": {"min_population": 99}}]},
+                       "x": {"text": "(Name) waits."}}}
+        _graph, problems = cg.validate(g, True)
+        self.assertTrue(any("no child applies" in p for p in problems), problems)
+
     def test_simulate_titles(self):
         g = cg.load(copy.deepcopy(TITLES))
         r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
         self.assertEqual(r["titles"], ["The Revolutionary Invention"] * 3 + ["The Elders Decide"])
         r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [1])
-        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 3)
+        # the owner (2026-11-16): after "Keep it quiet" its label titles what follows (the node has no title)
+        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 2 + ["Keep it quiet"])
 
     def test_the_fit_pages_with_the_widest_title(self):
         # A New Home leads each page with its title: a node's two-line title takes one more line than the event's.

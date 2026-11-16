@@ -227,6 +227,354 @@ A child's grave names the child's job as an "Apprentice", the way The Tree of Li
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Content Filter: Abandonment and orphanhood (`vv1_island_event_filter_f19`)
+
+Keeps "abandonment and orphanhood" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F19 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: All deaths in events (`vv1_island_event_filter_f03`)
+
+Keeps "all deaths in events" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F03 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Animal death and serious animal injury (`vv1_island_event_filter_f24`)
+
+Keeps "animal death and serious animal injury" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F24 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Bullying and social cruelty (`vv1_island_event_filter_f16`)
+
+Keeps "bullying and social cruelty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F16 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Burns, scars and lasting visible injuries (`vv1_island_event_filter_f07`)
+
+Keeps "burns, scars and lasting visible injuries" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F07 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Child and baby deaths (`vv1_island_event_filter_f01`)
+
+Keeps "child and baby deaths" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F01 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Children in danger (`vv1_island_event_filter_f18`)
+
+Keeps "children in danger" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F18 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Creepy-crawlies (snakes, spiders, insects) (`vv1_island_event_filter_f26`)
+
+Keeps "creepy-crawlies (snakes, spiders, insects)" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F26 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Deep water and drowning (`vv1_island_event_filter_f22`)
+
+Keeps "deep water and drowning" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F22 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Difficult births and premature babies (`vv1_island_event_filter_f10`)
+
+Keeps "difficult births and premature babies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F10 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Disappearances (`vv1_island_event_filter_f04`)
+
+Keeps "disappearances" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F04 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Epidemics and contagion (`vv1_island_event_filter_f09`)
+
+Keeps "epidemics and contagion" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F09 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Fires (`vv1_island_event_filter_f23`)
+
+Keeps "fires" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F23 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Grief and bereavement (`vv1_island_event_filter_f05`)
+
+Keeps "grief and bereavement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F05 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Historical war, persecution, slavery and displacement (`vv1_island_event_filter_f15`)
+
+Keeps "historical war, persecution, slavery and displacement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F15 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hopelessness (`vv1_island_event_filter_f12`)
+
+Keeps "hopelessness" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F12 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunger and poverty (`vv1_island_event_filter_f20`)
+
+Keeps "hunger and poverty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F20 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunting and fishing (`vv1_island_event_filter_f25`)
+
+Keeps "hunting and fishing" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F25 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Implied past abuse (`vv1_island_event_filter_f14`)
+
+Keeps "implied past abuse" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F14 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Lasting changes to a villager (`vv1_island_event_filter_f27`)
+
+Keeps "lasting changes to a villager" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F27 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Pregnancy loss, stillbirth and death in childbirth (`vv1_island_event_filter_f02`)
+
+Keeps "pregnancy loss, stillbirth and death in childbirth" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Prejudice and discrimination as a subject (`vv1_island_event_filter_f17`)
+
+Keeps "prejudice and discrimination as a subject" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F17 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious disasters (`vv1_island_event_filter_f21`)
+
+Keeps "serious disasters" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F21 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious illness and medical emergencies (`vv1_island_event_filter_f08`)
+
+Keeps "serious illness and medical emergencies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F08 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious injury, permanent impairment and amputation (`vv1_island_event_filter_f06`)
+
+Keeps "serious injury, permanent impairment and amputation" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F06 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Severe emotional distress (`vv1_island_event_filter_f11`)
+
+Keeps "severe emotional distress" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F11 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Teen romance and intimacy (`vv1_island_event_filter_f28`)
+
+Keeps "teen romance and intimacy" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F28 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Unsettling and eerie scenes (`vv1_island_event_filter_f13`)
+
+Keeps "unsettling and eerie scenes" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F13 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Notes for Island Events (`vv1_island_event_content_notes`)
+
+Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example "Content note: Bereavement". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: The first text of each new event that may touch a sensitive subject starts with "Content note: <labels>" (a variant of that text compiled into the event, shown while this row is installed).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
 
 Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3. A villager not checked on Research (any other job, or none) does so only 14% of the times the game gives them research work; otherwise the game goes on to its own next choice. The 14% roll lives in "VVFP VV1 Research At Max.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, every researcher continues as before.
@@ -427,11 +775,11 @@ Island events' food and tech-point gains and losses grow with what the village h
 
 #### Isola Grand Event Collection (`vv1_isola_grand_event_collection`)
 
-Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3141 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
+Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- then comes in the natural event's place (Story / Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3141 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
 
-**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this.**
+**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this. Needed by Content Notes for Island Events for the new island events it acts on. Needed by Content Filter: Child and baby deaths for the new island events it acts on. Needed by Content Filter: Pregnancy loss, stillbirth and death in childbirth for the new island events it acts on. Needed by Content Filter: All deaths in events for the new island events it acts on. Needed by Content Filter: Disappearances for the new island events it acts on. Needed by Content Filter: Grief and bereavement for the new island events it acts on. Needed by Content Filter: Serious injury, permanent impairment and amputation for the new island events it acts on. Needed by Content Filter: Burns, scars and lasting visible injuries for the new island events it acts on. Needed by Content Filter: Serious illness and medical emergencies for the new island events it acts on. Needed by Content Filter: Epidemics and contagion for the new island events it acts on. Needed by Content Filter: Difficult births and premature babies for the new island events it acts on. Needed by Content Filter: Severe emotional distress for the new island events it acts on. Needed by Content Filter: Hopelessness for the new island events it acts on. Needed by Content Filter: Unsettling and eerie scenes for the new island events it acts on. Needed by Content Filter: Implied past abuse for the new island events it acts on. Needed by Content Filter: Historical war, persecution, slavery and displacement for the new island events it acts on. Needed by Content Filter: Bullying and social cruelty for the new island events it acts on. Needed by Content Filter: Prejudice and discrimination as a subject for the new island events it acts on. Needed by Content Filter: Children in danger for the new island events it acts on. Needed by Content Filter: Abandonment and orphanhood for the new island events it acts on. Needed by Content Filter: Hunger and poverty for the new island events it acts on. Needed by Content Filter: Serious disasters for the new island events it acts on. Needed by Content Filter: Deep water and drowning for the new island events it acts on. Needed by Content Filter: Fires for the new island events it acts on. Needed by Content Filter: Animal death and serious animal injury for the new island events it acts on. Needed by Content Filter: Hunting and fishing for the new island events it acts on. Needed by Content Filter: Creepy-crawlies (snakes, spiders, insects) for the new island events it acts on. Needed by Content Filter: Lasting changes to a villager for the new island events it acts on. Needed by Content Filter: Teen romance and intimacy for the new island events it acts on.**
 
-- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
+- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living villagers the game lists and the babies being carried; New Believers' believers only) an event that can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen is equally likely, More Island Events' and the collection's alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; when none can be cast the game's own event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), so the new event takes the natural event's place. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
 - Explicit non-changes/exclusions: No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened. Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.
 - Dependencies: vv1_story_cheat_upgrades, vv1_scrolling_popups
 - Evidence status: the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending
@@ -499,14 +847,26 @@ Corrects a handful of A New Home's English texts: "breeding" becomes "parenting"
 
 #### More Island Events (`vv1_more_island_events`)
 
-Adds new island events, written by the owner, beside the game's own (more come in later versions). Four here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it comes as one of the villager encounters, never the village's first island event; it needs two villagers of 14 or more who are not nursing a baby and not the Golden Child, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (200 to 1,500 food for the meat, 500 to 4,999 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 years apart, wonder what the cave hides. "Don't explore" changes nothing; "Explore the Cave" leads on: "Proceed Further" brings a scream in the dark (they run, then argue, make up, or both fall down a chasm and are gone for good, 1 in 10) or a find (a map that takes both away for good, 1 in 10; gold coins: tech points; a treasure map: three times as many; preserved food: twice the food); "Stay Here" lets them return what they found (food or tech points) or keep it (the researchers' tech points half the time; otherwise one or both die, with graves). Each award is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (A New Home: 200 to 1,500 food, 500 to 4,999 tech points), scaled as the Aspiring Adventurer's is. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the cemetery, "Honoring the Dead", and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished hut: an earthquake damages each of the second and third population huts (the first, "The Hut", is a puzzle and is never damaged) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
+Adds new island events, written by the owner, beside the game's own (more come in later versions). Four here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it comes as one of the villager encounters, never the village's first island event; it needs two villagers of 14 or more who are not nursing a baby and not the Golden Child, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (200 to 1,500 food for the meat, 500 to 4,999 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 years apart, wonder what the cave hides. "Don't explore" changes nothing; "Explore the Cave" leads on: "Proceed Further" brings a scream in the dark (they run, then argue, make up, or both fall down a chasm and are gone for good, 1 in 10) or a find (a map that takes both away for good, 1 in 10; gold coins: tech points; a treasure map: three times as many; preserved food: twice the food); "Stay Here" lets them return what they found (food or tech points) or keep it (the researchers' tech points half the time; otherwise one or both die, with graves). Each award is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (A New Home: 200 to 1,500 food, 500 to 4,999 tech points), scaled as the Aspiring Adventurer's is. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the cemetery, "Honoring the Dead", and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished hut: an earthquake damages each of the second and third population huts (the first, "The Hut", is a puzzle and is never damaged) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
 
 **Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it comes as one of the villager encounters, never the village's first island event. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not the Golden Child; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 200 to 1,500 food), 25% a golden chest (a tech award: 500 to 4,999 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (never a share of the stock draw: taken only while due, through Story / Cheat Upgrades' rare roll or Pick Island Event), only while The Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% gold coins a normal tech award, 30% a treasure map 3x, 30% preserved food 2x food); Stay Here -> return (food or tech, 50/50, a normal award) or keep (50% the researchers' normal tech award, 25% name2 and name1 die, 25% name2 dies: health 0, a body and a grave). The effects wait for their own page: they are made when the page that ends the ending's text is shown, and the event writes its own one Island Events log entry with a Choice line for each answer clicked; each removal is told to the Cause of Death companion (VvfpCauseVanishedBy). The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each its own case past the island events' 15, the chooser's first answer only while it is due (the stock rand(15) otherwise, untouched), through two sites of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the cemetery, "Honoring the Dead"; the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the second and third population huts (the first, "The Hut", is a puzzle and is never damaged) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state).
+- Behavior changes: The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it comes as one of the villager encounters, never the village's first island event. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not the Golden Child; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 200 to 1,500 food), 25% a golden chest (a tech award: 500 to 4,999 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (never a share of the stock draw: taken only while due, through Story / Cheat Upgrades' natural-event replacement or Pick Island Event), only while The Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% gold coins a normal tech award, 30% a treasure map 3x, 30% preserved food 2x food); Stay Here -> return (food or tech, 50/50, a normal award) or keep (50% the researchers' normal tech award, 25% name2 and name1 die, 25% name2 dies: health 0, a body and a grave). The effects wait for their own page: they are made when the page that ends the ending's text is shown, and the event writes its own one Island Events log entry with a Choice line for each answer clicked; each removal is told to the Cause of Death companion (VvfpCauseVanishedBy). The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each its own case past the island events' 15, the chooser's first answer only while it is due (the stock rand(15) otherwise, untouched), through two sites of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the cemetery, "Honoring the Dead"; the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the second and third population huts (the first, "The Hut", is a puzzle and is never damaged) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state).
 - Explicit non-changes/exclusions: No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist. Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion.
 - Dependencies: vv1_story_cheat_upgrades
 - Evidence status: implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py (The Cave Explorers: every path, its effects and its pages, in tests/test_cave_explorers.py); The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent and where, the feast, the damage and its states, the log entry and the words, in tests/test_ceremony_and_rumblings.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Safeguards for Island Events (and Additional Events too) (`vv1_island_events_any_time`)
+
+For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. It applies to whichever island events are on in the game. Anyone can be picked and any event can happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' story villagers included), except when a pick would make no sense in the event -- a child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a leader can be anyone). Objects that are not living villagers, such as The Lost Children's totem statues, are never picked, and the guards against crashes and damaged saves stay. Off by default, in Owner's Defaults and in Select All too. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game.
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Numeric Keys: Zip Around the Island (`vv1_number_keys`)
@@ -926,6 +1286,354 @@ A child's grave names the child's job as an "Apprentice", the way The Tree of Li
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Content Filter: Abandonment and orphanhood (`vv2_island_event_filter_f19`)
+
+Keeps "abandonment and orphanhood" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F19 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: All deaths in events (`vv2_island_event_filter_f03`)
+
+Keeps "all deaths in events" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F03 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Animal death and serious animal injury (`vv2_island_event_filter_f24`)
+
+Keeps "animal death and serious animal injury" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F24 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Bullying and social cruelty (`vv2_island_event_filter_f16`)
+
+Keeps "bullying and social cruelty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F16 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Burns, scars and lasting visible injuries (`vv2_island_event_filter_f07`)
+
+Keeps "burns, scars and lasting visible injuries" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F07 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Child and baby deaths (`vv2_island_event_filter_f01`)
+
+Keeps "child and baby deaths" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F01 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Children in danger (`vv2_island_event_filter_f18`)
+
+Keeps "children in danger" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F18 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Creepy-crawlies (snakes, spiders, insects) (`vv2_island_event_filter_f26`)
+
+Keeps "creepy-crawlies (snakes, spiders, insects)" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F26 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Deep water and drowning (`vv2_island_event_filter_f22`)
+
+Keeps "deep water and drowning" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F22 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Difficult births and premature babies (`vv2_island_event_filter_f10`)
+
+Keeps "difficult births and premature babies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F10 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Disappearances (`vv2_island_event_filter_f04`)
+
+Keeps "disappearances" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F04 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Epidemics and contagion (`vv2_island_event_filter_f09`)
+
+Keeps "epidemics and contagion" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F09 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Fires (`vv2_island_event_filter_f23`)
+
+Keeps "fires" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F23 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Grief and bereavement (`vv2_island_event_filter_f05`)
+
+Keeps "grief and bereavement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F05 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Historical war, persecution, slavery and displacement (`vv2_island_event_filter_f15`)
+
+Keeps "historical war, persecution, slavery and displacement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F15 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hopelessness (`vv2_island_event_filter_f12`)
+
+Keeps "hopelessness" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F12 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunger and poverty (`vv2_island_event_filter_f20`)
+
+Keeps "hunger and poverty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F20 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunting and fishing (`vv2_island_event_filter_f25`)
+
+Keeps "hunting and fishing" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F25 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Implied past abuse (`vv2_island_event_filter_f14`)
+
+Keeps "implied past abuse" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F14 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Lasting changes to a villager (`vv2_island_event_filter_f27`)
+
+Keeps "lasting changes to a villager" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F27 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Pregnancy loss, stillbirth and death in childbirth (`vv2_island_event_filter_f02`)
+
+Keeps "pregnancy loss, stillbirth and death in childbirth" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Prejudice and discrimination as a subject (`vv2_island_event_filter_f17`)
+
+Keeps "prejudice and discrimination as a subject" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F17 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious disasters (`vv2_island_event_filter_f21`)
+
+Keeps "serious disasters" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F21 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious illness and medical emergencies (`vv2_island_event_filter_f08`)
+
+Keeps "serious illness and medical emergencies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F08 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious injury, permanent impairment and amputation (`vv2_island_event_filter_f06`)
+
+Keeps "serious injury, permanent impairment and amputation" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F06 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Severe emotional distress (`vv2_island_event_filter_f11`)
+
+Keeps "severe emotional distress" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F11 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Teen romance and intimacy (`vv2_island_event_filter_f28`)
+
+Keeps "teen romance and intimacy" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F28 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Unsettling and eerie scenes (`vv2_island_event_filter_f13`)
+
+Keeps "unsettling and eerie scenes" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F13 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Notes for Island Events (`vv2_island_event_content_notes`)
+
+Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example "Content note: Bereavement". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: The first text of each new event that may touch a sensitive subject starts with "Content note: <labels>" (a variant of that text compiled into the event, shown while this row is installed).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Copy and Paste in Text Boxes (`vv2_copy_paste`)
 
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
@@ -1125,11 +1833,11 @@ Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck
 
 #### Isola Grand Event Collection (`vv2_isola_grand_event_collection`)
 
-Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3118 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
+Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- then comes in the natural event's place (Story / Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3118 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
 
-**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this.**
+**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this. Needed by Content Notes for Island Events for the new island events it acts on. Needed by Content Filter: Child and baby deaths for the new island events it acts on. Needed by Content Filter: Pregnancy loss, stillbirth and death in childbirth for the new island events it acts on. Needed by Content Filter: All deaths in events for the new island events it acts on. Needed by Content Filter: Disappearances for the new island events it acts on. Needed by Content Filter: Grief and bereavement for the new island events it acts on. Needed by Content Filter: Serious injury, permanent impairment and amputation for the new island events it acts on. Needed by Content Filter: Burns, scars and lasting visible injuries for the new island events it acts on. Needed by Content Filter: Serious illness and medical emergencies for the new island events it acts on. Needed by Content Filter: Epidemics and contagion for the new island events it acts on. Needed by Content Filter: Difficult births and premature babies for the new island events it acts on. Needed by Content Filter: Severe emotional distress for the new island events it acts on. Needed by Content Filter: Hopelessness for the new island events it acts on. Needed by Content Filter: Unsettling and eerie scenes for the new island events it acts on. Needed by Content Filter: Implied past abuse for the new island events it acts on. Needed by Content Filter: Historical war, persecution, slavery and displacement for the new island events it acts on. Needed by Content Filter: Bullying and social cruelty for the new island events it acts on. Needed by Content Filter: Prejudice and discrimination as a subject for the new island events it acts on. Needed by Content Filter: Children in danger for the new island events it acts on. Needed by Content Filter: Abandonment and orphanhood for the new island events it acts on. Needed by Content Filter: Hunger and poverty for the new island events it acts on. Needed by Content Filter: Serious disasters for the new island events it acts on. Needed by Content Filter: Deep water and drowning for the new island events it acts on. Needed by Content Filter: Fires for the new island events it acts on. Needed by Content Filter: Animal death and serious animal injury for the new island events it acts on. Needed by Content Filter: Hunting and fishing for the new island events it acts on. Needed by Content Filter: Creepy-crawlies (snakes, spiders, insects) for the new island events it acts on. Needed by Content Filter: Lasting changes to a villager for the new island events it acts on. Needed by Content Filter: Teen romance and intimacy for the new island events it acts on.**
 
-- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
+- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living villagers the game lists and the babies being carried; New Believers' believers only) an event that can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen is equally likely, More Island Events' and the collection's alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; when none can be cast the game's own event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), so the new event takes the natural event's place. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
 - Explicit non-changes/exclusions: No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened. Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.
 - Dependencies: vv2_story_cheat_upgrades, vv2_scrolling_popups
 - Evidence status: the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending
@@ -1173,14 +1881,26 @@ Villagers succeed every work-task skill roll for Farming, Building, Researching,
 
 #### More Island Events (`vv2_more_island_events`)
 
-Adds new island events, written by the owner, beside the game's own (more come in later versions). Four here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it comes as one of the two-choice island events, never the village's first island event; it needs two villagers of 14 or more who are not nursing a baby and not an Esteemed Elder's totem statue, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (100 to 1,500 food for the meat, 500 to 3,000 tech points for the chest) times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Climb (The Lost Children only): a villager of 18 or more who is at least a Trainee in Research (20 or more) wants to climb the Great Falls. "Go with the plan": half the time they fall and die (a grave); half the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech award (twice a normal one: 1,000 to 6,000 tech points, then the game's own factor) and everyone celebrates. "Follow the scientists' advice": +10 to 20 Research (at most 100). One villager who may go is enough; it comes as one of the two-choice events, never taking a share of their draw. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the memorial, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished hut: an earthquake damages each of the three population huts (the Lovely Hut, the Hospital and the Sewing Hut are puzzles and are never damaged) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
+Adds new island events, written by the owner, beside the game's own (more come in later versions). Four here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it comes as one of the two-choice island events, never the village's first island event; it needs two villagers of 14 or more who are not nursing a baby and not an Esteemed Elder's totem statue, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (100 to 1,500 food for the meat, 500 to 3,000 tech points for the chest) times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Climb (The Lost Children only): a villager of 18 or more who is at least a Trainee in Research (20 or more) wants to climb the Great Falls. "Go with the plan": half the time they fall and die (a grave); half the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech award (twice a normal one: 1,000 to 6,000 tech points, then the game's own factor) and everyone celebrates. "Follow the scientists' advice": +10 to 20 Research (at most 100). One villager who may go is enough; it comes as one of the two-choice events, never taking a share of their draw. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the memorial, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished hut: an earthquake damages each of the three population huts (the Lovely Hut, the Hospital and the Sewing Hut are puzzles and are never damaged) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
 
 **Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it comes as one of the two-choice island events, never the village's first island event. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not an Esteemed Elder's totem statue; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 100 to 1,500 food), 25% a golden chest (a tech award: 500 to 3,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer, times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Climb (The Lost Children): its own number in family A's draw, 22 (The Aspiring Adventurer 21), taken only while it is due (Story / Cheat Upgrades' rare roll or Pick Island Event: the draw's first answer then; the stock rand(22) otherwise, untouched) and only while a villager who may go on The Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own "Trainee" level, 0x429C3D); the villager is drawn among them. "Go with the plan": 50% the fall (health 0: a body and a grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, through the family-A tech writer 0x426290 after the two-choice factor 0x41F720; the game's own village celebration 0x45D7D0 with Old Friends' place 0x18). "Follow the scientists' advice": +10 to 20 Research, at most 100. The effects wait for their own page: they are made when the page that ends the ending's text is shown, and the event writes its own one Island Events log entry (VvfpIslandEventsGraphBegin / End / Write). The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each its own case past the single-result events' 28, the chooser's first answer only while it is due (the stock rand(28) otherwise, untouched), through two sites of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the memorial, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts (the Lovely Hut, the Hospital and the Sewing Hut are puzzles and are never damaged) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state).
+- Behavior changes: The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it comes as one of the two-choice island events, never the village's first island event. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not an Esteemed Elder's totem statue; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 100 to 1,500 food), 25% a golden chest (a tech award: 500 to 3,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer, times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Climb (The Lost Children): its own number in family A's draw, 22 (The Aspiring Adventurer 21), taken only while it is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event: the draw's first answer then; the stock rand(22) otherwise, untouched) and only while a villager who may go on The Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own "Trainee" level, 0x429C3D); the villager is drawn among them. "Go with the plan": 50% the fall (health 0: a body and a grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, through the family-A tech writer 0x426290 after the two-choice factor 0x41F720; the game's own village celebration 0x45D7D0 with Old Friends' place 0x18). "Follow the scientists' advice": +10 to 20 Research, at most 100. The effects wait for their own page: they are made when the page that ends the ending's text is shown, and the event writes its own one Island Events log entry (VvfpIslandEventsGraphBegin / End / Write). The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each its own case past the single-result events' 28, the chooser's first answer only while it is due (the stock rand(28) otherwise, untouched), through two sites of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the memorial, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts (the Lovely Hut, the Hospital and the Sewing Hut are puzzles and are never damaged) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state).
 - Explicit non-changes/exclusions: No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist. Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion.
 - Dependencies: vv2_story_cheat_upgrades
 - Evidence status: implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py (The Climb: who may climb, both answers, both climbs, every effect and its pages, in tests/test_the_climb.py); The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent and where, the feast, the damage and its states, the log entry and the words, in tests/test_ceremony_and_rumblings.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Safeguards for Island Events (and Additional Events too) (`vv2_island_events_any_time`)
+
+For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. It applies to whichever island events are on in the game. Anyone can be picked and any event can happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' story villagers included), except when a pick would make no sense in the event -- a child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a leader can be anyone). Objects that are not living villagers, such as The Lost Children's totem statues, are never picked, and the guards against crashes and damaged saves stay. Off by default, in Owner's Defaults and in Select All too. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game.
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Original Looks for Reset to Original (`vv2_original_look`)
@@ -1605,6 +2325,354 @@ A child's grave names the child's job as an "Apprentice", the way The Tree of Li
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Content Filter: Abandonment and orphanhood (`vv3_island_event_filter_f19`)
+
+Keeps "abandonment and orphanhood" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F19 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: All deaths in events (`vv3_island_event_filter_f03`)
+
+Keeps "all deaths in events" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F03 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Animal death and serious animal injury (`vv3_island_event_filter_f24`)
+
+Keeps "animal death and serious animal injury" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F24 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Bullying and social cruelty (`vv3_island_event_filter_f16`)
+
+Keeps "bullying and social cruelty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F16 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Burns, scars and lasting visible injuries (`vv3_island_event_filter_f07`)
+
+Keeps "burns, scars and lasting visible injuries" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F07 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Child and baby deaths (`vv3_island_event_filter_f01`)
+
+Keeps "child and baby deaths" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F01 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Children in danger (`vv3_island_event_filter_f18`)
+
+Keeps "children in danger" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F18 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Creepy-crawlies (snakes, spiders, insects) (`vv3_island_event_filter_f26`)
+
+Keeps "creepy-crawlies (snakes, spiders, insects)" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F26 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Deep water and drowning (`vv3_island_event_filter_f22`)
+
+Keeps "deep water and drowning" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F22 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Difficult births and premature babies (`vv3_island_event_filter_f10`)
+
+Keeps "difficult births and premature babies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F10 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Disappearances (`vv3_island_event_filter_f04`)
+
+Keeps "disappearances" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F04 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Epidemics and contagion (`vv3_island_event_filter_f09`)
+
+Keeps "epidemics and contagion" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F09 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Fires (`vv3_island_event_filter_f23`)
+
+Keeps "fires" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F23 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Grief and bereavement (`vv3_island_event_filter_f05`)
+
+Keeps "grief and bereavement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F05 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Historical war, persecution, slavery and displacement (`vv3_island_event_filter_f15`)
+
+Keeps "historical war, persecution, slavery and displacement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F15 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hopelessness (`vv3_island_event_filter_f12`)
+
+Keeps "hopelessness" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F12 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunger and poverty (`vv3_island_event_filter_f20`)
+
+Keeps "hunger and poverty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F20 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunting and fishing (`vv3_island_event_filter_f25`)
+
+Keeps "hunting and fishing" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F25 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Implied past abuse (`vv3_island_event_filter_f14`)
+
+Keeps "implied past abuse" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F14 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Lasting changes to a villager (`vv3_island_event_filter_f27`)
+
+Keeps "lasting changes to a villager" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F27 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Pregnancy loss, stillbirth and death in childbirth (`vv3_island_event_filter_f02`)
+
+Keeps "pregnancy loss, stillbirth and death in childbirth" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Prejudice and discrimination as a subject (`vv3_island_event_filter_f17`)
+
+Keeps "prejudice and discrimination as a subject" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F17 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious disasters (`vv3_island_event_filter_f21`)
+
+Keeps "serious disasters" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F21 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious illness and medical emergencies (`vv3_island_event_filter_f08`)
+
+Keeps "serious illness and medical emergencies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F08 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious injury, permanent impairment and amputation (`vv3_island_event_filter_f06`)
+
+Keeps "serious injury, permanent impairment and amputation" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F06 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Severe emotional distress (`vv3_island_event_filter_f11`)
+
+Keeps "severe emotional distress" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F11 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Teen romance and intimacy (`vv3_island_event_filter_f28`)
+
+Keeps "teen romance and intimacy" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F28 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Unsettling and eerie scenes (`vv3_island_event_filter_f13`)
+
+Keeps "unsettling and eerie scenes" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F13 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Notes for Island Events (`vv3_island_event_content_notes`)
+
+Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example "Content note: Bereavement". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: The first text of each new event that may touch a sensitive subject starts with "Content note: <labels>" (a variant of that text compiled into the event, shown while this row is installed).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Copy and Paste in Text Boxes (`vv3_copy_paste`)
 
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
@@ -1734,11 +2802,11 @@ The Villager Details screen keeps a villager's whole name. In the base game its 
 
 #### Isola Grand Event Collection (`vv3_isola_grand_event_collection`)
 
-Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3135 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
+Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- then comes in the natural event's place (Story / Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3135 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
 
-**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this.**
+**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this. Needed by Content Notes for Island Events for the new island events it acts on. Needed by Content Filter: Child and baby deaths for the new island events it acts on. Needed by Content Filter: Pregnancy loss, stillbirth and death in childbirth for the new island events it acts on. Needed by Content Filter: All deaths in events for the new island events it acts on. Needed by Content Filter: Disappearances for the new island events it acts on. Needed by Content Filter: Grief and bereavement for the new island events it acts on. Needed by Content Filter: Serious injury, permanent impairment and amputation for the new island events it acts on. Needed by Content Filter: Burns, scars and lasting visible injuries for the new island events it acts on. Needed by Content Filter: Serious illness and medical emergencies for the new island events it acts on. Needed by Content Filter: Epidemics and contagion for the new island events it acts on. Needed by Content Filter: Difficult births and premature babies for the new island events it acts on. Needed by Content Filter: Severe emotional distress for the new island events it acts on. Needed by Content Filter: Hopelessness for the new island events it acts on. Needed by Content Filter: Unsettling and eerie scenes for the new island events it acts on. Needed by Content Filter: Implied past abuse for the new island events it acts on. Needed by Content Filter: Historical war, persecution, slavery and displacement for the new island events it acts on. Needed by Content Filter: Bullying and social cruelty for the new island events it acts on. Needed by Content Filter: Prejudice and discrimination as a subject for the new island events it acts on. Needed by Content Filter: Children in danger for the new island events it acts on. Needed by Content Filter: Abandonment and orphanhood for the new island events it acts on. Needed by Content Filter: Hunger and poverty for the new island events it acts on. Needed by Content Filter: Serious disasters for the new island events it acts on. Needed by Content Filter: Deep water and drowning for the new island events it acts on. Needed by Content Filter: Fires for the new island events it acts on. Needed by Content Filter: Animal death and serious animal injury for the new island events it acts on. Needed by Content Filter: Hunting and fishing for the new island events it acts on. Needed by Content Filter: Creepy-crawlies (snakes, spiders, insects) for the new island events it acts on. Needed by Content Filter: Lasting changes to a villager for the new island events it acts on. Needed by Content Filter: Teen romance and intimacy for the new island events it acts on.**
 
-- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
+- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living villagers the game lists and the babies being carried; New Believers' believers only) an event that can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen is equally likely, More Island Events' and the collection's alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; when none can be cast the game's own event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), so the new event takes the natural event's place. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
 - Explicit non-changes/exclusions: No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened. Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.
 - Dependencies: vv3_story_cheat_upgrades, vv3_scrolling_popups
 - Evidence status: the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending
@@ -1794,11 +2862,11 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 
 #### More Island Events (`vv3_more_island_events`)
 
-Adds new island events, written by the owner, beside the game's own (more come in later versions). Five here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not the Tribal Chief, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (200 to 600 food for the meat, 1,000 to 2,000 tech points for the chest) times the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1). Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Troubling Signs (The Secret City only): the Tribal Chief, wearing the chief's robe, asks one of four groups for advice in a popup with four buttons (the game's own look; the mouse, or the keys 1 to 4): the spiritual leaders (the village loses food), the magicians (gains tech points), the naturalists (gains food) or the scientists and healers (loses tech points) -- a random amount as the Aspiring Adventurer's, 200 to 600 food or 1,000 to 2,000 tech points, times the game's own multiplier; a loss never takes more than is stored. Each group's advisor speaks, the chief calls the tribe by its own name, and the decree sends five villagers of 18 or more away for good (no graves). It needs the robed chief, nine other villagers of 18 or more who are not nursing a baby (four advisors, who stay, and the five) and a population of 61 or more (The Lost Children's "A Dangerous Mission" rule: the living villagers plus the babies being carried); it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare roll or Pick Island Event. And Diving for Treasure (The Secret City only): a villager of 18 or more dives for something shimmering on the reef. "Swim deeper": 1 in 4 each, golden doubloons (tech points), a useless buoy, a container of exotic ingredients (food) -- a random amount as the Aspiring Adventurer's, 1,000 to 2,000 tech points or 200 to 600 food, times the game's own multiplier -- or an air tank pops: 75% the diver gets ashore and now dislikes swimming; 25% the diver sinks: dies (17%, a grave), is never found (17%, no grave) or is rescued (66%, +10 to 20 Healing, at most 100). "Better not": +10 to 20 Parenting, at most 100. It needs two villagers of 18 or more who are not nursing a baby and not the Tribal Chief (the diver, and another named as the head Doctor on the rescue page); it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare roll or Pick Island Event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the graveyard, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts and the clothing hut one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
+Adds new island events, written by the owner, beside the game's own (more come in later versions). Five here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not the Tribal Chief, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (200 to 600 food for the meat, 1,000 to 2,000 tech points for the chest) times the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1). Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Troubling Signs (The Secret City only): the Tribal Chief, wearing the chief's robe, asks one of four groups for advice in a popup with four buttons (the game's own look; the mouse, or the keys 1 to 4): the spiritual leaders (the village loses food), the magicians (gains tech points), the naturalists (gains food) or the scientists and healers (loses tech points) -- a random amount as the Aspiring Adventurer's, 200 to 600 food or 1,000 to 2,000 tech points, times the game's own multiplier; a loss never takes more than is stored. Each group's advisor speaks, the chief calls the tribe by its own name, and the decree sends five villagers of 18 or more away for good (no graves). It needs the robed chief, nine other villagers of 18 or more who are not nursing a baby (four advisors, who stay, and the five) and a population of 61 or more (The Lost Children's "A Dangerous Mission" rule: the living villagers plus the babies being carried); it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat Upgrades: 30-50% of the natural events) or through Pick Island Event. And Diving for Treasure (The Secret City only): a villager of 18 or more dives for something shimmering on the reef. "Swim deeper": 1 in 4 each, golden doubloons (tech points), a useless buoy, a container of exotic ingredients (food) -- a random amount as the Aspiring Adventurer's, 1,000 to 2,000 tech points or 200 to 600 food, times the game's own multiplier -- or an air tank pops: 75% the diver gets ashore and now dislikes swimming; 25% the diver sinks: dies (17%, a grave), is never found (17%, no grave) or is rescued (66%, +10 to 20 Healing, at most 100). "Better not": +10 to 20 Parenting, at most 100. It needs two villagers of 18 or more who are not nursing a baby and not the Tribal Chief (the diver, and another named as the head Doctor on the rescue page); it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat Upgrades: 30-50% of the natural events) or through Pick Island Event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the graveyard, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts and the clothing hut one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
 
 **Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not the Tribal Chief; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 200 to 600 food), 25% a golden chest (a tech award: 1,000 to 2,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer, times the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1). The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Troubling Signs (The Secret City): needs the Tribal Chief in the robe (+0xE80 and the robe's body +0xDF4 = 29, as the robing 0x45FBC0 writes them), nine other different villagers of 18 or more (360 age units) who are not protected (adv_is_protected: nursing +0xE8C, the chief +0xE80) -- four advisors (one per group, the same four for the event; they stay) and five travellers, any nine equally likely -- a population of 61 or more (The Lost Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure and never takes a share of the draw: the loop-end stub adds no entry to the selector's list and puts the object of the event that is due (Story / Cheat Upgrades' rare roll or Pick Island Event) in slot 0, which Story / Cheat Upgrades' pick then presents in place of the stock event drawn. The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two (0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child 0x40C1F0), stacked and centred 1.5 button heights apart, room for them measured by the game's own paragraph 0x40A0C0; that dialog's virtual table is a copy of 0x47F28C with its own click (ids 4 and 5) and key handlers (Enter / Esc OK, 1-4 the answers); Scrolling Popups' reserve adds VvfpMoreIslandEventsButtonRoom. Each answer's award is a normal one (the game's range, then its multiplier); the effects -- the five removed as a living villager is (no body), told to Cause of Death, and the award through the game's own writer (a loss at most what is stored) -- are made when the decree's last page is shown, with the event's one Island Events log entry. No site of its own. Diving for Treasure (The Secret City): the diver and the rescue page's head Doctor are two different villagers of 18 or more (360 age units) who may be picked (vv3_eligible: alive +0xE78, present +0xF10, not a look-alike +0xE94, adv_is_protected: nursing +0xE8C, the chief +0xE80), each drawn among them. One more two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due (t_list adds no entry to the selector's list). "Swim deeper": rand(4) A / B / C / D; D: rand(100) < 75 survives -- swimming (preference 37 of the game's list at file 0x97488) taken from the likes +0xFB4 and added to the dislikes +0xFC0 -- else sinks: rand(100) < 17 the game's own death (0x462670, health 0, cause -1: a grave), < 34 removed as a living villager is (no body; told to Cause of Death), else +10 to 20 Healing (+0xEB4); A a normal tech award, C a normal food award (the game's range, then its multiplier, through 0x427130 / 0x4263F0). "Better not": +10 to 20 Parenting (+0xEB0). Skills at most 100 (the game's own adder 0x455740 caps at 0x64). The effects are made when the ending's last page is shown, with the event's one Island Events log entry. No site of its own. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the graveyard, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts and the clothing hut finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1.
+- Behavior changes: The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not the Tribal Chief; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 200 to 600 food), 25% a golden chest (a tech award: 1,000 to 2,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer, times the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1). The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Troubling Signs (The Secret City): needs the Tribal Chief in the robe (+0xE80 and the robe's body +0xDF4 = 29, as the robing 0x45FBC0 writes them), nine other different villagers of 18 or more (360 age units) who are not protected (adv_is_protected: nursing +0xE8C, the chief +0xE80) -- four advisors (one per group, the same four for the event; they stay) and five travellers, any nine equally likely -- a population of 61 or more (The Lost Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure and never takes a share of the draw: the loop-end stub adds no entry to the selector's list and puts the object of the event that is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event) in slot 0, which Story / Cheat Upgrades' pick then presents in place of the stock event drawn. The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two (0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child 0x40C1F0), stacked and centred 1.5 button heights apart, room for them measured by the game's own paragraph 0x40A0C0; that dialog's virtual table is a copy of 0x47F28C with its own click (ids 4 and 5) and key handlers (Enter / Esc OK, 1-4 the answers); Scrolling Popups' reserve adds VvfpMoreIslandEventsButtonRoom. Each answer's award is a normal one (the game's range, then its multiplier); the effects -- the five removed as a living villager is (no body), told to Cause of Death, and the award through the game's own writer (a loss at most what is stored) -- are made when the decree's last page is shown, with the event's one Island Events log entry. No site of its own. Diving for Treasure (The Secret City): the diver and the rescue page's head Doctor are two different villagers of 18 or more (360 age units) who may be picked (vv3_eligible: alive +0xE78, present +0xF10, not a look-alike +0xE94, adv_is_protected: nursing +0xE8C, the chief +0xE80), each drawn among them. One more two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due (t_list adds no entry to the selector's list). "Swim deeper": rand(4) A / B / C / D; D: rand(100) < 75 survives -- swimming (preference 37 of the game's list at file 0x97488) taken from the likes +0xFB4 and added to the dislikes +0xFC0 -- else sinks: rand(100) < 17 the game's own death (0x462670, health 0, cause -1: a grave), < 34 removed as a living villager is (no body; told to Cause of Death), else +10 to 20 Healing (+0xEB4); A a normal tech award, C a normal food award (the game's range, then its multiplier, through 0x427130 / 0x4263F0). "Better not": +10 to 20 Parenting (+0xEB0). Skills at most 100 (the game's own adder 0x455740 caps at 0x64). The effects are made when the ending's last page is shown, with the event's one Island Events log entry. No site of its own. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the graveyard, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts and the clothing hut finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1.
 - Explicit non-changes/exclusions: No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist. Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion.
 - Dependencies: vv3_story_cheat_upgrades
 - Evidence status: implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py (The Troubling Signs: who, the draw, all four answers by mouse and key, the effects on the last page, the log entry, the words and the four buttons, in tests/test_troubling_signs.py; Diving for Treasure: who, every branch at its odds, every effect on the last page, the log entry, the words and the draw with 1, 2 and 3 events, in tests/test_diving_for_treasure.py); The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent and where, the feast, the damage and its states, the log entry and the words, in tests/test_ceremony_and_rumblings.py; runtime/player confirmation pending
@@ -1827,6 +2895,18 @@ Nature level 3 shifts every ordinary villager's complete mortality curve seven d
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Safeguards for Island Events (and Additional Events too) (`vv3_island_events_any_time`)
+
+For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. It applies to whichever island events are on in the game. Anyone can be picked and any event can happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' story villagers included), except when a pick would make no sense in the event -- a child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a leader can be anyone). Objects that are not living villagers, such as The Lost Children's totem statues, are never picked, and the guards against crashes and damaged saves stay. Off by default, in Owner's Defaults and in Select All too. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game.
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Original Looks for Reset to Original (`vv3_original_look`)
 
@@ -2205,6 +3285,354 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Content Filter: Abandonment and orphanhood (`vv4_island_event_filter_f19`)
+
+Keeps "abandonment and orphanhood" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F19 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: All deaths in events (`vv4_island_event_filter_f03`)
+
+Keeps "all deaths in events" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F03 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Animal death and serious animal injury (`vv4_island_event_filter_f24`)
+
+Keeps "animal death and serious animal injury" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F24 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Bullying and social cruelty (`vv4_island_event_filter_f16`)
+
+Keeps "bullying and social cruelty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F16 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Burns, scars and lasting visible injuries (`vv4_island_event_filter_f07`)
+
+Keeps "burns, scars and lasting visible injuries" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F07 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Child and baby deaths (`vv4_island_event_filter_f01`)
+
+Keeps "child and baby deaths" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F01 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Children in danger (`vv4_island_event_filter_f18`)
+
+Keeps "children in danger" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F18 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Creepy-crawlies (snakes, spiders, insects) (`vv4_island_event_filter_f26`)
+
+Keeps "creepy-crawlies (snakes, spiders, insects)" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F26 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Deep water and drowning (`vv4_island_event_filter_f22`)
+
+Keeps "deep water and drowning" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F22 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Difficult births and premature babies (`vv4_island_event_filter_f10`)
+
+Keeps "difficult births and premature babies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F10 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Disappearances (`vv4_island_event_filter_f04`)
+
+Keeps "disappearances" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F04 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Epidemics and contagion (`vv4_island_event_filter_f09`)
+
+Keeps "epidemics and contagion" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F09 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Fires (`vv4_island_event_filter_f23`)
+
+Keeps "fires" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F23 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Grief and bereavement (`vv4_island_event_filter_f05`)
+
+Keeps "grief and bereavement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F05 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Historical war, persecution, slavery and displacement (`vv4_island_event_filter_f15`)
+
+Keeps "historical war, persecution, slavery and displacement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F15 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hopelessness (`vv4_island_event_filter_f12`)
+
+Keeps "hopelessness" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F12 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunger and poverty (`vv4_island_event_filter_f20`)
+
+Keeps "hunger and poverty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F20 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunting and fishing (`vv4_island_event_filter_f25`)
+
+Keeps "hunting and fishing" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F25 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Implied past abuse (`vv4_island_event_filter_f14`)
+
+Keeps "implied past abuse" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F14 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Lasting changes to a villager (`vv4_island_event_filter_f27`)
+
+Keeps "lasting changes to a villager" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F27 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Pregnancy loss, stillbirth and death in childbirth (`vv4_island_event_filter_f02`)
+
+Keeps "pregnancy loss, stillbirth and death in childbirth" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Prejudice and discrimination as a subject (`vv4_island_event_filter_f17`)
+
+Keeps "prejudice and discrimination as a subject" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F17 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious disasters (`vv4_island_event_filter_f21`)
+
+Keeps "serious disasters" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F21 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious illness and medical emergencies (`vv4_island_event_filter_f08`)
+
+Keeps "serious illness and medical emergencies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F08 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious injury, permanent impairment and amputation (`vv4_island_event_filter_f06`)
+
+Keeps "serious injury, permanent impairment and amputation" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F06 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Severe emotional distress (`vv4_island_event_filter_f11`)
+
+Keeps "severe emotional distress" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F11 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Teen romance and intimacy (`vv4_island_event_filter_f28`)
+
+Keeps "teen romance and intimacy" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F28 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Unsettling and eerie scenes (`vv4_island_event_filter_f13`)
+
+Keeps "unsettling and eerie scenes" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F13 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Notes for Island Events (`vv4_island_event_content_notes`)
+
+Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example "Content note: Bereavement". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: The first text of each new event that may touch a sensitive subject starts with "Content note: <labels>" (a variant of that text compiled into the event, shown while this row is installed).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Copy and Paste in Text Boxes (`vv4_copy_paste`)
 
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
@@ -2356,11 +3784,11 @@ Island events' food and tech-point gains and losses grow with what the village h
 
 #### Isola Grand Event Collection (`vv4_isola_grand_event_collection`)
 
-Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3134 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
+Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- then comes in the natural event's place (Story / Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3134 events in this game in this build. The Living Event Engine adds 213 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
 
-**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this.**
+**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this. Needed by Content Notes for Island Events for the new island events it acts on. Needed by Content Filter: Child and baby deaths for the new island events it acts on. Needed by Content Filter: Pregnancy loss, stillbirth and death in childbirth for the new island events it acts on. Needed by Content Filter: All deaths in events for the new island events it acts on. Needed by Content Filter: Disappearances for the new island events it acts on. Needed by Content Filter: Grief and bereavement for the new island events it acts on. Needed by Content Filter: Serious injury, permanent impairment and amputation for the new island events it acts on. Needed by Content Filter: Burns, scars and lasting visible injuries for the new island events it acts on. Needed by Content Filter: Serious illness and medical emergencies for the new island events it acts on. Needed by Content Filter: Epidemics and contagion for the new island events it acts on. Needed by Content Filter: Difficult births and premature babies for the new island events it acts on. Needed by Content Filter: Severe emotional distress for the new island events it acts on. Needed by Content Filter: Hopelessness for the new island events it acts on. Needed by Content Filter: Unsettling and eerie scenes for the new island events it acts on. Needed by Content Filter: Implied past abuse for the new island events it acts on. Needed by Content Filter: Historical war, persecution, slavery and displacement for the new island events it acts on. Needed by Content Filter: Bullying and social cruelty for the new island events it acts on. Needed by Content Filter: Prejudice and discrimination as a subject for the new island events it acts on. Needed by Content Filter: Children in danger for the new island events it acts on. Needed by Content Filter: Abandonment and orphanhood for the new island events it acts on. Needed by Content Filter: Hunger and poverty for the new island events it acts on. Needed by Content Filter: Serious disasters for the new island events it acts on. Needed by Content Filter: Deep water and drowning for the new island events it acts on. Needed by Content Filter: Fires for the new island events it acts on. Needed by Content Filter: Animal death and serious animal injury for the new island events it acts on. Needed by Content Filter: Hunting and fishing for the new island events it acts on. Needed by Content Filter: Creepy-crawlies (snakes, spiders, insects) for the new island events it acts on. Needed by Content Filter: Lasting changes to a villager for the new island events it acts on. Needed by Content Filter: Teen romance and intimacy for the new island events it acts on.**
 
-- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
+- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living villagers the game lists and the babies being carried; New Believers' believers only) an event that can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen is equally likely, More Island Events' and the collection's alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; when none can be cast the game's own event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), so the new event takes the natural event's place. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
 - Explicit non-changes/exclusions: No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened. Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.
 - Dependencies: vv4_story_cheat_upgrades, vv4_scrolling_popups
 - Evidence status: the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending
@@ -2428,14 +3856,26 @@ The wind flutes that play in fog once you have found a Wind Flute (every 60 to 8
 
 #### More Island Events (`vv4_more_island_events`)
 
-Adds new island events, written by the owner, beside the game's own (more come in later versions). Five here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not a body or a ghost, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (300 food for the meat, 500 to 5,000 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Playful Dolphins (The Tree of Life only): a villager of 14 or more, swimming underwater, spots a pod of dolphins. "Swim towards the dolphins": half the time the swimmer watches them hunt -- Farming becomes 100 (the game's maximum) and the village gains a large food award (twice a normal one: 600 food before the scaling); half the time a tail slaps the swimmer, who loses 30 to 50 health but never dies of it (at least 1 is left). "Hang back": a small food award (half a normal one: 150 food before the scaling). It needs two villagers of 14 or more who are not nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare roll or Pick Island Event. And The Mysterious Mask (The Tree of Life only): a group of 2 to 4 children under 14 finds a strange carved mask at the edge of the forest, and the player picks one of four answers: "Wait for their parents to come" or "Cry for help" (the children are safe), "Walk towards the clearing" or "Walk towards the forest" (the same odds: home safe 50%, else lost -- then rescued 75% or captured 25%, when every child of the group is gone for good, no graves). The elders' speech tells what happened, and in every ending five volunteers of 18 or more leave on an expedition for good (no graves). It needs a population of 61 or more (the living plus the babies carried), two children under 14 and five villagers of 18 or more who are not nursing a baby and not a body or a ghost; it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare roll or Pick Island Event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the graveyard, "Honoring the Dead", and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts, the clothing hut, the love shack, the nursery school and the hospital one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village; an unbuilt one can be moved). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
+Adds new island events, written by the owner, beside the game's own (more come in later versions). Five here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not a body or a ghost, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (300 food for the meat, 500 to 5,000 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Playful Dolphins (The Tree of Life only): a villager of 14 or more, swimming underwater, spots a pod of dolphins. "Swim towards the dolphins": half the time the swimmer watches them hunt -- Farming becomes 100 (the game's maximum) and the village gains a large food award (twice a normal one: 600 food before the scaling); half the time a tail slaps the swimmer, who loses 30 to 50 health but never dies of it (at least 1 is left). "Hang back": a small food award (half a normal one: 150 food before the scaling). It needs two villagers of 14 or more who are not nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat Upgrades: 30-50% of the natural events) or through Pick Island Event. And The Mysterious Mask (The Tree of Life only): a group of 2 to 4 children under 14 finds a strange carved mask at the edge of the forest, and the player picks one of four answers: "Wait for their parents to come" or "Cry for help" (the children are safe), "Walk towards the clearing" or "Walk towards the forest" (the same odds: home safe 50%, else lost -- then rescued 75% or captured 25%, when every child of the group is gone for good, no graves). The elders' speech tells what happened, and in every ending five volunteers of 18 or more leave on an expedition for good (no graves). It needs a population of 61 or more (the living plus the babies carried), two children under 14 and five villagers of 18 or more who are not nursing a baby and not a body or a ghost; it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat Upgrades: 30-50% of the natural events) or through Pick Island Event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave: everyone joins in -- children, nursing mothers and fathers, everyone -- each at the graveyard, "Honoring the Dead", and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts, the clothing hut, the love shack, the nursery school and the hospital one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village; an unbuilt one can be moved). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
 
 **Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Needed by Classic VV Difficulty: unticking this unticks it.**
 
-- Behavior changes: The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not a body or a ghost; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 300 food), 25% a golden chest (a tech award: 500 to 5,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Playful Dolphins (The Tree of Life): the swimmer is a villager who may be picked (vv4_eligible: present +0x1CC4, alive +0x1C40, 14 or more +0x1B8C, adv_is_protected: nursing +0x1C4C, a body or ghost +0x1CC7), drawn among them; it can happen while two such villagers live, with no puzzle (not the Fishing Nets). One more two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due (t_list adds no entry). "Swim towards the dolphins": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the game's own skill adder 0x46AD80 caps (the double 100.0 at 0x48A7C0) -- and a large food award (the game's range x 2, then Island Events Scale, through 0x41D920), else the tail slap: health (+0x1C40, 0..100, in the block +0x1C34) minus 30 to 50, never below 1, through the game's own setter 0x46AF00 (value, cause -1: never its death path). "Hang back": a small food award (the range x 1 / 2, then Island Events Scale). The effects are made when the ending's last page is shown, with the event's one Island Events log entry. No site of its own. The Mysterious Mask (The Tree of Life): the group is 4 children under 14 (+0x1B8C < 280), or all of them when fewer (at least 2), the expedition 5 villagers of 18 or more (vv4_eligible and +0x1B8C >= 360), each drawn among those left; everyone passes adv_is_protected (nursing +0x1C4C, a body or ghost +0x1CC7); the population 61 or more counted as the game's own 0x467610 counts (present +0x1CC4, not a body +0x1CC7, health +0x1C40 > 0, plus the babies +0x1C50 while carrying +0x1C4C). One more object with the Adventurer's virtual table and methods (adv_flow, answers 4: the shared multi-answer popup native/shared/vvfp_multi_answer.h, ids 4 and 5 and the keys 1 to 4), put in slot 0 only while it is due (t_list adds no entry). A walk: rand(100) < 50 home safe, else lost: rand(100) < 25 captured, else rescued. Its pages are laid out 6 lines shorter (3 for each answer past two) so the popup is no taller than a two-answer one. The five volunteers, and when captured every child of the group, are removed as a living villager is (adv_vv345.inc t_vanish: no body, no grave; told to Cause of Death) when the elders' last page is shown, with the event's one Island Events log entry. No site of its own. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the graveyard, "Honoring the Dead"; the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts, the clothing hut, the love shack, the nursery school and the hospital finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1; the nursery school's teacher let go; a damaged population hut's count of the still-locked "3 huts" trophy taken back (saved with the village at the state's +0x328), so it still needs three different huts.
+- Behavior changes: The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not a body or a ghost; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 300 food), 25% a golden chest (a tech award: 500 to 5,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Playful Dolphins (The Tree of Life): the swimmer is a villager who may be picked (vv4_eligible: present +0x1CC4, alive +0x1C40, 14 or more +0x1B8C, adv_is_protected: nursing +0x1C4C, a body or ghost +0x1CC7), drawn among them; it can happen while two such villagers live, with no puzzle (not the Fishing Nets). One more two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due (t_list adds no entry). "Swim towards the dolphins": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the game's own skill adder 0x46AD80 caps (the double 100.0 at 0x48A7C0) -- and a large food award (the game's range x 2, then Island Events Scale, through 0x41D920), else the tail slap: health (+0x1C40, 0..100, in the block +0x1C34) minus 30 to 50, never below 1, through the game's own setter 0x46AF00 (value, cause -1: never its death path). "Hang back": a small food award (the range x 1 / 2, then Island Events Scale). The effects are made when the ending's last page is shown, with the event's one Island Events log entry. No site of its own. The Mysterious Mask (The Tree of Life): the group is 4 children under 14 (+0x1B8C < 280), or all of them when fewer (at least 2), the expedition 5 villagers of 18 or more (vv4_eligible and +0x1B8C >= 360), each drawn among those left; everyone passes adv_is_protected (nursing +0x1C4C, a body or ghost +0x1CC7); the population 61 or more counted as the game's own 0x467610 counts (present +0x1CC4, not a body +0x1CC7, health +0x1C40 > 0, plus the babies +0x1C50 while carrying +0x1C4C). One more object with the Adventurer's virtual table and methods (adv_flow, answers 4: the shared multi-answer popup native/shared/vvfp_multi_answer.h, ids 4 and 5 and the keys 1 to 4), put in slot 0 only while it is due (t_list adds no entry). A walk: rand(100) < 50 home safe, else lost: rand(100) < 25 captured, else rescued. Its pages are laid out 6 lines shorter (3 for each answer past two) so the popup is no taller than a two-answer one. The five volunteers, and when captured every child of the group, are removed as a living villager is (adv_vv345.inc t_vanish: no body, no grave; told to Cause of Death) when the elders' last page is shown, with the event's one Island Events log entry. No site of its own. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave (the game's own grave count); every living, present villager is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the graveyard, "Honoring the Dead"; the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts, the clothing hut, the love shack, the nursery school and the hospital finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1; the nursery school's teacher let go; a damaged population hut's count of the still-locked "3 huts" trophy taken back (saved with the village at the state's +0x328), so it still needs three different huts.
 - Explicit non-changes/exclusions: No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist. Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion.
 - Dependencies: vv4_story_cheat_upgrades
 - Evidence status: implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py (The Playful Dolphins: who, both branches at their odds, Farming 100, the awards, the health loss that never kills, the effects on the last page, the log entry, the words and the draw, in tests/test_playful_dolphins.py; The Mysterious Mask: who, the 61 / 60 population, 1 / 2 children, 4 / 5 adults, all four answers by mouse and key, each elders' speech, both disappearances, the effects on the last page, the log entry, the words and the four buttons, in tests/test_mysterious_mask.py); The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent and where, the feast, the damage and its states, the log entry and the words, in tests/test_ceremony_and_rumblings.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Safeguards for Island Events (and Additional Events too) (`vv4_island_events_any_time`)
+
+For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. It applies to whichever island events are on in the game. Anyone can be picked and any event can happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' story villagers included), except when a pick would make no sense in the event -- a child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a leader can be anyone). Objects that are not living villagers, such as The Lost Children's totem statues, are never picked, and the guards against crashes and damaged saves stay. Off by default, in Owner's Defaults and in Select All too. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game.
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Optional Text changes (`vv4_optional_text_changes`)
@@ -2836,6 +4276,354 @@ Clicking the curled vine beneath the on-screen Puzzles button shows a random in-
 - Evidence status: static + emulated (village scene's mouse-down with the click on and off the vine); the tip text and hou.ogg chime were confirmed in a playtest of the first version, the village-only check is not yet seen in a running game
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Content Filter: Abandonment and orphanhood (`vv5_island_event_filter_f19`)
+
+Keeps "abandonment and orphanhood" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F19 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: All deaths in events (`vv5_island_event_filter_f03`)
+
+Keeps "all deaths in events" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F03 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Animal death and serious animal injury (`vv5_island_event_filter_f24`)
+
+Keeps "animal death and serious animal injury" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F24 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Bullying and social cruelty (`vv5_island_event_filter_f16`)
+
+Keeps "bullying and social cruelty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F16 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Burns, scars and lasting visible injuries (`vv5_island_event_filter_f07`)
+
+Keeps "burns, scars and lasting visible injuries" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F07 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Child and baby deaths (`vv5_island_event_filter_f01`)
+
+Keeps "child and baby deaths" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F01 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Children in danger (`vv5_island_event_filter_f18`)
+
+Keeps "children in danger" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F18 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Creepy-crawlies (snakes, spiders, insects) (`vv5_island_event_filter_f26`)
+
+Keeps "creepy-crawlies (snakes, spiders, insects)" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F26 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Deep water and drowning (`vv5_island_event_filter_f22`)
+
+Keeps "deep water and drowning" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F22 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Difficult births and premature babies (`vv5_island_event_filter_f10`)
+
+Keeps "difficult births and premature babies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F10 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Disappearances (`vv5_island_event_filter_f04`)
+
+Keeps "disappearances" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F04 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Epidemics and contagion (`vv5_island_event_filter_f09`)
+
+Keeps "epidemics and contagion" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F09 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Fires (`vv5_island_event_filter_f23`)
+
+Keeps "fires" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F23 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Grief and bereavement (`vv5_island_event_filter_f05`)
+
+Keeps "grief and bereavement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F05 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Historical war, persecution, slavery and displacement (`vv5_island_event_filter_f15`)
+
+Keeps "historical war, persecution, slavery and displacement" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F15 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hopelessness (`vv5_island_event_filter_f12`)
+
+Keeps "hopelessness" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F12 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunger and poverty (`vv5_island_event_filter_f20`)
+
+Keeps "hunger and poverty" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F20 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Hunting and fishing (`vv5_island_event_filter_f25`)
+
+Keeps "hunting and fishing" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F25 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Implied past abuse (`vv5_island_event_filter_f14`)
+
+Keeps "implied past abuse" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F14 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Lasting changes to a villager (`vv5_island_event_filter_f27`)
+
+Keeps "lasting changes to a villager" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F27 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Pregnancy loss, stillbirth and death in childbirth (`vv5_island_event_filter_f02`)
+
+Keeps "pregnancy loss, stillbirth and death in childbirth" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F02 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Prejudice and discrimination as a subject (`vv5_island_event_filter_f17`)
+
+Keeps "prejudice and discrimination as a subject" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F17 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious disasters (`vv5_island_event_filter_f21`)
+
+Keeps "serious disasters" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F21 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious illness and medical emergencies (`vv5_island_event_filter_f08`)
+
+Keeps "serious illness and medical emergencies" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F08 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Serious injury, permanent impairment and amputation (`vv5_island_event_filter_f06`)
+
+Keeps "serious injury, permanent impairment and amputation" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F06 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Severe emotional distress (`vv5_island_event_filter_f11`)
+
+Keeps "severe emotional distress" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F11 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Teen romance and intimacy (`vv5_island_event_filter_f28`)
+
+Keeps "teen romance and intimacy" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F28 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Filter: Unsettling and eerie scenes (`vv5_island_event_filter_f13`)
+
+Keeps "unsettling and eerie scenes" out of the new island events. Applied before the random draw at a natural island event picks an event: an outcome with that content is dropped where the event still makes sense without it (the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a kind of person. New events only; the game's own events are unchanged. Off by default, Owner's Defaults too. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: Every new event's outcomes tagged F13 are left out of its draw while this row is installed, and an event that cannot do without them is skipped (its requirement).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Content Notes for Island Events (`vv5_island_event_content_notes`)
+
+Before the main text of a new island event that may touch a sensitive subject, a short note names it, for example "Content note: Bereavement". It never says which outcome will come. The labels are: Child death, Pregnancy loss, Bereavement, Serious injury, Disappearance, Historical suffering, Emotional distress. A subject the content filters below have removed from that event is left out of its note. New events only (the Isola Grand Event Collection's); the game's own events are unchanged. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Needs Isola Grand Event Collection on for the new island events it acts on.**
+
+- Behavior changes: The first text of each new event that may touch a sensitive subject starts with "Content note: <labels>" (a variant of that text compiled into the event, shown while this row is installed).
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Copy and Paste in Text Boxes (`vv5_copy_paste`)
 
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
@@ -3036,11 +4824,11 @@ Island events' food and tech-point gains and losses grow with what the village h
 
 #### Isola Grand Event Collection (`vv5_isola_grand_event_collection`)
 
-Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"), as rare, separate events: the game's own island events and their chances never change. After a natural island event, a separate rare roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours later, between two natural ones: about three in seven days of game time, never during a village's two opening events, never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers) and never in place of a rescue event. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3159 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the rare roll). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
+Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in "Virtual Villagers Fun Patcher Files\Island Event Collection\Credits.txt"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- then comes in the natural event's place (Story / Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own "Isola Grand Event Collection" group. 3159 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults ticks it; not part of Classic VV Difficulty. **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).
 
-**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this.**
+**Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Requires Scrolling Popups: ticking this ticks it, and unticking it unticks this. Needed by Content Notes for Island Events for the new island events it acts on. Needed by Content Filter: Child and baby deaths for the new island events it acts on. Needed by Content Filter: Pregnancy loss, stillbirth and death in childbirth for the new island events it acts on. Needed by Content Filter: All deaths in events for the new island events it acts on. Needed by Content Filter: Disappearances for the new island events it acts on. Needed by Content Filter: Grief and bereavement for the new island events it acts on. Needed by Content Filter: Serious injury, permanent impairment and amputation for the new island events it acts on. Needed by Content Filter: Burns, scars and lasting visible injuries for the new island events it acts on. Needed by Content Filter: Serious illness and medical emergencies for the new island events it acts on. Needed by Content Filter: Epidemics and contagion for the new island events it acts on. Needed by Content Filter: Difficult births and premature babies for the new island events it acts on. Needed by Content Filter: Severe emotional distress for the new island events it acts on. Needed by Content Filter: Hopelessness for the new island events it acts on. Needed by Content Filter: Unsettling and eerie scenes for the new island events it acts on. Needed by Content Filter: Implied past abuse for the new island events it acts on. Needed by Content Filter: Historical war, persecution, slavery and displacement for the new island events it acts on. Needed by Content Filter: Bullying and social cruelty for the new island events it acts on. Needed by Content Filter: Prejudice and discrimination as a subject for the new island events it acts on. Needed by Content Filter: Children in danger for the new island events it acts on. Needed by Content Filter: Abandonment and orphanhood for the new island events it acts on. Needed by Content Filter: Hunger and poverty for the new island events it acts on. Needed by Content Filter: Serious disasters for the new island events it acts on. Needed by Content Filter: Deep water and drowning for the new island events it acts on. Needed by Content Filter: Fires for the new island events it acts on. Needed by Content Filter: Animal death and serious animal injury for the new island events it acts on. Needed by Content Filter: Hunting and fishing for the new island events it acts on. Needed by Content Filter: Creepy-crawlies (snakes, spiders, insects) for the new island events it acts on. Needed by Content Filter: Lasting changes to a villager for the new island events it acts on. Needed by Content Filter: Teen romance and intimacy for the new island events it acts on.**
 
-- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc) rolls once after each natural island event (the Island Events Seen count went up with nothing armed or on its way), past the two opening events and outside trouble: A New Home 30%, The Lost Children 25%, the later three 20%. The roll is due 30% to 70% of the way to the next natural event; at due it waits while anything else is armed, within 60 seconds of a natural event, or while a God Power is armed (New Believers); the trouble guard cancels it. Every event that can happen is equally likely, More Island Events' and the collection's (the Grand collection's and the Companion Anthology's) alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; the event is armed as a purchase arms one, so the island timer's keeper puts the natural next time back after it. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
+- Behavior changes: Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living villagers the game lists and the babies being carried; New Believers' believers only) an event that can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen is equally likely, More Island Events' and the collection's alike: one draw over all of them, each collection event by its draw weight (1), a series as one event; when none can be cast the game's own event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given a new natural time after it, drawn as the game's own trigger draws one (12-23, 10-19 or 8-15 hours), so the new event takes the natural event's place. The events of this game are compiled .cieg files in "Virtual Villagers Fun Patcher Files\Island Event Collection", listed in its manifest.txt; Pick Island Event lists them (strict casting: every requirement must hold) and the in-game library's "Isola Grand Event Collection" group sells them (the library's casting: a requirement nobody meets is dropped, the protected villagers' safety never).
 - Explicit non-changes/exclusions: No executable byte is patched and no island event of the game's own changes, in its timing or its chances: the stock draw is never widened. Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.
 - Dependencies: vv5_story_cheat_upgrades, vv5_scrolling_popups
 - Evidence status: the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and the save's file emulated in tests/test_collection_trigger.py; the files and the rows in tests/test_event_collection_package.py; runtime/player confirmation pending
@@ -3108,11 +4896,11 @@ Best paired with "Shrine to the Ancestors". Villagers will sometimes come here t
 
 #### More Island Events (`vv5_more_island_events`)
 
-Adds new island events, written by the owner, beside the game's own (more come in later versions). Three here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they become a Heathen. The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (50 to 300 food for the meat, 500 to 3,000 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up): everyone joins in -- children, nursing mothers and fathers, everyone who believes -- each at the mausoleum, "Honoring the Dead" -- or, with "Memorial Actions Can Also Occur at the Heathen Hovel" installed, half of them at the old Heathen hovel instead, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts, the clothing hut and the love shack (the nursery school is left out) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village; an unbuilt one can be moved). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
+Adds new island events, written by the owner, beside the game's own (more come in later versions). Three here: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. "Go investigate!" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). "Stay on the safe path" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they become a Heathen. The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it; it needs two villagers of 14 or more who are not nursing a baby and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (50 to 300 food for the meat, 500 to 3,000 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own ("Unknown causes", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance Ceremony needs at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up): everyone joins in -- children, nursing mothers and fathers, everyone who believes -- each at the mausoleum, "Honoring the Dead" -- or, with "Memorial Actions Can Also Occur at the Heathen Hovel" installed, half of them at the old Heathen hovel instead, "Honoring the Dead" or "Reflecting" (half the time each), and the feast quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished structure: an earthquake damages each of the three population huts, the clothing hut and the love shack (the nursery school is left out) one time in four (at least one always), each losing 10 to 100% of its building work; the builders must build it again (at 100% it is unbuilt again, as in a new village; an unbuilt one can be moved). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is rebuilt. Each can come again. Pick Island Event lists each of these events and picks one whenever its own requirements hold (otherwise it says what the event needs). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking this ticks it.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is "VVFP More Island Events.dll", started by VVFP Startup.dll; nothing is saved by it.
 
 **Requires Story / Cheat Upgrades: ticking this ticks it, and unticking it unticks this. Needed by Classic VV Difficulty: unticking this unticks it.**
 
-- Behavior changes: The event is rare and separate: it never takes a share of the game's own draw (the stock island events' chances never change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in place of a rescue, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 50 to 300 food), 25% a golden chest (a tech award: 500 to 3,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), becomes a Heathen, the game's own conversion ("the Isolans' tribe" with Guardians of Isola, else "the heathens' tribe"), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up) (the game's own grave count); every living, present villager who is a believer is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the mausoleum, "Honoring the Dead" -- or, with "Memorial Actions Can Also Occur at the Heathen Hovel" installed, half of them at the old Heathen hovel instead, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts, the clothing hut and the love shack (the nursery school is left out) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1; a damaged population hut's count of the still-locked "3 huts" trophy taken back (saved with the village at the state's +0x328), so it still needs three different huts.
+- Behavior changes: The event is Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event can pick it. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer. Choice A, "Go investigate!": the find 50% a pile of dirt, 25% meat (a food award: 50 to 300 food), 25% a golden chest (a tech award: 500 to 3,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half. Choice B, "Stay on the safe path": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), becomes a Heathen, the game's own conversion ("the Isolans' tribe" with Guardians of Isola, else "the heathens' tribe"), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears. The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one. The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK. The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each in slot 0 only while it is due (t_list adds no entry), no site of its own; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the event's one Island Events log entry. The Remembrance Ceremony: needs at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up) (the game's own grave count); every living, present villager who is a believer is started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no group filter leaves anyone out), at the mausoleum, "Honoring the Dead" -- or, with "Memorial Actions Can Also Occur at the Heathen Hovel" installed, half of them at the old Heathen hovel instead, "Honoring the Dead" or "Reflecting" (half the time each); the feast uses 10 food for every villager the game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles screen solved and one of the three population huts, the clothing hut and the love shack (the nursery school is left out) finished; each finished one rand(100) < 25 (none: one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the game's own construction passes through (at 100% the new village's state); the building's effect handle freed and set to -1; a damaged population hut's count of the still-locked "3 huts" trophy taken back (saved with the village at the state's +0x328), so it still needs three different huts.
 - Explicit non-changes/exclusions: No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist. Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion.
 - Dependencies: vv5_story_cheat_upgrades
 - Evidence status: implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py; The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent and where, the feast, the damage and its states, the log entry and the words, in tests/test_ceremony_and_rumblings.py; runtime/player confirmation pending
@@ -3141,6 +4929,18 @@ In New Believers a believer whose Faith drifts down to 0 (low food, sickness, to
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Safeguards for Island Events (and Additional Events too) (`vv5_island_events_any_time`)
+
+For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit or trouble guard applies. Only the villagers an event needs are still required. It applies to whichever island events are on in the game. Anyone can be picked and any event can happen at any time (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' story villagers included), except when a pick would make no sense in the event -- a child's role needs a child, an age change needs a fitting age, a pregnancy needs a villager who can carry -- or the event is about someone the village does not have (no Chief, no event about the Chief; a leader can be anyone). Objects that are not living villagers, such as The Lost Children's totem statues, are never picked, and the guards against crashes and damaged saves stay. Off by default, in Owner's Defaults and in Select All too. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game.
+- Explicit non-changes/exclusions: No executable byte, game file or save is changed: the row is only a name in the installed patches' list ("VVFP Installed Patches.txt") that Story / Cheat Upgrades reads. The game's own island events, their text and their chances are never changed: it acts on the added events only.
+- Dependencies: none
+- Evidence status: the compiled events' conditions and effects pinned in tests/test_event_content.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Original Looks for Reset to Original (`vv5_original_look`)
 

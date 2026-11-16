@@ -31,6 +31,10 @@ PUBLIC = {
 }
 REMAINING = {
     "vv2_last_names",
+    # the island events' content controls: names in the installed patches' list, no executable byte
+    "vv2_island_event_content_notes",
+    "vv2_island_events_any_time",
+    *(f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)),
     # companion only: detours at run time, owns no executable bytes
     "vv2_totems_out_of_entries",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes

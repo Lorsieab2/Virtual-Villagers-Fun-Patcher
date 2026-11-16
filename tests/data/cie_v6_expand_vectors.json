@@ -268,11 +268,11 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Ana favors a mixture of familiar plants and experimental varieties, while Bo favors a winding garden with shaded places to sit.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
+     "garden.\nA child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
     ],
     "titles": [
      "The Gardening Contest",
-     "The Gardening Contest"
+     "Combine the best features into one shared"
     ],
     "labels": [
      [
@@ -551,11 +551,11 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Kai favors a traditional layout remembered by the elders, while Lea favors neat rows with carefully labeled plants.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
+     "the plan.\nThe gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
     ],
     "titles": [
      "The Gardening Contest",
-     "The Gardening Contest"
+     "Give each gardener a small plot to demonstrate"
     ],
     "labels": [
      [
@@ -919,7 +919,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Trade with the elders"
     ],
     "labels": [
      [
@@ -1285,7 +1285,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Trade with the elders"
     ],
     "labels": [
      [
@@ -1632,7 +1632,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Keep it"
     ],
     "labels": [
      [
@@ -1993,7 +1993,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Sell it"
     ],
     "labels": [
      [
@@ -2336,7 +2336,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Ask the Chief"
     ],
     "labels": [
      [
@@ -2725,7 +2725,7 @@
     "titles": [
      "The \"Twin\" Cooks",
      "The \"Twin\" Cooks",
-     "The \"Twin\" Cooks"
+     "One"
     ],
     "labels": [
      [
@@ -2958,7 +2958,7 @@
     "titles": [
      "The \"Twin\" Cooks",
      "The \"Twin\" Cooks",
-     "The \"Twin\" Cooks"
+     "One"
     ],
     "labels": [
      [
@@ -3052,7 +3052,7 @@
     ],
     "titles": [
      "The Village Idiot and the Impossible Invention",
-     "The Village Idiot and the Impossible Invention"
+     "Tell Her To Stop Before Anyone Is Hurt."
     ],
     "labels": [
      [
@@ -3166,7 +3166,7 @@
     "titles": [
      "A Stranger on the Sand",
      "A Stranger on the Sand",
-     "A Stranger on the Sand"
+     "Send for help"
     ],
     "labels": [
      [
@@ -3506,11 +3506,11 @@
     "aliases": {},
     "popups": [
      "Rosalind and Bartholomew look out to sea.",
-     "They sail at dawn."
+     "Dawn\nThey sail at dawn."
     ],
     "titles": [
      "The Far Reef",
-     "The Far Reef"
+     "Tell Her And He To Sail Out To The Far Reef At"
     ],
     "labels": [
      [
@@ -3598,7 +3598,7 @@
     ],
     "titles": [
      "The Far Reef",
-     "The Far Reef"
+     "Keep Rosalind home"
     ],
     "labels": [
      [
@@ -4587,7 +4587,7 @@
     "titles": [
      "The Visitor",
      "The Visitor",
-     "The Visitor"
+     "Share a meal with Aipi"
     ],
     "labels": [
      [
@@ -4688,7 +4688,7 @@
     "titles": [
      "The Visitor",
      "The Visitor",
-     "The Visitor"
+     "Send her away"
     ],
     "labels": [
      [

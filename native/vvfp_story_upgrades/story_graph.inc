@@ -201,7 +201,13 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
           field cleared); 36 the damaged structures repaired (one step from done, the game's own construction
           finishes them: native/shared/structure_damage.h sd_repair, story_structures.inc); 37 the young head look
           (Head Look's file, as old_look) */
-       CGE_CURE = 35, CGE_REPAIR = 36, CGE_YOUNG_LOOK = 37 };
+       CGE_CURE = 35, CGE_REPAIR = 36, CGE_YOUNG_LOOK = 37,
+       /* New Believers' Faith, the game's own way (the owner, 2026-11-16; "VV5 Heathen Events - What Vanilla Does"):
+          38 Faith +a (1..35) through FAITH_ADD 0x468020 (a Heathen whose Faith ends above 0 joins, the game's rule);
+          39 a Heathen joins: SetFaith 0x467F90(20, 1), then 0x466880(0), as The Defector; 40 a believer becomes a
+          Heathen by their own choice: SetFaith(-10, 1), then 0x466880(1), as The Spa / The Cracked Mask.  Only in
+          New Believers; elsewhere nothing. */
+       CGE_FAITH = 38, CGE_JOIN = 39, CGE_APOSTASY = 40 };
 /* 34: the mode (the effect's flags byte): set to a child, a teen 14-17, 18, an adult of 20-49, 50 or an elder, or
    move by a number of years drawn in [a, b] (either may be below 0). */
 enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AGE_50 = 4, CG_AGE_ELDER = 5,
@@ -216,6 +222,8 @@ enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AG
 #define CG_FX_LITTER_TWINS 4u
 #define CG_TRAIT_MUTE 1u              /* 32: the story trait "mute" */
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
+#define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
+                                         own picker 0x471870 casts one with Heathens-only on and special roles off */
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -252,7 +260,11 @@ enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
 #define CG_ROLE_NEWEST2 0xFCu
 enum { CG_GROUP_ALL = 1,              /* every living, listed villager (New Believers: its believers) */
        CG_GROUP_SKILL = 2,            /* ... whose skill named by the string at the last H is at least 50 */
-       CG_GROUP_RANDOM = 3 };         /* ... N of them drawn (N at the last H, 1..255; fewer: all there are) */
+       CG_GROUP_RANDOM = 3,           /* ... N of them drawn (N at the last H, 1..255; fewer: all there are) */
+       CG_GROUP_ELDERS = 4,           /* ... every elder, 55 or more */
+       CG_GROUP_CHILDREN = 5,         /* ... every child, under 14 */
+       CG_GROUP_TEENS = 6,            /* ... every teen, 14 to 17 */
+       CG_GROUP_ADULTS = 7 };         /* ... every adult, 18 or more */
 #define CG_GROUP_SKILL_MIN 50
 #define CG_SKILL_BEST 32u             /* skill / skill_set flags: the villager's own highest skill, not the list's */
 #define CG_NEW_CHILD_OF_NEWEST 1u     /* new_villager flags: its parents are the two newest (253, 252); it does not
@@ -1015,6 +1027,24 @@ static int cg_title_ok(const cg_graph *g, const char *title) {
 
 static int cg_fixed_name_ok(const char *name);   /* effect 33's fixed name (below) */
 
+/* What may happen to a Heathen in a new event (vanilla's whole list): Faith raised, joining, being stopped, walked
+   or posed (an action), a little health lost (5 to 30) and the sick mark; never a death, a disappearance, an age,
+   a skill, a like, a lower Faith or becoming a Heathen again. */
+static int cg_health_now(int game, const unsigned char *record);   /* below */
+
+static int cg_heathen_effect_ok(const unsigned char *e) {
+    int a = (int)((unsigned int)e[4] | ((unsigned int)e[5] << 8) | ((unsigned int)e[6] << 16)
+                  | ((unsigned int)e[7] << 24));
+    switch (e[0]) {
+    case CGE_FAITH: case CGE_JOIN: case CGE_ACTION: case CGE_SICK: case CGE_TRAIT:
+        return 1;
+    case CGE_HEALTH_CHANGE:
+        return a >= -30;
+    default:
+        return 0;
+    }
+}
+
 /* A group effect (role byte 254): the effects a group may take, and its selector. */
 static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
     unsigned int value = (unsigned int)e[14] | ((unsigned int)e[15] << 8);
@@ -1026,11 +1056,9 @@ static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
     default:
         return 0;
     }
-    if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
-        return 0;                      /* a random word is drawn for one villager */
-    }
     switch (e[3]) {
-    case CG_GROUP_ALL: return value == 0u;
+    case CG_GROUP_ALL: case CG_GROUP_ELDERS: case CG_GROUP_CHILDREN: case CG_GROUP_TEENS: case CG_GROUP_ADULTS:
+        return value == 0u;
     case CG_GROUP_SKILL:
         return value != CG_NONE && (int)value < g->n_string
                && cg_s(g, value)[0] != '\0';
@@ -1158,7 +1186,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > 3u || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || (r[13] & ~CG_ROLE_SPEAKS) > 1u || r[12] > 100u) {
+                || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1283,11 +1311,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                        || (e[0] >= CGE_APPEARANCE && e[0] <= CGE_OLD_LOOK) || e[0] == CGE_SEX_CHANGE
                        || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
                        || (e[0] >= CGE_PREGNANT && e[0] <= CGE_CHANGE_AGE)
-                       || e[0] == CGE_CURE || e[0] == CGE_YOUNG_LOOK || e[0] == CGE_PRESENTATION;
+                       || e[0] == CGE_CURE || e[0] == CGE_YOUNG_LOOK || e[0] == CGE_PRESENTATION
+                       || e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY;
         int ok = (e[0] >= CGE_FOOD && e[0] <= (g->version >= 6 ? CGE_OLD_LOOK : CGE_SICK))
                  || (g->version >= 6 && (e[0] == CGE_SEX_CHANGE || e[0] == CGE_PRESENTATION
                                          || e[0] == CGE_DELIVER_EARLY || e[0] == CGE_TRAIT
-                                         || (e[0] >= CGE_NEW_VILLAGER && e[0] <= CGE_YOUNG_LOOK)));
+                                         || (e[0] >= CGE_NEW_VILLAGER && e[0] <= CGE_APOSTASY)));
         if (ok && e[1] != CG_ROLE_GROUP && e[3] != 0) {
             ok = 0;                    /* byte 3 is a group's selector only */
         }
@@ -1378,6 +1407,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 ok = (a == 0 || a == 1) && b == 0 && str == CG_NONE;
                 break;
             case CGE_STATUS: ok = a == 1; break;
+            case CGE_FAITH: ok = a >= 1 && a <= 35 && b == 0 && str == CG_NONE; break;   /* vanilla: +5..+35 */
+            case CGE_JOIN: case CGE_APOSTASY: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_HEALTH: ok = a >= 1 && a <= 100 && b >= a && b <= 100; break;
             case CGE_SKILL:
                 /* Version 6: a loss too (both ends -100..-1). */
@@ -1404,6 +1435,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         }
         if (!ok) {
             return cg_bad("an effect is not one this game can make");
+        }
+        if (g->version >= 6 && e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN)
+            && !cg_heathen_effect_ok(e)) {
+            /* a Heathen's role: vanilla's own list only, whatever is ticked (No Safeguards too) */
+            return cg_bad("an effect is not one a Heathen may have");
         }
     }
     for (i = 0; i < g->n_node; ++i) {
@@ -1961,7 +1997,16 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         && !vv_sex_gc_draws_follow(game)) {
         return 0;                      /* the Golden Child: a sex change only when his draws follow (option 1) */
     }
-    if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
+    if (game == 5 && cg_g.version >= 6 && (spec[13] & CG_ROLE_HEATHEN)) {
+        /* A Heathen's role: as the game's own picker 0x471870 picks one (Heathens-only 1, special roles 0): a
+           Heathen, never roles 12-17 (the Heathen Doctor, Chief, the three Masters, the Heathen Mommy), never sick,
+           health above 0 (listed: present, not a body or a spirit); carrying or nursing allowed.  The role's own
+           ages and sex still apply below. */
+        int hrole = *(const int *)(r + 0x1CFC);
+        if (!cg_heathen(game, r) || (hrole >= 12 && hrole <= 17) || r[0x1C48] != 0 || cg_health_now(game, r) <= 0) {
+            return 0;
+        }
+    } else if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
         /* No Safeguards (the owner, 2026-11-15): a Heathen is cast only in a role whose purpose is a conversion;
            Guardians of Isola's rules and words stay as they are. */
         return 0;
@@ -1972,7 +2017,7 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
         return 0;                      /* only a villager born female is cast as a carrier */
     }
-    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r)) {
+    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r) && !(game == 5 && (spec[13] & CG_ROLE_HEATHEN))) {
         return 0;
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r)) {
@@ -2918,7 +2963,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_SPEAKS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -3264,8 +3309,14 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
    bound to read). */
 /* One of the likes (or `dislike`: the dislikes) the villager in `role` holds, drawn with the game's own random
    routine; -1 when the list is empty. */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike);
+
 static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
-    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    return cg_held_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, dislike);
+}
+
+/* A random like (or dislike) this villager holds, to take away; -1 when the list is empty (no roll then). */
+static int cg_held_preference_of(const ce_adapter *a, const unsigned char *r, int dislike) {
     const int *list;
     int held[64], n = 0, slot;
     if (r == NULL) {
@@ -3280,8 +3331,14 @@ static int cg_held_preference(const ce_adapter *a, int role, int dislike) {
     return n > 0 ? held[ce_random_below(a, n)] : -1;
 }
 
+static int cg_random_preference_of(const ce_adapter *a, const unsigned char *r, int k);
+
 static int cg_random_preference(const ce_adapter *a, int role, int k) {
-    const unsigned char *r = role >= 0 ? cg_villager(a, role) : NULL;
+    return cg_random_preference_of(a, role >= 0 ? cg_villager(a, role) : NULL, k);
+}
+
+/* ...the same for villager record `r` (a group's member). */
+static int cg_random_preference_of(const ce_adapter *a, const unsigned char *r, int k) {
     const int *likes, *dislikes;
     int i, s, count = 0;
     if (r == NULL || a->pref_count <= 0 || k < 0) {
@@ -4711,8 +4768,25 @@ static const char *cg_renames_fill(const char *text, int k) {
     return out;
 }
 
+static void cg_display_title(int k, char *out, int cap);
+static char cg_title_rest[CG_LABEL_V6 * 4];
+
 static const char *cg_display(int k) {
-    return k >= 0 && k < cg.display_count ? cg_count_fill(cg_renames_fill(cg.displays + cg.display_off[k], k)) : "";
+    static char wrapped[CG_PAGE_BYTES + CG_LABEL_V6 * 4 + 2];
+    char title[CG_LABEL_V6 * 4];
+    const char *text;
+    if (k < 0 || k >= cg.display_count) {
+        return "";
+    }
+    text = cg_count_fill(cg_renames_fill(cg.displays + cg.display_off[k], k));
+    cg_display_title(k, title, (int)sizeof title);
+    if (cg_title_rest[0] == '\0') {
+        return text;
+    }
+    /* the title's second line (a choice's label wider than the title area), then the page */
+    wsprintfA(wrapped, "%s\n", cg_title_rest);
+    lstrcpynA(wrapped + lstrlenA(wrapped), text, (int)sizeof wrapped - lstrlenA(wrapped));
+    return wrapped;
 }
 
 /* ---- Per-node popup titles (docs/event-collection/cie-v6-binary.md 14) ------------------------------------- */
@@ -4808,8 +4882,46 @@ static void cg_title_logged(char *out, int cap) {
 }
 
 /* The title of display `k`'s popup, into `out`. */
+static char cg_title_rest[CG_LABEL_V6 * 4];   /* the part of the last title shown that did not fit its area */
+
+/* Title `title` (as shown) cut to what fits the title area, at a space; what is left into cg_title_rest. */
+static void cg_title_wrap(char *title) {
+    static char head[CG_LABEL_V6 * 4];
+    int n = lstrlenA(title), cut = -1, i;
+    cg_title_rest[0] = '\0';
+    if (n == 0 || cg_title_fits(title)) {
+        return;
+    }
+    for (i = 1; i < n && i < (int)sizeof head - 1; ++i) {
+        if (title[i] == ' ') {
+            memcpy(head, title, (size_t)i);
+            head[i] = '\0';
+            if (!cg_title_fits(head)) {
+                break;
+            }
+            cut = i;
+        }
+    }
+    if (cut <= 0) {
+        for (cut = n - 1; cut > 1; --cut) {   /* one long word: as many letters as fit */
+            memcpy(head, title, (size_t)cut);
+            head[cut] = '\0';
+            if (cg_title_fits(head)) {
+                break;
+            }
+        }
+        lstrcpynA(cg_title_rest, title + cut, (int)sizeof cg_title_rest);
+    } else {
+        lstrcpynA(cg_title_rest, title + cut + 1, (int)sizeof cg_title_rest);
+    }
+    title[cut] = '\0';
+}
+
 static void cg_display_title(int k, char *out, int cap) {
-    cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, out, cap);
+    static char full[CG_LABEL_V6 * 4];
+    cg_title_text(k >= 0 && k < cg.display_count ? cg.display_title[k] : 0, full, (int)sizeof full);
+    cg_title_wrap(full);                /* a choice's label wider than the title area: its rest on the page */
+    lstrcpynA(out, full, cap);
 }
 
 /* The title in force before history node `upto`: the last titled node's on the way, else the event's. */
@@ -5009,7 +5121,7 @@ static int cg_effect_harmful(const ce_adapter *a, int game, const unsigned char 
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     switch (e[0]) {
     case CGE_KILL: case CGE_VANISH: case CGE_SICK: case CGE_DIE_UNRECOVERED: case CGE_BABY_LOST:
-    case CGE_BIRTH_THEN_DIE: case CGE_DELIVER_EARLY:
+    case CGE_BIRTH_THEN_DIE: case CGE_DELIVER_EARLY: case CGE_APOSTASY:
         return 1;
     case CGE_HEALTH: return hi < 100;
     case CGE_HEALTH_CHANGE: return lo < 0;
@@ -5862,6 +5974,13 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
         if (skill != NULL && (!cg_skills_known(a, skill) || cg_skill_value(a, rec, skill) < CG_GROUP_SKILL_MIN)) {
             continue;
         }
+        {
+            int years = ce_age(a, rec) / 20;
+            if ((e[3] == CG_GROUP_ELDERS && years < 55) || (e[3] == CG_GROUP_CHILDREN && years >= 14)
+                || (e[3] == CG_GROUP_TEENS && (years < 14 || years > 17)) || (e[3] == CG_GROUP_ADULTS && years < 18)) {
+                continue;
+            }
+        }
         pick[n++] = i;
     }
     want = e[3] == CG_GROUP_RANDOM ? (int)cg_u16(e + 14) : n;
@@ -5882,6 +6001,17 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
             continue;
         }
         ce_copy_name(who, CE_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM) && (e[2] & CG_PREF_REMOVE)) {
+            /* a random like or dislike each member holds, taken away (none held: nothing for them) */
+            cg_effect_on(a, game, e, cg_held_preference_of(a, rec, (e[2] & 4u) != 0), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
+        if (e[0] == CGE_PREF && (e[2] & CG_PREF_RANDOM)) {
+            /* a random like or dislike each: the roll, then the word chosen from this villager */
+            int k = ce_random_below(a, a->pref_count);
+            cg_effect_on(a, game, e, cg_random_preference_of(a, rec, k), vb, r, -1, rec, pick[i], who);
+            continue;
+        }
         if (e[0] == CGE_APPEARANCE) {
             /* a new look each: a random head / body row drawn for every member (the game's random routine) */
             int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
@@ -5900,6 +6030,12 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                          int role, unsigned char *record, int index, const char *name) {
     ce_result one;
     ce_change *c;
+    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
+        /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
+           only, as the load checks a Heathen's own role (Codex, #771). */
+        ce_refuse(r, CE_WHY_OTHER);
+        return;
+    }
     if ((role < 0 || (cg_role_at(&cg_g, role)[1] & CG_ROLE_PROTECTED)) && cg_effect_harmful(a, game, e)
         && cg_protected(a, game, record)) {
         /* The hard guard's last word (the walk's guard took the branch out unless they became protected since):
@@ -6024,6 +6160,42 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
             return;
         }
         cg_extra_add(name, "'s head look is now Old.");
+        return;
+    }
+    if (e[0] == CGE_FAITH || e[0] == CGE_JOIN || e[0] == CGE_APOSTASY) {
+        /* New Believers' Faith through the game's own routines (never the fields): they convert as the game
+           converts, with its message, role, counters and puzzle check (cie-v6-binary.md 33c). */
+        int was;
+        if (game != 5) {
+            return;                    /* only New Believers has Faith: nothing */
+        }
+        was = cg_heathen(game, record);
+        if ((e[0] == CGE_JOIN && !was) || (e[0] == CGE_APOSTASY && was)) {
+            return;                    /* a believer already / a Heathen already: nothing */
+        }
+        __try {
+            if (e[0] == CGE_FAITH) {
+                TC1(0x468020u, record, (int)cg_u32(e + 4));
+            } else if (e[0] == CGE_JOIN) {
+                TC2(0x467F90u, record, 20, 1);
+                TC1(0x466880u, record, 0);
+            } else {
+                TC2(0x467F90u, record, -10, 1);
+                TC1(0x466880u, record, 1);
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            ce_refuse(r, CE_WHY_OTHER);
+            return;
+        }
+        if (was != cg_heathen(game, record)) {
+            cg_tell_faith(game, index);
+            cg_extra_add(name, was ? " joined the tribe." : " became a Heathen.");
+        } else if (e[0] == CGE_FAITH) {
+            cg_extra_add(name, "'s Faith grew.");
+        }
+        if (role >= 0) {
+            cg.identity[role] = ce_identity(a, record);
+        }
         return;
     }
     if (e[0] == CGE_YOUNG_LOOK) {
@@ -6377,6 +6549,9 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "young_look", "<R> looks younger." },
     { "repair", "The damaged buildings are being repaired." },
     { "skill_best", "<R> gets better at what <P> does best." },
+    { "faith", "<R> feels closer to the tribe." },
+    { "join", "<R> joins the tribe." },
+    { "apostasy", "<R> becomes a Heathen." },
     { "presentation", "<R>'s look changes." },
 };
 
@@ -6464,6 +6639,9 @@ static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n,
         case CGE_OLD_LOOK: cg_auto_add(out, cap, "old_look", role, "", ""); break;
         case CGE_YOUNG_LOOK: cg_auto_add(out, cap, "young_look", role, "", ""); break;
         case CGE_CURE: cg_auto_add(out, cap, "cure", role, "", ""); break;
+        case CGE_FAITH: cg_auto_add(out, cap, "faith", role, "", ""); break;
+        case CGE_JOIN: cg_auto_add(out, cap, "join", role, "", ""); break;
+        case CGE_APOSTASY: cg_auto_add(out, cap, "apostasy", role, "", ""); break;
         case CGE_REPAIR: cg_auto_add(out, cap, "repair", -1, "", ""); break;
         case CGE_SEX_CHANGE: cg_auto_add(out, cap, "sex_change", role, "", ""); break;
         case CGE_PRESENTATION: cg_auto_add(out, cap, "presentation", role, "", ""); break;
@@ -6645,6 +6823,44 @@ static unsigned short cg_page_title(const cg_popup *p, const cg_pages *pages, in
     return t;
 }
 
+/* The owner (2026-11-16): after the player clicks a choice, the popups that follow take that choice's label as their
+   title (until the next choice), unless a node there has a title of its own.  The label of the choice that led to
+   path node `from` (the node after a question), as a title (its string index + 1); 0 none.  Always the label, never
+   the event's title instead: one wider than the title area wraps, its rest the page's first line (cg_display_title,
+   cg_display: "should not be a problem with the scrollbars"). */
+static int cg_layout_choice = -1;     /* the choice cg_take_answer lays out the pages of (-1: none known) */
+
+static unsigned short cg_choice_title(const cg_history *h, int from) {
+    static char worst[CG_LABEL_V6 * 4];
+    const unsigned char *q;
+    int k, count, first;
+    if (cg_g.version < 6 || from <= 0 || from >= h->nodes) {
+        return 0;
+    }
+    q = cg_node_at(&cg_g, h->node[from - 1]);
+    if (q[0] != CG_QUESTION) {
+        return 0;
+    }
+    first = (int)cg_u16(q + 12);
+    count = (int)cg_u16(q + 14);
+    if (cg_layout_choice >= 0 && cg_layout_choice < count) {
+        /* the choice the player picked (several choices may lead to the same node: its own label, Codex P2) */
+        unsigned int label = cg_u16(cg_child_at(&cg_g, first + cg_layout_choice) + 8);
+        (void)worst;
+        return label != CG_NONE ? (unsigned short)(label + 1u) : 0;
+    }
+    for (k = 0; k < count; ++k) {
+        const unsigned char *c = cg_child_at(&cg_g, first + k);
+        unsigned int label = cg_u16(c + 8);
+        if ((int)cg_u16(c) != h->node[from] || label == CG_NONE) {
+            continue;
+        }
+        (void)worst;
+        return (unsigned short)(label + 1u);   /* always (the owner): a label wider than the title area wraps */
+    }
+    return 0;
+}
+
 static void cg_layout_from(const ce_adapter *a, int game, int from, int after_question) {
     static cg_pager w;
     static cg_pages pages;
@@ -6660,6 +6876,28 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
     cg_group_in_question = after_question && from > 0 && !fresh;
     cg_group(game, h, from);
     cg_group_in_question = 0;
+    if (after_question && from > 0) {
+        /* the choice's label as the title of what follows, where no node of this part set one (cg_choice_title);
+           set before the pages are laid out, so the title area is measured with it */
+        unsigned short choice = cg_choice_title(h, from), before = cg_title_before(h, from);
+        if (from < h->nodes && cg_node_title(h->node[from]) != 0) {
+            choice = 0;                /* the next node has a title of its own: it keeps it */
+        }
+        for (p = 0; choice != 0 && p < cg_pop_count; ++p) {
+            int j;
+            if (cg_pops[p].tcount == 0) {
+                cg_pops[p].tcount = 1;
+                cg_pops[p].toff[0] = 0;
+                cg_pops[p].ttitle[0] = choice;
+                continue;
+            }
+            for (j = 0; j < cg_pops[p].tcount; ++j) {
+                if (cg_pops[p].ttitle[j] == before) {
+                    cg_pops[p].ttitle[j] = choice;
+                }
+            }
+        }
+    }
     for (p = 0; p < cg_pop_count; ++p) {
         int question = cg_pops[p].question >= 0;
         w.a = a;
@@ -6675,6 +6913,19 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
+        if (!w.scroll) {
+            /* A title wider than its area shows its rest as the page's first lines (cg_display): those lines kept
+               free on every page, so the text is paged around them, never cut (Codex, #771). */
+            static char probe[CG_LABEL_V6 * 4];
+            ce_layout bare = *w.first;
+            bare.with_title = 0;
+            lstrcpynA(probe, widest, (int)sizeof probe);
+            cg_title_wrap(probe);
+            if (cg_title_rest[0] != '\0') {
+                w.reserve += ce_lines_used_in(&bare, "", cg_title_rest);
+            }
+            cg_title_rest[0] = '\0';
+        }
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
@@ -7273,7 +7524,9 @@ static int cg_take_answer(const ce_adapter *a, int game, int choice) {
     cg.path.fx = cg.q_fx[qi];
     cg.pick_count = cg.q_picks[qi];
     cg_path_add(cg_seg(qi, choice), cg.seg_picks[qi][choice], cg.seg_pick_count[qi][choice]);
+    cg_layout_choice = choice;
     cg_layout_from(a, game, cg.q_path[qi], 1);
+    cg_layout_choice = -1;
     return 1;
 }
 

@@ -400,10 +400,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # and again for Equal Division by skill progress and the skill-preference
         # rows (v1.35.70), and for resetting corrupted skills.  Re-pinned when its masks
         # learned to follow a sex change and Change Appearance gained "Change sex..."
-        # (native/shared/sex_change.h, sex_change_ui.h).
+        # (native/shared/sex_change.h, sex_change_ui.h), and again when it was rebuilt on the merged shared headers
+        # of v1.35.97 (round 5: the gender presentation; the Golden Child option 1 leaves it as it was).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "53B50416D84E3E2091DD2C05764328CB5B643D509CA365B63F5D2D5C6581F9C9",
+            "B94FC824D662095A2520B97FCA8C829336BE863FBD45BF994E5D6054D83E6F4B",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

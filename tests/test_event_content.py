@@ -246,7 +246,7 @@ if rt is not None:
             quiet = graph({"s": {"text": "(Name) folds (his/her) hands and says nothing.", "children": []}})
             quiet, _plan = content.inject(quiet, {}, {"traits": [{"role": "subject", "trait": "mute"}]})
             talk = graph(SpeakingAndTraits.TALK, roles={"friend": {"kind": "villager"},
-                                                       "subject": {"kind": "villager", "optional": True}},
+                                                       "subject": {"kind": "villager"}},
                          start="s")
             talk, _plan = content.inject(talk, {}, {"speaks": ["friend"]})
             for game in GAMES:

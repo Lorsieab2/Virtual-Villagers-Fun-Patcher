@@ -159,6 +159,7 @@ EXPORTS
     VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
     VvfpStoryProbeCollectionPopulation=_VvfpStoryProbeCollectionPopulation@8
     VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
+    VvfpStoryProbeProceduralHarmful=_VvfpStoryProbeProceduralHarmful@4
     VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
@@ -169,6 +170,8 @@ EXPORTS
     VvfpStoryProbeLivingForget=_VvfpStoryProbeLivingForget@0
     VvfpStoryProbeLivingFile=_VvfpStoryProbeLivingFile@8
     VvfpStoryProbeLivingSetFile=_VvfpStoryProbeLivingSetFile@8
+    VvfpStoryProbeLivingGroupFile=_VvfpStoryProbeLivingGroupFile@8
+    VvfpStoryProbeLivingSetGroupFile=_VvfpStoryProbeLivingSetGroupFile@8
     VvfpStoryProbeLivingOrder=_VvfpStoryProbeLivingOrder@16
     VvfpStoryProbeLivingArm=_VvfpStoryProbeLivingArm@16
     VvfpStoryProbeLivingState=_VvfpStoryProbeLivingState@8
