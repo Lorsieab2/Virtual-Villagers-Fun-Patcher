@@ -134,16 +134,20 @@ CANT_EAT_LINE = (
 FIX_VANILLA = "vv4_fix_vanilla_bugs"
 EFFECTS_FIX_LINE = (
     "saving no longer ends a villager's effects, so each lasts its full time: the clean body and the Purify Tree's "
-    "glow their 4 minutes, the sticky gunk its 3 and a stew's wait its 10 (the save is written exactly as before)")
+    "glow their 4 minutes, the sticky gunk its 3 and a stew's wait its 10 (the save is written exactly as before), "
+    "and a bath in the rain makes a villager clean as it does in fine weather")
 STEW_WAIT_FIX_LINE = ("saving no longer ends a villager's stew effects, so the healing and sick stews' wait lasts its "
                       "full 10 minutes")
 # The soapy pond: "Adding soap to the pond" (action 0x96, 0x43A430) ends with step 0x2E (0x4698D0, 0x43A4CD) turning
 # world state 0x1A on through 0x46D530, whose table gives 0x1A 60 seconds of the game clock 0x4D6F18 (0x46D54E);
 # 0x46D7F0 turns it off when the game clock reaches that.  Nothing else sets or clears 0x1A.  A villager dropped on
 # the pond (0x438500, drop spot 0x38) gets "Getting clean in soapy pond" (action 0x97) only with The Stream solved,
-# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.
+# the stream's flow level 2 (0x4396E0: debris 75 or less) and state 0x1A on.  Fix Vanilla Bugs gives 0x1A its own
+# case, 240 (0x46D503, jump table entry 0x46D5C8); state 0xB keeps 60.
+SOAP_FIX_LINE = ("the pond stays soapy for 4 minutes of the game's clock (4 real-life minutes on Normal speed, 2 on "
+                 "Fast, 6 minutes 40 seconds on Slow), as long as the clean body lasts")
 SOAPY_POND_LINE = (
-    "Adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
+    "In the base game adding soap to the pond makes it soapy for 1 minute of the game's clock: 1 real-life minute on Normal speed, "
     "30 seconds on Fast and 1 minute 40 seconds on Slow; it does not run down while the game is paused. A villager "
     "dropped in the pond goes \"Getting clean in soapy pond\" only while it is soapy, The Stream is solved and the "
     "stream's debris is 75 or less (of 100).")
@@ -565,13 +569,22 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                        "mind\" glows for 4 real-life minutes (240 seconds; real time, the same at "
                                        "every speed, and paused time counts too), and while it lasts their "
                                        "research brings 3 times the tech points.", gm.RUNNING)
+    # The rain: the sparkle maker 0x41CEC0 lets kinds 0x13, 0x14 and 2 use only slots 0..100 (0x41CEDB..0x41CEE3);
+    # the rain's splashes (kind 0x14, 0x13 on water; 0x46B69E) are made while fewer than 128 x the rain's strength
+    # exist (0x46B5C8..0x46B600), so in heavy rain they hold all 101 and the bath's 6 kind-2 sparkles fail; the
+    # entry then records kind -1 and 0x45EBE0 finds no clean body (tests/test_vv4_effects_survive_save.py RainTests).
+    # Fix Vanilla Bugs lets kind 2 use every slot (0x41CEDB cmp ecx,2 -> cmp ecx,0x13).
     add("Tech points and effects", "Clean body: a villager who finishes \"Getting clean in soapy pond\" is clean for 4 "
                                    "real-life minutes (240 seconds; real time, the same at every speed, and paused "
                                    "time counts too). Only a clean villager dropped on the tree starts purifying it "
                                    "(any other: \"Only those pure of body can purify the tree.\"), and only one who "
                                    "also has the Purify Tree's glow can finish (\"Only those pure of mind can see the "
                                    "corruption.\"). In the base game every save, the 10-minute autosave included, "
-                                   "ends the glow and the clean body at once.", gm.CODE)
+                                   "ends the glow and the clean body at once, and while it rains hard a bath often "
+                                   "leaves the villager not clean at all: the rain's splashes take all the room the "
+                                   "clean body's sparkles may use, and with no sparkle the game does not count the "
+                                   "villager clean (the same when the village view is opened again in the rain). "
+                                   "The glow is not affected by the rain.", gm.CODE)
     out.append(gm.Fact("Tech points and effects", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE),
                        gm.RUNNING, True))
     # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
@@ -622,6 +635,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", CANT_EAT_LINE, gm.RUNNING)
     out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, STEW_WAIT_FIX_LINE), gm.RUNNING, True))
     add("Other", SOAPY_POND_LINE, gm.CODE)
+    out.append(gm.Fact("Other", gm.patch_words(village, FIX_VANILLA, SOAP_FIX_LINE), gm.RUNNING, True))
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).

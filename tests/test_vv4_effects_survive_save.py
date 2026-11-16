@@ -8,7 +8,7 @@ What the effects are (stock executable, 929,792 bytes):
     time, the start; count +0x1E5C), added by 0x460A90 with a length in seconds of the computer's clock 0x403750
     and removed by the effect list's update 0x45FC70 once that clock reaches the end.
   * Clean body: "Getting clean in soapy pond" (action 0x97, 0x438180) ends with step 0x469B90(0xE, 1) (0x438221),
-    which calls the Purify Tree object's +0x30 (0x437EC0) with 1: five sparkles of kind 2 on the sparkle manager
+    which calls the Purify Tree object's +0x30 (0x437EC0) with 1: six sparkles of kind 2 on the sparkle manager
     0x4CE1C0, each an effect of 240 seconds (0xF0, 0x437F23...).  The tree's drop handler 0x438370 starts
     "Purifying the tree" (action 0x98) only for a villager with a kind-2 sparkle (0x45EBE0, 0x43848A), else
     "Only those pure of body can purify the tree." (message 0x4A).
@@ -55,7 +55,20 @@ MODES = ("stock", "collection_progression", "immediate_fixed")
 CALL_OFFSET = 0x660C4                       # file offset of 0x4660C4
 CALL_STOCK = bytes.fromhex("E8D789FFFF")    # call 0x45EAA0
 CALL_FIXED = bytes.fromhex("9090909090")
-EFFECTS_FIXES = ((CALL_OFFSET, CALL_STOCK, CALL_FIXED),)
+# The clean body's sparkle (kind 2) may use every sparkle slot, not only the first 101 the rain's splashes fill.
+POOL_OFFSET, POOL_STOCK, POOL_FIXED = 0x1CEDB, bytes.fromhex("83F902"), bytes.fromhex("83F913")
+# The soapy pond (world state 0x1A) lasts 240 game-clock seconds: a new case in the padding after 0x46D500, and the
+# jump table's entry for states 0xB / 0x1A pointed at it.
+SOAP_CASE_OFFSET = 0x6D503
+SOAP_CASE_STOCK = bytes.fromhex("CC" * 13)
+SOAP_CASE_FIXED = bytes.fromhex("6A3C5E83F91A7503C1E602EB7B")
+SOAP_TABLE_OFFSET, SOAP_TABLE_STOCK, SOAP_TABLE_FIXED = 0x6D5C8, bytes.fromhex("4ED54600"), bytes.fromhex("03D54600")
+EFFECTS_FIXES = (
+    (CALL_OFFSET, CALL_STOCK, CALL_FIXED),
+    (POOL_OFFSET, POOL_STOCK, POOL_FIXED),
+    (SOAP_CASE_OFFSET, SOAP_CASE_STOCK, SOAP_CASE_FIXED),
+    (SOAP_TABLE_OFFSET, SOAP_TABLE_STOCK, SOAP_TABLE_FIXED),
+)
 
 REMOVE_ALL = 0x45EAA0
 SPARKLES, SPARKLES_VTABLE = 0x4CE1C0, 0x48D54C        # the sparkle manager and its vtable (set at start-up)
@@ -135,13 +148,45 @@ class StaticTests(unittest.TestCase):
         for mode in MODES:
             with self.subTest(mode=mode):
                 rendered = _render(mode, ["vv4_population_256", FEATURE_ID])
-                self.assertEqual(rendered[CALL_OFFSET:CALL_OFFSET + 5], CALL_FIXED)
+                for offset, _, after in EFFECTS_FIXES:
+                    self.assertEqual(rendered[offset:offset + len(after)], after)
+
+    def test_every_row_rendered(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                without = _render(mode, [])
+                rendered = _render(mode, [FEATURE_ID])
+                for offset, before, after in EFFECTS_FIXES:
+                    self.assertEqual(without[offset:offset + len(before)], before)
+                    self.assertEqual(rendered[offset:offset + len(after)], after)
+
+    def test_the_sparkle_pool_rule(self) -> None:
+        # 0x41CEC0: kinds 0x13, 0x14 and 2 may only take slots 0..100 (cmp ebp, 0x64 / jg fail).
+        self.assertEqual(self._listing(0x41CED1, 0x18), [
+            (0x41CED1, "cmp", "ecx, 0x13"), (0x41CED4, "je", "0x41cee0"),
+            (0x41CED6, "cmp", "ecx, 0x14"), (0x41CED9, "je", "0x41cee0"),
+            (0x41CEDB, "cmp", "ecx, 2"), (0x41CEDE, "jne", "0x41cee9"),
+            (0x41CEE0, "cmp", "ebp, 0x64"), (0x41CEE3, "jg", "0x41cfb6"),
+        ])
+        # The rain's splash: kind 0x14 (0x13 on water), made while fewer than 128 x the rain's strength exist.
+        self.assertIn((0x46B683, "mov", "eax, 0x14"), self._listing(0x46B683, 0x1C))
+        self.assertIn((0x46B5C9, "push", "0x14"), self._listing(0x46B5C8, 0x10))
+
+    def test_the_soap_case_decodes(self) -> None:
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        self.assertEqual([(i.address, i.mnemonic, i.op_str) for i in md.disasm(SOAP_CASE_FIXED, 0x46D503)], [
+            (0x46D503, "push", "0x3c"), (0x46D505, "pop", "esi"), (0x46D506, "cmp", "ecx, 0x1a"),
+            (0x46D509, "jne", "0x46d50e"), (0x46D50B, "shl", "esi, 2"), (0x46D50E, "jmp", "0x46d58b"),
+        ])
+        # The padding is unused: 0x46D500 is `ret 8` and 0x46D510 the next routine.
+        self.assertEqual(self._listing(0x46D500, 3), [(0x46D500, "ret", "8")])
+        self.assertEqual(self._listing(0x46D58B, 3)[0], (0x46D58B, "lea", "edi, [ecx + ecx*4]"))
 
 
 @unittest.skipUnless(_have_stock(), "needs research/stock-executables (the stock VV4 exe)")
 class SaveEmulationTests(unittest.TestCase):
     """The REAL save writer 0x4660A0 (with the real 0x45EAA0, 0x45E9F0 and the managers' callbacks) on one villager
-    carrying the clean body (5 kind-2 sparkles), the glow (3 kind-1 sparkles) and a stew's wait."""
+    carrying the clean body (6 kind-2 sparkles), the glow (3 kind-1 sparkles) and a stew's wait."""
 
     CLEAN_IDS = (7, 8, 9, 10, 11)
     GLOW_IDS = (12, 13, 14)
@@ -218,6 +263,114 @@ class SaveEmulationTests(unittest.TestCase):
                     tables.append(m.table_bytes())
                 self.assertEqual(tables[0], tables[1])
                 self.assertEqual(tables[0][0], 1)          # the villager was saved
+
+
+RAND = 0x4036D0                    # the game's rand(n) (cdecl): stubbed to 0 here
+REAL_CLOCK = 0x403750              # whole seconds of the computer's clock (thiscall, no argument)
+BATH_RESULT = 0x437EC0             # the Purify Tree object's +0x30: (villager, 1) = the bath's clean body
+MAKE_SPARKLE = 0x41CEC0            # (kind, x, y, delay, loop, owner, layer, flag) -> slot or -1
+
+
+def _machine_with_sparkles(exe: bytes):
+    from save_table_emulator import VV4, Machine
+    from unicorn import UC_HOOK_CODE
+    m = Machine(exe, dataclasses.replace(VV4, pre_save=0xFFFFFFFF))
+    m.populate(1)
+    m.mu.mem_write(SPARKLES, struct.pack("<I", SPARKLES_VTABLE))
+    for sid in range(512):
+        m.mu.mem_write(_sparkle(sid), struct.pack("<i", -1))
+    m.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, u: m._return(0, 0), begin=RAND, end=RAND)
+    # the computer's clock (seconds) and the game clock, read by the effect adder for the end and the start
+    m.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, u: m._return(1000, 0), begin=REAL_CLOCK, end=REAL_CLOCK)
+    return m
+
+
+@unittest.skipUnless(_have_stock(), "needs research/stock-executables (the stock VV4 exe)")
+class RainTests(unittest.TestCase):
+    """The REAL sparkle maker and the REAL end of the bath (0x437EC0) with the rain's splashes in the slot pool."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.builds = {(mode, label): _render(mode, ids) for mode in MODES
+                      for label, ids in (("stock", []), ("patched", [FEATURE_ID]))}
+
+    def _bath(self, exe: bytes, splashes: int) -> tuple[int, int, int]:
+        m = _machine_with_sparkles(exe)
+        made = 0
+        for n in range(splashes):          # the rain's splash, as 0x46B69E makes it
+            made += m.thiscall(MAKE_SPARKLE, SPARKLES, 0x14, 100 + n, 200, 1, 0, -1, 3, 1) != 0xFFFFFFFF
+        rec = m.record(0)
+        m.thiscall(BATH_RESULT, 0x4D8BF8, rec, 1)
+        count = struct.unpack("<i", m.mu.mem_read(rec + COUNT, 4))[0]
+        return made, count, m.thiscall(CLEAN_BODY, rec) & 0xFF
+
+    def test_no_rain_the_bath_gives_the_clean_body(self) -> None:
+        for mode in MODES:
+            for label in ("stock", "patched"):
+                with self.subTest(mode=mode, build=label):
+                    self.assertEqual(self._bath(self.builds[(mode, label)], 0), (0, 6, 1))
+
+    def test_heavy_rain_fills_the_101_slots(self) -> None:
+        for label in ("stock", "patched"):
+            made, _, _ = self._bath(self.builds[("stock", label)], 128)    # 128 x a full rain's strength
+            self.assertEqual(made, 101)                                    # the splashes' own limit is kept
+
+    def test_stock_bath_in_heavy_rain_gives_nothing(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                made, count, clean = self._bath(self.builds[(mode, "stock")], 128)
+                # all 6 sparkles fail (slot -1); the one entry kept for "-1" has no kind, so not clean
+                self.assertEqual((count, clean), (1, 0))
+
+    def test_fixed_bath_in_heavy_rain_gives_the_clean_body(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                made, count, clean = self._bath(self.builds[(mode, "patched")], 128)
+                self.assertEqual((count, clean), (6, 1))
+
+    def test_light_rain_below_the_limit_changes_nothing(self) -> None:
+        for label in ("stock", "patched"):
+            self.assertEqual(self._bath(self.builds[("stock", label)], 90)[1:], (6, 1))
+
+
+@unittest.skipUnless(_have_stock(), "needs research/stock-executables (the stock VV4 exe)")
+class SoapTimerTests(unittest.TestCase):
+    """The REAL world-state timer 0x46D530 (deadline = game clock + the state's length); the game clock (0x41DB20)
+    is stubbed to 1,000 and the overlay refresh 0x41CA50 to nothing."""
+
+    NOW, CLOCK_GETTER, REFRESH, SET_STATE, WORLD, DEADLINES = 1000, 0x41DB20, 0x41CA50, 0x46D530, 0x705148, 0x704E3C
+
+    def _deadlines(self, exe: bytes) -> dict[int, int]:
+        from unicorn import UC_HOOK_CODE
+        m = _machine_with_sparkles(exe)
+        m.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, u: m._return(self.NOW, 0),
+                      begin=self.CLOCK_GETTER, end=self.CLOCK_GETTER)
+        m.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, u: m._return(0, 0), begin=self.REFRESH, end=self.REFRESH)
+        out = {}
+        for state in range(1, 0x27):
+            m.thiscall(self.SET_STATE, self.WORLD, state)
+            value = struct.unpack("<I", m.mu.mem_read(self.DEADLINES + state * 20, 4))[0]
+            out[state] = value - self.NOW if value else 0
+        return out
+
+    def test_stock_soap_lasts_60_and_fixed_240_nothing_else_changes(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                stock = self._deadlines(self.builds()[(mode, "stock")])
+                fixed = self._deadlines(self.builds()[(mode, "patched")])
+                self.assertEqual(stock[0x1A], 60)
+                self.assertEqual(fixed[0x1A], 240)
+                self.assertEqual(stock[0xB], 60)
+                self.assertEqual(fixed[0xB], 60)
+                self.assertEqual({k: v for k, v in stock.items() if k != 0x1A},
+                                 {k: v for k, v in fixed.items() if k != 0x1A})
+
+    @classmethod
+    def builds(cls):
+        if not hasattr(cls, "_builds"):
+            cls._builds = {(mode, label): _render(mode, ids) for mode in MODES
+                           for label, ids in (("stock", []), ("patched", [FEATURE_ID]))}
+        return cls._builds
 
 
 if __name__ == "__main__":
