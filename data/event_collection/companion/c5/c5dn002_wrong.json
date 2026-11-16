@@ -82,7 +82,7 @@
    "name": "Outcome 2",
    "popup": "append",
    "join": "paragraph",
-   "text": "Try the family trade and unexpectedly enjoy it.",
+   "text": "Try the family trade and unexpectedly enjoy the work.",
    "src": "L2678",
    "effects": [
     {
@@ -101,5 +101,12 @@
    "text": "Disappoint an elder, then begin an honest conversation.",
    "src": "L2679"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2678",
+   "before": "enjoy it.",
+   "after": "enjoy the work."
+  }
+ ]
 }

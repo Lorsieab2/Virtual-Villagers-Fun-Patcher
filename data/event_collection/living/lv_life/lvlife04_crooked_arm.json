@@ -126,7 +126,7 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The child heals with a lasting bend but learns to use the arm well.",
+   "text": "The child heals with a lasting bend but learns to use the arm well, though heavy lifting stays hard.",
    "src": "L20687",
    "effects": [
     {
@@ -165,5 +165,12 @@
    "text": "The healers disagree, and the family requests time to decide.",
    "src": "L20691"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L20687",
+   "before": "use the arm well.",
+   "after": "use the arm well, though heavy lifting stays hard."
+  }
+ ]
 }

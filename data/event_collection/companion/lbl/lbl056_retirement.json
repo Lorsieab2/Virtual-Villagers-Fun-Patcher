@@ -98,7 +98,7 @@
   },
   "e2": {
    "name": "Outcome 2",
-   "text": "They enjoy leisure without guilt.",
+   "text": "They enjoy resting without guilt.",
    "src": "L4535",
    "effects": [
     {
@@ -115,5 +115,12 @@
    "text": "They miss the work and negotiate lighter duties.",
    "src": "L4536"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L4535",
+   "before": "enjoy leisure",
+   "after": "enjoy resting"
+  }
+ ]
 }

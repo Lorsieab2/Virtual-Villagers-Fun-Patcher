@@ -279,10 +279,73 @@ def problems_for(doc: dict, rows) -> list[str]:
     return out
 
 
+# ---- Likes and dislikes that match what they do in each game (the owner, 2026-11-16) -------------------------------
+# docs/event-collection/likes-dislikes-fix.md.  A preference is never a job; where the story names no thing a game's
+# word fits, the effect goes (the story stays); where it does, the outcome names that thing (a minimal edit, recorded
+# as a grammar fix in docs/event-collection/grammar-fixes.md).
+# (event id, node, source line, before, after, why)
+TEXT_EDITS: list[tuple[str, str, str, str, str, str]] = [
+    ("c5dn002_wrong", "e2", "L2678", "enjoy it.", "enjoy the work.",
+     "like work (works more: VV2-VV5); the outcome names the work, not the trade"),
+    ("c5dn004_reluctant", "e2", "L2696", "medicinal botany.", "medicinal herbs.",
+     "like herbs (no behaviour in any game, so the text names the herbs themselves)"),
+    ("lbl056_retirement", "e2", "L4535", "enjoy leisure", "enjoy resting",
+     "like resting (no behaviour in any game, so the text names resting itself)"),
+    ("lvlife04_crooked_arm", "b1", "L20687", "use the arm well.", "use the arm well, though heavy lifting stays hard.",
+     "dislike lifting (no rubble or debris work: VV3, VV4); the outcome names the lifting"),
+    ("lvmed05_limb_might", "a1", "L20274", "adjustment to daily life.", "adjustment to daily life without running.",
+     "dislike running (every game); the outcome names the running"),
+    ("lvmed05_limb_might", "c2", "L20281", "in a new craft.", "in a new craft, though running is now hard.",
+     "dislike running (every game); the outcome names the running"),
+]
+# (event id, node, the word taken out, text_only entry or None, why)
+EFFECT_REMOVALS: list[tuple[str, str, str, dict | None, str]] = [
+    ("c5dn001_trial_week", "e2", "work",
+     {"src": "L2669", "what": "Dislike the first job",
+      "reason": "likes and dislikes are not jobs (the owner, 2026-11-16): no game's word fits disliking one job"},
+     "dislike work made the teen lazy, but the story has them try another job: a job is not a dislike"),
+    ("fwk055_skill_fading", "outcome_c", "work", None,
+     "dislike work (lazy) fits nothing the outcome says (a changed profession or duties)"),
+]
+
+
+def apply_likes_fix(doc: dict) -> None:
+    eid = (doc.get("collection") or {}).get("id")
+    nodes = doc.get("nodes", {})
+    for e_id, node, src, before, after, _ in TEXT_EDITS:
+        if e_id != eid:
+            continue
+        n = nodes[node]
+        if before in n["text"]:
+            n["text"] = n["text"].replace(before, after, 1)
+        fix = {"src": src, "before": before, "after": after}
+        fixes = doc.setdefault("grammar_fixes", [])
+        if fix not in fixes:
+            fixes.append(fix)
+    for e_id, node, word, text_only, _ in EFFECT_REMOVALS:
+        if e_id != eid:
+            continue
+        n = nodes[node]
+        gone = [e for e in n.get("effects", []) if e.get("do") == "preference" and
+                (e.get("preference") or e.get("like") or e.get("dislike")) == word]
+        n["effects"] = [e for e in n.get("effects", []) if e not in gone]
+        if not n["effects"]:
+            n.pop("effects")
+        # a role the effect was the only use of stays cast (collection.cast_only), as before
+        blob = (json.dumps(doc["nodes"]) + json.dumps(doc.get("pools") or {}) + json.dumps(doc.get("title"))).lower()
+        for rid, r in (doc.get("roles") or {}).items():
+            used = f'"role": "{rid}"'.lower() in blob or f"({rid.lower()}" in blob
+            if r.get("kind") == "villager" and not used and rid not in doc["collection"].get("cast_only", []):
+                doc["collection"].setdefault("cast_only", []).append(rid)
+        if text_only and text_only not in n.setdefault("text_only", []):
+            n["text_only"].append(text_only)
+
+
 def apply(doc: dict) -> dict:
     """Add this event's rows to doc (in place; idempotent) and return it.  Raises on a row that cannot be applied."""
     col = doc.get("collection") or {}
     nodes = doc.get("nodes", {})
+    apply_likes_fix(doc)
     for eid, node, add, _ in EFFECT_ADDITIONS:
         if eid != col.get("id"):
             continue
@@ -412,6 +475,12 @@ def main(argv=None) -> int:
             if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
                 print(f"{eid}: node {node} already has a {add['do']} effect on that role")
                 bad += 1
+    for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS}):
+        if eid not in files:
+            print(f"{eid}: no collection file")
+            bad += 1
+            continue
+        docs.setdefault(eid, json.loads(files[eid].read_text(encoding="utf-8")))
     if bad:
         return 1
     if args.check:
