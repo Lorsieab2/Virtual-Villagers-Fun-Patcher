@@ -2934,11 +2934,42 @@ static int cg_random_preference(const ce_adapter *a, int role, int k) {
     return -1;
 }
 
+static int sc_population(int game);   /* story_collection.inc: the population the gate counts */
+
+/* Each game's normal food and tech-point range of its own island events (src/vv_cie_graph.py SIZE_TABLE): a size
+   word's range is it halved (small), as it is (normal), doubled (large) or tripled (huge). */
+static const int CG_SIZE_NORMAL[2][6][2] = {
+    { { 0, 0 }, { 200, 1500 }, { 100, 1500 }, { 200, 600 }, { 300, 300 }, { 50, 300 } },      /* food */
+    { { 0, 0 }, { 500, 4999 }, { 500, 3000 }, { 1000, 2000 }, { 500, 5000 }, { 500, 3000 } },  /* tech */
+};
+static const int CG_SIZE_MUL[4][2] = { { 1, 2 }, { 1, 1 }, { 2, 1 }, { 3, 1 } };
+
+/* Whether the loaded event is one of the new events (the collection's: its header names its "collection" block,
+   cie-v6-binary.md; the Living Event Engine's variants too). */
+static int cg_is_collection_event(void) {
+    return cg_g.version >= 6 && cg_g.header_bytes >= CG_HEADER_V6 && cg_u16(cg_g.d + 90) != CG_NONE;
+}
+
 static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e, cg_history *h) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     int va = 0, vb = 0;
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
+        if (cg_is_collection_event() && game >= 1 && game <= 5 && sc_population(game) >= 61) {
+            /* The owner (2026-11-15): from 61 villagers a new event's food or tech points come in a random size --
+               small, normal, large or huge, equally likely -- in the game's own ranges; a gain stays a gain and a
+               loss a loss.  Below 61 the size the event names. */
+            const int *n = CG_SIZE_NORMAL[e[0] == CGE_TECH][game];
+            int size = ce_random_below(a, 4);
+            int slo = n[0] * CG_SIZE_MUL[size][0] / CG_SIZE_MUL[size][1];
+            int shi = n[1] * CG_SIZE_MUL[size][0] / CG_SIZE_MUL[size][1];
+            lo = slo + ce_random_below(a, shi - slo + 1);
+            if ((int)cg_u32(e + 4) < 0) {
+                lo = -lo;
+            }
+            va = (e[2] & 1u) ? cg_scaled(a, game, e[0] == CGE_FOOD, lo) : lo;
+            break;
+        }
         /* Version 5: this game's own amount or range, when the effect lists one. */
         if (cg_u16(e + 12) != CG_NONE && cg_per_game(cg_s(&cg_g, cg_u16(e + 12)), game, &lo, &hi) == 1) {
             if (hi == lo) {

@@ -78,7 +78,7 @@ RULES = (
     # 21 or 22 only while one of its events is due (in a natural event's place, or Pick Island Event); the stock draw
     # is untouched.
     Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws; "
-         "from 61 villagers each natural island event has a 50% chance to be one of the patcher's new events "
+         "each natural island event has a 30-50% chance (rolled each time) to be one of the patcher's new events "
          "instead (never a rescue or one of the two opening events), and the chances above are then those of the "
          "natural events that stay the game's own. The Aspiring Adventurer and The Climb come that way or through "
          "Pick Island Event (see each event).",

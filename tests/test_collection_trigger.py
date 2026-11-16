@@ -37,7 +37,7 @@ NEEDS = unittest.skipUnless(sci.HAVE_EMULATOR and sci.TEST_DLL.is_file() and aa.
                             "needs unicorn, pefile, the stock executables and the Story TEST build")
 
 GAMES = (1, 2, 3, 4, 5)
-REPLACE_PERCENT = 50
+CHANCE_MIN, CHANCE_SPAN = 30, 21
 SC_NONE, SC_ARM = 0, 3
 HOUR = 3600
 
@@ -63,9 +63,10 @@ class Roll:
         self.p.export("VvfpStoryProbeSetRolls", at, len(values))
 
     def step(self, counter: int, now: int, natural: int, busy: int = 0, god: int = 0, trouble: int = 0,
-             population: int = 80) -> dict:
+             population: int = 80, any_time: int = 0) -> dict:
         for k, v in enumerate((self.game, counter, busy, now, natural, god, trouble, population)):
             self.p.put32(self.io + 4 * k, v & 0xFFFFFFFF)
+        self.p.put32(self.io + 4 * 13, any_time)
         self.p.export("VvfpStoryProbeCollectionStep", self.io)
         out = [s32(self.p.u32(self.io + 4 * k)) for k in range(8, 13)]
         return dict(action=out[0], decided=out[1], natural=out[2] & 0xFFFFFFFF, seen=out[4])
@@ -73,26 +74,24 @@ class Roll:
 
 @NEEDS
 class TheDecision(unittest.TestCase):
-    def test_at_the_natural_event_half_the_time(self) -> None:
+    def test_a_chance_in_30_to_50_percent_each_time(self) -> None:
         for game in GAMES:
-            with self.subTest(game=game):
-                r = Roll(game)
-                r.rolls(REPLACE_PERCENT - 1)
-                self.assertEqual(r.step(5, 1000, 1003)["action"], SC_ARM)
-                r = Roll(game)
-                r.rolls(REPLACE_PERCENT)
-                self.assertEqual(r.step(5, 1000, 1003)["action"], SC_NONE)
+            for chance_draw, roll, expected in ((0, 29, SC_ARM), (0, 30, SC_NONE), (20, 49, SC_ARM), (20, 50, SC_NONE)):
+                with self.subTest(game=game, chance=CHANCE_MIN + chance_draw, roll=roll):
+                    r = Roll(game)
+                    r.rolls(chance_draw, roll)
+                    self.assertEqual(r.step(5, 1000, 1003)["action"], expected)
 
     def test_once_for_each_natural_time(self) -> None:
         r = Roll(4)
-        r.rolls(0, 0)
+        r.rolls(0, 0, 0, 0)
         self.assertEqual(r.step(5, 1000, 1003)["action"], SC_ARM)
         self.assertEqual(r.step(5, 1001, 1003)["action"], SC_NONE)       # decided already
         self.assertEqual(r.step(6, 2000, 2002)["action"], SC_ARM)       # the next natural event
 
     def test_only_in_the_last_seconds(self) -> None:
         r = Roll(3)
-        r.rolls(0)
+        r.rolls(0, 0)
         self.assertEqual(r.step(5, 1000, 1004)["action"], SC_NONE)
         self.assertEqual(r.step(5, 1000, 1000 - 1)["action"], SC_NONE)  # passed already
         self.assertEqual(r.step(5, 1001, 1004)["action"], SC_ARM)
@@ -108,20 +107,18 @@ class TheDecision(unittest.TestCase):
         for counter, expected in ((0, SC_NONE), (1, SC_NONE), (2, SC_ARM)):
             with self.subTest(counter=counter):
                 r = Roll(1)
-                r.rolls(0)
+                r.rolls(0, 0)
                 self.assertEqual(r.step(counter, 1000, 1002)["action"], expected)
-
-    def test_never_below_61_villagers(self) -> None:
-        for population, expected in ((60, SC_NONE), (61, SC_ARM)):
-            with self.subTest(population=population):
-                r = Roll(2)
-                r.rolls(0)
-                self.assertEqual(r.step(5, 1000, 1002, population=population)["action"], expected)
 
     def test_never_in_trouble(self) -> None:
         r = Roll(1)
-        r.rolls(0)
+        r.rolls(0, 0)
         self.assertEqual(r.step(5, 1000, 1002, trouble=1)["action"], SC_NONE)
+
+    def test_no_safeguards_lifts_the_opening_and_trouble_rules(self) -> None:
+        r = Roll(2)
+        r.rolls(0, 0)
+        self.assertEqual(r.step(0, 1000, 1002, trouble=1, any_time=1)["action"], SC_ARM)
 
     def test_no_village_forgets(self) -> None:
         r = Roll(3)
@@ -353,7 +350,7 @@ class OneFrameAtATime(unittest.TestCase):
         at = p.alloc(8)
         p.put32(at, 0)
         p.put32(at + 4, 0)
-        p.export("VvfpStoryProbeSetRolls", at, 2)
+        p.export("VvfpStoryProbeSetRolls", at, 2)               # the chance 30%, the roll 0: a pass
         clock[0] += 598                                        # two seconds before it
         p.export("VvfpStoryProbeCollectionTick", 4)
         p.export("VvfpStoryProbeCollectionState", state)

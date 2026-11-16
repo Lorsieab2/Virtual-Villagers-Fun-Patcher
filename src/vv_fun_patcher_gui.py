@@ -158,11 +158,13 @@ TITLE_COLOURS = {
 # everywhere, Owner's Defaults too.
 ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in range(1, 6)]
 ISLAND_EVENT_REST_IDS = ["vv%d_island_event_rest_periods" % game for game in range(1, 6)]
+# No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
+ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
 ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
 ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
-                             "island_event_rest_periods")
+                             "island_event_rest_periods", "island_events_any_time")
 ISLAND_EVENT_FILTER_PREFIX = "island_event_filter_"
 
 
@@ -186,14 +188,18 @@ ISLAND_EVENT_ADVISORY_MORE = (
 ISLAND_EVENT_ADVISORY_CUSTOM = (
     "Player-created events may contain sensitive subjects. Their content and outcomes depend on the creator; review "
     "custom events before enabling them.")
+ISLAND_EVENT_ADVISORY_ANY_TIME = (
+    "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village.")
 ISLAND_EVENT_INFO_NOTE = (
-    "Original game events and their appearance rates remain unchanged. New events use separate, rare selection rolls. "
+    "Original game events and their appearance rates remain unchanged. New events can take the place of natural "
+    "island events (never rescue events or the two opening events). "
     "Includes original and expanded Isola stories; credits are retained where applicable. Optional content controls "
     "affect added events only.")
 ISLAND_EVENT_ADVISORIES = {
     "isola_grand_event_collection": (ISLAND_EVENT_ADVISORY_COLLECTION, True),
     "more_island_events": (ISLAND_EVENT_ADVISORY_MORE, True),
     "story_cheat_upgrades": (ISLAND_EVENT_ADVISORY_CUSTOM, False),
+    "island_events_any_time": (ISLAND_EVENT_ADVISORY_ANY_TIME, False),
 }
 ADVISORY_COLOUR = "#c00000"
 # The filters never hide a kind of person (the owner, 2026-11-15).
@@ -303,7 +309,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # The island events' content controls (the owner, 2026-11-15): Content Notes and Rest Periods on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
-    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -357,8 +363,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
     # Owner's Defaults; Island Events Scale With Population (like The Lost Children) is ticked there instead.
     + ["vv%d_island_events_scale_with_stored_amounts" % game for game in (1, 4, 5)]
-    # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too.
-    + ISLAND_EVENT_FILTER_IDS
+    # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
+    # No Safeguards for Island Events (and Additional Events too).
+    + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -374,7 +381,7 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # The island events' content controls (the owner, 2026-11-15): notes and rest periods on in Owner's Defaults
     # only, the filters off everywhere.
-    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS
+    + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_REST_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

@@ -546,10 +546,17 @@ static unsigned int lv_ring_back(int k) {
    villager and immediate family, Q29 subject filters), which can read the variant's outcome records (2.4: each
    ending's group and archetype) before it is chosen. */
 static int lv_excluded(int game, int s, int v) {
+    unsigned int size = 0;
+    const unsigned char *blob;
     (void)game;
     (void)s;
-    (void)v;
-    return 0;
+    if (!sc_gate) {
+        return 0;                      /* only the natural draw below 61 villagers (story_collection.inc) */
+    }
+    /* The population gate (story_collection.inc): below 61 villagers the natural draw never takes a variant that
+       can kill a villager, make one disappear or lose a pregnancy. */
+    blob = lv_blob(v, &size);
+    return blob != NULL && sc_graph_deadly(blob, size);
 }
 
 /* lv_order (living-pack.md 4.2; Python twin vv_living_mixer.lv_order): seed `s`'s variants in the order they are

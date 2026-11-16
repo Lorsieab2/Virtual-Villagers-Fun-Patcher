@@ -159,8 +159,8 @@ class Rows(unittest.TestCase):
                 self.assertFalse(gui.default_fun_patch_selection(pid))
                 self.assertTrue(gui.owners_default_fun_patch_selection(pid))
                 self.assertFalse(gui.select_all_fun_patch_selection(pid))
-            for n in range(1, 29):
-                pid = f"vv{game}_island_event_filter_f{n:02d}"
+            for n in list(range(1, 29)) + [0]:
+                pid = f"vv{game}_island_event_filter_f{n:02d}" if n else f"vv{game}_island_events_any_time"
                 self.assertFalse(gui.default_fun_patch_selection(pid))
                 self.assertFalse(gui.owners_default_fun_patch_selection(pid))
                 self.assertFalse(gui.select_all_fun_patch_selection(pid))

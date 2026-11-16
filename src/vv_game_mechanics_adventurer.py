@@ -45,22 +45,23 @@ def never_picked(game: int) -> str:
 # Story / Cheat Upgrades replaces a natural island event with one of the patcher's events this often, percent, and
 # from this population on: SC_REPLACE_PERCENT and SC_MIN_POPULATION in native/vvfp_story_upgrades/story_collection.inc
 # (tests/test_the_climb.py keeps them equal; the owner, 2026-11-15).
-REPLACE_PERCENT = 50
-REPLACE_MIN_POPULATION = 61
+REPLACE_PERCENT = (30, 50)          # a chance rolled in this range each time (SC_REPLACE_PERCENT_MIN / _SPAN)
+REPLACE_MIN_POPULATION = 61         # the deadly events only from here (SC_MIN_POPULATION)
 
 
 def rare(game: int) -> str:
     """How every More Island Events event comes (the owner, 2026-11-14: the stock island events' chances never
     change; 2026-11-15: half of the natural events from 61 villagers): never through the game's own draw, only in a
     natural event's place or through Pick Island Event."""
-    return ("it never takes a share of the game's own draw: when the village has "
-            f"{REPLACE_MIN_POPULATION} or more villagers, each natural island event has a {REPLACE_PERCENT}% chance "
-            "to be one of the patcher's new events instead (Story / Cheat Upgrades), never one of the village's two "
-            "opening events and never while the village is in trouble (the game's own rescue rule -- a rescue event "
+    return ("it never takes a share of the game's own draw: each natural island event has a "
+            f"{REPLACE_PERCENT[0]}-{REPLACE_PERCENT[1]}% chance (rolled each time) to be one of the patcher's new "
+            "events instead (Story / Cheat Upgrades), never one of the village's two opening events and never while "
+            "the village is in trouble (the game's own rescue rule -- a rescue event "
             "is never replaced -- food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 "
             "or more); every new event that can happen then is equally likely (with the Isola Grand Event "
             "Collection installed too, its events are drawn with More Island Events', each as likely as any other), "
-            "and when none can, the game's own event comes; "
+            "and when none can, the game's own event comes; an event that can kill a villager, make one disappear or "
+            f"lose a pregnancy comes only once the village has {REPLACE_MIN_POPULATION} or more villagers; "
             "Pick Island Event can also pick it")
 
 

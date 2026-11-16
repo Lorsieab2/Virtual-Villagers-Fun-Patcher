@@ -361,7 +361,7 @@ EVENT_COLLECTION_FEATURE_PATHS = tuple(
 # The island events' content controls (all five games; the owner, 2026-11-15): Content Notes for Island Events, Rest
 # Periods for Island Events and the 28 content filters -- names in the installed patches' list only, which Story /
 # Cheat Upgrades reads (src/vv_event_content.py); scripts/build_island_event_content_features.py.
-ISLAND_EVENT_CONTENT_IDS = (("island_event_content_notes", "island_event_rest_periods")
+ISLAND_EVENT_CONTENT_IDS = (("island_event_content_notes", "island_event_rest_periods", "island_events_any_time")
                             + tuple(f"island_event_filter_f{n:02d}" for n in range(1, 29)))
 ISLAND_EVENT_CONTENT_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_{ident}_feature.json" for n in range(1, 6) for ident in ISLAND_EVENT_CONTENT_IDS)

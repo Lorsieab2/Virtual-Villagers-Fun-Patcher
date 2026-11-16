@@ -300,10 +300,10 @@ class TheMechanicsPages(unittest.TestCase):
         sys.path.insert(0, str(ROOT / "src"))
         import vv_game_mechanics_adventurer as gm
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_collection.inc").read_text(encoding="utf-8")
-        percent = re.search(r"#define SC_REPLACE_PERCENT (\d+)", source)
-        population = re.search(r"#define SC_MIN_POPULATION (\d+)", source)
-        self.assertEqual((gm.REPLACE_PERCENT, gm.REPLACE_MIN_POPULATION),
-                         (int(percent.group(1)), int(population.group(1))))
+        low = int(re.search(r"#define SC_REPLACE_PERCENT_MIN (\d+)", source).group(1))
+        span = int(re.search(r"#define SC_REPLACE_PERCENT_SPAN (\d+)", source).group(1))
+        population = int(re.search(r"#define SC_MIN_POPULATION (\d+)", source).group(1))
+        self.assertEqual((gm.REPLACE_PERCENT, gm.REPLACE_MIN_POPULATION), ((low, low + span - 1), population))
 
 
 if __name__ == "__main__":

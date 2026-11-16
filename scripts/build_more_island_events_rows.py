@@ -17,7 +17,7 @@ def reward_words(game: int) -> str:
 
 # Every event's way in (collection_design.md C2): never a share of the stock draw.
 RARE = ("it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat "
-        "Upgrades: from 61 villagers, half of the natural events) or through Pick Island Event")
+        "Upgrades: 30-50% of the natural events) or through Pick Island Event")
 
 CAVE_DESCRIPTION = (
     " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
@@ -339,25 +339,25 @@ SCALE = {
        "that patch scales the game's own events",
 }
 HOW = {
-    1: "When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these instead; rescue events and the two opening events are never replaced. "
+    1: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
        "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
        "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
        "can pick it; it comes as one of the villager encounters, never the "
        "village's first island event",
-    2: "When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these instead; rescue events and the two opening events are never replaced. "
+    2: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
        "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
        "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
        "can pick it; it comes as one of the two-choice island events, never "
        "the village's first island event",
-    3: "When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these instead; rescue events and the two opening events are never replaced. "
+    3: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
        "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
        "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
        "can pick it",
-    4: "When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these instead; rescue events and the two opening events are never replaced. "
+    4: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
        "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
        "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
        "can pick it",
-    5: "When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these instead; rescue events and the two opening events are never replaced. "
+    5: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
        "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
        "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
        "can pick it",

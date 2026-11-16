@@ -2,23 +2,28 @@
    story_graph.inc.
 
    THE OWNER'S RULE (2026-11-15, replacing the separate rare roll between natural events): at each NATURAL island event
-   the game is about to deliver, a 50% roll; on a pass one of the new events comes INSTEAD -- More Island Events'
+   the game is about to deliver, a chance rolled at random in 30..50 percent each time; on a pass one of the new
+   events comes INSTEAD -- More Island Events'
    (native/vvfp_more_island_events, its "due" paths: mie_pick.inc) and the collection's (the .cieg files and the
    Living Event Engine's pack the patcher puts in "<game folder>\Virtual Villagers Fun Patcher Files\Island Event
    Collection", with manifest.txt) -- and the game's own event does not happen that time.  When no new event can be
    cast, the game's own event comes as always.  NEVER replaced: the village's two opening events (CE_OPENING_EVENTS),
    a rescue event (the trouble guard below holds the game's own rescue rule), and nothing while the village is in
-   trouble.  New events come this way only when the village has 61 or more villagers (SC_MIN_POPULATION: the living
-   villagers the game lists, with the babies being carried, as the game's own rescue rule counts its population; New
-   Believers' believers only), and each event's own requirements hold.  Pick Island Event and Custom Island Events
-   (player-chosen) ignore the 61 and the 50%.  The draw's weights are unchanged.
+   trouble.  THE POPULATION GATE: an event that can kill a villager, make one disappear or lose a pregnancy (a kill,
+   vanish, die_unrecovered, birth_then_die or baby_lost effect anywhere in it; More Island Events' by SC_MORE_DEADLY)
+   is drawn only when the village has 61 or more villagers (SC_MIN_POPULATION: the living villagers the game lists,
+   with the babies being carried, as the game's own rescue rule counts its population; New Believers' believers only);
+   every other new event at any population, when its own requirements hold.  No Safeguards for Island Events (and Additional Events too)
+   (island_events_any_time, "for masochists") lifts the gate, the opening-event and rescue rules, the trouble guard and
+   the rest periods; only the villagers each event needs remain.  Pick Island Event and Custom Island
+   Events (player-chosen) ignore the gate and the chance.  The draw's weights are unchanged.
 
    WHEN.  Every frame (VvfpStoryInstall) the game's clock and its island timer (the second its next island event is
    due) are read.  Once, for each natural time, when it is SC_WINDOW seconds away or less and nothing else is armed or
    on its way (no Pick Island Event or Custom Island Event, no bought island event, no branching event running), and
-   in New Believers no God Power is armed (the trigger's own rule): the opening events are past, the population is 61
-   or more, the village is not in trouble, and the game's own random routine passes 50 of 100 -- then the draw below
-   arms a new event.  Its arm makes the island event due as a purchase does (now + 5 seconds; New Believers 0), and
+   in New Believers no God Power is armed (the trigger's own rule): the opening events are past, the village is not
+   in trouble, and the game's own random routine rolls a chance in 30..50 percent and then passes it -- then the draw
+   below arms a new event (below 61 villagers, without the deadly ones).  Its arm makes the island event due as a purchase does (now + 5 seconds; New Believers 0), and
    the island timer's keeper (native/shared/island_timer_keep.h) keeps the natural time to put back after it.  As
    soon as the keeper has the arm (story_bought_on_its_way), its kept time is set (story_island_arming again, a second
    write: sc_replace_pending) to a NEW natural time after this one, drawn as the game's own trigger draws it (A New
@@ -46,8 +51,9 @@
 #define SC_FOLDER "Island Event Collection"
 #define SC_MAX 2048                                      /* collection entries of one game */
 #define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
-#define SC_REPLACE_PERCENT 50                            /* a natural event replaced by a new one, percent */
-#define SC_MIN_POPULATION 61                             /* new events come only from this population on */
+#define SC_REPLACE_PERCENT_MIN 30                        /* a natural event replaced by a new one: a chance */
+#define SC_REPLACE_PERCENT_SPAN 21                       /* ... rolled in 30..50 percent each time */
+#define SC_MIN_POPULATION 61                             /* deadly new events only from this population on */
 #define SC_MIN_GROWN 6                                   /* villagers of 14 or more */
 /* The game's own spacing of its natural island events, in hours (its trigger's write; island_timer_keep.h): the
    next natural time after a replaced one is drawn the same way. */
@@ -69,8 +75,8 @@ typedef struct {
     unsigned int now;
     unsigned int natural;              /* the island timer now */
     int god_power;                     /* New Believers: a God Power armed */
-    int population;                    /* the living villagers with the babies being carried (believers in New
-                                          Believers), -1 to read them now */
+    int population;                    /* forced population for the test build's draw (-1: the village's own) */
+    int any_time;                      /* No Safeguards for Island Events (and Additional Events too) installed: no opening-event, rescue or trouble rule */
 } sc_input;
 
 typedef struct {
@@ -240,7 +246,7 @@ static int sc_population(int game) {
 /* ---- The decision (no game data here: sc_tick reads the game and makes the changes) ------------------------- */
 
 static int sc_step(sc_state *s, const sc_input *in) {
-    int left, population;
+    int left, chance;
     if (in->counter < 0) {
         s->seen = -1;
         s->decided = 0;
@@ -254,14 +260,60 @@ static int sc_step(sc_state *s, const sc_input *in) {
     }
     s->decided = 1;
     s->decided_for = in->natural;
-    if (in->counter < CE_OPENING_EVENTS) {
+    if (!in->any_time && in->counter < CE_OPENING_EVENTS) {
         return SC_NONE;                /* the village's two opening events are never replaced */
     }
-    population = in->population >= 0 ? in->population : sc_population(in->game);
-    if (population < SC_MIN_POPULATION || sc_trouble(in->game)) {
-        return SC_NONE;                /* too small a village, or in trouble (a rescue is never replaced) */
+    if (!in->any_time && sc_trouble(in->game)) {
+        return SC_NONE;                /* in trouble: a rescue is never replaced */
     }
-    return sc_rand(in->game, 100) < SC_REPLACE_PERCENT ? SC_ARM : SC_NONE;
+    chance = SC_REPLACE_PERCENT_MIN + sc_rand(in->game, SC_REPLACE_PERCENT_SPAN);   /* 30..50, each time */
+    return sc_rand(in->game, 100) < chance ? SC_ARM : SC_NONE;
+}
+
+/* ---- The content filters (src/vv_event_content.py) ---------------------------------------------------------- */
+
+/* The island events' content filters ticked in `game` (island_event_filter_f01 .. f28 in the installed patches'
+   list): bit n-1 for Fnn.  The collection's events carry their own (each compiled event's conditions and
+   requirement); More Island Events' events are kept out whole by the table below. */
+static unsigned int sc_filters_on(int game) {
+    unsigned int on = 0;
+    int n;
+    char id[32];
+    cg_installed_load();
+    if (cg_installed_state != 1) {
+        return 0;
+    }
+    for (n = 1; n <= 28; ++n) {
+        wsprintfA(id, "island_event_filter_f%02d", n);
+        if (cg_installed_has(game, id)) {
+            on |= 1u << (n - 1);
+        }
+    }
+    return on;
+}
+
+#define SC_F(n) (1u << ((n) - 1))
+/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) and
+   the content filters each one's outcomes touch: The Aspiring Adventurer (a death, a disappearance), The Cave
+   Explorers (a death, the eerie cave), The Climb, The Troubling Signs (a death, a disaster, animals), Diving for
+   Treasure (a death, deep water), The Playful Dolphins (deep water), The Mysterious Mask, The Remembrance Ceremony
+   (twice: grief), The Rumblings (a disaster). */
+/* ...and those that can kill a villager, make one disappear or lose a pregnancy (the population gate): The Aspiring
+   Adventurer, The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure. */
+static const unsigned char SC_MORE_DEADLY[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+
+static const unsigned int SC_MORE_FILTERS[] = {
+    SC_F(3) | SC_F(4) | SC_F(5), SC_F(3) | SC_F(5) | SC_F(13), 0, SC_F(3) | SC_F(21) | SC_F(24),
+    SC_F(3) | SC_F(5) | SC_F(22), SC_F(22), 0, SC_F(5), SC_F(5), SC_F(21),
+};
+
+/* Whether a ticked content filter keeps More Island Events' entry `k` out (before the draw, and in Pick Island
+   Event's list). */
+static int sc_more_filtered(int game, int k) {
+    if (k < 0 || k >= (int)(sizeof SC_MORE_FILTERS / sizeof SC_MORE_FILTERS[0]) || SC_MORE_FILTERS[k] == 0) {
+        return 0;
+    }
+    return (sc_filters_on(game) & SC_MORE_FILTERS[k]) != 0;
 }
 
 /* ---- The candidates ------------------------------------------------------------------------------------------ */
@@ -440,6 +492,41 @@ static int sc_arm_more(int game, int k) {
 }
 
 /* Collection entry `i`, queued by the branching engine as a natural island event (strict cast). */
+/* The draw at a natural event leaves out the deadly events (sc_gate: the village below SC_MIN_POPULATION; set only
+   while that draw runs). */
+static int sc_gate;
+
+/* No Safeguards for Island Events (and Additional Events too) (island_events_any_time in the installed patches' list; the owner, 2026-11-15, "for
+   masochists"): for the new events no 61-villager gate, rescue events and the two opening events may be replaced, no
+   trouble guard and no rest periods (story_rest.inc rs_on) -- only the villagers each event needs.  The game's own
+   events' conditions are another companion's. */
+static int sc_any_time(int game) {
+    cg_installed_load();
+    return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
+}
+
+/* Whether the compiled event `data` can kill a villager, make one disappear or lose a pregnancy. */
+static int sc_graph_deadly(const unsigned char *data, unsigned int size) {
+    static unsigned char copy[CG_MAX_FILE];
+    static cg_graph g;
+    int k;
+    if (size > sizeof copy) {
+        return 1;
+    }
+    memcpy(copy, data, size);
+    if (!cg_load(&g, copy, size)) {
+        return 1;
+    }
+    for (k = 0; k < g.n_effect; ++k) {
+        unsigned char code = cg_effect_at(&g, k)[0];
+        if (code == CGE_KILL || code == CGE_VANISH || code == CGE_DIE_UNRECOVERED || code == CGE_BIRTH_THEN_DIE
+            || code == CGE_BABY_LOST) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int sc_arm_collection(int game, int i) {
     unsigned int size = 0;
 #ifdef VVFP_TEST
@@ -453,7 +540,8 @@ static int sc_arm_collection(int game, int i) {
     if (lv_entry_living(i)) {
         return lv_arm_entry(game, i, CG_ORIGIN_NATURAL, CG_CAST_STRICT);   /* a Living Event Engine seed */
     }
-    return sc_load_entry(i, &size) && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
+    return sc_load_entry(i, &size) && !(sc_gate && sc_graph_deadly(sc_bytes, size))
+           && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
 /* The draw (see the header): 1 when an event was armed.  One draw over every candidate at once -- each More Island
@@ -470,8 +558,10 @@ static int sc_choose_and_arm(int game) {
     if (sc_more_on(game)) {
         sm_fill_more(game);
         for (i = 0; i < sm_list.count; ++i) {
-            if (sm_list.possible[i] == 1) {
-                more[n_more++] = sm_list.k[i];
+            int k_more = sm_list.k[i];
+            if (sm_list.possible[i] == 1
+                && !(sc_gate && k_more >= 0 && k_more < (int)sizeof SC_MORE_DEADLY && SC_MORE_DEADLY[k_more])) {
+                more[n_more++] = k_more;
             }
         }
     }
@@ -566,9 +656,12 @@ static void sc_apply(int game, int act) {
            island timer's keeper (the game then writes the next natural time itself, as after its own event). */
         sc_replace_pending = game;
         sc_replace_natural = sc.decided_for;
+        /* Below 61 villagers no deadly event is in the draw -- unless No Safeguards for Island Events (and Additional Events too) is installed. */
+        sc_gate = !sc_any_time(game) && sc_population(game) < SC_MIN_POPULATION;
         if (!sc_choose_and_arm(game)) {
             sc_replace_pending = 0;    /* nothing that can happen now: the game's own event comes */
         }
+        sc_gate = 0;                   /* Pick Island Event and the library never see the gate */
     }
 }
 
@@ -609,6 +702,7 @@ static void sc_tick(int game) {
     }
     in.busy = sc_busy(game);
     in.god_power = game == 5 && read_u32(0x51D5A4u) != 0xFFFFFFFFu;
+    in.any_time = sc_any_time(game);
     sc_apply(game, sc_step(&sc, &in));
 }
 
@@ -769,7 +863,7 @@ static void sc_library_add(int game) {
 
 /* The decision on its own: io[0] game, [1] the Island Events Seen count (-1 none), [2] busy, [3] now, [4] the island
    timer, [5] a God Power armed, [6] the trouble guard (-1 the village's own, else forced), [7] the population (-1 the
-   village's own); out: io[8] the action (SC_*), [9] decided, [10] the natural time decided, [12] the count seen.  The
+   village's own), [13] No Safeguards for Island Events (and Additional Events too); out: io[8] the action (SC_*), [9] decided, [10] the natural time decided, [12] the count seen.  The
    action (the 50% roll is the game's own random routine: VvfpStoryProbeSetRolls). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionStep(int *io) {
     sc_input in;
@@ -782,6 +876,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionStep(int *io) {
     in.god_power = io[5];
     sc_test_trouble = io[6];
     in.population = io[7];
+    in.any_time = io[13];
+    sc_test_population = io[7];
     act = sc_step(&sc, &in);
     io[8] = act;
     io[9] = sc.decided;

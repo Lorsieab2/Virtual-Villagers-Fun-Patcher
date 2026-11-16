@@ -9,7 +9,7 @@ scripts/build_event_collection_features.py writes it (with the Living Event Engi
 vv_living_mixer), tests/test_game_mechanics_collection.py keeps it equal to
 the sources and to every game's manifest.  When the new events come is native/vvfp_story_upgrades/story_collection.inc's
 rule (tests/test_collection_trigger.py): from vv_game_mechanics_adventurer.REPLACE_MIN_POPULATION villagers, each
-natural island event is replaced REPLACE_PERCENT% of the time, kept equal to the C constants by
+natural island event is replaced with a chance in REPLACE_PERCENT (rolled each time), kept equal to the C constants by
 tests/test_more_island_events_stock_odds.py.
 """
 from __future__ import annotations
@@ -173,12 +173,15 @@ def lines(game: int) -> list[tuple[str, bool]]:
     out = [
         (f"Isola Grand Event Collection: {len(events)} events in this game. They never take a share of the game's own "
          "draw: they come in place of some of the game's natural island events.", False),
-        (f"How one comes: when the village has {REPLACE_MIN_POPULATION} or more villagers (counting the babies being "
-         f"carried{'; believers only' if game == 5 else ''}), each natural island event has a {REPLACE_PERCENT}% "
-         "chance to be one of the new events instead (Story / Cheat Upgrades, with the game's own random routine); "
-         "the game's own event then does not come that time, and the next natural event is due as after the game's "
-         "own. The village's two opening events are never replaced. Below that population nothing is replaced.",
-         True),
+        (f"How one comes: each natural island event has a {REPLACE_PERCENT[0]}-{REPLACE_PERCENT[1]}% chance (rolled "
+         "each time) to be one of the new events instead (Story / Cheat Upgrades, with the game's own random "
+         "routine); the game's own event then does not come that time, and the next natural event is due as after "
+         "the game's own. The village's two opening events are never replaced.", True),
+        (f"Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has "
+         f"{REPLACE_MIN_POPULATION} or more villagers (counting the babies being carried"
+         f"{'; believers only' if game == 5 else ''}), unless \"No Safeguards for Island Events (and Additional Events too)\" is installed. From "
+         f"{REPLACE_MIN_POPULATION} villagers the food and tech points of the new events come in a random size each "
+         "time (small, normal, large or huge, in the game's own ranges).", True),
         ("It never comes while the village is in trouble: the game's own rescue rule (too few men or women, or fewer "
          "than 3 people counting the babies being carried), food below 10 a villager, half the village sick, or "
          "fewer than 6 villagers of 14 villager years or more. So a rescue event is never replaced. When no new "

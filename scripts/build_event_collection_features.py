@@ -207,8 +207,10 @@ def compile_events(src: Path = DATA) -> list[dict]:
 
 
 # How the new events come (the owner, 2026-11-15), the plain words every island-event row says.
-PLAIN = ("When the village has 61 or more villagers, each natural island event has a 50% chance to be one of these "
-         "instead; rescue events and the two opening events are never replaced.")
+PLAIN = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the "
+         "two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen "
+         "once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take "
+         "come in a random size each time (small, normal, large or huge, in the game's own ranges).")
 
 GUARDIANS = "guardians_of_isola"            # Guardians of Isola Rewrite (New Believers): the engine's patch name
 
@@ -355,10 +357,13 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
         "behavior_changes": [
             "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island "
             "event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New "
-            "Believers): past the two opening events, with 61 or more villagers (the living villagers the game "
-            "lists and the babies being carried; New Believers' believers only) and outside trouble (the stock "
-            "rescue predicate, little food, much sickness, few grown villagers), the game's own random routine "
-            "passes 50 of 100 and one new event is armed in the natural one's place. Every event that can happen "
+            "Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, "
+            "much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and "
+            "then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living "
+            "villagers the game lists and the babies being carried; New Believers' believers only) an event that "
+            "can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards "
+            "for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random "
+            "size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen "
             "is equally likely, More Island Events' and the collection's alike: one draw over all of them, each "
             "collection event by its draw weight (1), a series as one event; when none can be cast the game's own "
             "event comes. The event is armed as a purchase arms one, and the island timer's keeper is then given "

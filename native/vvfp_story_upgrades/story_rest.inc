@@ -407,7 +407,9 @@ static int rs_on(int game) {
     }
 #endif
     cg_installed_load();
-    return cg_installed_state == 1 && cg_installed_has(game, RS_PATCH);
+    /* No Safeguards for Island Events (and Additional Events too) ("for masochists") turns the rest periods off: no rest recorded or checked. */
+    return cg_installed_state == 1 && cg_installed_has(game, RS_PATCH)
+           && !cg_installed_has(game, "island_events_any_time");
 }
 
 static unsigned int rs_mix32(unsigned int h) {
