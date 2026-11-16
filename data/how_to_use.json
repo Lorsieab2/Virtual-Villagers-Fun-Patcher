@@ -1282,6 +1282,7 @@
     ]
   },
   "controls": {
+    "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
     "island_event_content_filters": {
       "title": "Content Filters",
       "guide": [
