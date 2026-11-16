@@ -557,7 +557,7 @@ MINOR_WORDS = {"a", "an", "the", "and", "but", "or", "nor", "for", "so", "yet", 
 def title_case_problem(text: str) -> str | None:
     """None when `text` is in Title Case (or all capitals, which the game shows in title case); else the first word
     that should start with a capital."""
-    plain = re.sub(r"\([^)]*\)|\{[^}]*\}", " X ", text)
+    plain = re.sub(r"\([^)]*\)|\{[^}]*\}", "X", text)       # "(Healer Name)'s Way": "X's" is one word
     words = re.findall(r"[A-Za-z][A-Za-z'\-]*", plain)
     if not words:
         return None
@@ -1409,6 +1409,35 @@ def _requirement(it: Item, ln: int, text: str, req: dict, conds: list) -> None:
             it.problem(ln, f"{part!r} is not a requirement this format knows (docs/player-events-format.md 3)")
 
 
+def _gate_by_game(nodes: dict, nid: str, games: list[int]) -> None:
+    """Effects marked "_games" (a like or dislike word only some games of the event have) move to branch pages that
+    only those games reach (a child's {"game": [...]} condition); the other games go on without them -- the owner's
+    "story only" there.  The page's own way on follows after either."""
+    node = nodes[nid]
+    effects = node.get("effects") or []
+    gated = [e for e in effects if e.get("_games")]
+    if not gated:
+        return
+    node["effects"] = [e for e in effects if not e.get("_games")]
+    if not node["effects"]:
+        del node["effects"]
+    after = node.pop("children", None)
+    groups: dict[tuple, list[dict]] = {}
+    for e in gated:
+        key = tuple(sorted(set(e.pop("_games")) & set(games)))
+        if key:
+            groups.setdefault(key, []).append(e)
+    tail = f"{nid}_gx"
+    nodes[tail] = {"type": "branch", **({"children": after} if after else {})}
+    for k, (key, effs) in enumerate(sorted(groups.items()), 1):
+        has = f"{nid}_g{k}"
+        nodes[has] = {"type": "branch", "effects": effs, **({"children": after} if after else {})}
+        gate = f"{nid}_c{k}"
+        nodes[gate] = {"type": "branch", "children": [{"next": has, "if": {"game": list(key)}, "else": tail}]}
+        tail = gate
+    node["children"] = [{"next": tail}]
+
+
 def _finish_simple(it: Item) -> None:
     """A simple event's graph from its parts: the opening question, each choice's random outcomes, the roles the text
     and effects name, the requirement and the Guardians of Isola words."""
@@ -1496,6 +1525,8 @@ def _finish_simple(it: Item) -> None:
             nodes[cid] = {"type": "branch", "children": outs}
     if coda:
         nodes["coda"] = {"popup": "append", "join": "paragraph", "text": coda}
+    for nid in list(nodes):
+        _gate_by_game(nodes, nid, g["games"])
     # The roles: the ones the text and effects name, in order of first use; "" is the main villager ("subject").
     declared = meta["role_lines"]
     # The main villager: "subject", or "villager" when the text calls them (villager) (the owner's drafts).
@@ -1843,6 +1874,8 @@ def _seed_pieces(seed: dict, ev: Item, games: list[int], choices: dict, order: l
             effects, roles, notes = owner.owner_effects(eff, games)
             it.meta["phrases"][0] += len(phrases)
             for e in effects:
+                if e.pop("_games", None):
+                    continue        # a word only some games have: story only in a piece (no game-gated pieces)
                 for key in ("role", "partner", "with", "copy_of", "who"):
                     if key in e and e[key] in (None, "@default"):
                         e[key] = main

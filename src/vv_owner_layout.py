@@ -43,12 +43,13 @@ _CHOICE_HEAD = re.compile(r"^CHOICE\s+([A-Z])\s*:\s*(.+)$")
 _SEED = re.compile(r"^MIXER SEED\b\s*(\S*)")
 SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting")
 SKILL_ALIASES = {"fishing": "Farming", "gathering": "Farming", "science": "Research", "medicine": "Healing",
-                 "devotion": "Devotion"}
+                 "devotion": "Devotion", "fishing, or the game's closest skill": "Farming",
+                 "fishing, or the skill the game uses for fishing": "Farming"}
 SIZE_WORDS = {"a little": "small", "some": "normal", "a lot": "large", "hugely": "huge"}
 MOODS = {"warm": 0, "funny": 0, "happy": 0, "silly": 0, "sweet": 0, "social": 1, "curious": 1, "mixed": 1,
          "tense": 2, "eerie": 2, "sad": 2, "serious": 2, "solemn": 2, "mysterious": 2, "bittersweet": 2}
 GROUP_NOUNS = {"healer": "Healing", "builder": "Building", "farmer": "Farming", "researcher": "Research",
-               "scholar": "Research", "parent": "Parenting"}
+               "scholar": "Research", "parent": "Parenting", "fisher": "Farming"}
 NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
 # A like or dislike the owner names that is not a game word: the words to try, in order ("or similar if available";
 # style guide 8a: never a job, the thing itself).
@@ -172,8 +173,42 @@ def owner_effects(phrase_text: str, games: Iterable[int]) -> tuple[list[dict], d
 def _one(raw: str, ctx: _Ctx) -> list[dict]:
     s = raw.strip().replace("“", '"').replace("”", '"').replace("’", "'")
     s = re.sub(r"\s+", " ", s).strip().rstrip(".")
+    s = re.sub(r"\((?:name\d|[a-z ]+)\s*:\s*(his/her|he/she|him/her)\)", r"(\1)", s, flags=re.I)  # "(name2: his/her)"
     low = s.lower()
     low = re.sub(r"^then\s+", "", low)
+    low = re.sub(r",\s*(peacefully(?: of old age)?|quietly|in (?:his|her|their) sleep)$", "", low)
+    low = re.sub(r",? or (?:the game's closest skill|the skill the game uses for fishing)", "", low)
+    low = re.sub(r"\),\s*a villager aged [^,]*,\s*", ") ", low)          # "(name2), a villager aged 14 ..., DIES"
+    # "(name2), another villager, ..." / "(sick name), the sickest villager, ..." / "(grandchild name), (his/her)
+    # grandchild, ...": the owner's description of who it is (the WHO line casts them)
+    low = re.sub(r"^(\([^)]+\)),\s*(?:another villager|one of the [a-z]+|the [a-z ]+?|a [a-z ]+?|\(his/her\) [a-z ]+?)"
+                 r"(?:\s*\([^)]*\))?,\s*", r"\1 ", low)
+    low = re.sub(r"^(\([^)]+\)),?\s+another villager\s*\(", r"\1 (", low)
+    low = re.sub(r",\s*(?:of old age|after a fever|if \(he/she\) has one)$", "", low)
+    low = re.sub(r",? with the [a-z']+ help$", "", low)
+    if "every other sick villager" in low and "cured" in low:
+        return [{"do": "cure", "target": {"all": True}}]
+    m = re.fullmatch(r"(?:the )?young head look for both(?: \(([^)]+)\) and \(([^)]+)\))?|"
+                     r"\(([^)]+)\) and \(([^)]+)\) both get a new look \(the young head look\)", low)
+    if m:
+        a, b = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4)) if m.group(3) else (None, "name2")
+        return [_fx(do="young_look", role=ctx.need(role_of(a))), _fx(do="young_look", role=ctx.need(role_of(b)))]
+    m = re.fullmatch(r"new look for \(([^)]+)\) and \(([^)]+)\)(?: \((.+)\))?", low)
+    if m:
+        part = "head" if m.group(3) and ("head" in m.group(3) or "face" in m.group(3)) else "body"
+        return [_fx(do="appearance", role=ctx.need(role_of(x)), **{part: "random"}) for x in (m.group(1), m.group(2))]
+    m = re.fullmatch(r"changes name \(([^)]+)\) to \"?([a-z]+)\"?(.*)", low)
+    if m:
+        rid = ctx.need(role_of(m.group(1)))
+        if re.search(r"\b(male|female|if)\b", m.group(3)):
+            ctx.notes.append(f"{raw.strip()}: a name for each sex cannot be chosen by the engine; a random default "
+                             "name from the game's own lists is given instead")
+            return [_fx(do="change_name", role=rid)]
+        return [_fx(do="change_name", role=rid, name=m.group(2).title())]
+    m = re.fullmatch(r"(?:\(([^)]+)\) )?loses two dislikes \(at random\)", low)
+    if m:
+        rid = ctx.need(role_of(m.group(1)))
+        return [_fx(do="preference", role=rid, dislike="random", remove=True)] * 2
     any_sex = False
     if low.startswith("(any birth sex) "):
         any_sex, low = True, low[len("(any birth sex) "):]
@@ -194,9 +229,21 @@ def _one(raw: str, ctx: _Ctx) -> list[dict]:
         return [{"do": "mood", "mood": "good", "target": {"all": True}}]
     if re.fullmatch(r"(?:the )?damaged huts are repaired.*", low):
         return [{"do": "repair", "structures": cie.DAMAGE_ANY}]
-    m = re.fullmatch(r"all sick villagers are cured.*", low)
+    m = re.fullmatch(r"all sick villagers are cured.*|every (?:ill|sick) villager's illness is cured.*|"
+                     r"illness cured \(for every sick villager\)", low)
     if m:
         return [{"do": "cure", "target": {"all": True}}]
+    m = re.fullmatch(r"(one|two|three|four|five|\d+) random villagers? (?:has|have) (?:their|his|her) illness cured.*",
+                     low)
+    if m:
+        return [{"do": "cure", "target": {"random": NUMBERS.get(m.group(1)) or int(m.group(1))}}]
+    m = re.fullmatch(r"(every villager|(one|two|three|four|five|\d+) random villagers?) gains? (\d+)(?: to (\d+))? in "
+                     r"(?:\(his/her\)|their|his|her) best skill", low)
+    if m:
+        lo, hi = int(m.group(3)), int(m.group(4) or m.group(3))
+        tg = {"all": True} if m.group(1) == "every villager" else \
+            {"random": NUMBERS.get(m.group(2)) or int(m.group(2))}
+        return [{"do": "skill", "best": True, "min": lo, "max": hi, "target": tg}]
     m = re.fullmatch(r"(one|two|three|four|five|\d+) random villagers? (?:has|have) an illness.*", low)
     if m:
         n = NUMBERS.get(m.group(1)) or int(m.group(1))
@@ -219,6 +266,31 @@ def _one(raw: str, ctx: _Ctx) -> list[dict]:
         what = (m.group(2) or "head").lower()
         part = "head" if ("head" in what or "face" in what or "hair" in what) else "body"
         return [{"do": "appearance", part: "random", "target": {"random": n}}]
+    if re.fullmatch(r"story only.*|the travell?er was never a villager.*|nothing changes.*", low):
+        return []
+    # A group: "every villager ...", "every healer ...", "3 random villagers each ...", "three random villagers' ..."
+    m = re.fullmatch(r"(every villager|all villagers|every (healer|builder|farmer|fisher|researcher|scholar|parent)|"
+                     r"(\d+|one|two|three|four|five) random villagers?(?:')?)\s+(?:each\s+)?(.+)", low)
+    if m:
+        tg = {"all": True} if m.group(1) in ("every villager", "all villagers") else \
+            {"skill": GROUP_NOUNS.get(m.group(2), "Farming")} if m.group(2) else \
+            {"random": NUMBERS.get(m.group(3)) or int(m.group(3))}
+        rest = m.group(4)
+        rest = re.sub(r"^(?:are|is|get|gets)\s+", lambda x: "" if x.group(0).strip() in ("are", "is") else "gets ",
+                      rest)
+        rest = re.sub(r"^illness(?:es)? (?:is |are )?cured.*", "illness cured", rest)
+        rest = re.sub(r"^lose\b", "loses", rest)
+        rest = re.sub(r"^gain\b", "gains", rest)
+        effects = _predicate(rest, None, ctx, any_sex, raw, True)
+        for e in effects:
+            if e["do"] not in cie.TARGET_EFFECTS:
+                raise Unmapped(raw + f" ({e['do']} cannot go to a group)")
+            if e["do"] == "preference" and e.get("_games"):
+                raise Unmapped(raw + " (a group's like or dislike must exist in every game)")
+            e.pop("role", None)
+            e["target"] = dict(tg)
+        ctx.roles.pop("", None)
+        return effects
     subjects, rest, each = _subjects(low)
     out: list[dict] = []
     for who in subjects:
@@ -248,7 +320,7 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     s, tail = _target_tail(s)
     who = tail if tail is not None else who
     r = ctx.need(who)
-    if re.fullmatch(r"(?:is |are |now )?(?:each |both )?(?:dies|die)(?: \(a grave\))?", s):
+    if re.fullmatch(r"(?:is |are |now )?(?:each |both )?(?:dies|die)(?: \(a grave[^)]*\))?", s):
         ctx.need(who, harm=True)
         return [_fx(do="kill", role=r)]
     if re.fullmatch(r"(?:is |are )?disappears?(?: \(.*\))?", s):
@@ -260,7 +332,7 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     if m:
         return [_fx(do="skill", role=r, skills=[_skill(m.group(1))], set=100)]
     m = re.fullmatch(r"(?:each )?gains? (\d+)(?: to (\d+))? (?:in )?(?:\(his/her\) |their )?(best skill|the other's best "
-                     r"skill|\w+)(?: and now likes (.+))?", s)
+                     r"skill|\w+)(?: and now likes (.+))?(?: \([^)]*\))?", s)
     if m:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
         e = _fx(do="skill", role=r, min=lo, max=hi)
@@ -279,20 +351,23 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     if m:
         lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
         return [_fx(do="skill", role=r, skills=[_skill(m.group(3))], min=-hi, max=-lo)]
+    m = re.fullmatch(r"(?:each |both )?loses? the (like|dislike) of (.+)", s)
+    if m:
+        return _pref(m.group(1), m.group(2), r, ctx, remove=True)
     m = re.fullmatch(r"(?:each |both )?(?:now )?(likes?|dislikes?) (?!\+)(.+)", s)
     if m and "favourite job" not in s and "favorite job" not in s:
         return _pref("like" if m.group(1).startswith("like") else "dislike", m.group(2), r, ctx)
     m = re.fullmatch(r"(like|dislike) \+ (.+)", s)
     if m:
         return _pref(m.group(1), m.group(2), r, ctx)
-    m = re.fullmatch(r"loses (?:one|a different|a) dislike \((?:an? (\w+) dislike, )?at random\)", s)
+    m = re.fullmatch(r"(?:each )?loses? (?:one|a different|a) dislike \((?:an? (\w+) dislike, )?at random\)", s)
     if m:
         if m.group(1):
             word, note = pref_word(m.group(1), ctx.games)
             if word:
                 return [_fx(do="preference", role=r, dislike=word, remove=True)]
         return [_fx(do="preference", role=r, dislike="random", remove=True)]
-    m = re.fullmatch(r"(?:is |are |both )?injured(?: \((.*?)\)?)?(?: \(.*\))?", s)
+    m = re.fullmatch(r"(?:is |are |both )?(?:injured|loses? health)(?: \((.*?)\)?)?(?: \(.*\))?", s)
     if m:
         ctx.need(who, harm=True)
         lo, hi = (-20, -10) if m.group(1) and "minor" in m.group(1) else (-40, -20)
@@ -304,17 +379,25 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     if re.fullmatch(r"(?:is |are )?(?:ill|sick)(?: \(.*\))?|(?:has an )?illness(?: \(.*\))?|"
                     r"has an illness(?: \(.*\))?|needs the healers.*", s):
         return [_fx(do="sick", role=r)]
-    if re.fullmatch(r"(?:'s )?illness (?:is )?cured|illness cured|is cured|cured", s):
+    if re.fullmatch(r"(?:'s )?illness (?:is )?cured(?: \(.*\))?|illness cured(?: \(.*\))?|is cured|cured", s):
         return [_fx(do="cure", role=r)]
+    m = re.fullmatch(r"new villager \(a baby\) joins the village, nursed by (\([^)]+\)|the arriving adult)(?:, with "
+                     r"\(([^)]+)\) as the other parent)?", s)
+    if m:
+        carrier = "$newest" if m.group(1) == "the arriving adult" else \
+            ctx.need(role_of(m.group(1)), min_age=18, carrier=True)
+        partner = role_of(m.group(2)) if m.group(2) else None
+        return [_fx(do="nursing", role=carrier, partner=partner, any_birth_sex=True if any_sex else None)]
     m = re.fullmatch(r"new villagers? \((.+?)\)(?: \((\d+)\))?(?:, each with a different name)?"
-                     r"(?: (?:arrives?|arrive) and stays?| joins the village| arrive and stay)?(, with their baby)?"
+                     r"(?: (?:arrives?|arrive)(?: and stays?)?| joins the village| arrive and stay)?(,? with their baby)?"
                      r"(?:: .*)?", s)
     if m:
         out = _newcomers(m.group(1), int(m.group(2) or 0))
         if m.group(3):
             out.append({"do": "new_villager", "age": "child", "child_of_newest": True})
         return out
-    m = re.fullmatch(r"(?:a )?duplicate of \(([^)]+)\)(?:,? named \(new name\))?(?: \(different name\))?", s)
+    m = re.fullmatch(r"(?:a )?(?:second )?duplicate(?: of \(([^)]+)\))?(?:,? named \((?:new name(?: \d)?|made\d)\))?"
+                     r"(?: \(different name\))?", s)
     if m:
         return [_fx(do="new_villager", copy_of=ctx.need(role_of(m.group(1))) or "@default")]
     m = re.fullmatch(r"clone of \(([^)]+)\)(?: \((\d)\))?(?:,? named .*?)?(?: \(different name\))?(?:, each a different "
@@ -338,10 +421,15 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     if m:
         name = m.group(3).title()
         return [_fx(do="change_name", role=ctx.need(role_of(m.group(1) or m.group(2))), name=name)]
-    m = re.fullmatch(r"(?:each )?changes? age \((\d+) years? (older|younger)(?:; never past (elder|\d+))?\)", s)
+    m = re.fullmatch(r"(?:each )?changes? age \((\d+) years? (older|younger)(?:; never past (elder|\d+))?"
+                     r"(?:; never (?:younger than|below) (\d+))?\)", s)
     if m:
         n = int(m.group(1))
         cap = None if not m.group(3) else 75 if m.group(3) == "elder" else int(m.group(3))
+        if m.group(4):
+            ctx.notes.append(f"\"never younger than {m.group(4)}\": the engine has no lower age limit; the role is "
+                             f"cast {int(m.group(4)) + n} or older instead")
+            ctx.need(who, min_age=int(m.group(4)) + n)
         return [_fx(do="change_age", role=r, years=[n, n] if m.group(2) == "older" else [-n, -n], max_age=cap)]
     m = re.fullmatch(r"changes age: \(([^)]+)\) becomes (\d+) years (younger|older)", s)
     if m:
@@ -351,9 +439,9 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
     m = re.fullmatch(r"(?:each )?changes? age \(to ([a-z0-9]+)(?:, ([a-z0-9]+))?\)", s)
     if m:
         return [_fx(do="change_age", role=r, to=_age_class(m.group(1), m.group(2)))]
-    if re.fullmatch(r"(?:new look \(the )?\"old\" head look\)?", s):
+    if re.fullmatch(r"(?:new look \(the |gets the |the )?\"old\" head look\)?", s):
         return [_fx(do="old_look", role=r)]
-    if re.fullmatch(r"new look \(the young head look\)", s):
+    if re.fullmatch(r"(?:new look \(the |gets the |the |gets? a new look \(the )?young head look\)?", s):
         return [_fx(do="young_look", role=r)]
     m = re.fullmatch(r"new look(?: for \(([^)]+)\)| for the ([a-z ]+?))?(?: \((.+?)\))?(?: for \(([^)]+)\))?", s)
     if m:
@@ -379,13 +467,20 @@ def _predicate(s: str, who: str | None, ctx: _Ctx, any_sex: bool, raw: str, grou
             ctx.need(partner, min_age=18)
         return [_fx(do="pregnant", role=carrier, partner=partner, babies=babies,
                     any_birth_sex=True if (any_sex or "magic" in note or "couple" in s) else None)]
-    m = re.fullmatch(r"becomes nursing (?:the|a) (?:[a-z]+ )?baby(?: \(single parent\))?(?:, with \(([^)]+)\) as the "
-                     r"other parent|,? with \(his/her\) partner if \(he/she\) has one)?(?: \(.*\))?(?: \(single parent\))?",
-                     s)
+    m2 = re.match(r"becomes nursing (?:both|the two) [a-z' ]*?babies", s)
+    if m2:
+        s = s.replace(m2.group(0), "becomes nursing a baby", 1)
+        twins = True
+    else:
+        twins = False
+    m = re.fullmatch(r"becomes nursing (?:(?:the|a|an) [a-z' ]*?baby|one of \(([^)]+)\)'s twins)(?: \(single parent\))?"
+                     r"(?:,? with \((?:his/her\) partner \()?([^)]+)\) as the other parent|,? with \(his/her\) partner if "
+                     r"\(he/she\) has one|, as its second parent)?(?: \(.*\))?(?: \(single parent\))?", s)
     if m:
         carrier = ctx.need(who, min_age=18, carrier=True)
-        partner = role_of(m.group(1)) if m.group(1) else None
-        return [_fx(do="nursing", role=carrier, partner=partner, any_birth_sex=True if any_sex else None)]
+        partner = role_of(m.group(1) or m.group(2)) if (m.group(1) or m.group(2)) else None
+        return [_fx(do="nursing", role=carrier, partner=partner, any_birth_sex=True if any_sex else None,
+                    babies=2 if twins else None)]
     raise Unmapped(raw)
 
 
@@ -400,13 +495,80 @@ def _age_class(a: str, b: str | None) -> str:
         else "elder"
 
 
-def _pref(kind: str, words: str, r: str | None, ctx: _Ctx) -> list[dict]:
-    word, note = pref_word(words, ctx.games)
-    if word is None:
-        raise Unmapped(f"{kind} {words} ({note})")
-    if note:
+_GAME_SPEC = re.compile(r"^vv\s*(\d)(?:\s*-\s*vv\s*(\d))?(?:\s*only)?$")
+
+
+def _spec_games(spec: str) -> list[int] | None:
+    out: list[int] = []
+    for part in re.split(r",\s*|\s+and\s+", spec.strip().lower()):
+        m = _GAME_SPEC.match(part.strip())
+        if not m:
+            return None
+        a, b = int(m.group(1)), int(m.group(2) or m.group(1))
+        out += range(a, b + 1)
+    return out
+
+
+def _pref(kind: str, words: str, r: str | None, ctx: _Ctx, remove: bool = False) -> list[dict]:
+    """A like or dislike in the owner's words: "swimming", "heights (vv2: ...; story only in vv4)" (commentary in
+    brackets is the owner's note), "wood (vv2-vv5) or rocks (vv1)" (a word per game).  A word a game of the event
+    lacks is given only in the games that have it (the effect's "_games": the event gates it by game), as the owner's
+    notes say ("story only" elsewhere)."""
+    w = re.sub(r"\s+or similar if available$", "", words.strip().strip('"').lower())
+    pairs = re.findall(r"vv([1-5]):\s*([a-z ]+?)(?:\s+or\s+[a-z ]+?)?\s*(?=;|\)|$)", w)
+    if len(pairs) >= 2 and re.search(r"\(\s*vv[1-5]:", w):
+        # "berry picking (vv1: berries; vv2: coconuts; ...)": a word for each game
+        out = []
+        for g, word in pairs:
+            g = int(g)
+            if g in ctx.games and word.strip() in cie.GAMES[g].preferences:
+                e = _fx(do="preference", role=r, remove=True if remove else None, **{kind: word.strip()})
+                e["_games"] = [g]
+                out.append(e)
+        if out:
+            merged: dict[str, dict] = {}
+            for e in out:                    # one effect per word, its games together
+                key = e[kind]
+                if key in merged:
+                    merged[key]["_games"] = sorted(set(merged[key]["_games"]) | set(e["_games"]))
+                else:
+                    merged[key] = e
+            for e in merged.values():
+                if set(e["_games"]) == set(ctx.games):
+                    del e["_games"]
+            return list(merged.values())
+    parts = [p.strip() for p in re.split(r"\s+or\s+(?![^()]*\))", w) if p.strip()]
+    explicit: list[tuple[str, list[int]]] = []
+    for p in parts:
+        m = re.match(r"^(.+?)\s*\(([^()]*)\)\s*$", p)
+        games = _spec_games(m.group(2)) if m else None
+        if m and games is not None:
+            explicit.append((m.group(1).strip(), games))
+    if explicit and len(explicit) == len(parts):
+        out = []
+        for word, games in explicit:
+            have = [g for g in ctx.games if g in games and word in cie.GAMES[g].preferences]
+            if have:
+                e = _fx(do="preference", role=r, remove=True if remove else None, **{kind: word})
+                if set(have) != set(ctx.games):
+                    e["_games"] = have
+                out.append(e)
+        if not out:
+            raise Unmapped(f"{kind} {words} (no game of the event has these words)")
+        return out
+    word = re.sub(r"\s*\(.*\)\s*$", "", parts[0]).strip()       # the owner's commentary in brackets
+    word = re.sub(r"\s*\(.*$", "", word).strip()
+    have = [g for g in ctx.games if word in cie.GAMES[g].preferences]
+    if not have:
+        alt, note = pref_word(word, ctx.games)
+        if alt is None:
+            raise Unmapped(f"{kind} {words} ({note})")
         ctx.notes.append(note)
-    return [_fx(do="preference", role=r, **{kind: word})]
+        word, have = alt, list(ctx.games)
+    e = _fx(do="preference", role=r, remove=True if remove else None, **{kind: word})
+    if set(have) != set(ctx.games):
+        e["_games"] = have           # given where the game has the word; the owner's "story only" elsewhere
+    return [e]
 
 
 def _newcomers(inner: str, count: int) -> list[dict]:
@@ -505,7 +667,7 @@ def normalize_text(text: str) -> str:
     inside count tokens), "(name2.he/she)" -> "(friend.he/she)" (name2 is the role "friend")."""
     def ph(m: re.Match) -> str:
         inner = m.group(1)
-        md = re.fullmatch(r"(?i)(name[12])\.(.+)", inner)
+        md = re.fullmatch(r"(?i)(name[12])(?:\.|:\s*)(.+)", inner)    # "(name2.he/she)", "(name2: he/she)"
         if md:          # "(name2.he/she)": the second villager's ("friend"), "(name1.he/she)" the first's
             return f"(friend.{md.group(2)})" if md.group(1).lower() == "name2" else f"({md.group(2)})"
         mm = re.fullmatch(r"([A-Za-z]+) (name|Name)( \d)?", inner)
@@ -515,5 +677,28 @@ def normalize_text(text: str) -> str:
                 return made if mm.group(2) == "name" else made.replace("made", "Made")
             word = mm.group(1)
             return "(" + (word.lower() if mm.group(2) == "name" else word[0].upper() + word[1:].lower()) + ")"
+        if inner.lower() == "him/hers":
+            return "(" + ("His/Hers" if inner[0].isupper() else "his/hers") + ")"     # the standalone possessive
+        mn = re.fullmatch(r"([A-Z][a-z]+)/([A-Z][a-z]+)", inner)
+        kin = {"grandfather", "grandmother", "father", "mother", "son", "daughter", "brother", "sister", "uncle", "aunt",
+               "husband", "wife", "boy", "girl", "man", "woman", "king", "queen", "lord", "lady", "sir", "madam",
+               "grandpa", "grandma", "dad", "mom", "nephew", "niece", "prince", "princess", "he", "she"}
+        if mn and inner.lower() not in cie.PRONOUNS_V6 and not ({mn.group(1).lower(), mn.group(2).lower()} & kin):
+            return "(renamed)"        # "(Gin/Ginger)": the new name by sex -- the latest change_name's (renamed)
         return m.group(0)
-    return re.sub(r"\(([^()\n]*)\)", ph, text)
+    text = re.sub(r"\(([^()\n]*)\)", ph, text)
+    return fix_count_tokens(text)
+
+
+def fix_count_tokens(text: str) -> str:
+    """A count token's options hold no . ! ? (engine 0853e8327): "One. Just the one" -> "One, just the one"; a
+    closing mark is dropped."""
+    def opt(o: str) -> str:
+        o = re.sub(r"[.!?]+\s+([A-Za-z])", lambda m: ", " + m.group(1).lower(), o)
+        o = re.sub(r"[.!?]+(\"?)\s*$", r"\1", o)
+        return re.sub(r"[.!?]+", ",", o)
+
+    def tok(m: re.Match) -> str:
+        kind, opts = m.group(1), m.group(2).split("|")
+        return "{#" + kind + ":" + "|".join(opt(o) for o in opts) + "}"
+    return re.sub(r"\{#(babies|made):([^{}\n]*)\}", tok, text)
