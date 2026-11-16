@@ -243,6 +243,11 @@ static int sc_population(int game) {
     return people;
 }
 
+/* The population the gate and the food and tech sizes count, for "VVFP More Island Events.dll" (its rewards). */
+__declspec(dllexport) int __stdcall VvfpStoryNewEventPopulation(int game) {
+    return game >= 1 && game <= 5 ? sc_population(game) : -1;
+}
+
 /* ---- The decision (no game data here: sc_tick reads the game and makes the changes) ------------------------- */
 
 static int sc_step(sc_state *s, const sc_input *in) {
@@ -501,8 +506,7 @@ static int sc_gate;
    trouble guard and no rest periods (story_rest.inc rs_on) -- only the villagers each event needs.  The game's own
    events' conditions are another companion's. */
 static int sc_any_time(int game) {
-    cg_installed_load();
-    return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
+    return cg_no_safeguards(game);
 }
 
 /* Whether the compiled event `data` can kill a villager, make one disappear or lose a pregnancy. */

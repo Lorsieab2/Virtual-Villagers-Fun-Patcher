@@ -151,6 +151,8 @@ LEGACY_OF_ISOLA_TITLE_COLOUR = "#1e8a3c"
 TITLE_COLOURS = {
     **{patch_id: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
+    **{"vv%d_island_events_any_time" % game: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
+       for game in range(1, 6)},
     LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
 }
 # The island events' content controls (the owner, 2026-11-15; scripts/build_island_event_content_features.py):
@@ -164,7 +166,23 @@ ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
 ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
-                             "island_event_rest_periods", "island_events_any_time")
+                             "island_event_rest_periods")
+# No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
+# owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
+NO_SAFEGUARDS_TAIL = "island_events_any_time"
+
+
+def place_after_classic(rows: list) -> list:
+    """The game's main-list rows with No Safeguards moved right after Classic VV Difficulty (when the game has it;
+    else it keeps its place by name)."""
+    mine = [r for r in rows if r[0].id.endswith("_" + NO_SAFEGUARDS_TAIL)]
+    if not mine:
+        return rows
+    rest = [r for r in rows if r not in mine]
+    at = next((k for k, r in enumerate(rest) if r[0].id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS), None)
+    if at is None:
+        return rows
+    return rest[:at + 1] + mine + rest[at + 1:]
 ISLAND_EVENT_FILTER_PREFIX = "island_event_filter_"
 
 
@@ -202,6 +220,15 @@ ISLAND_EVENT_ADVISORIES = {
     "island_events_any_time": (ISLAND_EVENT_ADVISORY_ANY_TIME, False),
 }
 ADVISORY_COLOUR = "#c00000"
+# A big red warning at the very top of a row's description (the owner, 2026-11-15), by the id after "vvN_".
+ISLAND_EVENT_BIG_WARNINGS = {
+    "island_events_any_time": "Warning: with this patch on, the game may be unpredictable.",
+}
+
+
+def island_event_big_warning(patch_id: str) -> str | None:
+    tail = patch_id.split("_", 1)[1] if "_" in patch_id else patch_id
+    return ISLAND_EVENT_BIG_WARNINGS.get(tail)
 # The filters never hide a kind of person (the owner, 2026-11-15).
 ISLAND_EVENT_FILTERS_NOTE = (
     "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense, "
@@ -1767,6 +1794,7 @@ class App(tk.Tk):
                     island_rows.append((patch, label, key))
                 else:
                     rows.append((patch, label, key))
+            rows = place_after_classic(rows)
             # The owner: "add a search bar per-game for each patch (name only)".
             search_row = ttk.Frame(page)
             search_row.pack(fill="x", pady=(0, 4))
@@ -1899,6 +1927,11 @@ class App(tk.Tk):
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
         line = 1
+        big = island_event_big_warning(patch.id)
+        if big is not None:
+            ttk.Label(frame, text=big, wraplength=620, justify="left", foreground=ADVISORY_COLOUR,
+                      font=("Segoe UI", 12, "bold")).grid(row=line, column=0, sticky="w", pady=(0, 2))
+            line += 1
         # The island-event rows' content advisory, in red (the owner, 2026-11-15), and the note outside the red.
         advisory = island_event_advisory(patch.id)
         if advisory is not None:

@@ -1446,8 +1446,22 @@ static int cg_heathen(int game, const unsigned char *r) {
 }
 
 /* The special villagers a role leaves out unless it allows them (the shipped Aspiring Adventurer's). */
+/* No Safeguards for Island Events (and Additional Events too), island_events_any_time in the installed patches'
+   list (the owner, 2026-11-15, "for masochists"): no villager is protected from a new event -- nursing parents, the
+   Golden Child, The Secret City's Tribal Chief, New Believers' story villagers -- and an event's requirement keeps
+   only what it needs to make sense (its puzzles, its villagers, the children or the special villager it is about).
+   STILL PROTECTED, ALWAYS (inanimate or not a living villager, the owner's rule; or a crash or corruption risk):
+   The Lost Children's Esteemed Elder totem statues (never listed, c2_listed), The Secret City's stand-in records
+   (+0xE94, not villagers), The Tree of Life's bodies and ghosts and New Believers' Reanimate in progress (never
+   listed as living), the dead and the absent, the Golden Child in a sex change ("breaks things"), and New Believers'
+   Heathens in a believers-only role (they are not the tribe's).  Defined below (it reads the installed list). */
+static int cg_no_safeguards(int game);
+
 static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
     int kind = ce_role(a, r, NULL);
+    if (cg_no_safeguards(game)) {
+        return 0;                      /* No Safeguards: no special villager is kept out */
+    }
     switch (game) {
     case 1: return kind == STORY_KIND_GOLDEN_CHILD;
     case 3: return kind == STORY_KIND_TRIBAL_CHIEF;
@@ -1463,6 +1477,9 @@ static int cg_special(const ce_adapter *a, int game, const unsigned char *r) {
    "expecting" field, one state with carrying), a special villager (cg_special); A New Home's and The Lost
    Children's listed() already leave out what is not a villager (The Lost Children's totems). */
 static int cg_protected(const ce_adapter *a, int game, const unsigned char *r) {
+    if (cg_no_safeguards(game)) {
+        return 0;                      /* No Safeguards: nobody living is protected */
+    }
     return *(const int *)(r + a->off_pregnant) != 0 || cg_special(a, game, r);
 }
 
@@ -1474,11 +1491,11 @@ static int cg_never_harmed(int game, const unsigned char *r) {
     if (game == 3) {
         return r[0xE94] != 0;
     }
-    if (game == 5) {
+    if (game == 5 && !cg_no_safeguards(game)) {
         int role = *(const int *)(r + 0x1CFC);
         return role >= 12 && role <= 17;
     }
-    return 0;
+    return 0;                          /* (The Secret City's stand-in records above: never, No Safeguards or not) */
 }
 
 /* Record `r`'s best value in the skills `list` names (comma separated) that the game has, -1 when it has none. */
@@ -1589,7 +1606,7 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         return 0;                      /* The Secret City's stand-in record */
     }
     /* Safety: never dropped. */
-    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0) {
+    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_no_safeguards(game)) {
         return 0;
     }
     if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r)) {
@@ -6261,6 +6278,16 @@ static int cg_installed_has(int game, const char *id) {
     return 0;
 }
 
+static int cg_no_safeguards(int game) {
+    cg_installed_load();
+    return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
+}
+
+/* No Safeguards (for "VVFP More Island Events.dll", which has its own pickers and gates). */
+__declspec(dllexport) int __stdcall VvfpStoryNoSafeguards(int game) {
+    return game >= 1 && game <= 5 && cg_no_safeguards(game);
+}
+
 /* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
    it (a game patched by an older patcher) only Guardians of Isola's rewrite (New Believers), seen in the game's own
    text as the Faith popup sees it -- which is also asked with the list, as before. */
@@ -6349,7 +6376,8 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         memset(cg_visited, 0, sizeof cg_visited);
         for (k = 0; k < all[1] && holds; ++k) {
             int c = (int)cg_u16(all + 2) + k;
-            if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE) {
+            if (cg_cond_at(&cg_g, c)[0] != CGC_PUZZLE
+                && !(cg_cond_at(&cg_g, c)[0] == CGC_MIN_POPULATION && cg_no_safeguards(game))) {
                 holds = cg_holds_cond(c, game, 0);
             }
         }
@@ -6357,7 +6385,7 @@ static int cg_requirement_holds(int game, unsigned int needed) {
         cg.patches = keep_patches;
         cg.aliases_drawn = keep_drawn;
     }
-    if (holds && cg_g.min_eligible > 0) {
+    if (holds && cg_g.min_eligible > 0 && !cg_no_safeguards(game)) {
         holds = cg_eligible_count(a, game, needed) >= cg_g.min_eligible;
     }
     return holds;

@@ -180,11 +180,17 @@ class Rows(unittest.TestCase):
         self.assertEqual(gui.island_event_section_kind("vv3_more_island_events"), "row")
         self.assertEqual(gui.island_event_section_kind("vv3_island_event_filter_f12"), "filter")
         self.assertIsNone(gui.island_event_section_kind("vv3_story_cheat_upgrades"))
+        self.assertIsNone(gui.island_event_section_kind("vv4_island_events_any_time"), "under Classic VV Difficulty")
         self.assertTrue(gui.island_event_advisory("vv1_isola_grand_event_collection")[0].startswith(
             "CONTENT ADVISORY: These events include occasional illness"))
         self.assertEqual(gui.island_event_advisory("vv2_more_island_events")[0],
                          "Content advisory: Some events involve danger, disasters or difficult choices; outcomes "
                          "are non-graphic.")
+        self.assertEqual(gui.island_event_big_warning("vv3_island_events_any_time"),
+                         "Warning: with this patch on, the game may be unpredictable.")
+        self.assertEqual(gui.island_event_advisory("vv3_island_events_any_time")[0],
+                         "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in "
+                         "a small or new village.")
         self.assertTrue(gui.island_event_advisory("vv5_story_cheat_upgrades")[0].startswith(
             "Player-created events may contain sensitive subjects."))
 

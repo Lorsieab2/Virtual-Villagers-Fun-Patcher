@@ -107,7 +107,11 @@ ANY_TIME = "island_events_any_time"
 def any_time_row(game: int) -> dict:
     record = row(game, ANY_TIME, "No Safeguards for Island Events (and Additional Events too)",
                  "For masochists. All island events, the game's own included, can happen at any time: new events can replace rescue events and the two opening events, and no population limit, trouble guard or rest period applies. Only the villagers an event needs are still required. "
-                 "It applies to whichever island events are on in the game. "
+                 "It applies to whichever island events are on in the game. No living villager is protected from "
+                 "the new events (nursing mothers and fathers, the Golden Child, the Tribal Chief and New Believers' "
+                 "story villagers included); objects that are not living villagers, such as The Lost Children's "
+                 "totem statues, are never picked. An event still needs what it is about: its villagers, its "
+                 "puzzle, the children or the special villager it names. "
                  f"Off by default, in Owner's Defaults and in Select All too. {UNVERIFIED}",
                  ["For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening "
                   "events may be replaced, no trouble guard and no rest periods; only the villagers each event needs. "
