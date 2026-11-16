@@ -271,7 +271,9 @@ enum { CG_LAST_SAME = 0, CG_LAST_DIFFERENT = 1, CG_LAST_RANDOM = 2 };   /* 28: i
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
        CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON,
        /* role-sex words (cie-v6-binary.md 5) */
-       CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY };
+       CG_PH_MOTHER, CG_PH_FATHER, CG_PH_MOM, CG_PH_SISTER, CG_PH_AUNT, CG_PH_GIRL, CG_PH_LADY,
+       /* the standalone possessive (the owner's files, 2026-11-16): "his" / "hers" */
+       CG_PH_HIS_HERS };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -552,8 +554,8 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter",
                                          "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
-                                         "girl/boy", "lady/gentleman" };
-    int words = g->version >= 6 ? 18 : 7;
+                                         "girl/boy", "lady/gentleman", "his/hers" };
+    int words = g->version >= 6 ? 19 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -641,8 +643,21 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
    the babies / the villagers the page's effects actually made (or, with none on this page, the last page's that made
    any), the first option for 1 (or none known), the second for 2, the third for 3 or more (fewer options: the last).
    Its bytes, the count kind in *which (0 babies, 1 made), its options in *opts (`*olen` bytes); 0 when it is not
-   one.  Options: 1 to 3, each 1 to 40 bytes of the plain text set, no placeholder, brace, line break or . ! ?. */
-static int cg_count_token(const char *s, int *which, const char **opts, int *olen) {
+   one.  Options: 1 to 3, each 1 to 160 bytes of the plain text set and placeholders -- the event's own (a name, a
+   pronoun, checked against graph `g` when it is not NULL) or (made1) / (made2) -- with no brace, list, line break
+   or . ! ?. */
+static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph);
+
+/* "(made1)" / "(made2)" (any case) at `s`: 1 or 2, else 0. */
+static int cg_made_ph(const char *s) {
+    if (s[0] == '(' && (s[1] == 'm' || s[1] == 'M') && (s[2] == 'a' || s[2] == 'A') && (s[3] == 'd' || s[3] == 'D')
+        && (s[4] == 'e' || s[4] == 'E') && (s[5] == '1' || s[5] == '2') && s[6] == ')') {
+        return s[5] - '0';
+    }
+    return 0;
+}
+
+static int cg_count_token_in(const cg_graph *g, const char *s, int *which, const char **opts, int *olen) {
     static const char *const NAMES[2] = { "babies", "made" };
     const char *p;
     int k, count = 1, run = 0;
@@ -668,8 +683,26 @@ static int cg_count_token(const char *s, int *which, const char **opts, int *ole
             run = 0;
             continue;
         }
-        if (*p == '\0' || *p == '{' || *p == '(' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
-            || !ce_text_char_ok(*p) || ++run > 40) {
+        if (*p == '(') {
+            /* a placeholder: (made1) / (made2), or one of the event's own */
+            const char *e = p + 1;
+            cg_ph ph;
+            while (*e != '\0' && *e != ')' && *e != '(' && *e != '\n' && *e != '|' && *e != '}') {
+                ++e;
+            }
+            if (*e != ')' || (!cg_made_ph(p) && g != NULL && (!cg_parse_ph(g, p + 1, (int)(e - p - 1), &ph)
+                                                               || ph.hint >= 0))) {
+                return 0;
+            }
+            run += (int)(e - p) + 1;
+            if (run > 160) {
+                return 0;
+            }
+            p = e;
+            continue;
+        }
+        if (*p == '\0' || *p == '{' || *p == ')' || *p == '\n' || *p == '.' || *p == '!' || *p == '?'
+            || !ce_text_char_ok(*p) || ++run > 160) {
             return 0;
         }
     }
@@ -678,6 +711,10 @@ static int cg_count_token(const char *s, int *which, const char **opts, int *ole
     }
     *olen = (int)(p - *opts);
     return (int)(p - s) + 1;
+}
+
+static int cg_count_token(const char *s, int *which, const char **opts, int *olen) {
+    return cg_count_token_in(NULL, s, which, opts, olen);   /* the loader checked its placeholders */
 }
 
 /* The option of a count token for `n` (the longest with n < 0: the worst case), into out (`cap` bytes); its
@@ -704,6 +741,38 @@ static int cg_count_option(const char *opts, int olen, int n, char *out, int cap
     return best_len;
 }
 
+/* The villagers made (story_graph.inc cg_newest, below): (made1) the newest, (made2) the one before it; one made:
+   both are that one (so (made2) is never empty); none: "a newcomer". */
+static void cg_made_name(int k, char *out, int cap);
+
+/* Option `opt` (`n` bytes) with (made1) / (made2) put in -- the names (`worst` 0) or `room` W's -- into out. */
+static void cg_made_fill(const char *opt, int n, int worst, int room, char *out, int cap) {
+    int i, o = 0;
+    for (i = 0; i < n && o < cap - 1;) {
+        int k = cg_made_ph(opt + i);
+        if (k > 0 && i + 7 <= n) {
+            char name[CG_NAME_BYTES + 16];
+            const char *t;
+            if (worst) {
+                int c;
+                for (c = 0; c < room && c < (int)sizeof name - 1; ++c) {
+                    name[c] = 'W';
+                }
+                name[c] = '\0';
+            } else {
+                cg_made_name(k, name, (int)sizeof name);
+            }
+            for (t = name; *t != '\0' && o < cap - 1; ++t) {
+                out[o++] = *t;
+            }
+            i += 7;
+            continue;
+        }
+        out[o++] = opt[i++];
+    }
+    out[o] = '\0';
+}
+
 static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
     for (; *s != '\0'; ++s) {
         if (g->version >= 6) {
@@ -716,7 +785,7 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             }
             if (*s == '{' && s[1] == '#') {
                 const char *opts;
-                int which, olen, n = cg_count_token(s, &which, &opts, &olen);
+                int which, olen, n = cg_count_token_in(g, s, &which, &opts, &olen);
                 if (n == 0 || label) {
                     return 0;          /* 33: a count token, in body text only */
                 }
@@ -734,6 +803,13 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             if (*s == ';' || *s == '/' || *s == '&' || *s == '%') {
                 continue;
             }
+        }
+        if (*s == '(' && g->version >= 6 && cg_made_ph(s)) {
+            if (label) {
+                return 0;              /* 33: the villagers made, in body text only */
+            }
+            s += 6;
+            continue;
         }
         if (*s == '(') {
             const char *e = s + 1;
@@ -926,7 +1002,7 @@ static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
     switch (e[0]) {
     case CGE_HEALTH: case CGE_PREF: case CGE_SKILL: case CGE_SICK: case CGE_ACTION: case CGE_MOOD:
     case CGE_HEALTH_CHANGE: case CGE_SKILL_SET: case CGE_CURE: case CGE_YOUNG_LOOK: case CGE_OLD_LOOK:
-    case CGE_CELEBRATE:
+    case CGE_CELEBRATE: case CGE_APPEARANCE:
         break;
     default:
         return 0;
@@ -3499,11 +3575,11 @@ static void cg_path_add(const cg_history *s, const cg_pick *picks, int count) {
 
 /* The pronouns, (male, female): he/she .. man/woman, then version 6's himself/herself, woman/man, boy/girl,
    son/daughter. */
-static const char *const CG_PRONOUNS[15][2] = {
+static const char *const CG_PRONOUNS[16][2] = {
     { "he", "she" }, { "his", "her" }, { "him", "her" }, { "man", "woman" },
     { "himself", "herself" }, { "man", "woman" }, { "boy", "girl" }, { "son", "daughter" },
     { "father", "mother" }, { "father", "mother" }, { "dad", "mom" }, { "brother", "sister" }, { "uncle", "aunt" },
-    { "boy", "girl" }, { "gentleman", "lady" } };
+    { "boy", "girl" }, { "gentleman", "lady" }, { "his", "hers" } };
 
 static const char *const *cg_pronoun(int what) {
     return CG_PRONOUNS[what <= CG_PH_MAN ? what - CG_PH_HE : what - CG_PH_HIMSELF + 4];
@@ -3538,6 +3614,24 @@ static int cg_glyph_fallback(char *out, int n, int cap) {
     for (i = 0; i < n && o < cap - 1; ++i) {
         const char *put = NULL;
         char c = copy[i];
+        if (c == '(' && cg_made_ph(copy + i)) {
+            int c2;
+            for (c2 = 0; c2 < 7 && o < cap - 1; ++c2) {
+                out[o++] = copy[i + c2];
+            }
+            i += 6;
+            continue;
+        }
+        if (c == '{' && copy[i + 1] == '#') {
+            /* 33: a count token is filled (and falls back) after the page's effects: kept as it is */
+            for (; i < n && copy[i] != '}' && o < cap - 1; ++i) {
+                out[o++] = copy[i];
+            }
+            if (i < n && o < cap - 1) {
+                out[o++] = copy[i];
+            }
+            continue;
+        }
         switch (c) {
         case ';': c = ','; break;
         case '(': case ')': c = '-'; break;
@@ -3992,7 +4086,26 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             int which, olen, n = cg_count_token(s, &which, &opts, &olen);
             if (n > 0) {
                 if (mode == CG_EXPAND_WORST) {
-                    o += cg_count_option(opts, olen, -1, out + o, cap - o);
+                    /* each option with its placeholders at their widest; the longest kept */
+                    static char opt[CG_PAGE_BYTES], filled[CG_PAGE_BYTES], wide[CG_PAGE_BYTES];
+                    int start = 0, i, best = 0;
+                    wide[0] = '\0';
+                    for (i = 0; i <= olen; ++i) {
+                        if (i == olen || opts[i] == '|') {
+                            int len;
+                            cg_made_fill(opts + start, i - start, 1, name_room, opt, (int)sizeof opt);
+                            len = cg_expand_in(opt, filled, (int)sizeof filled, mode, name_room, award_kind, award,
+                                               depth + 1);
+                            if (len > best) {
+                                best = len;
+                                lstrcpynA(wide, filled, (int)sizeof wide);
+                            }
+                            start = i + 1;
+                        }
+                    }
+                    for (i = 0; wide[i] != '\0' && o < cap - 1; ++i) {
+                        out[o++] = wide[i];
+                    }
                 } else {
                     int c;
                     for (c = 0; c < n && o < cap - 1; ++c) {
@@ -4044,6 +4157,21 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                 s += n;
                 continue;
             }
+        }
+        if (*s == '(' && cg_g.version >= 6 && cg_made_ph(s)) {
+            /* 33: a made villager's name -- filled after the page's effects (cg_display); the worst case W x room */
+            int c;
+            if (mode == CG_EXPAND_WORST) {
+                for (c = 0; c < name_room && o < cap - 1; ++c) {
+                    out[o++] = 'W';
+                }
+            } else {
+                for (c = 0; c < 7 && o < cap - 1; ++c) {
+                    out[o++] = s[c];
+                }
+            }
+            s += 7;
+            continue;
         }
         if (*s != '(') {
             out[o++] = *s++;
@@ -4414,7 +4542,7 @@ static const char *cg_count_fill(const char *text) {
     static char out[CG_PAGE_BYTES];
     const char *s;
     int o = 0;
-    for (s = text; *s != '\0' && !(s[0] == '{' && s[1] == '#'); ++s) {
+    for (s = text; *s != '\0' && !(s[0] == '{' && s[1] == '#') && !cg_made_ph(s); ++s) {
     }
     if (*s == '\0') {
         return text;
@@ -4422,8 +4550,26 @@ static const char *cg_count_fill(const char *text) {
     for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
         const char *opts;
         int which, olen, n = s[0] == '{' && s[1] == '#' ? cg_count_token(s, &which, &opts, &olen) : 0;
+        if (n == 0 && cg_made_ph(s)) {
+            char name[CG_NAME_BYTES + 16];
+            const char *t;
+            cg_made_name(cg_made_ph(s), name, (int)sizeof name);
+            for (t = name; *t != '\0' && o < (int)sizeof out - 1; ++t) {
+                out[o++] = *t;
+            }
+            s += 7;
+            continue;
+        }
         if (n > 0) {
-            o += cg_count_option(opts, olen, cg_count_last[which], out + o, (int)sizeof out - o);
+            static char raw[CG_PAGE_BYTES], made[CG_PAGE_BYTES], real[CG_PAGE_BYTES];
+            const ce_adapter *a = ce_adapter_for(cg.game);
+            int len = cg_count_option(opts, olen, cg_count_last[which], raw, (int)sizeof raw), i;
+            cg_made_fill(raw, len, 0, 0, made, (int)sizeof made);
+            /* the event's own placeholders and the glyph fallback, as the rest of the page had them */
+            cg_expand(made, real, (int)sizeof real, CG_EXPAND_REAL, a != NULL ? a->name_room : 0, -1, 0);
+            for (i = 0; real[i] != '\0' && o < (int)sizeof out - 1; ++i) {
+                out[o++] = real[i];
+            }
             s += n;
             continue;
         }
@@ -4917,6 +5063,18 @@ static void cg_damage(const ce_adapter *a, int game, const unsigned char *e, int
    nothing). */
 static int cg_newest[2] = { -1, -1 };
 static unsigned int cg_newest_id[2];
+
+static void cg_made_name(int k, char *out, int cap) {
+    const ce_adapter *a = ce_adapter_for(cg.game);
+    int pick = k == 2 && cg_newest[1] >= 0 ? 1 : 0;   /* (made1) the newest, (made2) the one before it */
+    unsigned char *r = a != NULL && cg_newest[pick] >= 0 ? ce_same_villager(a, cg_newest[pick], cg_newest_id[pick])
+                                                         : NULL;
+    if (r == NULL) {
+        lstrcpynA(out, "a newcomer", cap);
+        return;
+    }
+    ce_copy_name(out, cap, r + a->off_name, a->name_bytes);
+}
 
 static void cg_newest_reset(void) {
     cg_newest[0] = cg_newest[1] = -1;
@@ -5512,6 +5670,14 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
             continue;
         }
         ce_copy_name(who, CE_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        if (e[0] == CGE_APPEARANCE) {
+            /* a new look each: a random head / body row drawn for every member (the game's random routine) */
+            int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
+            int ha = lo == CG_LOOK_RANDOM ? ce_random_below(a, a->head_count - 1) : va;
+            int hb = hi == CG_LOOK_RANDOM ? ce_random_below(a, a->body_count - 1) : vb;
+            cg_effect_on(a, game, e, ha, hb, r, -1, rec, pick[i], who);
+            continue;
+        }
         cg_effect_on(a, game, e, va, vb, r, -1, rec, pick[i], who);
     }
 }

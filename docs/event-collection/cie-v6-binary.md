@@ -949,10 +949,35 @@ only as far as the game's room allows, so the text says how many actually came:
   event ("the following page"). Nothing made yet on the event: A. The counts are memory only: after a quit and a
   restore between pages, A.
 - **Syntax:** `{#`, the count's name (`babies` or `made`), `:`, then 1 to 3 options separated by `|`, then `}`.
-  Each option is 1 to 40 bytes of the plain text set (letters, digits, space, `, : - ' "` and `; / & %`): no
-  placeholder, pool, brace, line break or `.` `!` `?` (so a page break never falls inside one). Body text only, never
-  a button label or a title. Any other `{#...}` is refused by the loader.
-- **Fit:** the worst case is the longest option (CG_EXPAND_WORST; Python `worst_v6` the same), so the pages are laid
-  out for it.
+  Each option is 1 to 160 bytes of the plain text set (letters, digits, space, `, : - ' "` and `; / & %`) and
+  placeholders: the event's own names and pronouns (`(name)`, `(Name1)`, `(child.he/she)`, `(his/hers)`, ...; no
+  label hint) and `(made1)` / `(made2)`. No pool or game word, brace, line break or `.` `!` `?` (so a page break never
+  falls inside one). Body text only, never a button label or a title. Any other `{#...}` is refused by the loader.
+  The option is chosen first, then its placeholders are filled (and VV1/VV2's glyph fallback made) as the rest of the
+  page's were.
+- **Fit:** the worst case is the widest option with its placeholders at their widest (CG_EXPAND_WORST; Python
+  `worst_v6` the same), so the pages are laid out for it.
+
+### 33a. The names of the villagers the event made: `(made1)`, `(made2)`
+
+- **`(made1)`** is the name of the newest villager the event's `new_villager` (not a child of the newest, flags bit
+  0) or `clone` effects made; **`(made2)`** the one made before it. With only one made, both are that villager (so
+  `(made2)` is never empty); with none, "a newcomer". The game's own name, read after the page's effects are made
+  (any case: `(Made1)` the same). Body text and count options only, never a label or a title.
+- **When:** filled when the page is shown, after its effects; on a later page of the same event the same villagers
+  (memory only: after a quit and a restore between pages, "a newcomer").
+- **Fit:** the worst case is `W` x the game's name room.
+
+### 33b. Other forms (the owner's files, 2026-11-16)
+
+- **`(his/hers)`**: the standalone possessive ("the choice was hers"), with the role prefix, the capital and ALL
+  CAPS forms as every pronoun (`(friend.his/hers)`, `(His/Hers)`, `(HIS/HERS)`). Engine `CG_PH_HIS_HERS`.
+- **Role-prefixed pronouns** were already read: `(<role id>.he/she)`, `(<role id>.his/her)`, `(<role id>.him/her)`,
+  `(<role id>.himself/herself)`, `(<role id>.man/woman)`, `(<role id>.woman/man)`, `(<role id>.boy/girl)`,
+  `(<role id>.son/daughter)`, the role-sex words of section 5, and now `(<role id>.his/hers)`. `name1` / `name2` take
+  no prefix: `(name2.his/her)` is not a form; write `(friend.his/her)` (name2 is the role `friend`).
+- **Group targets on `appearance` (17):** role byte 254 takes `appearance` too; with a random head or body each
+  member draws their own row (the game's random routine), so "a new look for three random villagers" gives three
+  looks.
 - **Python (the compiler, the importer):** accept the token in text, measure it as its longest option, `simulate`
   with a count of 1 unless the facts give `count:babies:<n>` / `count:made:<n>`; `normalize` keeps it as written.
