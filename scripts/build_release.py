@@ -135,7 +135,7 @@ FILES = [
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
-    # Louder Wind Flutes (The Tree of Life): the wind flute sounds 2.5 times louder.
+    # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
     "assets/children_play/VVFP Children Play.dll",
