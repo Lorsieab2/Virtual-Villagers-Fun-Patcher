@@ -43,6 +43,15 @@ PLAYER_FOLDER = ROOT / "Player Events"                     # the patcher's own f
 PROMPT_NAME = "Player Events - AI Prompt.txt"
 TONE_NAME = "Island Event Tone Reference - Lorsieab2's Handwritten Events.txt"
 TONE_SOURCE = ROOT / "docs" / "more-island-events" / TONE_NAME
+# The owner's style guide (from Lorsieab2's own edits): every added event follows it, except the owner's handwritten
+# ones; shipped byte for byte beside the prompt and the tone reference.
+STYLE_NAME = "Isola Island Event Style Guide.txt"
+STYLE_SOURCE = ROOT / "docs" / "more-island-events" / STYLE_NAME
+
+
+def style_guide() -> Path:
+    shipped = PLAYER_FOLDER / STYLE_NAME
+    return shipped if shipped.is_file() else STYLE_SOURCE
 RULES_NAME = "Your Rules and Themes.txt"
 SETTINGS_NAME = "Player Events Settings.json"
 FORMAT_DOC = ROOT / "docs" / "player-events-format.md"
@@ -471,7 +480,8 @@ EFFECT_VOCABULARY = (
     "INJURY <who> [(minor|serious|grave)]", "ILLNESS <who>", "HEALTH <who> +10 TO +20", "HEALTH <who> -30",
     "HEAL <who>", "DEATH <who> [CAUSE \"words\"]", "DISAPPEARS <who>", "LOST FOREVER <who>",
     "PREGNANCY LOSS <who>", "BIRTH THEN DEATH <who>", "EARLY BIRTH <who>",
-    "NEW VILLAGER (child|teen|adult|elder|any)", "DUPLICATE OF <who>", "CLONE OF <who>",
+    "NEW VILLAGER (child|teen|adult|elder|any)", "DUPLICATE OF <who>", "CLONE OF <who>", "CLONE OF <who> (2)",
+    "TWO CLONES OF <who>",
     "PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]", "NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]",
     "NEW LOOK (head|body|both) <who>", "OLD LOOK <who>", "SEX CHANGE <who>", "BODY SWAP <who> WITH <who>",
     "LOSE NAME <who>", "CHANGE NAME <who>", "CHANGE NAME <who> TO <name>", "CHANGE AGE <who> YOUNGER|OLDER <n> YEARS",
@@ -598,9 +608,16 @@ def plain_effect(line: str) -> PlainEffect | str:
             age = (m.group(2) or "any").lower()
             return PlainEffect([fx(do="new_villager", copy_of=need(_target(m.group(1))) or "@default",
                                    age=None if age == "any" else age)], roles)
-        m = re.fullmatch(r"clone(?: of)? " + _T, s, re.I)
+        m = re.fullmatch(r"(two clones|clones|clone)(?: of)? " + _T + r"(?: \((\d+)\))?", s, re.I)
         if m:
-            return PlainEffect([fx(do="clone", role=need(_target(m.group(1))))], roles)
+            # One or two clones (the owner): "CLONE OF <who> (2)" or "TWO CLONES OF <who>".
+            count = 2 if m.group(1).lower() == "two clones" else int(m.group(3) or 1)
+            if m.group(1).lower() == "two clones" and m.group(3) and int(m.group(3)) != 2:
+                return "TWO CLONES takes no other count"
+            if count not in (1, 2):
+                return f"an event makes 1 or 2 clones of a villager, not {count}"
+            return PlainEffect([fx(do="clone", role=need(_target(m.group(2))),
+                                   count=2 if count == 2 else None)], roles)
         m = re.fullmatch(r"(pregnant|nursing) " + _T + r"(?: with " + _T + r")?( \(any birth sex\))?", s, re.I)
         if m:
             carrier = need(_target(m.group(2)), min_age=18, carrier=True)
@@ -1953,6 +1970,8 @@ def _effect_record(e: dict, local: dict[str, int], game: int) -> tuple[int, int,
             a = local[e["with"]]
         elif do == "change_name":
             st = e.get("name", "")
+        elif do == "clone":
+            a = 2 if e.get("count") == 2 else 0
         elif do == "change_age":
             if "to" in e:
                 flags = cie.CHANGE_AGE_TO[e["to"]]
@@ -2172,7 +2191,7 @@ def compile_folder(game: int, folder: Path, settings: Settings) -> tuple[dict[st
     used_ids: set[str] = set()
     cap = VV1_ID_MAX if game == 1 else ID_MAX
     for path in sorted(folder.glob("*.txt"), key=lambda p: p.name.lower()):
-        if path.name in (RULES_NAME, PROMPT_NAME, TONE_NAME):
+        if path.name in (RULES_NAME, PROMPT_NAME, TONE_NAME, STYLE_NAME):
             continue
         items, file_problems = parse_file(path)
         report.skipped += [str(p) for p in file_problems]
@@ -2261,6 +2280,7 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
             if p.is_file() and _owned(p.name):
                 p.unlink()
     if not settings.enabled:
+        install_references(game, files_dir, settings, root)
         return report
     out, report = compile_folder(game, source, settings)
     if out:
@@ -2270,14 +2290,7 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
             tmp.write_bytes(data)
             os.replace(tmp, coll / name)
             report.files.append(coll / name)
-    shown = files_dir / INSTALLED_FOLDER
-    shown.mkdir(parents=True, exist_ok=True)
-    (shown / PROMPT_NAME).write_text(ai_prompt(game, settings, read_rules(game, root)), encoding="utf-8")
-    ref = reference_file(settings)
-    if ref.is_file():
-        shutil.copyfile(ref, shown / (TONE_NAME if ref == default_reference() else ref.name))
-    if TONE_SOURCE.is_file() and ref != default_reference():
-        shutil.copyfile(TONE_SOURCE, shown / TONE_NAME)
+    shown = install_references(game, files_dir, settings, root)
     if source.is_dir():
         for p in source.glob("*.txt"):
             shutil.copyfile(p, shown / p.name)
@@ -2287,6 +2300,22 @@ def install(game: int, game_folder_path: Path, source: Path | None = None, setti
                             (["Notes:"] + [f"  {x}" for x in report.notes] if report.notes else []))
     (shown / "Player Events Report.txt").write_text(report_text + "\n", encoding="utf-8")
     return report
+
+
+def install_references(game: int, files_dir: Path, settings: Settings, root: Path | None = None) -> Path:
+    """The AI prompt, the owner's tone reference (and the player's own, when chosen) and the owner's style guide,
+    byte for byte, in "<game folder>\\Virtual Villagers Fun Patcher Files\\Player Events"."""
+    shown = files_dir / INSTALLED_FOLDER
+    shown.mkdir(parents=True, exist_ok=True)
+    (shown / PROMPT_NAME).write_text(ai_prompt(game, settings, read_rules(game, root)), encoding="utf-8")
+    ref = reference_file(settings)
+    if ref.is_file():
+        shutil.copyfile(ref, shown / (TONE_NAME if ref == default_reference() else ref.name))
+    if TONE_SOURCE.is_file() and ref != default_reference():
+        shutil.copyfile(TONE_SOURCE, shown / TONE_NAME)
+    if style_guide().is_file():
+        shutil.copyfile(style_guide(), shown / STYLE_NAME)
+    return shown
 
 
 def default_reference() -> Path:
@@ -2413,7 +2442,8 @@ main villager):
   HEAL <who> (full health).
 - DEATH <who> (a grave is left), DISAPPEARS <who> (never seen again), LOST FOREVER <who> (dies, the body is never
   found), PREGNANCY LOSS <who>, BIRTH THEN DEATH <who>, EARLY BIRTH <who>. These are rare and serious.
-- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>.
+- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>
+  (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who> makes two, never more).
 - PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
   potion), or for NURSING when a father is caring for a baby.
@@ -2443,6 +2473,7 @@ Read the handwritten events and my event-writing rules in the reference file I p
 Pay particular attention to my events such as The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Climb, and The Troubling Signs.
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
+Also follow my style guide, "{style}" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
 2. Create an Interesting Story
 Write {count_words} completely original Island Event{plural}.{distinct}
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
@@ -2574,7 +2605,7 @@ def ai_prompt(game: int | None = None, settings: Settings | None = None, rules_t
         count_words=count_words, plural="" if n == 1 else "s",
         distinct="" if n == 1 else " Each event must be distinct from the others: a different premise, different "
                                    "villagers and different kinds of choices.",
-        reference=TONE_NAME if not settings.reference else Path(settings.reference).name,
+        reference=TONE_NAME if not settings.reference else Path(settings.reference).name, style=STYLE_NAME,
         rules=rules, format=FORMAT_SECTION,
         collection_note=", not a collection" if n == 1 else "")
 
@@ -2700,6 +2731,8 @@ def _plain_of(e: dict) -> str:
               "baby_lost": "PREGNANCY LOSS", "birth_then_die": "BIRTH THEN DEATH", "deliver_early": "EARLY BIRTH",
               "old_look": "OLD LOOK", "sex_change": "SEX CHANGE", "lose_name": "LOSE NAME",
               "change_name": "CHANGE NAME", "clone": "CLONE OF"}
+    if do == "clone" and e.get("count") == 2:
+        return "TWO CLONES OF" + (tail or " villager")
     if do in simple:
         return simple[do] + (tail or " villager")
     if do == "health_change":

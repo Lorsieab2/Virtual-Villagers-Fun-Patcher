@@ -6,6 +6,7 @@ Read the handwritten events and my event-writing rules in the reference file I p
 Pay particular attention to my events such as The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Climb, and The Troubling Signs.
 Use these as your primary stylistic references. Do not imitate generic AI-generated events.
 My writing combines ordinary village life, whimsical humor, interesting choices, surprising consequences, emotional realism, and the mysteries of Isola.
+Also follow my style guide, "Isola Island Event Style Guide.txt" (I provide it too): it applies to every added island event, including yours (it does not apply to my own handwritten events, which are its source).
 2. Create an Interesting Story
 Write ONE completely original Island Event.
 Each should feel like a little adventure, dilemma, discovery, or incident in the lives of the villagers.
@@ -159,7 +160,8 @@ main villager):
   HEAL <who> (full health).
 - DEATH <who> (a grave is left), DISAPPEARS <who> (never seen again), LOST FOREVER <who> (dies, the body is never
   found), PREGNANCY LOSS <who>, BIRTH THEN DEATH <who>, EARLY BIRTH <who>. These are rare and serious.
-- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>.
+- NEW VILLAGER (child|teen|adult|elder|any), DUPLICATE OF <who> (a newcomer who looks just like them), CLONE OF <who>
+  (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who> makes two, never more).
 - PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
   older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
   potion), or for NURSING when a father is caring for a baby.

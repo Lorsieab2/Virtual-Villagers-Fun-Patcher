@@ -765,6 +765,7 @@ FILES = [
     "docs/player-events-format.md",
     "Player Events/Player Events - AI Prompt.txt",
     "Player Events/Island Event Tone Reference - Lorsieab2's Handwritten Events.txt",
+    "Player Events/Isola Island Event Style Guide.txt",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

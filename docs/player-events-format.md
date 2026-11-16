@@ -16,7 +16,11 @@ of the built-in events.
   pieces. `Your Rules and Themes.txt` and `Player Events Settings.json` in the same folder are the section's own.
 - **The AI prompt and the tone reference:** `<patcher folder>\Player Events\Player Events - AI Prompt.txt` and
   `Island Event Tone Reference - Lorsieab2's Handwritten Events.txt` (the owner's twelve handwritten events, the
-  DEFAULT source for event tone; "Choose Reference File..." swaps in your own, Cancel goes back to the owner's).
+  DEFAULT source for event tone; "Choose Reference File..." swaps in your own, Cancel goes back to the owner's), and
+  `Isola Island Event Style Guide.txt` (the owner's style guide, from Lorsieab2's own edits: every added event follows
+  it, except the owner's handwritten ones; "Copy Style Guide" / "Show Style Guide"; the prompt tells the AI to follow
+  it). All three, byte for byte (the prompt with your rules), are also installed in each patched game's
+  `Virtual Villagers Fun Patcher Files\Player Events`.
 - **At patch time** (only with the game's Isola Grand Event Collection row ticked, and "Install my player events
   when patching" on), in the patched game's `Virtual Villagers Fun Patcher Files`:
   - `Island Event Collection\manifest-pl_<x>.txt`, one per file (the collection's own split-file manifests,
@@ -119,7 +123,7 @@ game's own ranges (the same as the More Island Events rewards); food and tech sc
 | `INJURY <who> [(minor\|serious\|grave)]`, `HEALTH <who> +10 TO +20`, `HEAL <who>`, `ILLNESS <who>` | health, sickness | health_change, health, sick |
 | `DEATH <who> [CAUSE "words"]`, `DISAPPEARS <who>`, `LOST FOREVER <who>` | a death with a grave, a disappearance, a death with no body | kill, vanish, die_unrecovered |
 | `PREGNANCY LOSS <who>`, `BIRTH THEN DEATH <who>`, `EARLY BIRTH <who>` | the expecting parent's pregnancy | baby_lost, birth_then_die, deliver_early |
-| `NEW VILLAGER (child\|teen\|adult\|elder\|any)`, `DUPLICATE OF <who>`, `CLONE OF <who>` | a newcomer; a lookalike; an exact double | new_villager, clone |
+| `NEW VILLAGER (child\|teen\|adult\|elder\|any)`, `DUPLICATE OF <who>`, `CLONE OF <who>`, `CLONE OF <who> (2)`, `TWO CLONES OF <who>` | a newcomer; a lookalike; an exact double, or two (never more) | new_villager, clone (count) |
 | `PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]`, `NURSING <who> [WITH <who>] [(ANY BIRTH SEX)]` | a pregnancy; a baby now | pregnant, nursing |
 | `NEW LOOK (head\|body\|both) <who>`, `OLD LOOK <who>`, `SEX CHANGE <who>`, `BODY SWAP <who> WITH <who>` | looks | appearance, old_look, sex_change, body_swap |
 | `LOSE NAME <who>`, `CHANGE NAME <who>`, `CHANGE NAME <who> TO Lani` | the name becomes "?"; a new name from the game's list, or that name (1-31 letters, spaces, `'`, `-`, `.`, starting with a letter) | lose_name, change_name |

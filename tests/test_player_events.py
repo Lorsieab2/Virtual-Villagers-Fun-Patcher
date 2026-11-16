@@ -217,6 +217,39 @@ class ChangeNameToAFixedName(unittest.TestCase):
         self.assertFalse(cie.CHANGE_NAME_RE.match("Lani "))
 
 
+class TwoClones(unittest.TestCase):
+    """Up to two clones of a villager (the owner): "count" 1 or 2, effect 30's value a (engine 3a670e469)."""
+
+    def effect(self, words: str) -> dict:
+        c = compiled(SIMPLE.replace("Effect: SKILL + Building a little", f"Effect: {words}"))
+        e = c.graph["nodes"]["c2o1"]["effects"][0]
+        back = cie.decompile_graph(c.cieg)
+        again = [x for n in back["nodes"].values() for x in n.get("effects", []) if x["do"] == "clone"]
+        self.assertEqual(again[0].get("count"), e.get("count"))
+        return e
+
+    def test_one_or_two_clones(self):
+        self.assertNotIn("count", self.effect("CLONE OF helper"))
+        self.assertEqual(self.effect("CLONE OF helper (2)")["count"], 2)
+        self.assertEqual(self.effect("TWO CLONES OF helper")["count"], 2)
+        self.assertNotIn("count", self.effect("CLONE OF helper (1)"))
+
+    def test_more_than_two_is_refused(self):
+        self.assertIsInstance(pe.plain_effect("CLONE OF helper (3)"), str)
+        _g, probs = cie.normalize({"format": cie.FORMAT, "version": 6, "title": "T", "games": [1],
+                                   "roles": {"subject": {"kind": "villager"}}, "start": "a",
+                                   "nodes": {"a": {"text": "Hi.", "effects": [{"do": "clone", "count": 3}]}}})
+        self.assertTrue(any("clone count is 1 or 2" in p for p in probs))
+
+    def test_the_record_holds_the_count(self):
+        g = {"format": cie.FORMAT, "version": 6, "title": "T", "games": [1], "roles": {"subject": {"kind": "villager"}},
+             "start": "a", "nodes": {"a": {"text": "Hi.", "effects": [{"do": "clone", "count": 2}]}}}
+        data = cie.compile_graph(cie.load(g))
+        record = struct.pack("<BBBBii", cie.EFFECT_CODES["clone"], 0, 0, 0, 2, 0)
+        self.assertIn(record, data)
+        self.assertIn("TWO CLONES", pe.FORMAT_SECTION)
+
+
 class LoseNameNeedsABump(unittest.TestCase):
     """The owner: a "?" name only comes from a bump on the head or something like it -- a soft warning, never an
     error."""
@@ -289,6 +322,14 @@ class FormatSectionMatchesTheParser(unittest.TestCase):
     def test_the_shipped_prompt_is_the_default_prompt(self):
         shipped = (pe.PLAYER_FOLDER / pe.PROMPT_NAME).read_text(encoding="utf-8")
         self.assertEqual(shipped.replace("\r\n", "\n"), pe.ai_prompt())
+
+    def test_the_style_guide_ships_byte_for_byte_and_the_prompt_follows_it(self):
+        a = (pe.PLAYER_FOLDER / pe.STYLE_NAME).read_bytes()
+        self.assertEqual(a, pe.STYLE_SOURCE.read_bytes())
+        self.assertTrue(a.startswith(b"ISOLA ISLAND EVENT STYLE GUIDE"))
+        text = pe.ai_prompt()
+        self.assertIn(f'follow my style guide, "{pe.STYLE_NAME}"', text)
+        self.assertIn("does not apply to my own handwritten events", text)
 
     def test_the_tone_reference_ships_byte_for_byte(self):
         a = (pe.PLAYER_FOLDER / pe.TONE_NAME).read_bytes()
@@ -377,6 +418,7 @@ class InstallAndRules(unittest.TestCase):
             shown = game / pe.PATCHER_FILES / pe.INSTALLED_FOLDER
             self.assertTrue((shown / pe.PROMPT_NAME).is_file())
             self.assertTrue((shown / pe.TONE_NAME).is_file())
+            self.assertEqual((shown / pe.STYLE_NAME).read_bytes(), pe.STYLE_SOURCE.read_bytes())
             # Favoured themes weigh three times; Only my themes leaves the others out; ticked rules are enforced.
             pe.install(1, game, src, pe.Settings(favour=["comedy"]), root)
             row = [r for r in (coll / f"manifest-{mine}.txt").read_text(encoding="utf-8").splitlines()

@@ -1,0 +1,52 @@
+ISOLA ISLAND EVENT STYLE GUIDE
+(from Lorsieab2's own edits; applies to every added island event except Lorsieab2's handwritten ones)
+
+1. POSE THE DILEMMA PLAINLY
+   End the setup with the choice the player faces, often as the villager's own thought or a direct question:
+   "Should (name) try to salvage them, or is it too late to save them?"
+   "How should (cook name) respond?"
+   "Could (name2) have placed this flower? (name) thinks. What should I do?"
+   "(name) is afraid of getting stung, but the honey..."
+   The choices then answer that question directly ("Attempt to Salvage the Scrolls" / "It Is Too Late").
+
+2. EXPLAIN WHERE STRANGE THINGS COME FROM
+   Magic and odd happenings get a cause or a source inside the story (for example, one of the elder's
+   grandchildren was trying out a new spell). Mysteries may stay open to interpretation, but the event gives a
+   reason to wonder about.
+
+3. NAME THE PEOPLE IN THE SCENE
+   Use name slots for side characters instead of vague roles: "(cook name), the head cook", "another (name)",
+   "both of the (name)s". Use natural words ("wait for its parents", not "the owner"). Cut padding
+   ("They decide to stay." is enough).
+
+4. GROUNDED STAKES, NOT CUTE GIMMICKS
+   Keep the humor, but make it real: a leaking roof leaves "a large mushy mess", not a stain shaped like a duck.
+   Warnings are concrete ("the time it swallowed a person", "its teeth could crack a boulder"). Consequences are
+   felt ("nobody blames (name) out loud, but inside they are seething"). Bad things are described just enough.
+
+5. TRIM REPEATS
+   Say a beat once ("Nobody minds." not "Nobody minds. Nobody minds anything.").
+
+6. PRECISE, NEUTRAL WORDS
+   Use the exact word (seaweed or kelp, not "weed"; condensation drops; nimbus cloud; syllable; stingers;
+   "hard as a rock"). Don't assume looks: "luscious" hair, not "dark" hair (not all villagers have dark hair);
+   "bending (his/her) body", not only knees; "their hat" for a stranger.
+
+7. ENDINGS WITH A SPECIFIC PAYOFF
+   Close on a concrete detail: the bird gets a name ("Sweetie"); the traveller tips (his/her) hat to (name);
+   "(name) is stunned that a pig just bested (him/her) at (his/her) job...!" Never mention something the story
+   never introduced.
+
+8. EFFECTS, WRITTEN PLAINLY
+   - Dislikes: "now dislikes swimming, or something similar if the game has it".
+   - Injuries: "loses health" (needs the healers).
+   - Pregnancy: say how many babies; twins or triplets where the game allows them.
+   - Clones: one or two, each with a different name.
+   - A "?" name only comes from a bump on the head or something like it (a fall, a fever, memory-taking magic);
+     never from a villager choosing "?" or the village calling them "?".
+   - Every ending within a choice is equally likely.
+
+9. ALWAYS
+   Titles and choices in Title Case. PG-13 presentation: bad things happen, described just enough, never
+   sanitized. Villagers are peaceful, imperfect people. Supernatural beings stay open to interpretation.
+   In VV5, Isolans (Guardians of Isola wording).

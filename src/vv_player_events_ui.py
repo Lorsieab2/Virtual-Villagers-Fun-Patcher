@@ -131,6 +131,11 @@ class PlayerEventsSection:
                                ("Open Reference Folder", self.open_reference),
                                ("Choose Reference File...", self.choose_reference)):
             ttk.Button(row2, text=words, command=command).pack(side="left", padx=(0, 4))
+        row3 = ttk.Frame(self.frame)
+        row3.pack(fill="x", pady=(0, 4))
+        for words, command in (("Copy Style Guide", self.copy_style), ("Show Style Guide", self.show_style)):
+            ttk.Button(row3, text=words, command=command).pack(side="left", padx=(0, 4))
+        ttk.Label(row3, text="(the owner's style guide: every added event follows it)").pack(side="left")
         self.reference_label = ttk.Label(self.frame, text="", wraplength=640, justify="left")
         self.reference_label.pack(anchor="w")
         count_row = ttk.Frame(self.frame)
@@ -353,6 +358,25 @@ class PlayerEventsSection:
 
     def open_reference(self) -> None:
         _open(pe.reference_file(self.settings).parent)
+
+    def _style_text(self) -> str | None:
+        try:
+            return pe.style_guide().read_text(encoding="utf-8-sig")
+        except OSError as exc:
+            SHOW_ERROR("Player Events", f"The style guide could not be read: {exc}", parent=self.frame)
+            return None
+
+    def copy_style(self) -> None:
+        text = self._style_text()
+        if text is not None:
+            _copy(self.frame, text)
+            SHOW_INFO("Player Events", f"{pe.STYLE_NAME} is on the clipboard: give it to the AI with the prompt.",
+                      parent=self.frame)
+
+    def show_style(self) -> None:
+        text = self._style_text()
+        if text is not None:
+            report_window(self.frame, pe.STYLE_NAME, text)
 
     def choose_reference(self) -> None:
         raw = ASK_FILE(parent=self.frame, title="Choose your own tone reference (Cancel: the owner's events)",
