@@ -75,10 +75,13 @@ RULES = (
          "it is worked out: with E of them possible, each gets 1/E x (1 - (1 - E/28)^10) of the single-result 40% "
          "(22 in place of 28 for two-choice), and the fallback event gets the rest."),
     # More Island Events (the owner, 2026-11-14: the stock island events' chances never change): adv_vv2.inc answers
-    # 21 or 22 only while one of its events is due (the rare roll or Pick Island Event); the stock draw is untouched.
-    Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws, "
-         "so every chance above stays as it is; The Aspiring Adventurer and The Climb come only through Story / "
-         "Cheat Upgrades' separate rare roll or Pick Island Event (see each event).",
+    # 21 or 22 only while one of its events is due (in a natural event's place, or Pick Island Event); the stock draw
+    # is untouched.
+    Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws; "
+         "from 61 villagers each natural island event has a 50% chance to be one of the patcher's new events "
+         "instead (never a rescue or one of the two opening events), and the chances above are then those of the "
+         "natural events that stay the game's own. The Aspiring Adventurer and The Climb come that way or through "
+         "Pick Island Event (see each event).",
          only_with="vv2_more_island_events"),
     Line("With the patcher's \"Restore Missing Island Events\" (in this game): The Mosquito Swarm, The Dragonfly "
          "Migration and Science Awareness Day pass their draw like an unconditional event, and draw 4 shows one "

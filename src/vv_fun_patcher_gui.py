@@ -198,7 +198,7 @@ ISLAND_EVENT_ADVISORIES = {
 ADVISORY_COLOUR = "#c00000"
 # The filters never hide a kind of person (the owner, 2026-11-15).
 ISLAND_EVENT_FILTERS_NOTE = (
-    "Applied before the rare roll picks an event: a filtered outcome is dropped where the event still makes sense, "
+    "Applied before the random draw picks an event: a filtered outcome is dropped where the event still makes sense, "
     "otherwise the event is skipped. Added events only; off everywhere, Owner's Defaults too. Filters never hide a "
     "kind of person (diversity, disability, identity, sex or gender changes, same-sex relationships, religion, "
     "romance in general, family forms, singlehood).")

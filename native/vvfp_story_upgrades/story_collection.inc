@@ -1,70 +1,65 @@
-/* Isola Grand Event Collection: the separate rare roll.  Included by vvfp_story_upgrades.c after story_graph.inc.
+/* Isola Grand Event Collection: when the new island events come.  Included by vvfp_story_upgrades.c after
+   story_graph.inc.
 
-   THE OWNER'S RULES (2026-11-14): the stock island events' chances never change; the new events are rare, but a
-   seven-day playthrough sees some; they never replace a rescue event.  So nothing here touches a game's own draw.
-   More Island Events' nine events (native/vvfp_more_island_events, only their "due" paths: mie_pick.inc) and the
-   collection's events (the .cieg files the patcher puts in "<game folder>\Virtual Villagers Fun Patcher Files\Island
-   Event Collection", with manifest.txt) come only through this roll and Pick Island Event.
+   THE OWNER'S RULE (2026-11-15, replacing the separate rare roll between natural events): at each NATURAL island event
+   the game is about to deliver, a 50% roll; on a pass one of the new events comes INSTEAD -- More Island Events'
+   (native/vvfp_more_island_events, its "due" paths: mie_pick.inc) and the collection's (the .cieg files and the
+   Living Event Engine's pack the patcher puts in "<game folder>\Virtual Villagers Fun Patcher Files\Island Event
+   Collection", with manifest.txt) -- and the game's own event does not happen that time.  When no new event can be
+   cast, the game's own event comes as always.  NEVER replaced: the village's two opening events (CE_OPENING_EVENTS),
+   a rescue event (the trouble guard below holds the game's own rescue rule), and nothing while the village is in
+   trouble.  New events come this way only when the village has 61 or more villagers (SC_MIN_POPULATION: the living
+   villagers the game lists, with the babies being carried, as the game's own rescue rule counts its population; New
+   Believers' believers only), and each event's own requirements hold.  Pick Island Event and Custom Island Events
+   (player-chosen) ignore the 61 and the 50%.  The draw's weights are unchanged.
 
-   WHEN.  Every frame (VvfpStoryInstall) the game's Island Events Seen count (ce_event_counter) is read.  When it went
-   up while, in the frame before, nothing was armed or on its way -- no Pick Island Event or Custom Island Event, no
-   bought island event (the island timer's keeper, story_bought_on_its_way), no branching event running, nothing of
-   this roll's own -- the event the game just delivered was its own NATURAL island event.  On that edge, once the
-   village's two opening events are past (CE_OPENING_EVENTS), the game's own random routine rolls once: with
-   probability SC_P_PERCENT (A New Home 30%, The Lost Children 25%, the later three 20%: about three in seven days of
-   game time in each game) a collection roll is due at now + (natural - now) x U[0.30, 0.70], the natural time being
-   the one the game's trigger has just written into its island timer -- so ours always falls between two natural
-   events, never on one.  The due time is kept beside the save (sc_store), with the village's roster: used only for
-   the same village (a strict majority of its villagers), deleted when delivered or cancelled.  A lost file loses
-   one rare event, nothing else.
+   WHEN.  Every frame (VvfpStoryInstall) the game's clock and its island timer (the second its next island event is
+   due) are read.  Once, for each natural time, when it is SC_WINDOW seconds away or less and nothing else is armed or
+   on its way (no Pick Island Event or Custom Island Event, no bought island event, no branching event running), and
+   in New Believers no God Power is armed (the trigger's own rule): the opening events are past, the population is 61
+   or more, the village is not in trouble, and the game's own random routine passes 50 of 100 -- then the draw below
+   arms a new event.  Its arm makes the island event due as a purchase does (now + 5 seconds; New Believers 0), and
+   the island timer's keeper (native/shared/island_timer_keep.h) keeps the natural time to put back after it.  As
+   soon as the keeper has the arm (story_bought_on_its_way), its kept time is set (story_island_arming again, a second
+   write: sc_replace_pending) to a NEW natural time after this one, drawn as the game's own trigger draws it (A New
+   Home 12-23 hours later, The Lost Children 10-19, the later three 8-15: SC_NEXT_HOURS, with the game's own random
+   routine) -- so the new event takes the natural event's place and the schedule goes on from it, as after the
+   game's own event.  The delivery counts as one island event.
 
-   AT DUE.  It waits (a frame at a time) while anything else is armed or on its way, while a branching event runs,
-   while the game's next natural event is 60 seconds away or less (the natural one goes first), and in New Believers
-   while a God Power is armed (the trigger's own rule).  If the next natural event's time passes first, ours is gone.
-   THE TROUBLE GUARD cancels it (never delays it) -- and it is asked at the roll too: the stock rescue predicate,
-   applied in all five games ((men > women and women <= 2) or (men <= women and men <= 2) or the population with the
-   babies being carried below 3; living villagers of every age, New Believers' believers only), food stored below 10
-   per villager or none, at least half the villagers sick, or fewer than 6 villagers of 14 or more.  So a rescue,
-   which can only come at a natural trigger, is never displaced: natural triggers keep their time (the keeper), and
-   we never arm near one or while the rescue predicate holds.
+   THE TROUBLE GUARD (unchanged): the stock rescue predicate, applied in all five games ((men > women and women <= 2)
+   or (men <= women and men <= 2) or the population with the babies being carried below 3; living villagers of every
+   age, New Believers' believers only), food stored below 10 per villager or none, at least half the villagers sick,
+   or fewer than 6 villagers of 14 or more.  A rescue can only come at a natural trigger, and that trigger is never
+   replaced while the rescue predicate holds.
 
-   CHOICE.  The candidates are More Island Events' entries that can happen now (when that row is installed) and the
-   collection's files for this game (when its row is installed: the Isola Grand Event Collection's and the Companion
-   Anthology's events, one manifest) whose STRICT cast and requirement hold now.  EVERY EVENT IS EQUALLY LIKELY,
-   whichever source it comes from (the owner, 2026-11-14): one draw over all of them, each More Island Events event
-   weight 1, each collection event its draw weight (manifest, default 1), and a series (the V14, V17, V18 and V20
-   series, the Living Catalogue's templates) counts as ONE event, its members equally likely (collection_decisions.md
-   Q7).  A candidate that cannot be cast is left out and the draw made again among the rest.
-
-   ARM.  A More Island Events event is armed as Pick Island Event arms it (sm_arm), with no message and no charge,
-   and marked natural (no "could not happen" notice is ever kept for it); a collection event is queued by the
-   branching engine (cg_queue_origin, CG_ORIGIN_NATURAL, CG_CAST_STRICT).  Both make the island event due through
-   story_island_arming, so the island timer's keeper puts the game's natural next time back after delivery
-   (island_timer_keep.h): the delivery counts as one island event (the trigger counts it), the natural schedule is
-   untouched. */
+   CHOICE (unchanged).  The candidates are More Island Events' entries that can happen now (when that row is
+   installed) and the collection's files for this game (when its row is installed) whose STRICT cast and requirement
+   hold now.  EVERY EVENT IS EQUALLY LIKELY, whichever source it comes from (the owner, 2026-11-14): one draw over all
+   of them, each More Island Events event weight 1, each collection event its draw weight (manifest, default 1), and a
+   series (the V14, V17, V18 and V20 series, the Living Catalogue's templates) counts as ONE event, its members
+   equally likely (collection_decisions.md Q7).  A candidate that cannot be cast is left out and the draw made again
+   among the rest.  A More Island Events event is armed as Pick Island Event arms it (sm_arm), with no message and no
+   charge, and marked natural (no "could not happen" notice is ever kept for it); a collection event is queued by the
+   branching engine (cg_queue_origin, CG_ORIGIN_NATURAL, CG_CAST_STRICT). */
 
 #define SC_ROW "isola_grand_event_collection"           /* the row's short id (cg_installed_has) */
 #define SC_FOLDER "Island Event Collection"
 #define SC_MAX 2048                                      /* collection entries of one game */
-#define SC_GAP 60u                                       /* seconds kept clear of a natural event */
-#define SC_FRAC_MIN 300                                  /* the due point, per mille of the gap: 300..700 */
-#define SC_FRAC_SPAN 401
+#define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
+#define SC_REPLACE_PERCENT 50                            /* a natural event replaced by a new one, percent */
+#define SC_MIN_POPULATION 61                             /* new events come only from this population on */
 #define SC_MIN_GROWN 6                                   /* villagers of 14 or more */
+/* The game's own spacing of its natural island events, in hours (its trigger's write; island_timer_keep.h): the
+   next natural time after a replaced one is drawn the same way. */
+static const int SC_NEXT_HOURS[6][2] = { { 0, 0 }, { 12, 23 }, { 10, 19 }, { 8, 15 }, { 8, 15 }, { 8, 15 } };
 #define SC_MANIFEST_BYTES 1048576
-#define SC_MAGIC 0x52435356u                             /* 'V' 'S' 'C' 'R' */
-#define SC_VERSION 1u
 
-/* The probability of a roll after each natural island event, percent, by game: the one tunable table. */
-static const int SC_P_PERCENT[6] = { 0, 30, 25, 20, 20, 20 };
-
-enum { SC_NONE = 0, SC_SAVE = 1, SC_CANCEL = 2, SC_ARM = 3 };
+enum { SC_NONE = 0, SC_ARM = 3 };
 
 typedef struct {
     int seen;                          /* the Island Events Seen count last read, -1 unknown */
-    int busy_before;                   /* something was armed or on its way in the frame before */
-    int due_set;
-    unsigned int due;                  /* game-clock seconds */
-    unsigned int natural;              /* the game's next natural event when the roll was made */
+    int decided;                       /* the natural time below was decided (rolled, or passed over) */
+    unsigned int decided_for;          /* that natural time */
 } sc_state;
 
 typedef struct {
@@ -74,6 +69,8 @@ typedef struct {
     unsigned int now;
     unsigned int natural;              /* the island timer now */
     int god_power;                     /* New Believers: a God Power armed */
+    int population;                    /* the living villagers with the babies being carried (believers in New
+                                          Believers), -1 to read them now */
 } sc_input;
 
 typedef struct {
@@ -86,7 +83,7 @@ typedef struct {
 
 static sc_state sc;
 static int sc_game;
-static int sc_checked;                 /* the save's file was looked at for this village */
+static unsigned int sc_replace_natural;  /* the natural time a new event is taking the place of */
 static story_village sc_village;
 
 static sc_entry sc_list[SC_MAX];
@@ -99,7 +96,7 @@ static unsigned int sc_test_more_ok;   /* bit k: More Island Events' entry k arm
 static unsigned int sc_test_coll_ok;   /* bit i: collection entry i arms */
 static int sc_test_trace[64];          /* each arm tried: source << 16 | index */
 static int sc_test_traced;
-static int sc_test_have_file;
+static int sc_test_population = -1;    /* -1: the village's own; else forced */
 static const unsigned char *sc_test_cieg;   /* every entry's compiled file instead of the folder's */
 static unsigned int sc_test_cieg_size;
 #endif
@@ -186,7 +183,7 @@ static int sc_sick(int game, const unsigned char *r) {
     }
 }
 
-/* 1 when the village is in trouble (the roll is not made, or the due roll is cancelled). */
+/* 1 when the village is in trouble (no natural event is replaced). */
 static int sc_trouble(int game) {
     const ce_adapter *a = ce_adapter_for(game);
     int i, men = 0, women = 0, people = 0, carried = 0, sick = 0, grown = 0, food;
@@ -217,192 +214,54 @@ static int sc_trouble(int game) {
         || food <= 0 || food < 10 * people || 2 * sick >= people || grown < SC_MIN_GROWN;
 }
 
-/* ---- The roll (no game data here: sc_tick reads the game and makes the changes) ---------------------------- */
+/* The village's population as the game's own rescue rule counts it: the living villagers the game lists and the
+   babies being carried (New Believers' believers only).  -1 without a village. */
+static int sc_population(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int i, people = 0;
+#ifdef VVFP_TEST
+    if (sc_test_population >= 0) {
+        return sc_test_population;
+    }
+#endif
+    if (a == NULL) {
+        return -1;
+    }
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        const unsigned char *r = a->record(i);
+        if (r == NULL || !a->listed(r) || (game == 5 && cg_heathen(game, r))) {
+            continue;
+        }
+        people += 1 + (*(const int *)(r + a->off_pregnant) != 0);
+    }
+    return people;
+}
+
+/* ---- The decision (no game data here: sc_tick reads the game and makes the changes) ------------------------- */
 
 static int sc_step(sc_state *s, const sc_input *in) {
-    int edge, act = SC_NONE;
+    int left, population;
     if (in->counter < 0) {
         s->seen = -1;
-        s->busy_before = in->busy;
+        s->decided = 0;
         return SC_NONE;
     }
-    edge = s->seen >= 0 && in->counter > s->seen && !s->busy_before;
     s->seen = in->counter;
-    s->busy_before = in->busy;
-    if (edge) {
-        if (s->due_set) {
-            s->due_set = 0;            /* a natural event came first: ours had its place before it */
-            act = SC_CANCEL;
-        }
-        if (in->counter >= CE_OPENING_EVENTS && (int)(in->natural - in->now) > (int)(2u * SC_GAP)
-            && !sc_trouble(in->game) && sc_rand(in->game, 100) < SC_P_PERCENT[in->game]) {
-            unsigned int span = in->natural - in->now;
-            unsigned int frac = (unsigned int)(SC_FRAC_MIN + sc_rand(in->game, SC_FRAC_SPAN));
-            s->due = in->now + (unsigned int)((unsigned __int64)span * frac / 1000u);
-            s->natural = in->natural;
-            s->due_set = 1;
-            return SC_SAVE;
-        }
-        return act;
+    left = (int)(in->natural - in->now);
+    if (in->busy || in->god_power || left < 0 || left > SC_WINDOW
+        || (s->decided && s->decided_for == in->natural)) {
+        return SC_NONE;                /* not the moment, or this natural event was decided already */
     }
-    if (!s->due_set || (int)(in->now - s->due) < 0) {
-        return SC_NONE;
+    s->decided = 1;
+    s->decided_for = in->natural;
+    if (in->counter < CE_OPENING_EVENTS) {
+        return SC_NONE;                /* the village's two opening events are never replaced */
     }
-    if ((int)(in->now - s->natural) >= 0) {
-        s->due_set = 0;                /* the natural event it was to come before has passed */
-        return SC_CANCEL;
+    population = in->population >= 0 ? in->population : sc_population(in->game);
+    if (population < SC_MIN_POPULATION || sc_trouble(in->game)) {
+        return SC_NONE;                /* too small a village, or in trouble (a rescue is never replaced) */
     }
-    if (in->busy || in->god_power || (int)(in->natural - in->now) <= (int)SC_GAP) {
-        return SC_NONE;                /* wait: something else first, or the natural event is about to come */
-    }
-    if (sc_trouble(in->game)) {
-        s->due_set = 0;
-        return SC_CANCEL;
-    }
-    return SC_ARM;
-}
-
-/* ---- The save's file ----------------------------------------------------------------------------------------- */
-
-typedef struct {
-    unsigned int magic;
-    unsigned int version;
-    unsigned int game;
-    unsigned int slot;
-    unsigned int due;
-    unsigned int natural;
-    unsigned int roster[256];
-} sc_file;
-
-#ifdef VVFP_TEST
-static sc_file sc_test_saved;
-
-static int sc_read(int game, int slot, sc_file *f) {
-    (void)game;
-    (void)slot;
-    if (!sc_test_have_file) {
-        return 0;
-    }
-    *f = sc_test_saved;
-    return 1;
-}
-
-static void sc_write(int game, int slot, const sc_file *f) {
-    (void)game;
-    (void)slot;
-    sc_test_saved = *f;
-    sc_test_have_file = 1;
-}
-
-static void sc_delete(int game, int slot) {
-    (void)game;
-    (void)slot;
-    sc_test_have_file = 0;
-}
-#else
-static int sc_read(int game, int slot, sc_file *f) {
-    char path[MAX_PATH];
-    unsigned int size = 0;
-    if (!vv_paid_named_path(game, slot, "Island Event Collection Roll", path, 0)) {
-        return 0;
-    }
-    return cg_read_whole(path, (unsigned char *)f, sizeof *f, &size) && size == sizeof *f;
-}
-
-static void sc_write(int game, int slot, const sc_file *f) {
-    char path[MAX_PATH];
-    const void *parts[1];
-    DWORD sizes[1];
-    if (!vv_paid_named_path(game, slot, "Island Event Collection Roll", path, 1)) {
-        return;
-    }
-    parts[0] = f;
-    sizes[0] = sizeof *f;
-    (void)vv_paid_write_parts(path, parts, sizes, 1);
-}
-
-static void sc_delete(int game, int slot) {
-    char path[MAX_PATH];
-    if (vv_paid_named_path(game, slot, "Island Event Collection Roll", path, 0)) {
-        DeleteFileA(path);
-    }
-}
-#endif
-
-static void sc_store(int game) {
-    sc_file f;
-    memset(&f, 0, sizeof f);
-    f.magic = SC_MAGIC;
-    f.version = SC_VERSION;
-    f.game = (unsigned int)game;
-    f.slot = (unsigned int)story_current_slot(game);
-    f.due = sc.due;
-    f.natural = sc.natural;
-    (void)sq_roster_now(game, f.roster);
-    sc_write(game, (int)f.slot, &f);
-}
-
-/* The village's due roll, from its file: only for the same village (a strict majority of its roster). */
-static void sc_restore(int game) {
-    sc_file f;
-    unsigned int roster[256];
-    int slot = story_current_slot(game);
-    if (sq_roster_now(game, roster) == 0) {
-        return;                        /* not loaded yet: asked again next frame */
-    }
-    sc_checked = 1;
-    if (slot < 1 || !sc_read(game, slot, &f)) {
-        return;
-    }
-    if (f.magic != SC_MAGIC || f.version != SC_VERSION || f.game != (unsigned int)game || f.slot != (unsigned int)slot
-        || !sq_same_village(f.roster, roster)) {
-        return;                        /* another village's (or unreadable): never used, left as it is */
-    }
-    sc.due_set = 1;
-    sc.due = f.due;
-    sc.natural = f.natural;
-}
-
-/* ---- The content filters (src/vv_event_content.py) ---------------------------------------------------------- */
-
-/* The island events' content filters ticked in `game` (island_event_filter_f01 .. f28 in the installed patches'
-   list): bit n-1 for Fnn.  The collection's events carry their own (each compiled event's conditions and
-   requirement); More Island Events' events are kept out whole by the table below. */
-static unsigned int sc_filters_on(int game) {
-    unsigned int on = 0;
-    int n;
-    char id[32];
-    cg_installed_load();
-    if (cg_installed_state != 1) {
-        return 0;
-    }
-    for (n = 1; n <= 28; ++n) {
-        wsprintfA(id, "island_event_filter_f%02d", n);
-        if (cg_installed_has(game, id)) {
-            on |= 1u << (n - 1);
-        }
-    }
-    return on;
-}
-
-#define SC_F(n) (1u << ((n) - 1))
-/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) and
-   the content filters each one's outcomes touch: The Aspiring Adventurer (a death, a disappearance), The Cave
-   Explorers (a death, the eerie cave), The Climb, The Troubling Signs (a death, a disaster, animals), Diving for
-   Treasure (a death, deep water), The Playful Dolphins (deep water), The Mysterious Mask, The Remembrance Ceremony
-   (twice: grief), The Rumblings (a disaster). */
-static const unsigned int SC_MORE_FILTERS[] = {
-    SC_F(3) | SC_F(4) | SC_F(5), SC_F(3) | SC_F(5) | SC_F(13), 0, SC_F(3) | SC_F(21) | SC_F(24),
-    SC_F(3) | SC_F(5) | SC_F(22), SC_F(22), 0, SC_F(5), SC_F(5), SC_F(21),
-};
-
-/* Whether a ticked content filter keeps More Island Events' entry `k` out (before the draw, and in Pick Island
-   Event's list). */
-static int sc_more_filtered(int game, int k) {
-    if (k < 0 || k >= (int)(sizeof SC_MORE_FILTERS / sizeof SC_MORE_FILTERS[0]) || SC_MORE_FILTERS[k] == 0) {
-        return 0;
-    }
-    return (sc_filters_on(game) & SC_MORE_FILTERS[k]) != 0;
+    return sc_rand(in->game, 100) < SC_REPLACE_PERCENT ? SC_ARM : SC_NONE;
 }
 
 /* ---- The candidates ------------------------------------------------------------------------------------------ */
@@ -702,15 +561,14 @@ static int sc_choose_and_arm(int game) {
 /* ---- Every frame --------------------------------------------------------------------------------------------- */
 
 static void sc_apply(int game, int act) {
-    if (act == SC_SAVE) {
-        sc_store(game);
-    } else if (act == SC_CANCEL) {
-        sc_delete(game, story_current_slot(game));
-    } else if (act == SC_ARM) {
-        sc.due_set = 0;
-        (void)sc_choose_and_arm(game);   /* nothing that can happen now: the roll is spent */
-        sc_delete(game, story_current_slot(game));
-        sc.busy_before = 1;              /* what comes next is ours, not a natural event */
+    if (act == SC_ARM) {
+        /* The natural event is about to come: one of the new events is armed in its place, without telling the
+           island timer's keeper (the game then writes the next natural time itself, as after its own event). */
+        sc_replace_pending = game;
+        sc_replace_natural = sc.decided_for;
+        if (!sc_choose_and_arm(game)) {
+            sc_replace_pending = 0;    /* nothing that can happen now: the game's own event comes */
+        }
     }
 }
 
@@ -726,18 +584,28 @@ static void sc_tick(int game) {
         sc.seen = -1;
         sc_game = game;
         sc_village = story_village_now(game);
-        sc_checked = 0;
+        sc_replace_pending = 0;
     }
     counter = ce_event_counter(game);
     memset(&in, 0, sizeof in);
     in.game = game;
     in.counter = -1;
+    in.population = -1;
     if (counter != NULL && sc_clock(game, &in.now, &timer)) {
         in.counter = *counter;
         in.natural = *timer;
-        if (!sc_checked) {
-            sc_restore(game);
-        }
+    }
+    if (sc_replace_pending == game && in.counter >= 0 && in.counter != sc.seen && sc.seen >= 0) {
+        sc_replace_pending = 0;        /* an island event came before the keeper had the arm: left as it is */
+    }
+    if (sc_replace_pending == game && timer != NULL && story_bought_on_its_way(game)) {
+        /* The keeper has our arm: the time it puts back after the delivery becomes the next natural time, drawn
+           as the game's own trigger draws it (a second write: itk_note keeps natural - value as the distance). */
+        unsigned int gap = (unsigned int)(SC_NEXT_HOURS[game][0]
+                                          + sc_rand(game, SC_NEXT_HOURS[game][1] - SC_NEXT_HOURS[game][0] + 1))
+                           * 3600u + (unsigned int)sc_rand(game, 3600);
+        story_island_arming(game, timer, sc_replace_natural - gap);
+        sc_replace_pending = 0;
     }
     in.busy = sc_busy(game);
     in.god_power = game == 5 && read_u32(0x51D5A4u) != 0xFFFFFFFFu;
@@ -899,9 +767,10 @@ static void sc_library_add(int game) {
 #ifdef VVFP_TEST
 /* ---- Test build only ---------------------------------------------------------------------------------------- */
 
-/* The roll's state machine on its own: io[0] game, [1] the Island Events Seen count (-1 none), [2] busy, [3] now,
-   [4] the island timer, [5] a God Power armed, [6] the trouble guard (-1 the village's own, else forced); out:
-   io[8] the action (SC_*), [9] due set, [10] due, [11] the natural time kept, [12] the count seen.  The action. */
+/* The decision on its own: io[0] game, [1] the Island Events Seen count (-1 none), [2] busy, [3] now, [4] the island
+   timer, [5] a God Power armed, [6] the trouble guard (-1 the village's own, else forced), [7] the population (-1 the
+   village's own); out: io[8] the action (SC_*), [9] decided, [10] the natural time decided, [12] the count seen.  The
+   action (the 50% roll is the game's own random routine: VvfpStoryProbeSetRolls). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionStep(int *io) {
     sc_input in;
     int act;
@@ -912,11 +781,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionStep(int *io) {
     in.natural = (unsigned int)io[4];
     in.god_power = io[5];
     sc_test_trouble = io[6];
+    in.population = io[7];
     act = sc_step(&sc, &in);
     io[8] = act;
-    io[9] = sc.due_set;
-    io[10] = (int)sc.due;
-    io[11] = (int)sc.natural;
+    io[9] = sc.decided;
+    io[10] = (int)sc.decided_for;
     io[12] = sc.seen;
     return act;
 }
@@ -926,10 +795,10 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeCollectionReset(void) {
     memset(&sc, 0, sizeof sc);
     sc.seen = -1;
     sc_game = 0;
-    sc_checked = 0;
     sc_test_trouble = -1;
+    sc_test_population = -1;
     sc_test_traced = 0;
-    sc_test_have_file = 0;
+    sc_replace_pending = 0;
 }
 
 /* The collection as the test gives it: the manifest's text (NULL: the real folder) and which entries arm (bit k of
@@ -990,14 +859,14 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionTrouble(int game) {
     return sc_trouble(game);
 }
 
-/* The save's file (kept in memory here): out[0] present, [1] due, [2] the natural time, [3] its slot.  Returns
-   out[0]. */
-__declspec(dllexport) int __stdcall VvfpStoryProbeCollectionFile(int *out) {
-    out[0] = sc_test_have_file;
-    out[1] = (int)sc_test_saved.due;
-    out[2] = (int)sc_test_saved.natural;
-    out[3] = (int)sc_test_saved.slot;
-    return out[0];
+/* The population the gate counts (-1: the village's own records; else forced for the frame hook). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeCollectionPopulation(int game, int force) {
+    sc_test_population = -1;
+    if (force >= 0) {
+        sc_test_population = force;
+        return force;
+    }
+    return sc_population(game);
 }
 
 /* One frame of the roll (VvfpStoryInstall's call), with the game's own memory. */
@@ -1005,13 +874,15 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeCollectionTick(int game) {
     sc_tick(game);
 }
 
-/* The roll's state: out[0] due set, [1] due, [2] natural, [3] seen, [4] the armed pick's slot, [5] it is natural. */
+/* The decision's state: out[0] decided, [1] 0, [2] the natural time decided, [3] seen, [4] the armed pick's slot,
+   [5] it is natural, [6] the keeper is not to be told of the next arm (the game it is for, 0 none). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeCollectionState(int *out) {
-    out[0] = sc.due_set;
-    out[1] = (int)sc.due;
-    out[2] = (int)sc.natural;
+    out[0] = sc.decided;
+    out[1] = 0;
+    out[2] = (int)sc.decided_for;
     out[3] = sc.seen;
     out[4] = pick_slot;
     out[5] = pick_natural;
+    out[6] = sc_replace_pending;
 }
 #endif

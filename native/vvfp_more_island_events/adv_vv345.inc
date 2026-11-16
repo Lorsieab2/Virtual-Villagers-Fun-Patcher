@@ -12,7 +12,7 @@
    nothing, the object is this DLL's), so the stock events keep every slot.  These events never take a share of the
    draw (the owner's rule: stock island event chances never change): the selector's loop end (cmp esi, N / jl) jumps
    here only to put the object of the event that is DUE -- picked with Pick Island Event, or drawn by Story / Cheat
-   Upgrades' separate rare roll (story_collection.inc), mie_pick.inc mp_due_object -- in slot 0 (else The Aspiring
+   Upgrades' natural-event replacement (story_collection.inc), mie_pick.inc mp_due_object -- in slot 0 (else The Aspiring
    Adventurer's, which nothing presents), and it adds no entry to the selector's list: the selector draws among the
    stock slots exactly as the stock game does, and Story / Cheat Upgrades' pick then presents slot 0 in place of the
    drawn event (vvfp_story_upgrades.c choose_from_table) when the object's own condition holds.  Slot 0 is put back

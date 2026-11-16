@@ -9,7 +9,7 @@
         outcomes the build writes a "rest" effect beside (code 25, src/vv_event_content.py; its value the longest
         rest, 60) -- they rest a random 30 to 60 real days (inclusive; rolled once for each rest), kept as a real date
         (the UTC second it ends; the games' clock is real time, running on while the game is closed);
-     2. while they rest the rare roll gives them no serious outcome;
+     2. while they rest the random draw at a natural island event gives them no serious outcome;
      3. after the rest, a serious outcome for them goes ahead with a chance rolled in 30..50 percent (inclusive) each
         time; otherwise it is dropped like a filtered one -- the guard harmable(role) the build writes on each weighted
         child leading to it (cg_harmable): the other outcomes keep their shares -- or, when it cannot be dropped (the
@@ -432,7 +432,7 @@ static unsigned int rs_random_below(unsigned int n) {
     return n > 1 ? rs_rng % n : 0u;
 }
 
-/* Whether the villager in `record` may have a serious new-event outcome from the rare roll now (Rest Periods on):
+/* Whether the villager in `record` may have a serious new-event outcome from the random draw at a natural island event now (Rest Periods on):
    never while resting; after a rest, with a chance rolled in 30..50 percent from `nonce` (0: no roll, they may);
    never rested, always. */
 static int rs_allowed(int game, const unsigned char *record, unsigned int nonce) {

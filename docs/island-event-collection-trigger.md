@@ -1,4 +1,4 @@
-# The Isola Grand Event Collection's rare roll
+# When the Isola Grand Event Collection's events come
 
 How the new island events come into a game, in all five games (v1.35.97). The code is
 `native/vvfp_story_upgrades/story_collection.inc` (in "VVFP Story Upgrades.dll"); the tests are
@@ -34,57 +34,29 @@ companion installed: every stock event keeps its 1/c share, the draw's call in T
 is never written while nothing is due, and A New Home's and The Lost Children's choosers give the
 same draws, draw for draw, as the stock code.
 
-## The roll
+## When a new event comes (the owner, 2026-11-15)
 
-1. **The edge.** Every frame, the game's Island Events Seen count is read. When it went up while,
-   in the frame before, nothing was armed or on its way (no Pick Island Event, no Custom Island
-   Event, no bought island event, no branching event running, nothing of the roll's own), the
-   event that just came was the game's own natural one.
-2. **The roll.** Once the village's two opening events are past, and when the village is not in
-   trouble (below), the game's own random routine rolls once:
+The separate rare roll between natural events is gone. Instead:
 
-   | Game | Probability after each natural event | Natural events a week (game time) | Expected collection events a week |
-   |---|---|---|---|
-   | A New Home | 30% | about 9.6 | about 2.9 |
-   | The Lost Children | 25% | about 11.6 | about 2.9 |
-   | The Secret City, The Tree of Life, New Believers | 20% | about 14.6 | about 2.9 |
+1. **At each natural island event** the game is about to deliver -- 3 seconds before its island timer is due, once
+   for that natural time, with nothing else armed or on its way (and in New Believers no God Power armed) -- the game's
+   own random routine rolls 50 of 100 (`SC_REPLACE_PERCENT`).
+2. **On a pass**, one new event (More Island Events' or the collection's, the draw below) is armed **instead**: the
+   game's own event does not happen that time. When no new event can be cast, the game's own event comes as always.
+3. **Never replaced:** the village's two opening events (`CE_OPENING_EVENTS`), a rescue event (the trouble guard holds
+   the game's own rescue rule), and nothing while the village is in trouble.
+4. **Population:** only when the village has **61 or more** villagers (`SC_MIN_POPULATION`: the living villagers the
+   game lists and the babies being carried, as the game's own rescue rule counts its population; New Believers'
+   believers only). Below 61 nothing is replaced.
+5. **The schedule goes on:** the new event is armed as a purchase arms one; once the island timer's keeper has the
+   arm, its kept time is set to a new natural time after this one, drawn as the game's own trigger draws one (A New
+   Home 12-23 hours, The Lost Children 10-19, the later three 8-15). The delivery counts as one island event.
+6. **The trouble guard** (unchanged): the stock rescue predicate in all five games, food stored below 10 a villager or
+   none, half the villagers or more sick, fewer than 6 villagers of 14 or more.
+7. **The choice** (unchanged): every event equally likely whichever source it comes from; a series counts as one
+   event; strict casting; a candidate that cannot be cast is left out and the draw made again.
 
-   The table is one constant, `SC_P_PERCENT`.
-3. **The due time** is `now + (natural - now) x U[0.30, 0.70]`: the natural time is the one the
-   game's trigger has just written into its island timer, so the rare event always falls between
-   two natural events. It is kept beside the save (`Virtual Villagers N Island Event Collection
-   Roll - Save S.dat`, in the save's own patcher folder), with the village's roster, used only
-   for the same village (a strict majority of its villagers), and deleted once delivered or
-   cancelled. A lost file loses one rare event, nothing else.
-4. **At due** it waits, a frame at a time, while anything else is armed or on its way, while a
-   branching event runs, while the game's next natural event is 60 seconds away or less, and in
-   New Believers while a God Power is armed. If a natural event comes first, or its natural time
-   passes, the roll is gone.
-5. **The trouble guard** cancels the roll (it never delays it), and it is asked at the roll too:
-   - the stock rescue predicate, in all five games: (men > women and women <= 2) or (men <= women
-     and men <= 2) or the population with the babies being carried below 3 (living villagers of
-     every age; New Believers' believers only);
-   - food stored below 10 a villager, or none;
-   - half the villagers or more sick;
-   - fewer than 6 villagers of 14 or more.
-
-   A rescue can only come at a natural trigger. Natural triggers keep their time (the island
-   timer's keeper, `native/shared/island_timer_keep.h`), and the roll never arms near one or while
-   the rescue predicate holds, so a rescue is never displaced.
-6. **The choice.** More Island Events' events that can happen now (when that patch is installed)
-   and the collection's events for this game (when its patch is installed: the Isola Grand Event
-   Collection's and the Companion Anthology's, one `manifest.txt`) are drawn together, EVERY EVENT
-   EQUALLY LIKELY whichever source it comes from (the owner, 2026-11-14): each More Island Events
-   event weight 1, each collection event its draw weight (`manifest.txt`, default 1), and a series
-   (the Golden Child scenes, the contests, the trials, the crises, each Living Catalogue template)
-   counts as one event, its members equally likely. A collection event is cast strictly: every requirement must hold, and the protected
-   villagers are never harmed. One that cannot be cast is left out and the draw is made again.
-7. **The arm.** A More Island Events event is armed as Pick Island Event arms it, with no message
-   and no charge (a natural arm never leaves a "could not happen" notice for the player). A
-   collection event is queued by the branching engine (`cg_queue_origin`, natural origin, strict
-   cast). Both make the island event due the way a purchase does, so the island timer's keeper
-   puts the game's natural next time back after the delivery. The delivery counts as one island
-   event.
+Pick Island Event and Custom Island Events (player-chosen) ignore the 61 and the 50%.
 
 ## Pick Island Event and the library
 

@@ -186,6 +186,9 @@ static unsigned int choice_resolve_target(int game, unsigned int va, unsigned in
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* story_collection.inc: the game whose armed new event is taking a natural one's place, until the island timer's
+   keeper has its arm (0 none). */
+static int sc_replace_pending;
 /* ... and by the locks below: a bought island event is on its way until the
    game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
 static int story_bought_on_its_way(int game);
@@ -1090,7 +1093,7 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     ce_requeue_tick(game);
     /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
     cg_tick(game);
-    /* The Isola Grand Event Collection's separate rare roll after a natural island event (story_collection.inc). */
+    /* The new island events in a natural one's place (story_collection.inc): half of them, from 61 villagers. */
     sc_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
@@ -1372,7 +1375,7 @@ static int lv_test_has_pack(void);
 #endif
 
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
-#include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
+#include "story_collection.inc" /* when the new island events come: in a natural one's place (v1.35.97) */
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
 #ifdef VVFP_TEST
 static int rs_test_on = -1;     /* Rest Periods for Island Events forced on (1) or off (0); -1 the installed list */

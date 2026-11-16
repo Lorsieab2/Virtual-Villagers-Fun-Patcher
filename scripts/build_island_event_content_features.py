@@ -77,14 +77,14 @@ def rest_row(game: int) -> dict:
                "in that time. After the rest, a serious outcome for them goes ahead only 30 to 50 percent of the "
                "time (rolled each time); otherwise it is left out like a filtered one (the event's other outcomes "
                "keep their shares, or the event goes to someone else or is skipped). They still take part in every "
-               "other event. Only the random rare roll waits: an event chosen with Pick Island Event or a Custom "
+               "other event. Only the random draw at a natural island event waits: an event chosen with Pick Island Event or a Custom "
                "Island Event always comes, and a Custom Island Event never starts a rest. The dates are kept in the "
                "patcher's own file beside the save (never in the save itself) and follow each villager. New events "
                "only. "
                f"Off by default; Owner's Defaults ticks it. {UNVERIFIED}",
                ["A rest effect beside each serious outcome of a new event keeps \"rested until\" (a real date) for "
                 "the villager and their immediate family in \"Virtual Villagers Fun Patcher\\Save S\\Data\\Island "
-                "Events\\Island Event Rest - Save S.dat\"; while it holds, the rare roll never casts them in a role of "
+                "Events\\Island Event Rest - Save S.dat\"; while it holds, the random draw at a natural island event never casts them in a role of "
                 "a new event that a serious outcome can reach (Pick Island Event and Custom Island Events are not "
                 "held back, and a Custom Island Event never starts a rest)."])
 
@@ -92,7 +92,7 @@ def rest_row(game: int) -> dict:
 def filter_row(game: int, fid: str) -> dict:
     name = f"Content Filter: {content.FILTERS[fid]}"
     return row(game, content.filter_patch(fid), name,
-               f"Keeps \"{content.FILTERS[fid].lower()}\" out of the new island events. Applied before the rare roll "
+               f"Keeps \"{content.FILTERS[fid].lower()}\" out of the new island events. Applied before the random draw at a natural island event "
                "picks an event: an outcome with that content is dropped where the event still makes sense without it "
                "(the other outcomes keep their shares), otherwise the whole event is skipped. Filters never hide a "
                "kind of person. New events only; the game's own events are unchanged. "
