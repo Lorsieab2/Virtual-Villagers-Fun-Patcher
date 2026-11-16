@@ -199,7 +199,8 @@ main villager):
   CHANGE AGE <who> YOUNGER|OLDER <n> YEARS (add "(NEVER PAST ELDER)" to stop at old age),
   CHANGE AGE <who> TO child|teen|18|adult|50|elder, YOUNG LOOK <who> (looks younger).
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
-  DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).
+  DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events),
+  OTHER PRESENTATION <who> (dresses and looks as the other sex, staying who they are), OWN PRESENTATION <who> (back).
 - VV5 only: BECOMES HEATHEN <who>.
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for

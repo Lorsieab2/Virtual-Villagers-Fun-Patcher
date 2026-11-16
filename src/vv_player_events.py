@@ -639,6 +639,7 @@ EFFECT_VOCABULARY = (
     "CHANGE AGE <who> TO child|teen|18|adult|50|elder", "MOOD GOOD|BAD <who>", "CELEBRATE [<who>|everyone]",
     "ACTION <who> \"<the game's action words>\"", "DAMAGE (small|normal|large|huge) [ON <structures>]",
     "BECOMES HEATHEN <who>", "STORY MUTE <who>", "CURE <who>", "REPAIR", "YOUNG LOOK <who>",
+    "OTHER PRESENTATION <who>", "OWN PRESENTATION <who>",
     "SKILL + BEST a little|some|a lot|hugely", "EVERYONE: MOOD GOOD", "EVERY HEALER: SKILL + Healing some",
     "3 RANDOM VILLAGERS: ILLNESS", "NEW VILLAGER (adult woman)", "NEW BABY OF THE NEWCOMERS",
     "PREGNANT <who> WITH <who> (TWINS OR TRIPLETS)", "CHANGE AGE <who> OLDER <n> YEARS (NEVER PAST ELDER)")
@@ -730,6 +731,11 @@ def plain_effect(line: str) -> PlainEffect | str:
         m = re.fullmatch(r"cure(?:d)?(?: " + _T + r")?", s, re.I)
         if m:
             return PlainEffect([fx(do="cure", role=need(_target(m.group(1))))], roles)
+        m = re.fullmatch(r"(other|own) presentation(?: " + _T + r")?", s, re.I)
+        if m:
+            # Code 23 (VVFP Gender Presentation.dll): the other sex's look, the sex field kept; OWN: back again.
+            return PlainEffect([fx(do="presentation", role=need(_target(m.group(2))),
+                                   on=m.group(1).lower() == "other")], roles)
         if re.fullmatch(r"repair(?: the damaged (?:huts|buildings))?", s, re.I):
             return PlainEffect([{"do": "repair", "structures": cie.DAMAGE_ANY}], roles)
         m = re.fullmatch(r"young look(?: " + _T + r")?", s, re.I)
@@ -959,8 +965,8 @@ BELIEVER_WORDS = (
     (r"\bthe new(?:ly converted)? believers\b", "the newcomers"),
     (r"\bnew(?:ly converted)? believers\b", "newcomers"),
     (r"\ba new believer\b", "a newcomer"),
-    (r"\bthe believers\b", "the tribe"),
     (r"\ball (?:the )?believers\b", "the whole tribe"),
+    (r"\bthe believers\b", "the tribe"),
     (r"\b(?:our|their|its) believers\b", "the tribe"),
     (r"\bbelievers\b", "tribe members"),
     (r"\ba believer\b", "a tribe member"),
@@ -984,8 +990,41 @@ def _guardians(text: str) -> str:
     keep = "\x00NB\x00"
     text = text.replace("New Believers", keep)           # the game's name
     for pattern, new in BELIEVER_WORDS:
+        if new in SINGULAR_SUBJECTS:
+            # A plural subject made singular: its verb agrees (the owner: "fix any grammar mistakes automatically").
+            text = re.sub(pattern + r"(\s+)([A-Za-z']+)\b",
+                          lambda m, new=new: _keep_case(m.group(0).split()[0], new) + m.group(1)
+                          + _singular_verb(m.group(2)), text, flags=re.I)
         text = re.sub(pattern, lambda m, new=new: _keep_case(m.group(0), new), text, flags=re.I)
     return text.replace(keep, "New Believers")
+
+
+# The words that made a plural subject singular ("the believers gather" -> "the tribe gathers").
+SINGULAR_SUBJECTS = ("the tribe", "the whole tribe")
+_IRREGULAR = {"are": "is", "were": "was", "have": "has", "do": "does", "go": "goes", "aren't": "isn't",
+              "weren't": "wasn't", "don't": "doesn't", "haven't": "hasn't", "they're": "it's"}
+_NOT_VERBS = {"and", "or", "but", "who", "that", "which", "of", "in", "at", "to", "for", "with", "from", "on", "by",
+              "will", "would", "can", "could", "should", "may", "might", "must", "had", "did", "too", "also", "all",
+              "both", "each", "always", "never", "often", "still", "then", "now", "here", "there", "is", "was", "has",
+              "does", "not", "just", "only", "even", "soon", "together", "already", "again", "once", "as", "so",
+              "than", "into", "around", "about", "over", "under", "after", "before", "while", "when", "where", "if",
+              "nearby", "itself", "themselves", "members", "member", "elders"}
+
+
+def _singular_verb(word: str) -> str:
+    """The verb right after a subject made singular, agreeing ("gather" -> "gathers", "are" -> "is"); any word
+    that is not plainly a plural verb is left as written (an adverb, a conjunction, a past tense)."""
+    low = word.lower()
+    if low in _IRREGULAR:
+        new = _IRREGULAR[low]
+        return new[0].upper() + new[1:] if word[0].isupper() else new
+    if low in _NOT_VERBS or not low.isalpha() or low.endswith(("s", "ed", "ing", "ly")) or len(low) < 2:
+        return word
+    if low.endswith(("sh", "ch", "x", "z", "o")):
+        return word + "es"
+    if low.endswith("y") and low[-2] not in "aeiou":
+        return word[:-1] + "ies"
+    return word + "s"
 
 
 def _has_heathen(text: str) -> bool:
@@ -2998,7 +3037,8 @@ main villager):
   CHANGE AGE <who> YOUNGER|OLDER <n> YEARS (add "(NEVER PAST ELDER)" to stop at old age),
   CHANGE AGE <who> TO child|teen|18|adult|50|elder, YOUNG LOOK <who> (looks younger).
 - MOOD GOOD <who>, MOOD BAD <who>, CELEBRATE (everyone dances), ACTION <who> "<the game's own action words>",
-  DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events).
+  DAMAGE (small|normal|large|huge) (damages huts and buildings), STORY MUTE <who> (never speaks in events),
+  OTHER PRESENTATION <who> (dresses and looks as the other sex, staying who they are), OWN PRESENTATION <who> (back).
 - VV5 only: BECOMES HEATHEN <who>.
 Optional lines: "Requires: population 20+" (or "3 children+", "golden child present", "chief present"),
 "Filters: F05" under an outcome (content filter tags: the patcher adds most by itself), "Description: one sentence for

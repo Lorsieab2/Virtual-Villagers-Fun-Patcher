@@ -143,7 +143,14 @@ class SimpleEvents(unittest.TestCase):
 
     def test_guardians_of_isola_believer_words(self):
         cases = {
-            "The believers gather.": "The tribe gather.",      # the verb is left as written (owner reviews)
+            "The believers gather.": "The tribe gathers.",     # the verb agrees (the owner: fix grammar)
+            "The believers are worried, and they talk.": "The tribe is worried, and they talk.",
+            "All the believers have gone home.": "The whole tribe has gone home.",
+            "The believers carry torches.": "The tribe carries torches.",
+            "The believers quickly hurry.": "The tribe quickly hurry.",     # an adverb: left alone, never over-fixed
+            "The believers watched.": "The tribe watched.",
+            "Our believers don't agree.": "The tribe doesn't agree.",
+            "The believers fish.": "The tribe fishes.",
             "A believer smiles.": "A tribe member smiles.",
             "the new believers arrive": "the newcomers arrive",
             "Two believers argue.": "Two tribe members argue.",
@@ -182,6 +189,7 @@ class EveryEffectWord(unittest.TestCase):
         "3 RANDOM VILLAGERS: ILLNESS": "sick", "NEW VILLAGER (adult woman)": "new_villager",
         "NEW BABY OF THE NEWCOMERS": "new_villager", "PREGNANT mother WITH father (TWINS)": "pregnant",
         "CHANGE AGE fisher OLDER 20 YEARS (NEVER PAST ELDER)": "change_age", "CLONE OF newcomer": "clone",
+        "OTHER PRESENTATION fisher": "presentation",
     }
 
     def test_the_new_kinds_carry_their_fields(self):
