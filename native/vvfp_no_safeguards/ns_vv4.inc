@@ -66,9 +66,9 @@
      27 The State of the Tree, rejuvenated (0x414F00)  KEPT (puzzle)  3 or more tree puzzles solved.
      28 The Abandoned Infants (0x414F60)
          LIFTED  0x414F6F not sick; 0x414FA4 the room check (see ROOM); 0x414FA6 6 women -> 1.
-         KEPT (casting)  a woman not pregnant or nursing (she becomes a mother).  The condition's minimum age is
-                 raised from 14 to 18 (0x414F79) to match the event's own mother pick 0x467B00 (age >= 360 at
-                 0x467B42; sick women allowed), so the event comes only when it can give a baby to someone.
+         KEPT (casting)  a woman of 14 or more not pregnant or nursing (she becomes a mother), as in the stock
+                 game (the owner, 2026-11-15: nothing stricter than vanilla; the event's own mother pick 0x467B00
+                 still takes a woman of 18 or more, as in the stock game).
          KEPT-FOR-SAFETY  the table size (see ROOM).
      32 The Mosquito Larvae (0x4159C0)
          KEPT (casting)  a living villager of 14 or more.
@@ -106,9 +106,8 @@ static const ns_site NS_VV4_SITES[] = {
     { 0x414CBAu, 2, { 0x7C, 0x14 }, { 0x90, 0x90 } },
     /* 25 Daredevil Barrel: the room check (je -> nops) */
     { 0x414D5Cu, 2, { 0x74, 0x22 }, { 0x90, 0x90 } },
-    /* 28 The Abandoned Infants: sick allowed; minimum age 280 -> 360 (the mother pick's own); room; 6 -> 1 */
+    /* 28 The Abandoned Infants: sick allowed; room; 6 -> 1 (the minimum age 14 stays the stock one) */
     { 0x414F6Fu, 2, { 0x6A, 0x00 }, { 0x6A, 0x01 } },
-    { 0x414F79u, 5, { 0x68, 0x18, 0x01, 0x00, 0x00 }, { 0x68, 0x68, 0x01, 0x00, 0x00 } },
     { 0x414FA4u, 2, { 0x74, 0x0A }, { 0x90, 0x90 } },
     { 0x414FA6u, 4, { 0x83, 0x3C, 0x24, 0x06 }, { 0x83, 0x3C, 0x24, 0x01 } },
     /* 13 The Arc of Brilliant Colors: pregnant / nursing allowed */

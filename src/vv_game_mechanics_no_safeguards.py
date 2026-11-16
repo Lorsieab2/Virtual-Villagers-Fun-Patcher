@@ -57,7 +57,7 @@ GAMES = {
         "Abandoned Infants' 6 women to 1 and its room; the Daredevil Barrel's room; Festival of the Banyan's 500 "
         "deliveries; The Pretty Shell's 2 villagers of 14 or more to 1.",
         "Kept: each event's own villagers (a child, a villager of 14 or more, a pregnant or nursing woman, and for "
-        "The Abandoned Infants a woman of 18 or more to take the baby -- the event's own pick); the tree puzzles (3 "
+        "The Abandoned Infants a woman of 14 or more, as in the normal game); the tree puzzles (3 "
         "of 5 for Festival of the Banyan, the tree's state events), The Stream for the Daredevil Barrel and The "
         "Mosquito Larvae, Soap for The Mosquito Larvae, the Cooking Pit for Innovation in Farming; the burning fire "
         "for The Cold Snap; the village not empty; the catch-up wait."),
@@ -66,11 +66,12 @@ GAMES = {
         "cast); \"not sick\" for the Heathen children and Heathens of Outreach and The Defector; \"not pregnant or "
         "nursing\" for Bed Bugs; Science below 2 (You're Doing It Wrong) and exactly 2 (The Advanced Artifacts); "
         "100 food for Trick Or Trade; Food Mastery below 2 for The Migrating Fruit Bats; the room for the four "
-        "events that bring villagers; The Strange Nectar from 18 to 14.",
+        "events that bring villagers; The Strange Nectar's 18 (any age now: a child who drinks it grows up at once; "
+        "not yet seen in play).",
         "Kept: each event's own believer or Heathen (and a believer child where the story is a child's); the "
         "Heathen role characters; the puzzles (the Hydroponic Farm, the Knowing Totem, The Heathen Scientist); the "
-        "burning fire for The Cold Snap; no God Power armed on the pointer and The Strange Nectar's 14 (kept for "
-        "safety: not proven safe without them); the catch-up wait."),
+        "burning fire for The Cold Snap; no God Power armed on the pointer (kept for safety: not proven safe "
+        "without it); the catch-up wait."),
 }
 
 
