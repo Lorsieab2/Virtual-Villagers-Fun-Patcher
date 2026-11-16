@@ -370,7 +370,7 @@ def block_tags(text: str, slots: list[Slot]) -> tuple[int, int, int]:
     adult = any(s.min_age >= 18 for s in vill)
     if ROMANCE_RE.search(text) and minor and adult:
         # the owner's own scene with a child and adults in it (a parent's new partner, a wedding): minor-centred,
-        # never mixed with romance from elsewhere (the romance pieces never travel: mark_portable)
+        # never mixed with romance from elsewhere
         tags |= vp.TAG_MINOR
         never |= vp.TAG_ADULT_ROMANCE
     elif ROMANCE_RE.search(text):
@@ -812,104 +812,11 @@ _SPLIT: list = []
 
 # ---- Cross-event mixing (the owner: "everything can be mixed with anything", where it makes sense) ----------------
 #
-# A collection event whose setup names a situation family (food, visitors, sickness, ...) goes into that family's
-# files ("x_<family>"), where every setup asks family 1: a setup takes approaches from any event of its family.  An
-# approach or outcome is PORTABLE when it names nothing particular to its own setup (no word of its own setup's text
-# or title outside the family's own words) and uses no unprefixed placeholder (whose role is its own event's
-# default); an approach is portable only with at least one portable outcome.  Pieces that are not portable keep to
-# their own setup (one EVENT BIT per event in the file).  Approaches with the same label and text are one piece whose
-# outcomes are all the events' (so the mix never shows the same button twice); a label shared by three or more
-# events (a generic one) weighs 1, a concrete one 10.
+# The readers' situation tags (data/event_collection/procedural_situations.json) decide which answers move
+# between events: mix_file below, docs/event-collection/procedural-pieces-data.md 3.
 
-FAMILIES: dict[str, str] = {
-    "food": "food fruit harvest meal feast stew cook cooking store storehouse hunger hungry starve eat berry crop "
-            "spoil spoiled bread breadfruit mushroom ration supper dinner",
-    "visitor": "visitor stranger traveler traveller newcomer guest castaway outsider wanderer arrive arrival "
-               "merchant trader canoe",
-    "sickness": "sick sickness ill illness fever cough injury injured wound wounded healer healing medicine "
-                "remedy herb pain hurt patient treatment cure care",
-    "weather": "storm rain wind drought flood thunder lightning hurricane cyclone weather heat cold",
-    "animal": "animal bird fish dolphin crab monkey turtle pig goat parrot lizard insect beetle snake spider shark "
-              "whale seal creature nest",
-    "craft": "build builder building hut tool weave weaver basket pottery potter craft carve carving canoe net "
-             "rope roof wall kiln",
-    "learning": "teach teacher lesson learn learning study research experiment apprentice scholar invention invent "
-                "discover discovery idea",
-    "arts": "song sing singer music musician dance dancer drum paint painting story storyteller poem verse art "
-            "artist mural",
-    "celebration": "festival feast celebrate celebration ceremony wedding gift party anniversary",
-    "conflict": "argue argument quarrel dispute disagree disagreement fight rival rivalry accuse accusation blame "
-                "jealous",
-    "family": "baby parent mother father sibling brother sister family grandparent grandmother grandfather "
-              "daughter son",
-    "children": "child children play game toy youngster",
-    "grief": "death die dying grave mourn mourning funeral loss lost memorial",
-    "belief": "spirit ancestor prayer pray shrine sacred omen ritual blessing curse god goddess faith",
-    "mystery": "strange mysterious glowing glow cave ancient ruin secret hidden vanish shadow",
-    "sea": "reef beach ocean lagoon boat shore wave tide sea island swim swimmer",
-    "farming": "farm farmer garden gardener field soil seed plant planting grow",
-    "leadership": "chief leader council elder decision rule law tradition custom",
-}
-STOP = set("""the and with that this from they their them have has had were was will would could should about after
-before into over more most some other others every each while when what which there here then than also only just
-very much many still even again back down away been being does done doing both same different new old own way part
-whole first last little small large good well make makes made take takes took give gives gave find finds found look
-looks seem seems become becomes became begin begins began keep keeps kept feel feels felt help helps helped need
-needs want wants know knows knew think thinks thought decide decides decided choose chooses chose offer offers
-offered ask asks asked tell tells told talk talks share shares work works worked place thing something nothing
-everything anything around through without within toward towards because though although might must cannot can
-your yours ours ourselves themselves himself herself itself villager villagers village tribe someone everyone
-anyone people person friend friends time times day days night morning evening afternoon together another others
-next soon later now never always often once twice almost enough rather quite perhaps maybe instead
-said says saying whose whom where why how into onto upon among
-gently quietly carefully slowly quickly simply really truly together everyone else other each its it's
-the and but for nor yet not all any are was her him his she its our out own too who why how get got let put say see saw yes way new old big bad far few off ago did does had has may can let lot one day end now use
-""".split())
 ROLE_SEX = ("mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle", "girl/boy",
             "lady/gentleman")
-
-
-def stem(w: str) -> str:
-    w = w.lower().strip("'")
-    if w.endswith("'s"):
-        w = w[:-2]
-    if len(w) > 5 and w.endswith("ies"):
-        return w[:-3] + "y"
-    if len(w) > 6 and w.endswith("ing"):
-        return w[:-3]
-    if len(w) > 5 and w.endswith("ed"):
-        return w[:-2]
-    if len(w) > 5 and w.endswith("es"):
-        return w[:-2]
-    if len(w) > 4 and w.endswith("s") and not w.endswith("ss"):
-        return w[:-1]
-    return w
-
-
-FAM_STEMS = {f: {stem(w) for w in ws.split()} for f, ws in FAMILIES.items()}
-STOP_STEMS = {stem(w) for w in STOP}
-
-
-def words(text: str | None) -> set[str]:
-    if not text:
-        return set()
-    text = re.sub(r"\([^()]*\)|\{[^{}]*\}", " ", text)
-    out = set()
-    for w in re.findall(r"[A-Za-z']+", text):
-        s = stem(w)
-        if len(s) >= 3 and s not in STOP_STEMS:
-            out.add(s)
-    return out
-
-
-def classify(text: str) -> str | None:
-    ws = words(text)
-    best, score = None, 0
-    for f, st in FAM_STEMS.items():
-        n = len(ws & st)
-        if n > score:
-            best, score = f, n
-    return best
 
 
 _UNPREFIXED = {k.lower() for k in cg.KEYWORDS} | {k.lower() for k in cg.PRONOUNS_V6} | set(ROLE_SEX)
@@ -924,69 +831,7 @@ def unprefixed(text: str | None) -> bool:
     return False
 
 
-# Words any situation can hold: how villagers answer and feel, whatever the matter is.
-GENERIC = """advice elder elders wise wisdom listen listening patient patience calm calmly quiet wait waiting rest
-rested tired honest honestly honesty truth kind kindness gentle thank thanks thankful grateful gratitude proud pride
-happy happily glad relief relieved sorry apologize apologise apology apologizes forgive forgiveness laugh laughter
-laughing smile smiling grin cheer encourage encouragement encouraging support supportive comfort comforting
-reassure reassurance trust trusted worry worried nervous afraid fear brave bravery courage confident confidence doubt
-unsure uncertain uncertainty hope hopeful idea plan planning attempt effort practice practise improve improvement
-progress mistake fail failure succeed success understand understanding explain explanation agree agreement
-compromise decision space moment pause careful thoughtful feeling feelings heart warm warmly respect respectful fair
-fairly promise accept refuse suggest suggestion change changed continue stop start return calmer closer stronger
-happier wiser quietly openly gently patiently honestly kindly firmly together alone shared sharing opinion opinions
-question questions answer answers advice support worry options choice choices solution solutions problem problems
-matter matters situation concern concerns view views mind minds voice voices word words thanks smiles nod nods
-hug hugs tear tears cry cries crying everyone chance outcome result results lesson happen happens happened mood spirits morale grow
-grows learn learns learned experience effort""".split()
-GENERIC_STEMS = {stem(w) for w in GENERIC}
-
-SPEC: dict[str, set[str]] = {}          # piece id -> the words particular to its own setup it names
-SETUP_WORDS: dict[str, set[str]] = {}   # setup id -> its text's and title's words
-PORT: dict[str, bool] = {}              # piece id -> portable
 LABELS: collections.Counter = collections.Counter()   # a label's events (generic when 3 or more)
-
-
-def mark_portable(pieces: list[Piece], fam: str) -> None:
-    setups = [p for p in pieces if p.kind == vp.KIND_SETUP]
-    own: set[str] = set()
-    for s in setups:
-        own |= words(s.text) | words(s.label)
-    for s in setups:
-        SETUP_WORDS[s.id] = own
-    fw = FAM_STEMS[fam]
-    for p in pieces:
-        if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME):
-            # what the piece is about beyond any situation's common words and its family's own words: a piece that
-            # names anything more (a mat, a lesson, the mourning, a rope swing) belongs to its own setup
-            # A piece may travel to another setup only when every such word is also its OWN setup's (the scene it
-            # was written for named it) and the other setup names it too (word bits, mix_file).
-            # An outcome's (or an answer's popup's) words that its own setup does not name are what happens next
-            # (allowed); the words it shares with its own setup point back at that scene (particular).  A button's
-            # words are all particular unless common: an answer must suit the setup it is shown under.
-            # the family's own words are particular too (a "secret" outcome needs a setup that has a secret)
-            SPEC[p.id] = ((words(p.text) & own) | words(p.label)) - GENERIC_STEMS
-            # what happens next may bring at most one new particular word ("The old traditions and new ideas mix"
-            # tells its own story; "The patient asks for more time" can follow any setup with a patient)
-            news = words(p.text) - own - GENERIC_STEMS
-            PORT[p.id] = (SPEC[p.id] <= own and len(news) <= 1 and not unprefixed(p.text) and not unprefixed(p.label)
-                          and not p.tags & vp.TAG_ROMANCE and not ROMANCE_RE.search(f"{p.text} {p.label}")
-                          and short_scene(p.text) and not DEICTIC.search(p.label or ""))
-
-
-# A word pointing at something its own scene showed ("Friends admire it.", "Respect Its Space", "Learn It Too"):
-# under another setup it points at nothing.
-DEICTIC = re.compile(r"(?<![A-Za-z'])(it|its|this|that|these|those|there|then)(?![A-Za-z'])", re.I)
-
-
-def short_scene(text: str | None) -> bool:
-    """A text that can follow another event's setup: no dialogue (a spoken line answers its own scene's words) and
-    at most two short sentences (a longer passage tells its own story)."""
-    if not text:
-        return True
-    if DEICTIC.search(text):
-        return False
-    return '"' not in text and len(text) <= 200 and len(re.findall(r"[.!?](\s|$)", text)) <= 2
 
 
 def _split_all(never) -> dict:
@@ -994,6 +839,10 @@ def _split_all(never) -> dict:
     global VARIANTS
     STATS.clear()
     SKIPS.clear()
+    SITU.clear()
+    SITU.update(load_situations())
+    MOVERS.clear()
+    EVENT_OF.clear()
     shared = {"pools": cc.shared_pools()}
     bank = lm.Bank()
     VARIANTS = lm.generate(bank)
@@ -1013,13 +862,17 @@ def _split_all(never) -> dict:
         for lab in {p.label.lower().rstrip(".!") for p in ev.pieces if p.kind == vp.KIND_APPROACH}:
             LABELS[lab] += 1
         setup = next(p for p in ev.pieces if p.kind == vp.KIND_SETUP)
-        fam = classify(f"{setup.text} {setup.label}")
-        if fam:
-            mark_portable(ev.pieces, fam)
-            STATS[f"family {fam}"] += 1
-            groups.setdefault(f"x_{fam}", []).append((ev.pieces, []))
+        eid = canon(setup.id)[:-2]
+        tags = SITU.get(eid)
+        if tags and tags.get("setup") and tags["setup"]["situations"]:
+            for p in ev.pieces:
+                EVENT_OF[p.id] = eid
+            prime = tags["setup"]["situations"][0]
+            STATS[f"situation {prime}"] += 1
+            groups.setdefault(f"x_{prime}", []).append((ev.pieces, []))
+            MOVERS.extend(movers_of(eid, ev.pieces, tags))
             continue
-        STATS["no situation family (own event only)"] += 1
+        STATS["no situation tags (own event only)"] += 1
         rel = path.relative_to(COLLECTION).parts
         grp = _pid("_".join(rel[:-1]))[:20] or "misc"
         groups.setdefault(grp, []).append((ev.pieces, []))
@@ -1063,106 +916,162 @@ def fit_games(pieces: list[Piece]) -> None:
                 STATS["setup left out of a game: its title-case title is too wide"] += 1
 
 
-MIX_EVENTS = 12                         # events a mix file holds: one event bit each
-MIX_WORDS = 10                          # word bits a mix file may use (the rest: slot merges, validator pairs)
-W_CONCRETE, W_GENERIC = 10, 1
+SITU: dict = {}                         # procedural_situations.json "events"
+EVENT_OF: dict[str, str] = {}           # piece id -> its event id
+MOVERS: list = []                       # (event id, approach, [its moving outcomes], answer tags)
+TRAVEL: dict[tuple, dict] = {}          # (file, piece id) -> {"situations", "needs", "tone"} of a travelling piece
+SETUP_TAGS: dict[str, dict] = {}        # setup piece id -> its tags
+MIX_EVENTS = 8                          # events a mix file holds: one event bit each
+MIX_GUESTS = 40                         # answers from other events a mix file takes in
+W_CONCRETE, W_GENERIC = 40, 10          # the event's own answers: concrete ones first
+W_GUEST, W_GUEST_GENERIC = 2, 1         # answers from other events
+SERIOUS_SITUATIONS = {"grief", "sickness", "fear", "danger", "sea_danger"}
 
 
-def mix_file(name: str, part: list, never: list) -> list[Piece]:
-    """One cross-event file (docs/event-collection/procedural-pieces-data.md 3): family 1 for every setup and
-    approach; a piece travels to another event's setup when every particular word it uses is its own setup's and
-    that setup's too (word bits); anything else keeps to its own setup (event bits); one piece per shared answer;
-    the blocks."""
+def movers_of(eid: str, pieces: list[Piece], tags: dict) -> list:
+    """The event's answers the readers marked as able to move, each with its outcomes that may move too."""
+    out = []
+    outs = [p for p in pieces if p.kind == vp.KIND_OUTCOME]
+    for a in pieces:
+        if a.kind != vp.KIND_APPROACH:
+            continue
+        at = tags["answers"].get(canon(a.id))
+        if not at or not at["moves"] or not at["situations"] or unprefixed(a.text) or unprefixed(a.label):
+            continue
+        mine = []
+        for o in outs:
+            ot = tags["outcomes"].get(canon(o.id))
+            if ot and ot["moves"] and not unprefixed(o.text) and any(lk.approach == a.id for lk in o.links):
+                mine.append(o)
+        if mine:
+            out.append((eid, a, mine, at))
+    return out
+
+
+def with_outcome_needs(at: dict, eid: str, outs: list[Piece]) -> dict:
+    """An answer also needs what its least-needing moving outcome needs, so it is only offered where one of its
+    outcomes can follow."""
+    least = min((set(SITU[eid]["outcomes"][canon(o.id)]["needs"]) for o in outs), key=len)
+    return dict(at, needs=sorted(set(at["needs"]) | least))
+
+
+def mix_file(name: str, part: list, never: list, prime: str, index: int) -> list[Piece]:
+    """One situation file (docs/event-collection/procedural-pieces-data.md 3): its events' setups all pose `prime`;
+    every setup and approach is family 1; answers the readers marked as moving (the file's own and up to
+    MIX_GUESTS from other events that suit `prime`) travel with their moving outcomes to every setup of the file
+    that has what they need (need bits) and is not serious when they are funny; everything else keeps to its own
+    setup (event bits)."""
     part = copy.deepcopy(part)
     k = len(part)
     ebits = [1 << (6 + i) for i in range(k)]
     every = sum(ebits)
     evi: dict[str, int] = {}
-    sw: list[set[str]] = []
+    eids = []
+    setup_needs: list[set[str]] = []
+    serious_setup: list[bool] = []
     for i, (ps, _fb) in enumerate(part):
-        own: set[str] = set()
+        eid = EVENT_OF[ps[0].id]
+        eids.append(eid)
+        st = SITU[eid]["setup"]
+        setup_needs.append(set(st["needs"]))
+        serious_setup.append(bool(set(st["situations"]) & SERIOUS_SITUATIONS) or st["tone"] == "solemn")
         for p in ps:
             evi[p.id] = i
             if p.kind == vp.KIND_SETUP:
-                own |= SETUP_WORDS.get(p.id, set())
-        sw.append(own)
-    all_pieces = [p for ps, _fb in part for p in ps]
-    movers = [p for p in all_pieces if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME) and PORT.get(p.id)]
-    # the words worth a bit: named by setups of two events or more, and by pieces that could travel with them
-    shared = collections.Counter(w for s in sw for w in s)
-    chosen: list[str] = []
-    budget = min(MIX_WORDS, 26 - k - 4)
-    while len(chosen) < budget:
-        best, gain = None, 0
-        have = set(chosen)
-        for w in sorted({w for p in movers for w in SPEC[p.id]} - have):
-            if shared[w] < 2:
+                SETUP_TAGS[p.id] = st
+    own_pieces = [p for ps, _fb in part for p in ps]
+    by_id = {p.id: p for p in own_pieces}
+    labels_here = {p.label.lower().rstrip(".!") for p in own_pieces if p.kind == vp.KIND_APPROACH}
+    travel: dict[str, dict] = {}            # piece id -> tags
+    moving_outs: dict[str, list[Piece]] = {}
+    # the file's own answers that move: they must suit the file's situation and their own setup's scene; of the
+    # file's answers with one label only the first moves (never the same button twice under a third setup)
+    moving_labels: set[str] = set()
+    for eid, a, outs, at in MOVERS:
+        if a.id in by_id and prime in at["situations"]:
+            lab = a.label.lower().rstrip(".!")
+            if lab in moving_labels:
                 continue
-            g = sum(1 for p in movers if w in SPEC[p.id] and SPEC[p.id] <= have | {w})
-            if g > gain:
-                best, gain = w, g
-        if best is None:
-            break
-        chosen.append(best)
-    wbits = {w: 1 << (6 + k + j) for j, w in enumerate(chosen)}
-    travel = {p.id: bool(PORT.get(p.id)) and SPEC[p.id] <= set(chosen) for p in all_pieces
-              if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME)}
-    needs: dict[str, set[str]] = {}
-    outs_of: dict[str, list[Piece]] = collections.defaultdict(list)
-    for o in all_pieces:
-        if o.kind == vp.KIND_OUTCOME:
-            for lk in o.links:
-                outs_of[lk.approach].append(o)
-    for a in all_pieces:
-        if a.kind == vp.KIND_APPROACH and travel[a.id]:
-            # an answer travels with an outcome that can always follow it there: it also needs the words of its
-            # travelling outcome that needs the fewest
-            outs = [o for o in outs_of[a.id] if travel[o.id]]
-            travel[a.id] = bool(outs)
-            if outs:
-                best = min(outs, key=lambda o: (len(SPEC[o.id] - SPEC[a.id]), o.id))
-                needs[a.id] = SPEC[a.id] | SPEC[best.id]
-            have_s = {sl.name for sl in a.slots}
-            for o in outs:              # it brings the villagers those outcomes act on (always "plain")
-                for sl in o.slots:
-                    if sl.name not in have_s and not sl.flags & vp.SF_OPTIONAL:
-                        a.slots.append(copy.deepcopy(sl))
-                        have_s.add(sl.name)
-    pieces: list[Piece] = []
-    keep: dict[tuple, Piece] = {}
-    seen_label: dict[str, Piece] = {}
-    rename: dict[str, str] = {}
-    for p in all_pieces:
-        i = evi[p.id]
-        p.topic = 1 << min(31, i)
+            i = evi[a.id]
+            ok_outs = [by_id[o.id] for o in outs
+                       if set(SITU[eid]["outcomes"][canon(o.id)]["needs"]) <= setup_needs[i]]
+            if set(at["needs"]) <= setup_needs[i] and ok_outs:
+                moving_labels.add(lab)
+                travel[a.id] = with_outcome_needs(at, eid, ok_outs)
+                moving_outs[a.id] = ok_outs
+                for o in ok_outs:
+                    travel[o.id] = {"situations": None, "needs": SITU[eid]["outcomes"][canon(o.id)]["needs"],
+                                    "tone": at["tone"]}
+    # guests: answers of other events that suit this situation (a different slice for each file of the situation)
+    cands = [m for m in MOVERS if m[0] not in eids and prime in m[3]["situations"]]
+    guests: list[Piece] = []
+    if cands:
+        start = (index * MIX_GUESTS) % len(cands)
+        for eid, a, outs, at in cands[start:] + cands[:start]:
+            if len(guests) >= MIX_GUESTS:
+                break
+            lab = a.label.lower().rstrip(".!")
+            if lab in labels_here:
+                continue                        # never the same button twice
+            labels_here.add(lab)
+            g = copy.deepcopy(a)
+            g.id = (f"g{len(moving_outs)}_" + a.id)[:100]
+            g.family = 1
+            travel[g.id] = with_outcome_needs(at, eid, outs)
+            gouts = []
+            for o in outs:
+                go = copy.deepcopy(o)
+                go.id = (f"g{len(moving_outs)}_" + o.id)[:100]
+                w = next(lk.weight for lk in o.links if lk.approach == a.id)
+                go.links = [Link(g.id, w)]
+                travel[go.id] = {"situations": None, "needs": SITU[eid]["outcomes"][canon(o.id)]["needs"],
+                                 "tone": at["tone"]}
+                gouts.append(go)
+            moving_outs[g.id] = gouts
+            guests += [g] + gouts
+            STATS["guest answers placed"] += 1
+    # an answer brings the villagers its moving outcomes act on (they are always "plain", spec 3 step 6)
+    for aid, outs in moving_outs.items():
+        a = by_id.get(aid) or next(p for p in guests if p.id == aid)
+        have = {sl.name for sl in a.slots}
+        for o in outs:
+            for sl in o.slots:
+                if sl.name not in have and not sl.flags & vp.SF_OPTIONAL:
+                    a.slots.append(copy.deepcopy(sl))
+                    have.add(sl.name)
+    pieces = own_pieces + guests
+    # need bits: a setup tags the needs it does not have; a travelling piece is NEVER WITH the needs it has
+    used = sorted({n for t in travel.values() for n in t["needs"]})
+    nbits = {n: 1 << (6 + k + j) for j, n in enumerate(used)}
+    sbit = 1 << (6 + k + len(used))
+    for p in pieces:
+        i = evi.get(p.id)
         if p.kind == vp.KIND_SETUP:
             p.family = 1
             p.tags |= ebits[i]
-            for w, bit in wbits.items():
-                if w not in sw[i]:
-                    p.tags |= bit       # this setup does not name w
+            for n, bit in nbits.items():
+                if n not in setup_needs[i]:
+                    p.tags |= bit
+            if serious_setup[i]:
+                p.tags |= sbit
         if p.kind == vp.KIND_APPROACH:
             p.family = 1
-            p.weight = W_GENERIC if LABELS[p.label.lower().rstrip(".!")] >= 3 else W_CONCRETE
-            if travel[p.id]:
-                key = (p.label.lower(), p.text, repr(p.slots), p.games, frozenset(needs.get(p.id, SPEC[p.id])))
-                lab = p.label.lower().rstrip(".!")
-                if key in keep:
-                    rename[p.id] = keep[key].id
-                    STATS["shared answers merged"] += 1
-                    continue
-                if lab in seen_label:
-                    travel[p.id] = False      # the same button with another text: keeps to its own setup
-                else:
-                    keep[key] = p
-                    seen_label[lab] = p
+            generic = LABELS[p.label.lower().rstrip(".!")] >= 3
+            if i is None:                       # a guest: a welcome extra, never crowding out the event's own
+                p.weight = W_GUEST_GENERIC if generic else W_GUEST
+            else:
+                p.weight = W_GENERIC if generic else W_CONCRETE
         if p.kind in (vp.KIND_APPROACH, vp.KIND_OUTCOME):
-            if not travel[p.id]:
+            t = travel.get(p.id)
+            if t is None:
                 p.never |= every & ~ebits[i]
                 p.tags &= ~(vp.TAG_POWER | vp.TAG_INVALIDATING | vp.TAG_LESSER)
             else:
-                for w in needs.get(p.id, SPEC[p.id]):
-                    p.never |= wbits[w]
+                for n in t["needs"]:
+                    p.never |= nbits[n]
+                if t["tone"] == "funny":
+                    p.never |= sbit
+                TRAVEL[(name, p.id)] = t
                 STATS[f"travelling {vp.KIND_NAMES[p.kind]}s"] += 1
         if p.filters & GRIEF:
             p.never |= vp.TAG_INVALIDATING
@@ -1170,33 +1079,22 @@ def mix_file(name: str, part: list, never: list) -> list[Piece]:
             p.never |= vp.TAG_LESSER
         if p.tags & vp.TAG_MINOR:
             p.never |= vp.TAG_POWER
-        pieces.append(p)
-    # no button twice: a travelling answer keeps away from the setup of any other event with the same label
+    # an own answer that travels keeps away from another event's setup with an answer of the same label
     by_label: dict[str, list[Piece]] = collections.defaultdict(list)
-    for p in pieces:
+    for p in own_pieces:
         if p.kind == vp.KIND_APPROACH:
             by_label[p.label.lower().rstrip(".!")].append(p)
     for same in by_label.values():
         for a in same:
-            if travel[a.id]:
+            if a.id in travel:
                 for b in same:
                     if b is not a and evi[b.id] != evi[a.id]:
                         a.never |= ebits[evi[b.id]]
-    if rename:
-        for p in pieces:
-            if p.kind == vp.KIND_OUTCOME:
-                out, have = [], set()
-                for lk in p.links:
-                    aid = rename.get(lk.approach, lk.approach)
-                    if aid not in have:
-                        have.add(aid)
-                        out.append(Link(aid, lk.weight))
-                p.links = out
     ids = {p.id for p in pieces}
     forbid = [(x["a"], x["b"], x["why"]) for x in never if x["a"] in ids and x["b"] in ids]
     forbid += merge_conflicts(pieces)
     fit_games(pieces)
-    assign_bits(pieces, forbid, free=tuple(range(6 + k + len(chosen), 32)))
+    assign_bits(pieces, forbid, free=tuple(range(6 + k + len(used) + 1, 32)))
     return pieces
 
 
@@ -1223,7 +1121,7 @@ def _assemble(groups: dict, never: list, write: bool) -> dict[str, list[Piece]]:
                 k += 1
                 name = f"{grp[:19]}_{k}"
                 try:
-                    files[name] = mix_file(name, part, never)
+                    files[name] = mix_file(name, part, never, grp[2:], k)
                 except ValueError:
                     if len(part) < 2:
                         raise
@@ -1508,14 +1406,24 @@ def block_problems(comp) -> list[tuple[str, str, str]]:
             out.append((p.id, q.id, "invalidating pain"))
         if p.tags & vp.TAG_LESSER and q.filters & filters_of(("F16", "F17")):
             out.append((p.id, q.id, "portraying someone as lesser"))
-    # sense across events: a piece from another event names nothing particular to its own setup that this setup
-    # lacks; no button twice
-    here = SETUP_WORDS.get(comp.setup.id, set())
+    # sense across events (the readers' situation tags): a piece from another event was marked as moving, suits one
+    # of this setup's situations, needs nothing this setup lacks, and is not funny under a serious setup; no button
+    # twice
+    st = SETUP_TAGS.get(comp.setup.id)
     for a, os in zip(comp.approaches, comp.outcomes):
         for x in [a] + os:
-            if x.src != comp.setup.src and SPEC.get(x.id) and not SPEC[x.id] <= here:
-                out.append((comp.setup.id, x.id, "names something this setup does not have: "
-                            + ", ".join(sorted(SPEC[x.id] - here))))
+            if x.src == comp.setup.src or st is None:
+                continue
+            t = TRAVEL.get((comp.group, x.id))
+            if t is None:
+                out.append((comp.setup.id, x.id, "a piece of another event that is not marked as moving"))
+                continue
+            if t["situations"] is not None and not set(t["situations"]) & set(st["situations"]):
+                out.append((comp.setup.id, x.id, "an answer for another situation"))
+            if not set(t["needs"]) <= set(st["needs"]):
+                out.append((comp.setup.id, x.id, "needs " + ", ".join(sorted(set(t["needs"]) - set(st["needs"])))))
+            if t["tone"] == "funny" and (set(st["situations"]) & SERIOUS_SITUATIONS or st["tone"] == "solemn"):
+                out.append((comp.setup.id, x.id, "a funny answer under a serious setup"))
     labels = [a.label.lower().rstrip(".!") for a in comp.approaches]
     for i, a in enumerate(comp.approaches):
         for b in comp.approaches[i + 1:]:
@@ -1743,12 +1651,162 @@ def sample(out: Path, per_game: int = 100) -> None:
     print(json.dumps({k: v for k, v in STATS.items() if not k.startswith("family ")}, indent=1))
 
 
+CANON = re.compile(r"_g\d+(?=_)")
+
+
+def canon(pid: str) -> str:
+    """A piece id without its game-reading part (_g<mask>): one tag entry covers every reading."""
+    return CANON.sub("", pid)
+
+
+def candidate_outcome(o: Piece) -> bool:
+    """An outcome a reader is asked about: short, no dialogue (a long passage or a spoken line tells its own story)."""
+    return bool(o.text) and '"' not in o.text and len(o.text) <= 220 and len(re.findall(r"[.!?](\s|$)", o.text)) <= 2
+
+
+def candidate_approach(a: Piece, outs: list[Piece]) -> bool:
+    text = f"{a.text or ''} {a.label}"
+    return (not unprefixed(a.text) and not unprefixed(a.label) and not ROMANCE_RE.search(text)
+            and not a.tags & vp.TAG_ROMANCE and any(candidate_outcome(o) for o in outs))
+
+
+def export_situations(out_dir: Path, per_batch: int = 100, missing: bool = False) -> None:
+    """The reading batches for the situation tags (data/event_collection/procedural_situations.json): every split
+    collection event's setup, and the answers and outcomes that could move at all."""
+    never = load_never()
+    if not _SPLIT:
+        _SPLIT.append(_split_all(never))
+    events = []
+    for grp, evs in _SPLIT[0].items():
+        if grp.startswith(("le_", "mc_")):
+            continue
+        for ps, _fb in evs:
+            setup = next(p for p in ps if p.kind == vp.KIND_SETUP)
+            first = setup.id[:-2]                      # this reading's base (first reading only)
+            mine = [p for p in ps if p.id.startswith(first + "_") or p is setup]
+            events.append((canon(setup.id)[:-2], setup, mine))
+    events.sort(key=lambda e: e[0])
+    if missing:                                # a new source: only the events procedural_situations.json lacks
+        have = load_situations()
+        events = [e for e in events if e[0] not in have]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "INSTRUCTIONS.txt").write_text(
+        (COLLECTION / "procedural_situations_instructions.txt").read_text(encoding="utf-8"), encoding="utf-8")
+    n_a = n_o = 0
+    for b in range(0, len(events), per_batch):
+        lines = []
+        for eid, setup, ps in events[b:b + per_batch]:
+            lines.append(f"### E {eid}")
+            lines.append(f"T: {setup.label}")
+            lines.append(f"S: {(setup.text or '')[:450]}")
+            outs = [p for p in ps if p.kind == vp.KIND_OUTCOME]
+            for a in (p for p in ps if p.kind == vp.KIND_APPROACH):
+                mine = [o for o in outs if any(lk.approach == a.id for lk in o.links)]
+                if not candidate_approach(a, mine):
+                    continue
+                n_a += 1
+                lines.append(f"A {canon(a.id)}: {a.label}" + (f" || {a.text[:160]}" if a.text else ""))
+                for o in mine:
+                    if candidate_outcome(o):
+                        n_o += 1
+                        lines.append(f"   O {canon(o.id)}: {o.text}")
+            lines.append("")
+        (out_dir / f"batch_{b // per_batch + 1:02d}.txt").write_text("\n".join(lines), encoding="utf-8")
+    print(json.dumps({"events": len(events), "approaches": n_a, "outcomes": n_o,
+                      "batches": (len(events) + per_batch - 1) // per_batch}))
+
+
+SITUATIONS_FILE = COLLECTION / "procedural_situations.json"
+VOCAB = {
+    "situations": ["newcomer", "sickness", "food_shortage", "lost_object", "quarrel", "strange_sign", "celebration",
+                   "child_problem", "elder_wish", "craft_problem", "sea_danger", "danger", "grief", "fear", "new_idea",
+                   "animal", "weather", "personal_change", "feelings", "leadership", "tradition", "kindness",
+                   "contest", "farming", "art_story", "secret", "mistake"],
+    "needs": ["healer", "child", "elder", "food", "sea", "animal", "visitor", "tools", "plant", "fire", "music",
+              "chief", "group"],
+    "tones": ["gentle", "practical", "bold", "funny", "solemn"],
+}
+
+
+def load_situations() -> dict:
+    if SITUATIONS_FILE.is_file():
+        return json.loads(SITUATIONS_FILE.read_text(encoding="utf-8"))["events"]
+    return {}
+
+
+def merge_situations(src: Path) -> None:
+    """Read the readers' batch_NN.tags.txt (beside the batch_NN.txt they tagged) into procedural_situations.json:
+    one entry per event, so a new source only needs its own events tagged (export-situations --missing)."""
+    data = {"format": "vvfp-procedural-situations", "version": 1,
+            "note": "Situation tags read by hand from every split collection event (docs/event-collection/"
+                    "procedural-pieces-data.md 3). setup: the situations it poses, what is in the scene, its tone. "
+                    "answers / outcomes: the situations an answer suits, what it needs in the scene, its tone, and "
+                    "whether it may move to another event's setup (moves). Edit freely; the build reads it.",
+            "vocabulary": VOCAB, "events": load_situations()}
+    events = data["events"]
+    bad = collections.Counter()
+    sit, need, tone = set(VOCAB["situations"]), set(VOCAB["needs"]), set(VOCAB["tones"])
+
+    def split(s: str, allowed: set) -> list[str]:
+        out = []
+        for w in (x.strip() for x in s.split(",")):
+            if not w:
+                continue
+            if w == "*" or w in allowed:
+                out.append(w)
+            else:
+                bad[w] += 1
+        return out
+    for batch in sorted(src.glob("batch_*.txt")):
+        if batch.name.endswith(".tags.txt"):
+            continue
+        owner: dict[str, str] = {}
+        cur = None
+        for line in batch.read_text(encoding="utf-8").splitlines():
+            if line.startswith("### E "):
+                cur = line[6:].strip()
+                owner[cur + "_s"] = cur
+            elif re.match(r"\s*[AO] \S+:", line) and cur:
+                owner[line.split()[1].rstrip(":")] = cur
+        tags = batch.with_name(batch.stem + ".tags.txt")
+        if not tags.is_file():
+            print("missing", tags.name)
+            continue
+        for line in tags.read_text(encoding="utf-8").splitlines():
+            f = [x.strip() for x in line.split("|")]
+            if len(f) < 3 or f[0] not in ("S", "A", "O"):
+                continue
+            eid = owner.get(f[1])
+            if eid is None:
+                bad["unknown id " + f[1]] += 1
+                continue
+            ev = events.setdefault(eid, {"setup": None, "answers": {}, "outcomes": {}})
+            if f[0] == "S" and len(f) >= 5:
+                ev["setup"] = {"situations": split(f[2], sit), "needs": split(f[3], need),
+                               "tone": f[4] if f[4] in tone else "gentle"}
+            elif f[0] == "A" and len(f) >= 6:
+                ev["answers"][f[1]] = {"situations": split(f[2], sit), "needs": split(f[3], need),
+                                       "tone": f[4] if f[4] in tone else "gentle", "moves": f[5].lower() == "y"}
+            elif f[0] == "O" and len(f) >= 4:
+                ev["outcomes"][f[1]] = {"needs": split(f[2], need), "moves": f[3].lower() == "y"}
+    data["events"] = dict(sorted(events.items()))
+    SITUATIONS_FILE.write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
+    n_a = sum(len(e["answers"]) for e in events.values())
+    print(json.dumps({"events": len(events), "without setup tags": sum(1 for e in events.values() if not e["setup"]),
+                      "answers": n_a, "answers that move": sum(a["moves"] for e in events.values()
+                                                               for a in e["answers"].values()),
+                      "outcomes that move": sum(o["moves"] for e in events.values() for o in e["outcomes"].values()),
+                      "words outside the vocabulary (dropped)": dict(bad.most_common(20))}, indent=1))
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("what", choices=("build", "validate", "sample", "summary"))
+    ap.add_argument("what", choices=("build", "validate", "sample", "summary", "export-situations",
+                                    "merge-situations"))
     ap.add_argument("out", nargs="?")
     ap.add_argument("--per-game", type=int, default=2000)
     ap.add_argument("--quick", type=int, default=300, help="compositions a game in the quick rounds")
+    ap.add_argument("--missing", action="store_true", help="export-situations: only events not tagged yet")
     a = ap.parse_args(argv)
     if a.what == "build":
         files = build(write=True)
@@ -1762,6 +1820,10 @@ def main(argv=None) -> None:
         rep["summary"] = summary(files)
         REPORT_FILE.write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8")
         print(json.dumps(rep["stats"], indent=1))
+    elif a.what == "export-situations":
+        export_situations(Path(a.out), missing=a.missing)
+    elif a.what == "merge-situations":
+        merge_situations(Path(a.out))
     else:
         sample(Path(a.out), 100)
 

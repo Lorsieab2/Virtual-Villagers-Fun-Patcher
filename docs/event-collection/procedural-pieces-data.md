@@ -8,10 +8,12 @@ The numbers of the last run are in `procedural-pieces-report.json` next to this 
 ## 1. The files
 
 - `assets/event_collection/pieces/pieces-<group>.pcb`:
-  - `x_<family>_<n>`: the cross-event files, one situation family each (section 3), at most 16 events a file;
-  - `<source>_<section>`: events with no situation family (they mix only within themselves), by collection folder;
+  - `x_<situation>_<n>`: the cross-event files, one main situation each (section 3), at most 8 events a file
+    and up to 40 guest answers;
+  - `<source>_<section>`: events with no situation tags yet (they mix only within themselves), by folder;
   - `le_<cat>`: a Living Engine category; `mc_<cat>`: an MC category.
   Every file stays well under the engine's 1 MB (a group past about 900 KB is split into numbered parts).
+- `data/event_collection/procedural_situations.json`: the hand-read situation tags (section 3).
 - `data/event_collection/procedural_never_with.json`: the piece pairs the validator found (section 6). The build
   reads it every time, so the bits are reproducible.
 - Build: `python scripts/procedural_pieces.py build`; check: `... validate`; the owner's sample: `... sample <file>`.
@@ -63,44 +65,64 @@ count.
 **MC situations** (one file per MC category): the situation (setup), its four approaches and their two outcomes
 each, as the living mixer composes them; the category's filters on every piece.
 
-## 3. Cross-event mixing
+## 3. Cross-event mixing: the situation tags
 
-The owner: "everything can be mixed with anything", where it makes sense. An event whose setup names a situation
-family -- food, visitor, sickness, weather, animal, craft, learning, arts, celebration, conflict, family, children,
-grief, belief, mystery, sea, farming, leadership (`FAMILIES`: the family with the most of its words in the setup's
-text and title) -- goes into that family's files, where every setup and approach is family 1: a setup takes answers
-from any event of its file.
+The owner: "everything can be mixed with anything", where it makes sense; then (2026-11-16) "tag by situation". Every
+split collection event was READ by hand (by reader agents, 25 batches of 100 events, one careful pass each) and
+tagged from a fixed vocabulary. The tags live in `data/event_collection/procedural_situations.json`, one entry per
+event, for review and editing; the build reads them every time.
 
-- **Which pieces travel, and where.** Common words (`STOP`) and the words any situation can hold (`GENERIC`:
-  listen, patience, apologize, compromise, advice, ...) never count. A button's other words are all PARTICULAR (an
-  answer must suit the setup it is shown under); an outcome's (or an answer popup's) particular words are those it
-  shares with its own setup (they point back at that scene), and it may bring at most ONE word its own setup does
-  not have (what happens next: "The patient asks for more time" can follow any setup with a patient; "The old
-  traditions and new ideas mix into something everyone enjoys" tells its own story). A travelling text also has no
-  dialogue, no word pointing at something its own scene showed (it, its, this, that, these, those, there, then:
-  "Friends admire it.", "Respect Its Space"), at most two short sentences, no unprefixed placeholder (whose role would be its own event's
-  default), and no romance (romance stays with its own couple).
-- A piece then goes to every setup of its file that names all its particular words: each file picks up to 10 WORD
-  BITS (the words two or more of its setups name that free the most pieces), a setup tags the word bits of the words
-  it does not name, and a travelling piece is NEVER WITH the bits of its particular words. A piece with no
-  particular words goes anywhere in its file; a piece whose words got no bit keeps to its own setup.
-- An approach travels only with a travelling outcome, takes on that outcome's particular words too (the one that
-  needs the fewest), so it is only offered where that outcome can follow it; and it brings the villagers its
-  outcomes act on (their needed slots are added to it, so they are always "plain" under any setup, spec 3 step 6).
-- The rules were tightened three times on the owner's sample: the first, looser readings put a grieving answer under
-  a ridiculous carving, a classroom answer under a wedding and a crab's cup under a gift swap. Sense comes first, so
-  most pieces still keep to their own setup; the families decide only which events share a file.
-- **Everything else keeps to its own setup.** Each event in a file (at most 12) has an EVENT BIT (bits 6 and up) on
-  its setups; its non-travelling pieces are NEVER WITH every other event's bit.
-- **No button twice.** Approaches with the same label and text are one piece whose outcomes are every such event's;
-  a travelling approach is NEVER WITH the setup of any other event that has an answer with its label.
-- **Concrete answers first.** A label three or more events share (a generic one, "Offer Gentle Encouragement.")
-  weighs 1; any other weighs 10.
-- **The blocks** (reserved bits 0-2; only travelling pieces carry those tags): a light piece never with grief,
-  injury or distress (F01, F03, F05, F06, F11, F12), a mocking piece never with bullying or prejudice (F16, F17),
-  power never with a minor-centred piece or romance. Slot merges that cannot hold and the validator's pairs use the
-  bits left; a file that runs out of bits is halved.
+**The vocabulary** (the file's `vocabulary`):
+
+- *Situations* (what a setup poses; what an answer can respond to): newcomer, sickness, food_shortage, lost_object,
+  quarrel, strange_sign, celebration, child_problem, elder_wish, craft_problem, sea_danger, danger, grief, fear,
+  new_idea, animal, weather, personal_change, feelings, leadership, tradition, kindness, contest, farming, art_story,
+  secret, mistake.
+- *Needs* (what must already be in the scene): healer, child, elder, food, sea, animal, visitor, tools, plant, fire,
+  music, chief, group.
+- *Tone*: gentle, practical, bold, funny, solemn.
+
+**What each piece got:**
+
+- a setup: the 1-3 situations it poses (the first is its main one), the needs its scene has, its tone;
+- an answer: the situations it can sensibly answer, its needs, its tone, and MOVES (y/n): whether the button makes
+  sense on its own under any setup with those situations ("Ask an Elder for Advice", "Comfort the Child", "Share
+  the Remaining Food"); never for romance, punishment, deciding over someone's body or life, or a button that points
+  at a thing of its own scene ("Inspect the Rope", "Keep the New Color");
+- an outcome: its needs and MOVES: whether it reads naturally after its answer under any such setup ("The child
+  calms down and falls asleep."), not when it continues its own scene's story or names its own things.
+
+Only the answers and outcomes that could move at all were put to the readers (short outcomes with no dialogue, no
+unprefixed placeholder, no romance): every setup (2,428), 4,646 answers and 9,078 outcomes.
+
+**How the files use them:**
+
+- A tagged event goes to the files of its setup's main situation, `x_<situation>_<n>` (at most 8 events a file), where
+  every setup and approach is family 1.
+- An answer MOVES with its moving outcomes. In its own file it may serve any other setup of that file when the
+  file's situation is one of its situations. Up to 40 answers of OTHER events that suit the file's situation come in
+  as GUESTS (copied into the file with their moving outcomes, `g<n>_<id>`; each file of a situation takes a
+  different slice, so every moving answer reaches setups across the collection).
+- Where it may appear inside the file (bits, so the engine's ordinary NEVER WITH check enforces it):
+  - NEEDS: a setup tags a bit for each need it does not have; a moving piece is NEVER WITH the bits of its needs. An
+    answer also carries the needs of its least-needing moving outcome, so it is only offered where an outcome can
+    follow it;
+  - TONE: a funny piece is NEVER WITH a serious setup (grief, sickness, fear, danger, danger at sea, or a solemn tone);
+  - everything that does not move keeps to its own setup (EVENT BITS, one per event of the file);
+  - no button twice: a guest is never added with a label the file already has, and a moving answer keeps away from
+    another event's setup that has an answer with its label;
+  - the owner's four blocks as in section 4 (reserved bits 0-4).
+- A moving answer brings the villagers its moving outcomes act on (their needed slots are added to it), so its
+  outcomes are always "plain" (spec 3, step 6).
+- The event's own answers first, concrete ones before generic ones: an own answer weighs 40 (10 when its label is
+  one three or more events share, "Offer Gentle Encouragement."), a guest 2 (1 when generic). So a setup mostly
+  shows its own answers with one or two from other events among them.
 - An outcome always answers the approach it was written for (links are never invented across events).
+- **Adding sources later** (REWRITES, BALANCE, ...): `python scripts/procedural_pieces.py export-situations <dir>
+  --missing` writes reading batches for the events the file does not hold yet; the readers write
+  `batch_NN.tags.txt` beside them, following `INSTRUCTIONS.txt` (copied into the folder from
+  `data/event_collection/procedural_situations_instructions.txt`: `S|`, `A|`, `O|` lines); `merge-situations <dir>`
+  adds them to the file. Untagged events keep to themselves until then.
 
 ## 4. Tags
 
@@ -149,29 +171,30 @@ bytes), draws a file per spec 4 and composes events per game, then checks each:
    grief, injury or distress; mocking with bullying or prejudice (two pieces of one owner event are the owner's own
    combination, never a block);
 3. title case of the title and every label;
-4. sense: every outcome links its approach; a piece from another event names nothing particular to its own setup
-   that this setup lacks; no button twice; pregnancy and nursing only on carrier roles; no villager effect on a
-   stranger.
+4. sense: every outcome links its approach; a piece from another event is marked as moving, suits one of this
+   setup's situations, needs nothing it lacks and is not funny under a serious setup; no button twice; pregnancy
+   and nursing only on carrier roles; no villager effect on a stranger.
 
 Quick rounds (300 a game) run until one is clean, then the full round (2,000 a game); a failing pair goes into
 `procedural_never_with.json` and the rounds start again.
 
-## 7. The last run (2026-11-16, the full collection of feat/97-food-tech 2cfea820c)
+## 7. The last run (2026-11-16, feat/97-food-tech 2cfea820c: 3,249 events)
 
 - 2,428 of 3,249 collection events split. The rest stay static only: 621 have no question, 49 no needed villager or
   stranger, 38 pools or inline picks, 33 nursing-parent roles, 29 an outcome that branches again, 24 alias roles,
   16 effects before the question, 11 other conditions. 260 role skill requirements and 27 age gaps have no slot field
   and are dropped from the pieces (the static events keep them).
-- 2,080 events are in a situation family (in 183 `x_` files); 348 have none and mix only within themselves.
-- Travelling pieces: 41 approaches and 284 outcomes (an outcome travels only behind a travelling approach); 3 shared
-  answers merged into one piece each. They are the plain, kind answers that suit any scene ("Talk to a Trusted
-  Friend" / "Ema2 offers warm support.", "Offer a Quiet Place", "Ask What Would Help"); every concrete answer stays
-  with the setup it was written for.
-- 254 files, 4.6 MB in all, none past 48 KB: 2,697 setups, 7,915 approaches, 11,440 outcomes, 1,116 frames, no
-  flavour lines (no source has standalone opening lines). At most 16 bits a file used.
+- Situation tags: all 2,428 setups, 4,646 answers and 9,078 outcomes read; 910 answers and 1,281 outcomes may move.
+  Every event is in a situation file (316 `x_` files, by main situation: child_problem 243, feelings 206, animal
+  202, new_idea 201, quarrel 163, sickness 141, strange_sign 135, tradition 115, personal_change 108, elder_wish 93,
+  mistake 90, newcomer 69, craft_problem 65, leadership 64, fear 64, grief 59, celebration 55, art_story 53, weather
+  50, contest 46, secret 44, farming 37, kindness 36, danger 25, lost_object 28, food_shortage 22, sea_danger 14).
+- 5,182 guest answers placed in the files (each moving answer reaches many files of its situations).
+- 334 files, 6.5 MB, none past 48 KB: 2,697 setups, 13,100 approaches and 18,941 outcomes (guests included), 1,116
+  frames, no flavour lines. At most 16 pair bits a file.
 - 114 approaches are left out of a game where their title-case label is too wide (mostly VV1 / VV2).
-- Validator: 10,000 compositions (2,000 a game), every one composed, no graph, block or sense problem; 93 retries
-  ("fewer than 2 approaches"). Pairs the validator found: 4, all Living, all "portraying someone as lesser" (a mocking
-  choice with the oddity seed ODD-08, tagged bullying), now also covered by the up-front rule.
-- In the owner's sample, 21 of 500 events hold an answer from another event; the rest are their own event's
-  answers and outcomes, reordered and subset, or the Living and MC mixes.
+- Validator: 10,000 compositions (2,000 a game), every one composed, no graph, block or sense problem. The pairs it
+  found on the way: 4, all Living, all "portraying someone as lesser" (a mocking choice with the oddity seed ODD-08,
+  tagged bullying).
+- In the owner's sample, 366 of 500 events show at least one answer from another event, mostly beside the event's
+  own answers.
