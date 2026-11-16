@@ -19,8 +19,8 @@
  "summary": {
   "kinds": {
    "setup": 2697,
-   "approach": 13100,
-   "outcome": 18941,
+   "approach": 13090,
+   "outcome": 18968,
    "frame": 1116
   },
   "files": {
@@ -60,231 +60,231 @@
     "pair bits": 13
    },
    "x_child_problem_2": {
-    "bytes": 23207,
+    "bytes": 22904,
     "setup": 8,
-    "approach": 52,
-    "outcome": 86,
+    "approach": 51,
+    "outcome": 85,
     "pair bits": 12
    },
    "x_child_problem_3": {
-    "bytes": 22572,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 89,
-    "pair bits": 13
-   },
-   "x_child_problem_4": {
-    "bytes": 23031,
-    "setup": 8,
-    "approach": 47,
-    "outcome": 91,
-    "pair bits": 13
-   },
-   "x_child_problem_5": {
-    "bytes": 23253,
+    "bytes": 22612,
     "setup": 8,
     "approach": 49,
     "outcome": 89,
     "pair bits": 12
    },
-   "x_child_problem_6": {
-    "bytes": 22576,
+   "x_child_problem_4": {
+    "bytes": 22604,
     "setup": 8,
-    "approach": 51,
+    "approach": 46,
+    "outcome": 90,
+    "pair bits": 13
+   },
+   "x_child_problem_5": {
+    "bytes": 23035,
+    "setup": 8,
+    "approach": 49,
+    "outcome": 88,
+    "pair bits": 11
+   },
+   "x_child_problem_6": {
+    "bytes": 22451,
+    "setup": 8,
+    "approach": 50,
     "outcome": 86,
     "pair bits": 11
    },
    "x_child_problem_7": {
-    "bytes": 21910,
+    "bytes": 21863,
     "setup": 8,
     "approach": 49,
     "outcome": 88,
     "pair bits": 12
    },
    "x_child_problem_8": {
-    "bytes": 24026,
+    "bytes": 23809,
     "setup": 9,
     "approach": 52,
-    "outcome": 97,
-    "pair bits": 13
+    "outcome": 96,
+    "pair bits": 11
    },
    "x_child_problem_9": {
-    "bytes": 22435,
+    "bytes": 22264,
     "setup": 8,
     "approach": 51,
-    "outcome": 85,
-    "pair bits": 12
+    "outcome": 86,
+    "pair bits": 13
    },
    "x_child_problem_10": {
-    "bytes": 23541,
+    "bytes": 23499,
     "setup": 8,
-    "approach": 48,
-    "outcome": 89,
-    "pair bits": 12
-   },
-   "x_child_problem_11": {
-    "bytes": 22591,
-    "setup": 9,
-    "approach": 48,
+    "approach": 49,
     "outcome": 87,
     "pair bits": 13
    },
-   "x_child_problem_12": {
-    "bytes": 14286,
-    "setup": 8,
-    "approach": 39,
-    "outcome": 45,
-    "pair bits": 12
+   "x_child_problem_11": {
+    "bytes": 22385,
+    "setup": 9,
+    "approach": 48,
+    "outcome": 86,
+    "pair bits": 11
    },
-   "x_child_problem_13": {
-    "bytes": 15239,
+   "x_child_problem_12": {
+    "bytes": 14159,
     "setup": 8,
-    "approach": 45,
+    "approach": 40,
     "outcome": 44,
     "pair bits": 10
    },
-   "x_child_problem_14": {
-    "bytes": 14421,
+   "x_child_problem_13": {
+    "bytes": 15061,
     "setup": 8,
-    "approach": 40,
-    "outcome": 49,
-    "pair bits": 12
+    "approach": 46,
+    "outcome": 43,
+    "pair bits": 11
+   },
+   "x_child_problem_14": {
+    "bytes": 14464,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 47,
+    "pair bits": 13
    },
    "x_child_problem_15": {
-    "bytes": 14918,
+    "bytes": 15544,
     "setup": 8,
-    "approach": 39,
+    "approach": 40,
     "outcome": 49,
     "pair bits": 11
    },
    "x_child_problem_16": {
-    "bytes": 17460,
+    "bytes": 17485,
     "setup": 8,
-    "approach": 37,
+    "approach": 39,
     "outcome": 43,
-    "pair bits": 10
+    "pair bits": 12
    },
    "x_child_problem_17": {
-    "bytes": 18623,
+    "bytes": 19004,
     "setup": 8,
-    "approach": 35,
-    "outcome": 38,
+    "approach": 33,
+    "outcome": 41,
     "pair bits": 12
    },
    "x_child_problem_18": {
-    "bytes": 19788,
+    "bytes": 20084,
     "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
+    "approach": 31,
+    "outcome": 42,
+    "pair bits": 12
    },
    "x_child_problem_19": {
-    "bytes": 18781,
+    "bytes": 19434,
     "setup": 8,
-    "approach": 30,
-    "outcome": 42,
+    "approach": 32,
+    "outcome": 41,
     "pair bits": 11
    },
    "x_child_problem_20": {
-    "bytes": 19573,
+    "bytes": 19221,
     "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
+    "approach": 35,
+    "outcome": 37,
+    "pair bits": 12
    },
    "x_child_problem_21": {
-    "bytes": 20275,
+    "bytes": 20496,
     "setup": 8,
-    "approach": 34,
+    "approach": 33,
     "outcome": 40,
     "pair bits": 13
    },
    "x_child_problem_22": {
-    "bytes": 20573,
+    "bytes": 19775,
     "setup": 8,
-    "approach": 33,
+    "approach": 31,
     "outcome": 41,
-    "pair bits": 13
+    "pair bits": 11
    },
    "x_child_problem_23": {
-    "bytes": 22753,
+    "bytes": 22046,
     "setup": 8,
-    "approach": 47,
-    "outcome": 82,
+    "approach": 48,
+    "outcome": 80,
     "pair bits": 12
    },
    "x_child_problem_24": {
-    "bytes": 22072,
+    "bytes": 22591,
     "setup": 8,
     "approach": 45,
-    "outcome": 79,
-    "pair bits": 13
+    "outcome": 80,
+    "pair bits": 12
    },
    "x_child_problem_25": {
-    "bytes": 19561,
-    "setup": 8,
-    "approach": 40,
-    "outcome": 74,
-    "pair bits": 13
-   },
-   "x_child_problem_26": {
-    "bytes": 22194,
-    "setup": 8,
-    "approach": 47,
-    "outcome": 86,
-    "pair bits": 11
-   },
-   "x_child_problem_27": {
-    "bytes": 21288,
-    "setup": 8,
-    "approach": 40,
-    "outcome": 76,
-    "pair bits": 11
-   },
-   "x_child_problem_28": {
-    "bytes": 23315,
-    "setup": 10,
-    "approach": 53,
-    "outcome": 90,
-    "pair bits": 11
-   },
-   "x_child_problem_29": {
-    "bytes": 19269,
+    "bytes": 19687,
     "setup": 8,
     "approach": 39,
-    "outcome": 75,
+    "outcome": 74,
+    "pair bits": 12
+   },
+   "x_child_problem_26": {
+    "bytes": 22023,
+    "setup": 8,
+    "approach": 48,
+    "outcome": 85,
+    "pair bits": 12
+   },
+   "x_child_problem_27": {
+    "bytes": 20798,
+    "setup": 8,
+    "approach": 43,
+    "outcome": 72,
+    "pair bits": 12
+   },
+   "x_child_problem_28": {
+    "bytes": 23788,
+    "setup": 10,
+    "approach": 51,
+    "outcome": 92,
     "pair bits": 13
    },
-   "x_child_problem_30": {
-    "bytes": 20560,
+   "x_child_problem_29": {
+    "bytes": 18741,
     "setup": 8,
-    "approach": 45,
-    "outcome": 79,
-    "pair bits": 10
+    "approach": 40,
+    "outcome": 72,
+    "pair bits": 11
+   },
+   "x_child_problem_30": {
+    "bytes": 20416,
+    "setup": 8,
+    "approach": 47,
+    "outcome": 78,
+    "pair bits": 11
    },
    "x_child_problem_31": {
-    "bytes": 12498,
+    "bytes": 12982,
     "setup": 3,
-    "approach": 31,
-    "outcome": 45,
-    "pair bits": 6
+    "approach": 28,
+    "outcome": 50,
+    "pair bits": 7
    },
    "x_strange_sign_1": {
-    "bytes": 21379,
+    "bytes": 21378,
     "setup": 8,
     "approach": 50,
     "outcome": 86,
     "pair bits": 13
    },
    "x_strange_sign_2": {
-    "bytes": 17135,
+    "bytes": 17129,
     "setup": 8,
     "approach": 44,
     "outcome": 63,
     "pair bits": 12
    },
    "x_strange_sign_3": {
-    "bytes": 15429,
+    "bytes": 15426,
     "setup": 8,
     "approach": 47,
     "outcome": 51,
@@ -294,98 +294,98 @@
     "bytes": 16727,
     "setup": 8,
     "approach": 49,
-    "outcome": 52,
+    "outcome": 51,
     "pair bits": 14
    },
    "x_strange_sign_5": {
-    "bytes": 15369,
+    "bytes": 15538,
     "setup": 8,
-    "approach": 47,
-    "outcome": 49,
-    "pair bits": 13
-   },
-   "x_strange_sign_6": {
-    "bytes": 14812,
-    "setup": 8,
-    "approach": 44,
+    "approach": 48,
     "outcome": 48,
     "pair bits": 13
    },
-   "x_strange_sign_7": {
-    "bytes": 14596,
+   "x_strange_sign_6": {
+    "bytes": 14945,
     "setup": 8,
-    "approach": 40,
+    "approach": 45,
+    "outcome": 49,
+    "pair bits": 14
+   },
+   "x_strange_sign_7": {
+    "bytes": 14393,
+    "setup": 8,
+    "approach": 39,
     "outcome": 49,
     "pair bits": 13
    },
    "x_strange_sign_8": {
-    "bytes": 16932,
+    "bytes": 17078,
     "setup": 8,
     "approach": 36,
-    "outcome": 40,
+    "outcome": 41,
     "pair bits": 13
    },
    "x_strange_sign_9": {
-    "bytes": 19441,
+    "bytes": 19237,
     "setup": 8,
     "approach": 33,
-    "outcome": 42,
+    "outcome": 41,
     "pair bits": 12
    },
    "x_strange_sign_10": {
-    "bytes": 18516,
+    "bytes": 18466,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 12
    },
    "x_strange_sign_11": {
-    "bytes": 18150,
+    "bytes": 18410,
     "setup": 8,
-    "approach": 32,
+    "approach": 33,
     "outcome": 40,
     "pair bits": 14
    },
    "x_strange_sign_12": {
-    "bytes": 18400,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 40,
-    "pair bits": 13
-   },
-   "x_strange_sign_13": {
-    "bytes": 18474,
+    "bytes": 18360,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
     "pair bits": 13
    },
+   "x_strange_sign_13": {
+    "bytes": 18441,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 40,
+    "pair bits": 13
+   },
    "x_strange_sign_14": {
-    "bytes": 19466,
+    "bytes": 19735,
     "setup": 8,
     "approach": 32,
-    "outcome": 41,
-    "pair bits": 12
+    "outcome": 42,
+    "pair bits": 13
    },
    "x_strange_sign_15": {
-    "bytes": 20883,
+    "bytes": 20837,
     "setup": 9,
     "approach": 45,
     "outcome": 84,
     "pair bits": 14
    },
    "x_strange_sign_16": {
-    "bytes": 17973,
+    "bytes": 18178,
     "setup": 8,
     "approach": 40,
     "outcome": 73,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_strange_sign_17": {
-    "bytes": 18827,
+    "bytes": 18314,
     "setup": 7,
-    "approach": 41,
-    "outcome": 76,
+    "approach": 40,
+    "outcome": 75,
     "pair bits": 13
    },
    "x_sea_danger_1": {
@@ -466,151 +466,151 @@
     "pair bits": 6
    },
    "x_quarrel_1": {
-    "bytes": 21322,
-    "setup": 8,
-    "approach": 48,
-    "outcome": 88,
-    "pair bits": 10
-   },
-   "x_quarrel_2": {
-    "bytes": 20844,
-    "setup": 8,
-    "approach": 50,
-    "outcome": 86,
-    "pair bits": 11
-   },
-   "x_quarrel_3": {
-    "bytes": 18205,
-    "setup": 8,
-    "approach": 45,
-    "outcome": 68,
-    "pair bits": 13
-   },
-   "x_quarrel_4": {
-    "bytes": 13580,
-    "setup": 8,
-    "approach": 37,
-    "outcome": 46,
-    "pair bits": 11
-   },
-   "x_quarrel_5": {
-    "bytes": 14801,
+    "bytes": 21416,
     "setup": 8,
     "approach": 49,
-    "outcome": 57,
+    "outcome": 88,
     "pair bits": 12
    },
+   "x_quarrel_2": {
+    "bytes": 20872,
+    "setup": 8,
+    "approach": 49,
+    "outcome": 87,
+    "pair bits": 10
+   },
+   "x_quarrel_3": {
+    "bytes": 18068,
+    "setup": 8,
+    "approach": 44,
+    "outcome": 67,
+    "pair bits": 14
+   },
+   "x_quarrel_4": {
+    "bytes": 12695,
+    "setup": 8,
+    "approach": 38,
+    "outcome": 44,
+    "pair bits": 12
+   },
+   "x_quarrel_5": {
+    "bytes": 14673,
+    "setup": 8,
+    "approach": 47,
+    "outcome": 58,
+    "pair bits": 11
+   },
    "x_quarrel_6": {
-    "bytes": 14583,
+    "bytes": 14275,
     "setup": 8,
     "approach": 50,
     "outcome": 55,
-    "pair bits": 11
+    "pair bits": 9
    },
    "x_quarrel_7": {
-    "bytes": 14573,
+    "bytes": 14585,
     "setup": 8,
     "approach": 51,
     "outcome": 54,
-    "pair bits": 11
-   },
-   "x_quarrel_8": {
-    "bytes": 14909,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 55,
     "pair bits": 12
    },
-   "x_quarrel_9": {
-    "bytes": 15923,
+   "x_quarrel_8": {
+    "bytes": 15229,
     "setup": 8,
-    "approach": 49,
-    "outcome": 52,
+    "approach": 47,
+    "outcome": 57,
     "pair bits": 13
    },
+   "x_quarrel_9": {
+    "bytes": 16394,
+    "setup": 8,
+    "approach": 48,
+    "outcome": 55,
+    "pair bits": 11
+   },
    "x_quarrel_10": {
-    "bytes": 13435,
+    "bytes": 13231,
     "setup": 8,
     "approach": 43,
     "outcome": 44,
-    "pair bits": 10
+    "pair bits": 12
    },
    "x_quarrel_11": {
-    "bytes": 14428,
+    "bytes": 14472,
     "setup": 8,
     "approach": 42,
     "outcome": 47,
-    "pair bits": 13
-   },
-   "x_quarrel_12": {
-    "bytes": 16791,
-    "setup": 8,
-    "approach": 34,
-    "outcome": 41,
     "pair bits": 14
    },
-   "x_quarrel_13": {
-    "bytes": 19084,
+   "x_quarrel_12": {
+    "bytes": 17444,
     "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 13
+    "approach": 32,
+    "outcome": 44,
+    "pair bits": 15
    },
-   "x_quarrel_14": {
-    "bytes": 19317,
+   "x_quarrel_13": {
+    "bytes": 18927,
     "setup": 8,
-    "approach": 31,
+    "approach": 32,
     "outcome": 42,
     "pair bits": 11
    },
-   "x_quarrel_15": {
-    "bytes": 17963,
+   "x_quarrel_14": {
+    "bytes": 19139,
     "setup": 8,
     "approach": 34,
     "outcome": 39,
-    "pair bits": 10
+    "pair bits": 11
    },
-   "x_quarrel_16": {
-    "bytes": 18160,
+   "x_quarrel_15": {
+    "bytes": 18348,
     "setup": 8,
     "approach": 35,
     "outcome": 38,
     "pair bits": 12
    },
-   "x_quarrel_17": {
-    "bytes": 19358,
+   "x_quarrel_16": {
+    "bytes": 18849,
     "setup": 8,
     "approach": 32,
-    "outcome": 41,
-    "pair bits": 15
+    "outcome": 43,
+    "pair bits": 13
    },
-   "x_quarrel_18": {
-    "bytes": 18701,
+   "x_quarrel_17": {
+    "bytes": 18593,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
+    "pair bits": 11
+   },
+   "x_quarrel_18": {
+    "bytes": 18622,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 39,
     "pair bits": 12
    },
    "x_quarrel_19": {
-    "bytes": 21339,
+    "bytes": 22026,
     "setup": 9,
     "approach": 51,
     "outcome": 89,
-    "pair bits": 11
+    "pair bits": 14
    },
    "x_quarrel_20": {
-    "bytes": 17916,
+    "bytes": 18329,
     "setup": 8,
-    "approach": 43,
-    "outcome": 72,
-    "pair bits": 13
+    "approach": 41,
+    "outcome": 75,
+    "pair bits": 12
    },
    "x_quarrel_21": {
-    "bytes": 12920,
+    "bytes": 12160,
     "setup": 3,
     "approach": 27,
-    "outcome": 51,
-    "pair bits": 9
+    "outcome": 50,
+    "pair bits": 6
    },
    "x_feelings_1": {
     "bytes": 22570,
@@ -620,179 +620,179 @@
     "pair bits": 14
    },
    "x_feelings_2": {
-    "bytes": 20968,
+    "bytes": 20939,
     "setup": 8,
     "approach": 46,
     "outcome": 84,
     "pair bits": 12
    },
    "x_feelings_3": {
-    "bytes": 21185,
+    "bytes": 21206,
     "setup": 8,
     "approach": 52,
     "outcome": 85,
     "pair bits": 13
    },
    "x_feelings_4": {
-    "bytes": 15285,
+    "bytes": 15317,
     "setup": 8,
     "approach": 43,
     "outcome": 57,
     "pair bits": 13
    },
    "x_feelings_5": {
-    "bytes": 14036,
+    "bytes": 13974,
     "setup": 8,
     "approach": 39,
     "outcome": 46,
     "pair bits": 11
    },
    "x_feelings_6": {
-    "bytes": 14942,
+    "bytes": 15128,
     "setup": 8,
     "approach": 40,
-    "outcome": 49,
-    "pair bits": 13
+    "outcome": 50,
+    "pair bits": 12
    },
    "x_feelings_7": {
-    "bytes": 14752,
+    "bytes": 14759,
     "setup": 8,
-    "approach": 40,
-    "outcome": 48,
+    "approach": 41,
+    "outcome": 49,
     "pair bits": 11
    },
    "x_feelings_8": {
-    "bytes": 16348,
+    "bytes": 16239,
     "setup": 8,
-    "approach": 37,
-    "outcome": 38,
+    "approach": 36,
+    "outcome": 39,
     "pair bits": 13
    },
    "x_feelings_9": {
-    "bytes": 16192,
+    "bytes": 16205,
     "setup": 8,
     "approach": 36,
     "outcome": 36,
     "pair bits": 13
    },
    "x_feelings_10": {
-    "bytes": 18594,
+    "bytes": 18257,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 12
+   },
+   "x_feelings_11": {
+    "bytes": 19181,
     "setup": 8,
     "approach": 32,
     "outcome": 42,
     "pair bits": 12
    },
-   "x_feelings_11": {
-    "bytes": 18935,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 41,
-    "pair bits": 13
-   },
    "x_feelings_12": {
-    "bytes": 19182,
+    "bytes": 19209,
     "setup": 8,
     "approach": 33,
     "outcome": 41,
     "pair bits": 10
    },
    "x_feelings_13": {
-    "bytes": 18742,
+    "bytes": 18591,
     "setup": 8,
-    "approach": 36,
-    "outcome": 37,
+    "approach": 35,
+    "outcome": 38,
     "pair bits": 12
    },
    "x_feelings_14": {
-    "bytes": 18134,
+    "bytes": 18451,
     "setup": 8,
     "approach": 36,
-    "outcome": 36,
+    "outcome": 38,
     "pair bits": 12
    },
    "x_feelings_15": {
-    "bytes": 18754,
+    "bytes": 18507,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 12
+   },
+   "x_feelings_16": {
+    "bytes": 18615,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 12
    },
-   "x_feelings_16": {
-    "bytes": 18699,
+   "x_feelings_17": {
+    "bytes": 18847,
     "setup": 8,
     "approach": 32,
     "outcome": 41,
-    "pair bits": 13
-   },
-   "x_feelings_17": {
-    "bytes": 18693,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
     "pair bits": 10
    },
    "x_feelings_18": {
-    "bytes": 18206,
+    "bytes": 18125,
     "setup": 8,
-    "approach": 36,
-    "outcome": 37,
+    "approach": 34,
+    "outcome": 39,
     "pair bits": 13
    },
    "x_feelings_19": {
-    "bytes": 17839,
-    "setup": 8,
-    "approach": 36,
-    "outcome": 36,
-    "pair bits": 13
-   },
-   "x_feelings_20": {
-    "bytes": 19266,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 11
-   },
-   "x_feelings_21": {
-    "bytes": 20405,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 42,
-    "pair bits": 14
-   },
-   "x_feelings_22": {
-    "bytes": 19658,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 10
-   },
-   "x_feelings_23": {
-    "bytes": 19315,
+    "bytes": 17742,
     "setup": 8,
     "approach": 35,
     "outcome": 37,
     "pair bits": 13
    },
-   "x_feelings_24": {
-    "bytes": 19422,
+   "x_feelings_20": {
+    "bytes": 19262,
     "setup": 8,
-    "approach": 36,
-    "outcome": 37,
-    "pair bits": 13
+    "approach": 33,
+    "outcome": 41,
+    "pair bits": 11
    },
-   "x_feelings_25": {
-    "bytes": 20016,
+   "x_feelings_21": {
+    "bytes": 20424,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 43,
+    "pair bits": 16
+   },
+   "x_feelings_22": {
+    "bytes": 19318,
     "setup": 8,
     "approach": 32,
-    "outcome": 41,
+    "outcome": 40,
+    "pair bits": 10
+   },
+   "x_feelings_23": {
+    "bytes": 19352,
+    "setup": 8,
+    "approach": 34,
+    "outcome": 39,
+    "pair bits": 13
+   },
+   "x_feelings_24": {
+    "bytes": 19497,
+    "setup": 8,
+    "approach": 35,
+    "outcome": 39,
+    "pair bits": 12
+   },
+   "x_feelings_25": {
+    "bytes": 19645,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
     "pair bits": 12
    },
    "x_feelings_26": {
-    "bytes": 17439,
+    "bytes": 17331,
     "setup": 6,
     "approach": 39,
-    "outcome": 69,
-    "pair bits": 10
+    "outcome": 68,
+    "pair bits": 9
    },
    "x_leadership_1": {
     "bytes": 25728,
@@ -851,424 +851,424 @@
     "pair bits": 14
    },
    "x_celebration_1": {
-    "bytes": 23004,
+    "bytes": 23123,
     "setup": 9,
-    "approach": 53,
-    "outcome": 96,
-    "pair bits": 15
-   },
-   "x_celebration_2": {
-    "bytes": 20328,
-    "setup": 8,
-    "approach": 49,
-    "outcome": 87,
-    "pair bits": 13
-   },
-   "x_celebration_3": {
-    "bytes": 16795,
-    "setup": 8,
-    "approach": 43,
-    "outcome": 64,
-    "pair bits": 13
-   },
-   "x_celebration_4": {
-    "bytes": 16324,
-    "setup": 8,
-    "approach": 39,
-    "outcome": 44,
-    "pair bits": 13
-   },
-   "x_celebration_5": {
-    "bytes": 18648,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
+    "approach": 51,
+    "outcome": 97,
     "pair bits": 14
    },
-   "x_celebration_6": {
-    "bytes": 19946,
+   "x_celebration_2": {
+    "bytes": 21063,
+    "setup": 8,
+    "approach": 47,
+    "outcome": 91,
+    "pair bits": 14
+   },
+   "x_celebration_3": {
+    "bytes": 17020,
+    "setup": 8,
+    "approach": 40,
+    "outcome": 67,
+    "pair bits": 15
+   },
+   "x_celebration_4": {
+    "bytes": 16498,
     "setup": 8,
     "approach": 37,
+    "outcome": 46,
+    "pair bits": 14
+   },
+   "x_celebration_5": {
+    "bytes": 18755,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 15
+   },
+   "x_celebration_6": {
+    "bytes": 19864,
+    "setup": 8,
+    "approach": 36,
     "outcome": 58,
     "pair bits": 15
    },
    "x_celebration_7": {
-    "bytes": 18399,
+    "bytes": 18842,
     "setup": 7,
-    "approach": 42,
-    "outcome": 71,
-    "pair bits": 12
+    "approach": 40,
+    "outcome": 73,
+    "pair bits": 14
    },
    "x_sickness_1": {
-    "bytes": 23009,
+    "bytes": 23069,
     "setup": 8,
     "approach": 51,
-    "outcome": 86,
+    "outcome": 87,
     "pair bits": 14
    },
    "x_sickness_2": {
-    "bytes": 15289,
+    "bytes": 15287,
     "setup": 8,
     "approach": 39,
     "outcome": 53,
     "pair bits": 13
    },
    "x_sickness_3": {
-    "bytes": 16317,
+    "bytes": 16357,
     "setup": 8,
     "approach": 44,
     "outcome": 50,
     "pair bits": 12
    },
    "x_sickness_4": {
-    "bytes": 18058,
+    "bytes": 18549,
     "setup": 8,
-    "approach": 38,
+    "approach": 39,
     "outcome": 43,
     "pair bits": 13
    },
    "x_sickness_5": {
-    "bytes": 19103,
+    "bytes": 19269,
     "setup": 8,
-    "approach": 32,
+    "approach": 33,
     "outcome": 41,
     "pair bits": 14
    },
    "x_sickness_6": {
-    "bytes": 20181,
+    "bytes": 20505,
     "setup": 8,
-    "approach": 31,
-    "outcome": 41,
+    "approach": 32,
+    "outcome": 42,
     "pair bits": 13
    },
    "x_sickness_7": {
-    "bytes": 19819,
+    "bytes": 19807,
     "setup": 8,
     "approach": 35,
     "outcome": 37,
     "pair bits": 13
    },
    "x_sickness_8": {
-    "bytes": 19857,
+    "bytes": 20164,
     "setup": 8,
     "approach": 32,
-    "outcome": 40,
+    "outcome": 41,
     "pair bits": 14
    },
    "x_sickness_9": {
-    "bytes": 19951,
+    "bytes": 20146,
     "setup": 8,
-    "approach": 31,
-    "outcome": 41,
+    "approach": 32,
+    "outcome": 42,
     "pair bits": 13
    },
    "x_sickness_10": {
-    "bytes": 20284,
+    "bytes": 20236,
     "setup": 8,
     "approach": 40,
-    "outcome": 53,
+    "outcome": 54,
     "pair bits": 13
    },
    "x_sickness_11": {
-    "bytes": 23532,
+    "bytes": 23853,
     "setup": 9,
     "approach": 47,
-    "outcome": 89,
-    "pair bits": 13
+    "outcome": 90,
+    "pair bits": 14
    },
    "x_sickness_12": {
-    "bytes": 19314,
+    "bytes": 19146,
     "setup": 8,
-    "approach": 40,
+    "approach": 39,
     "outcome": 73,
-    "pair bits": 13
+    "pair bits": 14
    },
    "x_sickness_13": {
-    "bytes": 20780,
+    "bytes": 21054,
     "setup": 8,
-    "approach": 44,
-    "outcome": 69,
-    "pair bits": 13
+    "approach": 43,
+    "outcome": 70,
+    "pair bits": 14
    },
    "x_sickness_14": {
-    "bytes": 20356,
+    "bytes": 20031,
     "setup": 8,
     "approach": 38,
-    "outcome": 75,
-    "pair bits": 12
+    "outcome": 74,
+    "pair bits": 13
    },
    "x_sickness_15": {
-    "bytes": 20355,
+    "bytes": 20116,
     "setup": 8,
     "approach": 40,
     "outcome": 74,
     "pair bits": 13
    },
    "x_sickness_16": {
-    "bytes": 22046,
+    "bytes": 22585,
     "setup": 9,
-    "approach": 44,
+    "approach": 46,
     "outcome": 86,
-    "pair bits": 11
-   },
-   "x_sickness_17": {
-    "bytes": 22154,
-    "setup": 9,
-    "approach": 40,
-    "outcome": 95,
-    "pair bits": 13
-   },
-   "x_sickness_18": {
-    "bytes": 15646,
-    "setup": 6,
-    "approach": 30,
-    "outcome": 69,
-    "pair bits": 10
-   },
-   "x_elder_wish_1": {
-    "bytes": 22785,
-    "setup": 8,
-    "approach": 47,
-    "outcome": 90,
-    "pair bits": 13
-   },
-   "x_elder_wish_2": {
-    "bytes": 20456,
-    "setup": 8,
-    "approach": 44,
-    "outcome": 81,
     "pair bits": 12
    },
-   "x_elder_wish_3": {
-    "bytes": 15222,
+   "x_sickness_17": {
+    "bytes": 22358,
+    "setup": 9,
+    "approach": 41,
+    "outcome": 95,
+    "pair bits": 12
+   },
+   "x_sickness_18": {
+    "bytes": 15368,
+    "setup": 6,
+    "approach": 29,
+    "outcome": 69,
+    "pair bits": 11
+   },
+   "x_elder_wish_1": {
+    "bytes": 22630,
     "setup": 8,
-    "approach": 43,
-    "outcome": 45,
+    "approach": 47,
+    "outcome": 89,
+    "pair bits": 12
+   },
+   "x_elder_wish_2": {
+    "bytes": 20378,
+    "setup": 8,
+    "approach": 44,
+    "outcome": 82,
+    "pair bits": 11
+   },
+   "x_elder_wish_3": {
+    "bytes": 15480,
+    "setup": 8,
+    "approach": 42,
+    "outcome": 46,
     "pair bits": 13
    },
    "x_elder_wish_4": {
-    "bytes": 13915,
+    "bytes": 13733,
     "setup": 8,
-    "approach": 41,
-    "outcome": 48,
-    "pair bits": 11
+    "approach": 42,
+    "outcome": 46,
+    "pair bits": 12
    },
    "x_elder_wish_5": {
-    "bytes": 15449,
+    "bytes": 15732,
     "setup": 8,
     "approach": 38,
-    "outcome": 48,
+    "outcome": 49,
     "pair bits": 12
    },
    "x_elder_wish_6": {
-    "bytes": 19709,
+    "bytes": 19225,
     "setup": 8,
-    "approach": 31,
-    "outcome": 42,
-    "pair bits": 13
+    "approach": 32,
+    "outcome": 41,
+    "pair bits": 11
    },
    "x_elder_wish_7": {
-    "bytes": 19742,
+    "bytes": 19585,
     "setup": 8,
     "approach": 31,
     "outcome": 42,
     "pair bits": 12
    },
    "x_elder_wish_8": {
-    "bytes": 18863,
+    "bytes": 19514,
     "setup": 8,
-    "approach": 32,
-    "outcome": 41,
-    "pair bits": 13
-   },
-   "x_elder_wish_9": {
-    "bytes": 19015,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 11
-   },
-   "x_elder_wish_10": {
-    "bytes": 22607,
-    "setup": 9,
-    "approach": 48,
-    "outcome": 87,
+    "approach": 31,
+    "outcome": 42,
     "pair bits": 12
    },
-   "x_elder_wish_11": {
-    "bytes": 19484,
+   "x_elder_wish_9": {
+    "bytes": 20102,
     "setup": 8,
-    "approach": 40,
-    "outcome": 76,
+    "approach": 31,
+    "outcome": 41,
+    "pair bits": 12
+   },
+   "x_elder_wish_10": {
+    "bytes": 23863,
+    "setup": 9,
+    "approach": 47,
+    "outcome": 88,
+    "pair bits": 13
+   },
+   "x_elder_wish_11": {
+    "bytes": 18342,
+    "setup": 8,
+    "approach": 41,
+    "outcome": 74,
     "pair bits": 13
    },
    "x_elder_wish_12": {
-    "bytes": 17252,
+    "bytes": 16528,
     "setup": 5,
     "approach": 35,
-    "outcome": 67,
+    "outcome": 65,
     "pair bits": 10
    },
    "x_tradition_1": {
-    "bytes": 18798,
+    "bytes": 19179,
     "setup": 8,
     "approach": 44,
-    "outcome": 72,
-    "pair bits": 13
+    "outcome": 73,
+    "pair bits": 11
    },
    "x_tradition_2": {
-    "bytes": 15105,
+    "bytes": 15303,
     "setup": 8,
     "approach": 42,
-    "outcome": 50,
-    "pair bits": 13
+    "outcome": 49,
+    "pair bits": 11
    },
    "x_tradition_3": {
-    "bytes": 17977,
+    "bytes": 17552,
     "setup": 8,
     "approach": 33,
-    "outcome": 43,
-    "pair bits": 12
+    "outcome": 44,
+    "pair bits": 13
    },
    "x_tradition_4": {
-    "bytes": 18145,
+    "bytes": 18655,
     "setup": 8,
-    "approach": 31,
-    "outcome": 42,
+    "approach": 32,
+    "outcome": 41,
     "pair bits": 13
    },
    "x_tradition_5": {
-    "bytes": 18216,
+    "bytes": 18382,
     "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 14
+    "approach": 32,
+    "outcome": 40,
+    "pair bits": 13
    },
    "x_tradition_6": {
-    "bytes": 19434,
+    "bytes": 18980,
     "setup": 8,
-    "approach": 31,
+    "approach": 33,
     "outcome": 41,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_tradition_7": {
-    "bytes": 18834,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 42,
-    "pair bits": 12
-   },
-   "x_tradition_8": {
-    "bytes": 19213,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 14
-   },
-   "x_tradition_9": {
-    "bytes": 20624,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 41,
-    "pair bits": 12
-   },
-   "x_tradition_10": {
-    "bytes": 18917,
-    "setup": 8,
-    "approach": 31,
-    "outcome": 42,
-    "pair bits": 12
-   },
-   "x_tradition_11": {
-    "bytes": 19729,
+    "bytes": 18994,
     "setup": 8,
     "approach": 31,
     "outcome": 41,
     "pair bits": 13
    },
-   "x_tradition_12": {
-    "bytes": 20064,
+   "x_tradition_8": {
+    "bytes": 19330,
+    "setup": 8,
+    "approach": 30,
+    "outcome": 42,
+    "pair bits": 13
+   },
+   "x_tradition_9": {
+    "bytes": 20224,
     "setup": 8,
     "approach": 31,
+    "outcome": 41,
+    "pair bits": 13
+   },
+   "x_tradition_10": {
+    "bytes": 19734,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 41,
+    "pair bits": 11
+   },
+   "x_tradition_11": {
+    "bytes": 20228,
+    "setup": 8,
+    "approach": 32,
     "outcome": 42,
     "pair bits": 12
    },
+   "x_tradition_12": {
+    "bytes": 19658,
+    "setup": 8,
+    "approach": 31,
+    "outcome": 42,
+    "pair bits": 13
+   },
    "x_tradition_13": {
-    "bytes": 21381,
+    "bytes": 21786,
     "setup": 9,
     "approach": 44,
     "outcome": 75,
-    "pair bits": 12
+    "pair bits": 13
    },
    "x_tradition_14": {
-    "bytes": 19175,
+    "bytes": 19422,
     "setup": 8,
-    "approach": 42,
-    "outcome": 79,
-    "pair bits": 12
+    "approach": 43,
+    "outcome": 78,
+    "pair bits": 13
    },
    "x_tradition_15": {
-    "bytes": 11719,
+    "bytes": 11953,
     "setup": 3,
     "approach": 27,
     "outcome": 49,
     "pair bits": 8
    },
    "x_grief_1": {
-    "bytes": 21037,
+    "bytes": 21304,
     "setup": 8,
-    "approach": 49,
+    "approach": 50,
     "outcome": 87,
     "pair bits": 14
    },
    "x_grief_2": {
-    "bytes": 15726,
+    "bytes": 15722,
     "setup": 8,
     "approach": 39,
     "outcome": 58,
     "pair bits": 13
    },
    "x_grief_3": {
-    "bytes": 14532,
+    "bytes": 14324,
     "setup": 8,
-    "approach": 44,
-    "outcome": 46,
+    "approach": 43,
+    "outcome": 45,
     "pair bits": 14
    },
    "x_grief_4": {
-    "bytes": 14510,
+    "bytes": 14774,
     "setup": 8,
     "approach": 42,
     "outcome": 46,
-    "pair bits": 14
+    "pair bits": 15
    },
    "x_grief_5": {
-    "bytes": 19305,
+    "bytes": 19002,
     "setup": 8,
     "approach": 32,
-    "outcome": 41,
+    "outcome": 40,
     "pair bits": 14
    },
    "x_grief_6": {
-    "bytes": 19470,
+    "bytes": 19724,
     "setup": 8,
-    "approach": 40,
-    "outcome": 68,
+    "approach": 42,
+    "outcome": 67,
     "pair bits": 14
    },
    "x_grief_7": {
-    "bytes": 18450,
+    "bytes": 18504,
     "setup": 8,
-    "approach": 39,
-    "outcome": 73,
-    "pair bits": 12
+    "approach": 40,
+    "outcome": 72,
+    "pair bits": 13
    },
    "x_grief_8": {
-    "bytes": 11897,
+    "bytes": 11504,
     "setup": 3,
-    "approach": 28,
-    "outcome": 50,
-    "pair bits": 9
+    "approach": 27,
+    "outcome": 49,
+    "pair bits": 7
    },
    "x_animal_1": {
     "bytes": 20689,
@@ -1453,88 +1453,88 @@
     "pair bits": 7
    },
    "x_kindness_1": {
-    "bytes": 16158,
+    "bytes": 16301,
     "setup": 8,
     "approach": 41,
-    "outcome": 60,
+    "outcome": 61,
     "pair bits": 14
    },
    "x_kindness_2": {
-    "bytes": 18123,
+    "bytes": 17737,
     "setup": 8,
     "approach": 33,
-    "outcome": 43,
-    "pair bits": 12
+    "outcome": 41,
+    "pair bits": 11
    },
    "x_kindness_3": {
-    "bytes": 18128,
+    "bytes": 18235,
     "setup": 8,
-    "approach": 32,
+    "approach": 33,
     "outcome": 40,
-    "pair bits": 13
+    "pair bits": 14
    },
    "x_kindness_4": {
-    "bytes": 20353,
+    "bytes": 20528,
     "setup": 8,
-    "approach": 39,
-    "outcome": 63,
-    "pair bits": 15
+    "approach": 38,
+    "outcome": 65,
+    "pair bits": 14
    },
    "x_kindness_5": {
-    "bytes": 13601,
+    "bytes": 14053,
     "setup": 4,
-    "approach": 31,
-    "outcome": 55,
-    "pair bits": 10
+    "approach": 30,
+    "outcome": 56,
+    "pair bits": 9
    },
    "x_art_story_1": {
-    "bytes": 20699,
+    "bytes": 20642,
     "setup": 8,
-    "approach": 48,
-    "outcome": 88,
+    "approach": 50,
+    "outcome": 87,
     "pair bits": 13
    },
    "x_art_story_2": {
-    "bytes": 15625,
+    "bytes": 15512,
     "setup": 8,
-    "approach": 40,
+    "approach": 39,
     "outcome": 56,
     "pair bits": 13
    },
    "x_art_story_3": {
-    "bytes": 18294,
+    "bytes": 17889,
     "setup": 8,
-    "approach": 33,
-    "outcome": 41,
-    "pair bits": 13
-   },
-   "x_art_story_4": {
-    "bytes": 18060,
-    "setup": 8,
-    "approach": 32,
-    "outcome": 40,
-    "pair bits": 13
-   },
-   "x_art_story_5": {
-    "bytes": 18285,
-    "setup": 8,
-    "approach": 33,
+    "approach": 34,
     "outcome": 39,
     "pair bits": 13
    },
-   "x_art_story_6": {
-    "bytes": 19019,
+   "x_art_story_4": {
+    "bytes": 18071,
     "setup": 8,
-    "approach": 40,
-    "outcome": 61,
+    "approach": 34,
+    "outcome": 40,
+    "pair bits": 12
+   },
+   "x_art_story_5": {
+    "bytes": 18391,
+    "setup": 8,
+    "approach": 33,
+    "outcome": 40,
     "pair bits": 13
    },
+   "x_art_story_6": {
+    "bytes": 19131,
+    "setup": 8,
+    "approach": 39,
+    "outcome": 62,
+    "pair bits": 12
+   },
    "x_art_story_7": {
-    "bytes": 13157,
+    "bytes": 13575,
     "setup": 5,
-    "approach": 33,
-    "outcome": 53,
-    "pair bits": 10
+    "approach": 31,
+    "outcome": 56,
+    "pair bits": 9
    },
    "x_contest_1": {
     "bytes": 18944,
@@ -1705,102 +1705,102 @@
     "pair bits": 6
    },
    "x_newcomer_1": {
-    "bytes": 21884,
+    "bytes": 21996,
     "setup": 8,
-    "approach": 48,
-    "outcome": 88,
-    "pair bits": 12
+    "approach": 50,
+    "outcome": 87,
+    "pair bits": 13
    },
    "x_newcomer_2": {
-    "bytes": 19830,
+    "bytes": 20106,
     "setup": 8,
-    "approach": 49,
-    "outcome": 74,
-    "pair bits": 15
+    "approach": 47,
+    "outcome": 76,
+    "pair bits": 12
    },
    "x_newcomer_3": {
-    "bytes": 15700,
+    "bytes": 15641,
     "setup": 8,
     "approach": 45,
-    "outcome": 53,
+    "outcome": 54,
     "pair bits": 11
    },
    "x_newcomer_4": {
-    "bytes": 16456,
+    "bytes": 16516,
     "setup": 8,
     "approach": 36,
     "outcome": 44,
-    "pair bits": 13
+    "pair bits": 12
    },
    "x_newcomer_5": {
-    "bytes": 17715,
+    "bytes": 17864,
     "setup": 8,
-    "approach": 32,
-    "outcome": 40,
+    "approach": 31,
+    "outcome": 41,
     "pair bits": 11
    },
    "x_newcomer_6": {
-    "bytes": 18662,
+    "bytes": 19150,
     "setup": 8,
-    "approach": 34,
-    "outcome": 39,
-    "pair bits": 16
+    "approach": 32,
+    "outcome": 42,
+    "pair bits": 12
    },
    "x_newcomer_7": {
-    "bytes": 21712,
+    "bytes": 21606,
     "setup": 9,
-    "approach": 46,
-    "outcome": 78,
+    "approach": 47,
+    "outcome": 76,
     "pair bits": 14
    },
    "x_newcomer_8": {
-    "bytes": 18175,
+    "bytes": 18222,
     "setup": 8,
-    "approach": 39,
+    "approach": 40,
     "outcome": 73,
     "pair bits": 11
    },
    "x_newcomer_9": {
-    "bytes": 14523,
+    "bytes": 14514,
     "setup": 5,
     "approach": 34,
-    "outcome": 58,
+    "outcome": 57,
     "pair bits": 12
    },
    "x_weather_1": {
-    "bytes": 16405,
+    "bytes": 16242,
     "setup": 8,
     "approach": 42,
-    "outcome": 49,
+    "outcome": 48,
     "pair bits": 14
    },
    "x_weather_2": {
-    "bytes": 18120,
-    "setup": 8,
-    "approach": 33,
-    "outcome": 39,
-    "pair bits": 15
-   },
-   "x_weather_3": {
-    "bytes": 17637,
+    "bytes": 18168,
     "setup": 8,
     "approach": 34,
-    "outcome": 40,
+    "outcome": 39,
     "pair bits": 13
    },
-   "x_weather_4": {
-    "bytes": 18435,
+   "x_weather_3": {
+    "bytes": 17431,
     "setup": 8,
     "approach": 33,
     "outcome": 39,
+    "pair bits": 14
+   },
+   "x_weather_4": {
+    "bytes": 18496,
+    "setup": 8,
+    "approach": 32,
+    "outcome": 40,
     "pair bits": 14
    },
    "x_weather_5": {
-    "bytes": 19594,
+    "bytes": 19635,
     "setup": 8,
-    "approach": 35,
-    "outcome": 50,
-    "pair bits": 14
+    "approach": 34,
+    "outcome": 51,
+    "pair bits": 16
    },
    "x_weather_6": {
     "bytes": 25148,
@@ -1810,66 +1810,66 @@
     "pair bits": 16
    },
    "x_weather_7": {
-    "bytes": 10782,
+    "bytes": 10991,
     "setup": 3,
-    "approach": 26,
+    "approach": 27,
     "outcome": 47,
-    "pair bits": 9
+    "pair bits": 8
    },
    "x_fear_1": {
-    "bytes": 16743,
+    "bytes": 16557,
     "setup": 8,
     "approach": 45,
-    "outcome": 58,
+    "outcome": 57,
     "pair bits": 12
    },
    "x_fear_2": {
-    "bytes": 15474,
+    "bytes": 15454,
     "setup": 8,
     "approach": 38,
     "outcome": 48,
     "pair bits": 12
    },
    "x_fear_3": {
-    "bytes": 16915,
+    "bytes": 16924,
     "setup": 8,
     "approach": 31,
-    "outcome": 41,
-    "pair bits": 10
+    "outcome": 42,
+    "pair bits": 11
    },
    "x_fear_4": {
-    "bytes": 18601,
+    "bytes": 18784,
     "setup": 8,
     "approach": 34,
-    "outcome": 39,
-    "pair bits": 15
+    "outcome": 40,
+    "pair bits": 14
    },
    "x_fear_5": {
-    "bytes": 18988,
+    "bytes": 19056,
     "setup": 8,
     "approach": 32,
     "outcome": 40,
-    "pair bits": 12
+    "pair bits": 10
    },
    "x_fear_6": {
-    "bytes": 18191,
+    "bytes": 18552,
     "setup": 8,
     "approach": 36,
-    "outcome": 36,
-    "pair bits": 12
+    "outcome": 38,
+    "pair bits": 13
    },
    "x_fear_7": {
-    "bytes": 20352,
+    "bytes": 20516,
     "setup": 8,
     "approach": 34,
-    "outcome": 41,
+    "outcome": 42,
     "pair bits": 13
    },
    "x_fear_8": {
-    "bytes": 19919,
+    "bytes": 19554,
     "setup": 8,
-    "approach": 36,
-    "outcome": 41,
+    "approach": 37,
+    "outcome": 40,
     "pair bits": 12
    },
    "x_farming_1": {
@@ -2407,9 +2407,9 @@
    "situation new_idea": 201,
    "situation mistake": 90,
    "situation food_shortage": 22,
-   "guest answers placed": 15546,
-   "travelling approachs": 17460,
-   "travelling outcomes": 24987,
+   "guest answers placed": 15516,
+   "travelling approachs": 17304,
+   "travelling outcomes": 24900,
    "approach left out of a game: its title-case label is too wide": 342
   },
   "skipped": {

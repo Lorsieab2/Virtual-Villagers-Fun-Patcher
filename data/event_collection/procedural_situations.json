@@ -3081,7 +3081,7 @@
       "group"
      ],
      "tone": "practical",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -4202,7 +4202,6 @@
    "answers": {
     "anage30_word_always_a0": {
      "situations": [
-      "tradition",
       "leadership"
      ],
      "needs": [
@@ -4213,7 +4212,6 @@
     },
     "anage30_word_always_a1": {
      "situations": [
-      "tradition",
       "leadership",
       "new_idea"
      ],
@@ -4223,8 +4221,7 @@
     },
     "anage30_word_always_a2": {
      "situations": [
-      "leadership",
-      "tradition"
+      "leadership"
      ],
      "needs": [
       "group"
@@ -4234,8 +4231,7 @@
     },
     "anage30_word_always_a3": {
      "situations": [
-      "quarrel",
-      "tradition"
+      "quarrel"
      ],
      "needs": [],
      "tone": "gentle",
@@ -5460,8 +5456,7 @@
     },
     "anchd06_why_do_people_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [
       "child",
@@ -5981,8 +5976,7 @@
     "anchd11_child_feared_a0": {
      "situations": [
       "child_problem",
-      "new_idea",
-      "tradition"
+      "new_idea"
      ],
      "needs": [
       "child"
@@ -7834,8 +7828,7 @@
     },
     "anchd28_why_do_we_get_a2": {
      "situations": [
-      "sickness",
-      "tradition"
+      "sickness"
      ],
      "needs": [],
      "tone": "gentle",
@@ -9874,7 +9867,7 @@
       "child"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anchd47_child_asked_a2": {
      "situations": [
@@ -9884,7 +9877,7 @@
       "child"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anchd47_child_asked_a3": {
      "situations": [
@@ -10477,7 +10470,7 @@
       "visitor"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anexp06_palm_leaf_a3": {
      "situations": [
@@ -12492,7 +12485,7 @@
       "visitor"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anexp28_visitor_accent_a2": {
      "situations": [
@@ -12579,7 +12572,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anexp29_ancestral_a1": {
      "situations": [
@@ -12609,7 +12602,7 @@
       "group"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -13240,8 +13233,7 @@
     "anexp36_boundary_feast_a3": {
      "situations": [
       "quarrel",
-      "mistake",
-      "celebration"
+      "mistake"
      ],
      "needs": [],
      "tone": "gentle",
@@ -13785,7 +13777,6 @@
    "answers": {
     "anexp43_stone_two_a0": {
      "situations": [
-      "tradition",
       "quarrel"
      ],
      "needs": [],
@@ -14450,8 +14441,7 @@
     },
     "anexp52_legend_every_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "gentle",
@@ -15774,8 +15764,7 @@
     },
     "anexp68_moonlit_tale_a1": {
      "situations": [
-      "art_story",
-      "tradition"
+      "art_story"
      ],
      "needs": [],
      "tone": "funny",
@@ -15794,8 +15783,7 @@
     },
     "anexp68_moonlit_tale_a3": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "gentle",
@@ -15865,8 +15853,7 @@
     },
     "anexp70_unspoken_rule_a1": {
      "situations": [
-      "leadership",
-      "tradition"
+      "leadership"
      ],
      "needs": [],
      "tone": "bold",
@@ -15874,8 +15861,7 @@
     },
     "anexp70_unspoken_rule_a2": {
      "situations": [
-      "leadership",
-      "tradition"
+      "leadership"
      ],
      "needs": [],
      "tone": "gentle",
@@ -15883,8 +15869,7 @@
     },
     "anexp70_unspoken_rule_a3": {
      "situations": [
-      "leadership",
-      "tradition"
+      "leadership"
      ],
      "needs": [],
      "tone": "practical",
@@ -16260,7 +16245,6 @@
     },
     "anexp74_grandparent_a1": {
      "situations": [
-      "tradition",
       "contest"
      ],
      "needs": [
@@ -16276,7 +16260,7 @@
      ],
      "needs": [],
      "tone": "funny",
-     "moves": true
+     "moves": false
     },
     "anexp74_grandparent_a3": {
      "situations": [
@@ -20648,7 +20632,6 @@
    "answers": {
     "anfau23_stranger_beast_a0": {
      "situations": [
-      "newcomer",
       "strange_sign"
      ],
      "needs": [],
@@ -20666,7 +20649,6 @@
     },
     "anfau23_stranger_beast_a2": {
      "situations": [
-      "newcomer",
       "strange_sign"
      ],
      "needs": [
@@ -21778,8 +21760,7 @@
     },
     "anhs10_totem_everyone_a3": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "gentle",
@@ -22549,7 +22530,6 @@
    "answers": {
     "anhs19_stranger_feels_a0": {
      "situations": [
-      "newcomer",
       "contest"
      ],
      "needs": [
@@ -23928,7 +23908,7 @@
       "group"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anhs35_story_many_a2": {
      "situations": [
@@ -24129,8 +24109,7 @@
     },
     "anhs37_child_questions_a2": {
      "situations": [
-      "leadership",
-      "tradition"
+      "leadership"
      ],
      "needs": [
       "elder"
@@ -24395,8 +24374,7 @@
    "answers": {
     "anhs40_gets_tell_story_a0": {
      "situations": [
-      "quarrel",
-      "tradition"
+      "quarrel"
      ],
      "needs": [],
      "tone": "gentle",
@@ -24771,7 +24749,7 @@
       "group"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anjoy03_child_big_day_a1": {
      "situations": [
@@ -24900,8 +24878,7 @@
     },
     "anjoy05_unplanned_a3": {
      "situations": [
-      "celebration",
-      "tradition"
+      "celebration"
      ],
      "needs": [],
      "tone": "gentle",
@@ -25411,8 +25388,7 @@
     "anjoy10_forest_story_a3": {
      "situations": [
       "newcomer",
-      "celebration",
-      "tradition"
+      "celebration"
      ],
      "needs": [
       "visitor"
@@ -25515,7 +25491,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -25869,8 +25845,7 @@
     },
     "anjoy21_child_second_a3": {
      "situations": [
-      "celebration",
-      "child_problem"
+      "celebration"
      ],
      "needs": [
       "child"
@@ -26133,8 +26108,7 @@
     },
     "anjoy24_ancestor_loved_a1": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [
       "group"
@@ -26210,8 +26184,7 @@
    "answers": {
     "anjoy25_empty_seat_a0": {
      "situations": [
-      "grief",
-      "celebration"
+      "grief"
      ],
      "needs": [],
      "tone": "solemn",
@@ -26233,7 +26206,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "anjoy25_empty_seat_a3": {
      "situations": [
@@ -26745,8 +26718,7 @@
     "anjoy32_visiting_a2": {
      "situations": [
       "art_story",
-      "celebration",
-      "newcomer"
+      "celebration"
      ],
      "needs": [
       "group"
@@ -26756,8 +26728,7 @@
     },
     "anjoy32_visiting_a3": {
      "situations": [
-      "tradition",
-      "newcomer"
+      "tradition"
      ],
      "needs": [],
      "tone": "gentle",
@@ -27810,7 +27781,7 @@
      ],
      "needs": [],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "anjus09_elder_cannot_a3": {
      "situations": [
@@ -27879,7 +27850,6 @@
     "anjus10_scar_nobody_a0": {
      "situations": [
       "secret",
-      "newcomer",
       "feelings"
      ],
      "needs": [],
@@ -28439,7 +28409,6 @@
      "situations": [
       "secret",
       "grief",
-      "newcomer",
       "fear"
      ],
      "needs": [],
@@ -28466,7 +28435,6 @@
     },
     "anjus16_story_a3": {
      "situations": [
-      "newcomer",
       "secret"
      ],
      "needs": [],
@@ -28554,8 +28522,7 @@
     },
     "anjus17_child_worked_a2": {
      "situations": [
-      "secret",
-      "newcomer"
+      "secret"
      ],
      "needs": [],
      "tone": "gentle",
@@ -28633,8 +28600,7 @@
     },
     "anjus18_unspoken_loss_a1": {
      "situations": [
-      "grief",
-      "celebration"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -28652,8 +28618,7 @@
     },
     "anjus18_unspoken_loss_a3": {
      "situations": [
-      "grief",
-      "celebration"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -28930,7 +28895,7 @@
      ],
      "needs": [],
      "tone": "solemn",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -29074,8 +29039,7 @@
     "anjus24_quiet_warning_a0": {
      "situations": [
       "fear",
-      "danger",
-      "newcomer"
+      "danger"
      ],
      "needs": [],
      "tone": "practical",
@@ -32303,7 +32267,6 @@
     "anrel27_festival_a0": {
      "situations": [
       "secret",
-      "celebration",
       "feelings"
      ],
      "needs": [],
@@ -35735,7 +35698,7 @@
      ],
      "needs": [],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "c5a034_two_chronicles_a2": {
      "situations": [
@@ -35787,9 +35750,7 @@
     },
     "c5a035_elder_memory_a1": {
      "situations": [
-      "tradition",
-      "strange_sign",
-      "elder_wish"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -35797,7 +35758,6 @@
     },
     "c5a035_elder_memory_a2": {
      "situations": [
-      "tradition",
       "leadership"
      ],
      "needs": [
@@ -36420,8 +36380,7 @@
     "c5a046_mechanist_a0": {
      "situations": [
       "new_idea",
-      "craft_problem",
-      "celebration"
+      "craft_problem"
      ],
      "needs": [],
      "tone": "practical",
@@ -36781,8 +36740,7 @@
    "answers": {
     "c5b011_watching_over_a0": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -36790,8 +36748,7 @@
     },
     "c5b011_watching_over_a1": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -36799,8 +36756,7 @@
     },
     "c5b011_watching_over_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -37106,7 +37062,6 @@
    "answers": {
     "c5b025_long_goodbye_a0": {
      "situations": [
-      "newcomer",
       "feelings"
      ],
      "needs": [],
@@ -37115,7 +37070,6 @@
     },
     "c5b025_long_goodbye_a1": {
      "situations": [
-      "newcomer",
       "feelings"
      ],
      "needs": [],
@@ -38621,7 +38575,6 @@
    "answers": {
     "c5b089_uncertain_a0": {
      "situations": [
-      "tradition",
       "quarrel",
       "strange_sign"
      ],
@@ -38631,7 +38584,6 @@
     },
     "c5b089_uncertain_a1": {
      "situations": [
-      "tradition",
       "quarrel",
       "strange_sign"
      ],
@@ -48622,8 +48574,7 @@
     },
     "cat117_fertility_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -48701,8 +48652,7 @@
     },
     "cat118_sustenance_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -48780,8 +48730,7 @@
     },
     "cat119_curing_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -48859,8 +48808,7 @@
     },
     "cat120_growth_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -48938,8 +48886,7 @@
     },
     "cat121_health_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -49017,8 +48964,7 @@
     },
     "cat122_mutation_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -49096,8 +49042,7 @@
     },
     "cat123_golden_guppy_a2": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "practical",
@@ -58303,8 +58248,7 @@
     "fwk002_island_breathes_a2": {
      "situations": [
       "strange_sign",
-      "fear",
-      "tradition"
+      "fear"
      ],
      "needs": [],
      "tone": "gentle",
@@ -59740,8 +59684,7 @@
     "fwk024_voice_volcano_a2": {
      "situations": [
       "strange_sign",
-      "fear",
-      "tradition"
+      "fear"
      ],
      "needs": [],
      "tone": "gentle",
@@ -71399,8 +71342,7 @@
     },
     "hz108_would_they_a2": {
      "situations": [
-      "fear",
-      "newcomer"
+      "fear"
      ],
      "needs": [],
      "tone": "gentle",
@@ -82318,7 +82260,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "lbl120_unanswered_a1": {
      "situations": [
@@ -82326,7 +82268,7 @@
      ],
      "needs": [],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "lbl120_unanswered_a2": {
      "situations": [
@@ -82334,7 +82276,7 @@
      ],
      "needs": [],
      "tone": "practical",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -85422,8 +85364,7 @@
     },
     "lvauth22_chief_false_a3": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [],
      "tone": "gentle",
@@ -86233,9 +86174,7 @@
     },
     "lvcir01_child_beneath_a1": {
      "situations": [
-      "grief",
-      "tradition",
-      "child_problem"
+      "grief"
      ],
      "needs": [
       "child"
@@ -87241,9 +87180,7 @@
    "answers": {
     "lvcir14_tide_go_a0": {
      "situations": [
-      "grief",
-      "tradition",
-      "child_problem"
+      "grief"
      ],
      "needs": [
       "child"
@@ -87663,8 +87600,7 @@
     },
     "lvcir19_departed_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -88256,7 +88192,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "lvcir27_stranger_a1": {
      "situations": [
@@ -88269,8 +88205,7 @@
     },
     "lvcir27_stranger_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [
       "group"
@@ -95115,7 +95050,7 @@
       "visitor"
      ],
      "tone": "bold",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -95197,7 +95132,7 @@
       "visitor"
      ],
      "tone": "practical",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -95278,7 +95213,7 @@
      ],
      "needs": [],
      "tone": "solemn",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -95395,12 +95330,11 @@
    "answers": {
     "lvppl19_story_two_a0": {
      "situations": [
-      "quarrel",
-      "tradition"
+      "quarrel"
      ],
      "needs": [],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "lvppl19_story_two_a1": {
      "situations": [
@@ -95415,9 +95349,7 @@
     },
     "lvppl19_story_two_a2": {
      "situations": [
-      "quarrel",
-      "art_story",
-      "tradition"
+      "art_story"
      ],
      "needs": [
       "group"
@@ -95992,7 +95924,7 @@
       "visitor"
      ],
      "tone": "practical",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -96728,7 +96660,7 @@
       "visitor"
      ],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "lvppl37_three_ways_a2": {
      "situations": [
@@ -98397,8 +98329,7 @@
     },
     "lvuns24_shrine_miracle_a1": {
      "situations": [
-      "sickness",
-      "tradition"
+      "sickness"
      ],
      "needs": [],
      "tone": "gentle",
@@ -99256,8 +99187,7 @@
     },
     "lvuns36_empty_place_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "gentle",
@@ -99384,8 +99314,7 @@
     },
     "lvuns38_night_thousand_a1": {
      "situations": [
-      "strange_sign",
-      "tradition"
+      "strange_sign"
      ],
      "needs": [
       "group"
@@ -99533,8 +99462,7 @@
     "lvway01_flood_before_a1": {
      "situations": [
       "weather",
-      "danger",
-      "tradition"
+      "danger"
      ],
      "needs": [
       "group"
@@ -99614,9 +99542,7 @@
     },
     "lvway02_dry_well_a2": {
      "situations": [
-      "food_shortage",
-      "weather",
-      "tradition"
+      "food_shortage"
      ],
      "needs": [
       "group"
@@ -100063,7 +99989,6 @@
     },
     "lvway08_wall_ancestors_a2": {
      "situations": [
-      "tradition",
       "leadership"
      ],
      "needs": [],
@@ -100072,8 +99997,7 @@
     },
     "lvway08_wall_ancestors_a3": {
      "situations": [
-      "quarrel",
-      "tradition"
+      "quarrel"
      ],
      "needs": [
       "elder"
@@ -100394,8 +100318,7 @@
    "answers": {
     "lvway12_prayer_did_a0": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [],
      "tone": "solemn",
@@ -101071,8 +100994,7 @@
     },
     "lvway20_hungry_a2": {
      "situations": [
-      "food_shortage",
-      "celebration"
+      "food_shortage"
      ],
      "needs": [
       "food"
@@ -101232,7 +101154,6 @@
    "answers": {
     "lvway22_child_asked_a0": {
      "situations": [
-      "child_problem",
       "tradition"
      ],
      "needs": [
@@ -101255,7 +101176,6 @@
     },
     "lvway22_child_asked_a2": {
      "situations": [
-      "child_problem",
       "tradition"
      ],
      "needs": [
@@ -102101,8 +102021,7 @@
    "answers": {
     "lvway32_night_without_a0": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [
       "group"
@@ -102375,8 +102294,7 @@
     },
     "lvway35_cost_miracle_a2": {
      "situations": [
-      "sickness",
-      "tradition"
+      "sickness"
      ],
      "needs": [],
      "tone": "gentle",
@@ -106191,22 +106109,20 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "rm29_different_prayer_a1": {
      "situations": [
       "tradition",
-      "quarrel",
-      "newcomer"
+      "quarrel"
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "rm29_different_prayer_a2": {
      "situations": [
-      "grief",
-      "tradition"
+      "grief"
      ],
      "needs": [
       "group"
@@ -106782,7 +106698,7 @@
       "elder"
      ],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     },
     "rm35_elder_unfinished_a1": {
      "situations": [
@@ -106815,7 +106731,7 @@
      ],
      "needs": [],
      "tone": "gentle",
-     "moves": true
+     "moves": false
     }
    },
    "outcomes": {
@@ -114008,14 +113924,13 @@
    "answers": {
     "sss029_canoe_flag_a0": {
      "situations": [
-      "newcomer",
       "strange_sign"
      ],
      "needs": [
       "visitor"
      ],
      "tone": "practical",
-     "moves": true
+     "moves": false
     },
     "sss029_canoe_flag_a1": {
      "situations": [
@@ -116244,7 +116159,6 @@
     },
     "sss067_nobody_special_a1": {
      "situations": [
-      "celebration",
       "feelings"
      ],
      "needs": [

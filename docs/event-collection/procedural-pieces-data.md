@@ -184,12 +184,16 @@ Quick rounds (300 a game) run until one is clean, then the full round (2,000 a g
   stranger, 38 pools or inline picks, 33 nursing-parent roles, 29 an outcome that branches again, 24 alias roles,
   16 effects before the question, 11 other conditions. 260 role skill requirements and 27 age gaps have no slot field
   and are dropped from the pieces (the static events keep them).
-- Situation tags: all 2,428 setups, 4,646 answers and 9,078 outcomes read; 910 answers and 1,281 outcomes may move.
+- Situation tags: all 2,428 setups, 4,646 answers and 9,078 outcomes read; 910 answers and 1,281 outcomes marked to move.
   Every event is in a situation file (316 `x_` files, by main situation: child_problem 243, feelings 206, animal
   202, new_idea 201, quarrel 163, sickness 141, strange_sign 135, tradition 115, personal_change 108, elder_wish 93,
   mistake 90, newcomer 69, craft_problem 65, leadership 64, fear 64, grief 59, celebration 55, art_story 53, weather
   50, contest 46, secret 44, farming 37, kindness 36, danger 25, lost_object 28, food_shortage 22, sea_danger 14).
-- 5,182 guest answers placed in the files (each moving answer reaches many files of its situations).
+- The broad situations were audited answer by answer (celebration, newcomer, tradition: 232 moving answers re-read,
+  77 narrowed to the situations they really answer, 31 set to stay home), after the sample showed a grieving answer
+  at a wedding garment, a canoe signal at a house guest's goodbye and "Record Both Accounts" under a fisher who
+  thanks the sea. 880 answers move now.
+- 5,172 guest answers placed in the files (each moving answer reaches many files of its situations).
 - 334 files, 6.5 MB, none past 48 KB: 2,697 setups, 13,100 approaches and 18,941 outcomes (guests included), 1,116
   frames, no flavour lines. At most 16 pair bits a file.
 - 114 approaches are left out of a game where their title-case label is too wide (mostly VV1 / VV2).
