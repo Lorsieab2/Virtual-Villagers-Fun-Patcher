@@ -1233,7 +1233,8 @@
      "do": "skill",
      "role": "devotee1",
      "skills": [
-      "Devotion"
+      "Devotion",
+      "Parenting"
      ],
      "min": 5,
      "max": 10,
@@ -1243,7 +1244,8 @@
      "do": "skill",
      "role": "devotee2",
      "skills": [
-      "Devotion"
+      "Devotion",
+      "Parenting"
      ],
      "min": 5,
      "max": 10,

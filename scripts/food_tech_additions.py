@@ -343,6 +343,21 @@ def apply_heathen_roles(doc: dict) -> None:
     for e_id, rid, age, _ in HEATHEN_ROLES:
         if e_id == eid and rid in doc.get("roles", {}):
             doc["roles"][rid] = {"kind": "villager", "min_age": age, "heathen_ok": True}
+    for e_id, node, skill, _ in DEVOTION_MAPPINGS:
+        if e_id != eid:
+            continue
+        for e in doc["nodes"][node].get("effects", []) or []:
+            if e.get("do") == "skill" and "Devotion" in (e.get("skills") or []) and skill not in e["skills"]:
+                e["skills"].append(skill)
+
+
+# Devotion in the games without it (the owner, 2026-11-16: "Make sure it makes sense! If not = flavor."): a Devotion
+# reward also lists the one skill the event's own text clearly ties it to; the game draws one of the listed skills it
+# has (VV1-VV4 that skill, VV5 Devotion or it).  Every other Devotion reward stays as written: no effect in VV1-VV4.
+# (event id, node, the skill, the text that ties it)
+DEVOTION_MAPPINGS: list[tuple[str, str, str, str]] = [
+    ("all_storytelling", "v3_5", "Parenting", "\"Both competitors are invited to teach the children.\""),
+]
 
 
 def apply_guardians(doc: dict) -> None:
@@ -564,7 +579,7 @@ def main(argv=None) -> int:
     import collection_lib as lib
     believer_rows = {eid for eid, rows_ in lib.guardians_pairs().items() if any(BELIEVER.search(b) for _w, b, _a in rows_)}
     for eid in sorted({r[0] for r in TEXT_EDITS} | {r[0] for r in EFFECT_REMOVALS} | {r[0] for r in LABEL_EDITS}
-                      | {r[0] for r in HEATHEN_ROLES}
+                      | {r[0] for r in HEATHEN_ROLES} | {r[0] for r in DEVOTION_MAPPINGS}
                       | believer_rows):
         if eid not in files:
             print(f"{eid}: no collection file")

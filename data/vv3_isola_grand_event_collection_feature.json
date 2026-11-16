@@ -1014,7 +1014,7 @@
     {
       "source": "assets/event_collection/vv3/living-st_v28.pak",
       "destination": "Island Event Collection/living-st_v28.pak",
-      "sha256": "BAD8F2AF3A39C10985ED2EA0480787A2B57883EBCC6676B99323500C14118A83"
+      "sha256": "C92576E92A98BAA232D6E314B7E58F9C3436E897ED70EFE97DBCD6538028A89E"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1334,7 +1334,7 @@
     {
       "source": "assets/event_collection/all_storytelling.cieg",
       "destination": "Island Event Collection/all_storytelling.cieg",
-      "sha256": "C6368E34B7D44A8D904A765DE891C0DC22AE11E8BA3BABB5B0DD0C269F2BED70"
+      "sha256": "020F484DA061985D9DEDD374C769ABFE8307060A5AD87BD324D6352553B45D4A"
     },
     {
       "source": "assets/event_collection/all_strange_statue.cieg",
